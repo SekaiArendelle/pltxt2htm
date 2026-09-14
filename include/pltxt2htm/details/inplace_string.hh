@@ -143,15 +143,24 @@ public:
                 self.size_storage = static_cast<StoredSize>(new_size);
                 return;
             }
+            else {
+                while (first != last) {
+                    self.push_back(static_cast<value_type>(*first));
+                    ++first;
+                }
+            }
         }
-        while (first != last) {
-            self.push_back(static_cast<value_type>(*first));
-            ++first;
+        else {
+            while (first != last) {
+                self.push_back(static_cast<value_type>(*first));
+                ++first;
+            }
         }
     }
 
     constexpr void append(this BasicInplaceString& self, size_type count, value_type value) noexcept {
-        pltxt2htm_assert(count <= extent - self.size(), u8"BasicInplaceString capacity exceeded");
+        pltxt2htm_assert(self.size() <= extent && count <= extent - self.size(),
+                         u8"BasicInplaceString capacity exceeded");
         auto const new_size = self.size() + count;
         ::std::fill_n(self.end(), count, value);
         self.size_storage = static_cast<StoredSize>(new_size);
@@ -159,32 +168,32 @@ public:
 
     [[nodiscard]]
     constexpr auto begin(this BasicInplaceString& self) noexcept -> iterator {
-        return self.data();
+        return self.storage;
     }
 
     [[nodiscard]]
     constexpr auto begin(this BasicInplaceString const& self) noexcept -> const_iterator {
-        return self.data();
+        return self.storage;
     }
 
     [[nodiscard]]
     constexpr auto cbegin(this BasicInplaceString const& self) noexcept -> const_iterator {
-        return self.data();
+        return self.storage;
     }
 
     [[nodiscard]]
     constexpr auto end(this BasicInplaceString& self) noexcept -> iterator {
-        return self.data() + self.size();
+        return self.storage + self.size();
     }
 
     [[nodiscard]]
     constexpr auto end(this BasicInplaceString const& self) noexcept -> const_iterator {
-        return self.data() + self.size();
+        return self.storage + self.size();
     }
 
     [[nodiscard]]
     constexpr auto cend(this BasicInplaceString const& self) noexcept -> const_iterator {
-        return self.end();
+        return self.storage + self.size();
     }
 
     [[nodiscard]]
@@ -260,13 +269,13 @@ public:
     [[nodiscard]]
     constexpr auto index(this BasicInplaceString& self, size_type position) noexcept -> reference {
         pltxt2htm_assert(position < self.size(), u8"Index of BasicInplaceString out of bound");
-        return self.data()[position];
+        return self.storage[position];
     }
 
     [[nodiscard]]
     constexpr auto index(this BasicInplaceString const& self, size_type position) noexcept -> const_reference {
         pltxt2htm_assert(position < self.size(), u8"Index of BasicInplaceString out of bound");
-        return self.data()[position];
+        return self.storage[position];
     }
 
     constexpr auto operator[](this BasicInplaceString&, size_type) noexcept -> reference = delete
@@ -298,25 +307,25 @@ public:
     [[nodiscard]]
     constexpr auto front(this BasicInplaceString& self) noexcept -> reference {
         pltxt2htm_assert(!self.empty(), u8"front() called on an empty BasicInplaceString");
-        return self.index(0);
+        return self.storage[0];
     }
 
     [[nodiscard]]
     constexpr auto front(this BasicInplaceString const& self) noexcept -> const_reference {
         pltxt2htm_assert(!self.empty(), u8"front() called on an empty BasicInplaceString");
-        return self.index(0);
+        return self.storage[0];
     }
 
     [[nodiscard]]
     constexpr auto back(this BasicInplaceString& self) noexcept -> reference {
         pltxt2htm_assert(!self.empty(), u8"back() called on an empty BasicInplaceString");
-        return self.index(self.size() - 1);
+        return self.storage[self.size() - 1];
     }
 
     [[nodiscard]]
     constexpr auto back(this BasicInplaceString const& self) noexcept -> const_reference {
         pltxt2htm_assert(!self.empty(), u8"back() called on an empty BasicInplaceString");
-        return self.index(self.size() - 1);
+        return self.storage[self.size() - 1];
     }
 
     /**
@@ -327,17 +336,15 @@ public:
         if (self.size() == extent) {
             return false;
         }
-        self.storage[self.size()] = value;
+        self.storage[self.size_storage] = value;
         ++self.size_storage;
         return true;
     }
 
-    constexpr auto push_back(this BasicInplaceString& self, value_type value) noexcept -> reference {
+    constexpr void push_back(this BasicInplaceString& self, value_type value) noexcept {
         pltxt2htm_assert(self.size() < extent, u8"BasicInplaceString capacity exceeded");
-        auto const old_size = self.size_storage;
-        self.storage[old_size] = value;
+        self.storage[self.size_storage] = value;
         ++self.size_storage;
-        return self.storage[old_size];
     }
 
     constexpr void pop_back(this BasicInplaceString& self) noexcept {

@@ -54,6 +54,7 @@ static_assert(::std::is_trivially_copyable_v<CheckedU8String4>);
 static_assert(::std::is_standard_layout_v<CheckedU8String4>);
 static_assert(::std::same_as<CheckedU8String4::value_type, char8_t>);
 static_assert(::std::same_as<CheckedU8String4::iterator, char8_t*>);
+static_assert(::std::same_as<decltype(::std::declval<CheckedU8String4&>().push_back(char8_t{})), void>);
 static_assert(requires {
     static_cast<CountOperation>(&CheckedU8String4::assign);
     static_cast<CountOperation>(&CheckedU8String4::append);
