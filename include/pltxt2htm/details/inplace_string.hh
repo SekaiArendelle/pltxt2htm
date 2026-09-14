@@ -58,14 +58,6 @@ private:
     value_type storage[extent]{};
     StoredSize size_storage{};
 
-    static constexpr void check_new_size(size_type new_size) noexcept {
-        pltxt2htm_assert(new_size <= extent, u8"BasicInplaceString capacity exceeded");
-    }
-
-    constexpr void check_additional_size(this BasicInplaceString const& self, size_type additional_size) noexcept {
-        pltxt2htm_assert(additional_size <= extent - self.size(), u8"BasicInplaceString capacity exceeded");
-    }
-
     constexpr void set_size(this BasicInplaceString& self, size_type new_size) noexcept {
         self.size_storage = static_cast<StoredSize>(new_size);
     }
@@ -126,14 +118,14 @@ public:
                                                   is_nothrow_range_iteration<InputIterator, Sentinel>()) {
         if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
             auto const count = static_cast<size_type>(last - first);
-            self.check_new_size(count);
+            pltxt2htm_assert(count <= extent, u8"BasicInplaceString capacity exceeded");
         }
         self.clear();
         self.append(::std::move(first), ::std::move(last));
     }
 
     constexpr void assign(this BasicInplaceString& self, size_type count, value_type value) noexcept {
-        self.check_new_size(count);
+        pltxt2htm_assert(count <= extent, u8"BasicInplaceString capacity exceeded");
         self.clear();
         while (self.size() != count) {
             self.push_back(value);
@@ -147,7 +139,7 @@ public:
                           Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>()) {
         if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
             auto const count = static_cast<size_type>(last - first);
-            self.check_additional_size(count);
+            pltxt2htm_assert(count <= extent - self.size(), u8"BasicInplaceString capacity exceeded");
         }
         while (first != last) {
             self.push_back(static_cast<value_type>(*first));
@@ -156,7 +148,7 @@ public:
     }
 
     constexpr void append(this BasicInplaceString& self, size_type count, value_type value) noexcept {
-        self.check_additional_size(count);
+        pltxt2htm_assert(count <= extent - self.size(), u8"BasicInplaceString capacity exceeded");
         auto const new_size = self.size() + count;
         while (self.size() != new_size) {
             self.push_back(value);
@@ -339,7 +331,7 @@ public:
     }
 
     constexpr auto push_back(this BasicInplaceString& self, value_type value) noexcept -> reference {
-        self.check_additional_size(1);
+        pltxt2htm_assert(self.size() < extent, u8"BasicInplaceString capacity exceeded");
         auto const old_size = self.size();
         self.storage[old_size] = value;
         self.set_size(old_size + 1);
@@ -356,7 +348,7 @@ public:
     }
 
     constexpr void resize(this BasicInplaceString& self, size_type new_size, value_type value = value_type{}) noexcept {
-        self.check_new_size(new_size);
+        pltxt2htm_assert(new_size <= extent, u8"BasicInplaceString capacity exceeded");
         if (new_size <= self.size()) {
             self.set_size(new_size);
             return;
