@@ -62,7 +62,7 @@ Each sub-project is independently built with CMake — see the respective `READM
 
 Commits follow the shape `<type>(<scope>): <subject>`, with an optional body explaining *why* and optional footers. The full rules — the accepted `type` list, `scope` values, and limits — are in [CONTRIBUTING.md](./CONTRIBUTING.md#commit-messages). A ready-made template is in [`.gitmessage`](./.gitmessage); enable it in a fresh clone with `git config commit.template .gitmessage`.
 
-When a commit records work a model produced, add a `Co-authored-by: <Model Name> <email>` trailer naming the exact model, so attribution stays explicit in history. State the version only when it is actually known — if it cannot be determined, omit it rather than guessing, because an invented version defeats the purpose of the trailer. Use one trailer per participating model, each with a `@users.noreply.github.com` address that is not tied to a real GitHub account. Omit the trailer when the human wrote the commit by hand. This does not relax the rule above: never run a git write operation without explicit human instruction.
+When a commit contains material produced by a model, follow the [attribution policy](./CONTRIBUTING.md#attribution). Use `Assisted-by` only after the human contributor has reviewed, understood, and accepted the material. `Generated-by` marks substantially model-produced content without that level of human validation; the project does not accept such contributions. Omit both trailers when the committed material was written entirely by humans. This does not relax the rule above: never run a git write operation without explicit human instruction.
 
 ## Independent read-only review
 

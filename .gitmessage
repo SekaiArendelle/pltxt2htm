@@ -17,18 +17,15 @@
 #
 # ---- footers (optional) ------------------------------------------------
 #   Closes #123
-#   Co-authored-by: <Model Name> <email>
+#   Assisted-by: <model name> [<version if known>]
+#   Generated-by: <model name> [<version if known>]
 #
-# Add a Co-authored-by trailer only when a model actually produced the work
-# being committed, and name the exact model. State the version when it is
-# actually known, and omit it when it is not -- never guess one.
-#
-# Use one trailer per participating model, each with a
-# @users.noreply.github.com address that is not tied to a real GitHub
-# account:
-#
-#   Co-authored-by: DeepSeek V3.2 <deepseek@users.noreply.github.com>
-#   Co-authored-by: GPT-5.6 <codex-gpt-5.6@users.noreply.github.com>
+# Use Assisted-by after the human contributor has reviewed, understood, and
+# accepted the model-produced content. Generated-by identifies substantially
+# model-produced content without that level of human validation; this project
+# does not accept such contributions. Use one trailer per participating model.
+# Replace the placeholders with the exact model identity provided by the
+# environment. Omit an unknown version rather than guessing.
 #
 # See CONTRIBUTING.md.
 #
@@ -40,7 +37,6 @@
 #   error, because the error path skipped the deallocation helper.
 #
 #   Closes #399
-#   Co-authored-by: DeepSeek V3.2 <deepseek@users.noreply.github.com>
 #
 # ---- enable this template ----------------------------------------------
 #   git config commit.template .gitmessage
