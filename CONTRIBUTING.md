@@ -43,13 +43,23 @@ The binding leaked the converted buffer whenever conversion returned an
 error, because the error path skipped the deallocation helper.
 
 Closes #399
-Co-authored-by: DeepSeek V3.2 <deepseek-v3.2@users.noreply.github.com>
+Co-authored-by: DeepSeek V3.2 <deepseek@users.noreply.github.com>
 ```
 
-Use one `Co-authored-by:` trailer per participating model, and a noreply address that belongs to nobody else's GitHub account — the trailer is plain text in the commit message, so a stand-in address keeps the attribution readable without mis-crediting a real account. `git commit` (git >= 2.32) can append trailers for you:
+The trailer names the model that wrote the commit; `git blame` and `git log` surface it later, so it is worth writing only as long as it stays accurate:
+
+- **Include the version only when it is actually known** — `DeepSeek V3.2`, `GPT-5.6`. If it cannot be determined, leave it out. **Never guess a version number**: an invented version corrupts exactly the record the trailer exists to preserve, and a bare model name is strictly better.
+- **Use one trailer per participating model.** A commit that several models worked on carries several trailers:
+
+```
+Co-authored-by: DeepSeek V3.2 <deepseek@users.noreply.github.com>
+Co-authored-by: GPT-5.6 <codex-gpt-5.6@users.noreply.github.com>
+```
+
+Use a `@users.noreply.github.com` address that is not tied to somebody else's GitHub account — the trailer is plain text in the commit message, so a stand-in address keeps the attribution readable without mis-crediting a real account. `git commit` (git >= 2.32) can append trailers for you:
 
 ```sh
-git commit --trailer "Co-authored-by: DeepSeek V3.2 <deepseek-v3.2@users.noreply.github.com>"
+git commit --trailer "Co-authored-by: DeepSeek V3.2 <deepseek@users.noreply.github.com>"
 ```
 
 Add the trailer only when a model actually wrote the code. Commits written by hand carry no attribution trailer.
