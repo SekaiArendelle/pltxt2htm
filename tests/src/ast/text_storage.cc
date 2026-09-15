@@ -1,6 +1,7 @@
 #include "precompile.hh"
 
 #include <cstddef>
+#include <ranges>
 #include <pltxt2htm/ast/ast.hh>
 #include <pltxt2htm/optimizer.hh>
 #include <pltxt2htm/parser.hh>
@@ -69,8 +70,10 @@ int main() {
     }
 
     {
-        auto left = Text{Text::capacity() - 5, u8'a'};
-        auto right = Text{10, u8'b'};
+        auto const left_fill = ::std::views::repeat(u8'a', Text::capacity() - 5);
+        auto left = Text{left_fill.begin(), left_fill.end()};
+        auto const right_fill = ::std::views::repeat(u8'b', ::std::size_t{10});
+        auto right = Text{right_fill.begin(), right_fill.end()};
         ::pltxt2htm::Ast<ndebug> ast{};
         ast.emplace_back(::std::move(left));
         ast.emplace_back(::std::move(right));

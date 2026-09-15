@@ -117,10 +117,6 @@ public:
         : storage{character} {
     }
 
-    constexpr Text(size_type count, char8_t character) noexcept
-        : storage{count, character} {
-    }
-
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires (::std::same_as<::std::iter_value_t<InputIterator>, char8_t> &&
                   ::std::constructible_from<char8_t, ::std::iter_reference_t<InputIterator>>)
