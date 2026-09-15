@@ -9,6 +9,7 @@
 #pragma once
 
 #include <memory>
+#include <ranges>
 
 #include "../contracts.hh"
 #include "node_kind.hh"
@@ -2825,10 +2826,11 @@ constexpr void append_ast_node(::pltxt2htm::Ast<ndebug>& ast, ::pltxt2htm::PlTxt
 
     auto const transferred_size = available_size < text.size() ? available_size : text.size();
     auto const transferred_end = text.begin() + transferred_size;
-    trailing_text.append(text.begin(), transferred_end);
+    trailing_text.append_range(::std::ranges::subrange{text.begin(), transferred_end});
 
     if (transferred_end != text.end()) {
-        ast.template emplace_back<ndebug>(::pltxt2htm::Text<ndebug>{transferred_end, text.end()});
+        ast.template emplace_back<ndebug>(
+            ::pltxt2htm::Text<ndebug>{::std::ranges::subrange{transferred_end, text.end()}});
     }
 }
 

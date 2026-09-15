@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <ranges>
+#include <type_traits>
 #include <pltxt2htm/ast/ast.hh>
 #include <pltxt2htm/optimizer.hh>
 #include <pltxt2htm/parser.hh>
@@ -11,10 +12,19 @@ namespace {
 
 constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
 using Text = ::pltxt2htm::Text<ndebug>;
+using U8Array = char8_t[4];
+
+template<typename String>
+concept HasIteratorPairAppend =
+    requires(String& string, char8_t const* first, char8_t const* last) { string.append(first, last); };
 
 static_assert(sizeof(Text) <= sizeof(::pltxt2htm::HtmlSpan<ndebug>));
 static_assert(sizeof(void*) != 8 || Text::capacity() == 71);
 static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode<ndebug>) == 80);
+static_assert(::std::is_nothrow_constructible_v<Text, U8Array&>);
+static_assert(noexcept(::std::declval<Text&>().append_range(::std::declval<U8Array&>())));
+static_assert(!::std::is_constructible_v<Text, char8_t const*, char8_t const*>);
+static_assert(!HasIteratorPairAppend<Text>);
 
 } // namespace
 
@@ -71,9 +81,9 @@ int main() {
 
     {
         auto const left_fill = ::std::views::repeat(u8'a', Text::capacity() - 5);
-        auto left = Text{left_fill.begin(), left_fill.end()};
+        auto left = Text{left_fill};
         auto const right_fill = ::std::views::repeat(u8'b', ::std::size_t{10});
-        auto right = Text{right_fill.begin(), right_fill.end()};
+        auto right = Text{right_fill};
         ::pltxt2htm::Ast<ndebug> ast{};
         ast.emplace_back(::std::move(left));
         ast.emplace_back(::std::move(right));

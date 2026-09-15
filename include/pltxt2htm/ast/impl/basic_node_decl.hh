@@ -8,7 +8,8 @@
 
 #include <concepts>
 #include <cstddef>
-#include <iterator>
+#include <ranges>
+#include <type_traits>
 #include <utility>
 #include "../../container/optional.hh"
 #include "../../details/inplace_string.hh"
@@ -117,12 +118,12 @@ public:
         : storage{character} {
     }
 
-    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::std::same_as<::std::iter_value_t<InputIterator>, char8_t> &&
-                  ::std::constructible_from<char8_t, ::std::iter_reference_t<InputIterator>>)
-    constexpr Text(InputIterator first,
-                   Sentinel last) noexcept(noexcept(Storage{::std::move(first), ::std::move(last)}))
-        : storage{::std::move(first), ::std::move(last)} {
+    template<::std::ranges::input_range R>
+        requires (!::std::same_as<::std::remove_cvref_t<R>, Text> &&
+                  ::std::same_as<::std::ranges::range_value_t<R>, char8_t> &&
+                  ::std::constructible_from<char8_t, ::std::ranges::range_reference_t<R>>)
+    constexpr explicit Text(R&& range) noexcept(noexcept(Storage{::std::forward<R>(range)}))
+        : storage{::std::forward<R>(range)} {
     }
 
     constexpr Text(Text const&) = default;
@@ -179,13 +180,12 @@ public:
         return self.storage.try_push_back(character);
     }
 
-    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::std::same_as<::std::iter_value_t<InputIterator>, char8_t> &&
-                  ::std::constructible_from<char8_t, ::std::iter_reference_t<InputIterator>>)
-    constexpr void append(this Text& self, InputIterator first,
-                          Sentinel last) noexcept(noexcept(self.storage.append(::std::move(first),
-                                                                               ::std::move(last)))) {
-        self.storage.append(::std::move(first), ::std::move(last));
+    template<::std::ranges::input_range R>
+        requires (::std::same_as<::std::ranges::range_value_t<R>, char8_t> &&
+                  ::std::constructible_from<char8_t, ::std::ranges::range_reference_t<R>>)
+    constexpr void append_range(this Text& self,
+                                R&& range) noexcept(noexcept(self.storage.append_range(::std::forward<R>(range)))) {
+        self.storage.append_range(::std::forward<R>(range));
     }
 };
 
