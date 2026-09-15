@@ -1,11 +1,12 @@
 ## layout
 
-`tests/` is grouped by subject. `syntax/<family>/` mirrors the syntax families of the
-library (the same split as `NodeKind`), and the remaining directories group tests by
-the internal component they exercise.
+The build scripts and the shared precompiled header sit at the top level of `tests/`;
+every test case lives under `src/`, grouped by subject. `src/syntax/<family>/` mirrors
+the syntax families of the library (the same split as `NodeKind`), and the remaining
+directories group tests by the internal component they exercise.
 
 ```text
-tests/
+src/
 ├── syntax/
 │   ├── html/      HTML tag syntax
 │   ├── md/        Markdown syntax (including LaTeX math)
@@ -19,9 +20,10 @@ tests/
 └── infra/         platform and diagnostics helpers
 ```
 
-A test's ctest name is its file name without the `.cc` extension, so moving a test
-never renames it. Test sources are globbed recursively with `CONFIGURE_DEPENDS`, so
-adding or moving one does not require editing `CMakeLists.txt`.
+Everything under `src/` is a test, so no file name needs a `test_` prefix, and a test's
+ctest name is simply its file name without `.cc` - moving a test between directories
+never renames it. Sources are globbed recursively with `CONFIGURE_DEPENDS`, so adding or
+moving one does not require editing `CMakeLists.txt`.
 
 ## run all tests:
 ```sh

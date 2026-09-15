@@ -140,11 +140,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     )
 endif()
 
-# Tests live in one directory per area: syntax/<family>/ holds the black-box parsers,
-# the top-level directories hold internal components. Recurse so moving or adding a test
+# Test cases live under src/, grouped by area: syntax/<family>/ holds the black-box
+# parsers, the other directories hold internal components. Everything under src/ is a
+# test, so no file needs a name prefix, and recursing means that moving or adding a test
 # never requires editing this file.
 file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS LIST_DIRECTORIES FALSE
-     "${CMAKE_CURRENT_SOURCE_DIR}/*/test_*.cc")
+     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc")
 
 foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
@@ -153,7 +154,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     # Tests are built as pltxt2htm itself, so external-only APIs must stay unavailable to them.
     # The deep-copy and copy-assignment tests are the exception: they stand in for a downstream
     # user and cover the copy operations that are part of the public API.
-    if(NOT TEST_NAME STREQUAL "test_deep_copy" AND NOT TEST_NAME STREQUAL "test_copy_assignment")
+    if(NOT TEST_NAME STREQUAL "deep_copy" AND NOT TEST_NAME STREQUAL "copy_assignment")
         target_compile_definitions(${TEST_NAME} PRIVATE PLTXT2HTM_INTERNAL_USE)
     endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
