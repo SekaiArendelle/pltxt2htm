@@ -13,8 +13,14 @@ using nd = ::pltxt2htm::Contracts;
 static_assert(!::std::is_copy_constructible_v<::pltxt2htm::PlTxtNode<nd::quick_enforce>>,
               "PlTxtNode must not be copy constructible while building pltxt2htm itself");
 
+static_assert(!::std::is_copy_assignable_v<::pltxt2htm::PlTxtNode<nd::quick_enforce>>,
+              "PlTxtNode must not be copy assignable while building pltxt2htm itself");
+
 static_assert(::std::is_move_constructible_v<::pltxt2htm::PlTxtNode<nd::quick_enforce>>,
               "PlTxtNode must stay move constructible");
+
+static_assert(::std::is_move_assignable_v<::pltxt2htm::PlTxtNode<nd::quick_enforce>>,
+              "PlTxtNode must stay move assignable");
 
 } // namespace
 

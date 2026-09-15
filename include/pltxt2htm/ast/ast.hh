@@ -1850,7 +1850,24 @@ public:
         }
     }
 
-    constexpr auto operator=(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept = delete;
+    /**
+     * @note: Mirrors the copy constructor: available to external users only, and disabled while
+     *        building pltxt2htm itself (PLTXT2HTM_INTERNAL_USE). Self assignment returns early,
+     *        because the assignment destroys the destination before reconstructing it.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept -> PlTxtNode& = delete;
+#else
+    constexpr auto operator=(this PlTxtNode<ndebug>& self, ::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
+        -> PlTxtNode& {
+        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
+            return self;
+        }
+        self.~PlTxtNode();
+        ::std::construct_at(::std::addressof(self), other);
+        return self;
+    }
+#endif
 
     constexpr auto operator=(this PlTxtNode<ndebug>& self, ::pltxt2htm::PlTxtNode<ndebug>&& other) noexcept
         -> PlTxtNode& {
