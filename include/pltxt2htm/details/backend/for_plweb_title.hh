@@ -47,9 +47,9 @@ entry:
             ++next;
 
             switch (node.get_node_kind()) /* -Werror=switch */ {
-            case ::pltxt2htm::NodeKind::u8char: {
-                auto&& active_node = node.as_u8char();
-                result.push_back(active_node.chr);
+            case ::pltxt2htm::NodeKind::text: {
+                auto&& active_node = node.as_text();
+                result.append(active_node.begin(), active_node.end());
                 continue;
             }
             case ::pltxt2htm::NodeKind::invalid_utf8: {
