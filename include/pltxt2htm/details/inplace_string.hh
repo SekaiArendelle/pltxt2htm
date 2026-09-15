@@ -95,9 +95,7 @@ public:
         this->append(::std::move(first), ::std::move(last));
     }
 
-    constexpr BasicInplaceString(BasicInplaceString const&) = default;
-
-    constexpr BasicInplaceString(BasicInplaceString&&) noexcept = default;
+    constexpr BasicInplaceString(BasicInplaceString const&) noexcept = default;
 
     constexpr auto operator=(this BasicInplaceString&, BasicInplaceString const&) -> BasicInplaceString& = default;
 
