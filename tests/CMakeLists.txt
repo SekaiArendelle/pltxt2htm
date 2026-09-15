@@ -143,9 +143,9 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     add_executable(${TEST_NAME} ${TEST_SOURCE})
     target_link_libraries(${TEST_NAME} PRIVATE precompile)
     # Tests are built as pltxt2htm itself, so external-only APIs must stay unavailable to them.
-    # test_deep_copy is the exception: it stands in for a downstream user and covers the copy
-    # operations that are part of the public API.
-    if(NOT TEST_NAME STREQUAL "test_deep_copy")
+    # The deep-copy and copy-assignment tests are the exception: they stand in for a downstream
+    # user and cover the copy operations that are part of the public API.
+    if(NOT TEST_NAME STREQUAL "test_deep_copy" AND NOT TEST_NAME STREQUAL "test_copy_assignment")
         target_compile_definitions(${TEST_NAME} PRIVATE PLTXT2HTM_INTERNAL_USE)
     endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
