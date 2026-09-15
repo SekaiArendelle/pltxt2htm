@@ -58,11 +58,11 @@ constexpr auto try_parse_md_escape(::pltxt2htm::container::U8StringView pltext) 
         return ::pltxt2htm::container::nullopt;
     }
     if (pltext.size() == 1) {
-        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}), 1};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Text<ndebug>{u8'\\'}), 1};
     }
     char8_t const escaped_character{pltext.template index<ndebug>(1)};
     if (::pltxt2htm::details::is_ascii_punctuation(escaped_character) == false) {
-        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\\'}), 1};
+        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Text<ndebug>{u8'\\'}), 1};
     }
     return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscape{escaped_character}), 2};
 }
@@ -3078,7 +3078,7 @@ struct SimplyParsePLtextResult {
  * @note Special characters such as newline, space, ampersand, quotes,
  *       greater-than, and tab are converted to specific AST nodes.
  * @note Backslash escape sequences are processed and converted to their escaped equivalents.
- * @note UTF-8 multi-byte characters are properly handled and converted to U8Char nodes.
+ * @note UTF-8 multi-byte characters are properly handled and appended to Text nodes.
  * @note When end_string is non-empty, the function consumes it and stops parsing immediately after.
  */
 template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString end_string, bool process_md_escape = true>
@@ -3152,7 +3152,7 @@ constexpr auto simply_parse_pltext(::pltxt2htm::container::U8StringView pltext) 
                     ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
                 opt_escape.has_value()) {
                 auto&& [node, advance_count] = opt_escape.template value<ndebug>();
-                ast.push_back(::std::move(node));
+                ::pltxt2htm::details::append_ast_node<ndebug>(ast, ::std::move(node));
                 current_index += advance_count;
                 continue;
             }
@@ -3675,7 +3675,7 @@ struct TryParseMdLatexResult {
  * @return The parsed result containing the LaTeX content AST and continuation index, or nullopt if parsing fails.
  * @note The opening `$$` must be at the very beginning of the input text.
  * @note The expression must be terminated by a matching `$$` delimiter.
- * @note Newlines within the LaTeX expression are preserved as U8Char nodes.
+ * @note Newlines within the LaTeX expression are preserved in Text nodes.
  * @note Empty expressions (e.g., `$$$$`) are considered invalid and return nullopt.
  * @note The function returns the position after the closing `$$` on success.
  * @see https://github.com/cben/mathdown/wiki/math-in-markdown
@@ -3698,7 +3698,7 @@ constexpr auto try_parse_md_latex_block_dollar(::pltxt2htm::container::U8StringV
             return TryParseMdLatexResult<ndebug>{.advance_count = current_index + 4, .subast = ::std::move(ast)};
         }
         if (body.template index<ndebug>(current_index) == u8'\n') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{u8'\n'}));
+            ::pltxt2htm::details::append_text_code_unit<ndebug>(ast, u8'\n');
             ++current_index;
         }
         else {
@@ -4487,7 +4487,7 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
                 ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
             opt_escape.has_value()) {
             auto&& [node, advance_count] = opt_escape.template value<ndebug>();
-            link_text_ast.push_back(::std::move(node));
+            ::pltxt2htm::details::append_ast_node<ndebug>(link_text_ast, ::std::move(node));
             current_index += advance_count;
             continue;
         }

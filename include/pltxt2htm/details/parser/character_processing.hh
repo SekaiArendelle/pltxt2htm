@@ -220,7 +220,7 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text,
         return decoded.consumed_size;
     }
     for (::std::size_t index{}; index < decoded.consumed_size; ++index) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{text.template index<ndebug>(index)}));
+        ::pltxt2htm::details::append_text_code_unit<ndebug>(result, text.template index<ndebug>(index));
     }
     return decoded.consumed_size;
 }
@@ -228,7 +228,7 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text,
 /**
  * @brief Append one semantic Unicode code point to an AST.
  * @details Characters with dedicated semantic nodes use those nodes. Other scalar values are
- *          encoded as UTF-8 and appended as U8Char nodes. ASCII controls and invalid scalar
+ *          encoded as UTF-8 and appended to Text nodes. ASCII controls and invalid scalar
  *          values append one InvalidUtf8 node.
  * @tparam ndebug Contract checking mode used for AST operations.
  * @param code_point Semantic code point to append.
@@ -286,7 +286,7 @@ constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<nd
         return;
     }
     for (::std::size_t index{}; index < encoded.size; ++index) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::U8Char{encoded.code_units[index]}));
+        ::pltxt2htm::details::append_text_code_unit<ndebug>(result, encoded.code_units[index]);
     }
 }
 

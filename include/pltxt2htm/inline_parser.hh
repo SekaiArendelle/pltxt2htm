@@ -131,7 +131,7 @@ entry:
                     ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
                 opt_escape.has_value()) {
                 auto&& [node, advance_count] = opt_escape.template value<ndebug>();
-                result.push_back(::std::move(node));
+                ::pltxt2htm::details::append_ast_node<ndebug>(result, ::std::move(node));
                 current_index += advance_count;
                 continue;
             }
@@ -907,8 +907,8 @@ entry:
                                     pltext.template subview<ndebug>(comment_end))) {
                                 break;
                             }
-                            subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                                ::pltxt2htm::U8Char{pltext.template index<ndebug>(comment_end)}));
+                            ::pltxt2htm::details::append_text_code_unit<ndebug>(
+                                subast, pltext.template index<ndebug>(comment_end));
                         }
 
                         current_index = comment_end + 2; // Point to '>'
@@ -1707,7 +1707,7 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::table_colgroup:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::u8char:
+                    case ::pltxt2htm::NodeKind::text:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::invalid_utf8:
                         [[fallthrough]];
@@ -2155,7 +2155,7 @@ entry:
                     ::pltxt2htm::MdLink<ndebug>{::std::move(subast), ::std::move(link_url)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::u8char:
+            case ::pltxt2htm::NodeKind::text:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::invalid_utf8:
                 [[fallthrough]];

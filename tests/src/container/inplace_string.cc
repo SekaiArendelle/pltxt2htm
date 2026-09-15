@@ -1,6 +1,7 @@
 #include <compare>
 #include <concepts>
 #include <cstddef>
+#include <ranges>
 #include <type_traits>
 
 #include <pltxt2htm/contracts.hh>
@@ -35,6 +36,17 @@ struct PotentiallyThrowingIterator {
     constexpr auto operator==(PotentiallyThrowingIterator const&) const noexcept -> bool = default;
 };
 
+using U8Array = char8_t[4];
+using PotentiallyThrowingRange = ::std::ranges::subrange<PotentiallyThrowingIterator>;
+
+template<typename String>
+concept HasIteratorPairAppend =
+    requires(String& string, char8_t const* first, char8_t const* last) { string.append(first, last); };
+
+template<typename String>
+concept HasIteratorPairAssign =
+    requires(String& string, char8_t const* first, char8_t const* last) { string.assign(first, last); };
+
 template<typename CharType, ::std::size_t extent = 4>
 concept can_form_basic_inplace_string = requires {
     typename ::pltxt2htm::details::BasicInplaceString<CharType, extent, ::pltxt2htm::Contracts::quick_enforce>;
@@ -55,13 +67,13 @@ static_assert(::std::same_as<CheckedU8String4::value_type, char8_t>);
 static_assert(::std::same_as<CheckedU8String4::iterator, char8_t*>);
 static_assert(::std::same_as<decltype(::std::declval<CheckedU8String4&>().push_back(char8_t{})), void>);
 static_assert(::std::input_iterator<PotentiallyThrowingIterator>);
-static_assert(::std::is_nothrow_constructible_v<CheckedU8String4, char8_t const*, char8_t const*>);
-static_assert(
-    !::std::is_nothrow_constructible_v<CheckedU8String4, PotentiallyThrowingIterator, PotentiallyThrowingIterator>);
-static_assert(noexcept(::std::declval<CheckedU8String4&>().append(::std::declval<char8_t const*>(),
-                                                                  ::std::declval<char8_t const*>())));
-static_assert(!noexcept(::std::declval<CheckedU8String4&>().append(::std::declval<PotentiallyThrowingIterator>(),
-                                                                   ::std::declval<PotentiallyThrowingIterator>())));
+static_assert(::std::is_nothrow_constructible_v<CheckedU8String4, U8Array&>);
+static_assert(!::std::is_nothrow_constructible_v<CheckedU8String4, PotentiallyThrowingRange>);
+static_assert(noexcept(::std::declval<CheckedU8String4&>().append_range(::std::declval<U8Array&>())));
+static_assert(!noexcept(::std::declval<CheckedU8String4&>().append_range(::std::declval<PotentiallyThrowingRange>())));
+static_assert(!::std::is_constructible_v<CheckedU8String4, char8_t const*, char8_t const*>);
+static_assert(!HasIteratorPairAppend<CheckedU8String4>);
+static_assert(!HasIteratorPairAssign<CheckedU8String4>);
 static_assert(sizeof(CheckedU8String4) == 5);
 static_assert(CheckedU8String4::capacity() == 4);
 static_assert(CheckedU8String4::max_size() == 4);
@@ -74,7 +86,7 @@ consteval auto test_constexpr_inplace_string() -> bool {
     }
 
     constexpr char8_t initial[]{u8'a', u8'\0', u8'b'};
-    auto value = CheckedU8String4{initial, initial + 3};
+    auto value = CheckedU8String4{initial};
     if (value.empty() || value.size() != 3 || value.size_bytes() != 3 || value.index(0) != u8'a' ||
         value.index(1) != u8'\0' || value.front() != u8'a' || value.back() != u8'b') {
         return false;
@@ -107,8 +119,8 @@ consteval auto test_constexpr_inplace_string() -> bool {
 
     auto copy = value;
     copy.clear();
-    copy.append(initial, initial + 3);
-    auto const larger = IgnoredU8String8{initial, initial + 3};
+    copy.append_range(initial);
+    auto const larger = IgnoredU8String8{initial};
     if (!(copy == larger) || (copy <=> larger) != ::std::strong_ordering::equal) {
         return false;
     }
@@ -118,12 +130,12 @@ consteval auto test_constexpr_inplace_string() -> bool {
         return false;
     }
 
-    copy.assign(copy.begin(), copy.end());
+    copy.assign_range(copy);
     if (copy.size() != 3 || copy.index(0) != u8'a' || copy.index(1) != u8'\0' || copy.index(2) != u8'd') {
         return false;
     }
 
-    copy.assign(copy.begin() + 1, copy.end());
+    copy.assign_range(::std::ranges::subrange{copy.begin() + 1, copy.end()});
     return copy.size() == 2 && copy.index(0) == u8'\0' && copy.index(1) == u8'd';
 }
 
@@ -131,7 +143,7 @@ static_assert(test_constexpr_inplace_string());
 
 int main() {
     constexpr char8_t source[]{u8't', u8'e', u8's', u8't'};
-    auto value = CheckedU8String4{source, source + 4};
+    auto value = CheckedU8String4{source};
 
     pltxt2htm_test_assert_true(value.size() == 4);
     pltxt2htm_test_assert_true(value.data() == value.begin());

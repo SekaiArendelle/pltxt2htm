@@ -1,4 +1,5 @@
 #include <concepts>
+#include <ranges>
 #include <type_traits>
 
 #include <fast_io/fast_io_dsal/string.h>
@@ -72,7 +73,7 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
     }
 
     constexpr char8_t inplace_text[]{u8'i', u8'n', u8'p', u8'l', u8'a', u8'c', u8'e'};
-    auto inplace = U8InplaceString{inplace_text, inplace_text + 7};
+    auto inplace = U8InplaceString{::std::ranges::subrange{inplace_text, inplace_text + 7}};
     auto const inplace_view = ::pltxt2htm::container::BasicStringView{inplace};
     static_assert(::std::same_as<::std::remove_cvref_t<decltype(inplace_view)>, U8StringView>);
     if (inplace_view.data() != inplace.data() || inplace_view != u8"inplace") {

@@ -34,9 +34,9 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
     out.reserve(out.size() + ast.size() * 6);
     for (auto&& node : ast) {
         switch (node.get_node_kind()) {
-        case ::pltxt2htm::NodeKind::u8char: {
-            auto&& active_node = node.as_u8char();
-            out.push_back(active_node.chr);
+        case ::pltxt2htm::NodeKind::text: {
+            auto&& active_node = node.as_text();
+            out.append(active_node.begin(), active_node.end());
             continue;
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
@@ -119,9 +119,9 @@ entry:
             ++next;
 
             switch (node.get_node_kind()) /* -Werror=switch */ {
-            case ::pltxt2htm::NodeKind::u8char: {
-                auto&& active_node = node.as_u8char();
-                result.push_back(active_node.chr);
+            case ::pltxt2htm::NodeKind::text: {
+                auto&& active_node = node.as_text();
+                result.append(active_node.begin(), active_node.end());
                 continue;
             }
             case ::pltxt2htm::NodeKind::invalid_utf8: {

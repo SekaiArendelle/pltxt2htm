@@ -134,7 +134,7 @@ constexpr auto find_next_block_after_line_break(::pltxt2htm::container::U8String
                 ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(pltext.template subview<ndebug>(current_index));
             opt_code_fence.has_value()) {
             auto&& [node, advance_count] = opt_code_fence.template value<ndebug>();
-            result.push_back(::std::move(node));
+            ::pltxt2htm::details::append_ast_node<ndebug>(result, ::std::move(node));
             return FindNextBlockAfterLineBreakResult{.advance_count = current_index + advance_count,
                                                      .new_frame_been_pushed_into_call_stack = false};
         }
@@ -143,7 +143,7 @@ constexpr auto find_next_block_after_line_break(::pltxt2htm::container::U8String
                 pltext.template subview<ndebug>(current_index));
             opt_pre_code_block.has_value()) {
             auto&& [node, advance_count] = opt_pre_code_block.template value<ndebug>();
-            result.push_back(::std::move(node));
+            ::pltxt2htm::details::append_ast_node<ndebug>(result, ::std::move(node));
             return FindNextBlockAfterLineBreakResult{.advance_count = current_index + advance_count,
                                                      .new_frame_been_pushed_into_call_stack = false};
         }
@@ -570,7 +570,7 @@ entry:
                     ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
                 opt_escape.has_value()) {
                 auto&& [node, advance_count] = opt_escape.template value<ndebug>();
-                result.push_back(::std::move(node));
+                ::pltxt2htm::details::append_ast_node<ndebug>(result, ::std::move(node));
                 current_index += advance_count;
                 continue;
             }
@@ -1346,8 +1346,8 @@ entry:
                                     pltext.template subview<ndebug>(comment_end))) {
                                 break;
                             }
-                            subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                                ::pltxt2htm::U8Char{pltext.template index<ndebug>(comment_end)}));
+                            ::pltxt2htm::details::append_text_code_unit<ndebug>(
+                                subast, pltext.template index<ndebug>(comment_end));
                         }
 
                         current_index = comment_end + 2; // Point to '>'
@@ -2190,7 +2190,7 @@ entry:
                         ++current_index;
                         continue;
                     }
-                    case ::pltxt2htm::NodeKind::u8char:
+                    case ::pltxt2htm::NodeKind::text:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::invalid_utf8:
                         [[fallthrough]];
@@ -2726,7 +2726,7 @@ entry:
                     ::pltxt2htm::MdLink<ndebug>{::std::move(subast), ::std::move(link_url)}));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::u8char:
+            case ::pltxt2htm::NodeKind::text:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::invalid_utf8:
                 [[fallthrough]];

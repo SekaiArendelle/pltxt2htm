@@ -128,7 +128,7 @@ int main() {
     assert_decoded(u8"&#13;", 5, char32_t{0x0D});
     assert_decoded(u8"&#127;", 6, char32_t{0x7F});
 
-    // Parser-produced ASTs never store raw ASCII control bytes in U8Char nodes.
+    // Parser-produced ASTs never store raw ASCII control bytes in Text nodes.
     for (auto const code_point : ::fast_io::array{char32_t{0x01}, char32_t{0x0D}, char32_t{0x7F}}) {
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
         ::pltxt2htm::details::append_code_point_to_ast<::pltxt2htm::Contracts::quick_enforce>(code_point, ast);
