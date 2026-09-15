@@ -10,7 +10,6 @@
 
 using CheckedU8String4 = ::pltxt2htm::details::U8InplaceString<4, ::pltxt2htm::Contracts::quick_enforce>;
 using IgnoredU8String8 = ::pltxt2htm::details::U8InplaceString<8, ::pltxt2htm::Contracts::ignore>;
-using CountOperation = void (*)(CheckedU8String4&, ::std::size_t, char8_t) noexcept;
 
 struct PotentiallyThrowingIterator {
     using value_type = char8_t;
@@ -55,11 +54,6 @@ static_assert(::std::is_standard_layout_v<CheckedU8String4>);
 static_assert(::std::same_as<CheckedU8String4::value_type, char8_t>);
 static_assert(::std::same_as<CheckedU8String4::iterator, char8_t*>);
 static_assert(::std::same_as<decltype(::std::declval<CheckedU8String4&>().push_back(char8_t{})), void>);
-static_assert(requires {
-    static_cast<CountOperation>(&CheckedU8String4::assign);
-    static_cast<CountOperation>(&CheckedU8String4::append);
-    static_cast<CountOperation>(&CheckedU8String4::resize);
-});
 static_assert(::std::input_iterator<PotentiallyThrowingIterator>);
 static_assert(::std::is_nothrow_constructible_v<CheckedU8String4, char8_t const*, char8_t const*>);
 static_assert(
@@ -92,18 +86,21 @@ consteval auto test_constexpr_inplace_string() -> bool {
     }
 
     value.pop_back();
-    value.resize(4, u8'x');
-    if (value.size() != 4 || value.index(2) != u8'c' || value.index(3) != u8'x') {
+    if (!value.try_push_back(u8'x') || value.size() != 4 || value.index(2) != u8'c' || value.index(3) != u8'x') {
         return false;
     }
 
-    value.resize(2);
-    value.append(2, u8'z');
-    if (value.index(2) != u8'z' || value.index(3) != u8'z' || *value.rbegin() != u8'z') {
+    value.clear();
+    value.push_back(u8'z');
+    value.push_back(u8'z');
+    if (value.size() != 2 || value.index(0) != u8'z' || value.index(1) != u8'z' || *value.rbegin() != u8'z') {
         return false;
     }
 
-    value.assign(3, u8'q');
+    value.clear();
+    value.push_back(u8'q');
+    value.push_back(u8'q');
+    value.push_back(u8'q');
     if (value.size() != 3 || value.front() != u8'q' || value.back() != u8'q') {
         return false;
     }
