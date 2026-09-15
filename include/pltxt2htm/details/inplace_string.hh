@@ -81,10 +81,6 @@ public:
         this->push_back(value);
     }
 
-    constexpr BasicInplaceString(size_type count, value_type value) noexcept {
-        this->assign(count, value);
-    }
-
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
                   ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
@@ -118,12 +114,6 @@ public:
         self.append(::std::move(first), ::std::move(last));
     }
 
-    constexpr void assign(this BasicInplaceString& self, size_type count, value_type value) noexcept {
-        pltxt2htm_assert(count <= extent, u8"BasicInplaceString capacity exceeded");
-        ::std::fill_n(self.data(), count, value);
-        self.size_storage = static_cast<StoredSize>(count);
-    }
-
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
                   ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
@@ -154,14 +144,6 @@ public:
                 ++first;
             }
         }
-    }
-
-    constexpr void append(this BasicInplaceString& self, size_type count, value_type value) noexcept {
-        pltxt2htm_assert(self.size() <= extent && count <= extent - self.size(),
-                         u8"BasicInplaceString capacity exceeded");
-        auto const new_size = self.size() + count;
-        ::std::fill_n(self.end(), count, value);
-        self.size_storage = static_cast<StoredSize>(new_size);
     }
 
     [[nodiscard]]
@@ -352,17 +334,6 @@ public:
 
     constexpr void clear(this BasicInplaceString& self) noexcept {
         self.size_storage = StoredSize{};
-    }
-
-    constexpr void resize(this BasicInplaceString& self, size_type new_size, value_type value = value_type{}) noexcept {
-        pltxt2htm_assert(new_size <= extent, u8"BasicInplaceString capacity exceeded");
-        auto const stored_new_size = static_cast<StoredSize>(new_size);
-        if (stored_new_size <= self.size_storage) {
-            self.size_storage = stored_new_size;
-            return;
-        }
-        ::std::fill_n(self.end(), new_size - self.size(), value);
-        self.size_storage = stored_new_size;
     }
 };
 
