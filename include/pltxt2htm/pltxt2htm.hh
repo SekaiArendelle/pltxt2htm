@@ -33,38 +33,6 @@
 namespace pltxt2htm {
 
 /**
- * @brief Convert Physics-Lab (pl) text to advanced HTML with full feature support
- * @details This function provides the most comprehensive HTML generation with support for:
- *          - Physics-Lab-specific tags (experiment, discussion, user, etc.)
- *          - Unity rich-text tags (color, size, bold, italic, etc.)
- *          - Full Markdown syntax (headers, lists, emphasis, links, code blocks, etc.)
- *          - HTML elements with proper escaping and formatting
- *          - Internal linking to experiments and discussions
- * @tparam ndebug Contract checking mode. Supported values are ::pltxt2htm::Contracts
- *                 enumerators such as ::pltxt2htm::Contracts::quick_enforce and
- *                 ::pltxt2htm::Contracts::ignore
- * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
- * @param[in] pltext The Physics-Lab text content to convert
- * @return Generated HTML string with full formatting support
- * @retval fast_io::u8string UTF-8 string containing the generated HTML
- * @note This is the recommended function for most use cases requiring full feature support
- * @note The function automatically optimizes the AST by default for better performance
- * @warning This function uses built-in placeholder link context values
- * @warning Use pltxt2fixedadv_html when host/project/visitor/author/coauthors must be customized
- */
-template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
-[[nodiscard]]
-constexpr auto pltxt4unittest(::pltxt2htm::container::U8StringView pltext) noexcept {
-    using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
-    parser_result_type ast{::pltxt2htm::parse_pltxt<ndebug>(pltext)};
-    if constexpr (optimize) {
-        ::pltxt2htm::optimize_ast<ndebug>(ast);
-    }
-    return ::pltxt2htm::details::plweb_text_backend<ndebug, ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
-        ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
-}
-
-/**
  * @brief Convert Physics-Lab text to advanced HTML
  * @tparam ndebug Contract checking mode. Supported values are ::pltxt2htm::Contracts
  *                 enumerators such as ::pltxt2htm::Contracts::quick_enforce and
