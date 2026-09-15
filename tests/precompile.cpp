@@ -69,7 +69,11 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_html(::fast_io::u8string_view plt
 [[__gnu__::__pure__]]
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept -> ::fast_io::u8string {
-    return ::pltxt2htm::pltxt4unittest<::pltxt2htm::Contracts::quick_enforce>(pltext);
+    auto ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(pltext);
+    ::pltxt2htm::optimize_ast<::pltxt2htm::Contracts::quick_enforce>(ast);
+    return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
+                                                    ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+        ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)
