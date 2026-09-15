@@ -626,9 +626,13 @@ public:
     }
 
     /**
-     * @note: Move construction is sufficient for this codebase. Copy construction is provided for completeness only.
+     * @note: Move construction is sufficient for this codebase. Copy construction is provided for external
+     *        users only, and is disabled while building pltxt2htm itself, so that implementation code cannot
+     *        silently pay for a deep copy (PLTXT2HTM_INTERNAL_USE).
      */
-#if 1
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept = delete;
+#else
     constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
         : node_kind(other.node_kind) {
         switch (node_kind) /* -Werror=switch */ {
@@ -1033,8 +1037,6 @@ public:
     #endif
         }
     }
-#else
-    constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept = delete;
 #endif
 
     constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug>&& other) noexcept
