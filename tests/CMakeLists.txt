@@ -142,6 +142,12 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
     add_executable(${TEST_NAME} ${TEST_SOURCE})
     target_link_libraries(${TEST_NAME} PRIVATE precompile)
+    # Tests are built as pltxt2htm itself, so external-only APIs must stay unavailable to them.
+    # test_deep_copy is the exception: it stands in for a downstream user and covers the copy
+    # operations that are part of the public API.
+    if(NOT TEST_NAME STREQUAL "test_deep_copy")
+        target_compile_definitions(${TEST_NAME} PRIVATE PLTXT2HTM_INTERNAL_USE)
+    endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_compile_options(${TEST_NAME} PRIVATE -g -Werror=switch)
     endif()
