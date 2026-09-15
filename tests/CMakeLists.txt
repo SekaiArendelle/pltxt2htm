@@ -86,7 +86,11 @@ endif()
 set(CMAKE_REQUIRED_LIBRARIES "${_pltxt2htm_saved_required_libs}")
 
 add_library(pltxt2htm_base INTERFACE)
-target_include_directories(pltxt2htm_base INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+# The library under test, plus tests/ itself so that a test living in a subdirectory
+# can keep including "precompile.hh" without a path change.
+target_include_directories(pltxt2htm_base INTERFACE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+    "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if(PLTXT2HTM_USE_STACKTRACE)
     target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_ENABLE_STACKTRACE)
@@ -136,7 +140,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     )
 endif()
 
-file(GLOB TEST_SOURCES LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_SOURCE_DIR}/test_*.cc")
+# Tests live in one directory per area: syntax/<family>/ holds the black-box parsers,
+# the top-level directories hold internal components. Recurse so moving or adding a test
+# never requires editing this file.
+file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS LIST_DIRECTORIES FALSE
+     "${CMAKE_CURRENT_SOURCE_DIR}/*/test_*.cc")
 
 foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
