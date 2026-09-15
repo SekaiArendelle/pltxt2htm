@@ -2800,9 +2800,35 @@ constexpr void append_ast_node(::pltxt2htm::Ast<ndebug>& ast, ::pltxt2htm::PlTxt
         ast.template push_back<ndebug>(::std::move(node));
         return;
     }
+
     auto&& text = node.as_text();
-    for (auto const code_unit : text) {
-        ::pltxt2htm::details::append_text_code_unit<ndebug>(ast, code_unit);
+    if (text.size() == 0) {
+        return;
+    }
+    if (ast.empty()) {
+        ast.template push_back<ndebug>(::std::move(node));
+        return;
+    }
+
+    auto&& last_node = ast.template index<ndebug>(ast.size() - 1);
+    if (last_node.get_node_kind() != ::pltxt2htm::NodeKind::text) {
+        ast.template push_back<ndebug>(::std::move(node));
+        return;
+    }
+
+    auto&& trailing_text = last_node.as_text();
+    auto const available_size = trailing_text.capacity() - trailing_text.size();
+    if (available_size == 0) {
+        ast.template push_back<ndebug>(::std::move(node));
+        return;
+    }
+
+    auto const transferred_size = available_size < text.size() ? available_size : text.size();
+    auto const transferred_end = text.begin() + transferred_size;
+    trailing_text.append(text.begin(), transferred_end);
+
+    if (transferred_end != text.end()) {
+        ast.template emplace_back<ndebug>(::pltxt2htm::Text<ndebug>{transferred_end, text.end()});
     }
 }
 
