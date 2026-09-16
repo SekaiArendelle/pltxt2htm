@@ -131,7 +131,18 @@ public:
           kind{kind_} {
     }
 
-    constexpr OptimizerContextVariant(OptimizerContextVariant<ndebug> const&) noexcept = delete;
+    constexpr OptimizerContextVariant(OptimizerContextVariant<ndebug> const&) noexcept = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("copying between debug and ndebug instances is not allowed; they are distinct types")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     constexpr OptimizerContextVariant(OptimizerContextVariant<ndebug>&& other) noexcept
         : kind{other.kind} {
@@ -360,7 +371,18 @@ public:
     constexpr ~OptimizerContextVariant() noexcept = default;
 
     constexpr auto operator=(OptimizerContextVariant<ndebug> const&) noexcept
-        -> OptimizerContextVariant<ndebug>& = delete;
+        -> OptimizerContextVariant<ndebug>& = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("copying between debug and ndebug instances is not allowed; they are distinct types")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     constexpr auto operator=(this OptimizerContextVariant<ndebug>& self,
                              OptimizerContextVariant<ndebug>&& other) noexcept -> OptimizerContextVariant<ndebug>& {
@@ -435,13 +457,35 @@ public:
           iter{iter_} {
     }
 
-    constexpr OptimizerFrame(OptimizerFrame<Iter, ndebug> const&) noexcept = delete;
+    constexpr OptimizerFrame(OptimizerFrame<Iter, ndebug> const&) noexcept = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("copying between debug and ndebug instances is not allowed; they are distinct types")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     constexpr OptimizerFrame(OptimizerFrame<Iter, ndebug>&&) noexcept = default;
 
     constexpr ~OptimizerFrame() noexcept = default;
 
-    constexpr OptimizerFrame<Iter, ndebug>& operator=(OptimizerFrame<Iter, ndebug> const&) noexcept = delete;
+    constexpr OptimizerFrame<Iter, ndebug>& operator=(OptimizerFrame<Iter, ndebug> const&) noexcept = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("frames are not copyable")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     constexpr OptimizerFrame<Iter, ndebug>& operator=(this OptimizerFrame<Iter, ndebug>& self,
                                                       OptimizerFrame<Iter, ndebug>&&) noexcept = default;
