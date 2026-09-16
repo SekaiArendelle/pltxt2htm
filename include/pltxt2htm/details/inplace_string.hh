@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <iterator>
 #include <limits>
+#include <memory>
 #include <ranges>
 #include <type_traits>
 #include <utility>
@@ -56,8 +57,24 @@ public:
     using const_reverse_iterator = ::std::reverse_iterator<const_iterator>;
 
 private:
-    value_type storage[extent]{};
+    // Runtime constructors leave the inactive suffix untouched; special members must copy only the active prefix.
+    value_type storage[extent];
     StoredSize size_storage{};
+
+    constexpr void initialize_storage_for_constant_evaluation(this BasicInplaceString& self) noexcept {
+        if consteval {
+            ::std::fill_n(self.storage, extent, value_type{});
+        }
+    }
+
+    constexpr void copy_active_from(this BasicInplaceString& self, BasicInplaceString const& other) noexcept {
+        if (::std::addressof(self) == ::std::addressof(other)) {
+            return;
+        }
+        auto const count = other.size();
+        ::std::copy_n(other.storage, count, self.storage);
+        self.size_storage = other.size_storage;
+    }
 
     template<typename InputIterator, typename Sentinel>
     [[nodiscard]]
@@ -111,9 +128,12 @@ private:
     }
 
 public:
-    constexpr BasicInplaceString() noexcept = default;
+    constexpr BasicInplaceString() noexcept {
+        this->initialize_storage_for_constant_evaluation();
+    }
 
     constexpr explicit BasicInplaceString(value_type value) noexcept {
+        this->initialize_storage_for_constant_evaluation();
         this->push_back(value);
     }
 
@@ -122,14 +142,31 @@ public:
                   ::std::same_as<::std::ranges::range_value_t<R>, value_type> &&
                   ::std::constructible_from<value_type, ::std::ranges::range_reference_t<R>>)
     constexpr explicit BasicInplaceString(R&& range) noexcept(is_nothrow_range_iteration<R>()) {
+        this->initialize_storage_for_constant_evaluation();
         this->append_range(::std::forward<R>(range));
     }
 
-    constexpr BasicInplaceString(BasicInplaceString const&) noexcept = default;
+    constexpr BasicInplaceString(BasicInplaceString const& other) noexcept {
+        this->initialize_storage_for_constant_evaluation();
+        this->copy_active_from(other);
+    }
 
-    constexpr auto operator=(this BasicInplaceString&, BasicInplaceString const&) -> BasicInplaceString& = default;
+    constexpr BasicInplaceString(BasicInplaceString&& other) noexcept {
+        this->initialize_storage_for_constant_evaluation();
+        this->copy_active_from(other);
+    }
 
-    constexpr auto operator=(this BasicInplaceString&, BasicInplaceString&&) noexcept -> BasicInplaceString& = default;
+    constexpr auto operator=(this BasicInplaceString& self, BasicInplaceString const& other) noexcept
+        -> BasicInplaceString& {
+        self.copy_active_from(other);
+        return self;
+    }
+
+    constexpr auto operator=(this BasicInplaceString& self, BasicInplaceString&& other) noexcept
+        -> BasicInplaceString& {
+        self.copy_active_from(other);
+        return self;
+    }
 
     constexpr ~BasicInplaceString() noexcept = default;
 

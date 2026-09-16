@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <ranges>
 #include <type_traits>
+#include <utility>
 
 #include <pltxt2htm/contracts.hh>
 #include <pltxt2htm/details/inplace_string.hh>
@@ -61,7 +62,11 @@ static_assert(!can_form_basic_inplace_string<bool>);
 static_assert(!can_form_basic_inplace_string<int>);
 static_assert(!can_form_basic_inplace_string<char8_t, 0>);
 
-static_assert(::std::is_trivially_copyable_v<CheckedU8String4>);
+static_assert(!::std::is_trivially_copyable_v<CheckedU8String4>);
+static_assert(::std::is_nothrow_copy_constructible_v<CheckedU8String4>);
+static_assert(::std::is_nothrow_move_constructible_v<CheckedU8String4>);
+static_assert(::std::is_nothrow_copy_assignable_v<CheckedU8String4>);
+static_assert(::std::is_nothrow_move_assignable_v<CheckedU8String4>);
 static_assert(::std::is_standard_layout_v<CheckedU8String4>);
 static_assert(::std::same_as<CheckedU8String4::value_type, char8_t>);
 static_assert(::std::same_as<CheckedU8String4::iterator, char8_t*>);
@@ -118,6 +123,14 @@ consteval auto test_constexpr_inplace_string() -> bool {
     }
 
     auto copy = value;
+    auto moved = ::std::move(copy);
+    copy = moved;
+    moved = ::std::move(copy);
+    if (moved.size() != 3 || moved.front() != u8'q' || moved.back() != u8'q') {
+        return false;
+    }
+
+    copy = moved;
     copy.clear();
     copy.append_range(initial);
     auto const larger = IgnoredU8String8{initial};
