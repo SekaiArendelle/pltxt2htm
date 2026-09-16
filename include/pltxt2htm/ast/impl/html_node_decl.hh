@@ -813,13 +813,21 @@ class HtmlDiv {
         }
 
         [[nodiscard]]
-        static constexpr auto get_value(::std::size_t const value, ::pltxt2htm::Unit const unit,
-                                        bool const has_value) noexcept
+        constexpr auto get_left(this MarginStorage const& self) noexcept
             -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-            if (has_value == false) {
+            if (self.has_left == false) {
                 return ::pltxt2htm::container::nullopt;
             }
-            return ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = value, .unit = unit};
+            return ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = self.left_value, .unit = self.left_unit};
+        }
+
+        [[nodiscard]]
+        constexpr auto get_right(this MarginStorage const& self) noexcept
+            -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+            if (self.has_right == false) {
+                return ::pltxt2htm::container::nullopt;
+            }
+            return ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = self.right_value, .unit = self.right_unit};
         }
     };
 
@@ -848,13 +856,13 @@ public:
     [[nodiscard]]
     constexpr auto get_left(this auto const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        return self.margins.get_value(self.margins.left_value, self.margins.left_unit, self.margins.has_left);
+        return self.margins.get_left();
     }
 
     [[nodiscard]]
     constexpr auto get_right(this auto const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        return self.margins.get_value(self.margins.right_value, self.margins.right_unit, self.margins.has_right);
+        return self.margins.get_right();
     }
 };
 
