@@ -777,9 +777,54 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlDiv {
+    struct MarginStorage {
+        ::std::size_t left_value{};
+        ::std::size_t right_value{};
+        ::pltxt2htm::Unit left_unit : 2 {::pltxt2htm::Unit::px};
+        ::pltxt2htm::Unit right_unit : 2 {::pltxt2htm::Unit::px};
+        bool has_left : 1 {};
+        bool has_right : 1 {};
+
+        constexpr MarginStorage(
+            ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> const& left,
+            ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> const& right) noexcept {
+            if (left.has_value()) {
+                auto const& value = left.template value<ndebug>();
+                left_value = value.value;
+                left_unit = value.unit;
+                has_left = true;
+            }
+            if (right.has_value()) {
+                auto const& value = right.template value<ndebug>();
+                right_value = value.value;
+                right_unit = value.unit;
+                has_right = true;
+            }
+        }
+
+        [[nodiscard]]
+        constexpr auto operator==(this MarginStorage const& self, MarginStorage const& other) noexcept -> bool {
+            bool const left_equal{
+                self.has_left == other.has_left &&
+                (self.has_left == false || (self.left_value == other.left_value && self.left_unit == other.left_unit))};
+            return left_equal && self.has_right == other.has_right &&
+                   (self.has_right == false ||
+                    (self.right_value == other.right_value && self.right_unit == other.right_unit));
+        }
+
+        [[nodiscard]]
+        static constexpr auto get_value(::std::size_t const value, ::pltxt2htm::Unit const unit,
+                                        bool const has_value) noexcept
+            -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+            if (has_value == false) {
+                return ::pltxt2htm::container::nullopt;
+            }
+            return ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = value, .unit = unit};
+        }
+    };
+
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+    MarginStorage margins;
 
 public:
     constexpr HtmlDiv(::pltxt2htm::Ast<ndebug>&& subast_,
@@ -803,13 +848,13 @@ public:
     [[nodiscard]]
     constexpr auto get_left(this auto const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        return self.left;
+        return self.margins.get_value(self.margins.left_value, self.margins.left_unit, self.margins.has_left);
     }
 
     [[nodiscard]]
     constexpr auto get_right(this auto const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        return self.right;
+        return self.margins.get_value(self.margins.right_value, self.margins.right_unit, self.margins.has_right);
     }
 };
 
