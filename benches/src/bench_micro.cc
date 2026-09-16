@@ -90,7 +90,7 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeMove_WithSubAst)(benchmark::State& st) {
 
 BENCHMARK_REGISTER_F(MicroFixture, NodeMove_WithSubAst);
 
-BENCHMARK_DEFINE_F(MicroFixture, AstAppend_1000)(benchmark::State& st) {
+BENCHMARK_DEFINE_F(MicroFixture, AstAppend_1000_UnmergedTextNodes)(benchmark::State& st) {
     for (auto _ : st) {
         ::pltxt2htm::Ast<ndebug> ast;
         for (int i = 0; i < 1000; ++i) {
@@ -100,7 +100,19 @@ BENCHMARK_DEFINE_F(MicroFixture, AstAppend_1000)(benchmark::State& st) {
     }
 }
 
-BENCHMARK_REGISTER_F(MicroFixture, AstAppend_1000);
+BENCHMARK_REGISTER_F(MicroFixture, AstAppend_1000_UnmergedTextNodes);
+
+BENCHMARK_DEFINE_F(MicroFixture, AstAppend_1000_MergedTextCodeUnits)(benchmark::State& st) {
+    for (auto _ : st) {
+        ::pltxt2htm::Ast<ndebug> ast;
+        for (int i = 0; i < 1000; ++i) {
+            ::pltxt2htm::details::append_text_code_unit<ndebug>(ast, u8'A');
+        }
+        ::benchmark::DoNotOptimize(ast);
+    }
+}
+
+BENCHMARK_REGISTER_F(MicroFixture, AstAppend_1000_MergedTextCodeUnits);
 
 BENCHMARK_DEFINE_F(MicroFixture, StringAppend_Reserved)(benchmark::State& st) {
     for (auto _ : st) {
