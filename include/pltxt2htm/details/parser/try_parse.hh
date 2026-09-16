@@ -65,13 +65,14 @@ constexpr auto try_parse_md_escape(::pltxt2htm::container::U8StringView pltext) 
         return ::pltxt2htm::container::nullopt;
     }
     if (pltext.size() == 1) {
-        return TryParseMdEscapeResult{u8'\\', MdEscapeKind::literal_backslash, 1};
+        return TryParseMdEscapeResult{.character = u8'\\', .kind = MdEscapeKind::literal_backslash, .advance_count = 1};
     }
     char8_t const escaped_character{pltext.template index<ndebug>(1)};
     if (::pltxt2htm::details::is_ascii_punctuation(escaped_character) == false) {
-        return TryParseMdEscapeResult{u8'\\', MdEscapeKind::literal_backslash, 1};
+        return TryParseMdEscapeResult{.character = u8'\\', .kind = MdEscapeKind::literal_backslash, .advance_count = 1};
     }
-    return TryParseMdEscapeResult{escaped_character, MdEscapeKind::escaped_punctuation, 2};
+    return TryParseMdEscapeResult{
+        .character = escaped_character, .kind = MdEscapeKind::escaped_punctuation, .advance_count = 2};
 }
 
 /**
