@@ -26,12 +26,19 @@
 namespace pltxt2htm::details {
 
 /**
- * @brief Return type of try_parse_md_escape: the parsed node and consumed bytes.
- * @tparam ndebug Contract checking mode.
+ * @brief Classification of a parsed markdown backslash sequence.
  */
-template<::pltxt2htm::Contracts ndebug>
+enum class MdEscapeKind : unsigned char {
+    literal_backslash,
+    escaped_punctuation,
+};
+
+/**
+ * @brief Return type of try_parse_md_escape: the parsed character, classification, and consumed bytes.
+ */
 struct TryParseMdEscapeResult {
-    ::pltxt2htm::PlTxtNode<ndebug> node; ///< The parsed escape node.
+    char8_t character;
+    MdEscapeKind kind;
     ::std::size_t advance_count; ///< Bytes consumed from input.
 };
 
@@ -41,7 +48,7 @@ struct TryParseMdEscapeResult {
  * Stores an ASCII punctuation character following a backslash in a markdown escape AST node.
  *
  * @param[in] pltext Input starting with a backslash escape sequence.
- * @return An optional TryParseMdEscapeResult containing the parsed node and bytes consumed,
+ * @return An optional TryParseMdEscapeResult containing the parsed character and bytes consumed,
  *         or nullopt if the input does not start with a valid escape.
  * @note Supported escape characters include: \\ \! \" \# \$ \% \& \' \( \) \* \+ \, \- \. \/ \: \; \< \= \> \? \@ \[ \]
  * \^ \_ \` \{ \| \} \~
@@ -50,7 +57,7 @@ struct TryParseMdEscapeResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_escape(::pltxt2htm::container::U8StringView pltext) noexcept
-    -> ::pltxt2htm::container::Optional<TryParseMdEscapeResult<ndebug>> {
+    -> ::pltxt2htm::container::Optional<TryParseMdEscapeResult> {
     if (pltext.empty()) {
         return ::pltxt2htm::container::nullopt;
     }
@@ -58,13 +65,31 @@ constexpr auto try_parse_md_escape(::pltxt2htm::container::U8StringView pltext) 
         return ::pltxt2htm::container::nullopt;
     }
     if (pltext.size() == 1) {
-        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Text<ndebug>{u8'\\'}), 1};
+        return TryParseMdEscapeResult{u8'\\', MdEscapeKind::literal_backslash, 1};
     }
     char8_t const escaped_character{pltext.template index<ndebug>(1)};
     if (::pltxt2htm::details::is_ascii_punctuation(escaped_character) == false) {
-        return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Text<ndebug>{u8'\\'}), 1};
+        return TryParseMdEscapeResult{u8'\\', MdEscapeKind::literal_backslash, 1};
     }
-    return TryParseMdEscapeResult<ndebug>{::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdEscape{escaped_character}), 2};
+    return TryParseMdEscapeResult{escaped_character, MdEscapeKind::escaped_punctuation, 2};
+}
+
+/**
+ * @brief Append a parsed markdown backslash sequence to an AST.
+ */
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_md_escape_result(::pltxt2htm::Ast<ndebug>& ast, TryParseMdEscapeResult const& result) noexcept {
+    switch (result.kind) {
+    case MdEscapeKind::literal_backslash: {
+        ::pltxt2htm::details::append_text_code_unit<ndebug>(ast, result.character);
+        return;
+    }
+    case MdEscapeKind::escaped_punctuation: {
+        ast.template emplace_back<ndebug>(::pltxt2htm::MdEscape{result.character});
+        return;
+    }
+    }
+    pltxt2htm_unreachable(u8"Unexpected markdown escape kind");
 }
 
 /**
@@ -3151,9 +3176,9 @@ constexpr auto simply_parse_pltext(::pltxt2htm::container::U8StringView pltext) 
             if (auto opt_escape =
                     ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
                 opt_escape.has_value()) {
-                auto&& [node, advance_count] = opt_escape.template value<ndebug>();
-                ::pltxt2htm::details::append_ast_node<ndebug>(ast, ::std::move(node));
-                current_index += advance_count;
+                auto const& escape_result = opt_escape.template value<ndebug>();
+                ::pltxt2htm::details::append_md_escape_result<ndebug>(ast, escape_result);
+                current_index += escape_result.advance_count;
                 continue;
             }
         }
@@ -4486,9 +4511,9 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
         if (auto opt_escape =
                 ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
             opt_escape.has_value()) {
-            auto&& [node, advance_count] = opt_escape.template value<ndebug>();
-            ::pltxt2htm::details::append_ast_node<ndebug>(link_text_ast, ::std::move(node));
-            current_index += advance_count;
+            auto const& escape_result = opt_escape.template value<ndebug>();
+            ::pltxt2htm::details::append_md_escape_result<ndebug>(link_text_ast, escape_result);
+            current_index += escape_result.advance_count;
             continue;
         }
         if (chr == u8'<') {

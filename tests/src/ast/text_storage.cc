@@ -18,8 +18,8 @@ template<typename String>
 concept HasIteratorPairAppend =
     requires(String& string, char8_t const* first, char8_t const* last) { string.append(first, last); };
 
-static_assert(sizeof(Text) <= sizeof(::pltxt2htm::HtmlSpan<ndebug>));
-static_assert(sizeof(void*) != 8 || Text::capacity() == 71);
+static_assert(sizeof(Text) < sizeof(::pltxt2htm::HtmlSpan<ndebug>));
+static_assert(sizeof(void*) != 8 || Text::capacity() == 64);
 static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode<ndebug>) == 80);
 static_assert(::std::is_nothrow_constructible_v<Text, U8Array&>);
 static_assert(noexcept(::std::declval<Text&>().append_range(::std::declval<U8Array&>())));

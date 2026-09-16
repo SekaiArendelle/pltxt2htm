@@ -9,7 +9,6 @@
 #pragma once
 
 #include <memory>
-#include <ranges>
 
 #include "../contracts.hh"
 #include "node_kind.hh"
@@ -146,6 +145,11 @@ class PlTxtNode {
     ::pltxt2htm::NodeKind node_kind;
 
 public:
+    constexpr explicit PlTxtNode(char8_t code_unit) noexcept
+        : text_node{code_unit},
+          node_kind{::pltxt2htm::NodeKind::text} {
+    }
+
     constexpr PlTxtNode(::pltxt2htm::Text<ndebug>&& node) noexcept
         : text_node{::std::move(node)},
           node_kind{::pltxt2htm::NodeKind::text} {
@@ -2789,49 +2793,7 @@ constexpr void append_text_code_unit(::pltxt2htm::Ast<ndebug>& ast, char8_t code
             return;
         }
     }
-    ast.template emplace_back<ndebug>(::pltxt2htm::Text<ndebug>{code_unit});
-}
-
-/**
- * @brief Append a node while preserving the packed representation of text runs.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_ast_node(::pltxt2htm::Ast<ndebug>& ast, ::pltxt2htm::PlTxtNode<ndebug>&& node) noexcept {
-    if (node.get_node_kind() != ::pltxt2htm::NodeKind::text) {
-        ast.template push_back<ndebug>(::std::move(node));
-        return;
-    }
-
-    auto&& text = node.as_text();
-    if (text.size() == 0) {
-        return;
-    }
-    if (ast.empty()) {
-        ast.template push_back<ndebug>(::std::move(node));
-        return;
-    }
-
-    auto&& last_node = ast.template index<ndebug>(ast.size() - 1);
-    if (last_node.get_node_kind() != ::pltxt2htm::NodeKind::text) {
-        ast.template push_back<ndebug>(::std::move(node));
-        return;
-    }
-
-    auto&& trailing_text = last_node.as_text();
-    auto const available_size = trailing_text.capacity() - trailing_text.size();
-    if (available_size == 0) {
-        ast.template push_back<ndebug>(::std::move(node));
-        return;
-    }
-
-    auto const transferred_size = available_size < text.size() ? available_size : text.size();
-    auto const transferred_end = text.begin() + transferred_size;
-    trailing_text.append_range(::std::ranges::subrange{text.begin(), transferred_end});
-
-    if (transferred_end != text.end()) {
-        ast.template emplace_back<ndebug>(
-            ::pltxt2htm::Text<ndebug>{::std::ranges::subrange{transferred_end, text.end()}});
-    }
+    ast.template emplace_back<ndebug>(code_unit);
 }
 
 } // namespace details

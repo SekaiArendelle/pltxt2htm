@@ -100,11 +100,12 @@ public:
 
 /**
  * @brief A leaf node containing a run of UTF-8 code units.
- * @details Stores text inline in nine pointer-sized words, including its size field.
+ * @details Stores up to eight pointer-sized words of UTF-8 code units inline, plus its size field.
  */
 template<::pltxt2htm::Contracts ndebug>
 class Text {
-    static constexpr ::std::size_t storage_capacity{sizeof(void*) * 9 - 1};
+    // Keep this node smaller than HtmlSpan without penalizing 32-bit targets.
+    static constexpr ::std::size_t storage_capacity{sizeof(void*) * 8};
     using Storage = ::pltxt2htm::details::U8InplaceString<storage_capacity, ndebug>;
 
     Storage storage;

@@ -59,7 +59,7 @@ constexpr auto find_next_block_after_line_break(
                 pltext.template subview<ndebug>(current_index));
             opt_pre_code_block.has_value()) {
             auto&& [node, advance_count] = opt_pre_code_block.template value<ndebug>();
-            ::pltxt2htm::details::append_ast_node<ndebug>(result, ::std::move(node));
+            result.template push_back<ndebug>(::std::move(node));
             return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = false};
         }

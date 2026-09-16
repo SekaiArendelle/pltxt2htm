@@ -130,9 +130,9 @@ entry:
             if (auto opt_escape =
                     ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
                 opt_escape.has_value()) {
-                auto&& [node, advance_count] = opt_escape.template value<ndebug>();
-                ::pltxt2htm::details::append_ast_node<ndebug>(result, ::std::move(node));
-                current_index += advance_count;
+                auto const& escape_result = opt_escape.template value<ndebug>();
+                ::pltxt2htm::details::append_md_escape_result<ndebug>(result, escape_result);
+                current_index += escape_result.advance_count;
                 continue;
             }
             if (::pltxt2htm::details::is_prefix_match<ndebug, u8"{project}">(
