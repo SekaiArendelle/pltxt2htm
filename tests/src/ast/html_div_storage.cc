@@ -43,9 +43,9 @@ int main() {
         auto const absent = make_html_div(::pltxt2htm::container::nullopt, ::pltxt2htm::container::nullopt);
         auto const zero = make_html_div(Margin{::pltxt2htm::ValueWithUnit<::std::size_t>{0, ::pltxt2htm::Unit::px}},
                                         ::pltxt2htm::container::nullopt);
-        auto const different_unit = make_html_div(
-            Margin{::pltxt2htm::ValueWithUnit<::std::size_t>{20, ::pltxt2htm::Unit::em}},
-            ::pltxt2htm::container::nullopt);
+        auto const different_unit =
+            make_html_div(Margin{::pltxt2htm::ValueWithUnit<::std::size_t>{20, ::pltxt2htm::Unit::em}},
+                          ::pltxt2htm::container::nullopt);
 
         pltxt2htm_test_assert_true(same_left == same_right);
         pltxt2htm_test_assert_false(absent == zero);
