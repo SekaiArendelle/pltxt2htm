@@ -46,6 +46,12 @@ int main() noexcept {
             ::fast_io::u8string_view{u8"TEST"}));
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
                                        ::fast_io::u8string_view{u8"kksk"}) == false);
+        pltxt2htm_test_assert_true(::pltxt2htm::details::is_exact_match<::pltxt2htm::Contracts::quick_enforce, str>(
+            ::fast_io::u8string_view{u8"TeSt"}));
+        pltxt2htm_test_assert_true(::pltxt2htm::details::is_exact_match<::pltxt2htm::Contracts::quick_enforce, str>(
+                                       ::fast_io::u8string_view{u8"test-extra"}) == false);
+        pltxt2htm_test_assert_true(::pltxt2htm::details::is_exact_match<::pltxt2htm::Contracts::quick_enforce, str>(
+                                       ::fast_io::u8string_view{u8"tes"}) == false);
     }
 
     {

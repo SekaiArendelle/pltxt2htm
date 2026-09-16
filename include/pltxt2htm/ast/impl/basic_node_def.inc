@@ -21,10 +21,8 @@ constexpr auto ::pltxt2htm::Group<ndebug>::operator==(this Group<ndebug> const&,
                                                       ::pltxt2htm::Group<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(
-    ::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::Optional<::fast_io::u8string>&& lang_) noexcept
-    : subast(::std::move(subast_)),
-      lang(::std::move(lang_)) {
+constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::CodeAst<ndebug>&& ast_value) noexcept
+    : ast(::std::move(ast_value)) {
 }
 
 template<::pltxt2htm::Contracts ndebug>

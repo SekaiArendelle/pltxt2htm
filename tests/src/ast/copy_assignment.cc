@@ -103,14 +103,19 @@ int main() {
     }
 
     {
-        auto const original = ::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::pltxt2htm::Ast<nd::quick_enforce>{::pltxt2htm::U8Char{u8'c'}},
-            ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"}));
+        ::pltxt2htm::CodeAst<nd::quick_enforce> original_ast{::pltxt2htm::CodeLanguage::cpp};
+        ::fast_io::u8string original_text{u8"int"};
+        original_ast.template append<::pltxt2htm::CodeLanguage::cpp>(original_text,
+                                                                     ::pltxt2htm::CodeCppNodeKind::keyword);
+        auto const original = ::pltxt2htm::CodeFence<nd::quick_enforce>(::std::move(original_ast));
         auto assigned = ::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::pltxt2htm::Ast<nd::quick_enforce>{::pltxt2htm::U8Char{u8'd'}},
-            ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"rust"}));
+            ::pltxt2htm::CodeAst<nd::quick_enforce>{::pltxt2htm::CodeLanguage::rust});
         assigned = original;
         pltxt2htm_test_assert_true(assigned == original);
+        ::fast_io::u8string appended_text{u8" main"};
+        assigned.get_ast().template append<::pltxt2htm::CodeLanguage::cpp>(appended_text,
+                                                                           ::pltxt2htm::CodeCppNodeKind::plain);
+        pltxt2htm_test_assert_true(assigned != original);
     }
 
     {

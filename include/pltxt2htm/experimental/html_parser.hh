@@ -55,7 +55,7 @@ constexpr auto find_next_block_after_line_break(
             continue;
         }
         // Check for an HTML <pre><code>...</code></pre> code block at a block position.
-        if (auto opt_pre_code_block = ::pltxt2htm::details::try_parse_html_pre_code_block<ndebug, false>(
+        if (auto opt_pre_code_block = ::pltxt2htm::details::try_parse_html_pre_code_block<ndebug>(
                 pltext.template subview<ndebug>(current_index));
             opt_pre_code_block.has_value()) {
             auto&& [node, advance_count] = opt_pre_code_block.template value<ndebug>();

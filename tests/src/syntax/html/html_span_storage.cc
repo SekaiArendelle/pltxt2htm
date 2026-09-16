@@ -18,8 +18,8 @@ constexpr auto make_html_span(FontSize font_size, VerticalAlign vertical_align) 
 
 static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlSpan<::pltxt2htm::Contracts::ignore>) == 72);
 static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlSpan<ndebug>) == 72);
-static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::ignore>) == 80);
-static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode<ndebug>) == 80);
+static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::ignore>) == 88);
+static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode<ndebug>) == 88);
 
 } // namespace
 
