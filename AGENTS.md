@@ -6,6 +6,7 @@ This file is the entry point for AI coding agents. It contains the development w
 
 - **Do NOT run git write operations without explicit human instruction.** An agent must not run `git add`, `git commit`, `git push`, open a **Pull Request**, open an **Issue**, or perform any other write operation to the repository or remote unless the human explicitly asks for it.
 - After changing code, run formatting and tests (commands below). Static analysis (`clang-tidy`) is run in full by CI and does **not** need to be run locally for every change.
+- **Stop and report when the request appears misguided.** If the agent believes the user's prompt is based on a false premise, points in the wrong direction, or would lead to an incorrect or harmful change, the agent must stop, explain the problem with concrete evidence (file paths, code excerpts, test results), and propose the corrected direction — rather than silently complying or silently "fixing" the intent. Do not use this rule to avoid difficult tasks: when the direction is sound and only the approach is unclear, proceed or ask a focused question instead.
 
 ## Project layout
 
@@ -57,6 +58,12 @@ Each sub-project is independently built with CMake — see the respective `READM
 4. **Test** – Run the tests for the module you touched, then the full suite.
 5. **Review** – After a substantive code change, ask a subagent to perform the [independent read-only review](#independent-read-only-review) when subagents are available. Validate its findings, fix confirmed issues, and rerun the affected checks.
 6. **Submit** – Do NOT run any git write operations (such as `git add`, `git commit`, `git push`) or open a PR/Issue without explicit human instruction. Present a patch file or a sketch of the approach instead (see [CONTRIBUTING.md](./CONTRIBUTING.md)).
+
+## Commit messages
+
+Commits follow the shape `<type>(<scope>): <subject>`, with an optional body explaining *why* and optional footers. The full rules — the accepted `type` list, `scope` values, and limits — are in [CONTRIBUTING.md](./CONTRIBUTING.md#commit-messages). A concise reference template is in [`.gitmessage`](./.gitmessage).
+
+When a commit contains material produced by a model, follow the [attribution policy](./CONTRIBUTING.md#attribution) and add the applicable attribution trailer. Omit model-attribution trailers when the committed material was written entirely by humans. This does not relax the rule above: never run a git write operation without explicit human instruction.
 
 ## Independent read-only review
 

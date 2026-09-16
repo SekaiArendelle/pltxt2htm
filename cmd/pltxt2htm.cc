@@ -298,13 +298,16 @@ int main(int argc, char const* const* const argv) noexcept {
 
         ::fast_io::u8string html;
         if (target_type == ::TargetType::html4unittest) {
-            html = ::pltxt2htm::pltxt4unittest<
 #ifdef NDEBUG
-                ::pltxt2htm::Contracts::ignore
+            constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
 #else
-                ::pltxt2htm::Contracts::quick_enforce
+            constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
 #endif
-                >(::fast_io::mnp::os_c_str(input_text));
+            auto ast = ::pltxt2htm::parse_pltxt<ndebug>(::fast_io::mnp::os_c_str(input_text));
+            ::pltxt2htm::optimize_ast<ndebug>(ast);
+            html = ::pltxt2htm::details::plweb_text_backend<ndebug,
+                                                            ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         }
         else if (target_type == ::TargetType::common_html) {
             html = ::pltxt2htm::pltxt2common_html<

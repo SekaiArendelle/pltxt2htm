@@ -131,7 +131,7 @@ public:
     constexpr Group(::pltxt2htm::Group<ndebug> const&) noexcept;
     constexpr Group(::pltxt2htm::Group<ndebug>&&) noexcept;
     constexpr ~Group() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::Group<ndebug> const&) noexcept -> ::pltxt2htm::Group<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::Group<ndebug> const&) noexcept -> ::pltxt2htm::Group<ndebug>& = default;
     constexpr auto operator=(this Group<ndebug>& self, ::pltxt2htm::Group<ndebug>&&) noexcept
         -> ::pltxt2htm::Group<ndebug>&;
 
@@ -163,7 +163,7 @@ public:
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
     constexpr ~CodeFence() noexcept = default;
     constexpr auto operator=(::pltxt2htm::CodeFence<ndebug> const&) noexcept
-        -> ::pltxt2htm::CodeFence<ndebug>& = delete;
+        -> ::pltxt2htm::CodeFence<ndebug>& = default;
     constexpr auto operator=(this CodeFence<ndebug>& self, ::pltxt2htm::CodeFence<ndebug>&&) noexcept
         -> ::pltxt2htm::CodeFence<ndebug>&;
 
@@ -195,7 +195,7 @@ public:
     constexpr Url(Url const&) noexcept = default;
     constexpr Url(Url&&) noexcept = default;
     constexpr ~Url() noexcept = default;
-    constexpr auto operator=(Url const&) noexcept -> Url& = delete;
+    constexpr auto operator=(Url const&) noexcept -> Url& = default;
     constexpr auto operator=(this Url& self, Url&&) noexcept -> Url& = default;
 
     [[nodiscard]]

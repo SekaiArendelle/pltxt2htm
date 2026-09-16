@@ -10,7 +10,6 @@
 #include <cstddef>
 #include <fast_io/fast_io_dsal/list.h>
 #include "../call_stack.hh"
-#include <fast_io/fast_io_dsal/vector.h>
 #include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
 #include "../../ast/value_unit.hh"
@@ -88,7 +87,7 @@ constexpr void convert_simple_pltxt_ast_range_to_plunity_richtext(::pltxt2htm::A
                                                                   ::fast_io::u8string& out) noexcept {
     out.reserve(out.size() + (end - begin) * 6);
     for (::std::size_t index{begin}; index < end; ++index) {
-        auto&& node = ::pltxt2htm::details::vector_index<ndebug>(ast, index);
+        auto&& node = ast.template index<ndebug>(index);
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::u8char: {
             auto&& active_node = node.as_u8char();

@@ -1,4 +1,3 @@
-use libc;
 use libpltxt2htm_sys;
 use std::ffi::{CStr, CString};
 
@@ -28,5 +27,5 @@ With Markdown supports
     };
 
     println!("{}", unsafe { CStr::from_ptr(html) }.to_str().unwrap());
-    unsafe { libc::free(html as *mut libc::c_void) };
+    unsafe { libpltxt2htm_sys::pltxt2htm_free_u8string(html) };
 }

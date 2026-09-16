@@ -6,6 +6,7 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
 #include <utility>
 #include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
@@ -83,7 +84,15 @@ public:
     constexpr CodeAst(CodeAst const&) noexcept = default;
     constexpr CodeAst(CodeAst&&) noexcept = default;
     constexpr ~CodeAst() noexcept = default;
-    constexpr auto operator=(CodeAst const&) noexcept -> CodeAst& = delete;
+
+    constexpr auto operator=(this CodeAst& self, CodeAst const& other) noexcept -> CodeAst& {
+        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
+            return self;
+        }
+        self = CodeAst{other};
+        return self;
+    }
+
     constexpr auto operator=(this CodeAst& self, CodeAst&& other) noexcept -> CodeAst& = default;
 
     [[nodiscard]]

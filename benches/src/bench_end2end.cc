@@ -13,17 +13,6 @@ BENCHMARK_DEFINE_F(FullDocE2EFixture, CommonHtml)(benchmark::State& st) {
 
 BENCHMARK_REGISTER_F(FullDocE2EFixture, CommonHtml)->Arg(30);
 
-BENCHMARK_DEFINE_F(FullDocE2EFixture, UnitTest)(benchmark::State& st) {
-    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
-    for (auto _ : st) {
-        auto result = ::pltxt2htm::pltxt4unittest<ndebug>(sv);
-        ::benchmark::DoNotOptimize(result);
-    }
-    st.SetBytesProcessed(sv.size() * st.iterations());
-}
-
-BENCHMARK_REGISTER_F(FullDocE2EFixture, UnitTest)->Arg(30);
-
 BENCHMARK_DEFINE_F(FullDocE2EFixture, FixedAdv)(benchmark::State& st) {
     auto sv = ::fast_io::u8string_view{input.data(), input.size()};
     for (auto _ : st) {
@@ -60,17 +49,6 @@ BENCHMARK_DEFINE_F(TerseDocE2EFixture, CommonHtml)(benchmark::State& st) {
 
 BENCHMARK_REGISTER_F(TerseDocE2EFixture, CommonHtml)->Arg(200);
 
-BENCHMARK_DEFINE_F(TerseDocE2EFixture, UnitTest)(benchmark::State& st) {
-    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
-    for (auto _ : st) {
-        auto result = ::pltxt2htm::pltxt4unittest<ndebug>(sv);
-        ::benchmark::DoNotOptimize(result);
-    }
-    st.SetBytesProcessed(sv.size() * st.iterations());
-}
-
-BENCHMARK_REGISTER_F(TerseDocE2EFixture, UnitTest)->Arg(200);
-
 BENCHMARK_DEFINE_F(TerseDocE2EFixture, FixedAdv)(benchmark::State& st) {
     auto sv = ::fast_io::u8string_view{input.data(), input.size()};
     for (auto _ : st) {
@@ -106,17 +84,6 @@ BENCHMARK_DEFINE_F(PlainDocE2EFixture, CommonHtml)(benchmark::State& st) {
 }
 
 BENCHMARK_REGISTER_F(PlainDocE2EFixture, CommonHtml)->Arg(100000);
-
-BENCHMARK_DEFINE_F(PlainDocE2EFixture, UnitTest)(benchmark::State& st) {
-    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
-    for (auto _ : st) {
-        auto result = ::pltxt2htm::pltxt4unittest<ndebug>(sv);
-        ::benchmark::DoNotOptimize(result);
-    }
-    st.SetBytesProcessed(sv.size() * st.iterations());
-}
-
-BENCHMARK_REGISTER_F(PlainDocE2EFixture, UnitTest)->Arg(100000);
 
 BENCHMARK_DEFINE_F(PlainDocE2EFixture, FixedAdv)(benchmark::State& st) {
     auto sv = ::fast_io::u8string_view{input.data(), input.size()};

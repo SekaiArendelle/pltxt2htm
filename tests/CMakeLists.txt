@@ -86,7 +86,11 @@ endif()
 set(CMAKE_REQUIRED_LIBRARIES "${_pltxt2htm_saved_required_libs}")
 
 add_library(pltxt2htm_base INTERFACE)
-target_include_directories(pltxt2htm_base INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+# The library under test, plus tests/ itself so that a test living in a subdirectory
+# can keep including "precompile.hh" without a path change.
+target_include_directories(pltxt2htm_base INTERFACE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+    "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if(PLTXT2HTM_USE_STACKTRACE)
     target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_ENABLE_STACKTRACE)
@@ -136,12 +140,23 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     )
 endif()
 
-file(GLOB TEST_SOURCES LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_SOURCE_DIR}/test_*.cc")
+# Test cases live under src/, grouped by area: syntax/<family>/ holds the black-box
+# parsers, the other directories hold internal components. Everything under src/ is a
+# test, so no file needs a name prefix, and recursing means that moving or adding a test
+# never requires editing this file.
+file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS LIST_DIRECTORIES FALSE
+     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc")
 
 foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
     add_executable(${TEST_NAME} ${TEST_SOURCE})
     target_link_libraries(${TEST_NAME} PRIVATE precompile)
+    # Tests are built as pltxt2htm itself, so external-only APIs must stay unavailable to them.
+    # The deep-copy and copy-assignment tests are the exception: they stand in for a downstream
+    # user and cover the copy operations that are part of the public API.
+    if(NOT TEST_NAME STREQUAL "deep_copy" AND NOT TEST_NAME STREQUAL "copy_assignment")
+        target_compile_definitions(${TEST_NAME} PRIVATE PLTXT2HTM_INTERNAL_USE)
+    endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_compile_options(${TEST_NAME} PRIVATE -g -Werror=switch)
     endif()

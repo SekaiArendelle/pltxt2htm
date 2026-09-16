@@ -60,10 +60,10 @@ consteval bool optional_constexpr_operations_work() noexcept {
 
 static_assert(optional_constexpr_operations_work());
 
-using NonZeroSize = ::pltxt2htm::container::NonZeroSize;
-using NonZeroSizeOptional = ::pltxt2htm::container::Optional<NonZeroSize>;
+using NonZeroUsize = ::pltxt2htm::container::NonZeroUsize;
+using NonZeroUsizeOptional = ::pltxt2htm::container::Optional<NonZeroUsize>;
 
-static_assert(!::std::is_trivially_copy_assignable_v<NonZeroSizeOptional>);
+static_assert(!::std::is_trivially_copy_assignable_v<NonZeroUsizeOptional>);
 
 template<typename T>
 consteval auto optional_non_zero_has_niche_representation() noexcept -> bool {
@@ -80,10 +80,10 @@ static_assert(optional_non_zero_has_niche_representation<unsigned long long>());
 static_assert(optional_non_zero_has_niche_representation<::std::size_t>());
 
 consteval bool optional_non_zero_constexpr_operations_work() noexcept {
-    auto const seven = NonZeroSize::from<::pltxt2htm::Contracts::quick_enforce>(7);
-    auto const eleven = NonZeroSize::from<::pltxt2htm::Contracts::quick_enforce>(11);
-    NonZeroSizeOptional value{seven};
-    NonZeroSizeOptional empty{::pltxt2htm::container::nullopt};
+    auto const seven = NonZeroUsize::from<::pltxt2htm::Contracts::quick_enforce>(7);
+    auto const eleven = NonZeroUsize::from<::pltxt2htm::Contracts::quick_enforce>(11);
+    NonZeroUsizeOptional value{seven};
+    NonZeroUsizeOptional empty{::pltxt2htm::container::nullopt};
     if (!value.has_value() || empty.has_value()) {
         return false;
     }

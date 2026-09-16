@@ -16,6 +16,7 @@ using ::pltxt2htm::container::WStringView;
 using ::pltxt2htm::container::U8StringView;
 using ::pltxt2htm::container::U16StringView;
 using ::pltxt2htm::container::U32StringView;
+using ::pltxt2htm::container::print_alias_define;
 using ::pltxt2htm::container::Expected;
 using ::pltxt2htm::container::Unexpected;
 using ::pltxt2htm::container::Optional;
@@ -24,6 +25,16 @@ using ::pltxt2htm::container::nullopt;
 using ::pltxt2htm::container::is_expected;
 using ::pltxt2htm::container::is_unexpected;
 using ::pltxt2htm::container::is_optional;
+using ::pltxt2htm::container::NonZero;
+using ::pltxt2htm::container::NonZeroU8;
+using ::pltxt2htm::container::NonZeroU16;
+using ::pltxt2htm::container::NonZeroU32;
+using ::pltxt2htm::container::NonZeroU64;
+using ::pltxt2htm::container::NonZeroUsize;
+using ::pltxt2htm::container::Vector;
+using ::pltxt2htm::container::operator==;
+using ::pltxt2htm::container::operator<=>;
+using ::pltxt2htm::container::swap;
 
 } // namespace container
 
@@ -34,7 +45,6 @@ using ::pltxt2htm::pltxt2plunity_introduction;
 using ::pltxt2htm::parse_pltxt;
 using ::pltxt2htm::inline_parse_pltxt;
 using ::pltxt2htm::optimize_ast;
-using ::pltxt2htm::pltxt4unittest;
 
 // contracts
 using ::pltxt2htm::Contracts;

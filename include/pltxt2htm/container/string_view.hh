@@ -14,6 +14,7 @@
 
 #include "../contracts.hh"
 #include "../details/concepts.hh"
+#include "../details/inplace_string.hh"
 #include "../details/literal_string.hh"
 #include "../details/push_macro.hh"
 
@@ -47,7 +48,18 @@ private:
 public:
     constexpr BasicStringView() noexcept = default;
 
-    constexpr BasicStringView(::std::nullptr_t) = delete;
+    constexpr BasicStringView(::std::nullptr_t) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("use a string literal or a string_view instead of a null pointer")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     constexpr explicit BasicStringView(const_pointer pointer_, size_type size_) noexcept
         : pointer{pointer_},
@@ -89,10 +101,32 @@ public:
     }
 
     template<typename Allocator>
-    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator>&&) = delete;
+    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator>&&) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("the string_view would outlive the temporary it refers to")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     template<typename Allocator>
-    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator> const&&) = delete;
+    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator> const&&) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("the string_view would outlive the temporary it refers to")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     template<::std::size_t size>
     constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size> const& string) noexcept
@@ -101,10 +135,67 @@ public:
     }
 
     template<::std::size_t size>
-    constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size>&&) = delete;
+    constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size>&&) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("the string_view would outlive the temporary it refers to")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     template<::std::size_t size>
-    constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size> const&&) = delete;
+    constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size> const&&) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("the string_view would outlive the temporary it refers to")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
+
+    template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
+    constexpr BasicStringView(
+        ::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug> const& string) noexcept
+        : pointer{string.data()},
+          length{string.size()} {
+    }
+
+    template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
+    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug>&&) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("the string_view would outlive the temporary it refers to")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
+
+    template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
+    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug> const&&) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("the string_view would outlive the temporary it refers to")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     [[nodiscard]]
     constexpr auto data(this BasicStringView const& self) noexcept -> const_pointer {
@@ -218,6 +309,9 @@ BasicStringView(::fast_io::containers::basic_string<CharType, Allocator> const&)
 
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t size>
 BasicStringView(::pltxt2htm::details::BasicLiteralString<CharType, size> const&) -> BasicStringView<CharType>;
+
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent, ::pltxt2htm::Contracts ndebug>
+BasicStringView(::pltxt2htm::details::BasicInplaceString<CharType, extent, ndebug> const&) -> BasicStringView<CharType>;
 
 template<::pltxt2htm::details::is_char_type CharType>
 BasicStringView(::fast_io::manipulators::basic_os_c_str<CharType>) -> BasicStringView<CharType>;

@@ -1,13 +1,14 @@
+mod u8string;
 pub mod version;
 
 use libpltxt2htm_sys;
 use std::ffi::CString;
-mod u8string;
+pub use u8string::U8String;
 
-pub fn pltxt2common_html(pltext: CString) -> u8string::U8String {
+pub fn pltxt2common_html(pltext: CString) -> U8String {
     let c_html = unsafe { libpltxt2htm_sys::pltxt2htm_common_parser(pltext.as_ptr()) };
 
-    return u8string::U8String::new(c_html);
+    return U8String::new(c_html);
 }
 
 pub fn pltxt2fixedadv_html(
@@ -17,7 +18,7 @@ pub fn pltxt2fixedadv_html(
     visitor: CString,
     author: CString,
     coauthors: CString,
-) -> u8string::U8String {
+) -> U8String {
     let c_html = unsafe {
         libpltxt2htm_sys::pltxt2htm_fixedadv_parser(
             pltext.as_ptr(),
@@ -29,5 +30,5 @@ pub fn pltxt2fixedadv_html(
         )
     };
 
-    return u8string::U8String::new(c_html);
+    return U8String::new(c_html);
 }

@@ -1,3 +1,6 @@
+// This test stands in for a downstream user: it is deliberately built without
+// PLTXT2HTM_INTERNAL_USE (see the exclusion in tests/CMakeLists.txt), so that the copy
+// operations pltxt2htm exposes to external users stay covered.
 #include "precompile.hh"
 
 #include <pltxt2htm/ast/ast.hh>

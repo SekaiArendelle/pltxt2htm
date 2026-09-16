@@ -823,7 +823,7 @@ print("Hello World")
         auto const ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(
             ::fast_io::u8string_view{u8"```cpp\nint f();\n```"});
         pltxt2htm_test_assert_true(ast.size() == 1);
-        auto const& root{ast[0]};
+        auto const& root{ast.template index<::pltxt2htm::Contracts::quick_enforce>(0)};
         pltxt2htm_test_assert_true(root.get_node_kind() == ::pltxt2htm::NodeKind::code_fence);
         auto const& code_ast{root.as_code_fence().get_ast()};
         pltxt2htm_test_assert_true(code_ast.get_language() == ::pltxt2htm::CodeLanguage::cpp);
