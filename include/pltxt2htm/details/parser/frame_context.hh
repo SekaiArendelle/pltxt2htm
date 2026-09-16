@@ -402,18 +402,7 @@ public:
           kind{node_kind_} {
     }
 
-    constexpr FrontendContextVariant(FrontendContextVariant<ndebug> const&) noexcept = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("copying between debug and ndebug instances is not allowed; they are distinct types")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
+    constexpr FrontendContextVariant(FrontendContextVariant<ndebug> const&) noexcept = delete;
 
     constexpr FrontendContextVariant(FrontendContextVariant<ndebug>&& other) noexcept
         :
@@ -665,30 +654,9 @@ public:
         }
     }
 
-    constexpr auto operator=(FrontendContextVariant<ndebug> const&) noexcept -> FrontendContextVariant<ndebug>& = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("copying between debug and ndebug instances is not allowed; they are distinct types")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
-    constexpr auto operator=(FrontendContextVariant<ndebug>&&) noexcept -> FrontendContextVariant<ndebug>& = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("moving between debug and ndebug instances is not allowed; they are distinct types")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
+    constexpr auto operator=(FrontendContextVariant<ndebug> const&) noexcept
+        -> FrontendContextVariant<ndebug>& = delete;
+    constexpr auto operator=(FrontendContextVariant<ndebug>&&) noexcept -> FrontendContextVariant<ndebug>& = delete;
 
     [[nodiscard]]
     constexpr auto get_kind(this FrontendContextVariant<ndebug> const& self) noexcept -> ::pltxt2htm::NodeKind {
@@ -1074,18 +1042,7 @@ public:
           subast(::std::move(subast_)) {
     }
 
-    constexpr ParserFrame(ParserFrame<ndebug> const&) noexcept = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("copying between debug and ndebug instances is not allowed; they are distinct types")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
+    constexpr ParserFrame(ParserFrame<ndebug> const&) noexcept = delete;
 
     constexpr ParserFrame(ParserFrame<ndebug>&& other) noexcept
         : context_data{::std::move(other.context_data)},
@@ -1093,30 +1050,8 @@ public:
           subast(::std::move(other.subast)) {
     }
 
-    constexpr auto operator=(ParserFrame<ndebug> const&) noexcept -> ParserFrame<ndebug>& = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("copying between debug and ndebug instances is not allowed; they are distinct types")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
-    constexpr auto operator=(ParserFrame<ndebug>&&) noexcept -> ParserFrame<ndebug>& = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("moving between debug and ndebug instances is not allowed; they are distinct types")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
+    constexpr auto operator=(ParserFrame<ndebug> const&) noexcept -> ParserFrame<ndebug>& = delete;
+    constexpr auto operator=(ParserFrame<ndebug>&&) noexcept -> ParserFrame<ndebug>& = delete;
 
     constexpr ~ParserFrame() noexcept = default;
 

@@ -168,18 +168,7 @@ public:
 
     constexpr ~BackendFrame() noexcept = default;
 
-    constexpr BackendFrame<ndebug>& operator=(BackendFrame<ndebug> const&) noexcept = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("frames are not copyable")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
+    constexpr BackendFrame<ndebug>& operator=(BackendFrame<ndebug> const&) noexcept = delete;
     constexpr auto operator=(this BackendFrame<ndebug>& self, BackendFrame<ndebug>&&) noexcept
         -> BackendFrame<ndebug>& = default;
 

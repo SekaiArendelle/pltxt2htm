@@ -631,18 +631,7 @@ public:
      *        silently pay for a deep copy (PLTXT2HTM_INTERNAL_USE).
      */
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("copying between debug and ndebug instances is not allowed; they are distinct types")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
+    constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept = delete;
 #else
     constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
         : node_kind(other.node_kind) {
@@ -1867,18 +1856,7 @@ public:
      *        because the assignment destroys the destination before reconstructing it.
      */
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator=(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept -> PlTxtNode& = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("copying between debug and ndebug instances is not allowed; they are distinct types")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
+    constexpr auto operator=(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept -> PlTxtNode& = delete;
 #else
     constexpr auto operator=(this PlTxtNode<ndebug>& self, ::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
         -> PlTxtNode& {

@@ -414,7 +414,7 @@ public:
         #pragma clang diagnostic push
         #pragma clang diagnostic ignored "-Wc++26-extensions"
     #endif
-        ("value_or on a temporary would return a reference into a destroyed object")
+        ("rvalue calls must not fall back to the lvalue overload when the value type is not move constructible")
     #if defined __clang__
         #pragma clang diagnostic pop
     #endif

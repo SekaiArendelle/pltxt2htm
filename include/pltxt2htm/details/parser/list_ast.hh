@@ -154,36 +154,14 @@ class ListUlNode {
 public:
     constexpr ListUlNode(ListAst<ndebug>&& sublist_) noexcept;
 
-    constexpr ListUlNode(ListUlNode<ndebug> const&) noexcept = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("copying between debug and ndebug instances is not allowed; they are distinct types")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
+    constexpr ListUlNode(ListUlNode<ndebug> const&) noexcept = delete;
 
     constexpr ListUlNode(ListUlNode<ndebug>&&) noexcept;
 
     constexpr ~ListUlNode() noexcept = default;
 
     constexpr auto operator=(this ListUlNode<ndebug>& self, ListUlNode<ndebug> const& other) noexcept
-        -> ListUlNode<ndebug>& = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("copying between debug and ndebug instances is not allowed; they are distinct types")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
+        -> ListUlNode<ndebug>& = delete;
 
     constexpr auto operator=(this ListUlNode<ndebug>& self, ListUlNode<ndebug>&&) noexcept -> ListUlNode<ndebug>&;
 
@@ -209,36 +187,14 @@ class ListOlNode {
 public:
     constexpr ListOlNode(ListAst<ndebug>&& sublist_, ::std::size_t start_ = 1) noexcept;
 
-    constexpr ListOlNode(ListOlNode<ndebug> const&) noexcept = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("copying between debug and ndebug instances is not allowed; they are distinct types")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
+    constexpr ListOlNode(ListOlNode<ndebug> const&) noexcept = delete;
 
     constexpr ListOlNode(ListOlNode<ndebug>&&) noexcept;
 
     constexpr ~ListOlNode() noexcept = default;
 
     constexpr auto operator=(this ListOlNode<ndebug>& self, ListOlNode<ndebug> const& other) noexcept
-        -> ListOlNode<ndebug>& = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("copying between debug and ndebug instances is not allowed; they are distinct types")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
+        -> ListOlNode<ndebug>& = delete;
 
     constexpr auto operator=(this ListOlNode<ndebug>& self, ListOlNode<ndebug>&&) noexcept -> ListOlNode<ndebug>&;
 
@@ -293,18 +249,7 @@ public:
           type{ListNodeType::list_ol} {
     }
 
-    constexpr ListBaseNode(ListBaseNode<ndebug> const&) noexcept = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("copying between debug and ndebug instances is not allowed; they are distinct types")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
+    constexpr ListBaseNode(ListBaseNode<ndebug> const&) noexcept = delete;
 
     constexpr ListBaseNode(ListBaseNode<ndebug>&& other) noexcept
         : type(other.type) {
@@ -362,18 +307,7 @@ public:
     }
 
     constexpr auto operator=(this ListBaseNode<ndebug>& self, ListBaseNode<ndebug> const& other) noexcept
-        -> ListBaseNode<ndebug>& = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("copying between debug and ndebug instances is not allowed; they are distinct types")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
+        -> ListBaseNode<ndebug>& = delete;
 
     constexpr auto operator=(this ListBaseNode<ndebug>& self, ListBaseNode<ndebug>&& other) noexcept
         -> ListBaseNode<ndebug>& {
