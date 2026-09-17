@@ -205,7 +205,8 @@ BENCHMARK_DEFINE_F(MicroFixture, FastIoStringPushBack_NoReserve)(benchmark::Stat
 BENCHMARK_REGISTER_F(MicroFixture, FastIoStringPushBack_NoReserve)->Arg(1024)->Arg(4096)->Arg(16384);
 
 BENCHMARK_DEFINE_F(MicroFixture, BasicStringAssign)(benchmark::State& st) {
-    ::pltxt2htm::container::U8String const source{as_size(st), u8'x'};
+    ::pltxt2htm::container::U8String source{as_size(st)};
+    source.assign_characters(as_size(st), u8'x');
     ::pltxt2htm::container::U8String target;
     target.reserve<ndebug>(as_size(st));
     for (auto _ : st) {
