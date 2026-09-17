@@ -143,7 +143,10 @@ endif()
 # Test cases live under src/, grouped by area: syntax/<family>/ holds the black-box
 # parsers, the other directories hold internal components. Everything under src/ is a
 # test, so no file needs a name prefix, and recursing means that moving or adding a test
-# never requires editing this file.
+# never requires editing this file. Most syntax cases are header-only: src/syntax/*/*.hh
+# exposes one inline test function each, src/syntax/syntax_tests.cc includes all of them
+# and runs them through syntax_tests_set. Cases that need their own translation unit
+# (extra helpers or file scope state) stay as .cc and keep their own test.
 file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS LIST_DIRECTORIES FALSE
      "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc")
 
