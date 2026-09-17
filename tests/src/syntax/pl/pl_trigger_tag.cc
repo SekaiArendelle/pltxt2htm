@@ -111,7 +111,8 @@ int main() {
     {
         // <table> (HTML) must still parse as a table, not a trigger.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td>x</td></tr></table>");
-        pltxt2htm_test_assert_true(html == ::fast_io::u8string_view{u8"<table><tr><td>x</td></tr></table>"});
+        auto answer = ::fast_io::u8string_view{u8"<table><tr><td>x</td></tr></table>"};
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     return 0;
