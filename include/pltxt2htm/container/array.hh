@@ -148,31 +148,60 @@ public:
         return self.element[position];
     }
 
+    /**
+     * @brief Unchecked element access, provided to downstream users only.
+     *
+     * Contract-bearing access stays on index(); this overload is external-only:
+     * while pltxt2htm itself is being built (PLTXT2HTM_INTERNAL_USE) it stays
+     * deleted, so implementation code must name a Contracts policy.
+     * @param position Zero-based element position.
+     * @return Mutable reference to the requested element.
+     * @pre position < extent; otherwise the behavior is undefined.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator[](this Array&, size_type) noexcept -> reference = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
     #endif
-        ("operator[] is deleted; use index() instead for bounds-checked access")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
         ;
+#else
+    constexpr auto operator[](this Array& self, size_type position) noexcept -> reference {
+        return self.element[position];
+    }
+#endif
 
+    /**
+     * @brief Unchecked read-only element access, provided to downstream users only.
+     * @param position Zero-based element position.
+     * @return Read-only reference to the requested element.
+     * @pre position < extent; otherwise the behavior is undefined.
+     * @note External-only, mirroring the mutable overload above.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator[](this Array const&, size_type) noexcept -> const_reference = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
     #endif
-        ("operator[] is deleted; use index() instead for bounds-checked access")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
         ;
+#else
+    constexpr auto operator[](this Array const& self, size_type position) noexcept -> const_reference {
+        return self.element[position];
+    }
+#endif
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
