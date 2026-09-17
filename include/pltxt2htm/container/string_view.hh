@@ -232,18 +232,34 @@ public:
         return self.pointer[index];
     }
 
+    /**
+     * @brief Unchecked element access, provided to downstream users only.
+     *
+     * Contract-bearing access stays on index(); this overload is external-only:
+     * while pltxt2htm itself is being built (PLTXT2HTM_INTERNAL_USE) it stays
+     * deleted, so implementation code must name a Contracts policy.
+     * @param index Zero-based character position.
+     * @return Read-only reference to the requested character.
+     * @pre index < size(); otherwise the behavior is undefined.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator[](this BasicStringView const& self, size_type index) noexcept -> const_reference = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
     #endif
-        ("operator[] is deleted; use index() instead for bounds-checked access")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
         ;
+#else
+    constexpr auto operator[](this BasicStringView const& self, size_type index) noexcept -> const_reference {
+        return self.pointer[index];
+    }
+#endif
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
