@@ -1,101 +1,99 @@
 #pragma once
 
-#include "precompile.hh"
+#include "doctest_config.hh"
 
-namespace pltxt2htm_test::syntax {
-
-inline void md_code_fence() {
+TEST_CASE("md_code_fence") {
     {
         auto pltext = ::fast_io::u8string_view{u8"```\ntest\n```"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
             ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\ntest\n</font>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```test```");
         auto answer = ::fast_io::u8string_view{u8"<code>test</code>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\nte\nst\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>te\nst</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"~~~\nte\nst\n~~~");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>te\nst</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```py\nprint(1)\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-py\">print(1)</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto pltext = ::fast_io::u8string_view{u8"~~~\ntest\n~~~"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
             ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\ntest\n</font>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         auto pltext = ::fast_io::u8string_view{u8"~~~py\nprint(1)\n~~~"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-py\">print(1)</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer =
             ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\nprint(1)\n</font>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n```\ntest\n```");
         auto answer = ::fast_io::u8string_view{u8"<br><pre><code>test</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<br>```\ntest\n```");
         auto answer = ::fast_io::u8string_view{u8"<br><pre><code>test</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n```py\nprint(1)\n```");
         auto answer = ::fast_io::u8string_view{u8"<br><pre><code class=\"language-py\">print(1)</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<br>```py\nprint(1)\n```");
         auto answer = ::fast_io::u8string_view{u8"<br><pre><code class=\"language-py\">print(1)</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<br>```py\nprint(1)");
         auto answer = ::fast_io::u8string_view{u8"<br><pre><code class=\"language-py\">print(1)</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<br>```\nte st\n```");
         auto answer = ::fast_io::u8string_view{u8"<br><pre><code>te&nbsp;st</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -103,7 +101,7 @@ inline void md_code_fence() {
         // closing fence (CommonMark §4.5), so the block runs to the end of the input.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\ntest\n```test");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>test\n```test</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -119,13 +117,13 @@ print("Hello World")
         auto answer = ::fast_io::u8string_view{
             u8"<br><pre><code class=\"language-py\">print(&quot;Hello&nbsp;World&quot;)</code></pre><br><pre><code "
             u8"class=\"language-py\">print(&quot;Hello&nbsp;World&quot;)</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code></code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -134,33 +132,33 @@ print("Hello World")
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t\n```\n```t");
         // TODO reduce <br> tag before <pre> tag
         auto answer = ::fast_io::u8string_view{u8"t<br><pre><code>```t</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t\n```py\n```t");
         // TODO reduce <br> tag before <pre> tag
         auto answer = ::fast_io::u8string_view{u8"t<br><pre><code class=\"language-py\">```t</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t\n~~~py\n~~~t");
         // TODO reduce <br> tag before <pre> tag
         auto answer = ::fast_io::u8string_view{u8"t<br><pre><code class=\"language-py\">~~~t</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\tpy\nprint(1)\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-py\">print(1)</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```py\t\nprint(1)\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-py\">print(1)</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Invalid language characters are rejected (only [a-zA-Z0-9+#._-] allowed)
@@ -168,69 +166,69 @@ print("Hello World")
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```foo\"onmouseover=\"alert(1)\nprint(1)\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>print(1)</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // "<" in language → rejected, no language class
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```<svg/onload=alert(1)>\nprint(1)\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>print(1)</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // "&" in language → rejected, no language class
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```&#xGG;\nprint(1)\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>print(1)</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // "~" is not a valid language character → rejected, no language class
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"~~~~\n%'#");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>%&apos;#</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // "\" in language → rejected, no language class
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\\\ncode\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>code</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // "`" in language → rejected, no language class
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"````\ncode\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>code</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Valid special characters in language: "+", "#", ".", "_", "-"
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```c++\ncode\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-c++\">code</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```c#\ncode\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-c#\">code</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```foo.bar\ncode\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-foo.bar\">code</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```foo_bar\ncode\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-foo_bar\">code</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```foo-bar\ncode\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-foo-bar\">code</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -239,19 +237,19 @@ print("Hello World")
         // (e.g. the first two backticks), which is rejected. The whole input stays literal.
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"`````a bc");
         auto answer = ::fast_io::u8string_view{u8"`````a&nbsp;bc"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"```py\ntest\n```");
         auto answer = ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\ntest\n</font>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"~~~py\ntest\n~~~");
         auto answer = ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\ntest\n</font>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -262,9 +260,9 @@ print("Hello World")
         auto pltext = ::fast_io::u8string_view{u8"```\n\\&\\\n```"};
         auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
         auto once_answer = ::fast_io::u8string_view{u8"<pre><code>&amp;\\</code></pre>"};
-        pltxt2htm_test_assert_equal(once, once_answer);
+        CHECK(once == once_answer);
         auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{once.data(), once.size()});
-        pltxt2htm_test_assert_equal(twice, once);
+        CHECK(twice == once);
     }
 
     {
@@ -273,7 +271,7 @@ print("Hello World")
         // only a proper closing fence on its own line ends the block.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```md\n```js\ncode\n```");
         auto answer = ::fast_io::u8string_view{u8"<pre><code class=\"language-md\">```js\ncode</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -281,7 +279,7 @@ print("Hello World")
         // (CommonMark §4.5), and must still close the block.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\ntest\n``` \nrest");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre><br>rest"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -289,20 +287,19 @@ print("Hello World")
         // closing fence (4+ delimiters) is NOT a valid closing fence and stays as content.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\ntest\n````\nrest");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>test\n````\nrest</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\ntest\n``` \t");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```\ntest\n``` \t\nrest");
         auto answer = ::fast_io::u8string_view{u8"<pre><code>test</code></pre><br>rest"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 }
 
-} // namespace pltxt2htm_test::syntax

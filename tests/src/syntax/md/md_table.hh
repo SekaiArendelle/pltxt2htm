@@ -1,10 +1,8 @@
 #pragma once
 
-#include "precompile.hh"
+#include "doctest_config.hh"
 
-namespace pltxt2htm_test::syntax {
-
-inline void md_table() {
+TEST_CASE("md_table") {
     // Basic table with header and data rows
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
@@ -16,7 +14,7 @@ inline void md_table() {
             u8"<table><thead><tr><th>Header&nbsp;1</th><th>Header&nbsp;2</th></tr></thead>"
             u8"<tbody><tr><td>Cell&nbsp;1</td><td>Cell&nbsp;2</td></tr>"
             u8"<tr><td>Cell&nbsp;3</td><td>Cell&nbsp;4</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Table preceded by a line break
@@ -28,7 +26,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<br><table><thead><tr><th>A</th><th>B</th></tr></thead>"
             u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Table with varying spaces
@@ -40,7 +38,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>a</th><th>b</th></tr></thead>"
             u8"<tbody><tr><td>x</td><td>y</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Table with empty cells
@@ -52,7 +50,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>A</th><th>B</th><th>C</th></tr></thead>"
             u8"<tbody><tr><td>1</td><td></td><td>3</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Table with only header (no data rows)
@@ -61,7 +59,7 @@ inline void md_table() {
             u8"| X | Y |\n"
             u8"|---|---|");
         auto answer = ::fast_io::u8string_view{u8"<table><thead><tr><th>X</th><th>Y</th></tr></thead></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Table with special characters in cells
@@ -73,7 +71,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>a&nbsp;&amp;&nbsp;b</th><th>c&nbsp;&gt;&nbsp;d</th></tr></thead>"
             u8"<tbody><tr><td>x&nbsp;&amp;&nbsp;y</td><td>p&nbsp;&lt;&nbsp;q</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Table with escape sequences
@@ -85,7 +83,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>&quot;quote&quot;</th></tr></thead>"
             u8"<tbody><tr><td>&amp;amp;</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Table followed by text (text should be separated)
@@ -99,7 +97,7 @@ inline void md_table() {
             u8"<table><thead><tr><th>H</th></tr></thead>"
             u8"<tbody><tr><td>C</td></tr></tbody></table>"
             u8"after"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -113,7 +111,7 @@ inline void md_table() {
             u8"before<br><table><thead><tr><th>H</th></tr></thead>"
             u8"<tbody><tr><td>C</td></tr></tbody></table>"
             u8"after"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Table after a <br> tag
@@ -125,7 +123,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<br><table><thead><tr><th>A</th><th>B</th></tr></thead>"
             u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Left-aligned columns (default, no style attribute)
@@ -137,7 +135,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>A</th><th>B</th></tr></thead>"
             u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Center-aligned columns
@@ -151,7 +149,7 @@ inline void md_table() {
             u8"style=\"text-align:center\">B</th></tr></thead>"
             u8"<tbody><tr><td style=\"text-align:center\">1</td><td "
             u8"style=\"text-align:center\">2</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Right-aligned columns
@@ -165,7 +163,7 @@ inline void md_table() {
             u8"style=\"text-align:right\">B</th></tr></thead>"
             u8"<tbody><tr><td style=\"text-align:right\">1</td><td "
             u8"style=\"text-align:right\">2</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Mixed alignment in one table
@@ -181,7 +179,7 @@ inline void md_table() {
             u8"<tbody><tr>"
             u8"<td>a</td><td style=\"text-align:center\">b</td><td style=\"text-align:right\">c</td>"
             u8"</tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Header-only table with alignment
@@ -191,7 +189,7 @@ inline void md_table() {
             u8"|:---:|:---|");
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th style=\"text-align:center\">X</th><th>Y</th></tr></thead></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Alignment with empty cells
@@ -211,7 +209,7 @@ inline void md_table() {
             u8"<td style=\"text-align:center\"></td>"
             u8"<td style=\"text-align:right\">3</td>"
             u8"</tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // --- Negative tests: inputs that should NOT be parsed as tables ---
@@ -220,42 +218,42 @@ inline void md_table() {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"| A | B |\n");
         auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Text followed by a valid delimiter (first line is not a pipe table row)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"text\n|---|---|\n");
         auto answer = ::fast_io::u8string_view{u8"text<br>|---|---|<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Pipe character in the middle of regular text
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"this | that\n");
         auto answer = ::fast_io::u8string_view{u8"this&nbsp;|&nbsp;that<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Single pipe character on a line
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"|\n");
         auto answer = ::fast_io::u8string_view{u8"|<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Header line without leading pipe (no table)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"A | B\n|---|---|\n");
         auto answer = ::fast_io::u8string_view{u8"A&nbsp;|&nbsp;B<br>|---|---|<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Delimiter row without a preceding header
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"|---|---|---|\n");
         auto answer = ::fast_io::u8string_view{u8"|---|---|---|<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Delimiter row with no dashes (all spaces) - should NOT be a table
@@ -264,7 +262,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>"
             u8"|&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // --- Additional positive tests for delimiter patterns ---
@@ -278,7 +276,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>A</th></tr></thead>"
             u8"<tbody><tr><td>B</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Two dashes left-aligned
@@ -290,7 +288,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>A</th></tr></thead>"
             u8"<tbody><tr><td>B</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Three dashes right-aligned
@@ -302,7 +300,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th style=\"text-align:right\">A</th></tr></thead>"
             u8"<tbody><tr><td style=\"text-align:right\">B</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Trailing whitespace in delimiter row
@@ -314,7 +312,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>H</th></tr></thead>"
             u8"<tbody><tr><td>C</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Spaces around dashes within delimiter cells
@@ -326,7 +324,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>A</th><th>B</th></tr></thead>"
             u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Very long dashes with center alignment
@@ -342,7 +340,7 @@ inline void md_table() {
             u8"<tbody><tr>"
             u8"<td style=\"text-align:center\">1</td><td style=\"text-align:center\">2</td>"
             u8"</tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // --- Negative tests: delimiter patterns that violate the spec ---
@@ -354,7 +352,7 @@ inline void md_table() {
             u8"|:-:-|\n"
             u8"| B |");
         auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|:-:-|<br>|&nbsp;B&nbsp;|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Space between dashes and trailing colon within cell
@@ -364,7 +362,7 @@ inline void md_table() {
             u8"|:-- :|\n"
             u8"| B |");
         auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|:--&nbsp;:|<br>|&nbsp;B&nbsp;|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Invalid character inside delimiter cell
@@ -374,7 +372,7 @@ inline void md_table() {
             u8"|--x--|\n"
             u8"| B |");
         auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|--x--|<br>|&nbsp;B&nbsp;|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Double leading colon
@@ -384,7 +382,7 @@ inline void md_table() {
             u8"|::---|\n"
             u8"| B |");
         auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|::---|<br>|&nbsp;B&nbsp;|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Double trailing colon
@@ -394,7 +392,7 @@ inline void md_table() {
             u8"|---::|\n"
             u8"| B |");
         auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|---::|<br>|&nbsp;B&nbsp;|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Colon in middle of dashes (not at edge)
@@ -404,7 +402,7 @@ inline void md_table() {
             u8"|-:-|\n"
             u8"| B |");
         auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|-:-|<br>|&nbsp;B&nbsp;|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Extraneous text after valid delimiter cell
@@ -414,7 +412,7 @@ inline void md_table() {
             u8"|---|extra|\n"
             u8"| B |");
         auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|---|extra|<br>|&nbsp;B&nbsp;|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Second column has invalid delimiter, first is valid
@@ -425,7 +423,7 @@ inline void md_table() {
             u8"| 1 | 2 |");
         auto answer =
             ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>|---|:-:-|<br>|&nbsp;1&nbsp;|&nbsp;2&nbsp;|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // --- Inline Markdown inside table cells ---
@@ -439,7 +437,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th><strong>bold</strong></th><th>normal</th></tr></thead>"
             u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Italic in data cell
@@ -451,7 +449,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>H</th><th>I</th></tr></thead>"
             u8"<tbody><tr><td><em>italic</em></td><td>normal</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Code span in cell
@@ -463,7 +461,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th><code>code</code></th><th>text</th></tr></thead>"
             u8"<tbody><tr><td>a</td><td>b</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Strikethrough in cell
@@ -475,7 +473,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>H</th></tr></thead>"
             u8"<tbody><tr><td><del>strike</del></td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Bold and italic in separate cells
@@ -489,7 +487,7 @@ inline void md_table() {
             u8"<th><strong>bold</strong></th><th><em>italic</em></th>"
             u8"</tr></thead>"
             u8"<tbody><tr><td>a</td><td>b</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Inline markdown in same cell
@@ -503,7 +501,7 @@ inline void md_table() {
             u8"<th><strong>bold</strong>&nbsp;<em>italic</em></th><th>plain</th>"
             u8"</tr></thead>"
             u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Inline markdown with center alignment
@@ -519,7 +517,7 @@ inline void md_table() {
             u8"<tbody><tr>"
             u8"<td style=\"text-align:center\"><em>italic</em></td>"
             u8"</tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Inline markdown with right alignment
@@ -535,7 +533,7 @@ inline void md_table() {
             u8"<tbody><tr>"
             u8"<td style=\"text-align:right\"><strong>bold</strong></td>"
             u8"</tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -550,7 +548,7 @@ inline void md_table() {
             u8"<tbody><tr>"
             u8"<td style=\"text-align:right\"><strong>bold</strong></td>"
             u8"</tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Escaped asterisks render as literal *, not italic
@@ -562,7 +560,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>*not&nbsp;italic*</th></tr></thead>"
             u8"<tbody><tr><td>x</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Code span with HTML entities
@@ -576,7 +574,7 @@ inline void md_table() {
             u8"<th><code>&lt;html&gt;</code></th><th><code>a&nbsp;&amp;&nbsp;b</code></th>"
             u8"</tr></thead>"
             u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Bold inside empty cell should still work
@@ -588,7 +586,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>A</th><th><strong>B</strong></th></tr></thead>"
             u8"<tbody><tr><td></td><td><strong>2</strong></td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Uneven column counts: body row with fewer cells than header → not a table
@@ -603,7 +601,7 @@ inline void md_table() {
             u8"|---|---|---|<br>"
             u8"|&nbsp;1&nbsp;|&nbsp;2&nbsp;&nbsp;&nbsp;|<br>"
             u8"|&nbsp;3&nbsp;|&nbsp;4&nbsp;|&nbsp;5&nbsp;|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Uneven column counts with inline markdown → not a table
@@ -618,7 +616,7 @@ inline void md_table() {
             u8"|-------|---|-----|<br>"
             u8"|&nbsp;<strong>x</strong>&nbsp;|&nbsp;y&nbsp;|<br>"
             u8"|&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;2&nbsp;|&nbsp;<em>3</em>&nbsp;|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // More cells in body row than header → not a table
@@ -631,7 +629,7 @@ inline void md_table() {
             u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|&nbsp;C&nbsp;|<br>"
             u8"|---|---|---|<br>"
             u8"|&nbsp;1&nbsp;|&nbsp;2&nbsp;|&nbsp;3&nbsp;|&nbsp;4&nbsp;|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // More cells in body row than header with inline markdown → not a table
@@ -644,7 +642,7 @@ inline void md_table() {
             u8"|&nbsp;<strong>A</strong>&nbsp;|&nbsp;B&nbsp;|&nbsp;<em>C</em>&nbsp;|<br>"
             u8"|---|---|---|<br>"
             u8"|&nbsp;<strong>x</strong>&nbsp;|&nbsp;y&nbsp;|&nbsp;<em>z</em>&nbsp;|&nbsp;extra&nbsp;|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Delimiter row with fewer cells than header row → not a table
@@ -655,7 +653,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|&nbsp;C&nbsp;|<br>"
             u8"|---|---|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Delimiter row with more cells than header row → not a table
@@ -666,7 +664,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>"
             u8"|---|---|---|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Escaped pipe \| in cell content → literal |, not column separator
@@ -678,7 +676,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>a&nbsp;|&nbsp;b</th><th>c</th></tr></thead>"
             u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Double backslash \\| → literal \, pipe is separator (3-col table)
@@ -690,7 +688,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>a</th><th>b</th><th>c</th></tr></thead>"
             u8"<tbody><tr><td>\\</td><td>2</td><td>3</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Escaped pipe with inline markdown
@@ -704,7 +702,7 @@ inline void md_table() {
             u8"<th><strong>bold</strong>&nbsp;|&nbsp;text</th><th>plain</th>"
             u8"</tr></thead>"
             u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // --- Regression tests: `</` inside table cells (previously crashed) ---
@@ -718,7 +716,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th></th></tr></thead>"
             u8"<tbody><tr><td>&lt;/</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Table with indented delimiter and `</` in body cell
@@ -729,7 +727,7 @@ inline void md_table() {
             u8" |--\n"
             u8" |</|");
         auto answer = ::fast_io::u8string_view{u8"|cell<br>&nbsp;|--<br>&nbsp;|&lt;/|"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // Table with `</x` (tag-like content) in body cell
@@ -741,7 +739,7 @@ inline void md_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><thead><tr><th>ok</th></tr></thead>"
             u8"<tbody><tr><td>&lt;/x</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -762,8 +760,7 @@ inline void md_table() {
             u8"<size=20>\uff1e</size><size=20>\uff1c</size>td style=\"text-align:right\"<size=20>\uff1e</size>c"
             u8"<size=20>\uff1c</size>/td<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size>"
             u8"<size=20>\uff1c</size>/tbody<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 }
 
-} // namespace pltxt2htm_test::syntax

@@ -1,36 +1,34 @@
 #pragma once
 
-#include "precompile.hh"
+#include "doctest_config.hh"
 
-namespace pltxt2htm_test::syntax {
-
-inline void pl_trigger_tag() {
+TEST_CASE("pl_trigger_tag") {
     // ---- plunity backend: <trigger=value> is output verbatim ----
     {
         auto pltext = ::fast_io::u8string_view{u8"<trigger=run>运行</trigger>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"&lt;trigger=run&gt;运行&lt;/trigger&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<trigger=run>运行</trigger>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         auto pltext = ::fast_io::u8string_view{u8"<trigger=English>点击这里</trigger>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"&lt;trigger=English&gt;点击这里&lt;/trigger&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<trigger=English>点击这里</trigger>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         // Comma-separated value (legacy color suffix) is part of the value.
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<trigger=run,FF0000>运行</trigger>");
         auto answer = ::fast_io::u8string_view{u8"<trigger=run,FF0000>运行</trigger>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -38,24 +36,24 @@ inline void pl_trigger_tag() {
         auto pltext = ::fast_io::u8string_view{u8"<trigger=run><i>运行</i></trigger>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"&lt;trigger=run&gt;<em>运行</em>&lt;/trigger&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<trigger=run><i>运行</i></trigger>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     // ---- web backend: <trigger=value> is escaped to literal &lt;trigger&gt; ----
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<TRIGGER=run>运行</TRIGGER>");
         auto answer = ::fast_io::u8string_view{u8"&lt;trigger=run&gt;运行&lt;/trigger&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // Value characters are HTML-escaped to prevent injection.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<trigger=a<b>c</trigger>");
         auto answer = ::fast_io::u8string_view{u8"&lt;trigger=a&lt;b&gt;c&lt;/trigger&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -63,17 +61,17 @@ inline void pl_trigger_tag() {
         auto pltext = ::fast_io::u8string_view{u8"<trigger=a&amp;b>c</trigger>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"&lt;trigger=a&amp;b&gt;c&lt;/trigger&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<trigger=a&b>c</trigger>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         // Unknown references remain literal semantic text and their ampersand is escaped.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<trigger=a&unknown;b>c</trigger>");
         auto answer = ::fast_io::u8string_view{u8"&lt;trigger=a&amp;unknown;b&gt;c&lt;/trigger&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -81,17 +79,17 @@ inline void pl_trigger_tag() {
         auto pltext = ::fast_io::u8string_view{u8"<trigger=a&#1;&#13;&#127;b>c</trigger>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"&lt;trigger=a���b&gt;c&lt;/trigger&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<trigger=a���b>c</trigger>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         // fixedadv web backend escapes identically.
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<trigger=run>运行</trigger>");
         auto answer = ::fast_io::u8string_view{u8"&lt;trigger=run&gt;运行&lt;/trigger&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // ---- optimizer: empty trigger tag is omitted ----
@@ -99,25 +97,24 @@ inline void pl_trigger_tag() {
         auto pltext = ::fast_io::u8string_view{u8"t<trigger=run></trigger>t"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"tt"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"tt"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     // ---- malformed / non-matching input falls back to literal text ----
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<trigger=");
         auto answer = ::fast_io::u8string_view{u8"test&lt;trigger="};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <table> (HTML) must still parse as a table, not a trigger.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td>x</td></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><td>x</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 }
 
-} // namespace pltxt2htm_test::syntax

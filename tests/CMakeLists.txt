@@ -3,6 +3,16 @@ project(pltxt2htm-tests LANGUAGES CXX VERSION 0.26.0)
 
 enable_testing()
 
+include(FetchContent)
+FetchContent_Declare(
+    doctest
+    GIT_REPOSITORY https://github.com/doctest/doctest.git
+    GIT_TAG        v2.4.12
+)
+FetchContent_MakeAvailable(doctest)
+
+include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)
+
 if(NOT DEFINED CMAKE_CXX_STANDARD)
     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
         set(CMAKE_CXX_STANDARD 26)
@@ -145,15 +155,15 @@ endif()
 # test, so no file needs a name prefix, and recursing means that moving or adding a test
 # never requires editing this file. Most syntax cases are header-only: src/syntax/*/*.hh
 # exposes one inline test function each, src/syntax/syntax_tests.cc includes all of them
-# and runs them through syntax_tests_set. Cases that need their own translation unit
-# (extra helpers or file scope state) stay as .cc and keep their own test.
+# and runs them through doctest's auto-registration. Cases that need their own translation
+# unit (extra helpers or file scope state) stay as .cc and keep their own test.
 file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS LIST_DIRECTORIES FALSE
      "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc")
 
 foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
     add_executable(${TEST_NAME} ${TEST_SOURCE})
-    target_link_libraries(${TEST_NAME} PRIVATE precompile)
+    target_link_libraries(${TEST_NAME} PRIVATE precompile doctest::doctest)
     # Tests are built as pltxt2htm itself, so external-only APIs must stay unavailable to them.
     # The deep-copy, copy-assignment and container-subscript tests are the exception: they stand
     # in for a downstream user and cover the copy operations and the external-only operator[]
@@ -168,5 +178,9 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     if(HAVE_LD_LLD AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_link_options(${TEST_NAME} PRIVATE -fuse-ld=lld)
     endif()
-    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    if(TEST_NAME STREQUAL "syntax_tests")
+        doctest_discover_tests(${TEST_NAME})
+    else()
+        add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    endif()
 endforeach()

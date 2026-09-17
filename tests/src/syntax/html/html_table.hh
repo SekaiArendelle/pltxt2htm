@@ -1,20 +1,18 @@
 #pragma once
 
-#include "precompile.hh"
+#include "doctest_config.hh"
 
-namespace pltxt2htm_test::syntax {
-
-inline void html_table() {
+TEST_CASE("html_table") {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td>cell1</td><td>cell2</td></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><td>cell1</td><td>cell2</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><thead><tr><th>h1</th><th>h2</th></tr></thead></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><thead><tr><th>h1</th><th>h2</th></tr></thead></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -22,79 +20,79 @@ inline void html_table() {
             u8"<table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>");
         auto answer =
             ::fast_io::u8string_view{u8"<table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<TABLE><TR><TD>CELL</TD></TR></TABLE>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><td>CELL</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<table><caption>caption</caption><tr><th>header</th></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><caption>caption</caption><tr><th>header</th></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<table><colgroup><col></colgroup><tr><td>text</td></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><colgroup><col></colgroup><tr><td>text</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td><color=red>red</color></td></tr></table>");
         auto answer =
             ::fast_io::u8string_view{u8"<table><tr><td><span style=\"color:red;\">red</span></td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tbody><tr><td>body</td></tr></tbody></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tbody><tr><td>body</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tfoot><tr><td>foot</td></tr></tfoot></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tfoot><tr><td>foot</td></tr></tfoot></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table>");
         auto answer = ::fast_io::u8string_view{u8"&lt;table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<table></table>t");
         auto answer = ::fast_io::u8string_view{u8"t&lt;table&gt;&lt;/table&gt;t"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <col> outside <table>/<colgroup> is treated as literal text
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<col>");
         auto answer = ::fast_io::u8string_view{u8"&lt;col&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto pltext = ::fast_io::u8string_view{u8"<table><tr><td>cell</td></tr></table>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<table><tr><td>cell</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{
             u8"<size=20>\uff1c</size>table<size=20>\uff1e</size><size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>"
             u8"\uff1c</size>td<size=20>\uff1e</size>cell<size=20>\uff1c</size>/td<size=20>\uff1e</"
             u8"size><size=20>\uff1c</"
             u8"size>/tr<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     // ── Rejection of table-internal tags outside their valid context ──
@@ -103,84 +101,84 @@ inline void html_table() {
         // <tr> at top level -> literal text
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<tr>");
         auto answer = ::fast_io::u8string_view{u8"&lt;tr&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <td> at top level -> literal text
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<td>");
         auto answer = ::fast_io::u8string_view{u8"&lt;td&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <th> at top level -> literal text
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<th>");
         auto answer = ::fast_io::u8string_view{u8"&lt;th&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <thead> at top level -> literal text
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<thead>");
         auto answer = ::fast_io::u8string_view{u8"&lt;thead&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <tbody> at top level -> literal text
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<tbody>");
         auto answer = ::fast_io::u8string_view{u8"&lt;tbody&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <tfoot> at top level -> literal text
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<tfoot>");
         auto answer = ::fast_io::u8string_view{u8"&lt;tfoot&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <caption> at top level -> literal text
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<caption>");
         auto answer = ::fast_io::u8string_view{u8"&lt;caption&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <colgroup> at top level -> literal text
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<colgroup>");
         auto answer = ::fast_io::u8string_view{u8"&lt;colgroup&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // uppercase <TR> at top level -> literal text
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<TR>");
         auto answer = ::fast_io::u8string_view{u8"&lt;TR&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <thead> inside <table> is valid
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><thead><tr><th>x</th></tr></thead></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><thead><tr><th>x</th></tr></thead></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <tbody> inside <table> is valid
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tbody><tr><td>x</td></tr></tbody></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tbody><tr><td>x</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <tfoot> inside <table> is valid
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tfoot><tr><td>x</td></tr></tfoot></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tfoot><tr><td>x</td></tr></tfoot></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -189,7 +187,7 @@ inline void html_table() {
             u8"<table><tbody><tr><td>b1</td></tr></tbody><tr><td>b2</td></tr></table>");
         auto answer =
             ::fast_io::u8string_view{u8"<table><tbody><tr><td>b1</td></tr></tbody><tr><td>b2</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -198,7 +196,7 @@ inline void html_table() {
             u8"<table><thead><tr><th>h1</th></tr></thead><tr><td>b2</td></tr></table>");
         auto answer =
             ::fast_io::u8string_view{u8"<table><thead><tr><th>h1</th></tr></thead><tr><td>b2</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -207,7 +205,7 @@ inline void html_table() {
             ::pltxt2htm_test::pltxt4unittest(u8"<table><tfoot><tr><td>f</td></tr></tfoot><tr><td>b2</td></tr></table>");
         auto answer =
             ::fast_io::u8string_view{u8"<table><tfoot><tr><td>f</td></tr></tfoot><tr><td>b2</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -217,7 +215,7 @@ inline void html_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><tbody><tr><td>b1</td></tr></tbody><tr><td>b2</td></tr>"
             u8"<tr><td>b3</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -228,76 +226,76 @@ inline void html_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><tbody><tr><td>a</td></tr></tbody><tr><td>b</td></tr>"
             u8"<tbody><tr><td>c</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><caption>title</caption></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><caption>title</caption></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // empty <caption> is still an authored caption node (presence != content)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><caption></caption><tr><td>x</td></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><caption></caption><tr><td>x</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // empty <colgroup> without any <col> is not recorded (scanner only tracks <col>)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><colgroup></colgroup><tr><td>x</td></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><td>x</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <colgroup> inside <table> is valid
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><colgroup><col></colgroup></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><colgroup><col></colgroup></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <col> inside <colgroup> inside <table> is valid (multiple cols)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><colgroup><col><col></colgroup></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><colgroup><col><col></colgroup></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <tr> directly in <table> is valid
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td>x</td></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><td>x</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <tr> in <thead> is valid
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><thead><tr><th>x</th></tr></thead></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><thead><tr><th>x</th></tr></thead></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <tr> in <tbody> is valid
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tbody><tr><td>x</td></tr></tbody></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tbody><tr><td>x</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <td> and <th> in <tr> is valid
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th>h</th><td>b</td></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><th>h</th><td>b</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <tr> inside <caption> -> <tr> is rejected (wrong context)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><caption><tr>x</tr></caption></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><caption>&lt;tr&gt;x&lt;/tr&gt;</caption></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // ── <td style="text-align:..."> ──
@@ -307,7 +305,7 @@ inline void html_table() {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:center\">cell</td></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><td style=\"text-align:center\">cell</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -315,7 +313,7 @@ inline void html_table() {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:right\">cell</td></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><td style=\"text-align:right\">cell</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -323,7 +321,7 @@ inline void html_table() {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:left\">cell</td></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><td>cell</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -331,7 +329,7 @@ inline void html_table() {
             u8"<table><tr><td style=\" ; broken ; :ignored ; text-align \t : \t center \t ; ; "
             u8"\">cell</td></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><td style=\"text-align:center\">cell</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -342,7 +340,7 @@ inline void html_table() {
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;class=&quot;foo&quot;&nbsp;style=&quot;text-align:center&quot;&nbsp;"
             u8"id="
             u8"&quot;bar&quot;&gt;cell&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -352,7 +350,7 @@ inline void html_table() {
         auto answer = ::fast_io::u8string_view{
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;style=&quot;color:red;text-align:center&quot;&gt;cell&lt;/td&gt;&lt;/"
             u8"tr&gt;&lt;/table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -362,7 +360,7 @@ inline void html_table() {
         auto answer = ::fast_io::u8string_view{
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;style=&quot;text-align:center;color:red&quot;&gt;cell&lt;/td&gt;&lt;"
             u8"/tr&gt;&lt;/table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // ── uppercase text-align values rejected ──
@@ -374,7 +372,7 @@ inline void html_table() {
         auto answer = ::fast_io::u8string_view{
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;style=&quot;text-align:LEFT&quot;&gt;cell&lt;/td&gt;&lt;/tr&gt;&lt;/"
             u8"table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -384,21 +382,21 @@ inline void html_table() {
         auto answer = ::fast_io::u8string_view{
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;style=&quot;text-align:Left&quot;&gt;cell&lt;/td&gt;&lt;/tr&gt;&lt;/"
             u8"table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // <th> without style -> no style attribute
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th>header</th></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><th>header</th></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -406,7 +404,7 @@ inline void html_table() {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:right\">header</th></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><th style=\"text-align:right\">header</th></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -414,7 +412,7 @@ inline void html_table() {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align: center\">header</th></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -422,7 +420,7 @@ inline void html_table() {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:left\">header</th></tr></table>");
         auto answer = ::fast_io::u8string_view{u8"<table><tr><th>header</th></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -433,7 +431,7 @@ inline void html_table() {
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;class=&quot;foo&quot;&nbsp;style=&quot;text-align:center&quot;&nbsp;"
             u8"id="
             u8"&quot;bar&quot;&gt;header&lt;/th&gt;&lt;/tr&gt;&lt;/table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -444,7 +442,7 @@ inline void html_table() {
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;style=&quot;color:red;text-align:center&quot;&gt;header&lt;/"
             u8"th&gt;&lt;/"
             u8"tr&gt;&lt;/table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -455,7 +453,7 @@ inline void html_table() {
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;style=&quot;text-align:center;color:red&quot;&gt;header&lt;/"
             u8"th&gt;&lt;"
             u8"/tr&gt;&lt;/table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // ── <th> uppercase text-align values rejected ──
@@ -468,7 +466,7 @@ inline void html_table() {
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;style=&quot;text-align:LEFT&quot;&gt;header&lt;/th&gt;&lt;/"
             u8"tr&gt;&lt;/"
             u8"table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -479,7 +477,7 @@ inline void html_table() {
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;style=&quot;text-align:Left&quot;&gt;header&lt;/th&gt;&lt;/"
             u8"tr&gt;&lt;/"
             u8"table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -490,7 +488,7 @@ inline void html_table() {
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;style=&quot;text-align:CENTER&quot;&gt;header&lt;/th&gt;&lt;/"
             u8"tr&gt;&lt;"
             u8"/table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -501,7 +499,7 @@ inline void html_table() {
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;style=&quot;text-align:Right&quot;&gt;header&lt;/th&gt;&lt;/"
             u8"tr&gt;&lt;"
             u8"/table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // ── <th> and <td> mixed styles ──
@@ -512,7 +510,7 @@ inline void html_table() {
             u8"<table><tr><th style=\"text-align:center\">h</th><td style=\"text-align:right\">d</td></tr></table>");
         auto answer = ::fast_io::u8string_view{
             u8"<table><tr><th style=\"text-align:center\">h</th><td style=\"text-align:right\">d</td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -522,7 +520,7 @@ inline void html_table() {
         auto answer = ::fast_io::u8string_view{
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;style=&quot;text-align:Right&quot;&gt;cell&lt;/td&gt;&lt;/tr&gt;&lt;/"
             u8"table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -532,7 +530,7 @@ inline void html_table() {
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;Style=&quot;text-align:center&quot;&gt;cell&lt;/td&gt;&lt;/"
             u8"tr&gt;&lt;/"
             u8"table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -542,7 +540,7 @@ inline void html_table() {
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;style=&quot;Text-align:center&quot;&gt;cell&lt;/td&gt;&lt;/"
             u8"tr&gt;&lt;/"
             u8"table&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -568,7 +566,7 @@ inline void html_table() {
             u8"td<size=20>\uff1e</"
             u8"size><size=20>\uff1c</size>/tr<size=20>\uff1e</size><size=20>\uff1c</size>/tfoot<size=20>\uff1e</size>"
             u8"<size=20>\uff1c</size>/table<size=20>\uff1e</size>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -581,7 +579,7 @@ inline void html_table() {
             u8"\uff1e</size><size=20>\uff1c</size>td style=\"text-align:center\"<size=20>\uff1e</size>data<size=20>"
             u8"\uff1c</size>/td<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size><size=20>\uff1c</"
             u8"size>/table<size=20>\uff1e</size>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     // ── caption/cell text is parsed with the inline-only parser ──
@@ -592,7 +590,7 @@ inline void html_table() {
         auto answer = ::fast_io::u8string_view{
             u8"<table><caption>cap<br>#&nbsp;<strong>title</strong></caption><tr><th>head<br>&lt;h1&gt;x&lt;/"
             u8"h1&gt;</th><td>body<br>-&nbsp;<em>item</em></td></tr></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -601,8 +599,7 @@ inline void html_table() {
         auto pltext = ::fast_io::u8string_view{u8"<table>X"};
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         ::fast_io::u8string answer{u8"&lt;table&gt;X"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 }
 
-} // namespace pltxt2htm_test::syntax

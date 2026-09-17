@@ -1,174 +1,172 @@
 #pragma once
 
-#include "precompile.hh"
+#include "doctest_config.hh"
 
-namespace pltxt2htm_test::syntax {
-
-inline void html_span_tag() {
+TEST_CASE("html_span_tag") {
     {
         auto pltext = ::fast_io::u8string_view{u8"<span style=\"color:red\">text</span>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<color=red>text</color>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         auto pltext = ::fast_io::u8string_view{u8"<span style=\"font-size:20px\">text</span>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:20px;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=40>text</size>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         auto pltext = ::fast_io::u8string_view{u8"<span style=\"color:blue;font-size:16px\">text</span>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:blue;font-size:16px;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<color=blue><size=32>text</size></color>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<span style=\" ; color \t : \t red \t ; ; font-size : 20px ; \">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;font-size:20px;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // uppercase STYLE attribute is rejected (only lowercase "style" is allowed)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span STYLE=\"color:red\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;STYLE=&quot;color:red&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // uppercase COLOR property is rejected (only lowercase "color" is allowed)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"COLOR:red\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;COLOR:red&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span  style=\"color:red\"  >text</span  >");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:red !important\">text</span>");
         auto answer = ::fast_io::u8string_view{
             u8"&lt;span&nbsp;style=&quot;color:red&nbsp;!important&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:#FF0000\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:#FF0000;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:20\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:20px;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:red;\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span class=\"foo\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;class=&quot;foo&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"background:red\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;background:red&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:#GGG\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;color:#GGG&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:1em\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:1em;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:red;color:blue\">text</span>");
         auto answer =
             ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;color:red;color:blue&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:20px;font-size:30px\">text</span>");
         auto answer = ::fast_io::u8string_view{
             u8"&lt;span&nbsp;style=&quot;font-size:20px;font-size:30px&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:80%\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:80%;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:blue;font-size:80%\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:blue;font-size:80%;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:80%;font-size:30px\">text</span>");
         auto answer = ::fast_io::u8string_view{
             u8"&lt;span&nbsp;style=&quot;font-size:80%;font-size:30px&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<span style=\"color:red\"></span>t");
         auto answer = ::fast_io::u8string_view{u8"tt"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<span style=\"color:red\"><span style=\"color:red\">text</span></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:red\">a<span style=\"color:red\">b</span>c</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">abc</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<span style=\"color:red\"><span style=\"color:blue\">text</span></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:blue;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -176,62 +174,62 @@ inline void html_span_tag() {
             ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:red\">a<span style=\"color:blue\">b</span></span>");
         auto answer =
             ::fast_io::u8string_view{u8"<span style=\"color:red;\">a<span style=\"color:blue;\">b</span></span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<strong><span style=\"color:red\">text</span></strong>");
         auto answer = ::fast_io::u8string_view{u8"<strong><span style=\"color:red;\">text</span></strong>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a><span style=\"color:red\">text</span></a>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<color=green><span style=\"color:red\">text</span></color>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<color=red>a<span style=\"color:red\">b</span>c</color>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">abc</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:#0000AA;\">a<a>b</a>c</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:#0000AA;\">abc</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a>a<span style=\"color:#0000AA;\">b</span>c</a>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:#0000AA;\">abc</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a>a<span style=\"color:red;\">b</span>c</a>");
         auto answer =
             ::fast_io::u8string_view{u8"<span style=\"color:#0000AA;\">a<span style=\"color:red;\">b</span>c</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:red\"><a>text</a></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:#0000AA;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:red\"><color=blue>text</color></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:blue;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -239,7 +237,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<span style=\"font-size:20px\"><span style=\"font-size:20px\">text</span></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:20px;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -247,7 +245,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<span style=\"color:red;font-size:20px\"><span style=\"color:red;font-size:20px\">text</span></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;font-size:20px;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -255,7 +253,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<span style=\"color:red;font-size:20px\"><span style=\"color:red;font-size:16px\">text</span></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;font-size:16px;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -263,7 +261,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<color=red>a<span style=\"font-size:20px\">b</span>c</color>");
         auto answer =
             ::fast_io::u8string_view{u8"<span style=\"color:red;\">a<span style=\"font-size:20px;\">b</span>c</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -273,7 +271,7 @@ inline void html_span_tag() {
             u8"<color=red>a<span style=\"color:red;font-size:20px\">b</span>c</color>");
         auto answer = ::fast_io::u8string_view{
             u8"<span style=\"color:red;\">a<span style=\"color:red;font-size:20px;\">b</span>c</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -281,7 +279,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a>a<span style=\"font-size:20px\">b</span>c</a>");
         auto answer = ::fast_io::u8string_view{
             u8"<span style=\"color:#0000AA;\">a<span style=\"font-size:20px;\">b</span>c</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -289,7 +287,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<span style=\"font-size:20px\"><span style=\"color:red\">text</span></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;font-size:20px;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -298,7 +296,7 @@ inline void html_span_tag() {
             u8"<span style=\"color:red\"><span style=\"color:red\"><span "
             u8"style=\"color:red\">text</span></span></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -306,7 +304,7 @@ inline void html_span_tag() {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:red\"><span style=\"color:red\"></span></span>");
         auto answer = ::fast_io::u8string_view{u8""};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -316,19 +314,19 @@ inline void html_span_tag() {
             ::pltxt2htm_test::pltxt4unittest(u8"<a>a<span style=\"color:#0000AA;font-size:20px\">b</span>c</a>");
         auto answer = ::fast_io::u8string_view{
             u8"<span style=\"color:#0000AA;\">a<span style=\"color:#0000AA;font-size:20px;\">b</span>c</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:red\">text");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:red\"");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;color:red&quot;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -336,62 +334,62 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:99999999999999999999px\">text</span>");
         auto answer = ::fast_io::u8string_view{
             u8"&lt;span&nbsp;style=&quot;font-size:99999999999999999999px&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // single-quoted style attribute
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style='color:red'>text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // font-size:0 rejected (zero is not a valid font-size)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:0\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:0&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // empty style value rejected
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // uppercase px unit rejected (lowercase "px" only)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:20PX\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:20PX&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:20p\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:20p&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:20pxx\">text</span>");
         auto answer =
             ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:20pxx&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // uppercase color name rejected (lowercase only)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:Red\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:Red;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // uppercase color name rejected (lowercase only)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"color:BLUE\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:BLUE;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -399,7 +397,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:-20px\">text</span>");
         auto answer =
             ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:-20px&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -407,7 +405,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:18446744073709551614px\">text</span>");
         auto answer = ::fast_io::u8string_view{
             u8"&lt;span&nbsp;style=&quot;font-size:18446744073709551614px&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -415,10 +413,10 @@ inline void html_span_tag() {
         auto pltext = ::fast_io::u8string_view{u8"<span style=\"font-size:12.5px\">text</span>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:12.5px;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=25>text</size>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
@@ -426,24 +424,24 @@ inline void html_span_tag() {
         auto pltext = ::fast_io::u8string_view{u8"<span style=\"font-size:1.5em\">text</span>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:1.5em;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=1.5em>text</size>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         // fractional font-size with percent unit
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:87.5%\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:87.5%;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // leading-dot font-size rejected (stays literal)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:.5px\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:.5px&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -451,79 +449,79 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:12.px\">text</span>");
         auto answer =
             ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:12.px&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto pltext = ::fast_io::u8string_view{u8"<span style=\"vertical-align:super\">text</span>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:super;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:sub\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:sub;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:baseline\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:baseline;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:text-top\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:text-top;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:text-bottom\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:text-bottom;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:middle\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:middle;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:top\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:top;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:bottom\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:bottom;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto pltext = ::fast_io::u8string_view{u8"<span style=\"vertical-align:5px\">text</span>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:5px;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<voffset=5>text</voffset>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         auto pltext = ::fast_io::u8string_view{u8"<span style=\"vertical-align:20%\">text</span>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:20%;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
@@ -531,17 +529,17 @@ inline void html_span_tag() {
             u8"<span style=\"color:red;font-size:20px;vertical-align:super\">text</span>");
         auto answer =
             ::fast_io::u8string_view{u8"<span style=\"color:red;font-size:20px;vertical-align:super;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto pltext = ::fast_io::u8string_view{u8"<span style=\"vertical-align:10em\">text</span>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:10em;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
@@ -549,7 +547,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"VERTICAL-ALIGN:super\">text</span>");
         auto answer =
             ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;VERTICAL-ALIGN:super&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -557,7 +555,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:SUPER\">text</span>");
         auto answer =
             ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;vertical-align:SUPER&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -565,7 +563,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:superx\">text</span>");
         auto answer =
             ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;vertical-align:superx&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -573,7 +571,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:foo\">text</span>");
         auto answer =
             ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;vertical-align:foo&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -581,14 +579,14 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:0\">text</span>");
         auto answer =
             ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;vertical-align:0&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // negative length supported (vertical-align: -5px)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:-5px\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:-5px;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -597,7 +595,7 @@ inline void html_span_tag() {
             ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"vertical-align:super;vertical-align:sub\">text</span>");
         auto answer = ::fast_io::u8string_view{
             u8"&lt;span&nbsp;style=&quot;vertical-align:super;vertical-align:sub&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -605,7 +603,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<span style=\"vertical-align:super\"><span style=\"vertical-align:super\">text</span></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:super;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -613,7 +611,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<span style=\"vertical-align:super\"><span style=\"vertical-align:sub\">text</span></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:sub;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -621,7 +619,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<span style=\"vertical-align:5px\"><span style=\"vertical-align:10px\">text</span></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"vertical-align:10px;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -629,7 +627,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<span style=\"color:red\"><span style=\"vertical-align:super\">text</span></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;vertical-align:super;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -638,7 +636,7 @@ inline void html_span_tag() {
             u8"<color=red>a<span style=\"color:red;vertical-align:super\">b</span>c</color>");
         auto answer = ::fast_io::u8string_view{
             u8"<span style=\"color:red;\">a<span style=\"color:red;vertical-align:super;\">b</span>c</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -647,7 +645,7 @@ inline void html_span_tag() {
             ::pltxt2htm_test::pltxt4unittest(u8"<a>a<span style=\"color:#0000AA;vertical-align:super\">b</span>c</a>");
         auto answer = ::fast_io::u8string_view{
             u8"<span style=\"color:#0000AA;\">a<span style=\"color:#0000AA;vertical-align:super;\">b</span>c</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
@@ -655,80 +653,80 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
             u8"<span style=\"color:red;font-size:16px;vertical-align:5px\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<color=red><size=32><voffset=5>text</voffset></size></color>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // em font-size is supported
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:20em\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:20em;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto pltext = ::fast_io::u8string_view{u8"<span style=\"color:blue;font-size:16em\">text</span>"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto answer = ::fast_io::u8string_view{u8"<span style=\"color:blue;font-size:16em;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<color=blue><size=16em>text</size></color>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         // uppercase em unit rejected (lowercase "em" only)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:20EM\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:20EM&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // partial em rejected
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:1e\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:1e&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // em with trailing character rejected
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:1emx\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:1emx&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // duplicate 'm' rejected
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:1emm\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:1emm&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // font-size:0em rejected (zero is not a valid font-size)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<span style=\"font-size:0em\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"&lt;span&nbsp;style=&quot;font-size:0em&quot;&gt;text&lt;/span&gt;"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // em font-size maps to <size=Nem> in Unity output
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"font-size:16em\">text</span>");
         auto answer = ::fast_io::u8string_view{u8"<size=16em>text</size>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         // em font-size roundtrip through the HTML parser
         auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<span style=\"font-size:16em\">text</span>");
         auto reparsed_html = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
-        pltxt2htm_test_assert_equal(reparsed_html, html);
+        CHECK(reparsed_html == html);
     }
 
     {
         // em vertical-align roundtrip through the HTML parser
         auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<span style=\"vertical-align:10em\">text</span>");
         auto reparsed_html = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::u8string_view{html.data(), html.size()});
-        pltxt2htm_test_assert_equal(reparsed_html, html);
+        CHECK(reparsed_html == html);
     }
 
     {
@@ -736,8 +734,7 @@ inline void html_span_tag() {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<span style=\"font-size:1em\"><span style=\"font-size:1em\">text</span></span>");
         auto answer = ::fast_io::u8string_view{u8"<span style=\"font-size:1em;\">text</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 }
 
-} // namespace pltxt2htm_test::syntax

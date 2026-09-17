@@ -1,93 +1,90 @@
 #pragma once
 
-#include "precompile.hh"
+#include "doctest_config.hh"
 
-namespace pltxt2htm_test::syntax {
-
-inline void rm_tail_space() {
+TEST_CASE("rm_tail_space") {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t  \n");
         auto answer = ::fast_io::u8string_view{u8"t<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t\t\t\n");
         auto answer = ::fast_io::u8string_view{u8"t<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t  \t\t\n");
         auto answer = ::fast_io::u8string_view{u8"t<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"  \t\t\n");
         auto answer = ::fast_io::u8string_view{u8"<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t t \n");
         auto answer = ::fast_io::u8string_view{u8"t&nbsp;t<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t  ");
         auto answer = ::fast_io::u8string_view{u8"t"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t\t\t");
         auto answer = ::fast_io::u8string_view{u8"t"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\t\t");
         auto answer = ::fast_io::u8string_view{u8""};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"  ");
         auto answer = ::fast_io::u8string_view{u8""};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t \nt \n");
         auto answer = ::fast_io::u8string_view{u8"t<br>t<br>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t \nt ");
         auto answer = ::fast_io::u8string_view{u8"t<br>t"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"text");
         auto answer = ::fast_io::u8string_view{u8"text"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"text \ntext ");
         auto answer = ::fast_io::u8string_view{u8"text\ntext"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<p><code>t \nt \n</code> </p>");
         auto answer = ::fast_io::u8string_view{u8"<p style=\"text-align:left\"><code>t<br>t<br></code></p>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        CHECK(html == answer);
     }
 }
 
-} // namespace pltxt2htm_test::syntax
