@@ -137,28 +137,6 @@ private:
     }
 
     /**
-     * @brief Allocates storage for at least `capacity` characters plus a terminator.
-     * @param capacity Requested logical character capacity, excluding the terminator.
-     *
-     * Initializes the object as an empty string backed by the new allocation.
-     * Constructors use the NDEBUG-selected contract workaround because callers
-     * cannot explicitly provide a Contracts template argument to a constructor.
-     */
-    constexpr void allocate(this BasicString& self, size_type capacity) noexcept {
-        // Work around constructors being unable to receive an explicitly selected Contracts template argument.
-#ifndef NDEBUG
-        constexpr auto ndebug{::pltxt2htm::Contracts::quick_enforce};
-        pltxt2htm_assert(capacity < self.max_size(), u8"BasicString capacity is too large");
-#endif
-        auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(capacity + 1);
-        self.start_lifetime(new_pointer, allocated_size);
-        self.begin_pointer = new_pointer;
-        self.current_pointer = new_pointer;
-        self.end_pointer = new_pointer + static_cast<size_type>(allocated_size - 1);
-        *new_pointer = value_type{};
-    }
-
-    /**
      * @brief Allocates zero-initialized storage for exactly `capacity` characters plus a terminator.
      * @param capacity Requested logical character capacity, excluding the terminator.
      *
@@ -193,15 +171,27 @@ private:
      * @brief Constructs the string from a counted character sequence.
      * @param first First source character.
      * @param count Number of characters to copy, excluding any source terminator.
+     *
+     * Allocates once, copies the characters, then commits the final size and the
+     * terminator. A zero count uses the shared runtime empty representation
+     * instead of allocating.
      */
     constexpr void construct(this BasicString& self, const_pointer first, size_type count) noexcept {
         if (count == 0) {
             self.reset();
             return;
         }
-        self.allocate(count);
-        ::std::copy_n(first, count, self.begin_pointer);
-        self.current_pointer = self.begin_pointer + count;
+        // Constructors cannot receive an explicitly selected Contracts template argument.
+#ifndef NDEBUG
+        constexpr auto ndebug{::pltxt2htm::Contracts::quick_enforce};
+        pltxt2htm_assert(count < self.max_size(), u8"BasicString capacity is too large");
+#endif
+        auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(count + 1);
+        self.start_lifetime(new_pointer, allocated_size);
+        ::std::copy_n(first, count, new_pointer);
+        self.begin_pointer = new_pointer;
+        self.current_pointer = new_pointer + count;
+        self.end_pointer = new_pointer + static_cast<size_type>(allocated_size - 1);
         *self.current_pointer = value_type{};
     }
 
