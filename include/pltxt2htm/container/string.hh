@@ -722,25 +722,61 @@ public:
     }
 
     /**
-     * @brief Disabled to require an explicit Contracts policy through index().
+     * @brief Unchecked element access, provided to downstream users only.
      *
      * A templated operator[] would require the awkward explicit spelling
-     * `string.template operator[]<policy>(position)`. Keeping operator[] deleted
-     * makes the contract-bearing index() API explicit and consistent with
-     * BasicStringView.
+     * `string.template operator[]<policy>(position)`, so contract-bearing access
+     * stays on index(). This overload is therefore deliberately unchecked, and it
+     * is external-only: while pltxt2htm itself is being built
+     * (PLTXT2HTM_INTERNAL_USE) it stays deleted, so implementation code cannot
+     * silently index a character without naming a Contracts policy.
+     * @param position Zero-based character position.
+     * @return Mutable reference to the requested character.
+     * @pre position < size(); otherwise the behavior is undefined.
      */
+#if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator[](this BasicString& self, size_type position) noexcept -> reference = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
     #endif
-        ("operator[] is deleted; use index() instead for bounds-checked access")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
         ;
+#else
+    constexpr auto operator[](this BasicString& self, size_type position) noexcept -> reference {
+        return self.begin_pointer[position];
+    }
+#endif
+    /**
+     * @brief Unchecked read-only element access, provided to downstream users only.
+     * @param position Zero-based character position.
+     * @return Read-only reference to the requested character.
+     * @pre position < size(); otherwise the behavior is undefined.
+     * @note External-only, mirroring the mutable overload above.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator[](this BasicString const& self, size_type position) noexcept -> const_reference = delete
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
+    #endif
+        ;
+#else
+    constexpr auto operator[](this BasicString const& self, size_type position) noexcept -> const_reference {
+        return self.begin_pointer[position];
+    }
+#endif
 
     /**
      * @brief Returns the first character.
