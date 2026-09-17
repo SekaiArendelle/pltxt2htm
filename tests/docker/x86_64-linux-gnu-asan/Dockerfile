@@ -1,6 +1,6 @@
 FROM ubuntu:26.04
 
-RUN apt update && apt install -y --no-install-recommends g++ cmake ninja-build
+RUN apt update && apt install -y --no-install-recommends g++ cmake ninja-build git
 
 WORKDIR /pltxt2htm
 COPY include/ /pltxt2htm/include/
