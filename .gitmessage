@@ -1,0 +1,11 @@
+
+# Subject: <type>(<scope>): <subject>
+#
+# Optional body: explain why the change is needed.
+#
+# Optional trailers:
+#   Closes #123
+#   Assisted-by: <model name> [<version if known>]
+#   Generated-by: <model name> [<version if known>]
+#
+# See CONTRIBUTING.md#commit-messages for the complete rules.

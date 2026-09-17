@@ -6,11 +6,14 @@
 
 #include <pltxt2htm/container/string_view.hh>
 #include <pltxt2htm/container/string.hh>
+#include <pltxt2htm/contracts.hh>
+#include <pltxt2htm/details/inplace_string.hh>
 #include <pltxt2htm/details/literal_string.hh>
 
 #include "precompile.hh"
 
 using U8StringView = ::pltxt2htm::container::U8StringView;
+using U8InplaceString = ::pltxt2htm::details::U8InplaceString<8, ::pltxt2htm::Contracts::quick_enforce>;
 
 template<typename CharType>
 concept can_form_basic_string_view = requires { typename ::pltxt2htm::container::BasicStringView<CharType>; };
@@ -26,6 +29,9 @@ static_assert(::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8
 static_assert(!::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String&&>);
 static_assert(::std::is_convertible_v<::pltxt2htm::container::U8String const&, U8StringView>);
 static_assert(!::std::is_convertible_v<::pltxt2htm::container::U8String&&, U8StringView>);
+static_assert(::std::is_constructible_v<U8StringView, U8InplaceString const&>);
+static_assert(!::std::is_constructible_v<U8StringView, U8InplaceString&&>);
+static_assert(!::std::is_constructible_v<U8StringView, U8InplaceString const&&>);
 static_assert(::fast_io::alias_printable<::pltxt2htm::container::StringView>);
 static_assert(::fast_io::alias_printable<::pltxt2htm::container::WStringView>);
 static_assert(::fast_io::alias_printable<U8StringView>);
@@ -66,7 +72,20 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
     constexpr auto literal = ::pltxt2htm::details::U8LiteralString{u8"literal"};
     auto const literal_view = ::pltxt2htm::container::BasicStringView{literal};
     static_assert(::std::same_as<::std::remove_cvref_t<decltype(literal_view)>, U8StringView>);
-    return literal_view == u8"literal";
+    if (literal_view != u8"literal") {
+        return false;
+    }
+
+    constexpr char8_t inplace_text[]{u8'i', u8'n', u8'p', u8'l', u8'a', u8'c', u8'e'};
+    auto inplace = U8InplaceString{inplace_text, inplace_text + 7};
+    auto const inplace_view = ::pltxt2htm::container::BasicStringView{inplace};
+    static_assert(::std::same_as<::std::remove_cvref_t<decltype(inplace_view)>, U8StringView>);
+    if (inplace_view.data() != inplace.data() || inplace_view != u8"inplace") {
+        return false;
+    }
+
+    inplace.index(0) = u8'I';
+    return inplace_view == u8"Inplace";
 }
 
 static_assert(test_constexpr_string_view());

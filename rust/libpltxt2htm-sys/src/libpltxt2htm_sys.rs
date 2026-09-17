@@ -10,6 +10,7 @@ unsafe extern "C" {
         author: *const c_char,
         coauthors: *const c_char,
     ) -> *const c_char;
+    pub unsafe fn pltxt2htm_free_u8string(str: *const c_char);
     pub unsafe fn pltxt2htm_version_major() -> size_t;
     pub unsafe fn pltxt2htm_version_minor() -> size_t;
     pub unsafe fn pltxt2htm_version_patch() -> size_t;

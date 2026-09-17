@@ -132,8 +132,7 @@ constexpr ::pltxt2htm::UnityMargin<ndebug>::UnityMargin(
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept
     : subast(::std::move(subast_)),
-      left(left_),
-      right(right_) {
+      margins{left_, right_} {
 }
 
 template<::pltxt2htm::Contracts ndebug>

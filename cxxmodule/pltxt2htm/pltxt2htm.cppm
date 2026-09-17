@@ -55,7 +55,6 @@ using ::pltxt2htm::pltxt2plunity_introduction;
 using ::pltxt2htm::parse_pltxt;
 using ::pltxt2htm::inline_parse_pltxt;
 using ::pltxt2htm::optimize_ast;
-using ::pltxt2htm::pltxt4unittest;
 
 // contracts
 using ::pltxt2htm::Contracts;

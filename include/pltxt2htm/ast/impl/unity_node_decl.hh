@@ -33,7 +33,7 @@ public:
     constexpr UnityColor(::pltxt2htm::UnityColor<ndebug>&&) noexcept;
     constexpr ~UnityColor() noexcept = default;
     constexpr auto operator=(::pltxt2htm::UnityColor<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnityColor<ndebug>& = delete;
+        -> ::pltxt2htm::UnityColor<ndebug>& = default;
     constexpr auto operator=(this UnityColor<ndebug>& self, ::pltxt2htm::UnityColor<ndebug>&&) noexcept
         -> ::pltxt2htm::UnityColor<ndebug>&;
 
@@ -66,7 +66,7 @@ public:
     constexpr UnityLink(::pltxt2htm::UnityLink<ndebug>&&) noexcept;
     constexpr ~UnityLink() noexcept = default;
     constexpr auto operator=(::pltxt2htm::UnityLink<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnityLink<ndebug>& = delete;
+        -> ::pltxt2htm::UnityLink<ndebug>& = default;
     constexpr auto operator=(this UnityLink<ndebug>& self, ::pltxt2htm::UnityLink<ndebug>&&) noexcept
         -> ::pltxt2htm::UnityLink<ndebug>&;
 
@@ -100,7 +100,7 @@ public:
     constexpr UnitySize(::pltxt2htm::UnitySize<ndebug>&&) noexcept;
     constexpr ~UnitySize() noexcept = default;
     constexpr auto operator=(::pltxt2htm::UnitySize<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnitySize<ndebug>& = delete;
+        -> ::pltxt2htm::UnitySize<ndebug>& = default;
     constexpr auto operator=(this UnitySize<ndebug>& self, ::pltxt2htm::UnitySize<ndebug>&&) noexcept
         -> ::pltxt2htm::UnitySize<ndebug>&;
 
@@ -146,7 +146,7 @@ public:
     constexpr UnityVoffset(::pltxt2htm::UnityVoffset<ndebug>&&) noexcept;
     constexpr ~UnityVoffset() noexcept = default;
     constexpr auto operator=(::pltxt2htm::UnityVoffset<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnityVoffset<ndebug>& = delete;
+        -> ::pltxt2htm::UnityVoffset<ndebug>& = default;
     constexpr auto operator=(this UnityVoffset<ndebug>& self, ::pltxt2htm::UnityVoffset<ndebug>&&) noexcept
         -> ::pltxt2htm::UnityVoffset<ndebug>&;
 
@@ -180,7 +180,7 @@ public:
     constexpr UnityAlign(::pltxt2htm::UnityAlign<ndebug>&&) noexcept;
     constexpr ~UnityAlign() noexcept = default;
     constexpr auto operator=(::pltxt2htm::UnityAlign<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnityAlign<ndebug>& = delete;
+        -> ::pltxt2htm::UnityAlign<ndebug>& = default;
     constexpr auto operator=(this UnityAlign<ndebug>& self, ::pltxt2htm::UnityAlign<ndebug>&&) noexcept
         -> ::pltxt2htm::UnityAlign<ndebug>&;
 
@@ -215,7 +215,7 @@ public:
     constexpr UnityMark(::pltxt2htm::UnityMark<ndebug>&&) noexcept;
     constexpr ~UnityMark() noexcept = default;
     constexpr auto operator=(::pltxt2htm::UnityMark<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnityMark<ndebug>& = delete;
+        -> ::pltxt2htm::UnityMark<ndebug>& = default;
     constexpr auto operator=(this UnityMark<ndebug>& self, ::pltxt2htm::UnityMark<ndebug>&&) noexcept
         -> ::pltxt2htm::UnityMark<ndebug>&;
 
@@ -242,9 +242,62 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class UnityMargin {
+    struct MarginStorage {
+        ::std::size_t left_value{};
+        ::std::size_t right_value{};
+        ::pltxt2htm::Unit left_unit : 2 {::pltxt2htm::Unit::px};
+        ::pltxt2htm::Unit right_unit : 2 {::pltxt2htm::Unit::px};
+        bool has_left : 1 {};
+        bool has_right : 1 {};
+
+        constexpr MarginStorage(
+            ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> const& left,
+            ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> const& right) noexcept {
+            if (left.has_value()) {
+                auto const& value = left.template value<ndebug>();
+                left_value = value.value;
+                left_unit = value.unit;
+                has_left = true;
+            }
+            if (right.has_value()) {
+                auto const& value = right.template value<ndebug>();
+                right_value = value.value;
+                right_unit = value.unit;
+                has_right = true;
+            }
+        }
+
+        [[nodiscard]]
+        constexpr auto operator==(this MarginStorage const& self, MarginStorage const& other) noexcept -> bool {
+            bool const left_equal{
+                self.has_left == other.has_left &&
+                (self.has_left == false || (self.left_value == other.left_value && self.left_unit == other.left_unit))};
+            return left_equal && self.has_right == other.has_right &&
+                   (self.has_right == false ||
+                    (self.right_value == other.right_value && self.right_unit == other.right_unit));
+        }
+
+        [[nodiscard]]
+        constexpr auto get_left(this MarginStorage const& self) noexcept
+            -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+            if (self.has_left == false) {
+                return ::pltxt2htm::container::nullopt;
+            }
+            return ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = self.left_value, .unit = self.left_unit};
+        }
+
+        [[nodiscard]]
+        constexpr auto get_right(this MarginStorage const& self) noexcept
+            -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+            if (self.has_right == false) {
+                return ::pltxt2htm::container::nullopt;
+            }
+            return ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = self.right_value, .unit = self.right_unit};
+        }
+    };
+
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+    MarginStorage margins;
 
 public:
     constexpr UnityMargin(::pltxt2htm::Ast<ndebug>&& subast_,
@@ -254,7 +307,7 @@ public:
     constexpr UnityMargin(::pltxt2htm::UnityMargin<ndebug>&&) noexcept;
     constexpr ~UnityMargin() noexcept = default;
     constexpr auto operator=(::pltxt2htm::UnityMargin<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnityMargin<ndebug>& = delete;
+        -> ::pltxt2htm::UnityMargin<ndebug>& = default;
     constexpr auto operator=(this UnityMargin<ndebug>& self, ::pltxt2htm::UnityMargin<ndebug>&&) noexcept
         -> ::pltxt2htm::UnityMargin<ndebug>&;
 
@@ -269,13 +322,13 @@ public:
     [[nodiscard]]
     constexpr auto get_left(this auto const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        return self.left;
+        return self.margins.get_left();
     }
 
     [[nodiscard]]
     constexpr auto get_right(this auto const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        return self.right;
+        return self.margins.get_right();
     }
 };
 
@@ -292,7 +345,7 @@ public:
     constexpr UnityI(::pltxt2htm::UnityI<ndebug> const&) noexcept;
     constexpr UnityI(::pltxt2htm::UnityI<ndebug>&&) noexcept;
     constexpr ~UnityI() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityI<ndebug> const&) noexcept -> ::pltxt2htm::UnityI<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::UnityI<ndebug> const&) noexcept -> ::pltxt2htm::UnityI<ndebug>& = default;
     constexpr auto operator=(this UnityI<ndebug>& self, ::pltxt2htm::UnityI<ndebug>&&) noexcept
         -> ::pltxt2htm::UnityI<ndebug>&;
 
@@ -318,7 +371,7 @@ public:
     constexpr UnityB(::pltxt2htm::UnityB<ndebug> const&) noexcept;
     constexpr UnityB(::pltxt2htm::UnityB<ndebug>&&) noexcept;
     constexpr ~UnityB() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityB<ndebug> const&) noexcept -> ::pltxt2htm::UnityB<ndebug>& = delete;
+    constexpr auto operator=(::pltxt2htm::UnityB<ndebug> const&) noexcept -> ::pltxt2htm::UnityB<ndebug>& = default;
     constexpr auto operator=(this UnityB<ndebug>& self, ::pltxt2htm::UnityB<ndebug>&&) noexcept
         -> ::pltxt2htm::UnityB<ndebug>&;
 
