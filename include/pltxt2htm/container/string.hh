@@ -386,22 +386,6 @@ public:
     }
 
     /**
-     * @brief Constructs `count` copies of a character.
-     * @param count Number of logical characters.
-     * @param character Character value to copy.
-     */
-    constexpr explicit BasicString(size_type count, value_type character) noexcept {
-        if (count == 0) {
-            this->reset();
-            return;
-        }
-        this->allocate(count);
-        ::std::fill_n(this->begin_pointer, count, character);
-        this->current_pointer = this->begin_pointer + count;
-        *this->current_pointer = value_type{};
-    }
-
-    /**
      * @brief Constructs a string from the half-open range `[first, last)`.
      * @param first First character to copy.
      * @param last One past the last character to copy.
