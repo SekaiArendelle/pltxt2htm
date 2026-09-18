@@ -150,6 +150,7 @@ private:
         // Work around constructors being unable to receive an explicitly selected Contracts template argument.
 #ifndef NDEBUG
         constexpr auto ndebug{::pltxt2htm::Contracts::quick_enforce};
+        pltxt2htm_assert(capacity != 0, u8"BasicString capacity can not be zero");
         pltxt2htm_assert(capacity < self.max_size(), u8"BasicString capacity is too large");
 #endif
         if consteval {
