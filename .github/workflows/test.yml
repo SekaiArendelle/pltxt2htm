@@ -99,6 +99,11 @@ jobs:
           docker build -f tests/docker/x86_64-linux-gnu-asan/Dockerfile -t x86_64-linux-gnu-test-asan .
 
   x86_64-linux-gnu-test-msan:
+    # Ubuntu's C++ standard libraries are not built with MSan instrumentation. This causes
+    # false positives in doctest before the test body runs; re-enable this job once it uses
+    # an MSan-instrumented standard library.
+    if: ${{ false }}
+
     strategy:
       fail-fast: false
 

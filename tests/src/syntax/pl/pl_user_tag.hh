@@ -1,0 +1,116 @@
+#pragma once
+
+#include "doctest_config.hh"
+
+TEST_CASE("pl_user_tag") {
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<user=642cf37a494746375aae306a>physicsLab</user>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<USER=642cf37a494746375aae306a      >physicsLab</USER      >");
+        auto answer = ::fast_io::u8string_view{
+            u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8R"(
+<User=642cf37a494746375aae306a      >te
+ xt</user      >
+)");
+        auto answer = ::fast_io::u8string_view{
+            u8"<br><span class='RUser' data-user=\'642cf37a494746375aae306a\'>te<br>&nbsp;xt</span><br>"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<User=642cf37a494746375aae306a><User=642cf37a494746375aae306a>physicsLab</user></"
+            u8"user>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<User=123><user=642cf37a494746375aae306a>physicsLab</user></User>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<User=123>");
+        auto answer = ::fast_io::u8string_view{u8"test"};
+        CHECK(html == answer);
+    }
+
+    // test invalid tag
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<user=");
+        auto answer = ::fast_io::u8string_view{u8"test&lt;user="};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(
+            u8"<User=642cf37a494746375aae306a>text<user=642cf37a494746375aae306a>text</user></user>");
+        auto answer =
+            ::fast_io::u8string_view{u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>texttext</span>"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html =
+            ::pltxt2htm_test::pltxt4unittest(u8"<user=642cf37a494746375aae306a>physics<user=123>L</user>ab</user>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physics<span class=\'RUser\' "
+            u8"data-user=\'123\'>L</span>ab</span>"};
+        CHECK(html == answer);
+    }
+
+    // Optimization example: empty tag
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<user=642cf37a494746375aae306a></user>t");
+        auto answer = ::fast_io::u8string_view{u8"tt"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<user=642cf37a494746375aae306a></user>t");
+        auto answer = ::fast_io::u8string_view{u8"tt"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<user=642cf37a494746375aae306a></user");
+        auto answer =
+            ::fast_io::u8string_view{u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>&lt;/user</span>"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<user=xxx><i>test</i></user>");
+        auto answer = ::fast_io::u8string_view{u8"<span class=\'RUser\' data-user=\'xxx\'><em>test</em></span>"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<user=xxx><i>test</i></user>");
+        auto answer = ::fast_io::u8string_view{u8"<em>test</em>"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<user=id>text</user>");
+        auto answer = ::fast_io::u8string_view{u8"<user=id>text</user>"};
+        CHECK(html == answer);
+    }
+}
+

@@ -1,6 +1,6 @@
 FROM ubuntu:26.04
 
-RUN apt update && apt install -y --no-install-recommends cmake ninja-build clang libclang-rt-dev
+RUN apt update && apt install -y --no-install-recommends cmake ninja-build llvm clang libclang-rt-dev git ca-certificates
 
 WORKDIR /pltxt2htm
 COPY include/ /pltxt2htm/include/

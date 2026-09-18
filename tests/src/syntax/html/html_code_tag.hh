@@ -1,0 +1,129 @@
+#pragma once
+
+#include "doctest_config.hh"
+
+TEST_CASE("html_code_tag") {
+    // bare <code> renders as an inline <code> element (like other inline HTML tags)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code>text</code>");
+        auto answer = ::fast_io::u8string_view{u8"<code>text</code>"};
+        CHECK(html == answer);
+    }
+
+    // opening and closing tags allow spaces before '>' (case-insensitive)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<CODE    >text</CODE  >");
+        auto answer = ::fast_io::u8string_view{u8"<code>text</code>"};
+        CHECK(html == answer);
+    }
+
+    // content is parsed as inline markup (nested tags are processed normally)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code><color=red>text</color></code>");
+        auto answer = ::fast_io::u8string_view{u8"<code><span style=\"color:red;\">text</span></code>"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code><color=red>text</code></color>");
+        auto answer = ::fast_io::u8string_view{u8"<code><span style=\"color:red;\">text&lt;/code&gt;</span></code>"};
+        CHECK(html == answer);
+    }
+
+    // nested <code> is flattened (same-tag optimization, like other inline HTML tags)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code>text<code>text</code></code>");
+        auto answer = ::fast_io::u8string_view{u8"<code>texttext</code>"};
+        CHECK(html == answer);
+    }
+
+    // unclosed <code> auto-closes at end of input; empty content is dropped
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code>");
+        auto answer = ::fast_io::u8string_view{u8""};
+        CHECK(html == answer);
+    }
+
+    // incomplete <code (no '>') stays literal escaped text
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code");
+        auto answer = ::fast_io::u8string_view{u8"&lt;code"};
+        CHECK(html == answer);
+    }
+
+    // empty <code></code> is dropped
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<code></code>t");
+        auto answer = ::fast_io::u8string_view{u8"tt"};
+        CHECK(html == answer);
+    }
+
+    // --- standalone <code class="language-..."> stays literal escaped text ---
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class=\"language-bash\">echo</code>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;class=&quot;language-bash&quot;&gt;echo&lt;/code&gt;"};
+        CHECK(html == answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class=\"language-cpp\">fn()</code>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;class=&quot;language-cpp&quot;&gt;fn()&lt;/code&gt;"};
+        CHECK(html == answer);
+    }
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class='language-c++'>fn()</code>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;class=&apos;language-c++&apos;&gt;fn()&lt;/code&gt;"};
+        CHECK(html == answer);
+    }
+    // case-sensitive: Language- vs language-
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class=\"Language-bash\">echo</code>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;class=&quot;Language-bash&quot;&gt;echo&lt;/code&gt;"};
+        CHECK(html == answer);
+    }
+    // non-language- prefix
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class=\"xxx\">echo</code>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;class=&quot;xxx&quot;&gt;echo&lt;/code&gt;"};
+        CHECK(html == answer);
+    }
+    // empty class value
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class=\"\">echo</code>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;class=&quot;&quot;&gt;echo&lt;/code&gt;"};
+        CHECK(html == answer);
+    }
+    // unknown attribute (style)
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code style=\"color:red\">echo</code>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;style=&quot;color:red&quot;&gt;echo&lt;/code&gt;"};
+        CHECK(html == answer);
+    }
+    // language- with empty language suffix
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class=\"language-\">echo</code>");
+        auto answer = ::fast_io::u8string_view{u8"&lt;code&nbsp;class=&quot;language-&quot;&gt;echo&lt;/code&gt;"};
+        CHECK(html == answer);
+    }
+    // attribute injection attempts stay escaped
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<code class='language-\" onmouseover=\"alert(1)'>x</code>");
+        auto answer = ::fast_io::u8string_view{
+            u8"&lt;code&nbsp;class=&apos;language-&quot;&nbsp;onmouseover=&quot;alert(1)&apos;&gt;x&lt;/code&gt;"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<code>test</code>cd");
+        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd"};
+        CHECK(html == answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<code class=\"language-cpp\">code</code>");
+        auto answer = ::fast_io::u8string_view{
+            u8"<size=20>\uff1c</size>code\u00A0class=\"language-cpp\"<size=20>\uff1e</size>code<size=20>\uff1c</size>/"
+            u8"code<size=20>\uff1e</size>"};
+        CHECK(html == answer);
+    }
+}
+
