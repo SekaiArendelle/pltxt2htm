@@ -15,7 +15,7 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../../container/optional.hh"
 #include "../utils.hh"
@@ -148,7 +148,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         // Collect the raw <li> content up to the matching </li>.  Nested <ul>/<ol> are
         // parsed recursively into sibling sublist nodes (appended after the item), so the
         // item text itself never contains list markup and no inline recognition is needed.
-        ::fast_io::u8string text{};
+        ::pltxt2htm::container::U8String text{};
         ListAst<ndebug> pending_nested{};
         while (true) {
             if (current_index >= pltext_size) {
@@ -184,16 +184,16 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
                 continue;
             }
             // Ordinary content character.
-            text.push_back(pltext.template index<ndebug>(current_index));
+            text.push_back<ndebug>(pltext.template index<ndebug>(current_index));
             ++current_index;
         }
         // Trailing whitespace/newlines are formatting as well (see the leading-skip above).
         while (text.empty() == false) {
-            auto const chr = text[text.size() - 1];
+            auto const chr = text.template index<ndebug>(text.size() - 1);
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;
             }
-            text.pop_back();
+            text.template pop_back<ndebug>();
         }
         if (checkbox) {
             ast.emplace_back(ListLiCheckboxNode(::std::move(text), checkbox_checked));

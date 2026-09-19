@@ -7,8 +7,8 @@
 #pragma once
 
 #include <utility>
+#include "../../container/string.hh"
 #include "../../container/optional.hh"
-#include <fast_io/fast_io_dsal/string.h>
 #include "ast_decl.hh"
 
 namespace pltxt2htm {
@@ -151,7 +151,7 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class CodeFence {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::Optional<::fast_io::u8string> lang;
+    ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> lang;
 
 public:
     /**
@@ -160,7 +160,7 @@ public:
      * @param lang Optional language string.
      */
     constexpr explicit CodeFence(::pltxt2htm::Ast<ndebug>&& subast_,
-                                 ::pltxt2htm::container::Optional<::fast_io::u8string>&& lang_) noexcept;
+                                 ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>&& lang_) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
     constexpr ~CodeFence() noexcept = default;
@@ -188,14 +188,14 @@ public:
  * @details Represents a semantic URL value stored independently of any backend's escaping syntax.
  */
 class Url {
-    ::fast_io::u8string url_str;
+    ::pltxt2htm::container::U8String url_str;
 
 public:
     /**
      * @brief Construct a ::pltxt2htm::Url from a semantic URL string.
      * @param url The URL string without HTML attribute escaping.
      */
-    constexpr explicit Url(::fast_io::u8string&& url) noexcept
+    constexpr explicit Url(::pltxt2htm::container::U8String&& url) noexcept
         : url_str(::std::move(url)) {
     }
 
@@ -209,7 +209,7 @@ public:
     constexpr auto operator==(this Url const&, Url const&) noexcept -> bool = default;
 
     [[nodiscard]]
-    constexpr auto as_string(this Url const& self) noexcept -> ::fast_io::u8string const& {
+    constexpr auto as_string(this Url const& self) noexcept -> ::pltxt2htm::container::U8String const& {
         return self.url_str;
     }
 };
