@@ -137,8 +137,8 @@ private:
     }
 
     /**
-     * @brief Allocates zero-initialized storage for exactly `capacity` characters plus a terminator.
-     * @param capacity Requested logical character capacity, excluding the terminator.
+     * @brief Constructs a string containing `count` null characters.
+     * @param count Number of logical null characters, excluding the terminator.
      *
      * At runtime this preserves allocator-specific zero-allocation optimizations,
      * such as calloc-backed lazy zero pages. The exact-size API avoids relying on
@@ -146,25 +146,25 @@ private:
      * During constant evaluation, start_lifetime value-initializes every allocated
      * character instead.
      */
-    constexpr void allocate_zero(this BasicString& self, size_type capacity) noexcept {
+    constexpr void construct_zero(this BasicString& self, size_type count) noexcept {
         // Work around constructors being unable to receive an explicitly selected Contracts template argument.
 #ifndef NDEBUG
         constexpr auto ndebug{::pltxt2htm::Contracts::quick_enforce};
-        pltxt2htm_assert(capacity != 0, u8"BasicString capacity can not be zero");
-        pltxt2htm_assert(capacity < self.max_size(), u8"BasicString capacity is too large");
+        pltxt2htm_assert(count != 0, u8"BasicString capacity can not be zero");
+        pltxt2htm_assert(count < self.max_size(), u8"BasicString capacity is too large");
 #endif
         if consteval {
-            auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(capacity + 1);
+            auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(count + 1);
             self.start_lifetime(new_pointer, allocated_size);
             self.begin_pointer = new_pointer;
-            self.current_pointer = new_pointer;
+            self.current_pointer = new_pointer + count;
             self.end_pointer = new_pointer + static_cast<size_type>(allocated_size - 1);
         }
         else {
-            pointer const new_pointer{typed_allocator_type::allocate_zero(capacity + 1)};
+            pointer const new_pointer{typed_allocator_type::allocate_zero(count + 1)};
             self.begin_pointer = new_pointer;
-            self.current_pointer = new_pointer;
-            self.end_pointer = new_pointer + capacity;
+            self.current_pointer = new_pointer + count;
+            self.end_pointer = new_pointer + count;
         }
     }
 
@@ -340,7 +340,9 @@ private:
         }
 
         if consteval {
-            ::std::copy_n(source, count, self.begin_pointer);
+            for (size_type index{}; index != count; ++index) {
+                self.begin_pointer[index] = source[index];
+            }
         }
         else {
             ::fast_io::freestanding::overlapped_copy_n(source, count, self.begin_pointer);
@@ -372,8 +374,7 @@ public:
             this->reset();
             return;
         }
-        this->allocate_zero(count);
-        this->current_pointer = this->begin_pointer + count;
+        this->construct_zero(count);
     }
 
     /**
@@ -918,30 +919,24 @@ public:
 
     /**
      * @brief Replaces the contents with repeated copies of one character.
+     * @tparam ndebug Contract policy used for capacity validation.
      * @param count Number of logical characters to store.
      * @param character Character value; defaults to the null character.
      *
      * Existing capacity is retained and reused when sufficient. A zero count is
      * equivalent to clear().
      */
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void assign_characters(this BasicString& self, size_type count,
                                      value_type character = value_type{}) noexcept {
         if (count == 0) {
             self.clear();
             return;
         }
-        self.ensure_capacity<::pltxt2htm::Contracts::quick_enforce>(count);
+        self.ensure_capacity<ndebug>(count);
         ::std::fill_n(self.begin_pointer, count, character);
         self.current_pointer = self.begin_pointer + count;
         *self.current_pointer = value_type{};
-    }
-
-    /**
-     * @brief Replaces the contents with a single character.
-     * @param character Character value to store.
-     */
-    constexpr void assign_with_character(this BasicString& self, value_type character) noexcept {
-        self.assign_characters(1, character);
     }
 
     /**

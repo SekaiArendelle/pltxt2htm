@@ -51,7 +51,7 @@ consteval auto test_constexpr_string() noexcept -> bool {
     U8String empty_string;
     empty_string.clear();
     empty_string.assign(U8StringView{});
-    empty_string.assign_characters(0);
+    empty_string.assign_characters<Contracts::quick_enforce>(0);
     U8String moved_empty_string{::std::move(empty_string)};
     if (!empty_string.empty() || empty_string.c_str()[0] != u8'\0' || !moved_empty_string.empty() ||
         moved_empty_string.c_str()[0] != u8'\0') {
@@ -124,7 +124,7 @@ int main() {
     pltxt2htm_test_assert_true(empty_string.capacity() == 0);
     empty_string.clear();
     empty_string.assign(U8StringView{});
-    empty_string.assign_characters(0);
+    empty_string.assign_characters<Contracts::quick_enforce>(0);
     U8String moved_empty_string{::std::move(empty_string)};
     U8String assigned_empty_string{u8"not empty"};
     assigned_empty_string = ::std::move(moved_empty_string);
