@@ -11,8 +11,8 @@
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/list.h>
+#include "container/string.hh"
 #include "details/call_stack.hh"
-#include <fast_io/fast_io_dsal/string.h>
 #include "container/string_view.hh"
 #include "container/optional.hh"
 #include "ast/node_kind.hh"
@@ -469,7 +469,7 @@ entry:
                         call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
                                 ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::fast_io::u8string{color}},
+                                                                       ::pltxt2htm::container::U8String{color}},
                                 ::pltxt2htm::NodeKind::unity_color},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -520,7 +520,7 @@ entry:
                         call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
                                 ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::fast_io::u8string{id}},
+                                                                       ::pltxt2htm::container::U8String{id}},
                                 ::pltxt2htm::NodeKind::pl_discussion},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -559,7 +559,7 @@ entry:
                         call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
                                 ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::fast_io::u8string{id}},
+                                                                       ::pltxt2htm::container::U8String{id}},
                                 ::pltxt2htm::NodeKind::pl_experiment},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -849,7 +849,7 @@ entry:
                         call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
                                 ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::fast_io::u8string{id}},
+                                                                       ::pltxt2htm::container::U8String{id}},
                                 ::pltxt2htm::NodeKind::pl_user},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;

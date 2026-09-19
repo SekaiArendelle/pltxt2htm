@@ -12,10 +12,10 @@ struct PlainTextBackendFixture : ::benchmark::Fixture {
     ::std::size_t input_bytes;
 
     void SetUp(::benchmark::State& state) override {
-        ::fast_io::u8string text;
+        ::pltxt2htm::container::U8String text;
         auto n = as_size(state);
         for (::std::size_t i = 0; i < n / 40; ++i)
-            text.append(u8"Lorem ipsum dolor sit amet, consectetur adipiscing.\n");
+            text.append<ndebug>(u8"Lorem ipsum dolor sit amet, consectetur adipiscing.\n");
         input_bytes = text.size();
         auto sv = ::fast_io::u8string_view{text.data(), text.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
@@ -27,10 +27,10 @@ struct RichHtmlBackendFixture : ::benchmark::Fixture {
     ::std::size_t input_bytes;
 
     void SetUp(::benchmark::State& state) override {
-        ::fast_io::u8string text;
+        ::pltxt2htm::container::U8String text;
         auto n = as_size(state);
         for (::std::size_t i = 0; i < n; ++i)
-            text.append(
+            text.append<ndebug>(
                 u8R"(<p>Paragraph with <em>emphasis</em> and <strong>bold</strong>.</p>
 <h1>Heading</h1>
 <ul><li>item 1</li><li>item 2</li></ul>
@@ -49,10 +49,10 @@ struct PlTagsBackendFixture : ::benchmark::Fixture {
     ::std::size_t input_bytes;
 
     void SetUp(::benchmark::State& state) override {
-        ::fast_io::u8string text;
+        ::pltxt2htm::container::U8String text;
         auto n = as_size(state);
         for (::std::size_t i = 0; i < n; ++i)
-            text.append(
+            text.append<ndebug>(
                 u8R"(<color=red><b>bold text</b></color>
 <experiment=123>exp</experiment>
 <discussion=456>disc</discussion>
@@ -71,10 +71,10 @@ struct MarkdownBackendFixture : ::benchmark::Fixture {
     ::std::size_t input_bytes;
 
     void SetUp(::benchmark::State& state) override {
-        ::fast_io::u8string text;
+        ::pltxt2htm::container::U8String text;
         auto n = as_size(state);
         for (::std::size_t i = 0; i < n; ++i)
-            text.append(
+            text.append<ndebug>(
                 u8R"(# Header
 **bold** and *italic*
 - list item
