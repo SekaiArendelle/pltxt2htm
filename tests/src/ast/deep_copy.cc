@@ -15,9 +15,9 @@ int main() {
         pltxt2htm_test_assert_true(original == copy);
     }
 
-    // Copy a U8Char node
+    // Copy a Text node
     {
-        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'X'});
+        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Text<nd::quick_enforce>{u8'X'});
         auto const copy = original;
         pltxt2htm_test_assert_true(original == copy);
     }
@@ -25,8 +25,8 @@ int main() {
     // Deep copy a simple Group node with children
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
-        ast.emplace_back(::pltxt2htm::U8Char{u8'H'});
-        ast.emplace_back(::pltxt2htm::U8Char{u8'i'});
+        ast.emplace_back(::pltxt2htm::Text<nd::quick_enforce>{u8'H'});
+        ast.emplace_back(::pltxt2htm::Text<nd::quick_enforce>{u8'i'});
 
         auto const original =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast)));
@@ -35,10 +35,10 @@ int main() {
         pltxt2htm_test_assert_true(original == copy);
     }
 
-    // Deep copy with nested sub-AST (HtmlBlockquote > HtmlH1 > U8Char)
+    // Deep copy with nested sub-AST (HtmlBlockquote > HtmlH1 > Text)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> inner{};
-        inner.emplace_back(::pltxt2htm::U8Char{u8'a'});
+        inner.emplace_back(::pltxt2htm::Text<nd::quick_enforce>{u8'a'});
 
         ::pltxt2htm::Ast<nd::quick_enforce> outer{};
         outer.emplace_back(::pltxt2htm::HtmlH1<nd::quick_enforce>(::std::move(inner)));
@@ -53,7 +53,7 @@ int main() {
     // Copy independence: modifying original must not affect copy
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
-        ast.emplace_back(::pltxt2htm::U8Char{u8'A'});
+        ast.emplace_back(::pltxt2htm::Text<nd::quick_enforce>{u8'A'});
 
         auto original =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast)));
@@ -61,12 +61,12 @@ int main() {
         auto copy = original;
 
         // Mutate original: replace its sub-AST
-        ::pltxt2htm::Ast<nd::quick_enforce> new_ast{::pltxt2htm::U8Char{u8'B'}};
+        ::pltxt2htm::Ast<nd::quick_enforce> new_ast{::pltxt2htm::Text<nd::quick_enforce>{u8'B'}};
         original =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(new_ast)));
 
         // Copy must still hold old value
-        ::pltxt2htm::Ast<nd::quick_enforce> expected_ast{::pltxt2htm::U8Char{u8'A'}};
+        ::pltxt2htm::Ast<nd::quick_enforce> expected_ast{::pltxt2htm::Text<nd::quick_enforce>{u8'A'}};
         auto const expected =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(expected_ast)));
         pltxt2htm_test_assert_true(copy == expected);
@@ -76,7 +76,7 @@ int main() {
     // Copy of a node with extra data (TableTh with align)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
-        ast.emplace_back(::pltxt2htm::U8Char{u8'c'});
+        ast.emplace_back(::pltxt2htm::Text<nd::quick_enforce>{u8'c'});
 
         auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(
             ::pltxt2htm::TableTh<nd::quick_enforce>(::std::move(ast), ::pltxt2htm::TableAlign::center));
@@ -88,7 +88,7 @@ int main() {
     // Copy of a node with optional language (CodeFence)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
-        ast.emplace_back(::pltxt2htm::U8Char{u8'x'});
+        ast.emplace_back(::pltxt2htm::Text<nd::quick_enforce>{u8'x'});
 
         auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::std::move(ast), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
@@ -101,7 +101,7 @@ int main() {
     // Copy of a node with Url (MdLink)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> text_ast{};
-        text_ast.emplace_back(::pltxt2htm::U8Char{u8't'});
+        text_ast.emplace_back(::pltxt2htm::Text<nd::quick_enforce>{u8't'});
 
         auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::MdLink<nd::quick_enforce>(
             ::std::move(text_ast), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"})));
@@ -112,7 +112,8 @@ int main() {
 
     // Copy an Ast (vector of PlTxtNode)
     {
-        ::pltxt2htm::Ast<nd::quick_enforce> const original{::pltxt2htm::U8Char{u8'A'}, ::pltxt2htm::U8Char{u8'B'}};
+        ::pltxt2htm::Ast<nd::quick_enforce> const original{::pltxt2htm::Text<nd::quick_enforce>{u8'A'},
+                                                           ::pltxt2htm::Text<nd::quick_enforce>{u8'B'}};
 
         auto const copy = original;
         pltxt2htm_test_assert_true(original == copy);
@@ -121,15 +122,15 @@ int main() {
     // Ast copy independence
     {
         ::pltxt2htm::Ast<nd::quick_enforce> original{};
-        original.emplace_back(::pltxt2htm::U8Char{u8'A'});
+        original.emplace_back(::pltxt2htm::Text<nd::quick_enforce>{u8'A'});
 
         auto copy = original;
 
         original.clear();
-        original.emplace_back(::pltxt2htm::U8Char{u8'B'});
+        original.emplace_back(::pltxt2htm::Text<nd::quick_enforce>{u8'B'});
 
         ::pltxt2htm::Ast<nd::quick_enforce> expected{};
-        expected.emplace_back(::pltxt2htm::U8Char{u8'A'});
+        expected.emplace_back(::pltxt2htm::Text<nd::quick_enforce>{u8'A'});
 
         pltxt2htm_test_assert_true(copy == expected);
         pltxt2htm_test_assert_false(copy == original);

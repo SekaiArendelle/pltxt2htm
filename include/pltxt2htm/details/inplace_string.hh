@@ -11,6 +11,8 @@
 #include <cstddef>
 #include <iterator>
 #include <limits>
+#include <memory>
+#include <ranges>
 #include <type_traits>
 #include <utility>
 
@@ -55,12 +57,28 @@ public:
     using const_reverse_iterator = ::std::reverse_iterator<const_iterator>;
 
 private:
-    value_type storage[extent]{};
+    // Runtime constructors leave the inactive suffix untouched; special members must copy only the active prefix.
+    value_type storage[extent];
     StoredSize size_storage{};
+
+    constexpr void initialize_storage_for_constant_evaluation(this BasicInplaceString& self) noexcept {
+        if consteval {
+            ::std::fill_n(self.storage, extent, value_type{});
+        }
+    }
+
+    constexpr void copy_active_from(this BasicInplaceString& self, BasicInplaceString const& other) noexcept {
+        if (::std::addressof(self) == ::std::addressof(other)) {
+            return;
+        }
+        auto const count = other.size();
+        ::std::copy_n(other.storage, count, self.storage);
+        self.size_storage = other.size_storage;
+    }
 
     template<typename InputIterator, typename Sentinel>
     [[nodiscard]]
-    static consteval auto is_nothrow_range_iteration() noexcept -> bool {
+    static consteval auto is_nothrow_iterator_iteration() noexcept -> bool {
         constexpr bool is_nothrow_iteration =
             noexcept(static_cast<bool>(::std::declval<InputIterator&>() != ::std::declval<Sentinel&>())) &&
             noexcept(++::std::declval<InputIterator&>()) &&
@@ -74,51 +92,21 @@ private:
         }
     }
 
-public:
-    constexpr BasicInplaceString() noexcept = default;
-
-    constexpr explicit BasicInplaceString(value_type value) noexcept {
-        this->push_back(value);
+    template<typename R>
+    [[nodiscard]]
+    static consteval auto is_nothrow_range_iteration() noexcept -> bool {
+        using iterator_type = ::std::ranges::iterator_t<R>;
+        using sentinel_type = ::std::ranges::sentinel_t<R>;
+        return noexcept(::std::ranges::begin(::std::declval<R&>())) &&
+               noexcept(::std::ranges::end(::std::declval<R&>())) &&
+               is_nothrow_iterator_iteration<iterator_type, sentinel_type>();
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
                   ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
-    constexpr BasicInplaceString(InputIterator first,
-                                 Sentinel last) noexcept(::std::is_nothrow_move_constructible_v<InputIterator> &&
-                                                         ::std::is_nothrow_move_constructible_v<Sentinel> &&
-                                                         is_nothrow_range_iteration<InputIterator, Sentinel>()) {
-        this->append(::std::move(first), ::std::move(last));
-    }
-
-    constexpr BasicInplaceString(BasicInplaceString const&) noexcept = default;
-
-    constexpr auto operator=(this BasicInplaceString&, BasicInplaceString const&) -> BasicInplaceString& = default;
-
-    constexpr auto operator=(this BasicInplaceString&, BasicInplaceString&&) noexcept -> BasicInplaceString& = default;
-
-    constexpr ~BasicInplaceString() noexcept = default;
-
-    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
-                  ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
-    constexpr void assign(this BasicInplaceString& self, InputIterator first,
-                          Sentinel last) noexcept(::std::is_nothrow_move_constructible_v<InputIterator> &&
-                                                  ::std::is_nothrow_move_constructible_v<Sentinel> &&
-                                                  is_nothrow_range_iteration<InputIterator, Sentinel>()) {
-        if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
-            auto const count = static_cast<size_type>(last - first);
-            pltxt2htm_assert(count <= extent, u8"BasicInplaceString capacity exceeded");
-        }
-        self.clear();
-        self.append(::std::move(first), ::std::move(last));
-    }
-
-    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
-                  ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
-    constexpr void append(this BasicInplaceString& self, InputIterator first,
-                          Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>()) {
+    constexpr void append_iter(this BasicInplaceString& self, InputIterator& first,
+                               Sentinel& last) noexcept(is_nothrow_iterator_iteration<InputIterator, Sentinel>()) {
         if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
             auto const count = static_cast<size_type>(last - first);
             pltxt2htm_assert(count <= extent - self.size(), u8"BasicInplaceString capacity exceeded");
@@ -131,19 +119,78 @@ public:
                 self.size_storage = static_cast<StoredSize>(new_size);
                 return;
             }
-            else {
-                while (first != last) {
-                    self.push_back(static_cast<value_type>(*first));
-                    ++first;
-                }
-            }
         }
-        else {
-            while (first != last) {
-                self.push_back(static_cast<value_type>(*first));
-                ++first;
-            }
+
+        while (first != last) {
+            self.push_back(static_cast<value_type>(*first));
+            ++first;
         }
+    }
+
+public:
+    constexpr BasicInplaceString() noexcept {
+        this->initialize_storage_for_constant_evaluation();
+    }
+
+    constexpr explicit BasicInplaceString(value_type value) noexcept {
+        this->initialize_storage_for_constant_evaluation();
+        this->push_back(value);
+    }
+
+    template<::std::ranges::input_range R>
+        requires (!::std::same_as<::std::remove_cvref_t<R>, BasicInplaceString> &&
+                  ::std::same_as<::std::ranges::range_value_t<R>, value_type> &&
+                  ::std::constructible_from<value_type, ::std::ranges::range_reference_t<R>>)
+    constexpr explicit BasicInplaceString(R&& range) noexcept(is_nothrow_range_iteration<R>()) {
+        this->initialize_storage_for_constant_evaluation();
+        this->append_range(::std::forward<R>(range));
+    }
+
+    constexpr BasicInplaceString(BasicInplaceString const& other) noexcept {
+        this->initialize_storage_for_constant_evaluation();
+        this->copy_active_from(other);
+    }
+
+    constexpr BasicInplaceString(BasicInplaceString&& other) noexcept {
+        this->initialize_storage_for_constant_evaluation();
+        this->copy_active_from(other);
+    }
+
+    constexpr auto operator=(this BasicInplaceString& self, BasicInplaceString const& other) noexcept
+        -> BasicInplaceString& {
+        self.copy_active_from(other);
+        return self;
+    }
+
+    constexpr auto operator=(this BasicInplaceString& self, BasicInplaceString&& other) noexcept
+        -> BasicInplaceString& {
+        self.copy_active_from(other);
+        return self;
+    }
+
+    constexpr ~BasicInplaceString() noexcept = default;
+
+    template<::std::ranges::input_range R>
+        requires (::std::same_as<::std::ranges::range_value_t<R>, value_type> &&
+                  ::std::constructible_from<value_type, ::std::ranges::range_reference_t<R>>)
+    constexpr void assign_range(this BasicInplaceString& self, R&& range) noexcept(is_nothrow_range_iteration<R>()) {
+        auto first = ::std::ranges::begin(range);
+        auto last = ::std::ranges::end(range);
+        if constexpr (::std::sized_sentinel_for<decltype(last), decltype(first)>) {
+            auto const count = static_cast<size_type>(last - first);
+            pltxt2htm_assert(count <= extent, u8"BasicInplaceString capacity exceeded");
+        }
+        self.clear();
+        self.append_iter(first, last);
+    }
+
+    template<::std::ranges::input_range R>
+        requires (::std::same_as<::std::ranges::range_value_t<R>, value_type> &&
+                  ::std::constructible_from<value_type, ::std::ranges::range_reference_t<R>>)
+    constexpr void append_range(this BasicInplaceString& self, R&& range) noexcept(is_nothrow_range_iteration<R>()) {
+        auto first = ::std::ranges::begin(range);
+        auto last = ::std::ranges::end(range);
+        self.append_iter(first, last);
     }
 
     [[nodiscard]]

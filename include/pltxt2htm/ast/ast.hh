@@ -34,7 +34,7 @@ template<::pltxt2htm::Contracts ndebug>
 class PlTxtNode {
     union {
         // basic node
-        ::pltxt2htm::U8Char u8char_node;
+        ::pltxt2htm::Text<ndebug> text_node;
         ::pltxt2htm::InvalidUtf8 invalid_utf8_node;
         ::pltxt2htm::Group<ndebug> group_node;
 
@@ -145,9 +145,14 @@ class PlTxtNode {
     ::pltxt2htm::NodeKind node_kind;
 
 public:
-    constexpr PlTxtNode(::pltxt2htm::U8Char node) noexcept
-        : u8char_node{node},
-          node_kind{::pltxt2htm::NodeKind::u8char} {
+    constexpr explicit PlTxtNode(char8_t code_unit) noexcept
+        : text_node{code_unit},
+          node_kind{::pltxt2htm::NodeKind::text} {
+    }
+
+    constexpr PlTxtNode(::pltxt2htm::Text<ndebug>&& node) noexcept
+        : text_node{::std::move(node)},
+          node_kind{::pltxt2htm::NodeKind::text} {
     }
 
     constexpr PlTxtNode(::pltxt2htm::InvalidUtf8 node) noexcept
@@ -636,8 +641,8 @@ public:
     constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
         : node_kind(other.node_kind) {
         switch (node_kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::u8char: {
-            new (::std::addressof(u8char_node))::pltxt2htm::U8Char(other.u8char_node);
+        case ::pltxt2htm::NodeKind::text: {
+            new (::std::addressof(text_node))::pltxt2htm::Text(other.text_node);
             break;
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
@@ -1042,8 +1047,8 @@ public:
     constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug>&& other) noexcept
         : node_kind(other.node_kind) {
         switch (node_kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::u8char: {
-            new (::std::addressof(u8char_node))::pltxt2htm::U8Char(::std::move(other.u8char_node));
+        case ::pltxt2htm::NodeKind::text: {
+            new (::std::addressof(text_node))::pltxt2htm::Text(::std::move(other.text_node));
             break;
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
@@ -1457,8 +1462,8 @@ public:
 
     constexpr ~PlTxtNode() noexcept {
         switch (node_kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::u8char: {
-            u8char_node.~U8Char();
+        case ::pltxt2htm::NodeKind::text: {
+            text_node.~Text();
             break;
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
@@ -1884,8 +1889,8 @@ public:
             return false;
         }
         switch (self.node_kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::u8char: {
-            return self.u8char_node == other.u8char_node;
+        case ::pltxt2htm::NodeKind::text: {
+            return self.text_node == other.text_node;
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
             return self.invalid_utf8_node == other.invalid_utf8_node;
@@ -2187,9 +2192,9 @@ public:
     /// @{
 
     [[nodiscard]]
-    constexpr auto as_u8char(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::u8char, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.u8char_node);
+    constexpr auto as_text(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::text, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.text_node);
     }
 
     [[nodiscard]]
@@ -2772,6 +2777,26 @@ public:
         return self.node_kind;
     }
 };
+
+namespace details {
+
+/**
+ * @brief Append one UTF-8 code unit to the trailing text node when possible.
+ * @details Starts a new text node when the AST is empty, the previous node is not text,
+ *          or the previous inline string has reached its fixed capacity.
+ */
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_text_code_unit(::pltxt2htm::Ast<ndebug>& ast, char8_t code_unit) noexcept {
+    if (ast.empty() == false) {
+        auto&& last_node = ast.template index<ndebug>(ast.size() - 1);
+        if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text && last_node.as_text().try_push_back(code_unit)) {
+            return;
+        }
+    }
+    ast.template emplace_back<ndebug>(code_unit);
+}
+
+} // namespace details
 
 } // namespace pltxt2htm
 

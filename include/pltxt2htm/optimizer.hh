@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <iterator>
 #include <memory>
+#include <ranges>
 #include <type_traits>
 #include "container/optional.hh"
 #include "container/string_view.hh"
@@ -281,7 +282,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::u8char:
+        case ::pltxt2htm::NodeKind::text:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
@@ -551,8 +552,30 @@ entry:
             auto&& node = *current_iter;
 
             switch (node.get_node_kind()) /* -Werror=switch */ {
-            case ::pltxt2htm::NodeKind::u8char:
-                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::text: {
+                auto&& text = node.as_text();
+                auto const next_iter = ::std::next(current_iter);
+                if (next_iter == ast.end() || next_iter->get_node_kind() != ::pltxt2htm::NodeKind::text ||
+                    text.size() == text.capacity()) {
+                    ++current_iter;
+                    continue;
+                }
+                auto&& next_text = next_iter->as_text();
+                auto const available_size = text.capacity() - text.size();
+                auto const transferred_size = available_size < next_text.size() ? available_size : next_text.size();
+                auto const transferred_end = next_text.begin() + transferred_size;
+                text.append_range(::std::ranges::subrange{next_text.begin(), transferred_end});
+                if (transferred_size == next_text.size()) {
+                    ast.erase(next_iter);
+                    continue;
+                }
+                auto remaining_text =
+                    ::pltxt2htm::Text<ndebug>{::std::ranges::subrange{transferred_end, next_text.end()}};
+                ::std::destroy_at(::std::addressof(next_text));
+                ::std::construct_at(::std::addressof(next_text), ::std::move(remaining_text));
+                ++current_iter;
+                continue;
+            }
             case ::pltxt2htm::NodeKind::invalid_utf8:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_escape:
