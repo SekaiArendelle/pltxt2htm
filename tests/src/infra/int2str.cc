@@ -12,7 +12,7 @@ namespace {
  *        oracle in the exhaustive cross-checks in main().
  */
 template<typename Integer>
-    requires(::std::is_integral_v<Integer>)
+    requires (::std::is_integral_v<Integer>)
 [[nodiscard]]
 auto oracle_int2str(Integer value) noexcept -> ::pltxt2htm::container::U8String {
     // digits10 + 1 covers the largest magnitude; one more character covers a sign.
@@ -52,6 +52,7 @@ consteval auto test_decimal_digit_pairs() noexcept -> bool {
     }
     return true;
 }
+
 static_assert(::pltxt2htm::details::decimal_digit_pairs.size() == 200);
 static_assert(test_decimal_digit_pairs());
 
@@ -79,19 +80,24 @@ consteval auto test_write_decimal_digits_backward() noexcept -> bool {
     if (!buffer_matches(::pltxt2htm::details::write_decimal_digits_backward(::std::uintmax_t{99}, end), end, u8"99")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::details::write_decimal_digits_backward(::std::uintmax_t{100}, end), end, u8"100")) {
+    if (!buffer_matches(::pltxt2htm::details::write_decimal_digits_backward(::std::uintmax_t{100}, end), end,
+                        u8"100")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::details::write_decimal_digits_backward(::std::uintmax_t{101}, end), end, u8"101")) {
+    if (!buffer_matches(::pltxt2htm::details::write_decimal_digits_backward(::std::uintmax_t{101}, end), end,
+                        u8"101")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::details::write_decimal_digits_backward(::std::uintmax_t{999}, end), end, u8"999")) {
+    if (!buffer_matches(::pltxt2htm::details::write_decimal_digits_backward(::std::uintmax_t{999}, end), end,
+                        u8"999")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::details::write_decimal_digits_backward(::std::uintmax_t{1000}, end), end, u8"1000")) {
+    if (!buffer_matches(::pltxt2htm::details::write_decimal_digits_backward(::std::uintmax_t{1000}, end), end,
+                        u8"1000")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::details::write_decimal_digits_backward(::std::uintmax_t{12345}, end), end, u8"12345")) {
+    if (!buffer_matches(::pltxt2htm::details::write_decimal_digits_backward(::std::uintmax_t{12345}, end), end,
+                        u8"12345")) {
         return false;
     }
     if constexpr (::std::numeric_limits<::std::uintmax_t>::digits10 == 19) {
@@ -103,25 +109,19 @@ consteval auto test_write_decimal_digits_backward() noexcept -> bool {
     }
     return true;
 }
+
 static_assert(test_write_decimal_digits_backward());
 
 int main() noexcept {
     // size_t2str: boundary values around the single-digit / pair / loop transitions
     {
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(0),
-                                    ::pltxt2htm::container::U8StringView{u8"0"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(1),
-                                    ::pltxt2htm::container::U8StringView{u8"1"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(9),
-                                    ::pltxt2htm::container::U8StringView{u8"9"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(10),
-                                    ::pltxt2htm::container::U8StringView{u8"10"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(11),
-                                    ::pltxt2htm::container::U8StringView{u8"11"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(42),
-                                    ::pltxt2htm::container::U8StringView{u8"42"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(99),
-                                    ::pltxt2htm::container::U8StringView{u8"99"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(0), ::pltxt2htm::container::U8StringView{u8"0"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(1), ::pltxt2htm::container::U8StringView{u8"1"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(9), ::pltxt2htm::container::U8StringView{u8"9"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(10), ::pltxt2htm::container::U8StringView{u8"10"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(11), ::pltxt2htm::container::U8StringView{u8"11"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(42), ::pltxt2htm::container::U8StringView{u8"42"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(99), ::pltxt2htm::container::U8StringView{u8"99"});
         pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(100),
                                     ::pltxt2htm::container::U8StringView{u8"100"});
         pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(101),
@@ -175,18 +175,22 @@ int main() noexcept {
         if constexpr (sizeof(::std::size_t) == 8) {
             pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str((::std::numeric_limits<::std::size_t>::max)()),
                                         ::pltxt2htm::container::U8StringView{u8"18446744073709551615"});
-            pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::max)()),
-                                        ::pltxt2htm::container::U8StringView{u8"9223372036854775807"});
-            pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::min)()),
-                                        ::pltxt2htm::container::U8StringView{u8"-9223372036854775808"});
+            pltxt2htm_test_assert_equal(
+                ::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::max)()),
+                ::pltxt2htm::container::U8StringView{u8"9223372036854775807"});
+            pltxt2htm_test_assert_equal(
+                ::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::min)()),
+                ::pltxt2htm::container::U8StringView{u8"-9223372036854775808"});
         }
         else {
             pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str((::std::numeric_limits<::std::size_t>::max)()),
                                         ::pltxt2htm::container::U8StringView{u8"4294967295"});
-            pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::max)()),
-                                        ::pltxt2htm::container::U8StringView{u8"2147483647"});
-            pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::min)()),
-                                        ::pltxt2htm::container::U8StringView{u8"-2147483648"});
+            pltxt2htm_test_assert_equal(
+                ::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::max)()),
+                ::pltxt2htm::container::U8StringView{u8"2147483647"});
+            pltxt2htm_test_assert_equal(
+                ::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::min)()),
+                ::pltxt2htm::container::U8StringView{u8"-2147483648"});
         }
     }
 
