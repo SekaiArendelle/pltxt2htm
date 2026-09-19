@@ -992,7 +992,9 @@ public:
             return;
         }
         if consteval {
-            ::std::copy_n(first, count, self.current_pointer);
+            for (size_type index{}; index != count; ++index) {
+                self.current_pointer[index] = first[index];
+            }
         }
         else {
             ::fast_io::freestanding::overlapped_copy_n(first, count, self.current_pointer);
@@ -1080,10 +1082,10 @@ public:
             return self.begin_pointer + position_index;
         }
 
-        size_type const old_size{self.size()};
         if (string.size() > static_cast<size_type>(self.end_pointer - self.current_pointer)) {
             return self.insert_reallocate<ndebug>(position_index, string);
         }
+        size_type const old_size{self.size()};
         size_type const source_index{self.source_offset(string.data())};
         pointer const insertion_pointer{self.begin_pointer + position_index};
         ::std::move_backward(insertion_pointer, self.begin_pointer + old_size,
@@ -1215,6 +1217,11 @@ template<bool noskipws, bool line, ::pltxt2htm::details::is_char_type CharType, 
 constexpr auto scan_context_define_basic_string(bool& copying, CharType const* first, CharType const* last,
                                                 BasicString<CharType, Allocator>& string_) noexcept
     -> ::fast_io::parse_result<CharType const*> {
+#ifdef NDEBUG
+    constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+#else
+    constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+#endif
     auto iterator{first};
     if constexpr (!noskipws && !line) {
         if (!copying) {
@@ -1241,11 +1248,11 @@ constexpr auto scan_context_define_basic_string(bool& copying, CharType const* f
             copying = true;
         }
         else {
-            string_.template append<::pltxt2htm::Contracts::quick_enforce>(iterator, end_iterator);
+            string_.template append<ndebug>(iterator, end_iterator);
         }
     }
     else {
-        string_.template append<::pltxt2htm::Contracts::quick_enforce>(iterator, end_iterator);
+        string_.template append<ndebug>(iterator, end_iterator);
     }
 
     if (end_iterator == last) {
@@ -1261,12 +1268,17 @@ template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
 constexpr auto scan_context_define_whole_basic_string(bool& copying, CharType const* first, CharType const* last,
                                                       BasicString<CharType, Allocator>& string_) noexcept
     -> ::fast_io::parse_result<CharType const*> {
+#ifdef NDEBUG
+    constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+#else
+    constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+#endif
     if (!copying) {
         string_.assign(first, last);
         copying = true;
     }
     else {
-        string_.template append<::pltxt2htm::Contracts::quick_enforce>(first, last);
+        string_.template append<ndebug>(first, last);
     }
     return {last, ::fast_io::parse_code::partial};
 }
