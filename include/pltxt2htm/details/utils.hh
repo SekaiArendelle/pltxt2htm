@@ -310,7 +310,14 @@ constexpr auto ptrdiff_t2str(::std::ptrdiff_t num) noexcept -> ::fast_io::u8stri
     char8_t buffer[::std::numeric_limits<unsigned_type>::digits10 + 3];
     char8_t* begin = ::pltxt2htm::details::write_decimal_digits_backward(magnitude, buffer + sizeof(buffer));
     if (negative) {
-        *--begin = u8'-';
+        // Split into two statements instead of `*--begin = u8'-'`: clang-tidy's
+        // misc-const-correctness does not recognize pointee writes through an
+        // adjusted pointer and wrongly suggests declaring the pointee const
+        // (llvm/llvm-project#215161). Fixed on LLVM main by
+        // llvm/llvm-project#215285, but the fix is in neither LLVM 22.x (CI)
+        // nor 23.1.0, so keep the two-statement form for now.
+        --begin;
+        *begin = u8'-';
     }
     return ::fast_io::u8string{begin, buffer + sizeof(buffer)};
 }
