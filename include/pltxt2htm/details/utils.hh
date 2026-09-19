@@ -196,16 +196,15 @@ constexpr auto decimal_digit_pairs = ::pltxt2htm::details::make_decimal_digit_pa
  * @details Digits are emitted into [returned pointer, buffer_end) so callers need
  *          no digit-count pre-pass and no reversal pass. Two digits are written per
  *          iteration through a 100-entry lookup table, halving the number of divisions.
- * @tparam UInt The unsigned integer type of value.
+ * @tparam T The unsigned integer type of value.
  * @param[in] value The value to write; any unsigned value is accepted, including 0.
  * @param[in] buffer_end One past the last writable element; the buffer must have room
- *            for digits10(UInt) + 1 characters.
+ *            for digits10(T) + 1 characters.
  * @return Pointer to the first written digit.
  */
-template<typename UInt>
+template<::std::unsigned_integral T>
 [[nodiscard]]
-constexpr auto write_decimal_digits_backward(UInt value, char8_t* const buffer_end) noexcept -> char8_t* {
-    static_assert(::std::is_unsigned_v<UInt>);
+constexpr auto write_decimal_digits_backward(T value, char8_t* const buffer_end) noexcept -> char8_t* {
     auto ptr = buffer_end;
     while (value >= 100) {
         auto const pair_index = static_cast<::std::size_t>(value % 100) * 2;
