@@ -343,7 +343,7 @@ constexpr auto try_parse_item(
             ++current_index;
             break;
         }
-        text.push_back(chr);
+        text.push_back<ndebug>(chr);
     }
     return TryParseItemResult{
         .space_hierarchy = space_hierarchy,

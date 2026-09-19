@@ -99,7 +99,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
             if (chr == u8'\n') {
                 break;
             }
-            cell.push_back(chr);
+            cell.push_back<ndebug>(chr);
             prev_was_backslash = (chr == u8'\\') ? !prev_was_backslash : false;
         }
         // trim trailing spaces from cell

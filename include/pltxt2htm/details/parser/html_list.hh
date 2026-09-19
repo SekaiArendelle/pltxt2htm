@@ -184,7 +184,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
                 continue;
             }
             // Ordinary content character.
-            text.push_back(pltext.template index<ndebug>(current_index));
+            text.push_back<ndebug>(pltext.template index<ndebug>(current_index));
             ++current_index;
         }
         // Trailing whitespace/newlines are formatting as well (see the leading-skip above).

@@ -3419,7 +3419,7 @@ constexpr auto try_parse_md_code_fence_(::pltxt2htm::container::U8StringView plt
             ++current_index;
             break;
         }
-        lang.push_back(chr);
+        lang.push_back<ndebug>(chr);
     }
 
     // parsing context of code fence
@@ -3582,7 +3582,7 @@ constexpr auto try_parse_md_block_quotes(::pltxt2htm::container::U8StringView pl
             break;
         }
         while (true) {
-            subpltext.push_back(pltext.template index<ndebug>(current_index));
+            subpltext.push_back<ndebug>(pltext.template index<ndebug>(current_index));
             ++current_index;
             pltxt2htm_assert(current_index <= pltext_size, u8"current_index exceeds pltext_size");
             if (current_index == pltext_size) {
@@ -3595,7 +3595,7 @@ constexpr auto try_parse_md_block_quotes(::pltxt2htm::container::U8StringView pl
         if (current_index == pltext_size) {
             break;
         }
-        subpltext.push_back(u8'\n');
+        subpltext.push_back<ndebug>(u8'\n');
     }
 
     if (subpltext.empty()) {
@@ -3918,29 +3918,31 @@ constexpr auto try_parse_url_authority(::pltxt2htm::container::U8StringView plte
         domain_end + 1 + opt_port_end.template value<ndebug>().template get<ndebug>());
 }
 
+template<::pltxt2htm::Contracts ndebug>
 constexpr void append_percent_encoded_url_byte(::pltxt2htm::container::U8String& result, char8_t byte) noexcept {
-    result.push_back(u8'%');
+    result.push_back<ndebug>(u8'%');
     auto const hi{static_cast<unsigned>(byte) >> 4};
     auto const lo{static_cast<unsigned>(byte) & 0x0F};
-    result.push_back(static_cast<char8_t>(hi < 10 ? u8'0' + hi : u8'A' + (hi - 10)));
-    result.push_back(static_cast<char8_t>(lo < 10 ? u8'0' + lo : u8'A' + (lo - 10)));
+    result.push_back<ndebug>(static_cast<char8_t>(hi < 10 ? u8'0' + hi : u8'A' + (hi - 10)));
+    result.push_back<ndebug>(static_cast<char8_t>(lo < 10 ? u8'0' + lo : u8'A' + (lo - 10)));
 }
 
+template<::pltxt2htm::Contracts ndebug>
 constexpr void append_code_point_to_url(::pltxt2htm::container::U8String& result, char32_t code_point) noexcept {
     if (code_point < char32_t{0x80}) {
         auto const chr{static_cast<char8_t>(code_point)};
         if (chr < u8'!' || chr > u8'~' || chr == u8'\'' || chr == u8'<' || chr == u8'>' || chr == u8'"') {
-            ::pltxt2htm::details::append_percent_encoded_url_byte(result, chr);
+            ::pltxt2htm::details::append_percent_encoded_url_byte<ndebug>(result, chr);
         }
         else {
-            result.push_back(chr);
+            result.push_back<ndebug>(chr);
         }
         return;
     }
 
     auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
     for (::std::size_t index{}; index < encoded.size; ++index) {
-        ::pltxt2htm::details::append_percent_encoded_url_byte(result, encoded.code_units[index]);
+        ::pltxt2htm::details::append_percent_encoded_url_byte<ndebug>(result, encoded.code_units[index]);
     }
 }
 
@@ -3971,9 +3973,9 @@ constexpr auto make_try_parse_url_result(::pltxt2htm::container::U8StringView co
                 parsed_url.template subview<ndebug>(index));
             if (reference.has_value()) {
                 auto const& decoded = reference.template value<ndebug>();
-                ::pltxt2htm::details::append_code_point_to_url(url_str, decoded.first_code_point);
+                ::pltxt2htm::details::append_code_point_to_url<ndebug>(url_str, decoded.first_code_point);
                 if (decoded.has_second_code_point()) {
-                    ::pltxt2htm::details::append_code_point_to_url(url_str, decoded.second_code_point);
+                    ::pltxt2htm::details::append_code_point_to_url<ndebug>(url_str, decoded.second_code_point);
                 }
                 index += decoded.consumed_size - 1;
                 continue;
@@ -3981,28 +3983,28 @@ constexpr auto make_try_parse_url_result(::pltxt2htm::container::U8StringView co
         }
         if (chr > u8'~') {
             // non-ASCII byte (e.g. UTF-8 CJK): percent-encode it so tag URLs keep the raw characters
-            ::pltxt2htm::details::append_percent_encoded_url_byte(url_str, chr);
+            ::pltxt2htm::details::append_percent_encoded_url_byte<ndebug>(url_str, chr);
             continue;
         }
         switch (chr) {
         case u8'\'': {
-            url_str.append(u8"%27");
+            url_str.append<ndebug>(u8"%27");
             break;
         }
         case u8'\"': {
-            url_str.append(u8"%22");
+            url_str.append<ndebug>(u8"%22");
             break;
         }
         case u8'<': {
-            url_str.append(u8"%3C");
+            url_str.append<ndebug>(u8"%3C");
             break;
         }
         case u8'>': {
-            url_str.append(u8"%3E");
+            url_str.append<ndebug>(u8"%3E");
             break;
         }
         default: {
-            url_str.push_back(chr);
+            url_str.push_back<ndebug>(chr);
             break;
         }
         }
@@ -4299,14 +4301,14 @@ constexpr auto try_parse_md_url(::pltxt2htm::container::U8StringView pltext) noe
             break;
         }
         if (chr >= u8'!' && chr <= u8'~' && chr != u8'<' && chr != u8'>' && chr != u8'\"') {
-            encoded.push_back(chr);
+            encoded.push_back<ndebug>(chr);
         }
         else {
-            encoded.push_back(u8'%');
+            encoded.push_back<ndebug>(u8'%');
             auto const hi = static_cast<unsigned>(chr) >> 4;
             auto const lo = static_cast<unsigned>(chr) & 0x0F;
-            encoded.push_back(hi < 10 ? u8'0' + hi : u8'A' + (hi - 10));
-            encoded.push_back(lo < 10 ? u8'0' + lo : u8'A' + (lo - 10));
+            encoded.push_back<ndebug>(hi < 10 ? u8'0' + hi : u8'A' + (hi - 10));
+            encoded.push_back<ndebug>(lo < 10 ? u8'0' + lo : u8'A' + (lo - 10));
         }
     }
     pltxt2htm_assert(raw_len <= pltext_size, u8"raw_len should not exceed pltext size");

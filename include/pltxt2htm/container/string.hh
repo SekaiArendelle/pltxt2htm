@@ -941,14 +941,16 @@ public:
 
     /**
      * @brief Appends one character.
+     * @tparam ndebug Contract policy used for capacity validation.
      * @param character Character value to append.
      *
      * The hot path only advances current_pointer and rewrites the terminator.
      * Pointers, references, and iterators remain valid unless capacity growth occurs.
      */
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this BasicString& self, value_type character) noexcept {
         if (self.current_pointer == self.end_pointer) [[unlikely]] {
-            self.ensure_capacity<::pltxt2htm::Contracts::quick_enforce>(self.size() + 1);
+            self.ensure_capacity<ndebug>(self.size() + 1);
         }
         *self.current_pointer++ = character;
         *self.current_pointer = value_type{};
@@ -968,6 +970,7 @@ public:
 
     /**
      * @brief Appends the half-open range `[first, last)`.
+     * @tparam ndebug Contract policy used for capacity validation.
      * @param first First source character.
      * @param last One past the last source character.
      * @pre first and last describe one valid contiguous range, with first <= last.
@@ -977,6 +980,7 @@ public:
      * the old allocation. Pointers, references, and iterators are invalidated when
      * growth occurs.
      */
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void append(this BasicString& self, const_pointer first, const_pointer last) noexcept {
         size_type const count{static_cast<size_type>(last - first)};
         if (count == 0) {
@@ -984,7 +988,7 @@ public:
         }
         size_type const old_size{self.size()};
         if (count > static_cast<size_type>(self.end_pointer - self.current_pointer)) [[unlikely]] {
-            self.append_reallocate<::pltxt2htm::Contracts::quick_enforce>(first, count);
+            self.append_reallocate<ndebug>(first, count);
             return;
         }
         if consteval {
@@ -999,50 +1003,58 @@ public:
 
     /**
      * @brief Appends a counted character sequence.
+     * @tparam ndebug Contract policy used for capacity validation.
      * @param first First source character.
      * @param count Number of characters to append.
      * @pre `[first, first + count)` is a valid contiguous range.
      */
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void append(this BasicString& self, const_pointer first, size_type count) noexcept {
-        self.append(first, first + count);
+        self.append<ndebug>(first, first + count);
     }
 
     /**
      * @brief Appends a BasicStringView.
+     * @tparam ndebug Contract policy used for capacity validation.
      * @param string Source view, which may refer to self.
      */
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void append(this BasicString& self, string_view_type string) noexcept {
-        self.append(string.data(), string.data() + string.size());
+        self.append<ndebug>(string.data(), string.data() + string.size());
     }
 
     /**
      * @brief Appends another BasicString.
+     * @tparam ndebug Contract policy used for capacity validation.
      * @param string Source string. Passing self is supported.
      */
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void append(this BasicString& self, BasicString const& string) noexcept {
-        self.append(string.data(), string.data() + string.size());
+        self.append<ndebug>(string.data(), string.data() + string.size());
     }
 
     /**
      * @brief Appends a null-terminated character array without its final null.
+     * @tparam ndebug Contract policy used for capacity validation.
      * @tparam size_with_null Array extent including the final null character.
      * @param string Source array.
      */
-    template<::std::size_t size_with_null>
+    template<::pltxt2htm::Contracts ndebug, ::std::size_t size_with_null>
     constexpr void append(this BasicString& self, value_type const (&string)[size_with_null]) noexcept {
         static_assert(size_with_null != 0);
-        self.append(string, string + size_with_null - 1);
+        self.append<ndebug>(string, string + size_with_null - 1);
     }
 
     /**
      * @brief Appends a compile-time literal string wrapper.
+     * @tparam ndebug Contract policy used for capacity validation.
      * @tparam size Logical number of characters in the literal wrapper.
      * @param string Source literal string.
      */
-    template<::std::size_t size>
+    template<::pltxt2htm::Contracts ndebug, ::std::size_t size>
     constexpr void append(this BasicString& self,
                           ::pltxt2htm::details::BasicLiteralString<value_type, size> const& string) noexcept {
-        self.append(string.data(), string.data() + string.size());
+        self.append<ndebug>(string.data(), string.data() + string.size());
     }
 
     /**
@@ -1229,11 +1241,11 @@ constexpr auto scan_context_define_basic_string(bool& copying, CharType const* f
             copying = true;
         }
         else {
-            string_.append(iterator, end_iterator);
+            string_.template append<::pltxt2htm::Contracts::quick_enforce>(iterator, end_iterator);
         }
     }
     else {
-        string_.append(iterator, end_iterator);
+        string_.template append<::pltxt2htm::Contracts::quick_enforce>(iterator, end_iterator);
     }
 
     if (end_iterator == last) {
@@ -1254,7 +1266,7 @@ constexpr auto scan_context_define_whole_basic_string(bool& copying, CharType co
         copying = true;
     }
     else {
-        string_.append(first, last);
+        string_.template append<::pltxt2htm::Contracts::quick_enforce>(first, last);
     }
     return {last, ::fast_io::parse_code::partial};
 }

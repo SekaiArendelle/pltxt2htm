@@ -77,7 +77,7 @@ constexpr auto try_capture_until_tag(::pltxt2htm::container::U8StringView pltext
             current_index += opt_len.template value<ndebug>() + 1;
             return TryCaptureUntilTagResult<ndebug>{.text = ::std::move(text), .advance_count = current_index};
         }
-        text.push_back(pltext.template index<ndebug>(current_index));
+        text.push_back<ndebug>(pltext.template index<ndebug>(current_index));
         ++current_index;
     }
     return ::pltxt2htm::container::nullopt;

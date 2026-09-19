@@ -90,9 +90,9 @@ int main() {
     }
     {
         ::pltxt2htm::container::U8String encoded{};
-        ::pltxt2htm::details::append_utf8_code_point(encoded, U'A');
-        ::pltxt2htm::details::append_utf8_code_point(encoded, char32_t{0x20AC});
-        ::pltxt2htm::details::append_utf8_code_point(encoded, char32_t{0x1F600});
+        ::pltxt2htm::details::append_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(encoded, U'A');
+        ::pltxt2htm::details::append_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(encoded, char32_t{0x20AC});
+        ::pltxt2htm::details::append_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(encoded, char32_t{0x1F600});
         pltxt2htm_test_assert_equal(encoded, u8"A\u20AC\U0001F600");
     }
 
@@ -140,8 +140,8 @@ int main() {
     // Every generated named reference round-trips through the decoder.
     for (auto const entity : ::pltxt2htm::details::HtmlNamedCharacterReferenceTable::entries()) {
         ::pltxt2htm::container::U8String spelling{u8"&"};
-        spelling.append(entity.name);
-        spelling.push_back(u8';');
+        spelling.append<::pltxt2htm::Contracts::quick_enforce>(entity.name);
+        spelling.push_back<::pltxt2htm::Contracts::quick_enforce>(u8';');
         auto const decoded =
             ::pltxt2htm::details::try_decode_character_reference<::pltxt2htm::Contracts::quick_enforce>(
                 ::pltxt2htm::container::U8StringView{spelling});

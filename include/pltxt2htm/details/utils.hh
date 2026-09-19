@@ -198,7 +198,7 @@ constexpr auto size_t2str(::std::size_t num) noexcept -> ::pltxt2htm::container:
 
     while (num > 0) {
         char8_t const digit = (num % 10) + u8'0';
-        result.push_back(digit);
+        result.push_back<::pltxt2htm::Contracts::quick_enforce>(digit);
         num /= 10;
     }
 
@@ -267,7 +267,7 @@ constexpr auto ptrdiff_t2str(::std::ptrdiff_t num) noexcept -> ::pltxt2htm::cont
     ::pltxt2htm::container::U8String result{};
     while (magnitude > 0) {
         char8_t const digit = (magnitude % 10) + u8'0';
-        result.push_back(digit);
+        result.push_back<::pltxt2htm::Contracts::quick_enforce>(digit);
         magnitude /= 10;
     }
     ::std::ranges::reverse(result);
@@ -445,17 +445,19 @@ constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8St
         }
         else if (digit_str_size > fractional_digits) {
             auto const frac_start = digit_str_size - fractional_digits;
-            candidate.append(::pltxt2htm::container::U8StringView{digit_str.data(), frac_start});
-            candidate.push_back(u8'.');
-            candidate.append(::pltxt2htm::container::U8StringView{digit_str.data() + frac_start, fractional_digits});
+            candidate.append<::pltxt2htm::Contracts::quick_enforce>(
+                ::pltxt2htm::container::U8StringView{digit_str.data(), frac_start});
+            candidate.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'.');
+            candidate.append<::pltxt2htm::Contracts::quick_enforce>(
+                ::pltxt2htm::container::U8StringView{digit_str.data() + frac_start, fractional_digits});
         }
         else {
-            candidate.append(u8"0.");
+            candidate.append<::pltxt2htm::Contracts::quick_enforce>(u8"0.");
             ::std::size_t const padding_size{fractional_digits - digit_str_size};
             for (::std::size_t i{0}; i < padding_size; ++i) {
-                candidate.push_back(u8'0');
+                candidate.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'0');
             }
-            candidate.append(digit_str);
+            candidate.append<::pltxt2htm::Contracts::quick_enforce>(digit_str);
         }
         auto opt_reparsed = ::pltxt2htm::details::try_parse_double_decimal_value<::pltxt2htm::Contracts::quick_enforce>(
             ::pltxt2htm::container::U8StringView{candidate});

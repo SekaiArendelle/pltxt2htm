@@ -77,10 +77,17 @@ consteval auto test_constexpr_string() noexcept -> bool {
     }
 
     U8String string{u8"abc"};
-    string.push_back(u8'd');
-    string.append(u8"ef");
+    string.push_back<Contracts::quick_enforce>(u8'd');
+    string.append<Contracts::quick_enforce>(u8"ef");
     string.insert<Contracts::quick_enforce>(string.begin(), U8StringView{u8"0"});
     if (string != u8"0abcdef" || string.size() != 7 || string.c_str()[string.size()] != u8'\0') {
+        return false;
+    }
+
+    U8String unchecked_string{};
+    unchecked_string.push_back<Contracts::ignore>(u8'a');
+    unchecked_string.append<Contracts::ignore>(u8"bc");
+    if (unchecked_string != u8"abc") {
         return false;
     }
 
@@ -99,7 +106,7 @@ consteval auto test_constexpr_string() noexcept -> bool {
 
     U8String self_append{u8"abc"};
     self_append.reserve<Contracts::quick_enforce>(16);
-    self_append.append(U8StringView{self_append.data() + 1, 2});
+    self_append.append<Contracts::quick_enforce>(U8StringView{self_append.data() + 1, 2});
     if (self_append != u8"abcbc") {
         return false;
     }
@@ -181,10 +188,10 @@ int main() {
 
     U8String self_append{u8"abc"};
     while (self_append.size() < self_append.capacity()) {
-        self_append.push_back(u8'x');
+        self_append.push_back<Contracts::quick_enforce>(u8'x');
     }
     ::std::size_t const append_old_size{self_append.size()};
-    self_append.append(U8StringView{self_append.data(), 3});
+    self_append.append<Contracts::quick_enforce>(U8StringView{self_append.data(), 3});
     pltxt2htm_test_assert_true(self_append.size() == append_old_size + 3);
     pltxt2htm_test_assert_true(self_append.index<Contracts::quick_enforce>(append_old_size) == u8'a');
     pltxt2htm_test_assert_true(self_append.index<Contracts::quick_enforce>(append_old_size + 1) == u8'b');
@@ -214,7 +221,7 @@ int main() {
 
     U8String self_insert_reallocate{u8"abc"};
     while (self_insert_reallocate.size() < self_insert_reallocate.capacity()) {
-        self_insert_reallocate.push_back(u8'x');
+        self_insert_reallocate.push_back<Contracts::quick_enforce>(u8'x');
     }
     ::std::size_t const insert_old_size{self_insert_reallocate.size()};
     self_insert_reallocate.insert<Contracts::quick_enforce>(self_insert_reallocate.begin() + 1,

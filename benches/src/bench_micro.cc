@@ -108,7 +108,7 @@ BENCHMARK_DEFINE_F(MicroFixture, BasicStringAppend_Reserved)(benchmark::State& s
         ::pltxt2htm::container::U8String s;
         s.reserve<ndebug>(as_size(st) * fragment_size);
         for (::std::int64_t i = 0; i < st.range(0); ++i) {
-            s.append(u8"<span style=\"color:red;\">text</span>");
+            s.append<ndebug>(u8"<span style=\"color:red;\">text</span>");
         }
         ::benchmark::DoNotOptimize(s);
     }
@@ -134,7 +134,7 @@ BENCHMARK_DEFINE_F(MicroFixture, BasicStringAppend_NoReserve)(benchmark::State& 
     for (auto _ : st) {
         ::pltxt2htm::container::U8String s;
         for (::std::int64_t i = 0; i < st.range(0); ++i) {
-            s.append(u8"<span style=\"color:red;\">text</span>");
+            s.append<ndebug>(u8"<span style=\"color:red;\">text</span>");
         }
         ::benchmark::DoNotOptimize(s);
     }
@@ -159,7 +159,7 @@ BENCHMARK_DEFINE_F(MicroFixture, BasicStringPushBack_Reserved)(benchmark::State&
         ::pltxt2htm::container::U8String s;
         s.reserve<ndebug>(as_size(st));
         for (::std::int64_t i = 0; i < st.range(0); ++i) {
-            s.push_back(u8'x');
+            s.push_back<ndebug>(u8'x');
         }
         ::benchmark::DoNotOptimize(s);
     }
@@ -184,7 +184,7 @@ BENCHMARK_DEFINE_F(MicroFixture, BasicStringPushBack_NoReserve)(benchmark::State
     for (auto _ : st) {
         ::pltxt2htm::container::U8String s;
         for (::std::int64_t i = 0; i < st.range(0); ++i) {
-            s.push_back(u8'x');
+            s.push_back<ndebug>(u8'x');
         }
         ::benchmark::DoNotOptimize(s);
     }
