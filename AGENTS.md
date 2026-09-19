@@ -201,6 +201,7 @@ Follow the existing low-runtime, cross-platform style used in core headers:
   - Do not introduce new macros for regular logic, constants, or API design.
   - Prefer `constexpr`/`consteval` functions and templates.
   - Keep macro usage only for tightly scoped compatibility/assertion infrastructure when unavoidable.
+  - When using `push_macro.hh`, include it after all other headers and pair it with `pop_macro.hh` after the macro-dependent code.
 - **Forbid `volatile` and `register`:**
   - Do not introduce `volatile` or `register` in new code.
 - **Prefer C++23 deducing-`this`:**

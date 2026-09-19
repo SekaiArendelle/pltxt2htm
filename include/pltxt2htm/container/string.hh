@@ -18,8 +18,8 @@
 #include "../contracts.hh"
 #include "../details/concepts.hh"
 #include "../details/literal_string.hh"
-#include "../details/push_macro.hh"
 #include "string_view.hh"
+#include "../details/push_macro.hh"
 
 namespace pltxt2htm::container {
 
