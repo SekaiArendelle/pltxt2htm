@@ -1,43 +1,27 @@
+#include <charconv>
 #include <cstdint>
 #include <limits>
+#include <type_traits>
 #include <pltxt2htm/details/utils.hh>
 #include "precompile.hh"
 
 namespace {
 
 /**
- * @brief Reference implementation mirroring the pre-refactor algorithm: extract
- *        digits least-significant-first, then reverse. Used as the oracle for the
- *        exhaustive cross-checks in main().
+ * @brief Convert an integer through the standard library for use as an independent
+ *        oracle in the exhaustive cross-checks in main().
  */
+template<typename Integer>
+    requires(::std::is_integral_v<Integer>)
 [[nodiscard]]
-auto oracle_uint2str(::std::uintmax_t value) noexcept -> ::fast_io::u8string {
-    char8_t digits[::std::numeric_limits<::std::uintmax_t>::digits10 + 1];
-    ::std::size_t count{};
-    do {
-        digits[count++] = static_cast<char8_t>(u8'0' + value % 10);
-        value /= 10;
-    } while (value != 0);
-    ::fast_io::u8string result{};
-    while (count != 0) {
-        result.push_back(digits[--count]);
-    }
-    return result;
-}
+auto oracle_int2str(Integer value) noexcept -> ::pltxt2htm::container::U8String {
+    // digits10 + 1 covers the largest magnitude; one more character covers a sign.
+    char buffer[::std::numeric_limits<Integer>::digits10 + 3];
+    auto const conversion = ::std::to_chars(buffer, buffer + sizeof(buffer), value);
 
-[[nodiscard]]
-auto oracle_int2str(::std::intmax_t value) noexcept -> ::fast_io::u8string {
-    auto magnitude = static_cast<::std::uintmax_t>(value);
-    if (value < 0) {
-        magnitude = ::std::uintmax_t{0} - magnitude;
-    }
-    ::fast_io::u8string result{};
-    if (value < 0) {
-        result.push_back(u8'-');
-    }
-    auto const digits = oracle_uint2str(magnitude);
-    for (auto const ch : digits) {
-        result.push_back(ch);
+    ::pltxt2htm::container::U8String result{};
+    for (auto ptr = buffer; ptr != conversion.ptr; ++ptr) {
+        result.push_back<::pltxt2htm::Contracts::quick_enforce>(static_cast<char8_t>(*ptr));
     }
     return result;
 }
@@ -124,63 +108,91 @@ static_assert(test_write_decimal_digits_backward());
 int main() noexcept {
     // size_t2str: boundary values around the single-digit / pair / loop transitions
     {
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(0), ::fast_io::u8string_view{u8"0"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(1), ::fast_io::u8string_view{u8"1"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(9), ::fast_io::u8string_view{u8"9"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(10), ::fast_io::u8string_view{u8"10"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(11), ::fast_io::u8string_view{u8"11"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(42), ::fast_io::u8string_view{u8"42"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(99), ::fast_io::u8string_view{u8"99"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(100), ::fast_io::u8string_view{u8"100"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(101), ::fast_io::u8string_view{u8"101"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(110), ::fast_io::u8string_view{u8"110"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(999), ::fast_io::u8string_view{u8"999"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(1000), ::fast_io::u8string_view{u8"1000"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(12345), ::fast_io::u8string_view{u8"12345"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(0),
+                                    ::pltxt2htm::container::U8StringView{u8"0"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(1),
+                                    ::pltxt2htm::container::U8StringView{u8"1"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(9),
+                                    ::pltxt2htm::container::U8StringView{u8"9"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(10),
+                                    ::pltxt2htm::container::U8StringView{u8"10"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(11),
+                                    ::pltxt2htm::container::U8StringView{u8"11"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(42),
+                                    ::pltxt2htm::container::U8StringView{u8"42"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(99),
+                                    ::pltxt2htm::container::U8StringView{u8"99"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(100),
+                                    ::pltxt2htm::container::U8StringView{u8"100"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(101),
+                                    ::pltxt2htm::container::U8StringView{u8"101"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(110),
+                                    ::pltxt2htm::container::U8StringView{u8"110"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(999),
+                                    ::pltxt2htm::container::U8StringView{u8"999"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(1000),
+                                    ::pltxt2htm::container::U8StringView{u8"1000"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(12345),
+                                    ::pltxt2htm::container::U8StringView{u8"12345"});
     }
 
     // ptrdiff_t2str: sign handling around the same transitions
     {
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(0), ::fast_io::u8string_view{u8"0"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(1), ::fast_io::u8string_view{u8"1"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-1), ::fast_io::u8string_view{u8"-1"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(9), ::fast_io::u8string_view{u8"9"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-9), ::fast_io::u8string_view{u8"-9"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(10), ::fast_io::u8string_view{u8"10"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-10), ::fast_io::u8string_view{u8"-10"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(99), ::fast_io::u8string_view{u8"99"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-99), ::fast_io::u8string_view{u8"-99"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(100), ::fast_io::u8string_view{u8"100"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-100), ::fast_io::u8string_view{u8"-100"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(101), ::fast_io::u8string_view{u8"101"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-101), ::fast_io::u8string_view{u8"-101"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(12345), ::fast_io::u8string_view{u8"12345"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-12345), ::fast_io::u8string_view{u8"-12345"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(0),
+                                    ::pltxt2htm::container::U8StringView{u8"0"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(1),
+                                    ::pltxt2htm::container::U8StringView{u8"1"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-1),
+                                    ::pltxt2htm::container::U8StringView{u8"-1"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(9),
+                                    ::pltxt2htm::container::U8StringView{u8"9"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-9),
+                                    ::pltxt2htm::container::U8StringView{u8"-9"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(10),
+                                    ::pltxt2htm::container::U8StringView{u8"10"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-10),
+                                    ::pltxt2htm::container::U8StringView{u8"-10"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(99),
+                                    ::pltxt2htm::container::U8StringView{u8"99"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-99),
+                                    ::pltxt2htm::container::U8StringView{u8"-99"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(100),
+                                    ::pltxt2htm::container::U8StringView{u8"100"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-100),
+                                    ::pltxt2htm::container::U8StringView{u8"-100"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(101),
+                                    ::pltxt2htm::container::U8StringView{u8"101"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-101),
+                                    ::pltxt2htm::container::U8StringView{u8"-101"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(12345),
+                                    ::pltxt2htm::container::U8StringView{u8"12345"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(-12345),
+                                    ::pltxt2htm::container::U8StringView{u8"-12345"});
     }
 
     // extremes, including the PTRDIFF_MIN path that relies on unsigned negation
     {
         if constexpr (sizeof(::std::size_t) == 8) {
             pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str((::std::numeric_limits<::std::size_t>::max)()),
-                                        ::fast_io::u8string_view{u8"18446744073709551615"});
+                                        ::pltxt2htm::container::U8StringView{u8"18446744073709551615"});
             pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::max)()),
-                                        ::fast_io::u8string_view{u8"9223372036854775807"});
+                                        ::pltxt2htm::container::U8StringView{u8"9223372036854775807"});
             pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::min)()),
-                                        ::fast_io::u8string_view{u8"-9223372036854775808"});
+                                        ::pltxt2htm::container::U8StringView{u8"-9223372036854775808"});
         }
         else {
             pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str((::std::numeric_limits<::std::size_t>::max)()),
-                                        ::fast_io::u8string_view{u8"4294967295"});
+                                        ::pltxt2htm::container::U8StringView{u8"4294967295"});
             pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::max)()),
-                                        ::fast_io::u8string_view{u8"2147483647"});
+                                        ::pltxt2htm::container::U8StringView{u8"2147483647"});
             pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::min)()),
-                                        ::fast_io::u8string_view{u8"-2147483648"});
+                                        ::pltxt2htm::container::U8StringView{u8"-2147483648"});
         }
     }
 
     // exhaustive cross-check against the pre-refactor algorithm
     for (::std::size_t i{}; i <= 100000; ++i) {
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(i), oracle_uint2str(i));
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(i), oracle_int2str(i));
     }
     for (::std::ptrdiff_t i{-100000}; i <= 100000; ++i) {
         pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(i), oracle_int2str(i));
