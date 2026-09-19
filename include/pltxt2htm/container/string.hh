@@ -949,7 +949,7 @@ public:
      */
     template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this BasicString& self, value_type character) noexcept {
-        if (self.current_pointer == self.end_pointer) [[unlikely]] {
+        if (self.current_pointer == self.end_pointer) {
             self.ensure_capacity<ndebug>(self.size() + 1);
         }
         *self.current_pointer++ = character;
@@ -987,7 +987,7 @@ public:
             return;
         }
         size_type const old_size{self.size()};
-        if (count > static_cast<size_type>(self.end_pointer - self.current_pointer)) [[unlikely]] {
+        if (count > static_cast<size_type>(self.end_pointer - self.current_pointer)) {
             self.append_reallocate<ndebug>(first, count);
             return;
         }
@@ -1081,7 +1081,7 @@ public:
         }
 
         size_type const old_size{self.size()};
-        if (string.size() > static_cast<size_type>(self.end_pointer - self.current_pointer)) [[unlikely]] {
+        if (string.size() > static_cast<size_type>(self.end_pointer - self.current_pointer)) {
             return self.insert_reallocate<ndebug>(position_index, string);
         }
         size_type const source_index{self.source_offset(string.data())};
