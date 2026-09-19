@@ -106,17 +106,19 @@ int main() {
     {
         auto const original = ::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::pltxt2htm::Ast<nd::quick_enforce>{::pltxt2htm::Text<nd::quick_enforce>{u8'c'}},
-            ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"cpp"}));
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                ::pltxt2htm::container::U8String{u8"cpp"}));
         auto assigned = ::pltxt2htm::CodeFence<nd::quick_enforce>(
             ::pltxt2htm::Ast<nd::quick_enforce>{::pltxt2htm::Text<nd::quick_enforce>{u8'd'}},
-            ::pltxt2htm::container::Optional<::fast_io::u8string>(::fast_io::u8string{u8"rust"}));
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                ::pltxt2htm::container::U8String{u8"rust"}));
         assigned = original;
         pltxt2htm_test_assert_true(assigned == original);
     }
 
     {
-        auto const original = ::pltxt2htm::Url(::fast_io::u8string{u8"https://example.com"});
-        auto assigned = ::pltxt2htm::Url(::fast_io::u8string{u8"https://example.org"});
+        auto const original = ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"https://example.com"});
+        auto assigned = ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"https://example.org"});
         assigned = original;
         pltxt2htm_test_assert_true(assigned == original);
     }

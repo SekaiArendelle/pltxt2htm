@@ -49,12 +49,23 @@ int main() {
         pltxt2htm_test_assert_equal(html, answer);
     }
 
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"### test"),
-                                ::fast_io::u8string_view{u8"<h3>test</h3>"});
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"#### test"),
-                                ::fast_io::u8string_view{u8"<h4>test</h4>"});
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"##### test"),
-                                ::fast_io::u8string_view{u8"<h5>test</h5>"});
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"### test");
+        auto answer = ::fast_io::u8string_view{u8"<h3>test</h3>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"#### test");
+        auto answer = ::fast_io::u8string_view{u8"<h4>test</h4>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
+
+    {
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"##### test");
+        auto answer = ::fast_io::u8string_view{u8"<h5>test</h5>"};
+        pltxt2htm_test_assert_equal(html, answer);
+    }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"###### test\ntext");

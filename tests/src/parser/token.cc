@@ -1,7 +1,8 @@
 #include <concepts>
 #include <cstddef>
 #include <type_traits>
-#include <fast_io/fast_io_dsal/string.h>
+#include <pltxt2htm/container/string.hh>
+#include <pltxt2htm/container/vector.hh>
 
 #include "precompile.hh"
 
@@ -60,11 +61,11 @@ int main() {
     ::pltxt2htm::container::Vector<Node> arr{};
     arr.emplace_back(u8'a');
     arr.emplace_back(::pltxt2htm::UnityColor<::pltxt2htm::Contracts::quick_enforce>{
-        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::fast_io::u8string{u8"red"}});
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"red"}});
     arr.emplace_back(::pltxt2htm::PlExperiment<::pltxt2htm::Contracts::quick_enforce>{
-        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::fast_io::u8string{u8"123"}});
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}});
     arr.emplace_back(::pltxt2htm::PlDiscussion<::pltxt2htm::Contracts::quick_enforce>{
-        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::fast_io::u8string{u8"123"}});
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}});
 
     auto const& text = arr.template index<ndebug>(0);
     pltxt2htm_test_assert_true(text.get_node_kind() == ::pltxt2htm::NodeKind::text);

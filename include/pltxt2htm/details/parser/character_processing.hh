@@ -6,9 +6,9 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
 #include "../../ast/ast.hh"
 #include "../../contracts.hh"
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "html_named_character_references.hh"
 
@@ -185,13 +185,15 @@ constexpr auto encode_utf8_code_point(char32_t code_point) noexcept -> EncodedUt
 /**
  * @brief Append a Unicode scalar value to a UTF-8 string.
  * @details An invalid scalar value produces no output.
+ * @tparam ndebug Contract checking mode.
  * @param[out] result Output string receiving the encoded code units.
  * @param code_point Code point to encode and append.
  */
-constexpr void append_utf8_code_point(::fast_io::u8string& result, char32_t code_point) noexcept {
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_utf8_code_point(::pltxt2htm::container::U8String& result, char32_t code_point) noexcept {
     auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
     for (::std::size_t index{}; index < encoded.size; ++index) {
-        result.push_back(encoded.code_units[index]);
+        result.push_back<ndebug>(encoded.code_units[index]);
     }
 }
 
@@ -294,14 +296,17 @@ constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<nd
  * @brief Append a decoded character-reference code point to a UTF-8 string.
  * @details ASCII controls are normalized to U+FFFD before encoding. Character-reference
  *          decoding guarantees that every other input is a Unicode scalar value.
+ * @tparam ndebug Contract checking mode.
  * @param[out] result Output string receiving the encoded code point.
  * @param code_point Decoded character-reference code point.
  */
-constexpr void append_character_reference_code_point(::fast_io::u8string& result, char32_t code_point) noexcept {
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_character_reference_code_point(::pltxt2htm::container::U8String& result,
+                                                     char32_t code_point) noexcept {
     if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
         code_point = char32_t{0xFFFD};
     }
-    ::pltxt2htm::details::append_utf8_code_point(result, code_point);
+    ::pltxt2htm::details::append_utf8_code_point<ndebug>(result, code_point);
 }
 
 /**
@@ -558,25 +563,27 @@ constexpr auto try_append_character_reference(::pltxt2htm::container::U8StringVi
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto decode_character_references(::pltxt2htm::container::U8StringView text) noexcept -> ::fast_io::u8string {
-    ::fast_io::u8string result{};
+constexpr auto decode_character_references(::pltxt2htm::container::U8StringView text) noexcept
+    -> ::pltxt2htm::container::U8String {
+    ::pltxt2htm::container::U8String result{};
     ::std::size_t const text_size{text.size()};
-    result.reserve(text_size);
+    result.template reserve<ndebug>(text_size);
     for (::std::size_t index{}; index < text_size;) {
         if (text.template index<ndebug>(index) == u8'&') {
             auto const decoded =
                 ::pltxt2htm::details::try_decode_character_reference<ndebug>(text.template subview<ndebug>(index));
             if (decoded.has_value()) {
                 auto const& reference = decoded.template value<ndebug>();
-                ::pltxt2htm::details::append_character_reference_code_point(result, reference.first_code_point);
+                ::pltxt2htm::details::append_character_reference_code_point<ndebug>(result, reference.first_code_point);
                 if (reference.has_second_code_point()) {
-                    ::pltxt2htm::details::append_character_reference_code_point(result, reference.second_code_point);
+                    ::pltxt2htm::details::append_character_reference_code_point<ndebug>(result,
+                                                                                        reference.second_code_point);
                 }
                 index += reference.consumed_size;
                 continue;
             }
         }
-        result.push_back(text.template index<ndebug>(index));
+        result.push_back<ndebug>(text.template index<ndebug>(index));
         ++index;
     }
     return result;

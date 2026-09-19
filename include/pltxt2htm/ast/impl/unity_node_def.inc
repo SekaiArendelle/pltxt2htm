@@ -2,7 +2,7 @@
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::UnityColor<ndebug>::UnityColor(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                      ::fast_io::u8string&& color_) noexcept
+                                                      ::pltxt2htm::container::U8String&& color_) noexcept
     : subast(::std::move(subast_)),
       color(::std::move(color_)) {
 }
@@ -107,7 +107,7 @@ constexpr auto ::pltxt2htm::UnityAlign<ndebug>::operator==(this UnityAlign<ndebu
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::UnityMark<ndebug>::UnityMark(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                    ::fast_io::u8string&& background_color_) noexcept
+                                                    ::pltxt2htm::container::U8String&& background_color_) noexcept
     : subast(::std::move(subast_)),
       background_color(::std::move(background_color_)) {
 }
@@ -132,8 +132,7 @@ constexpr ::pltxt2htm::UnityMargin<ndebug>::UnityMargin(
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept
     : subast(::std::move(subast_)),
-      left(left_),
-      right(right_) {
+      margins{left_, right_} {
 }
 
 template<::pltxt2htm::Contracts ndebug>

@@ -48,7 +48,18 @@ private:
 public:
     constexpr BasicStringView() noexcept = default;
 
-    constexpr BasicStringView(::std::nullptr_t) = delete;
+    constexpr BasicStringView(::std::nullptr_t) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("use a string literal or a string_view instead of a null pointer")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     constexpr explicit BasicStringView(const_pointer pointer_, size_type size_) noexcept
         : pointer{pointer_},
@@ -90,10 +101,32 @@ public:
     }
 
     template<typename Allocator>
-    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator>&&) = delete;
+    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator>&&) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("the string_view would outlive the temporary it refers to")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     template<typename Allocator>
-    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator> const&&) = delete;
+    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator> const&&) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("the string_view would outlive the temporary it refers to")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     template<::std::size_t size>
     constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size> const& string) noexcept
@@ -102,10 +135,32 @@ public:
     }
 
     template<::std::size_t size>
-    constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size>&&) = delete;
+    constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size>&&) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("the string_view would outlive the temporary it refers to")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     template<::std::size_t size>
-    constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size> const&&) = delete;
+    constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size> const&&) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("the string_view would outlive the temporary it refers to")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
     constexpr BasicStringView(
@@ -115,10 +170,32 @@ public:
     }
 
     template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
-    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug>&&) = delete;
+    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug>&&) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("the string_view would outlive the temporary it refers to")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
-    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug> const&&) = delete;
+    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug> const&&) = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("the string_view would outlive the temporary it refers to")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     [[nodiscard]]
     constexpr auto data(this BasicStringView const& self) noexcept -> const_pointer {
@@ -155,18 +232,34 @@ public:
         return self.pointer[index];
     }
 
+    /**
+     * @brief Unchecked element access, provided to downstream users only.
+     *
+     * Contract-bearing access stays on index(); this overload is external-only:
+     * while pltxt2htm itself is being built (PLTXT2HTM_INTERNAL_USE) it stays
+     * deleted, so implementation code must name a Contracts policy.
+     * @param index Zero-based character position.
+     * @return Read-only reference to the requested character.
+     * @pre index < size(); otherwise the behavior is undefined.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator[](this BasicStringView const& self, size_type index) noexcept -> const_reference = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
     #endif
-        ("operator[] is deleted; use index() instead for bounds-checked access")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
         ;
+#else
+    constexpr auto operator[](this BasicStringView const& self, size_type index) noexcept -> const_reference {
+        return self.pointer[index];
+    }
+#endif
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
