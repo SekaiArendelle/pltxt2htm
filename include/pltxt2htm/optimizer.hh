@@ -12,7 +12,6 @@
 #include <cstddef>
 #include <iterator>
 #include <memory>
-#include <ranges>
 #include <type_traits>
 #include "container/optional.hh"
 #include "container/string_view.hh"
@@ -564,13 +563,12 @@ entry:
                 auto const available_size = text.capacity() - text.size();
                 auto const transferred_size = available_size < next_text.size() ? available_size : next_text.size();
                 auto const transferred_end = next_text.begin() + transferred_size;
-                text.append_range(::std::ranges::subrange{next_text.begin(), transferred_end});
+                text.append(next_text.begin(), transferred_end);
                 if (transferred_size == next_text.size()) {
                     ast.erase(next_iter);
                     continue;
                 }
-                auto remaining_text =
-                    ::pltxt2htm::Text<ndebug>{::std::ranges::subrange{transferred_end, next_text.end()}};
+                auto remaining_text = ::pltxt2htm::Text<ndebug>{transferred_end, next_text.end()};
                 ::std::destroy_at(::std::addressof(next_text));
                 ::std::construct_at(::std::addressof(next_text), ::std::move(remaining_text));
                 ++current_iter;

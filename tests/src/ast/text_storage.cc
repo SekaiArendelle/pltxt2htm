@@ -12,19 +12,13 @@ namespace {
 
 constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
 using Text = ::pltxt2htm::Text<ndebug>;
-using U8Array = char8_t[4];
-
-template<typename String>
-concept HasIteratorPairAppend =
-    requires(String& string, char8_t const* first, char8_t const* last) { string.append(first, last); };
 
 static_assert(sizeof(Text) < sizeof(::pltxt2htm::HtmlSpan<ndebug>));
 static_assert(sizeof(void*) != 8 || Text::capacity() == 64);
 static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode<ndebug>) == 80);
-static_assert(::std::is_nothrow_constructible_v<Text, U8Array&>);
-static_assert(noexcept(::std::declval<Text&>().append_range(::std::declval<U8Array&>())));
-static_assert(!::std::is_constructible_v<Text, char8_t const*, char8_t const*>);
-static_assert(!HasIteratorPairAppend<Text>);
+static_assert(::std::is_nothrow_constructible_v<Text, char8_t const*, char8_t const*>);
+static_assert(noexcept(::std::declval<Text&>().append(::std::declval<char8_t const*>(),
+                                                      ::std::declval<char8_t const*>())));
 
 } // namespace
 
@@ -81,9 +75,9 @@ int main() {
 
     {
         auto const left_fill = ::std::views::repeat(u8'a', Text::capacity() - 5);
-        auto left = Text{left_fill};
+        auto left = Text{left_fill.begin(), left_fill.end()};
         auto const right_fill = ::std::views::repeat(u8'b', ::std::size_t{10});
-        auto right = Text{right_fill};
+        auto right = Text{right_fill.begin(), right_fill.end()};
         ::pltxt2htm::Ast<ndebug> ast{};
         ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<Text>(::std::move(left)));
         ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<Text>(::std::move(right)));
