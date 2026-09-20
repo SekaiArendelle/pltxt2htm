@@ -718,10 +718,15 @@ struct PlTxtNodeTraits<ndebug, ::pltxt2htm::MdLatexBlock<ndebug>> {
     static constexpr auto member{&::pltxt2htm::details::PlTxtNodeStorage<ndebug>::md_latex_block_node};
 };
 
-template<::pltxt2htm::Contracts ndebug, typename Node>
-concept PlTxtNodeAlternative = requires {
-    ::pltxt2htm::details::PlTxtNodeTraits<ndebug, ::std::remove_cvref_t<Node>>::kind;
-    ::pltxt2htm::details::PlTxtNodeTraits<ndebug, ::std::remove_cvref_t<Node>>::member;
+template<typename Node>
+concept PlTxtNodeConcept = requires {
+    requires ::std::same_as<Node, ::std::remove_cvref_t<Node>>;
+    requires ::std::same_as<::pltxt2htm::NodeKind,
+        ::std::remove_cvref_t<decltype(
+            ::pltxt2htm::details::PlTxtNodeTraits<::pltxt2htm::Contracts::quick_enforce, Node>::kind)>>;
+    requires ::std::is_member_object_pointer_v<
+        ::std::remove_cvref_t<decltype(
+            ::pltxt2htm::details::PlTxtNodeTraits<::pltxt2htm::Contracts::quick_enforce, Node>::member)>>;
 };
 
 } // namespace pltxt2htm::details

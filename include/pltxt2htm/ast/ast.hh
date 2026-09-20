@@ -48,9 +48,8 @@ public:
      * @return A ::pltxt2htm::PlTxtNode containing the constructed node.
      */
     template<typename Node, typename... Args>
-        requires ::std::same_as<Node, ::std::remove_cvref_t<Node>> &&
-                 ::pltxt2htm::details::PlTxtNodeAlternative<ndebug, Node> &&
-                 ::std::is_nothrow_constructible_v<Node, Args...>
+        requires (::pltxt2htm::details::PlTxtNodeConcept<Node> &&
+                 ::std::is_nothrow_constructible_v<Node, Args...>)
     [[nodiscard]]
     static constexpr auto emplace(Args&&... args) noexcept -> ::pltxt2htm::PlTxtNode<ndebug> {
         using Traits = ::pltxt2htm::details::PlTxtNodeTraits<ndebug, Node>;
