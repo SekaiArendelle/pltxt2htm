@@ -130,9 +130,9 @@ entry:
             if (auto opt_escape =
                     ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
                 opt_escape.has_value()) {
-                auto&& [node, advance_count] = opt_escape.template value<ndebug>();
-                result.push_back(::std::move(node));
-                current_index += advance_count;
+                auto const& escape_result = opt_escape.template value<ndebug>();
+                ::pltxt2htm::details::append_md_escape_result<ndebug>(result, escape_result);
+                current_index += escape_result.advance_count;
                 continue;
             }
             if (::pltxt2htm::details::is_prefix_match<ndebug, u8"{project}">(
@@ -911,8 +911,8 @@ entry:
                                     pltext.template subview<ndebug>(comment_end))) {
                                 break;
                             }
-                            subast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::U8Char>(
-                                pltext.template index<ndebug>(comment_end)));
+                            ::pltxt2htm::details::append_text_code_unit<ndebug>(
+                                subast, pltext.template index<ndebug>(comment_end));
                         }
 
                         current_index = comment_end + 2; // Point to '>'
@@ -1787,7 +1787,7 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::table_colgroup:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::u8char:
+                    case ::pltxt2htm::NodeKind::text:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::invalid_utf8:
                         [[fallthrough]];
@@ -2273,7 +2273,7 @@ entry:
                     ::std::move(subast), ::std::move(link_url)));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::u8char:
+            case ::pltxt2htm::NodeKind::text:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::invalid_utf8:
                 [[fallthrough]];

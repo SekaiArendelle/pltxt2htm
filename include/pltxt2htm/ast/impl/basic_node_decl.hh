@@ -6,9 +6,13 @@
 
 #pragma once
 
+#include <concepts>
+#include <cstddef>
+#include <iterator>
 #include <utility>
 #include "../../container/string.hh"
 #include "../../container/optional.hh"
+#include "../../details/inplace_string.hh"
 #include "ast_decl.hh"
 
 namespace pltxt2htm {
@@ -94,14 +98,96 @@ public:
 };
 
 /**
- * @brief UTF-8 character node
- * @details Represents a single UTF-8 character in the AST. This is a leaf node.
+ * @brief A leaf node containing a run of UTF-8 code units.
+ * @details Stores up to eight pointer-sized words of UTF-8 code units inline, plus its size field.
  */
-class U8Char {
+template<::pltxt2htm::Contracts ndebug>
+class Text {
+    // Keep this node smaller than HtmlSpan without penalizing 32-bit targets.
+    static constexpr ::std::size_t storage_capacity{sizeof(void*) * 8};
+    using Storage = ::pltxt2htm::details::U8InplaceString<storage_capacity, ndebug>;
+
+    Storage storage;
+
 public:
-    char8_t chr;
+    using size_type = ::std::size_t;
+    using iterator = char8_t*;
+    using const_iterator = char8_t const*;
+
+    constexpr explicit Text(char8_t character) noexcept
+        : storage{character} {
+    }
+
+    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
+        requires (::std::same_as<::std::iter_value_t<InputIterator>, char8_t> &&
+                  ::std::constructible_from<char8_t, ::std::iter_reference_t<InputIterator>>)
+    constexpr Text(InputIterator first,
+                   Sentinel last) noexcept(noexcept(Storage{::std::move(first), ::std::move(last)}))
+        : storage{::std::move(first), ::std::move(last)} {
+    }
+
+    constexpr Text(Text const&) = default;
+    constexpr Text(Text&&) noexcept = default;
+    constexpr auto operator=(this Text&, Text const&) -> Text& = default;
+    constexpr auto operator=(this Text&, Text&&) noexcept -> Text& = default;
+    constexpr ~Text() noexcept = default;
+
     [[nodiscard]]
-    constexpr auto operator==(this U8Char const&, U8Char const&) noexcept -> bool = default;
+    constexpr auto operator==(this Text const&, Text const&) noexcept -> bool = default;
+
+    [[nodiscard]]
+    static constexpr auto capacity() noexcept -> size_type {
+        return Storage::capacity();
+    }
+
+    [[nodiscard]]
+    constexpr auto size(this Text const& self) noexcept -> size_type {
+        return self.storage.size();
+    }
+
+    [[nodiscard]]
+    constexpr auto begin(this Text& self) noexcept -> iterator {
+        return self.storage.begin();
+    }
+
+    [[nodiscard]]
+    constexpr auto begin(this Text const& self) noexcept -> const_iterator {
+        return self.storage.begin();
+    }
+
+    [[nodiscard]]
+    constexpr auto end(this Text& self) noexcept -> iterator {
+        return self.storage.end();
+    }
+
+    [[nodiscard]]
+    constexpr auto end(this Text const& self) noexcept -> const_iterator {
+        return self.storage.end();
+    }
+
+    [[nodiscard]]
+    constexpr auto index(this Text& self, size_type position) noexcept -> char8_t& {
+        return self.storage.index(position);
+    }
+
+    [[nodiscard]]
+    constexpr auto index(this Text const& self, size_type position) noexcept -> char8_t const& {
+        return self.storage.index(position);
+    }
+
+    [[nodiscard]]
+    constexpr auto try_push_back(this Text& self, char8_t character) noexcept -> bool {
+        return self.storage.try_push_back(character);
+    }
+
+    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
+        requires (::std::same_as<::std::iter_value_t<InputIterator>, char8_t> &&
+                  ::std::constructible_from<char8_t, ::std::iter_reference_t<InputIterator>>)
+    constexpr void append(this Text& self, InputIterator first,
+                          Sentinel last) noexcept(noexcept(self.storage.append(::std::move(first),
+                                                                               ::std::move(last)))) {
+        self.storage.append(::std::move(first), ::std::move(last));
+    }
 };
 
 /**

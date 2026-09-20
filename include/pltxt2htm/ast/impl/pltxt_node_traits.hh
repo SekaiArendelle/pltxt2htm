@@ -25,7 +25,7 @@ namespace pltxt2htm::details {
 template<::pltxt2htm::Contracts ndebug>
 union PlTxtNodeStorage {
     // basic node
-    ::pltxt2htm::U8Char u8char_node;
+    ::pltxt2htm::Text<ndebug> text_node;
     ::pltxt2htm::InvalidUtf8 invalid_utf8_node;
     ::pltxt2htm::Group<ndebug> group_node;
 
@@ -143,9 +143,9 @@ template<::pltxt2htm::Contracts ndebug, typename Node>
 struct PlTxtNodeTraits;
 
 template<::pltxt2htm::Contracts ndebug>
-struct PlTxtNodeTraits<ndebug, ::pltxt2htm::U8Char> {
-    static constexpr ::pltxt2htm::NodeKind kind{::pltxt2htm::NodeKind::u8char};
-    static constexpr auto member{&::pltxt2htm::details::PlTxtNodeStorage<ndebug>::u8char_node};
+struct PlTxtNodeTraits<ndebug, ::pltxt2htm::Text<ndebug>> {
+    static constexpr ::pltxt2htm::NodeKind kind{::pltxt2htm::NodeKind::text};
+    static constexpr auto member{&::pltxt2htm::details::PlTxtNodeStorage<ndebug>::text_node};
 };
 
 template<::pltxt2htm::Contracts ndebug>
@@ -722,11 +722,9 @@ template<::pltxt2htm::Contracts ndebug, typename Node>
 concept PlTxtNodeConcept = requires {
     requires ::std::same_as<Node, ::std::remove_cvref_t<Node>>;
     requires ::std::same_as<::pltxt2htm::NodeKind,
-        ::std::remove_cvref_t<decltype(
-            ::pltxt2htm::details::PlTxtNodeTraits<ndebug, Node>::kind)>>;
+                            ::std::remove_cvref_t<decltype(::pltxt2htm::details::PlTxtNodeTraits<ndebug, Node>::kind)>>;
     requires ::std::is_member_object_pointer_v<
-        ::std::remove_cvref_t<decltype(
-            ::pltxt2htm::details::PlTxtNodeTraits<ndebug, Node>::member)>>;
+        ::std::remove_cvref_t<decltype(::pltxt2htm::details::PlTxtNodeTraits<ndebug, Node>::member)>>;
 };
 
 } // namespace pltxt2htm::details

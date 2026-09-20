@@ -49,7 +49,7 @@ public:
      */
     template<typename Node, typename... Args>
         requires (::pltxt2htm::details::PlTxtNodeConcept<ndebug, Node> &&
-                 ::std::is_nothrow_constructible_v<Node, Args...>)
+                  ::std::is_nothrow_constructible_v<Node, Args...>)
     [[nodiscard]]
     static constexpr auto emplace(Args&&... args) noexcept -> ::pltxt2htm::PlTxtNode<ndebug> {
         using Traits = ::pltxt2htm::details::PlTxtNodeTraits<ndebug, Node>;
@@ -71,8 +71,8 @@ public:
     constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
         : node_kind(other.node_kind) {
         switch (node_kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::u8char: {
-            new (::std::addressof(storage.u8char_node))::pltxt2htm::U8Char(other.storage.u8char_node);
+        case ::pltxt2htm::NodeKind::text: {
+            new (::std::addressof(storage.text_node))::pltxt2htm::Text<ndebug>(other.storage.text_node);
             break;
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
@@ -492,8 +492,8 @@ public:
     constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug>&& other) noexcept
         : node_kind(other.node_kind) {
         switch (node_kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::u8char: {
-            ::std::construct_at(::std::addressof(storage.u8char_node), ::std::move(other.storage.u8char_node));
+        case ::pltxt2htm::NodeKind::text: {
+            ::std::construct_at(::std::addressof(storage.text_node), ::std::move(other.storage.text_node));
             break;
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
@@ -920,8 +920,8 @@ public:
 
     constexpr ~PlTxtNode() noexcept {
         switch (node_kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::u8char: {
-            ::std::destroy_at(::std::addressof(storage.u8char_node));
+        case ::pltxt2htm::NodeKind::text: {
+            ::std::destroy_at(::std::addressof(storage.text_node));
             break;
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
@@ -1347,8 +1347,8 @@ public:
             return false;
         }
         switch (self.node_kind) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::u8char: {
-            return self.storage.u8char_node == other.storage.u8char_node;
+        case ::pltxt2htm::NodeKind::text: {
+            return self.storage.text_node == other.storage.text_node;
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
             return self.storage.invalid_utf8_node == other.storage.invalid_utf8_node;
@@ -1650,9 +1650,9 @@ public:
     /// @{
 
     [[nodiscard]]
-    constexpr auto as_u8char(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::u8char, u8"node kind mismatch");
-        return ::std::forward_like<decltype(self)>(self.storage.u8char_node);
+    constexpr auto as_text(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(self.node_kind == ::pltxt2htm::NodeKind::text, u8"node kind mismatch");
+        return ::std::forward_like<decltype(self)>(self.storage.text_node);
     }
 
     [[nodiscard]]
@@ -2235,6 +2235,26 @@ public:
         return self.node_kind;
     }
 };
+
+namespace details {
+
+/**
+ * @brief Append one UTF-8 code unit to the trailing text node when possible.
+ * @details Starts a new text node when the AST is empty, the previous node is not text,
+ *          or the previous inline string has reached its fixed capacity.
+ */
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_text_code_unit(::pltxt2htm::Ast<ndebug>& ast, char8_t code_unit) noexcept {
+    if (ast.empty() == false) {
+        auto&& last_node = ast.template index<ndebug>(ast.size() - 1);
+        if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text && last_node.as_text().try_push_back(code_unit)) {
+            return;
+        }
+    }
+    ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(code_unit));
+}
+
+} // namespace details
 
 } // namespace pltxt2htm
 

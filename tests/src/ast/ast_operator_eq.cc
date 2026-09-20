@@ -59,15 +59,19 @@ int main() {
         pltxt2htm_test_assert_false(a == b);
     }
 
-    // U8Char with same/different values
+    // Text with same/different values
     {
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A');
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A');
+        auto const a =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A');
+        auto const b =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A');
         pltxt2htm_test_assert_true(a == b);
     }
     {
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A');
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'B');
+        auto const a =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A');
+        auto const b =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'B');
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -87,12 +91,16 @@ int main() {
     // Group with non-empty sub-AST
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'H'));
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'i'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'H'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'i'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'H'));
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'i'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'H'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'i'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Group<nd::quick_enforce>>(
@@ -106,12 +114,16 @@ int main() {
     // Group with different sub-AST content
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'H'));
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'i'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'H'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'i'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'H'));
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'o'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'H'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'o'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Group<nd::quick_enforce>>(
@@ -125,11 +137,14 @@ int main() {
     // Group with different sub-AST size
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'H'));
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'i'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'H'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'i'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'H'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'H'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Group<nd::quick_enforce>>(
@@ -143,10 +158,12 @@ int main() {
     // HtmlH1 with sub-AST
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'X'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'X'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'X'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'X'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::HtmlH1<nd::quick_enforce>>(
@@ -158,10 +175,12 @@ int main() {
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'X'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'X'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'Y'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'Y'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::HtmlH1<nd::quick_enforce>>(
@@ -175,7 +194,8 @@ int main() {
     // HtmlBlockquote with nested sub-AST
     {
         ::pltxt2htm::Ast<nd::quick_enforce> inner_a{};
-        inner_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        inner_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> outer_a{};
         outer_a.emplace_back(
@@ -183,7 +203,8 @@ int main() {
                 ::std::move(inner_a)));
 
         ::pltxt2htm::Ast<nd::quick_enforce> inner_b{};
-        inner_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        inner_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> outer_b{};
         outer_b.emplace_back(
@@ -202,10 +223,12 @@ int main() {
     // CodeFence without language
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
@@ -221,10 +244,12 @@ int main() {
     // CodeFence with same language
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
@@ -240,10 +265,12 @@ int main() {
     // CodeFence with different languages
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
@@ -344,10 +371,12 @@ int main() {
     // MdLink with sub-AST and URL
     {
         ::pltxt2htm::Ast<nd::quick_enforce> text_a{};
-        text_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        text_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> text_b{};
-        text_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        text_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdLink<nd::quick_enforce>>(
@@ -361,10 +390,12 @@ int main() {
     // MdLink with different URL
     {
         ::pltxt2htm::Ast<nd::quick_enforce> text_a{};
-        text_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        text_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> text_b{};
-        text_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        text_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdLink<nd::quick_enforce>>(
@@ -378,10 +409,12 @@ int main() {
     // MdImage with sub-AST and URL
     {
         ::pltxt2htm::Ast<nd::quick_enforce> alt_a{};
-        alt_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        alt_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> alt_b{};
-        alt_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a'));
+        alt_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdImage<nd::quick_enforce>>(
@@ -395,10 +428,12 @@ int main() {
     // ListLiCheckbox (sub-AST + bool checked)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8't'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8't'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8't'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8't'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::ListLiCheckbox<nd::quick_enforce>>(
@@ -425,10 +460,12 @@ int main() {
     // TableTh / TableTd (sub-AST + TableAlign)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'h'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'h'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'h'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'h'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::TableTh<nd::quick_enforce>>(
@@ -440,10 +477,12 @@ int main() {
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'h'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'h'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'h'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'h'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::TableTh<nd::quick_enforce>>(
@@ -455,10 +494,12 @@ int main() {
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'd'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'd'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'd'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'd'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::TableTd<nd::quick_enforce>>(
@@ -585,10 +626,12 @@ int main() {
     // Ast-level comparison (single matching elements)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
 
         pltxt2htm_test_assert_true(ast_a == ast_b);
     }
@@ -596,12 +639,16 @@ int main() {
     // Ast-level comparison (multiple matching elements)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A'));
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'B'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'B'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A'));
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'B'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'B'));
 
         pltxt2htm_test_assert_true(ast_a == ast_b);
     }
@@ -609,12 +656,16 @@ int main() {
     // Ast-level comparison (different elements)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A'));
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'B'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'B'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A'));
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'C'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'C'));
 
         pltxt2htm_test_assert_false(ast_a == ast_b);
     }
@@ -622,24 +673,31 @@ int main() {
     // Ast-level comparison (different sizes)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A'));
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'B'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'B'));
 
         pltxt2htm_test_assert_false(ast_a == ast_b);
     }
 
     // C++20 operator!= auto-generation
     {
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A');
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'B');
+        auto const a =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A');
+        auto const b =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'B');
         pltxt2htm_test_assert_true(a != b);
     }
     {
-        auto const a = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A');
-        auto const b = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A');
+        auto const a =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A');
+        auto const b =
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A');
         pltxt2htm_test_assert_false(a != b);
     }
 
@@ -664,10 +722,12 @@ int main() {
     // UnityI (sub-AST only)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8't'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8't'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8't'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8't'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::UnityI<nd::quick_enforce>>(
@@ -681,10 +741,12 @@ int main() {
     // UnityB (sub-AST only)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8't'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8't'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8't'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8't'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::UnityB<nd::quick_enforce>>(
@@ -698,12 +760,16 @@ int main() {
     // Cross-type: same sub-AST, different wrapper type
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'H'));
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'i'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'H'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'i'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'H'));
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'i'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'H'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'i'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Group<nd::quick_enforce>>(
@@ -715,10 +781,12 @@ int main() {
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'X'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'X'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'X'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'X'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::HtmlBlockquote<nd::quick_enforce>>(
@@ -730,10 +798,12 @@ int main() {
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8't'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8't'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8't'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8't'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::UnityI<nd::quick_enforce>>(
@@ -761,12 +831,16 @@ int main() {
     // Sub-AST count mismatch
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'H'));
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'i'));
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'!'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'H'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'i'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'!'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'H'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'H'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Group<nd::quick_enforce>>(
@@ -778,11 +852,14 @@ int main() {
     }
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A'));
-        ast_a.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'B'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
+        ast_a.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'B'));
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A'));
+        ast_b.emplace_back(
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::HtmlH1<nd::quick_enforce>>(

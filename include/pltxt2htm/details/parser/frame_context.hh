@@ -617,7 +617,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::url:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::u8char:
+        case ::pltxt2htm::NodeKind::text:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
@@ -984,7 +984,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::url:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::u8char:
+        case ::pltxt2htm::NodeKind::text:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
@@ -1064,7 +1064,7 @@ public:
     constexpr auto get_pltext(this ParserFrame<ndebug> const& self) noexcept -> ::pltxt2htm::container::U8StringView {
         auto const& context_data_ref = self.context_data;
         switch (context_data_ref.get_kind()) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::u8char:
+        case ::pltxt2htm::NodeKind::text:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
