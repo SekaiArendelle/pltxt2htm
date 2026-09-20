@@ -763,4 +763,3 @@ TEST_CASE("md_table") {
         CHECK(html == answer);
     }
 }
-

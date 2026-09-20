@@ -218,4 +218,3 @@ TEST_CASE("auto_link") {
         CHECK(html == answer);
     }
 }
-

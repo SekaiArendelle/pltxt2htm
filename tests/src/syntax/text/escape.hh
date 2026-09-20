@@ -18,4 +18,3 @@ TEST_CASE("escape") {
         CHECK(html == u8"&lt;&nbsp;&gt;&amp;&apos;&quot;");
     }
 }
-

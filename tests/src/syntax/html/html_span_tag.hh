@@ -737,4 +737,3 @@ TEST_CASE("html_span_tag") {
         CHECK(html == answer);
     }
 }
-

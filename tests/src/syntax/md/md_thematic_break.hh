@@ -235,4 +235,3 @@ TEST_CASE("md_thematic_break") {
         CHECK(html == answer);
     }
 }
-

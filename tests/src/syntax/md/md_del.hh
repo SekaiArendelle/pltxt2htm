@@ -43,4 +43,3 @@ TEST_CASE("md_del") {
         CHECK(html == answer);
     }
 }
-

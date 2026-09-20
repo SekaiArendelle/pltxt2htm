@@ -348,4 +348,3 @@ TEST_CASE("html_mark_tag") {
         CHECK(html == answer);
     }
 }
-

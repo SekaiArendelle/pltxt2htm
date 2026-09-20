@@ -200,4 +200,3 @@ TEST_CASE("md_escape") {
         CHECK(::pltxt2htm_test::pltxt2plunity_introduction(pltext) == ::fast_io::u8string_view{u8"\\a"});
     }
 }
-

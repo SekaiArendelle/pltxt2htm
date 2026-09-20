@@ -598,8 +598,7 @@ TEST_CASE("html_table") {
         // short view after matching the opening <table> tag, which calls fast_terminate.
         auto pltext = ::fast_io::u8string_view{u8"<table>X"};
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
-        ::fast_io::u8string answer{u8"&lt;table&gt;X"};
+        ::pltxt2htm::container::U8String answer{u8"&lt;table&gt;X"};
         CHECK(html == answer);
     }
 }
-

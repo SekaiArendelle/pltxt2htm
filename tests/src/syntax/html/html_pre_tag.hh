@@ -168,4 +168,3 @@ TEST_CASE("html_pre_tag") {
         CHECK(html == answer);
     }
 }
-

@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <iterator>
 #include <limits>
+#include <memory>
 #include <type_traits>
 #include <utility>
 
@@ -55,8 +56,15 @@ public:
     using const_reverse_iterator = ::std::reverse_iterator<const_iterator>;
 
 private:
-    value_type storage[extent]{};
+    // Runtime constructors leave the inactive suffix untouched; special members must copy only the active prefix.
+    value_type storage[extent];
     StoredSize size_storage{};
+
+    constexpr void initialize_storage_for_constant_evaluation(this BasicInplaceString& self) noexcept {
+        if consteval {
+            ::std::fill_n(self.storage, extent, value_type{});
+        }
+    }
 
     template<typename InputIterator, typename Sentinel>
     [[nodiscard]]
@@ -75,9 +83,12 @@ private:
     }
 
 public:
-    constexpr BasicInplaceString() noexcept = default;
+    constexpr BasicInplaceString() noexcept {
+        this->initialize_storage_for_constant_evaluation();
+    }
 
     constexpr explicit BasicInplaceString(value_type value) noexcept {
+        this->initialize_storage_for_constant_evaluation();
         this->push_back(value);
     }
 
@@ -88,14 +99,27 @@ public:
                                  Sentinel last) noexcept(::std::is_nothrow_move_constructible_v<InputIterator> &&
                                                          ::std::is_nothrow_move_constructible_v<Sentinel> &&
                                                          is_nothrow_range_iteration<InputIterator, Sentinel>()) {
+        this->initialize_storage_for_constant_evaluation();
         this->append(::std::move(first), ::std::move(last));
     }
 
-    constexpr BasicInplaceString(BasicInplaceString const&) noexcept = default;
+    constexpr BasicInplaceString(BasicInplaceString const& other) noexcept {
+        this->initialize_storage_for_constant_evaluation();
+        auto const count = other.size();
+        ::std::copy_n(other.storage, count, this->storage);
+        this->size_storage = other.size_storage;
+    }
 
-    constexpr auto operator=(this BasicInplaceString&, BasicInplaceString const&) -> BasicInplaceString& = default;
-
-    constexpr auto operator=(this BasicInplaceString&, BasicInplaceString&&) noexcept -> BasicInplaceString& = default;
+    constexpr auto operator=(this BasicInplaceString& self, BasicInplaceString const& other) noexcept
+        -> BasicInplaceString& {
+        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
+            return self;
+        }
+        auto const count = other.size();
+        ::std::copy_n(other.storage, count, self.storage);
+        self.size_storage = other.size_storage;
+        return self;
+    }
 
     constexpr ~BasicInplaceString() noexcept = default;
 

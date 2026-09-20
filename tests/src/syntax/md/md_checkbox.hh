@@ -80,4 +80,3 @@ TEST_CASE("md_checkbox") {
         CHECK(html == answer);
     }
 }
-

@@ -52,4 +52,3 @@ TEST_CASE("html_hr_tag") {
         CHECK(html == answer);
     }
 }
-

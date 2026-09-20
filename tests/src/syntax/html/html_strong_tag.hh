@@ -58,4 +58,3 @@ TEST_CASE("html_strong_tag") {
         CHECK(html == answer);
     }
 }
-

@@ -338,4 +338,3 @@ TEST_CASE("unity_size_tag") {
         CHECK(html == answer);
     }
 }
-

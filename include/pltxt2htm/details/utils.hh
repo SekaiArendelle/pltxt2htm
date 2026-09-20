@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <ranges>
 #include <type_traits>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../container/string.hh"
 #include "../container/optional.hh"
 #include "../container/string_view.hh"
 #include "../contracts.hh"
@@ -177,34 +177,74 @@ constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcep
 }
 
 /**
+ * @brief Generate the lookup table of two-digit decimal pairs ("00" through "99").
+ */
+[[nodiscard]]
+consteval auto make_decimal_digit_pairs() noexcept -> ::pltxt2htm::details::U8LiteralString<200> {
+    auto pairs = ::pltxt2htm::details::U8LiteralString<200>{};
+    for (::std::size_t i{}; i < 100; ++i) {
+        pairs[i * 2] = static_cast<char8_t>(u8'0' + i / 10);
+        pairs[i * 2 + 1] = static_cast<char8_t>(u8'0' + i % 10);
+    }
+    return pairs;
+}
+
+constexpr auto decimal_digit_pairs = ::pltxt2htm::details::make_decimal_digit_pairs();
+
+/**
+ * @brief Write the decimal digits of an unsigned integer backward into a buffer.
+ * @details Digits are emitted into [returned pointer, buffer_end) so callers need
+ *          no digit-count pre-pass and no reversal pass. Two digits are written per
+ *          iteration through a 100-entry lookup table, halving the number of divisions.
+ * @tparam T The unsigned integer type of value.
+ * @param[in] value The value to write; any unsigned value is accepted, including 0.
+ * @param[in] buffer_end One past the last writable element; the buffer must have room
+ *            for digits10(T) + 1 characters.
+ * @return Pointer to the first written digit.
+ */
+template<::std::unsigned_integral T>
+[[nodiscard]]
+constexpr auto write_decimal_digits_backward(T value, char8_t* const buffer_end) noexcept -> char8_t* {
+    auto ptr = buffer_end;
+    while (value >= 100) {
+        auto const pair_index = static_cast<::std::size_t>(value % 100) * 2;
+        value /= 100;
+        // The ones digit sits at the higher address since we fill backward.
+        *--ptr = ::pltxt2htm::details::decimal_digit_pairs[pair_index + 1];
+        *--ptr = ::pltxt2htm::details::decimal_digit_pairs[pair_index];
+    }
+    if (value >= 10) {
+        auto const pair_index = static_cast<::std::size_t>(value) * 2;
+        // The ones digit sits at the higher address since we fill backward.
+        *--ptr = ::pltxt2htm::details::decimal_digit_pairs[pair_index + 1];
+        *--ptr = ::pltxt2htm::details::decimal_digit_pairs[pair_index];
+    }
+    else {
+        *--ptr = static_cast<char8_t>(u8'0' + value);
+    }
+    return ptr;
+}
+
+/**
  * @brief Convert a std::size_t to a UTF-8 string
  * @param[in] num The number to convert
  * @return A UTF-8 string representation of the number
- * @retval fast_io::u8string UTF-8 string containing the number representation
- * @note This function handles the special case of 0 and builds the string
- *       by extracting digits from least significant to most significant,
- *       then reversing the result
+ * @retval container::U8String UTF-8 string containing the number representation
+ * @note Digits are written backward into a fixed stack buffer (two per iteration
+ *       through a lookup table) and the result is constructed with the exact final
+ *       size, so the conversion performs a single allocation with no reversal pass
+ *       and no per-digit capacity checks.
  */
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto size_t2str(::std::size_t num) noexcept -> ::fast_io::u8string {
-    if (num == 0) {
-        return ::fast_io::u8string{u8"0"};
-    }
-
-    ::fast_io::u8string result{};
-
-    while (num > 0) {
-        char8_t const digit = (num % 10) + u8'0';
-        result.push_back(digit);
-        num /= 10;
-    }
-
-    ::std::ranges::reverse(result);
-
-    return result;
+constexpr auto size_t2str(::std::size_t num) noexcept -> ::pltxt2htm::container::U8String {
+    // digits10(size_t) + 1 characters cover every value, including the extra digit
+    // that digits10 does not account for.
+    char8_t buffer[::std::numeric_limits<::std::size_t>::digits10 + 2];
+    char8_t const* const begin = ::pltxt2htm::details::write_decimal_digits_backward(num, buffer + sizeof(buffer));
+    return ::pltxt2htm::container::U8String{begin, buffer + sizeof(buffer)};
 }
 
 /**
@@ -247,36 +287,38 @@ constexpr auto try_parse_size_t_decimal_value(::pltxt2htm::container::U8StringVi
 
 /**
  * @brief Convert a signed integer (::std::ptrdiff_t) to a UTF-8 string.
- * @details Handles negative values with a leading U+002D '-' sign. Mirrors
+ * @details Handles negative values with a leading U+002D '-' sign written directly
+ *          into the buffer, avoiding a post-hoc insert. Mirrors
  *          ::pltxt2htm::details::size_t2str but for signed values.
  */
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-constexpr auto ptrdiff_t2str(::std::ptrdiff_t num) noexcept -> ::fast_io::u8string {
-    if (num == 0) {
-        return ::fast_io::u8string{u8"0"};
+constexpr auto ptrdiff_t2str(::std::ptrdiff_t num) noexcept -> ::pltxt2htm::container::U8String {
+    using unsigned_type = ::std::make_unsigned_t<::std::ptrdiff_t>;
+
+    auto magnitude = static_cast<unsigned_type>(num);
+    bool const negative = num < 0;
+    if (negative) {
+        // Unsigned negation is well-defined and also covers ::std::ptrdiff_t min().
+        magnitude = static_cast<unsigned_type>(0) - magnitude;
     }
 
-    auto magnitude = static_cast<::std::make_unsigned_t<::std::ptrdiff_t>>(num);
-    if (num < 0) {
-        magnitude = static_cast<::std::make_unsigned_t<::std::ptrdiff_t>>(0) - magnitude;
+    // digits10 + 1 characters cover the magnitude and one more covers the '-'.
+    char8_t buffer[::std::numeric_limits<unsigned_type>::digits10 + 3];
+    char8_t* begin = ::pltxt2htm::details::write_decimal_digits_backward(magnitude, buffer + sizeof(buffer));
+    if (negative) {
+        // Split into two statements instead of `*--begin = u8'-'`: clang-tidy's
+        // misc-const-correctness does not recognize pointee writes through an
+        // adjusted pointer and wrongly suggests declaring the pointee const
+        // (llvm/llvm-project#215161). Fixed on LLVM main by
+        // llvm/llvm-project#215285, but the fix is in neither LLVM 22.x (CI)
+        // nor 23.1.0, so keep the two-statement form for now.
+        --begin;
+        *begin = u8'-';
     }
-
-    ::fast_io::u8string result{};
-    while (magnitude > 0) {
-        char8_t const digit = (magnitude % 10) + u8'0';
-        result.push_back(digit);
-        magnitude /= 10;
-    }
-    ::std::ranges::reverse(result);
-
-    if (num < 0) {
-        result.insert(result.begin(), ::pltxt2htm::container::U8StringView{u8"-"});
-    }
-
-    return result;
+    return ::pltxt2htm::container::U8String{begin, buffer + sizeof(buffer)};
 }
 
 /**
@@ -420,10 +462,10 @@ constexpr auto double_to_size_t_ceil(double value) noexcept -> ::std::size_t {
  *          number of digits (e.g. 12.5 -> "12.5").
  */
 [[nodiscard]]
-constexpr auto double2str(double value) noexcept -> ::fast_io::u8string {
+constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8String {
     constexpr ::std::size_t max_fractional_digits{17};
     constexpr double max_scaled{static_cast<double>(::std::numeric_limits<::std::ptrdiff_t>::max()) + 1};
-    ::fast_io::u8string fallback{};
+    ::pltxt2htm::container::U8String fallback{};
     for (::std::size_t fractional_digits{0}; fractional_digits <= max_fractional_digits; ++fractional_digits) {
         double scale{1};
         for (::std::size_t i{0}; i < fractional_digits; ++i) {
@@ -439,23 +481,25 @@ constexpr auto double2str(double value) noexcept -> ::fast_io::u8string {
         }
         auto const digit_str = ::pltxt2htm::details::size_t2str(static_cast<::std::size_t>(rounded));
         ::std::size_t const digit_str_size{digit_str.size()};
-        ::fast_io::u8string candidate{};
+        ::pltxt2htm::container::U8String candidate{};
         if (fractional_digits == 0) {
             candidate = digit_str;
         }
         else if (digit_str_size > fractional_digits) {
             auto const frac_start = digit_str_size - fractional_digits;
-            candidate.append(::pltxt2htm::container::U8StringView{digit_str.data(), frac_start});
-            candidate.push_back(u8'.');
-            candidate.append(::pltxt2htm::container::U8StringView{digit_str.data() + frac_start, fractional_digits});
+            candidate.append<::pltxt2htm::Contracts::quick_enforce>(
+                ::pltxt2htm::container::U8StringView{digit_str.data(), frac_start});
+            candidate.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'.');
+            candidate.append<::pltxt2htm::Contracts::quick_enforce>(
+                ::pltxt2htm::container::U8StringView{digit_str.data() + frac_start, fractional_digits});
         }
         else {
-            candidate.append(u8"0.");
+            candidate.append<::pltxt2htm::Contracts::quick_enforce>(u8"0.");
             ::std::size_t const padding_size{fractional_digits - digit_str_size};
             for (::std::size_t i{0}; i < padding_size; ++i) {
-                candidate.push_back(u8'0');
+                candidate.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'0');
             }
-            candidate.append(digit_str);
+            candidate.append<::pltxt2htm::Contracts::quick_enforce>(digit_str);
         }
         auto opt_reparsed = ::pltxt2htm::details::try_parse_double_decimal_value<::pltxt2htm::Contracts::quick_enforce>(
             ::pltxt2htm::container::U8StringView{candidate});

@@ -80,4 +80,3 @@ TEST_CASE("latex") {
         CHECK(html == answer);
     }
 }
-

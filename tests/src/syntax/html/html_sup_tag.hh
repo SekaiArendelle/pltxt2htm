@@ -94,4 +94,3 @@ TEST_CASE("html_sup_tag") {
         CHECK(html == answer);
     }
 }
-

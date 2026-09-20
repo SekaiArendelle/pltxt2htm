@@ -108,4 +108,3 @@ TEST_CASE("pl_discussion_tag") {
         CHECK(html == answer);
     }
 }
-

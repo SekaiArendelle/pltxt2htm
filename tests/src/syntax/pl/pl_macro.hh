@@ -40,4 +40,3 @@ TEST_CASE("pl_macro") {
         CHECK(html == answer);
     }
 }
-

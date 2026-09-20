@@ -209,4 +209,3 @@ TEST_CASE("html_a_tag") {
         CHECK(html == answer);
     }
 }
-

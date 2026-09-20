@@ -117,4 +117,3 @@ TEST_CASE("pl_trigger_tag") {
         CHECK(html == answer);
     }
 }
-

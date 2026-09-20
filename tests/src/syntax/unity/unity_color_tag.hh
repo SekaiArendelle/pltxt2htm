@@ -153,4 +153,3 @@ TEST_CASE("unity_color_tag") {
         CHECK(html == answer);
     }
 }
-

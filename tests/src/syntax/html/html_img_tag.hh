@@ -98,4 +98,3 @@ TEST_CASE("html_img_tag") {
         CHECK(html == answer);
     }
 }
-

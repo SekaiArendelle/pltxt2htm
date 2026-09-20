@@ -209,4 +209,3 @@ TEST_CASE("md_image") {
         CHECK(html == answer);
     }
 }
-

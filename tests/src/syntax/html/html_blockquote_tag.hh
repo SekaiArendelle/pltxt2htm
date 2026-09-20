@@ -94,4 +94,3 @@ TEST_CASE("html_blockquote_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 }
-

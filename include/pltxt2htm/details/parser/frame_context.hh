@@ -9,9 +9,9 @@
 #include <cstddef>
 #include <memory>
 #include <utility>
+#include "../../container/string.hh"
 #include "../../container/optional.hh"
 #include "../call_stack.hh"
-#include <fast_io/fast_io_dsal/string.h>
 #include "../../container/string_view.hh"
 #include "list_ast.hh"
 #include "md_table.hh"
@@ -55,7 +55,7 @@ public:
 class ParserFrameContextWithEqualSignTagInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
-    ::fast_io::u8string id;
+    ::pltxt2htm::container::U8String id;
 };
 
 /**
@@ -65,7 +65,7 @@ template<::pltxt2htm::Contracts ndebug>
 class ParserFrameContextWithHtmlSpanInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
-    ::fast_io::u8string color;
+    ::pltxt2htm::container::U8String color;
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size;
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align;
 };
@@ -78,7 +78,7 @@ public:
 class ParserFrameContextWithBackgroundColorInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
-    ::fast_io::u8string background_color;
+    ::pltxt2htm::container::U8String background_color;
 };
 
 /**
@@ -137,7 +137,7 @@ public:
  */
 class ParserFrameContextWithMdBlockQuotesInfo {
 public:
-    ::fast_io::u8string pltext;
+    ::pltxt2htm::container::U8String pltext;
 };
 
 /**
@@ -617,7 +617,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::url:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::u8char:
+        case ::pltxt2htm::NodeKind::text:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
@@ -984,7 +984,7 @@ public:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::url:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::u8char:
+        case ::pltxt2htm::NodeKind::text:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
@@ -1064,7 +1064,7 @@ public:
     constexpr auto get_pltext(this ParserFrame<ndebug> const& self) noexcept -> ::pltxt2htm::container::U8StringView {
         auto const& context_data_ref = self.context_data;
         switch (context_data_ref.get_kind()) /* -Werror=switch */ {
-        case ::pltxt2htm::NodeKind::u8char:
+        case ::pltxt2htm::NodeKind::text:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::invalid_utf8:
             [[fallthrough]];
@@ -1476,10 +1476,10 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
             ::pltxt2htm::Ast<ndebug> colgroup_ast{};
             ::std::size_t const column_count{prev_raw_ast.get_col_count()};
             for (::std::size_t c{}; c < column_count; ++c) {
-                colgroup_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableCol{}));
+                colgroup_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableCol>());
             }
-            table_ast.push_back(
-                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableColgroup<ndebug>{::std::move(colgroup_ast)}));
+            table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableColgroup<ndebug>>(
+                ::std::move(colgroup_ast)));
         }
 
         // Group cells into <tr> rows, then consecutive rows of the same section into
@@ -1501,18 +1501,21 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
                 ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
                                                                       ::std::move(active_section_ast));
                 active_section = TableRowSection::none;
-                table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(tr_ast)}));
+                table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTr<ndebug>>(
+                    ::std::move(tr_ast)));
             }
             else if (section == active_section) {
                 active_section_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(tr_ast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTr<ndebug>>(
+                        ::std::move(tr_ast)));
             }
             else {
                 ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
                                                                       ::std::move(active_section_ast));
                 active_section = section;
                 active_section_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(tr_ast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTr<ndebug>>(
+                        ::std::move(tr_ast)));
             }
         }
         ::pltxt2htm::details::push_table_section_node<ndebug>(table_ast, active_section,
@@ -1524,7 +1527,7 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
 
         auto&& parent_frame = call_stack.template current_frame<ndebug>();
         parent_frame.subast.push_back(
-            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Table<ndebug>{::std::move(table_ast)}));
+            ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Table<ndebug>>(::std::move(table_ast)));
         return ::pltxt2htm::container::nullopt;
     }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK

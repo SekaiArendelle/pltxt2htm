@@ -87,4 +87,3 @@ TEST_CASE("pl_discussions_tag") {
         CHECK(html == answer);
     }
 }
-

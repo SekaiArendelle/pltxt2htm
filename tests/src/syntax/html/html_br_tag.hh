@@ -28,4 +28,3 @@ TEST_CASE("html_br_tag") {
         CHECK(html == answer);
     }
 }
-

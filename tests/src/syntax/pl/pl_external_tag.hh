@@ -182,4 +182,3 @@ TEST_CASE("pl_external_tag") {
         CHECK(html == answer);
     }
 }
-

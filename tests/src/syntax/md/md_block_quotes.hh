@@ -104,4 +104,3 @@ TEST_CASE("md_block_quotes") {
         CHECK(html == answer);
     }
 }
-

@@ -218,4 +218,3 @@ TEST_CASE("md_ol_list") {
         CHECK(html == roundtrip);
     }
 }
-

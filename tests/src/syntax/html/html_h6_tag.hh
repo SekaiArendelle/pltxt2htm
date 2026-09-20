@@ -148,4 +148,3 @@ TEST_CASE("html_h6_tag") {
         CHECK(html == answer);
     }
 }
-

@@ -110,4 +110,3 @@ TEST_CASE("pl_a_tag") {
         CHECK(html == answer);
     }
 }
-

@@ -302,4 +302,3 @@ print("Hello World")
         CHECK(html == answer);
     }
 }
-

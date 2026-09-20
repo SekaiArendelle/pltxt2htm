@@ -307,4 +307,3 @@ TEST_CASE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 }
-

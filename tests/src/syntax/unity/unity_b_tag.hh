@@ -64,4 +64,3 @@ TEST_CASE("unity_b_tag") {
         CHECK(html == answer);
     }
 }
-

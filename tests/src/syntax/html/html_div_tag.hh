@@ -255,4 +255,3 @@ TEST_CASE("html_div_tag") {
         CHECK(html == answer);
     }
 }
-

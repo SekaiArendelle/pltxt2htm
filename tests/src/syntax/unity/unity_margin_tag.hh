@@ -266,4 +266,3 @@ TEST_CASE("unity_margin_tag") {
         CHECK(html == answer);
     }
 }
-

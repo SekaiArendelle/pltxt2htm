@@ -81,4 +81,3 @@ TEST_CASE("pl_internal_tag") {
         CHECK(html == answer);
     }
 }
-

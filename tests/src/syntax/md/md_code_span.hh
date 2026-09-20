@@ -172,4 +172,3 @@ TEST_CASE("md_code_span") {
         CHECK(html == answer);
     }
 }
-

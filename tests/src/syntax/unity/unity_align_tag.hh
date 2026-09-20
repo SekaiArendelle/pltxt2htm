@@ -310,4 +310,3 @@ TEST_CASE("unity_align_tag") {
         CHECK(html == answer);
     }
 }
-

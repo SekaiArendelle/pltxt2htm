@@ -353,4 +353,3 @@ TEST_CASE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 }
-

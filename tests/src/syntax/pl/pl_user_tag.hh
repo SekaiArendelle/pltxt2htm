@@ -113,4 +113,3 @@ TEST_CASE("pl_user_tag") {
         CHECK(html == answer);
     }
 }
-

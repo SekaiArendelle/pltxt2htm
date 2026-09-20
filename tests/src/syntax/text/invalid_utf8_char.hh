@@ -190,4 +190,3 @@ TEST_CASE("invalid_utf8_char") {
         CHECK(html == answer);
     }
 }
-

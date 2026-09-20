@@ -207,4 +207,3 @@ TEST_CASE("html_ul_and_li_tag") {
         CHECK(html == answer);
     }
 }
-

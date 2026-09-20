@@ -29,7 +29,7 @@ TEST_CASE("md_emphasis") {
         // Test triple emphasis with asterisks ***text***
         auto pltext = ::fast_io::u8string_view{u8"***test***"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string{u8"<em><strong>test</strong></em>"};
+        auto answer = ::pltxt2htm::container::U8String{u8"<em><strong>test</strong></em>"};
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<b><i>test</i></b>"};
@@ -88,7 +88,7 @@ TEST_CASE("md_emphasis") {
         // Test triple emphasis with underscores ___text___
         auto pltext = ::fast_io::u8string_view{u8"___test___"};
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string{u8"<em><strong>test</strong></em>"};
+        auto answer = ::pltxt2htm::container::U8String{u8"<em><strong>test</strong></em>"};
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<b><i>test</i></b>"};
@@ -97,19 +97,19 @@ TEST_CASE("md_emphasis") {
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t****t");
-        auto answer = ::fast_io::u8string{u8"t****t"};
+        auto answer = ::pltxt2htm::container::U8String{u8"t****t"};
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t***t");
-        auto answer = ::fast_io::u8string{u8"t***t"};
+        auto answer = ::pltxt2htm::container::U8String{u8"t***t"};
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t*****t");
-        auto answer = ::fast_io::u8string{u8"t*****t"};
+        auto answer = ::pltxt2htm::container::U8String{u8"t*****t"};
         CHECK(html == answer);
     }
 
@@ -226,4 +226,3 @@ TEST_CASE("md_emphasis") {
         CHECK(html == answer);
     }
 }
-

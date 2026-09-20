@@ -27,4 +27,3 @@ TEST_CASE("bound") {
         CHECK(html == answer);
     }
 }
-

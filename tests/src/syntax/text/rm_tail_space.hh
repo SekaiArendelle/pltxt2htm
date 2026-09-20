@@ -87,4 +87,3 @@ TEST_CASE("rm_tail_space") {
         CHECK(html == answer);
     }
 }
-

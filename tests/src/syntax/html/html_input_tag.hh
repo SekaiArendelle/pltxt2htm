@@ -128,4 +128,3 @@ TEST_CASE("html_input_tag") {
         CHECK(html == answer);
     }
 }
-

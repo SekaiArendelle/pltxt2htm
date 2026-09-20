@@ -29,7 +29,7 @@ First build fetches and compiles Google Benchmark automatically. Subsequent buil
 | `bench_pipeline` | Parse-once then `optimize_ast` in loop (real-world pipeline) | plain text, redundant color, mixed redundant, adjacent text, HTML spans |
 | `bench_backend` | 3 backends: `plweb_title`, `plweb_text`, `plunity_text` | plain text, rich HTML, PL tags, markdown ASTs |
 | `bench_end2end` | All 3 conversion APIs (`common_html`, `fixedadv_html`, `plunity_introduction`) | full document, terse document, plain document |
-| `bench_micro` | Micro-operations (node creation/move, AST append, string ops) | N/A |
+| `bench_micro` | Micro-operations (node creation/move, merged/unmerged AST append, string ops) | N/A |
 
 Data preparation is handled by Google Benchmark's `SetUp` in dedicated Fixture classes
 (see `include/bench_fixtures.hh`). Each fixture generates and parses its input once

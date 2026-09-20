@@ -126,4 +126,3 @@ TEST_CASE("html_code_tag") {
         CHECK(html == answer);
     }
 }
-

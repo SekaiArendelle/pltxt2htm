@@ -38,4 +38,3 @@ TEST_CASE("html_note") {
         CHECK(html == answer);
     }
 }
-

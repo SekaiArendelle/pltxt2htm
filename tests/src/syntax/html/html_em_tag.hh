@@ -57,4 +57,3 @@ TEST_CASE("html_em_tag") {
         CHECK(html == answer);
     }
 }
-

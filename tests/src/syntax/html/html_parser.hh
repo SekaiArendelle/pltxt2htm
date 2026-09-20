@@ -459,4 +459,3 @@ TEST_CASE("html_parser") {
         CHECK(html == answer);
     }
 }
-

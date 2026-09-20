@@ -221,4 +221,3 @@ TEST_CASE("md_ul_list") {
         CHECK(twice == once);
     }
 }
-

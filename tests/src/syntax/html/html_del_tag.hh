@@ -84,4 +84,3 @@ TEST_CASE("html_del_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 }
-

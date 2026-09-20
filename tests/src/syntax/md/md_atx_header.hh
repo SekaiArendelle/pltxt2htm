@@ -264,4 +264,3 @@ TEST_CASE("md_atx_header") {
         CHECK(html == answer);
     }
 }
-

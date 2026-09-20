@@ -76,4 +76,3 @@ TEST_CASE("pl_u_tag") {
         CHECK(html == answer);
     }
 }
-

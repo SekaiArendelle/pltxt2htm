@@ -137,4 +137,3 @@ TEST_CASE("html_h2_tag") {
         CHECK(html == answer);
     }
 }
-

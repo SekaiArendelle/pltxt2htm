@@ -258,4 +258,3 @@ TEST_CASE("unity_link_tag") {
         CHECK(html == answer);
     }
 }
-
