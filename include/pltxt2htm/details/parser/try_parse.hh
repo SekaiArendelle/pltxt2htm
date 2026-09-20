@@ -86,7 +86,7 @@ constexpr void append_md_escape_result(::pltxt2htm::Ast<ndebug>& ast, TryParseMd
         return;
     }
     case MdEscapeKind::escaped_punctuation: {
-        ast.template emplace_back<ndebug>(::pltxt2htm::MdEscape{result.character});
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdEscape>(result.character));
         return;
     }
     }
@@ -3130,7 +3130,7 @@ constexpr auto simply_parse_pltext(::pltxt2htm::container::U8StringView pltext) 
         }
 
         if (chr == u8'\n') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LineBreak{}));
+            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LineBreak>());
             ++current_index;
             continue;
         }
@@ -3138,7 +3138,7 @@ constexpr auto simply_parse_pltext(::pltxt2htm::container::U8StringView pltext) 
                 ::pltxt2htm::details::try_parse_space<ndebug>(pltext.template subview<ndebug>(current_index));
             opt_space_size.has_value()) {
             auto const space_size = opt_space_size.template value<ndebug>().template get<ndebug>();
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
+            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Space>());
             current_index += space_size;
             continue;
         }
@@ -3149,27 +3149,27 @@ constexpr auto simply_parse_pltext(::pltxt2htm::container::U8StringView pltext) 
                 current_index += opt_entity_len.template value<ndebug>();
                 continue;
             }
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
+            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Ampersand>());
             ++current_index;
             continue;
         }
         if (chr == u8'\'') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
+            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::SingleQuote>());
             ++current_index;
             continue;
         }
         if (chr == u8'\"') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
+            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::DoubleQuote>());
             ++current_index;
             continue;
         }
         if (chr == u8'>') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::GreaterThan{}));
+            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::GreaterThan>());
             ++current_index;
             continue;
         }
         if (chr == u8'\t') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Tab{}));
+            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Tab>());
             ++current_index;
             continue;
         }
@@ -3184,7 +3184,7 @@ constexpr auto simply_parse_pltext(::pltxt2htm::container::U8StringView pltext) 
             }
         }
         if (chr == u8'<') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
             ++current_index;
             continue;
         }
@@ -3271,7 +3271,9 @@ constexpr auto try_parse_html_pre_code_block(::pltxt2htm::container::U8StringVie
             ::pltxt2htm::container::U8String{full_language.data() + 9, full_language.data() + full_language.size()};
     }
     return TryParseMdCodeFenceResult<ndebug>{
-        .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast), ::std::move(opt_lang)}, .advance_count = pos};
+        .node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::CodeFence<ndebug>>(::std::move(ast),
+                                                                                                 ::std::move(opt_lang)),
+        .advance_count = pos};
 }
 
 [[nodiscard]]
@@ -3473,7 +3475,8 @@ constexpr auto try_parse_md_code_fence_(::pltxt2htm::container::U8StringView plt
         opt_lang = ::std::move(lang);
     }
     return TryParseMdCodeFenceResult<ndebug>{
-        .node = ::pltxt2htm::CodeFence<ndebug>{::std::move(ast), ::std::move(opt_lang)},
+        .node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::CodeFence<ndebug>>(::std::move(ast),
+                                                                                                 ::std::move(opt_lang)),
         .advance_count = current_index};
 }
 
@@ -4483,32 +4486,32 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
                 ::pltxt2htm::details::try_parse_space<ndebug>(pltext.template subview<ndebug>(current_index));
             opt_space_size.has_value()) {
             auto const space_size = opt_space_size.template value<ndebug>().template get<ndebug>();
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
+            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Space>());
             current_index += space_size;
             continue;
         }
         if (chr == u8'&') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
+            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Ampersand>());
             ++current_index;
             continue;
         }
         if (chr == u8'\'') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
+            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::SingleQuote>());
             ++current_index;
             continue;
         }
         if (chr == u8'\"') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
+            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::DoubleQuote>());
             ++current_index;
             continue;
         }
         if (chr == u8'>') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::GreaterThan{}));
+            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::GreaterThan>());
             ++current_index;
             continue;
         }
         if (chr == u8'\t') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Tab{}));
+            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Tab>());
             ++current_index;
             continue;
         }
@@ -4521,7 +4524,7 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
             continue;
         }
         if (chr == u8'<') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
             ++current_index;
             continue;
         }

@@ -212,13 +212,13 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text,
                                      ::pltxt2htm::Ast<ndebug>& result) noexcept -> ::std::size_t {
     char8_t const first{text.template index<ndebug>(0)};
     if (::pltxt2htm::details::is_ascii_control_code_point(static_cast<char32_t>(first))) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::InvalidUtf8>());
         return 1;
     }
 
     auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<ndebug>(text);
     if (decoded.valid == false) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::InvalidUtf8>());
         return decoded.consumed_size;
     }
     for (::std::size_t index{}; index < decoded.consumed_size; ++index) {
@@ -240,36 +240,36 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<ndebug>& result) noexcept {
     switch (code_point) {
     case U'\n': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LineBreak{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LineBreak>());
         return;
     }
     case U' ':
     case char32_t{0xA0}: {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Space>());
         return;
     }
     case U'&': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Ampersand>());
         return;
     }
     case U'\'': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::SingleQuote>());
         return;
     }
     case U'"': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::DoubleQuote>());
         return;
     }
     case U'<': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
         return;
     }
     case U'>': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::GreaterThan{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::GreaterThan>());
         return;
     }
     case U'\t': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Tab{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Tab>());
         return;
     }
     default: {
@@ -278,13 +278,13 @@ constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<nd
     }
 
     if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::InvalidUtf8>());
         return;
     }
 
     auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
     if (encoded.size == 0) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::InvalidUtf8{}));
+        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::InvalidUtf8>());
         return;
     }
     for (::std::size_t index{}; index < encoded.size; ++index) {

@@ -67,9 +67,9 @@ int main() {
 
     {
         ::pltxt2htm::Ast<ndebug> ast{};
-        ast.emplace_back(Text{u8'a'});
-        ast.emplace_back(Text{u8'b'});
-        ast.emplace_back(Text{u8'c'});
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<Text>(u8'a'));
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<Text>(u8'b'));
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<Text>(u8'c'));
         ::pltxt2htm::optimize_ast<ndebug>(ast);
         pltxt2htm_test_assert_true(ast.size() == 1);
         auto const& text = ast.template index<ndebug>(0).as_text();
@@ -85,8 +85,8 @@ int main() {
         auto const right_fill = ::std::views::repeat(u8'b', ::std::size_t{10});
         auto right = Text{right_fill};
         ::pltxt2htm::Ast<ndebug> ast{};
-        ast.emplace_back(::std::move(left));
-        ast.emplace_back(::std::move(right));
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<Text>(::std::move(left)));
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<Text>(::std::move(right)));
         ::pltxt2htm::optimize_ast<ndebug>(ast);
         pltxt2htm_test_assert_true(ast.size() == 2);
         auto const& first = ast.template index<ndebug>(0).as_text();
