@@ -10,20 +10,21 @@ int main() {
 
     // Assign between nodes of the same kind
     {
-        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'A'});
-        auto assigned = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'B'});
+        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A');
+        auto assigned = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'B');
         assigned = original;
         pltxt2htm_test_assert_true(assigned == original);
     }
 
     // Assign across kinds: the destination's previous value must be destroyed and replaced
     {
-        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::LineBreak{});
+        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::LineBreak>();
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
-        ast.emplace_back(::pltxt2htm::U8Char{u8'H'});
+        ast.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'H'));
         auto assigned =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Group<nd::quick_enforce>>(
+                ::std::move(ast));
 
         assigned = original;
         pltxt2htm_test_assert_true(assigned == original);
@@ -32,27 +33,31 @@ int main() {
     // The assignment is a deep copy: mutating the source afterwards leaves the destination alone
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
-        ast.emplace_back(::pltxt2htm::U8Char{u8'A'});
+        ast.emplace_back(::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A'));
         auto original =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast)));
-        auto assigned = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::LineBreak{});
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Group<nd::quick_enforce>>(
+                ::std::move(ast));
+        auto assigned = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::LineBreak>();
 
         assigned = original;
 
-        ::pltxt2htm::Ast<nd::quick_enforce> new_ast{::pltxt2htm::U8Char{u8'B'}};
-        original =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(new_ast)));
+        ::pltxt2htm::Ast<nd::quick_enforce> new_ast{
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'B')};
+        original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Group<nd::quick_enforce>>(
+            ::std::move(new_ast));
 
-        ::pltxt2htm::Ast<nd::quick_enforce> expected_ast{::pltxt2htm::U8Char{u8'A'}};
+        ::pltxt2htm::Ast<nd::quick_enforce> expected_ast{
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A')};
         auto const expected =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(expected_ast)));
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Group<nd::quick_enforce>>(
+                ::std::move(expected_ast));
         pltxt2htm_test_assert_true(assigned == expected);
         pltxt2htm_test_assert_false(assigned == original);
     }
 
     // Self assignment is a no-op and must not destroy the value
     {
-        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'S'});
+        auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'S');
         auto assigned = original;
         assigned = assigned;
         pltxt2htm_test_assert_true(assigned == original);
@@ -60,9 +65,9 @@ int main() {
 
     // Chained assignment
     {
-        auto const third = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'C'});
-        auto second = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'B'});
-        auto first = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'A'});
+        auto const third = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'C');
+        auto second = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'B');
+        auto first = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A');
 
         first = second = third;
         pltxt2htm_test_assert_true(first == third);
@@ -71,14 +76,16 @@ int main() {
 
     // Repeated assignment while the active kind changes
     {
-        auto source = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::U8Char{u8'X'});
-        auto target = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::LineBreak{});
+        auto source = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'X');
+        auto target = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::LineBreak>();
 
         target = source;
         pltxt2htm_test_assert_true(target == source);
 
-        ::pltxt2htm::Ast<nd::quick_enforce> ast{::pltxt2htm::U8Char{u8'Y'}};
-        source = ::pltxt2htm::PlTxtNode<nd::quick_enforce>(::pltxt2htm::Group<nd::quick_enforce>(::std::move(ast)));
+        ::pltxt2htm::Ast<nd::quick_enforce> ast{
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'Y')};
+        source = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Group<nd::quick_enforce>>(
+            ::std::move(ast));
 
         target = source;
         pltxt2htm_test_assert_true(target == source);
@@ -86,8 +93,11 @@ int main() {
 
     // Assigning a whole Ast (vector of nodes)
     {
-        ::pltxt2htm::Ast<nd::quick_enforce> const original{::pltxt2htm::U8Char{u8'A'}, ::pltxt2htm::U8Char{u8'B'}};
-        ::pltxt2htm::Ast<nd::quick_enforce> assigned{::pltxt2htm::U8Char{u8'C'}};
+        ::pltxt2htm::Ast<nd::quick_enforce> const original{
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'A'),
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'B')};
+        ::pltxt2htm::Ast<nd::quick_enforce> assigned{
+            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'C')};
         assigned = original;
         pltxt2htm_test_assert_true(assigned == original);
     }
@@ -95,20 +105,24 @@ int main() {
     // Assigning the members that carry extra data
     {
         auto const original =
-            ::pltxt2htm::Group<nd::quick_enforce>(::pltxt2htm::Ast<nd::quick_enforce>{::pltxt2htm::U8Char{u8'a'}});
+            ::pltxt2htm::Group<nd::quick_enforce>(::pltxt2htm::Ast<nd::quick_enforce>{
+                ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a')});
         auto assigned =
-            ::pltxt2htm::Group<nd::quick_enforce>(::pltxt2htm::Ast<nd::quick_enforce>{::pltxt2htm::U8Char{u8'b'}});
+            ::pltxt2htm::Group<nd::quick_enforce>(::pltxt2htm::Ast<nd::quick_enforce>{
+                ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'b')});
         assigned = original;
         pltxt2htm_test_assert_true(assigned == original);
     }
 
     {
         auto const original = ::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::pltxt2htm::Ast<nd::quick_enforce>{::pltxt2htm::U8Char{u8'c'}},
+            ::pltxt2htm::Ast<nd::quick_enforce>{
+                ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'c')},
             ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
                 ::pltxt2htm::container::U8String{u8"cpp"}));
         auto assigned = ::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::pltxt2htm::Ast<nd::quick_enforce>{::pltxt2htm::U8Char{u8'd'}},
+            ::pltxt2htm::Ast<nd::quick_enforce>{
+                ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'd')},
             ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
                 ::pltxt2htm::container::U8String{u8"rust"}));
         assigned = original;
@@ -124,9 +138,9 @@ int main() {
 
     {
         auto const original =
-            ::pltxt2htm::HtmlH1<nd::quick_enforce>(::pltxt2htm::Ast<nd::quick_enforce>{::pltxt2htm::U8Char{u8'a'}});
+            ::pltxt2htm::HtmlH1<nd::quick_enforce>(::pltxt2htm::Ast<nd::quick_enforce>{::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'a')});
         auto assigned =
-            ::pltxt2htm::HtmlH1<nd::quick_enforce>(::pltxt2htm::Ast<nd::quick_enforce>{::pltxt2htm::U8Char{u8'b'}});
+            ::pltxt2htm::HtmlH1<nd::quick_enforce>(::pltxt2htm::Ast<nd::quick_enforce>{::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::U8Char>(u8'b')});
         assigned = original;
         pltxt2htm_test_assert_true(assigned == original);
     }
