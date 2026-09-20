@@ -80,6 +80,14 @@ entry:
         ::std::size_t const pltext_size{pltext.size()};
 
         while (current_index < pltext_size) {
+            auto const plain_text_size =
+                ::pltxt2htm::details::scan_plain_ascii_run<ndebug>(pltext.template subview<ndebug>(current_index));
+            if (plain_text_size != 0) {
+                ::pltxt2htm::details::append_text_range<ndebug>(
+                    result, pltext.template subview<ndebug>(current_index, plain_text_size));
+                current_index += plain_text_size;
+                continue;
+            }
             char8_t const chr{pltext.template index<ndebug>(current_index)};
 
             if (chr == u8'\n') {

@@ -2254,6 +2254,51 @@ constexpr void append_text_code_unit(::pltxt2htm::Ast<ndebug>& ast, char8_t code
     ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(code_unit));
 }
 
+/**
+ * @brief Append a run of UTF-8 code units to trailing fixed-capacity text nodes.
+ * @details Fills an existing trailing Text node first, then constructs as many full Text
+ *          nodes as required. The resulting AST is identical to appending the same code
+ *          units one at a time with append_text_code_unit.
+ */
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_text_range(::pltxt2htm::Ast<ndebug>& ast, ::pltxt2htm::container::U8StringView text) noexcept {
+    auto current = text.begin();
+    auto const end = text.end();
+    if (current == end) {
+        return;
+    }
+
+    constexpr auto text_capacity = ::pltxt2htm::Text<ndebug>::capacity();
+    if (ast.empty() == false) {
+        auto&& last_node = ast.template index<ndebug>(ast.size() - 1);
+        if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text) {
+            auto&& last_text = last_node.as_text();
+            auto const available = text_capacity - last_text.size();
+            auto const remaining = static_cast<::std::size_t>(end - current);
+            auto const append_size = remaining < available ? remaining : available;
+            last_text.append(current, current + append_size);
+            current += append_size;
+            if (current == end) {
+                return;
+            }
+        }
+    }
+
+    auto const remaining = static_cast<::std::size_t>(end - current);
+    auto const additional_nodes =
+        remaining / text_capacity + static_cast<::std::size_t>(remaining % text_capacity != 0);
+    pltxt2htm_assert(additional_nodes <= ast.max_size() - ast.size(), u8"AST size exceeds max_size");
+    ast.template reserve<ndebug>(ast.size() + additional_nodes);
+
+    while (current != end) {
+        auto const remaining_size = static_cast<::std::size_t>(end - current);
+        auto const node_size = remaining_size < text_capacity ? remaining_size : text_capacity;
+        ast.push_back(
+            ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(current, current + node_size));
+        current += node_size;
+    }
+}
+
 } // namespace details
 
 } // namespace pltxt2htm
