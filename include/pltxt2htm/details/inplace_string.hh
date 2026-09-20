@@ -67,15 +67,6 @@ private:
         }
     }
 
-    constexpr void copy_active_from(this BasicInplaceString& self, BasicInplaceString const& other) noexcept {
-        if (::std::addressof(self) == ::std::addressof(other)) {
-            return;
-        }
-        auto const count = other.size();
-        ::std::copy_n(other.storage, count, self.storage);
-        self.size_storage = other.size_storage;
-    }
-
     template<typename InputIterator, typename Sentinel>
     [[nodiscard]]
     static consteval auto is_nothrow_iterator_iteration() noexcept -> bool {
@@ -148,23 +139,19 @@ public:
 
     constexpr BasicInplaceString(BasicInplaceString const& other) noexcept {
         this->initialize_storage_for_constant_evaluation();
-        this->copy_active_from(other);
-    }
-
-    constexpr BasicInplaceString(BasicInplaceString&& other) noexcept {
-        this->initialize_storage_for_constant_evaluation();
-        this->copy_active_from(other);
+        auto const count = other.size();
+        ::std::copy_n(other.storage, count, this->storage);
+        this->size_storage = other.size_storage;
     }
 
     constexpr auto operator=(this BasicInplaceString& self, BasicInplaceString const& other) noexcept
         -> BasicInplaceString& {
-        self.copy_active_from(other);
-        return self;
-    }
-
-    constexpr auto operator=(this BasicInplaceString& self, BasicInplaceString&& other) noexcept
-        -> BasicInplaceString& {
-        self.copy_active_from(other);
+        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
+            return self;
+        }
+        auto const count = other.size();
+        ::std::copy_n(other.storage, count, self.storage);
+        self.size_storage = other.size_storage;
         return self;
     }
 
