@@ -156,7 +156,7 @@ struct PlainDocE2EFixture : ::benchmark::Fixture {
 // -------------------------------------------------------------------
 
 inline auto build_nested_color_ast(::std::size_t depth) -> ::pltxt2htm::Ast<ndebug> {
-    ::pltxt2htm::PlTxtNode<ndebug> inner{::pltxt2htm::U8Char{u8't'}};
+    auto inner = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::U8Char>(u8't');
     for (::std::size_t i = 0; i < depth; ++i) {
         ::pltxt2htm::Ast<ndebug> sub;
         sub.push_back(::std::move(inner));
@@ -180,7 +180,7 @@ inline auto build_adjacent_color_ast(::std::size_t count) -> ::pltxt2htm::Ast<nd
 }
 
 inline auto build_mixed_redundant_ast(::std::size_t depth) -> ::pltxt2htm::Ast<ndebug> {
-    ::pltxt2htm::PlTxtNode<ndebug> inner{::pltxt2htm::U8Char{u8't'}};
+    auto inner = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::U8Char>(u8't');
     for (::std::size_t i = 0; i < depth; ++i) {
         {
             ::pltxt2htm::Ast<ndebug> sub;
