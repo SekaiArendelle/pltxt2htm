@@ -155,11 +155,18 @@ public:
                 self.size_storage = static_cast<StoredSize>(new_size);
                 return;
             }
+            else {
+                while (first != last) {
+                    self.push_back(static_cast<value_type>(*first));
+                    ++first;
+                }
+            }
         }
-
-        while (first != last) {
-            self.push_back(static_cast<value_type>(*first));
-            ++first;
+        else {
+            while (first != last) {
+                self.push_back(static_cast<value_type>(*first));
+                ++first;
+            }
         }
     }
 
