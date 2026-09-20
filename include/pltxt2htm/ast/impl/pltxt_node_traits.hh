@@ -137,9 +137,6 @@ union PlTxtNodeStorage {
 
     constexpr ~PlTxtNodeStorage() noexcept {
     }
-
-    template<typename Node>
-    constexpr explicit PlTxtNodeStorage(Node&& node) noexcept;
 };
 
 template<::pltxt2htm::Contracts ndebug, typename Node>
@@ -726,12 +723,5 @@ concept PlTxtNodeAlternative = requires {
     ::pltxt2htm::details::PlTxtNodeTraits<ndebug, ::std::remove_cvref_t<Node>>::kind;
     ::pltxt2htm::details::PlTxtNodeTraits<ndebug, ::std::remove_cvref_t<Node>>::member;
 };
-
-template<::pltxt2htm::Contracts ndebug>
-template<typename Node>
-constexpr PlTxtNodeStorage<ndebug>::PlTxtNodeStorage(Node&& node) noexcept {
-    using Traits = ::pltxt2htm::details::PlTxtNodeTraits<ndebug, ::std::remove_cvref_t<Node>>;
-    ::std::construct_at(::std::addressof(this->*Traits::member), ::std::forward<Node>(node));
-}
 
 } // namespace pltxt2htm::details

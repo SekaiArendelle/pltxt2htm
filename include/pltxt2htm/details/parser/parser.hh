@@ -76,33 +76,33 @@ constexpr auto find_next_block_after_line_break(::pltxt2htm::container::U8String
 
             switch (md_atx_heading_type) {
             case ::pltxt2htm::NodeKind::md_atx_h1: {
-                result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH1<ndebug>{::pltxt2htm::Ast<ndebug>{}}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH1<ndebug>>(
+                    ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
             case ::pltxt2htm::NodeKind::md_atx_h2: {
-                result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH2<ndebug>{::pltxt2htm::Ast<ndebug>{}}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH2<ndebug>>(
+                    ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
             case ::pltxt2htm::NodeKind::md_atx_h3: {
-                result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH3<ndebug>{::pltxt2htm::Ast<ndebug>{}}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH3<ndebug>>(
+                    ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
             case ::pltxt2htm::NodeKind::md_atx_h4: {
-                result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH4<ndebug>{::pltxt2htm::Ast<ndebug>{}}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH4<ndebug>>(
+                    ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
             case ::pltxt2htm::NodeKind::md_atx_h5: {
-                result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH5<ndebug>{::pltxt2htm::Ast<ndebug>{}}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH5<ndebug>>(
+                    ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
             case ::pltxt2htm::NodeKind::md_atx_h6: {
-                result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH6<ndebug>{::pltxt2htm::Ast<ndebug>{}}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH6<ndebug>>(
+                    ::pltxt2htm::Ast<ndebug>{}));
                 break;
             }
             default:
@@ -116,7 +116,7 @@ constexpr auto find_next_block_after_line_break(::pltxt2htm::container::U8String
         if (auto opt_len = ::pltxt2htm::details::try_parse_md_thematic_break<ndebug>(
                 pltext.template subview<ndebug>(current_index));
             opt_len.has_value()) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdHr{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdHr>());
             current_index += opt_len.template value<ndebug>().template get<ndebug>();
             continue;
         }
@@ -126,7 +126,7 @@ constexpr auto find_next_block_after_line_break(::pltxt2htm::container::U8String
         if (auto opt_hr_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"<hr">(
                 pltext.template subview<ndebug>(current_index));
             opt_hr_tag_len.has_value()) {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlHr{}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlHr>());
             current_index += opt_hr_tag_len.template value<ndebug>().template get<ndebug>();
             continue;
         }
@@ -386,13 +386,14 @@ entry:
                     return ParsePlTxtResult<ndebug>{.subast = ::std::move(previous_frame.subast)};
                 }
                 if (nested_tag_type == ::pltxt2htm::NodeKind::list_ul) {
-                    call_stack.template current_frame<ndebug>().subast.emplace_back(::pltxt2htm::PlTxtNode<ndebug>(
-                        ::pltxt2htm::ListUl<ndebug>{::std::move(previous_frame.subast)}));
+                    call_stack.template current_frame<ndebug>().subast.emplace_back(
+                        ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListUl<ndebug>>(
+                            ::std::move(previous_frame.subast)));
                 }
                 else {
                     call_stack.template current_frame<ndebug>().subast.emplace_back(
-                        ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListOl<ndebug>{
-                            ::std::move(previous_frame.subast), previous_frame.as_list_info().list_start}));
+                        ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListOl<ndebug>>(
+                            ::std::move(previous_frame.subast), previous_frame.as_list_info().list_start));
                 }
                 // Given "before\n- item\nbetween\n+ another\n- last\nafter":
                 //   find_next_block_after_line_break first sees "- item\nbetween\n...",
@@ -514,7 +515,7 @@ entry:
             char8_t const chr{pltext.template index<ndebug>(current_index)};
 
             if (chr == u8'\n') {
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LineBreak{}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LineBreak>());
 
                 auto&& [advance_count, require_restart] =
                     ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
@@ -531,7 +532,7 @@ entry:
                     ::pltxt2htm::details::try_parse_space<ndebug>(pltext.template subview<ndebug>(current_index));
                 opt_space_size.has_value()) {
                 auto const space_size = opt_space_size.template value<ndebug>().template get<ndebug>();
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Space{}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Space>());
                 current_index += space_size;
                 continue;
             }
@@ -542,27 +543,27 @@ entry:
                     current_index += opt_entity_len.template value<ndebug>();
                     continue;
                 }
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Ampersand{}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Ampersand>());
                 ++current_index;
                 continue;
             }
             if (chr == u8'\'') {
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::SingleQuote{}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::SingleQuote>());
                 ++current_index;
                 continue;
             }
             if (chr == u8'\"') {
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::DoubleQuote{}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::DoubleQuote>());
                 ++current_index;
                 continue;
             }
             if (chr == u8'>') {
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::GreaterThan{}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::GreaterThan>());
                 ++current_index;
                 continue;
             }
             if (chr == u8'\t') {
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Tab{}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Tab>());
                 ++current_index;
                 continue;
             }
@@ -577,28 +578,28 @@ entry:
             if (::pltxt2htm::details::is_prefix_match<ndebug, u8"{project}">(
                     pltext.template subview<ndebug>(current_index))) {
                 constexpr auto length_of_literal_string = ::std::size_t{9};
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlMacroProject{}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlMacroProject>());
                 current_index += length_of_literal_string;
                 continue;
             }
             if (::pltxt2htm::details::is_prefix_match<ndebug, u8"{visitor}">(
                     pltext.template subview<ndebug>(current_index))) {
                 constexpr auto length_of_literal_string = ::std::size_t{9};
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlMacroVisitor{}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlMacroVisitor>());
                 current_index += length_of_literal_string;
                 continue;
             }
             if (::pltxt2htm::details::is_prefix_match<ndebug, u8"{author}">(
                     pltext.template subview<ndebug>(current_index))) {
                 constexpr auto length_of_literal_string = ::std::size_t{8};
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlMacroAuthor{}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlMacroAuthor>());
                 current_index += length_of_literal_string;
                 continue;
             }
             if (::pltxt2htm::details::is_prefix_match<ndebug, u8"{coauthors}">(
                     pltext.template subview<ndebug>(current_index))) {
                 constexpr auto length_of_literal_string = ::std::size_t{11};
-                result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlMacroCoauthors{}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlMacroCoauthors>());
                 current_index += length_of_literal_string;
                 continue;
             }
@@ -706,7 +707,8 @@ entry:
                 auto&& [content_size, subast] = opt_code_span_3_backtick.template value<ndebug>();
                 current_index += content_size + 6;
                 result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan3Backtick<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdCodeSpan3Backtick<ndebug>>(
+                        ::std::move(subast)));
                 continue;
             }
             if (auto opt_code_span_2_backtick = ::pltxt2htm::details::try_parse_md_code_span<ndebug, u8"``">(
@@ -716,7 +718,8 @@ entry:
                 auto&& [content_size, subast] = opt_code_span_2_backtick.template value<ndebug>();
                 current_index += content_size + 4;
                 result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan2Backtick<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdCodeSpan2Backtick<ndebug>>(
+                        ::std::move(subast)));
                 continue;
             }
             if (auto opt_code_span_1_backtick = ::pltxt2htm::details::try_parse_md_code_span<ndebug, u8"`">(
@@ -726,7 +729,8 @@ entry:
                 auto&& [content_size, subast] = opt_code_span_1_backtick.template value<ndebug>();
                 current_index += content_size + 2;
                 result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan1Backtick<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdCodeSpan1Backtick<ndebug>>(
+                        ::std::move(subast)));
                 continue;
             }
             if (auto opt_md_latex_block_dollar = ::pltxt2htm::details::try_parse_md_latex_block_dollar<ndebug>(
@@ -734,8 +738,8 @@ entry:
                 opt_md_latex_block_dollar.has_value()) {
                 auto&& [advance_count, subast] = opt_md_latex_block_dollar.template value<ndebug>();
                 current_index += advance_count;
-                result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdLatexBlock<ndebug>{::std::move(subast)}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdLatexBlock<ndebug>>(
+                    ::std::move(subast)));
                 continue;
             }
             if (auto opt_md_latex_inline = ::pltxt2htm::details::try_parse_md_latex_inline<ndebug>(
@@ -743,8 +747,8 @@ entry:
                 opt_md_latex_inline.has_value()) {
                 auto&& [advance_count, subast] = opt_md_latex_inline.template value<ndebug>();
                 current_index += advance_count;
-                result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdLatexInline<ndebug>{::std::move(subast)}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdLatexInline<ndebug>>(
+                    ::std::move(subast)));
                 continue;
             }
             if (auto opt_md_link =
@@ -770,7 +774,8 @@ entry:
                     })};
                 if (in_url_link_frame == false) {
                     auto&& [consumed_size, url_obj] = opt_url.template value<ndebug>();
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(url_obj)));
+                    result.push_back(
+                        ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(url_obj)>(::std::move(url_obj)));
                     current_index += consumed_size;
                     continue;
                 }
@@ -780,8 +785,8 @@ entry:
                 opt_md_image.has_value()) {
                 auto&& [advance_count, text, link] = opt_md_image.template value<ndebug>();
                 current_index += advance_count;
-                result.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdImage<ndebug>{::std::move(text), ::std::move(link)}));
+                result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdImage<ndebug>>(
+                    ::std::move(text), ::std::move(link)));
                 continue;
             }
             if (chr == u8'<') {
@@ -789,7 +794,7 @@ entry:
                 pltxt2htm_assert(current_index < pltext_size, u8"Index of parser out of bound");
 
                 if (current_index + 1 == pltext_size) {
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -840,7 +845,7 @@ entry:
                         current_index += tag_len + 2;
                         continue;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -864,7 +869,7 @@ entry:
                             pltext.template subview<ndebug>(current_index + 2));
                         opt_br_tag_len.has_value()) {
                         current_index += opt_br_tag_len.template value<ndebug>().template get<ndebug>() + 1;
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlBr{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlBr>());
 
                         auto&& [advance_count, require_restart] =
                             ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
@@ -877,7 +882,7 @@ entry:
                         ++current_index;
                         continue;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -913,7 +918,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -964,7 +969,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -1039,7 +1044,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -1081,12 +1086,12 @@ entry:
                         opt_img_tag.has_value()) {
                         auto&& [tag_len, src, alt] = opt_img_tag.template value<ndebug>();
                         current_index += tag_len + 1;
-                        result.push_back(
-                            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlImg{::std::move(src), ::std::move(alt)}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlImg>(
+                            ::std::move(src), ::std::move(alt)));
                         ++current_index;
                         continue;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -1120,7 +1125,7 @@ entry:
                         current_index += tag_len + 3;
                         continue;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -1156,7 +1161,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -1170,7 +1175,7 @@ entry:
                         opt_size_tag.has_value()) {
                         auto const [tag_len, value] = opt_size_tag.template value<ndebug>();
                         if (value.value == 0) {
-                            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                            result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                             ++current_index;
                             goto entry;
                         }
@@ -1246,7 +1251,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -1270,7 +1275,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -1307,7 +1312,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -1328,7 +1333,7 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -1346,17 +1351,18 @@ entry:
                                     pltext.template subview<ndebug>(comment_end))) {
                                 break;
                             }
-                            subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                                ::pltxt2htm::U8Char{pltext.template index<ndebug>(comment_end)}));
+                            subast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::U8Char>(
+                                pltext.template index<ndebug>(comment_end)));
                         }
 
                         current_index = comment_end + 2; // Point to '>'
                         result.push_back(
-                            ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlNote<ndebug>{::std::move(subast)}));
+                            ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlNote<ndebug>>(
+                                ::std::move(subast)));
                         ++current_index;
                         continue;
                     }
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -1380,11 +1386,13 @@ entry:
                             ::pltxt2htm::UnityColor staged_node(::std::move(result), ::std::move(active_frame_data.id));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1403,11 +1411,13 @@ entry:
                             ::pltxt2htm::PlA staged_node(::std::move(result));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1423,11 +1433,13 @@ entry:
                                                               active_frame_data.vertical_align);
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1442,11 +1454,13 @@ entry:
                                                            active_frame_data.internal);
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1462,11 +1476,13 @@ entry:
                                                                   ::std::move(active_frame_data.id));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1482,11 +1498,13 @@ entry:
                                                                    ::std::move(active_frame_data.id));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1502,11 +1520,13 @@ entry:
                                                                   ::std::move(active_frame_data.id));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1522,11 +1542,13 @@ entry:
                                                                    ::std::move(active_frame_data.id));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1542,11 +1564,13 @@ entry:
                                                                 ::std::move(active_frame_data.url));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1560,11 +1584,13 @@ entry:
                             ::pltxt2htm::UnityLink staged_node(::std::move(result), ::std::move(active_frame_data.url));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1578,11 +1604,13 @@ entry:
                             ::pltxt2htm::PlTrigger staged_node(::std::move(result), ::std::move(active_frame_data.id));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1596,11 +1624,13 @@ entry:
                             ::pltxt2htm::PlInternal staged_node(::std::move(result), ::std::move(active_frame_data.id));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1614,11 +1644,13 @@ entry:
                             ::pltxt2htm::PlUser staged_node(::std::move(result), ::std::move(active_frame_data.id));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1632,11 +1664,13 @@ entry:
                             ::pltxt2htm::UnitySize staged_node(::std::move(result), active_frame_data.value);
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1650,11 +1684,13 @@ entry:
                             ::pltxt2htm::UnityVoffset staged_node(::std::move(result), active_frame_data.value);
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1673,11 +1709,13 @@ entry:
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1692,12 +1730,13 @@ entry:
                                                                ::std::move(active_frame_data.background_color));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                                ::pltxt2htm::UnityMark<ndebug>{::std::move(staged_node)}));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityMark<ndebug>>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1717,11 +1756,13 @@ entry:
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1741,11 +1782,13 @@ entry:
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1758,11 +1801,13 @@ entry:
                             ::pltxt2htm::UnityB staged_node(::std::move(result));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1775,11 +1820,13 @@ entry:
                             ::pltxt2htm::UnityI staged_node(::std::move(result));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1799,11 +1846,13 @@ entry:
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1821,11 +1870,13 @@ entry:
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1843,11 +1894,13 @@ entry:
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1865,11 +1918,13 @@ entry:
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1887,11 +1942,13 @@ entry:
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1909,11 +1966,13 @@ entry:
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1931,11 +1990,13 @@ entry:
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1948,11 +2009,13 @@ entry:
                             ::pltxt2htm::HtmlDel staged_node(::std::move(result));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1965,11 +2028,13 @@ entry:
                             ::pltxt2htm::HtmlCode staged_node(::std::move(result));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -1986,11 +2051,13 @@ entry:
                             ::pltxt2htm::HtmlEm staged_node(::std::move(result));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -2003,11 +2070,13 @@ entry:
                             ::pltxt2htm::HtmlStrong staged_node(::std::move(result));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -2022,11 +2091,13 @@ entry:
                                                               ::std::move(active_frame_data.background_color));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -2039,11 +2110,13 @@ entry:
                             ::pltxt2htm::HtmlU staged_node(::std::move(result));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -2056,11 +2129,13 @@ entry:
                             ::pltxt2htm::HtmlS staged_node(::std::move(result));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -2073,11 +2148,13 @@ entry:
                             ::pltxt2htm::HtmlSup staged_node(::std::move(result));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -2090,11 +2167,13 @@ entry:
                             ::pltxt2htm::HtmlSub staged_node(::std::move(result));
                             call_stack.template discard_current_frame<ndebug>();
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -2112,11 +2191,13 @@ entry:
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::std::move(staged_node)));
+                            parent_frame.subast.push_back(
+                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
+                                    ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
                         }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -2186,7 +2267,7 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::table_td: {
                         // any tag contains `</` context would hit this branch
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
                         continue;
                     }
@@ -2248,7 +2329,7 @@ entry:
                     pltxt2htm_unreachable(u8"Unreachable after escape-node inner switch");
                 }
                 default: {
-                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::LessThan{}));
+                    result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
                     continue;
                 }
@@ -2285,249 +2366,272 @@ entry:
             case ::pltxt2htm::NodeKind::unity_color: {
                 auto&& active_frame_data = frame.as_equal_sign_tag();
                 auto&& id = active_frame_data.id;
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::UnityColor<ndebug>{::std::move(subast), ::std::move(id)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityColor<ndebug>>(
+                    ::std::move(subast), ::std::move(id)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_a: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlA<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlA<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_experiment: {
                 auto&& active_frame_data = frame.as_equal_sign_tag();
                 auto&& id = active_frame_data.id;
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::PlExperiment<ndebug>{::std::move(subast), ::std::move(id)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlExperiment<ndebug>>(
+                        ::std::move(subast), ::std::move(id)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_experiments: {
                 auto&& active_frame_data = frame.as_equal_sign_tag();
                 auto&& value = active_frame_data.id;
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::PlExperiments<ndebug>{::std::move(subast), ::std::move(value)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlExperiments<ndebug>>(
+                        ::std::move(subast), ::std::move(value)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_discussion: {
                 auto&& active_frame_data = frame.as_equal_sign_tag();
                 auto&& id = active_frame_data.id;
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::PlDiscussion<ndebug>{::std::move(subast), ::std::move(id)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlDiscussion<ndebug>>(
+                        ::std::move(subast), ::std::move(id)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_discussions: {
                 auto&& active_frame_data = frame.as_equal_sign_tag();
                 auto&& value = active_frame_data.id;
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::PlDiscussions<ndebug>{::std::move(subast), ::std::move(value)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlDiscussions<ndebug>>(
+                        ::std::move(subast), ::std::move(value)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_user: {
                 auto&& active_frame_data = frame.as_equal_sign_tag();
                 auto&& id = active_frame_data.id;
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::PlUser<ndebug>{::std::move(subast), ::std::move(id)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlUser<ndebug>>(
+                    ::std::move(subast), ::std::move(id)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_trigger: {
                 auto&& active_frame_data = frame.as_equal_sign_tag();
                 auto&& value = active_frame_data.id;
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::PlTrigger<ndebug>{::std::move(subast), ::std::move(value)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlTrigger<ndebug>>(
+                    ::std::move(subast), ::std::move(value)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_internal: {
                 auto&& active_frame_data = frame.as_equal_sign_tag();
                 auto&& value = active_frame_data.id;
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::PlInternal<ndebug>{::std::move(subast), ::std::move(value)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlInternal<ndebug>>(
+                    ::std::move(subast), ::std::move(value)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_external: {
                 auto&& active_frame_data = frame.as_url_info();
                 auto&& url = active_frame_data.url;
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::PlExternal<ndebug>{::std::move(subast), ::std::move(url)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlExternal<ndebug>>(
+                    ::std::move(subast), ::std::move(url)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_link: {
                 auto&& active_frame_data = frame.as_url_info();
                 auto&& url = active_frame_data.url;
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::UnityLink<ndebug>{::std::move(subast), ::std::move(url)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityLink<ndebug>>(
+                    ::std::move(subast), ::std::move(url)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_size: {
                 auto&& active_frame_data = frame.as_unity_size_tag();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::UnitySize<ndebug>{::std::move(subast), active_frame_data.value}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnitySize<ndebug>>(
+                    ::std::move(subast), active_frame_data.value));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_voffset: {
                 auto&& active_frame_data = frame.as_unity_voffset_tag();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::UnityVoffset<ndebug>{::std::move(subast), active_frame_data.value}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityVoffset<ndebug>>(
+                        ::std::move(subast), active_frame_data.value));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_align: {
                 auto&& active_frame_data = frame.as_align_info();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::UnityAlign<ndebug>{::std::move(subast), active_frame_data.align}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityAlign<ndebug>>(
+                    ::std::move(subast), active_frame_data.align));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_margin: {
                 auto&& active_frame_data = frame.as_margins_info();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::UnityMargin<ndebug>{
-                    ::std::move(subast), active_frame_data.left, active_frame_data.right}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityMargin<ndebug>>(
+                    ::std::move(subast), active_frame_data.left, active_frame_data.right));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_div: {
                 auto&& active_frame_data = frame.as_margins_info();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlDiv<ndebug>{
-                    ::std::move(subast), active_frame_data.left, active_frame_data.right}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlDiv<ndebug>>(
+                    ::std::move(subast), active_frame_data.left, active_frame_data.right));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_mark: {
                 auto&& active_frame_data = frame.as_background_color_info();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::UnityMark<ndebug>{
-                    ::std::move(subast), ::std::move(active_frame_data.background_color)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityMark<ndebug>>(
+                    ::std::move(subast), ::std::move(active_frame_data.background_color)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto&& active_frame_data = frame.as_html_span_info();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::HtmlSpan<ndebug>{::std::move(subast), ::std::move(active_frame_data.color),
-                                                  active_frame_data.font_size, active_frame_data.vertical_align}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlSpan<ndebug>>(
+                    ::std::move(subast), ::std::move(active_frame_data.color), active_frame_data.font_size,
+                    active_frame_data.vertical_align));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_a: {
                 auto&& active_frame_data = frame.as_html_a_tag_info();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlA<ndebug>{
-                    ::std::move(subast), ::std::move(active_frame_data.url), active_frame_data.internal}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlA<ndebug>>(
+                    ::std::move(subast), ::std::move(active_frame_data.url), active_frame_data.internal));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_strong:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::unity_b: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::UnityB<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityB<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_i: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::UnityI<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityI<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_p: {
                 auto&& active_frame_data = frame.as_align_info();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::HtmlP<ndebug>{::std::move(subast), active_frame_data.align}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlP<ndebug>>(
+                    ::std::move(subast), active_frame_data.align));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h1: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH1<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH1<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h2: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH2<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH2<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h3: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH3<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH3<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h4: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH4<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH4<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h5: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH5<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH5<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h6: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH6<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH6<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_del: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlDel<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlDel<ndebug>>(
+                    ::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_code: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlCode<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlCode<ndebug>>(
+                    ::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_u: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlU<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlU<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_s: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlS<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlS<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_sup: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlSup<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlSup<ndebug>>(
+                    ::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_sub: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlSub<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlSub<ndebug>>(
+                    ::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_em: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlEm<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlEm<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_mark: {
                 auto&& active_frame_data = frame.as_background_color_info();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlMark<ndebug>{
-                    ::std::move(subast), ::std::move(active_frame_data.background_color)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlMark<ndebug>>(
+                    ::std::move(subast), ::std::move(active_frame_data.background_color)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_ul: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListUl<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListUl<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_ol: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListOl<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListOl<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_li: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListLi<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListLi<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
@@ -2535,76 +2639,83 @@ entry:
                 auto&& active_frame_data = frame.as_list_li_checkbox();
                 auto const checked = active_frame_data.checked;
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListLiCheckbox<ndebug>{::std::move(subast), checked}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListLiCheckbox<ndebug>>(
+                        ::std::move(subast), checked));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Table<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Table<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_tr: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTr<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTr<ndebug>>(
+                    ::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_td: {
                 auto&& active_frame_data = frame.as_cell();
                 auto const align = active_frame_data.align;
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTd<ndebug>{::std::move(subast), align}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTd<ndebug>>(
+                    ::std::move(subast), align));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_th: {
                 auto&& active_frame_data = frame.as_cell();
                 auto const align = active_frame_data.align;
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTh<ndebug>{::std::move(subast), align}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTh<ndebug>>(
+                    ::std::move(subast), align));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_thead: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableThead<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableThead<ndebug>>(
+                    ::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_tbody: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTbody<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTbody<ndebug>>(
+                    ::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_tfoot: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableTfoot<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTfoot<ndebug>>(
+                    ::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_caption: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableCaption<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableCaption<ndebug>>(
+                        ::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_colgroup: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::TableColgroup<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableColgroup<ndebug>>(
+                        ::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_blockquote: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlBlockquote<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlBlockquote<ndebug>>(
+                        ::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h1: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
                     call_stack.template current_frame<ndebug>().get_pltext()};
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH1<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH1<ndebug>>(
+                    ::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     super_pltext.template subview<ndebug>(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
@@ -2613,7 +2724,8 @@ entry:
             case ::pltxt2htm::NodeKind::md_atx_h2: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
                     call_stack.template current_frame<ndebug>().get_pltext()};
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH2<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH2<ndebug>>(
+                    ::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     super_pltext.template subview<ndebug>(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
@@ -2622,7 +2734,8 @@ entry:
             case ::pltxt2htm::NodeKind::md_atx_h3: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
                     call_stack.template current_frame<ndebug>().get_pltext()};
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH3<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH3<ndebug>>(
+                    ::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     super_pltext.template subview<ndebug>(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
@@ -2631,7 +2744,8 @@ entry:
             case ::pltxt2htm::NodeKind::md_atx_h4: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
                     call_stack.template current_frame<ndebug>().get_pltext()};
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH4<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH4<ndebug>>(
+                    ::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     super_pltext.template subview<ndebug>(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
@@ -2640,7 +2754,8 @@ entry:
             case ::pltxt2htm::NodeKind::md_atx_h5: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
                     call_stack.template current_frame<ndebug>().get_pltext()};
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH5<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH5<ndebug>>(
+                    ::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     super_pltext.template subview<ndebug>(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
@@ -2649,7 +2764,8 @@ entry:
             case ::pltxt2htm::NodeKind::md_atx_h6: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
                     call_stack.template current_frame<ndebug>().get_pltext()};
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH6<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH6<ndebug>>(
+                    ::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     super_pltext.template subview<ndebug>(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
@@ -2657,73 +2773,86 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan1Backtick<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdCodeSpan1Backtick<ndebug>>(
+                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan2Backtick<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdCodeSpan2Backtick<ndebug>>(
+                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdCodeSpan3Backtick<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdCodeSpan3Backtick<ndebug>>(
+                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdLatexInline<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdLatexInline<ndebug>>(
+                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdLatexBlock<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdLatexBlock<ndebug>>(
+                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>>(
+                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>>(
+                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>>(
+                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>>(
+                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdTripleEmphasisAsterisk<ndebug>>(
+                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdTripleEmphasisUnderscore<ndebug>>(
+                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_del: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdDel<ndebug>{::std::move(subast)}));
+                parent_ast.push_back(
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdDel<ndebug>>(::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_block_quotes: {
                 parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdBlockQuotes<ndebug>{::std::move(subast)}));
+                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdBlockQuotes<ndebug>>(
+                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_link: {
                 auto&& active_frame_data = frame.as_url_info();
                 auto&& link_url = active_frame_data.url;
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                    ::pltxt2htm::MdLink<ndebug>{::std::move(subast), ::std::move(link_url)}));
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdLink<ndebug>>(
+                    ::std::move(subast), ::std::move(link_url)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::u8char:

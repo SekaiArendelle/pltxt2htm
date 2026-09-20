@@ -47,13 +47,13 @@ int main() {
     static_assert(::std::movable<::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::quick_enforce>>);
 
     ::pltxt2htm::container::Vector<::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::quick_enforce>> arr{};
-    arr.emplace_back(::pltxt2htm::U8Char{u8'a'});
-    arr.emplace_back(::pltxt2htm::UnityColor<::pltxt2htm::Contracts::quick_enforce>{
-        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"red"}});
-    arr.emplace_back(::pltxt2htm::PlExperiment<::pltxt2htm::Contracts::quick_enforce>{
-        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}});
-    arr.emplace_back(::pltxt2htm::PlDiscussion<::pltxt2htm::Contracts::quick_enforce>{
-        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}});
+    arr.emplace_back(TestNode::template emplace<::pltxt2htm::U8Char>(u8'a'));
+    arr.emplace_back(TestNode::template emplace<::pltxt2htm::UnityColor<::pltxt2htm::Contracts::quick_enforce>>(
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"red"}));
+    arr.emplace_back(TestNode::template emplace<::pltxt2htm::PlExperiment<::pltxt2htm::Contracts::quick_enforce>>(
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}));
+    arr.emplace_back(TestNode::template emplace<::pltxt2htm::PlDiscussion<::pltxt2htm::Contracts::quick_enforce>>(
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}));
 
     auto invalid_utf8 = TestNode::emplace<::pltxt2htm::InvalidUtf8>();
     auto unity_color = TestNode::emplace<::pltxt2htm::UnityColor<test_contracts>>(
