@@ -48,7 +48,7 @@ public:
      * @return A ::pltxt2htm::PlTxtNode containing the constructed node.
      */
     template<typename Node, typename... Args>
-        requires (::pltxt2htm::details::PlTxtNodeConcept<Node> &&
+        requires (::pltxt2htm::details::PlTxtNodeConcept<ndebug, Node> &&
                  ::std::is_nothrow_constructible_v<Node, Args...>)
     [[nodiscard]]
     static constexpr auto emplace(Args&&... args) noexcept -> ::pltxt2htm::PlTxtNode<ndebug> {
