@@ -597,6 +597,30 @@ public:
     }
 
     /**
+     * @brief Tests whether the string has no logical characters, for downstream users only.
+     * @return true when size() is zero.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto empty(this BasicString const&) noexcept -> bool = delete
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("empty() is external-only; use is_empty() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
+    #endif
+        ;
+#else
+    [[nodiscard]]
+    constexpr auto empty(this BasicString const& self) noexcept -> bool {
+        return self.is_empty();
+    }
+#endif
+
+    /**
      * @brief Returns a mutable iterator to the first character.
      * @return data().
      */

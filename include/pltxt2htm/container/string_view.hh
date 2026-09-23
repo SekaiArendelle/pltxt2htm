@@ -212,6 +212,30 @@ public:
         return self.length == 0;
     }
 
+    /**
+     * @brief Tests whether the view has no characters, for downstream users only.
+     * @return true when size() is zero.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto empty(this BasicStringView const&) noexcept -> bool = delete
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("empty() is external-only; use is_empty() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
+    #endif
+        ;
+#else
+    [[nodiscard]]
+    constexpr auto empty(this BasicStringView const& self) noexcept -> bool {
+        return self.is_empty();
+    }
+#endif
+
     [[nodiscard]]
     constexpr auto begin(this BasicStringView const& self) noexcept -> const_iterator {
         return self.pointer;
