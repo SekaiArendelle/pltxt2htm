@@ -60,7 +60,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text) noexcept -> DecodeUtf8CodePointResult {
     ::std::size_t const text_size{text.size()};
-    if (text.empty()) {
+    if (text.is_empty()) {
         return {.consumed_size = 0, .code_point = char32_t{}, .valid = false};
     }
 

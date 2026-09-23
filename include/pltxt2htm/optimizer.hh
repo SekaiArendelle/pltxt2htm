@@ -656,7 +656,7 @@ entry:
                     return true; // Different tag types, so not the same
                 }()};
                 if (is_different_tag) {
-                    if (subast.empty()) {
+                    if (subast.is_empty()) {
                         ast.erase(current_iter);
                         continue;
                     }
@@ -693,7 +693,7 @@ entry:
                         auto const inner_fs = active_subnode.get_font_size();
                         auto const inner_va = active_subnode.get_vertical_align();
                         auto merged_color =
-                            ::pltxt2htm::container::U8String{inner_color.empty() ? outer_color : inner_color};
+                            ::pltxt2htm::container::U8String{inner_color.is_empty() ? outer_color : inner_color};
                         ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> merged_fs{
                             ::pltxt2htm::container::nullopt};
                         if (inner_fs.has_value()) {
@@ -739,7 +739,7 @@ entry:
                         continue;
                     }
                 }
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     ast.erase(current_iter);
                     continue;
                 }
@@ -856,7 +856,7 @@ entry:
                     return true; // Different tag types, so not the same
                 }()};
                 if (is_different_tag) {
-                    if (subast.empty()) {
+                    if (subast.is_empty()) {
                         ast.erase(current_iter);
                         continue;
                     }
@@ -902,7 +902,7 @@ entry:
                         }
                     }
                 }();
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     ast.erase(current_iter);
                     continue;
                 }
@@ -940,7 +940,7 @@ entry:
             case ::pltxt2htm::NodeKind::pl_user: {
                 auto&& active_node = node.as_pl_user();
                 auto&& subast = active_node.get_subast();
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     // <user=123></user> can be omitted
                     ast.erase(current_iter);
                     continue;
@@ -982,7 +982,7 @@ entry:
             case ::pltxt2htm::NodeKind::pl_trigger: {
                 auto&& active_node = node.as_pl_trigger();
                 auto&& subast = active_node.get_subast();
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     // <trigger=...></trigger> can be omitted
                     ast.erase(current_iter);
                     continue;
@@ -997,7 +997,7 @@ entry:
             case ::pltxt2htm::NodeKind::pl_internal: {
                 auto&& active_node = node.as_pl_internal();
                 auto&& subast = active_node.get_subast();
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     // <internal=...></internal> can be omitted
                     ast.erase(current_iter);
                     continue;
@@ -1012,7 +1012,7 @@ entry:
             case ::pltxt2htm::NodeKind::pl_external: {
                 auto&& active_node = node.as_pl_external();
                 auto&& subast = active_node.get_subast();
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     // <external=123></external> can be omitted
                     ast.erase(current_iter);
                     continue;
@@ -1025,7 +1025,7 @@ entry:
             case ::pltxt2htm::NodeKind::unity_link: {
                 auto&& active_node = node.as_unity_link();
                 auto&& subast = active_node.get_subast();
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     // <link="url"></link> can be omitted
                     ast.erase(current_iter);
                     continue;
@@ -1038,7 +1038,7 @@ entry:
             case ::pltxt2htm::NodeKind::unity_size: {
                 auto&& active_node = node.as_unity_size();
                 auto&& subast = active_node.get_subast();
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     // <size=123></size> can be omitted
                     ast.erase(current_iter);
                     continue;
@@ -1077,7 +1077,7 @@ entry:
             case ::pltxt2htm::NodeKind::unity_voffset: {
                 auto&& active_node = node.as_unity_voffset();
                 auto&& subast = active_node.get_subast();
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     // <voffset=5></voffset> can be omitted
                     ast.erase(current_iter);
                     continue;
@@ -1163,7 +1163,7 @@ entry:
                     }
                 }();
                 if (is_different_tag) {
-                    if (subast.empty()) {
+                    if (subast.is_empty()) {
                         ast.erase(current_iter);
                         continue;
                     }
@@ -1326,7 +1326,7 @@ entry:
                 bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_del &&
                                             nested_tag_type != ::pltxt2htm::NodeKind::md_del};
                 if (is_different_tag) {
-                    if (subast.empty()) {
+                    if (subast.is_empty()) {
                         ast.erase(current_iter);
                         continue;
                     }
@@ -1346,7 +1346,7 @@ entry:
                 auto&& subast = active_node.get_subast();
                 bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_code};
                 if (is_different_tag) {
-                    if (subast.empty()) {
+                    if (subast.is_empty()) {
                         ast.erase(current_iter);
                         continue;
                     }
@@ -1367,7 +1367,7 @@ entry:
                 auto const& node_background_color = active_node.get_background_color();
                 ::pltxt2htm::container::U8StringView const node_background_color_view{node_background_color};
                 if (nested_tag_type != ::pltxt2htm::NodeKind::html_mark) {
-                    if (subast.empty()) {
+                    if (subast.is_empty()) {
                         ast.erase(current_iter);
                         continue;
                     }
@@ -1388,7 +1388,7 @@ entry:
                     continue;
                 }
                 // Different background-color: keep the nesting and recurse into the inner mark.
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     ast.erase(current_iter);
                     continue;
                 }
@@ -1406,7 +1406,7 @@ entry:
                 auto const& node_background_color = active_node.get_background_color();
                 ::pltxt2htm::container::U8StringView const node_background_color_view{node_background_color};
                 if (nested_tag_type != ::pltxt2htm::NodeKind::unity_mark) {
-                    if (subast.empty()) {
+                    if (subast.is_empty()) {
                         ast.erase(current_iter);
                         continue;
                     }
@@ -1427,7 +1427,7 @@ entry:
                     continue;
                 }
                 // Different background-color: keep the nesting and recurse into the inner mark.
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     ast.erase(current_iter);
                     continue;
                 }
@@ -1444,7 +1444,7 @@ entry:
                 auto&& subast = active_node.get_subast();
                 bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_u};
                 if (is_different_tag) {
-                    if (subast.empty()) {
+                    if (subast.is_empty()) {
                         ast.erase(current_iter);
                         continue;
                     }
@@ -1464,7 +1464,7 @@ entry:
                 auto&& subast = active_node.get_subast();
                 bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_s};
                 if (is_different_tag) {
-                    if (subast.empty()) {
+                    if (subast.is_empty()) {
                         ast.erase(current_iter);
                         continue;
                     }
@@ -1482,7 +1482,7 @@ entry:
                 auto&& active_node = node.as_html_sup();
                 // nested <sup> shifts the baseline further, so same-tag nesting must NOT be flattened
                 auto&& subast = active_node.get_subast();
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     ast.erase(current_iter);
                     continue;
                 }
@@ -1495,7 +1495,7 @@ entry:
                 auto&& active_node = node.as_html_sub();
                 // nested <sub> shifts the baseline further, so same-tag nesting must NOT be flattened
                 auto&& subast = active_node.get_subast();
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     ast.erase(current_iter);
                     continue;
                 }
@@ -1538,7 +1538,7 @@ entry:
                     }
                 }();
                 if (is_different_tag) {
-                    if (subast.empty()) {
+                    if (subast.is_empty()) {
                         ast.erase(current_iter);
                         continue;
                     }
@@ -1712,7 +1712,7 @@ entry:
                         }
                     }
                 }();
-                pltxt2htm_assert(!subast.empty(), u8"md_triple_emphasis subast must not be empty");
+                pltxt2htm_assert(!subast.is_empty(), u8"md_triple_emphasis subast must not be empty");
                 auto const& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
                 if (nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
                     nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore) {
@@ -1751,7 +1751,7 @@ entry:
                     }
                     continue;
                 }
-                if (subast.empty()) {
+                if (subast.is_empty()) {
                     ast.erase(current_iter);
                     continue;
                 }

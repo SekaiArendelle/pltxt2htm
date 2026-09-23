@@ -58,7 +58,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_escape(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<TryParseMdEscapeResult> {
-    if (pltext.empty()) {
+    if (pltext.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
     if (pltext.template index<ndebug>(0) != u8'\\') {
@@ -102,7 +102,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_space(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZeroUsize> {
-    if (pltext.empty()) {
+    if (pltext.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
     char8_t const chr{pltext.template index<ndebug>(0)};
@@ -908,7 +908,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_color_value(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZeroUsize> {
-    if (pltext.empty()) {
+    if (pltext.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
     if (pltext.template index<ndebug>(0) != u8'#') {
@@ -1825,7 +1825,7 @@ constexpr auto try_parse_span_style(::pltxt2htm::container::U8StringView pltext,
         }
 
         if (property == ::pltxt2htm::container::U8StringView{u8"color"}) {
-            if (color.empty() == false) {
+            if (color.is_empty() == false) {
                 return ::pltxt2htm::container::nullopt;
             }
             auto const value_start = p;
@@ -1996,7 +1996,7 @@ constexpr auto try_parse_span_tag(::pltxt2htm::container::U8StringView pltext) n
         pos += style.end;
     }
 
-    if (found_style == false || (color.empty() && !font_size.has_value() && !vertical_align.has_value())) {
+    if (found_style == false || (color.is_empty() && !font_size.has_value() && !vertical_align.has_value())) {
         return ::pltxt2htm::container::nullopt;
     }
     if (pos >= pltext_size || pltext.template index<ndebug>(pos) != u8'>') {
@@ -2045,7 +2045,7 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
         }
         auto const chr = pltext.template index<ndebug>(p);
         if (chr == quote) {
-            if (background_color.empty()) {
+            if (background_color.is_empty()) {
                 return ::pltxt2htm::container::nullopt;
             }
             return TryParseMarkStyleResult<ndebug>{.end = p + 1, .background_color = ::std::move(background_color)};
@@ -2085,7 +2085,7 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
         if (property != ::pltxt2htm::container::U8StringView{u8"background-color"}) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (background_color.empty() == false) {
+        if (background_color.is_empty() == false) {
             return ::pltxt2htm::container::nullopt;
         }
         auto const value_start = p;
@@ -2224,7 +2224,7 @@ constexpr auto try_parse_mark_tag(::pltxt2htm::container::U8StringView pltext) n
         pos += style.end;
     }
 
-    if (found_style == false || background_color.empty()) {
+    if (found_style == false || background_color.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
     if (pos >= pltext_size || pltext.template index<ndebug>(pos) != u8'>') {
@@ -2378,7 +2378,7 @@ constexpr auto try_parse_code_tag(::pltxt2htm::container::U8StringView pltext) n
             if (found_class) {
                 return ::pltxt2htm::container::nullopt; // duplicate class
             }
-            if (attr_val.empty()) {
+            if (attr_val.is_empty()) {
                 return ::pltxt2htm::container::nullopt;
             }
             // value must start with "language-" and have at least one char after
@@ -2871,7 +2871,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_pltext_line_break(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZeroUsize> {
-    if (pltext.empty()) {
+    if (pltext.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
     if (pltext.template index<ndebug>(0) == u8'\n') {
@@ -3471,7 +3471,7 @@ constexpr auto try_parse_md_code_fence_(::pltxt2htm::container::U8StringView plt
     }
 
     ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> opt_lang{::pltxt2htm::container::nullopt};
-    if (lang.empty() == false) {
+    if (lang.is_empty() == false) {
         opt_lang = ::std::move(lang);
     }
     return TryParseMdCodeFenceResult<ndebug>{
@@ -3627,7 +3627,7 @@ constexpr auto try_parse_md_block_quotes(::pltxt2htm::container::U8StringView pl
         subpltext.push_back<ndebug>(u8'\n');
     }
 
-    if (subpltext.empty()) {
+    if (subpltext.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
     if (subpltext.template back<ndebug>() == u8'\n') {
@@ -4053,7 +4053,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_url_path_simple(::pltxt2htm::container::U8StringView pltext) noexcept -> ::std::size_t {
     ::std::size_t const pltext_size{pltext.size()};
-    if (pltext.empty() == false) {
+    if (pltext.is_empty() == false) {
         auto const chr = pltext.template index<ndebug>(0);
         if (chr != u8'/' && chr != u8'?' && chr != u8'#') {
             return 0;
@@ -4085,7 +4085,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_url_path_unicode(::pltxt2htm::container::U8StringView pltext) noexcept -> ::std::size_t {
     ::std::size_t const pltext_size{pltext.size()};
-    if (pltext.empty() == false) {
+    if (pltext.is_empty() == false) {
         auto const chr = pltext.template index<ndebug>(0);
         if (chr != u8'/' && chr != u8'?' && chr != u8'#') {
             return 0;

@@ -512,7 +512,7 @@ constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8St
             fallback = ::std::move(candidate);
         }
     }
-    if (fallback.empty() == false) {
+    if (fallback.is_empty() == false) {
         return fallback;
     }
     // Values too large for a signed 64-bit integer cannot be round-tripped above; emit the

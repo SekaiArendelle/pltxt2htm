@@ -564,7 +564,7 @@ entry:
                 auto const& span_color = active_node.get_color();
                 auto const& span_font_size = active_node.get_font_size();
                 auto const& span_vertical_align = active_node.get_vertical_align();
-                bool const has_color = !span_color.empty();
+                bool const has_color = !span_color.is_empty();
                 bool const has_font_size = span_font_size.has_value();
                 bool const has_vertical_align = span_vertical_align.has_value();
                 call_stack.push_frame(
@@ -920,7 +920,7 @@ entry:
             case ::pltxt2htm::NodeKind::list_ul: {
                 auto&& active_node = node.as_list_ul();
                 auto const& list_ul = active_node;
-                pltxt2htm_assert(list_ul.get_subast().empty() == false, u8"List container must not be empty");
+                pltxt2htm_assert(list_ul.get_subast().is_empty() == false, u8"List container must not be empty");
                 call_stack.push_frame(BackendFrame<ndebug>(list_ul.get_subast(), ::pltxt2htm::NodeKind::list_ul));
                 result.template append<ndebug>(u8"<ul>");
                 goto entry;
@@ -928,7 +928,7 @@ entry:
             case ::pltxt2htm::NodeKind::list_ol: {
                 auto&& active_node = node.as_list_ol();
                 auto const& list_ol = active_node;
-                pltxt2htm_assert(list_ol.get_subast().empty() == false, u8"List container must not be empty");
+                pltxt2htm_assert(list_ol.get_subast().is_empty() == false, u8"List container must not be empty");
                 call_stack.push_frame(BackendFrame<ndebug>(list_ol.get_subast(), ::pltxt2htm::NodeKind::list_ol));
                 result.template append<ndebug>(u8"<ol");
                 if (list_ol.get_start() != 1) {

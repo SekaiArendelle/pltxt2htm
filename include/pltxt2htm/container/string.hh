@@ -592,17 +592,8 @@ public:
      * @return true when size() is zero.
      */
     [[nodiscard]]
-    constexpr auto empty(this BasicString const& self) noexcept -> bool {
-        return self.begin_pointer == self.current_pointer;
-    }
-
-    /**
-     * @brief Compatibility spelling for empty().
-     * @return true when size() is zero.
-     */
-    [[nodiscard]]
     constexpr auto is_empty(this BasicString const& self) noexcept -> bool {
-        return self.empty();
+        return self.begin_pointer == self.current_pointer;
     }
 
     /**
@@ -813,7 +804,7 @@ public:
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this BasicString& self) noexcept -> reference {
-        pltxt2htm_assert(!self.empty(), u8"back() called on empty BasicString");
+        pltxt2htm_assert(!self.is_empty(), u8"back() called on empty BasicString");
         return self.current_pointer[-1];
     }
 
@@ -826,7 +817,7 @@ public:
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this BasicString const& self) noexcept -> const_reference {
-        pltxt2htm_assert(!self.empty(), u8"back() called on empty BasicString");
+        pltxt2htm_assert(!self.is_empty(), u8"back() called on empty BasicString");
         return self.current_pointer[-1];
     }
 
@@ -963,7 +954,7 @@ public:
      */
     template<::pltxt2htm::Contracts ndebug>
     constexpr void pop_back(this BasicString& self) noexcept {
-        pltxt2htm_assert(!self.empty(), u8"pop_back() called on empty BasicString");
+        pltxt2htm_assert(!self.is_empty(), u8"pop_back() called on empty BasicString");
         --self.current_pointer;
         *self.current_pointer = value_type{};
     }
@@ -1078,7 +1069,7 @@ public:
         pltxt2htm_assert(position >= self.begin_pointer && position <= self.current_pointer,
                          u8"BasicString insert position out of bound");
         size_type const position_index{static_cast<size_type>(position - self.begin_pointer)};
-        if (string.empty()) {
+        if (string.is_empty()) {
             return self.begin_pointer + position_index;
         }
 

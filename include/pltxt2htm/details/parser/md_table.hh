@@ -44,7 +44,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<TryParseMdTableRowResult> {
-    if (pltext.empty()) {
+    if (pltext.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
     ::std::size_t const pltext_size{pltext.size()};
@@ -103,7 +103,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
             prev_was_backslash = (chr == u8'\\') ? !prev_was_backslash : false;
         }
         // trim trailing spaces from cell
-        while (!cell.empty() && (cell.template back<ndebug>() == u8' ' || cell.template back<ndebug>() == u8'\t')) {
+        while (!cell.is_empty() && (cell.template back<ndebug>() == u8' ' || cell.template back<ndebug>() == u8'\t')) {
             cell.template pop_back<ndebug>();
         }
         row.push_back(::std::move(cell));
@@ -113,7 +113,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
         }
     }
 
-    if (row.empty()) {
+    if (row.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
 
@@ -138,7 +138,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_table_align(::pltxt2htm::container::U8StringView cell) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::TableAlign> {
-    if (cell.empty()) {
+    if (cell.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
 
@@ -227,7 +227,7 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
     bool has_delimiter_content{};
     for (auto const& cell : delim_row) {
         auto const cell_view = ::pltxt2htm::container::U8StringView{cell};
-        if (cell_view.empty()) {
+        if (cell_view.is_empty()) {
             aligns.push_back(::pltxt2htm::TableAlign::left);
             continue;
         }

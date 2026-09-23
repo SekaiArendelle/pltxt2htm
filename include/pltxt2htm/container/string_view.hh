@@ -208,7 +208,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto empty(this BasicStringView const& self) noexcept -> bool {
+    constexpr auto is_empty(this BasicStringView const& self) noexcept -> bool {
         return self.length == 0;
     }
 

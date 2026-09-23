@@ -334,9 +334,8 @@ public:
         return self.begin_pointer;
     }
 
-    // TODO rename to `is_empty`
     [[nodiscard]]
-    constexpr auto empty(this Vector const& self) noexcept -> bool {
+    constexpr auto is_empty(this Vector const& self) noexcept -> bool {
         return self.current_size == 0;
     }
 
@@ -414,14 +413,14 @@ public:
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this Vector& self) noexcept -> reference {
-        pltxt2htm_assert(!self.empty(), u8"Accessing front but Vector is empty");
+        pltxt2htm_assert(!self.is_empty(), u8"Accessing front but Vector is empty");
         return *self.begin_pointer;
     }
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this Vector const& self) noexcept -> const_reference {
-        pltxt2htm_assert(!self.empty(), u8"Accessing front but Vector is empty");
+        pltxt2htm_assert(!self.is_empty(), u8"Accessing front but Vector is empty");
         return *self.begin_pointer;
     }
 
@@ -483,7 +482,7 @@ public:
     constexpr void pop_back(this Vector& self) noexcept
         requires ::std::is_nothrow_destructible_v<value_type>
     {
-        pltxt2htm_assert(!self.empty(), u8"Popping back but Vector is empty");
+        pltxt2htm_assert(!self.is_empty(), u8"Popping back but Vector is empty");
         --self.current_size;
         ::std::destroy_at(self.begin_pointer + self.current_size);
     }

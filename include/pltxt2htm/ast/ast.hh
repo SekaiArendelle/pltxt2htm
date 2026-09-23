@@ -2245,7 +2245,7 @@ namespace details {
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_text_code_unit(::pltxt2htm::Ast<ndebug>& ast, char8_t code_unit) noexcept {
-    if (ast.empty() == false) {
+    if (ast.is_empty() == false) {
         auto&& last_node = ast.template index<ndebug>(ast.size() - 1);
         if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text && last_node.as_text().try_push_back(code_unit)) {
             return;

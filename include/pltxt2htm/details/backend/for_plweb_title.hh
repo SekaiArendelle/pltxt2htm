@@ -113,7 +113,7 @@ entry:
                 auto const& span_color = active_node.get_color();
                 auto const& span_font_size = active_node.get_font_size();
                 auto const& span_vertical_align = active_node.get_vertical_align();
-                bool const has_color = !span_color.empty();
+                bool const has_color = !span_color.is_empty();
                 bool const has_font_size = span_font_size.has_value();
                 bool const has_vertical_align = span_vertical_align.has_value();
                 call_stack.push_frame(
