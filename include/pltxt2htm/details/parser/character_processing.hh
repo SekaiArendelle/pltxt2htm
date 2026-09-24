@@ -15,6 +15,68 @@
 namespace pltxt2htm::details {
 
 /**
+ * @brief Return whether a view starts with a supported auto-link scheme.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]] constexpr auto starts_with_auto_link_scheme(::pltxt2htm::container::U8StringView text) noexcept -> bool {
+    if (text.size() < 7 || text.template index<ndebug>(0) != u8'h' || text.template index<ndebug>(1) != u8't' ||
+        text.template index<ndebug>(2) != u8't' || text.template index<ndebug>(3) != u8'p') {
+        return false;
+    }
+    if (text.template index<ndebug>(4) == u8':' && text.template index<ndebug>(5) == u8'/' &&
+        text.template index<ndebug>(6) == u8'/') {
+        return true;
+    }
+    return text.size() >= 8 && text.template index<ndebug>(4) == u8's' && text.template index<ndebug>(5) == u8':' &&
+           text.template index<ndebug>(6) == u8'/' && text.template index<ndebug>(7) == u8'/';
+}
+
+/**
+ * @brief Find a leading run that cannot start inline syntax or require character processing.
+ * @details The returned ASCII range is safe to append directly to Text nodes. Non-ASCII,
+ *          semantic whitespace, HTML-special characters, and inline-syntax introducers stop
+ *          the scan and remain handled by the existing bytewise parser path.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]] constexpr auto scan_plain_ascii_run(::pltxt2htm::container::U8StringView text) noexcept -> ::std::size_t {
+    auto const text_size = text.size();
+    for (::std::size_t index{}; index < text_size; ++index) {
+        auto const character = text.template index<ndebug>(index);
+        if (character <= u8' ' || character >= char8_t{0x7F}) {
+            return index;
+        }
+        switch (character) {
+        case u8'&':
+        case u8'\'':
+        case u8'"':
+        case u8'>':
+        case u8'\\':
+        case u8'{':
+        case u8'*':
+        case u8'_':
+        case u8'~':
+        case u8'`':
+        case u8'$':
+        case u8'[':
+        case u8'!':
+        case u8'<': {
+            return index;
+        }
+        case u8'h': {
+            if (::pltxt2htm::details::starts_with_auto_link_scheme<ndebug>(text.template subview<ndebug>(index))) {
+                return index;
+            }
+            break;
+        }
+        default: {
+            break;
+        }
+        }
+    }
+    return text_size;
+}
+
+/**
  * @brief Test whether a code point is a Unicode scalar value.
  * @details Unicode scalar values range from U+0000 through U+10FFFF, excluding
  *          the UTF-16 surrogate range U+D800 through U+DFFF.

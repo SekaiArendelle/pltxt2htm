@@ -1,6 +1,7 @@
 #include <fast_io/fast_io_dsal/array.h>
 #include <pltxt2htm/details/backend/for_plweb_text.hh>
 #include <pltxt2htm/details/parser/character_processing.hh>
+#include <pltxt2htm/inline_parser.hh>
 #include <pltxt2htm/parser.hh>
 #include <ranges>
 #include "precompile.hh"
@@ -48,8 +49,65 @@ static_assert(::pltxt2htm::details::is_unicode_scalar_value(char32_t{0x110000}) 
 static_assert(::pltxt2htm::details::is_ascii_control_code_point(char32_t{0x1F}));
 static_assert(::pltxt2htm::details::is_ascii_control_code_point(char32_t{0x7F}));
 static_assert(::pltxt2htm::details::is_ascii_control_code_point(U' ') == false);
+static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"plain text") == 5);
+static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"hello") == 5);
+static_assert(
+    ::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"abchttps://example.com") == 3);
+static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"abc*") == 3);
+static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"abc\u00E9") == 3);
 
 int main() {
+    {
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
+        ::pltxt2htm::details::append_text_range<::pltxt2htm::Contracts::quick_enforce>(ast, u8"abc");
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> expected{};
+        for (auto const character : ::fast_io::u8string_view{u8"abc"}) {
+            ::pltxt2htm::details::append_text_code_unit<::pltxt2htm::Contracts::quick_enforce>(expected, character);
+        }
+        ::pltxt2htm::container::U8String continuation{};
+        for (::std::size_t index{}; index < 70; ++index) {
+            continuation.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'x');
+        }
+        ::pltxt2htm::details::append_text_range<::pltxt2htm::Contracts::quick_enforce>(
+            ast, ::pltxt2htm::container::U8StringView{continuation});
+        for (auto const character : continuation) {
+            ::pltxt2htm::details::append_text_code_unit<::pltxt2htm::Contracts::quick_enforce>(expected, character);
+        }
+        pltxt2htm_test_assert_true(ast == expected);
+        pltxt2htm_test_assert_true(ast.size() == 2);
+        pltxt2htm_test_assert_true(ast.template index<::pltxt2htm::Contracts::quick_enforce>(0).as_text().size() ==
+                                   ::pltxt2htm::Text<::pltxt2htm::Contracts::quick_enforce>::capacity());
+        pltxt2htm_test_assert_true(ast.template index<::pltxt2htm::Contracts::quick_enforce>(1).as_text().size() == 9);
+    }
+    {
+        for (auto const size : ::fast_io::array<::std::size_t, 6>{0, 1, 63, 64, 65, 129}) {
+            ::pltxt2htm::container::U8String input{};
+            for (::std::size_t index{}; index < size; ++index) {
+                input.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'a');
+            }
+            auto const ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(
+                ::pltxt2htm::container::U8StringView{input});
+            auto const inline_ast = ::pltxt2htm::inline_parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(
+                ::pltxt2htm::container::U8StringView{input});
+            auto const expected_nodes =
+                size / ::pltxt2htm::Text<::pltxt2htm::Contracts::quick_enforce>::capacity() +
+                static_cast<::std::size_t>(
+                    size % ::pltxt2htm::Text<::pltxt2htm::Contracts::quick_enforce>::capacity() != 0);
+            pltxt2htm_test_assert_true(ast.size() == expected_nodes);
+            pltxt2htm_test_assert_true(inline_ast == ast);
+        }
+    }
+    {
+        constexpr auto syntax_starters = ::fast_io::array{u8'&', u8'\'', u8'"', u8'>', u8'\\', u8'{', u8'*',
+                                                          u8'_', u8'~',  u8'`', u8'$', u8'[',  u8'!', u8'<'};
+        for (auto const starter : syntax_starters) {
+            ::pltxt2htm::container::U8String input{u8"abc"};
+            input.push_back<::pltxt2htm::Contracts::quick_enforce>(starter);
+            pltxt2htm_test_assert_true(
+                ::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(
+                    ::pltxt2htm::container::U8StringView{input}) == 3);
+        }
+    }
     {
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(u8"A");
         pltxt2htm_test_assert_true(decoded.valid);
