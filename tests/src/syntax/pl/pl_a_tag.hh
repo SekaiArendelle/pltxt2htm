@@ -2,8 +2,8 @@
 
 #include "doctest_config.hh"
 
-TEST_CASE("pl_a_tag") {
-    {
+TEST_SUITE("pl_a_tag") {
+    TEST_CASE("<a>text</a>") {
         auto const& pltext = u8"<a>text</a>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<span style=\"color:#0000AA;\">text</span>";
@@ -13,7 +13,7 @@ TEST_CASE("pl_a_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<A >text") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8R"(
 <A      >text
@@ -23,86 +23,86 @@ TEST_CASE("pl_a_tag") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<A >text</a >") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<A      >text</a   >");
         auto const& answer = u8"<span style=\"color:#0000AA;\">text</span>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<a>text</a><color=red>text</color>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a>text</a><color=red>text</color>");
         auto const& answer = u8"<span style=\"color:#0000AA;\">text</span><span style=\"color:red;\">text</span>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<A><a>text</a></A>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<A><a>text</a></A>");
         auto const& answer = u8"<span style=\"color:#0000AA;\">text</span>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<A><color=red>text</color></A>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<A><color=red>text</color></A>");
         auto const& answer = u8"<span style=\"color:red;\">text</span>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<color=red><a>text</a></color>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<color=red><a>text</a></color>");
         auto const& answer = u8"<span style=\"color:#0000AA;\">text</span>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<color=#0000AA>t<a>ex</a>t</color>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<color=#0000AA>t<a>ex</a>t</color>");
         auto const& answer = u8"<span style=\"color:#0000AA;\">text</span>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<a>t<color=#0000AA>ex</color>t</a>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a>t<color=#0000AA>ex</color>t</a>");
         auto const& answer = u8"<span style=\"color:#0000AA;\">text</span>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<a>t<color=red>ex</color>t</a>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a>t<color=red>ex</color>t</a>");
         auto const& answer = u8"<span style=\"color:#0000AA;\">t<span style=\"color:red;\">ex</span>t</span>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<A>t<a>ex</a>t</A>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<A>t<a>ex</a>t</A>");
         auto const& answer = u8"<span style=\"color:#0000AA;\">text</span>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("test invalid tag") {
         // test invalid tag
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<a  $");
         auto const& answer = u8"test&lt;a&nbsp;&nbsp;$";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("test<a>text") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<a>text");
         auto const& answer = u8"test<span style=\"color:#0000AA;\">text</span>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("t<a></a>t") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<a></a>t");
         auto const& answer = u8"tt";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("t<a>es</color>t") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<a>es</color>t");
         auto const& answer = u8"t<span style=\"color:#0000AA;\">es</span>t";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<a><i>test</i></a>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<a><i>test</i></a>");
         auto const& answer = u8"<span style=\"color:#0000AA;\"><em>test</em></span>";
         CHECK(html == answer);

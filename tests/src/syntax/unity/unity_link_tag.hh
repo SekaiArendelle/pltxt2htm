@@ -2,20 +2,20 @@
 
 #include "doctest_config.hh"
 
-TEST_CASE("unity_link_tag") {
-    {
+TEST_SUITE("unity_link_tag") {
+    TEST_CASE("<link=/'https://example.com/discussion/'>physicslab</lin...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"https://example.com/discussion\">physicslab</link>");
         auto const& answer = u8"<a href=\"https://example.com/discussion\">physicslab</a>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<lInK=/'https://another-example.org/path/'>physicslab</L...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<lInK=\"https://another-example.org/path\">physicslab</LINK>");
         auto const& answer = u8"<a href=\"https://another-example.org/path\">physicslab</a>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<LINK='https://site.com/item' >te") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8R"(
 <LINK="https://site.com/item"      >te
@@ -25,7 +25,7 @@ TEST_CASE("unity_link_tag") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<Link=/'https://main.com/'><link=/'https://nested.com/'>...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<Link=\"https://main.com\"><link=\"https://nested.com\">physicslab</link></Link>");
         // The rejected nested tag becomes literal text; auto-link is suppressed because the
@@ -35,28 +35,28 @@ TEST_CASE("unity_link_tag") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("A bare URL in a link tag's text is not auto-linked (no n...") {
         // A bare URL in a link tag's text is not auto-linked (no nested <a> inside <a>).
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"https://a.com\">visit https://b.com here</link>");
         auto const& answer = u8"<a href=\"https://a.com\">visit&nbsp;https://b.com&nbsp;here</a>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("Same suppression applies inside pl_external.") {
         // Same suppression applies inside pl_external.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=https://a.com>see https://b.com</external>");
         auto const& answer = u8"<a href=\"https://a.com\">see&nbsp;https://b.com</a>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("Control: outside any URL-link frame auto-link still work...") {
         // Control: outside any URL-link frame auto-link still works.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"x https://a.com y");
         auto const& answer = u8"x&nbsp;<a href=\"https://a.com\">https://a.com</a>&nbsp;y";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("ab<Link=/'https://first.com/'>te<link=/'https://second.c...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"ab<Link=\"https://first.com\">te<link=\"https://second.com\">physicslab</link>st</Link>cd");
         auto const& answer =
@@ -65,26 +65,26 @@ TEST_CASE("unity_link_tag") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("test<lInK=/'https://example.com/'>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<lInK=\"https://example.com\">");
         auto const& answer = u8"test";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("te<lInK=/'https://example.com/'></link>st") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"te<lInK=\"https://example.com\"></link>st");
         auto const& answer = u8"test";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("test invalid tag") {
         // test invalid tag
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<link=");
         auto const& answer = u8"test&lt;link=";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("unquoted value is not a Unity TextMeshPro link tag; with...") {
         // unquoted value is not a Unity TextMeshPro link tag; with the '=' auto-link guard
         // removed, the URL inside the rejected tag is now auto-linked
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=https://example.com>text</link>");
@@ -92,7 +92,7 @@ TEST_CASE("unity_link_tag") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<link=/'https://example.com/'>text<link=/'https://anothe...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<link=\"https://example.com\">text<link=\"https://another-example.com\">text</link></link>");
         auto const& answer =
@@ -101,7 +101,7 @@ TEST_CASE("unity_link_tag") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<link=/'https://example.com/'>physics<link=/'https://ano...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<link=\"https://example.com\">physics<link=\"https://another-site.org\">L</link>ab</link>");
         auto const& answer =
@@ -110,31 +110,31 @@ TEST_CASE("unity_link_tag") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<link=/'https://example.com/'>physicslab") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"https://example.com\">physicslab");
         auto const& answer = u8"<a href=\"https://example.com\">physicslab</a>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("t<link=/'https://example.com/'></link>t") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<link=\"https://example.com\"></link>t");
         auto const& answer = u8"tt";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<link=/'/'>t") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"\">t");
         auto const& answer = u8"&lt;link=&quot;&quot;&gt;t";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<link=/'https://example.com/'></link") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"https://example.com\"></link");
         auto const& answer = u8"<a href=\"https://example.com\">&lt;/link</a>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<link=/'https://main.com/'><i><link=/'https://nested.com...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<link=\"https://main.com\"><i><link=\"https://nested.com\">c</link></i></link>");
         auto const& answer =
@@ -142,13 +142,13 @@ TEST_CASE("unity_link_tag") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<link=/'javascript:alert(1)/'>x</link>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"javascript:alert(1)\">x</link>");
         auto const& answer = u8"&lt;link=&quot;javascript:alert(1)&quot;&gt;x&lt;/link&gt;";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("The opening tag is recognized but its URL fails validati...") {
         // The opening tag is recognized but its URL fails validation, so the whole span
         // becomes literal text (no auto-link inside).
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"https://a.com\"onclick=\"alert(1)\">x</link>");
@@ -156,21 +156,21 @@ TEST_CASE("unity_link_tag") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<link=/'https://main.com/'><i><experiment=a>c</experimen...") {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<link=\"https://main.com\"><i><experiment=a>c</experiment></i></link>");
         auto const& answer = u8"<a href=\"https://main.com\"><em>&lt;experiment=a&gt;c&lt;/experiment&gt;</em></a>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<link=/'https://main.com/'><i><discussion=a>c</discussio...") {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<link=\"https://main.com\"><i><discussion=a>c</discussion></i></link>");
         auto const& answer = u8"<a href=\"https://main.com\"><em>&lt;discussion=a&gt;c&lt;/discussion&gt;</em></a>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("Same as above: rejected at the root; so the URL is auto-...") {
         // Same as above: rejected at the root, so the URL is auto-linked.
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<link=\"https://main.com\" onmouseover=\"alert('XSS')\">content</link>");
@@ -181,19 +181,19 @@ TEST_CASE("unity_link_tag") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<link=/'javascript:alert('XSS')/'>clickme</link>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"javascript:alert('XSS')\">clickme</link>");
         auto const& answer = u8"&lt;link=&quot;javascript:alert(&apos;XSS&apos;)&quot;&gt;clickme&lt;/link&gt;";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<link=/'example.com/'>text</link>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"example.com\">text</link>");
         auto const& answer = u8"<a href=\"example.com\">text</a>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("ab<link=/'https://example.com/'>example</link>cd") {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<link=\"https://example.com\">example</link>cd");
         auto const& answer = u8"ab<link=\"https://example.com\">example</link>cd";
         CHECK(html == answer);
@@ -201,42 +201,42 @@ TEST_CASE("unity_link_tag") {
 
     // --- rejected <link="..."> tags (recognized structure, invalid URL) become one literal span ---
 
-    {
+    TEST_CASE("--- rejected <link='...'> tags (recognized structure; in...") {
         // a '<' inside the rejected value no longer dispatches as a real tag
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"a<b\">x</link>");
         auto const& answer = u8"&lt;link=&quot;a&lt;b&quot;&gt;x&lt;/link&gt;";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("'&amp;' inside the rejected span stays an entity (no dou...") {
         // '&amp;' inside the rejected span stays an entity (no double escaping)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"javascript:alert(&amp;x)\">x</link>");
         auto const& answer = u8"&lt;link=&quot;javascript:alert(&amp;x)&quot;&gt;x&lt;/link&gt;";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("macros inside the rejected span are not expanded") {
         // macros inside the rejected span are not expanded
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"javascript:alert({Project})\">x</link>");
         auto const& answer = u8"&lt;link=&quot;javascript:alert({Project})&quot;&gt;x&lt;/link&gt;";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("backslash escapes are still processed inside the rejecte...") {
         // backslash escapes are still processed inside the rejected span
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"javascript:\\*\">x</link>");
         auto const& answer = u8"&lt;link=&quot;javascript:*&quot;&gt;x&lt;/link&gt;";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("markdown link syntax inside the rejected span is not int...") {
         // markdown link syntax inside the rejected span is not interpreted
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"javascript:[a](https://x.com)\">x</link>");
         auto const& answer = u8"&lt;link=&quot;javascript:[a](https://x.com)&quot;&gt;x&lt;/link&gt;";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("the PLUnity backend escapes the rejected span's angle br...") {
         // the PLUnity backend escapes the rejected span's angle brackets as full-width chars
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<link=\"javascript:x\">x</link>");
         auto const& answer =
@@ -245,7 +245,7 @@ TEST_CASE("unity_link_tag") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("non-ASCII (CJK) in the link path is accepted and percent...") {
         // non-ASCII (CJK) in the link path is accepted and percent-encoded
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<link=\"https://x.com/中文\">x</link>");
         auto const& answer = u8"<a href=\"https://x.com/%E4%B8%AD%E6%96%87\">x</a>";

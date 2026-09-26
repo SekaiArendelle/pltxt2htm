@@ -2,8 +2,8 @@
 
 #include "doctest_config.hh"
 
-TEST_CASE("html_img_tag") {
-    {
+TEST_SUITE("html_img_tag") {
+    TEST_CASE("<img src=/'https://example.com/image.png/' alt=/'descrip...") {
         auto const& pltext = u8"<img src=\"https://example.com/image.png\" alt=\"description\">";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"description\">";
@@ -15,7 +15,7 @@ TEST_CASE("html_img_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<img alt=/'description/' src=/'https://example.com/image...") {
         auto const& pltext = u8"<img alt=\"description\" src=\"https://example.com/image.png\">";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"description\">";
@@ -27,7 +27,7 @@ TEST_CASE("html_img_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<img src=/'https://example.com/image.png/' alt=/'descrip... (3)") {
         auto const& pltext = u8"<img src=\"https://example.com/image.png\" alt=\"description\"/>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"description\">";
@@ -39,21 +39,21 @@ TEST_CASE("html_img_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<img src=/'https://example.com/image.png/' alt=/'alt&amp...") {
         auto const& pltext = u8"<img src=\"https://example.com/image.png\" alt=\"alt&amp;text\">";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"alt&amp;text\">";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<img src=/'https://example.com/?a=1&amp;b=2/' alt=/'&quo...") {
         auto const& pltext = u8"<img src=\"https://example.com/?a=1&amp;b=2\" alt=\"&quot;&bogus;&copy;\">";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<img src=\"https://example.com/?a=1&amp;b=2\" alt=\"&quot;&amp;bogus;©\">";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("前<img src=/'a.jpg/' alt=/'中间/'>后") {
         auto const& pltext = u8"前<img src=\"a.jpg\" alt=\"中间\">后";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"前<img src=\"a.jpg\" alt=\"中间\">后";
@@ -64,28 +64,28 @@ TEST_CASE("html_img_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<img>") {
         auto const& pltext = u8"<img>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"&lt;img&gt;";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<img src=/'a.jpg/'>") {
         auto const& pltext = u8"<img src=\"a.jpg\">";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"&lt;img&nbsp;src=&quot;a.jpg&quot;&gt;";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<img src=/'https://example.com/image.png/' alt=/'descrip... (9)") {
         auto html =
             ::pltxt2htm_test::pltxt2common_htmld(u8"<img src=\"https://example.com/image.png\" alt=\"description\">");
         auto const& answer = u8"";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<img src=/'https://example.com/image.png/' alt=/'descrip... (10)") {
         auto const& pltext = u8"<img src=\"https://example.com/image.png\" alt=\"description\" class=\"cls\"/>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer =

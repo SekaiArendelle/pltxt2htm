@@ -2,44 +2,44 @@
 
 #include "doctest_config.hh"
 
-TEST_CASE("md_thematic_break") {
-    {
+TEST_SUITE("md_thematic_break") {
+    TEST_CASE("---") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n---");
         auto const& answer = u8"<br><hr>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("--- t") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n--- \nt");
         auto const& answer = u8"<br><hr>t";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("--- <Br />t") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n--- <Br />t");
         auto const& answer = u8"<br><hr>t";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<Br />---") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<Br />---");
         auto const& answer = u8"<br><hr>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<Br />--- t") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<Br />--- \nt");
         auto const& answer = u8"<br><hr>t";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<Br />--- <Br />t") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<Br />--- <Br />t");
         auto const& answer = u8"<br><hr>t";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("--- (7)") {
         auto const& pltext = u8"---";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<hr>";
@@ -49,139 +49,139 @@ TEST_CASE("md_thematic_break") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("--- t (8)") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"--- \nt");
         auto const& answer = u8"<hr>t";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("--- <Br />t (9)") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"--- <Br />t");
         auto const& answer = u8"<hr>t";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("_ _ _") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"_ _  _");
         auto const& answer = u8"<hr>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("** * ***") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8" ** * ***");
         auto const& answer = u8"<hr>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("# test ---") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"# test\n ---");
         auto const& answer = u8"<h1>test</h1><hr>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("# test<br> ---") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"# test<br> ---");
         auto const& answer = u8"<h1>test</h1><hr>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("# test --- (14)") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n# test\n ---");
         auto const& answer = u8"<br><h1>test</h1><hr>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<br># test ---") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<br># test\n ---");
         auto const& answer = u8"<br><h1>test</h1><hr>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("--- # test ---") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"---\n# test\n ---");
         auto const& answer = u8"<hr><h1>test</h1><hr>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("--- --- ---") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"---\n---\n ---");
         auto const& answer = u8"<hr><hr><hr>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<br> --- # test") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<br> ---\n # test");
         auto const& answer = u8"<br><hr><h1>test</h1>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("--- ---") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n---\n---");
         auto const& answer = u8"<br><hr><hr>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("--- <Br /> # test") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n --- <Br /> # test");
         auto const& answer = u8"<br><hr><h1>test</h1>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("--- <Br /> # test test") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n --- <Br /> # test\ntest");
         auto const& answer = u8"<br><hr><h1>test</h1>test";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("--- <Br /># test") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n --- <Br /># \ntest");
         auto const& answer = u8"<br><hr><h1></h1>test";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("--- <Br /># # test") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n --- <Br /># \n# \ntest");
         auto const& answer = u8"<br><hr><h1></h1><h1></h1>test";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<br> --- <Br /># test") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<br> --- <Br /># \ntest");
         auto const& answer = u8"<br><hr><h1></h1>test";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<br> --- <Br /># # test") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<br> --- <Br /># \n# \ntest");
         auto const& answer = u8"<br><hr><h1></h1><h1></h1>test";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("# t # t") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n# t\n# t");
         auto const& answer = u8"<br><h1>t</h1><h1>t</h1>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<br># t # t") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<br># t\n# t");
         auto const& answer = u8"<br><h1>t</h1><h1>t</h1>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("# t # t # t") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n# t\n# t\n# t");
         auto const& answer = u8"<br><h1>t</h1><h1>t</h1><h1>t</h1>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("# # # # # #") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n#  #\n# #\n # #");
         auto const& answer = u8"<br><h1>#</h1><h1>#</h1><h1>#</h1>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("- - - text") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\n-\t-\t-\ntext");
         auto const& answer = u8"<br><hr>text";
         CHECK(html == answer);
@@ -189,47 +189,47 @@ TEST_CASE("md_thematic_break") {
 
     // negative cases: NOT thematic breaks
 
-    {
+    TEST_CASE("negative cases: NOT thematic breaks") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8" - ");
         auto const& answer = u8"<ul><li></li></ul>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("--") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"--");
         auto const& answer = u8"--";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("-a-") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"-a-");
         auto const& answer = u8"-a-";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("case 34") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"*");
         auto const& answer = u8"*";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("case 35") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8" _ ");
         auto const& answer = u8"&nbsp;_";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("- -") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8" - -");
         auto const& answer = u8"<ul><li>-</li></ul>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("---a") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"---a");
         auto const& answer = u8"---a";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("a---") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"a---");
         auto const& answer = u8"a---";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("***a") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"***a");
         auto const& answer = u8"***a";
         CHECK(html == answer);

@@ -2,8 +2,8 @@
 
 #include "doctest_config.hh"
 
-TEST_CASE("html_h6_tag") {
-    {
+TEST_SUITE("html_h6_tag") {
+    TEST_CASE("<h6>text</h6>") {
         auto const& pltext = u8"<h6>text</h6>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<h6>text</h6>";
@@ -13,7 +13,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<H6 >text</H6 >") {
         auto const& pltext = u8"<H6    >text</H6  >";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<h6>text</h6>";
@@ -23,7 +23,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<h6><color=red>text</color></h6>") {
         auto const& pltext = u8"<h6><color=red>text</color></h6>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<h6><span style=\"color:red;\">text</span></h6>";
@@ -33,7 +33,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<h6><color=red>text</h6></color>") {
         auto const& pltext = u8"<h6><color=red>text</h6></color>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<h6><span style=\"color:red;\">text&lt;/h6&gt;</span></h6>";
@@ -44,7 +44,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<h6>text<h6>text</h6></h6>") {
         auto const& pltext = u8"<h6>text<h6>text</h6></h6>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<h6>text&lt;h6&gt;text</h6>&lt;/h6&gt;";
@@ -56,7 +56,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<h6>") {
         auto const& pltext = u8"<h6>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<h6></h6>";
@@ -66,7 +66,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<h6></h6") {
         auto const& pltext = u8"<h6></h6";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<h6>&lt;/h6</h6>";
@@ -76,7 +76,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("# <h6>text") {
         auto const& pltext = u8"# <h6>text";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<h1>&lt;h6&gt;text</h1>";
@@ -87,7 +87,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("t<h6></h6>t") {
         auto const& pltext = u8"t<h6></h6>t";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"t&lt;h6&gt;&lt;/h6&gt;t";
@@ -98,7 +98,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("t<h6></h6") {
         auto const& pltext = u8"t<h6></h6";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"t&lt;h6&gt;&lt;/h6";
@@ -109,7 +109,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<h6>text</h5>text</h6></h6>") {
         auto const& pltext = u8"<h6>text</h5>text</h6></h6>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<h6>text&lt;/h5&gt;text</h6>&lt;/h6&gt;";
@@ -121,7 +121,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("text <h6>text</h6>") {
         auto const& pltext = u8"text\n<h6>text</h6>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"text<br><h6>text</h6>";
@@ -131,7 +131,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("text<br><h6>text</h6>") {
         auto const& pltext = u8"text<br><h6>text</h6>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"text<br><h6>text</h6>";
@@ -141,7 +141,7 @@ TEST_CASE("html_h6_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("text<br><h6>text</h6> (14)") {
         auto const& pltext = u8"text<br><h6>text</h6>";
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
         auto const& answer = u8"text<br><h6>text</h6>";

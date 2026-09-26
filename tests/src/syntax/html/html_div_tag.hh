@@ -2,9 +2,9 @@
 
 #include "doctest_config.hh"
 
-TEST_CASE("html_div_tag") {
+TEST_SUITE("html_div_tag") {
     // web backend renders <div style="margin-left:..."> as a block-level div with CSS margins
-    {
+    TEST_CASE("web backend renders <div style='margin-left:...'> as a b...") {
         auto const& pltext = u8"<div style=\"margin-left:2em\">text</div>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<div style=\"margin-left:2em;\">text</div>";
@@ -14,7 +14,7 @@ TEST_CASE("html_div_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<div style=/'margin-right:1em/'>text</div>") {
         auto const& pltext = u8"<div style=\"margin-right:1em\">text</div>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<div style=\"margin-right:1em;\">text</div>";
@@ -24,7 +24,7 @@ TEST_CASE("html_div_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<div style=/'margin-left:2em;margin-right:3em/'>text</di...") {
         auto const& pltext = u8"<div style=\"margin-left:2em;margin-right:3em\">text</div>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<div style=\"margin-left:2em;margin-right:3em;\">text</div>";
@@ -35,7 +35,7 @@ TEST_CASE("html_div_tag") {
     }
 
     // px is emitted explicitly with a px suffix in the web backend
-    {
+    TEST_CASE("px is emitted explicitly with a px suffix in the web bac...") {
         auto const& pltext = u8"<div style=\"margin-left:10px\">text</div>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<div style=\"margin-left:10px;\">text</div>";
@@ -46,7 +46,7 @@ TEST_CASE("html_div_tag") {
     }
 
     // percent unit is preserved
-    {
+    TEST_CASE("percent unit is preserved") {
         auto const& pltext = u8"<div style=\"margin-left:5%\">text</div>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<div style=\"margin-left:5%;\">text</div>";
@@ -57,7 +57,7 @@ TEST_CASE("html_div_tag") {
     }
 
     // an empty div is kept, not erased by the optimizer
-    {
+    TEST_CASE("an empty div is kept; not erased by the optimizer") {
         auto const& pltext = u8"<div style=\"margin-left:2em\"></div>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<div style=\"margin-left:2em;\"></div>";
@@ -68,7 +68,7 @@ TEST_CASE("html_div_tag") {
     }
 
     // an unclosed div still parses
-    {
+    TEST_CASE("an unclosed div still parses") {
         auto const& pltext = u8"<div style=\"margin-left:2em\">text";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<div style=\"margin-left:2em;\">text</div>";
@@ -79,21 +79,21 @@ TEST_CASE("html_div_tag") {
     }
 
     // a newline inside a div still renders as <br>
-    {
+    TEST_CASE("a newline inside a div still renders as <br>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:2em\">line1\nline2</div>");
         auto const& answer = u8"<div style=\"margin-left:2em;\">line1<br>line2</div>";
         CHECK(html == answer);
     }
 
     // text after the closing </div> stays on its own content line
-    {
+    TEST_CASE("text after the closing </div> stays on its own content l...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:2em\">a</div>\nb");
         auto const& answer = u8"<div style=\"margin-left:2em;\">a</div><br>b";
         CHECK(html == answer);
     }
 
     // text before and after a block-level div
-    {
+    TEST_CASE("text before and after a block-level div") {
         auto const& pltext = u8"a\n<div style=\"margin-left:2em\">b</div>\nc";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"a<br><div style=\"margin-left:2em;\">b</div><br>c";
@@ -101,56 +101,56 @@ TEST_CASE("html_div_tag") {
     }
 
     // mid-line <div> sequences are literal text (block-level only)
-    {
+    TEST_CASE("mid-line <div> sequences are literal text (block-level o...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<div style=\"margin-left:2em\">x</div>t");
         auto const& answer = u8"t&lt;div&nbsp;style=&quot;margin-left:2em&quot;&gt;x&lt;/div&gt;t";
         CHECK(html == answer);
     }
 
     // non-numeric margin value renders as literal text
-    {
+    TEST_CASE("non-numeric margin value renders as literal text") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:abc\">x</div>");
         auto const& answer = u8"&lt;div&nbsp;style=&quot;margin-left:abc&quot;&gt;x&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // an unknown style declaration (e.g. color) makes the whole tag literal text
-    {
+    TEST_CASE("an unknown style declaration (e.g. color) makes the whol...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"color:red\">x</div>");
         auto const& answer = u8"&lt;div&nbsp;style=&quot;color:red&quot;&gt;x&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // a style mix with a non-margin declaration is rejected entirely
-    {
+    TEST_CASE("a style mix with a non-margin declaration is rejected en...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:2em;color:red\">x</div>");
         auto const& answer = u8"&lt;div&nbsp;style=&quot;margin-left:2em;color:red&quot;&gt;x&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // a div without the style attribute is literal text (not parsed as a margin block)
-    {
+    TEST_CASE("a div without the style attribute is literal text (not p...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div>plain</div>");
         auto const& answer = u8"&lt;div&gt;plain&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // a script tag is not an allowed attribute and renders as literal text (XSS guard)
-    {
+    TEST_CASE("a script tag is not an allowed attribute and renders as...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div onclick=\"alert(1)\">x</div>");
         auto const& answer = u8"&lt;div&nbsp;onclick=&quot;alert(1)&quot;&gt;x&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // malformed quote (unterminated style value) renders as literal text
-    {
+    TEST_CASE("malformed quote (unterminated style value) renders as li...") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:2em>x</div>");
         auto const& answer = u8"&lt;div&nbsp;style=&quot;margin-left:2em&gt;x&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // a missing ':' separator renders as literal text
-    {
+    TEST_CASE("a missing ':' separator renders as literal text") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left 2em\">x</div>");
         auto const& answer = u8"&lt;div&nbsp;style=&quot;margin-left&nbsp;2em&quot;&gt;x&lt;/div&gt;";
         CHECK(html == answer);
@@ -159,7 +159,7 @@ TEST_CASE("html_div_tag") {
     // plunity backend maps the div back to a TMP margin tag (see the blocks above)
 
     // nested divs are handled and map to nested margin tags
-    {
+    TEST_CASE("nested divs are handled and map to nested margin tags") {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(
             u8"<div style=\"margin-left:2em\"><div style=\"margin-right:1em\">x</div></div>");
         auto const& answer = u8"<margin left=2em><margin right=1em>x</margin>\n</margin>\n";
@@ -167,7 +167,7 @@ TEST_CASE("html_div_tag") {
     }
 
     // the title backend (pltxt2common_html) renders the block-level div literally
-    {
+    TEST_CASE("the title backend (pltxt2common_html) renders the block-...") {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<div style=\"margin-left:2em\">text</div>");
         auto const& answer = u8"&lt;div&nbsp;style=&quot;margin-left:2em&quot;&gt;text&lt;/div&gt;";
         CHECK(html == answer);
@@ -181,14 +181,14 @@ TEST_CASE("html_div_tag") {
     //     second pass: x<br>&lt;div&nbsp;style=&quot;margin-left:2px;margin-right:2px;&quot;&gt;&lt;/div&gt;
     // The roundtrip is therefore not idempotent. The test below asserts the idempotency the fuzzer checks and
     // currently reproduces the crash; it should pass once the HTML parser learns <div>.
-    {
+    TEST_CASE("currently reproduces the crash; it should pass once the...") {
         auto const& pltext = u8"x\n<MARgin=2>";
         auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
         auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::mnp::os_c_str(once));
         CHECK(twice == once);
     }
     // the exact fuzzer input (span-wrapped margin block), without the libFuzzer trailing-junk bytes
-    {
+    TEST_CASE("the exact fuzzer input (span-wrapped margin block); with...") {
         auto const& pltext = u8",><sIzE=4>[8t<sIzE\n<MARgin=2>";
         auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
         auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::mnp::os_c_str(once));
@@ -197,46 +197,46 @@ TEST_CASE("html_div_tag") {
 
     // the experimental HTML parser (parse_pltxt_html) understands <div style="margin-..."> too,
     // matching the main parser's behaviour (block-level only, margin-left/right only)
-    {
+    TEST_CASE("matching the main parser's behaviour (block-level only...") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<div style=\"margin-left:2em\">text</div>");
         auto const& answer = u8"<div style=\"margin-left:2em;\">text</div>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<div style=/'margin-left:2em;margin-right:3em/'>text</di... (24)") {
         auto html =
             ::pltxt2htm_test::pltxt4htmlunittest(u8"<div style=\"margin-left:2em;margin-right:3em\">text</div>");
         auto const& answer = u8"<div style=\"margin-left:2em;margin-right:3em;\">text</div>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<div style=/'margin-left:2em/'>a</div> b") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<div style=\"margin-left:2em\">a</div>\nb");
         auto const& answer = u8"<div style=\"margin-left:2em;\">a</div><br>b";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("a <div style=/'margin-left:2em/'>b</div> c") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"a\n<div style=\"margin-left:2em\">b</div>\nc");
         auto const& answer = u8"a<br><div style=\"margin-left:2em;\">b</div><br>c";
         CHECK(html == answer);
     }
 
     // mid-line and unknown-style <div> stay literal text in the experimental parser
-    {
+    TEST_CASE("mid-line and unknown-style <div> stay literal text in th...") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"t<div style=\"margin-left:2em\">x</div>t");
         auto const& answer = u8"t&lt;div&nbsp;style=&quot;margin-left:2em&quot;&gt;x&lt;/div&gt;t";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<div style=/'color:red/'>x</div>") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<div style=\"color:red\">x</div>");
         auto const& answer = u8"&lt;div&nbsp;style=&quot;color:red&quot;&gt;x&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // a div nested inside a span (emitted by the roundtrip backend for an open margin scope)
-    {
+    TEST_CASE("a div nested inside a span (emitted by the roundtrip bac...") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(
             u8"<span style=\"font-size:2px;\">a<br><div style=\"margin-left:2px;\"></div></span>");
         auto const& answer = u8"<span style=\"font-size:2px;\">a<br><div style=\"margin-left:2px;\"></div></span>";
@@ -244,7 +244,7 @@ TEST_CASE("html_div_tag") {
     }
 
     // nested divs map to nested margin scopes in the experimental parser
-    {
+    TEST_CASE("nested divs map to nested margin scopes in the experimen...") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(
             u8"<div style=\"margin-left:2em\"><div style=\"margin-right:1em\">x</div></div>");
         auto const& answer = u8"<div style=\"margin-left:2em;\"><div style=\"margin-right:1em;\">x</div></div>";

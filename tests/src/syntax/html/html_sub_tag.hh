@@ -2,20 +2,20 @@
 
 #include "doctest_config.hh"
 
-TEST_CASE("html_sub_tag") {
-    {
+TEST_SUITE("html_sub_tag") {
+    TEST_CASE("<sub>text</sub>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub>text</sub>");
         auto const& answer = u8"<sub>text</sub>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<SUB >text</SUB >") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<SUB    >text</SUB  >");
         auto const& answer = u8"<sub>text</sub>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("H<sub>2</sub>O") {
         auto const& pltext = u8"H<sub>2</sub>O";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"H<sub>2</sub>O";
@@ -25,70 +25,70 @@ TEST_CASE("html_sub_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("<sub><color=red>text</color></sub>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub><color=red>text</color></sub>");
         auto const& answer = u8"<sub><span style=\"color:red;\">text</span></sub>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<sub><color=red>text</sub></color>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub><color=red>text</sub></color>");
         auto const& answer = u8"<sub><span style=\"color:red;\">text&lt;/sub&gt;</span></sub>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("nested <sub> must NOT be flattened: the inner text shift...") {
         // nested <sub> must NOT be flattened: the inner text shifts the baseline further
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub>text<sub>text</sub></sub>");
         auto const& answer = u8"<sub>text<sub>text</sub></sub>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<sub>text<sub>text</sub>text</sub>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub>text<sub>text</sub>text</sub>");
         auto const& answer = u8"<sub>text<sub>text</sub>text</sub>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<b><sub>text</sub></b>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<b><sub>text</sub></b>");
         auto const& answer = u8"<strong><sub>text</sub></strong>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<sub>") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub>");
         auto const& answer = u8"";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<sub") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub");
         auto const& answer = u8"&lt;sub";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("t<sub></sub>t") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<sub></sub>t");
         auto const& answer = u8"tt";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("unclosed <sub> tag") {
         // unclosed <sub> tag
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub>text");
         auto const& answer = u8"<sub>text</sub>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<sub> can nest with other formatting tags") {
         // <sub> can nest with other formatting tags
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<u>t1<sub>t2</sub>t3</u>");
         auto const& answer = u8"<u>t1<sub>t2</sub>t3</u>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("<sub>t1<sub>t2</sub></sub>") {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<sub>t1<sub>t2</sub></sub>");
         auto const& answer = u8"<sub>t1<sub>t2</sub></sub>";
         CHECK(html == answer);

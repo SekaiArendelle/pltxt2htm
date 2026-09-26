@@ -2,14 +2,14 @@
 
 #include "doctest_config.hh"
 
-TEST_CASE("tab") {
-    {
+TEST_SUITE("tab") {
+    TEST_CASE("case 1") {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"\t");
         auto const& answer = u8"&nbsp;&nbsp;&nbsp;&nbsp;";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("case 2") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"\ta");
         auto const& answer = u8"&nbsp;&nbsp;&nbsp;&nbsp;a";
         CHECK(html == answer);
