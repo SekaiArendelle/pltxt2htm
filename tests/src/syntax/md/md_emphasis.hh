@@ -2,8 +2,8 @@
 
 #include "doctest_config.hh"
 
-TEST_CASE("md_emphasis") {
-    {
+TEST_SUITE("md_emphasis") {
+    TEST_CASE("basic-italic") {
         auto const& pltext = u8"*test*";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<em>test</em>";
@@ -13,19 +13,19 @@ TEST_CASE("md_emphasis") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("italic-surrounded") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t*e*st");
         auto const& answer = u8"t<em>e</em>st";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("bold-surrounded") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t**e**st");
         auto const& answer = u8"t<strong>e</strong>st";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("triple-asterisk") {
         // Test triple emphasis with asterisks ***text***
         auto const& pltext = u8"***test***";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
@@ -36,55 +36,55 @@ TEST_CASE("md_emphasis") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("triple-surrounded") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t***e***st");
         auto const& answer = u8"t<em><strong>e</strong></em>st";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("underscore-italic-surrounded") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t_e_st");
         auto const& answer = u8"t<em>e</em>st";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("underscore-bold-surrounded") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t__e__st");
         auto const& answer = u8"t<strong>e</strong>st";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("underscore-triple-surrounded") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t___e___st");
         auto const& answer = u8"t<em><strong>e</strong></em>st";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("mixed-delimiters-literal") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t_e*st");
         auto const& answer = u8"t_e*st";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("newline-inside-italic") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"*test\n*");
         auto const& answer = u8"*test<br>*";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("newline-inside-bold") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"**test\n**");
         auto const& answer = u8"**test<br>**";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("newline-before-thematic-break") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"te***st\n***");
         auto const& answer = u8"te***st<br><hr>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("underscore-triple") {
         // Test triple emphasis with underscores ___text___
         auto const& pltext = u8"___test___";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
@@ -95,39 +95,39 @@ TEST_CASE("md_emphasis") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    {
+    TEST_CASE("four-asterisks-literal") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t****t");
         auto answer = ::pltxt2htm::container::U8String{u8"t****t"};
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("unmatched-triple-literal") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t***t");
         auto answer = ::pltxt2htm::container::U8String{u8"t***t"};
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("five-asterisks-literal") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t*****t");
         auto answer = ::pltxt2htm::container::U8String{u8"t*****t"};
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("entity-and-tags-mixed") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"&__</_");
         auto const& answer = u8"&amp;_<em>&lt;/</em>";
         CHECK(html == answer);
     }
 
     // Redundant tag elimination: triple emphasis inside em-like parent → em part redundant
-    {
+    TEST_CASE("triple-inside-em-redundant") {
         // <em> wrapping *** → em part of triple is redundant, convert to <strong>
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<em>***text***</em>");
         auto const& answer = u8"<em><strong>text</strong></em>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("triple-inside-i-redundant") {
         // <i> wrapping *** → same as <em>, convert to <strong>
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<i>***text***</i>");
         auto const& answer = u8"<em><strong>text</strong></em>";
@@ -135,14 +135,14 @@ TEST_CASE("md_emphasis") {
     }
 
     // Redundant tag elimination: triple emphasis inside strong-like parent → strong part redundant
-    {
+    TEST_CASE("triple-inside-strong-redundant") {
         // <strong> wrapping *** → strong part of triple is redundant, convert to <em>
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<strong>***text***</strong>");
         auto const& answer = u8"<strong><em>text</em></strong>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("triple-inside-b-redundant") {
         // <b> wrapping *** → same as <strong>, convert to <em>
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<b>***text***</b>");
         auto const& answer = u8"<strong><em>text</em></strong>";
@@ -150,14 +150,14 @@ TEST_CASE("md_emphasis") {
     }
 
     // Redundant tag elimination: em/strong inside triple emphasis → child redundant
-    {
+    TEST_CASE("em-inside-triple-redundant") {
         // <em> inside *** → em redundant (triple already provides <em>)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"***<em>text</em>***");
         auto const& answer = u8"<em><strong>text</strong></em>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("strong-inside-triple-redundant") {
         // <strong> inside *** → strong redundant (triple already provides <strong>)
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"***<strong>text</strong>***");
         auto const& answer = u8"<em><strong>text</strong></em>";
@@ -165,28 +165,28 @@ TEST_CASE("md_emphasis") {
     }
 
     // Redundant tag elimination: with surrounding text content
-    {
+    TEST_CASE("triple-inside-em-with-text") {
         // <em> wrapping text***text***text → triple converted to <strong> in em context
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<em>text***text***text</em>");
         auto const& answer = u8"<em>text<strong>text</strong>text</em>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("triple-inside-strong-with-text") {
         // <strong> wrapping text***text***text → triple converted to <em> in strong context
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<strong>text***text***text</strong>");
         auto const& answer = u8"<strong>text<em>text</em>text</strong>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("em-inside-triple-with-text") {
         // *** surrounding text<em>text</em>text → inner em redundant, unwrapped
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"text***<em>text</em>***text");
         auto const& answer = u8"text<em><strong>text</strong></em>text";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("strong-inside-triple-with-text") {
         // *** surrounding text<strong>text</strong>text → inner strong redundant, unwrapped
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"text***<strong>text</strong>***text");
         auto const& answer = u8"text<em><strong>text</strong></em>text";
@@ -196,31 +196,31 @@ TEST_CASE("md_emphasis") {
     // Regression test: control chars inside ***...*** used to crash
     // Control chars 0x00-0x1F/0x7F now produce InvalidUtf8 (rendered as U+FFFD)
     // instead of being silently dropped, ensuring the sub-AST is never empty.
-    {
+    TEST_CASE("control-char-in-triple") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"***\a***");
         auto const& answer = u8"<em><strong>\uFFFD</strong></em>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("plunity-bold") {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab**test**cd");
         auto const& answer = u8"ab<b>test</b>cd";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("plunity-italic") {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab*test*cd");
         auto const& answer = u8"ab<i>test</i>cd";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("plunity-underscore-bold") {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"__bold__");
         auto const& answer = u8"<b>bold</b>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("plunity-underscore-italic") {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"_italic_");
         auto const& answer = u8"<i>italic</i>";
         CHECK(html == answer);
