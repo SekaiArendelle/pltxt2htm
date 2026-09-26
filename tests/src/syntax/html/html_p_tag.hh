@@ -3,7 +3,7 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("html_p_tag") {
-    TEST_CASE("<p>text</p>") {
+    TEST_CASE("basic-paragraph") {
         auto const& pltext = u8"<p>text</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">text</p>";
@@ -13,7 +13,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<P >text</P >") {
+    TEST_CASE("uppercase-tag-whitespace") {
         auto const& pltext = u8"<P    >text</P  >";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">text</p>";
@@ -23,7 +23,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<p><color=red>text</color></p>") {
+    TEST_CASE("nested-color-span") {
         auto const& pltext = u8"<p><color=red>text</color></p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\"><span style=\"color:red;\">text</span></p>";
@@ -33,7 +33,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<p><color=red>text</p></color>") {
+    TEST_CASE("mismatched-close-order") {
         auto const& pltext = u8"<p><color=red>text</p></color>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\"><span style=\"color:red;\">text&lt;/p&gt;</span></p>";
@@ -43,7 +43,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<p>text<p>text</p></p>") {
+    TEST_CASE("nested-paragraph-literal") {
         auto const& pltext = u8"<p>text<p>text</p></p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">text&lt;p&gt;text</p>&lt;/p&gt;";
@@ -54,7 +54,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<p>") {
+    TEST_CASE("bare-unclosed-tag") {
         auto const& pltext = u8"<p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\"></p>";
@@ -64,7 +64,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("t<p></p>t") {
+    TEST_CASE("midline-tag-stays-literal") {
         auto const& pltext = u8"t<p></p>t";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"t&lt;p&gt;&lt;/p&gt;t";
@@ -75,7 +75,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("t<p></p") {
+    TEST_CASE("unterminated-tag-literal") {
         auto const& pltext = u8"t<p></p";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"t&lt;p&gt;&lt;/p";
@@ -86,7 +86,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("text <p>text</p>") {
+    TEST_CASE("newline-before-block") {
         auto const& pltext = u8"text\n<p>text</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"text<br><p style=\"text-align:left\">text</p>";
@@ -96,7 +96,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("text<br><p>text</p>") {
+    TEST_CASE("existing-br-preserved") {
         auto const& pltext = u8"text<br><p>text</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"text<br><p style=\"text-align:left\">text</p>";
@@ -106,7 +106,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("text<br><p>text</p> (11)") {
+    TEST_CASE("html-parser-br-block") {
         auto const& pltext = u8"text<br><p>text</p>";
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
         auto const& answer = u8"text<br><p style=\"text-align:left\">text</p>";
@@ -114,7 +114,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // newline separates two block-level <p> tags
-    TEST_CASE("newline separates two block-level <p> tags") {
+    TEST_CASE("single-newline-between-blocks") {
         auto const& pltext = u8"<p>a</p>\n<p>b</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">a</p><br><p style=\"text-align:left\">b</p>";
@@ -125,7 +125,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // a blank line between two <p> tags renders as two <br>
-    TEST_CASE("a blank line between two <p> tags renders as two <br>") {
+    TEST_CASE("blank-line-between-blocks") {
         auto const& pltext = u8"<p>a</p>\n\n<p>b</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">a</p><br><br><p style=\"text-align:left\">b</p>";
@@ -136,7 +136,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // multiple blank lines render as multiple <br>
-    TEST_CASE("multiple blank lines render as multiple <br>") {
+    TEST_CASE("multiple-blank-lines-br") {
         auto const& pltext = u8"<p>a</p>\n\n\n<p>b</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">a</p><br><br><br><p style=\"text-align:left\">b</p>";
@@ -144,7 +144,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // trailing text after a closing </p> starts a new line
-    TEST_CASE("trailing text after a closing </p> starts a new line") {
+    TEST_CASE("trailing-text-newline") {
         auto const& pltext = u8"<p>a</p>text\n<p>b</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">a</p>text<br><p style=\"text-align:left\">b</p>";
@@ -155,7 +155,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // a newline inside a <p> block renders as <br>
-    TEST_CASE("a newline inside a <p> block renders as <br>") {
+    TEST_CASE("newline-inside-block") {
         auto const& pltext = u8"<p>line1\nline2</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">line1<br>line2</p>";
@@ -166,7 +166,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // a blank line inside a <p> block renders as two <br>
-    TEST_CASE("a blank line inside a <p> block renders as two <br>") {
+    TEST_CASE("blank-line-inside-block") {
         auto const& pltext = u8"<p>line1\n\nline3</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">line1<br><br>line3</p>";
@@ -177,7 +177,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // text after a newline followed by a <p> block
-    TEST_CASE("text after a newline followed by a <p> block") {
+    TEST_CASE("text-between-blocks") {
         auto const& pltext = u8"<p>a</p>\ntext\n<p>b</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">a</p><br>text<br><p style=\"text-align:left\">b</p>";
@@ -185,7 +185,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // a leading newline before a <p> block
-    TEST_CASE("a leading newline before a <p> block") {
+    TEST_CASE("leading-newline-before-block") {
         auto const& pltext = u8"\n<p>a</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<br><p style=\"text-align:left\">a</p>";
@@ -193,7 +193,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // a trailing newline after a closing </p>
-    TEST_CASE("a trailing newline after a closing </p>") {
+    TEST_CASE("trailing-newline-after-block") {
         auto const& pltext = u8"<p>a</p>\n";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">a</p><br>";
@@ -201,7 +201,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // an unclosed <p> at a line start still forms a block containing the newline
-    TEST_CASE("an unclosed <p> at a line start still forms a block cont...") {
+    TEST_CASE("unclosed-block-wraps-next") {
         auto const& pltext = u8"<p>a\n<p>b</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">a<br><p style=\"text-align:left\">b</p></p>";
@@ -211,7 +211,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<p>text</p>text") {
+    TEST_CASE("trailing-text-same-line") {
         auto const& pltext = u8"<p>text</p>text";
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">text</p>text";
@@ -221,7 +221,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<p style=/'text-align:center/'>text</p>") {
+    TEST_CASE("center-text-alignment") {
         auto const& pltext = u8"<p style=\"text-align:center\">text</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:center\">text</p>";
@@ -231,7 +231,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<p style=/'text-align:right/'>text</p>") {
+    TEST_CASE("right-text-alignment") {
         auto const& pltext = u8"<p style=\"text-align:right\">text</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:right\">text</p>";
@@ -241,7 +241,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<p style=/'text-align:justify/'>text</p>") {
+    TEST_CASE("justify-text-alignment") {
         auto const& pltext = u8"<p style=\"text-align:justify\">text</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:justify\">text</p>";
@@ -251,7 +251,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("a style with an extra CSS property is not allowed; the t...") {
+    TEST_CASE("extra-css-property-rejected") {
         // a style with an extra CSS property is not allowed; the tag is rejected
         auto const& pltext = u8"<p style=\"text-align:center;color:red\">text</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
@@ -260,7 +260,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // an extra non-style attribute is not allowed; the tag is rejected
-    TEST_CASE("an extra non-style attribute is not allowed; the tag is...") {
+    TEST_CASE("extra-attribute-rejected") {
         auto const& pltext = u8"<p id=\"x\" style=\"text-align:center\">text</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"&lt;p&nbsp;id=&quot;x&quot;&nbsp;style=&quot;text-align:center&quot;&gt;text&lt;/p&gt;";
@@ -268,7 +268,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // a non-text-align style is rejected
-    TEST_CASE("a non-text-align style is rejected") {
+    TEST_CASE("unsupported-style-rejected") {
         auto const& pltext = u8"<p style=\"color:red\">text</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"&lt;p&nbsp;style=&quot;color:red&quot;&gt;text&lt;/p&gt;";
@@ -276,7 +276,7 @@ TEST_SUITE("html_p_tag") {
     }
 
     // left is the default, so no style attribute is emitted
-    TEST_CASE("left is the default; so no style attribute is emitted") {
+    TEST_CASE("explicit-default-left-align") {
         auto const& pltext = u8"<p style=\"text-align:left\">text</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">text</p>";
@@ -286,7 +286,7 @@ TEST_SUITE("html_p_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<p style=/'text-align:center/'><b>text</b></p>") {
+    TEST_CASE("bold-inside-centered-block") {
         auto const& pltext = u8"<p style=\"text-align:center\"><b>text</b></p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:center\"><strong>text</strong></p>";

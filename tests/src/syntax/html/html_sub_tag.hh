@@ -3,19 +3,19 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("html_sub_tag") {
-    TEST_CASE("<sub>text</sub>") {
+    TEST_CASE("basic-tag-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub>text</sub>");
         auto const& answer = u8"<sub>text</sub>";
         CHECK(html == answer);
     }
 
-    TEST_CASE("<SUB >text</SUB >") {
+    TEST_CASE("uppercase-spacing-normalized") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<SUB    >text</SUB  >");
         auto const& answer = u8"<sub>text</sub>";
         CHECK(html == answer);
     }
 
-    TEST_CASE("H<sub>2</sub>O") {
+    TEST_CASE("chemical-formula-inline") {
         auto const& pltext = u8"H<sub>2</sub>O";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"H<sub>2</sub>O";
@@ -25,70 +25,70 @@ TEST_SUITE("html_sub_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<sub><color=red>text</color></sub>") {
+    TEST_CASE("properly-nested-color") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub><color=red>text</color></sub>");
         auto const& answer = u8"<sub><span style=\"color:red;\">text</span></sub>";
         CHECK(html == answer);
     }
 
-    TEST_CASE("<sub><color=red>text</sub></color>") {
+    TEST_CASE("mismatched-close-order") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub><color=red>text</sub></color>");
         auto const& answer = u8"<sub><span style=\"color:red;\">text&lt;/sub&gt;</span></sub>";
         CHECK(html == answer);
     }
 
-    TEST_CASE("nested <sub> must NOT be flattened: the inner text shift...") {
+    TEST_CASE("nested-not-flattened") {
         // nested <sub> must NOT be flattened: the inner text shifts the baseline further
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub>text<sub>text</sub></sub>");
         auto const& answer = u8"<sub>text<sub>text</sub></sub>";
         CHECK(html == answer);
     }
 
-    TEST_CASE("<sub>text<sub>text</sub>text</sub>") {
+    TEST_CASE("nested-with-trailing-text") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub>text<sub>text</sub>text</sub>");
         auto const& answer = u8"<sub>text<sub>text</sub>text</sub>";
         CHECK(html == answer);
     }
 
-    TEST_CASE("<b><sub>text</sub></b>") {
+    TEST_CASE("bold-to-strong-wrapper") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<b><sub>text</sub></b>");
         auto const& answer = u8"<strong><sub>text</sub></strong>";
         CHECK(html == answer);
     }
 
-    TEST_CASE("<sub>") {
+    TEST_CASE("bare-open-tag-empty") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub>");
         auto const& answer = u8"";
         CHECK(html == answer);
     }
 
-    TEST_CASE("<sub") {
+    TEST_CASE("truncated-tag-escaped") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub");
         auto const& answer = u8"&lt;sub";
         CHECK(html == answer);
     }
 
-    TEST_CASE("t<sub></sub>t") {
+    TEST_CASE("empty-element-removed") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<sub></sub>t");
         auto const& answer = u8"tt";
         CHECK(html == answer);
     }
 
-    TEST_CASE("unclosed <sub> tag") {
+    TEST_CASE("unclosed-auto-closed") {
         // unclosed <sub> tag
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sub>text");
         auto const& answer = u8"<sub>text</sub>";
         CHECK(html == answer);
     }
 
-    TEST_CASE("<sub> can nest with other formatting tags") {
+    TEST_CASE("nesting-with-underline") {
         // <sub> can nest with other formatting tags
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<u>t1<sub>t2</sub>t3</u>");
         auto const& answer = u8"<u>t1<sub>t2</sub>t3</u>";
         CHECK(html == answer);
     }
 
-    TEST_CASE("<sub>t1<sub>t2</sub></sub>") {
+    TEST_CASE("plunity-nested-passthrough") {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<sub>t1<sub>t2</sub></sub>");
         auto const& answer = u8"<sub>t1<sub>t2</sub></sub>";
         CHECK(html == answer);

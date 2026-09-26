@@ -9,42 +9,42 @@ TEST_SUITE("html_hr_tag") {
 文本5<hr<hr>
 )";
 
-    TEST_CASE("<br>文本1&lt;hR&nbsp;&nbsp;&nbsp;/&gt;文本2&lt;hr/&gt;文本3&lt...") {
+    TEST_CASE("newline-br-escaped-forms") {
         auto html = ::pltxt2htm_test::pltxt4unittest(text);
         auto const& answer =
             u8R"(<br>文本1&lt;hR&nbsp;&nbsp;&nbsp;/&gt;文本2&lt;hr/&gt;文本3&lt;hr&nbsp;&nbsp;&nbsp;&gt;文本4&lt;HR&nbsp;&nbsp;&nbsp;&nbsp;/<br>文本5&lt;hr&lt;hr&gt;<br>)";
         CHECK(html == answer);
     }
 
-    TEST_CASE("文本1&lt;hR&nbsp;&nbsp;&nbsp;/&gt;文本2&lt;hr/&gt;文本3&lt;hr&...") {
+    TEST_CASE("htmld-escaped-forms") {
         auto html = ::pltxt2htm_test::pltxt2common_htmld(text);
         auto const& answer =
             u8R"(文本1&lt;hR&nbsp;&nbsp;&nbsp;/&gt;文本2&lt;hr/&gt;文本3&lt;hr&nbsp;&nbsp;&nbsp;&gt;文本4&lt;HR&nbsp;&nbsp;&nbsp;&nbsp;/文本5&lt;hr&lt;hr&gt;)";
         CHECK(html == answer);
     }
 
-    TEST_CASE("<hr>") {
+    TEST_CASE("plunity-rule-conversion") {
         auto const& pltext = u8"<hr>";
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto const& plunity_richtext_answer = u8"---\n";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<hr> (4)") {
+    TEST_CASE("lone-tag-passthrough") {
         auto const& pltext = u8"<hr>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<hr>";
         CHECK(html == answer);
     }
 
-    TEST_CASE("<hr><h1>text</h1>") {
+    TEST_CASE("heading-after-rule-preserved") {
         auto const& pltext = u8"<hr><h1>text</h1>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<hr><h1>text</h1>";
         CHECK(html == answer);
     }
 
-    TEST_CASE("<p>text</p><hr><p>text</p>") {
+    TEST_CASE("rule-between-paragraphs") {
         auto const& pltext = u8"<p>text</p><hr><p>text</p>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">text</p><hr><p style=\"text-align:left\">text</p>";

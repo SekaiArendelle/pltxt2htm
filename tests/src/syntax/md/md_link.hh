@@ -3,7 +3,7 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("md_link") {
-    TEST_CASE("[text](https://example.com)") {
+    TEST_CASE("basic") {
         auto const& pltext = u8"[text](https://example.com)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"https://example.com\">text</a>";
@@ -13,7 +13,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](https://example.wtf)") {
+    TEST_CASE("unknown-tld-rejected") {
         auto const& pltext = u8"[text](https://example.wtf)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[text](https://example.wtf)";
@@ -23,7 +23,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("md_link fails (invalid URL); and with the '](' auto-link...") {
+    TEST_CASE("userinfo-url-autolinked") {
         // md_link fails (invalid URL), and with the '](' auto-link guard removed the
         // URL inside the parentheses is now auto-linked
         auto const& pltext = u8"[text](https://example.com@evil.invalid/path)";
@@ -36,7 +36,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](url)") {
+    TEST_CASE("invalid-url-literal") {
         auto const& pltext = u8"[text](url)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[text](url)";
@@ -46,7 +46,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[hello](https://example.com)") {
+    TEST_CASE("alternate-text") {
         auto const& pltext = u8"[hello](https://example.com)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"https://example.com\">hello</a>";
@@ -56,7 +56,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[link](#anchor)") {
+    TEST_CASE("anchor-rejected") {
         auto const& pltext = u8"[link](#anchor)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[link](#anchor)";
@@ -66,7 +66,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text with spaces](https://example.com/path)") {
+    TEST_CASE("space-in-text") {
         auto const& pltext = u8"[text with spaces](https://example.com/path)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"https://example.com/path\">text&nbsp;with&nbsp;spaces</a>";
@@ -77,7 +77,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[escaped /[brackets/]](example.com)") {
+    TEST_CASE("escaped-brackets") {
         auto const& pltext = u8"[escaped \\[brackets\\]](example.com)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"example.com\">escaped&nbsp;[brackets]</a>";
@@ -87,7 +87,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[nested [link]](url)") {
+    TEST_CASE("nested-brackets-invalid-url") {
         auto const& pltext = u8"[nested [link]](url)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[nested&nbsp;[link]](url)";
@@ -97,7 +97,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[nested [link]](example.com)") {
+    TEST_CASE("nested-brackets-rejected") {
         auto const& pltext = u8"[nested [link]](example.com)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[nested&nbsp;[link]](example.com)";
@@ -107,7 +107,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[t**ex**t](example.com)") {
+    TEST_CASE("bold-inside-text") {
         auto const& pltext = u8"[t**ex**t](example.com)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"example.com\">t<strong>ex</strong>t</a>";
@@ -117,7 +117,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("Escape HTML-sensitive characters in link text.") {
+    TEST_CASE("text-html-escaped") {
         // Escape HTML-sensitive characters in link text.
         auto const& pltext = u8"[a&\"'<>](example.com)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
@@ -129,7 +129,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](example.com)") {
+    TEST_CASE("schemeless-url") {
         auto const& pltext = u8"[text](example.com)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"example.com\">text</a>";
@@ -139,7 +139,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](url) (14)") {
+    TEST_CASE("invalid-url-literal-repeat") {
         auto const& pltext = u8"[text](url)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[text](url)";
@@ -149,7 +149,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text") {
+    TEST_CASE("unclosed-bracket") {
         auto const& pltext = u8"[text";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[text";
@@ -159,7 +159,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](url") {
+    TEST_CASE("unclosed-paren") {
         auto const& pltext = u8"[text](url";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[text](url";
@@ -169,7 +169,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[]()") {
+    TEST_CASE("empty-both") {
         auto const& pltext = u8"[]()";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[]()";
@@ -179,7 +179,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[](example.com)") {
+    TEST_CASE("empty-text") {
         auto const& pltext = u8"[](example.com)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"example.com\"></a>";
@@ -189,7 +189,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[te xt](example.com)") {
+    TEST_CASE("newline-in-text") {
         auto const& pltext = u8"[te\nxt](example.com)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[te<br>xt](example.com)";
@@ -199,14 +199,14 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[q](example.com/?a=1&b=2)") {
+    TEST_CASE("query-and-ampersand") {
         auto const& pltext = u8"[q](example.com/?a=1&b=2)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"example.com/?a=1&amp;b=2\">q</a>";
         CHECK(html == answer);
     }
 
-    TEST_CASE("[q](example.com/?a=1&amp;b=2)") {
+    TEST_CASE("entity-in-query") {
         auto const& pltext = u8"[q](example.com/?a=1&amp;b=2)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"example.com/?a=1&amp;b=2\">q</a>";
@@ -216,7 +216,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[q](example.com/?value=&quot;)") {
+    TEST_CASE("quote-entity-encoded") {
         auto const& pltext = u8"[q](example.com/?value=&quot;)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"example.com/?value=%22\">q</a>";
@@ -226,7 +226,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[q](example.com/?value=&copy;)") {
+    TEST_CASE("copy-entity-encoded") {
         auto const& pltext = u8"[q](example.com/?value=&copy;)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"example.com/?value=%C2%A9\">q</a>";
@@ -236,7 +236,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[q](example.com/?value=&apos;)") {
+    TEST_CASE("apos-entity-encoded") {
         auto const& pltext = u8"[q](example.com/?value=&apos;)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"example.com/?value=%27\">q</a>";
@@ -246,7 +246,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[q](example.com/?value=&bogus;)") {
+    TEST_CASE("unknown-entity-kept") {
         auto const& pltext = u8"[q](example.com/?value=&bogus;)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"example.com/?value=&amp;bogus;\">q</a>";
@@ -256,7 +256,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("Chinese characters in URL path are percent-encoded") {
+    TEST_CASE("cjk-path-encoded") {
         // Chinese characters in URL path are percent-encoded
         auto const& pltext = u8"[text](https://example.com/中文路径)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
@@ -268,7 +268,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](https://localhost)") {
+    TEST_CASE("localhost-rejected") {
         auto const& pltext = u8"[text](https://localhost)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[text](https://localhost)";
@@ -278,7 +278,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](https://localhost:8080)") {
+    TEST_CASE("localhost-with-port-rejected") {
         auto const& pltext = u8"[text](https://localhost:8080)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[text](https://localhost:8080)";
@@ -288,7 +288,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](https://127.0.0.1)") {
+    TEST_CASE("loopback-rejected") {
         auto const& pltext = u8"[text](https://127.0.0.1)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[text](https://127.0.0.1)";
@@ -298,7 +298,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](https://www.example.com:65535)") {
+    TEST_CASE("max-port-accepted") {
         auto const& pltext = u8"[text](https://www.example.com:65535)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"https://www.example.com:65535\">text</a>";
@@ -308,7 +308,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](https://www.example.com:65536)") {
+    TEST_CASE("port-out-of-range-rejected") {
         auto const& pltext = u8"[text](https://www.example.com:65536)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[text](https://www.example.com:65536)";
@@ -318,7 +318,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](https://-example.com/a/path)") {
+    TEST_CASE("leading-hyphen-rejected") {
         auto const& pltext = u8"[text](https://-example.com/a/path)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[text](https://-example.com/a/path)";
@@ -328,7 +328,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](https://example-.com/a/path)") {
+    TEST_CASE("trailing-hyphen-rejected") {
         auto const& pltext = u8"[text](https://example-.com/a/path)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"[text](https://example-.com/a/path)";
@@ -338,7 +338,7 @@ TEST_SUITE("md_link") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("[text](https://www.bilibili.com/video/BV1df421f7WB)") {
+    TEST_CASE("video-url") {
         auto const& pltext = u8"[text](https://www.bilibili.com/video/BV1df421f7WB)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"https://www.bilibili.com/video/BV1df421f7WB\">text</a>";

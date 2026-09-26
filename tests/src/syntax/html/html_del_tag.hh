@@ -3,7 +3,7 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("html_del_tag") {
-    TEST_CASE("<del>text</del>") {
+    TEST_CASE("basic-del-passthrough") {
         auto const& pltext = u8"<del>text</del>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<del>text</del>";
@@ -13,7 +13,7 @@ TEST_SUITE("html_del_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<DEL >text</DEL >") {
+    TEST_CASE("case-insensitive-spacing") {
         auto const& pltext = u8"<DEL    >text</DEL  >";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<del>text</del>";
@@ -23,7 +23,7 @@ TEST_SUITE("html_del_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<Del><color=red>text</color></Del>") {
+    TEST_CASE("nested-color-inside") {
         auto const& pltext = u8"<Del><color=red>text</color></Del>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<del><span style=\"color:red;\">text</span></del>";
@@ -33,7 +33,7 @@ TEST_SUITE("html_del_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<del><color=red>text</del></color>") {
+    TEST_CASE("close-order-mismatch") {
         auto const& pltext = u8"<del><color=red>text</del></color>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<del><span style=\"color:red;\">text&lt;/del&gt;</span></del>";
@@ -44,7 +44,7 @@ TEST_SUITE("html_del_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<Del>text<del>text</del></Del>") {
+    TEST_CASE("same-tag-flattened") {
         auto const& pltext = u8"<Del>text<del>text</del></Del>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<del>texttext</del>";
@@ -54,7 +54,7 @@ TEST_SUITE("html_del_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("text<del>") {
+    TEST_CASE("unclosed-empty-dropped") {
         auto const& pltext = u8"text<del>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"text";
@@ -64,7 +64,7 @@ TEST_SUITE("html_del_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("t<del></del>t") {
+    TEST_CASE("empty-element-dropped") {
         auto const& pltext = u8"t<del></del>t";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"tt";
@@ -74,7 +74,7 @@ TEST_SUITE("html_del_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("<del></del") {
+    TEST_CASE("incomplete-close-literal") {
         auto const& pltext = u8"<del></del";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<del>&lt;/del</del>";

@@ -3,7 +3,7 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("auto_link") {
-    TEST_CASE("https://example.com") {
+    TEST_CASE("basic-https") {
         auto const& pltext = u8"https://example.com";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"https://example.com\">https://example.com</a>";
@@ -12,7 +12,7 @@ TEST_SUITE("auto_link") {
         auto const& plunity_richtext_answer = u8"<external=https://example.com>https://example.com</external>";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
-    TEST_CASE("visit https://example.com now") {
+    TEST_CASE("surrounded-by-text") {
         auto const& pltext = u8"visit https://example.com now";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"visit&nbsp;<a href=\"https://example.com\">https://example.com</a>&nbsp;now";
@@ -22,7 +22,7 @@ TEST_SUITE("auto_link") {
             u8"visit\u00A0<external=https://example.com>https://example.com</external>\u00A0now";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
-    TEST_CASE("https://example.com/path?query=1&foo=bar") {
+    TEST_CASE("query-and-ampersand") {
         auto const& pltext = u8"https://example.com/path?query=1&foo=bar";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer =
@@ -30,55 +30,55 @@ TEST_SUITE("auto_link") {
             u8"href=\"https://example.com/path?query=1&amp;foo=bar\">https://example.com/path?query=1&amp;foo=bar</a>";
         CHECK(html == answer);
     }
-    TEST_CASE("https://example.com/?a=1&amp;b=2") {
+    TEST_CASE("entity-in-query") {
         auto const& pltext = u8"https://example.com/?a=1&amp;b=2";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"https://example.com/?a=1&amp;b=2\">https://example.com/?a=1&amp;b=2</a>";
         CHECK(html == answer);
     }
-    TEST_CASE("https://example.com/path#fragment") {
+    TEST_CASE("fragment") {
         auto const& pltext = u8"https://example.com/path#fragment";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"https://example.com/path#fragment\">https://example.com/path#fragment</a>";
         CHECK(html == answer);
     }
-    TEST_CASE("https://example.com:8080/path") {
+    TEST_CASE("port") {
         auto const& pltext = u8"https://example.com:8080/path";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"https://example.com:8080/path\">https://example.com:8080/path</a>";
         CHECK(html == answer);
     }
-    TEST_CASE("http://example.com") {
+    TEST_CASE("http-scheme") {
         auto const& pltext = u8"http://example.com";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"http://example.com\">http://example.com</a>";
         CHECK(html == answer);
     }
-    TEST_CASE("prefix https://example.com suffix") {
+    TEST_CASE("space-delimited") {
         auto const& pltext = u8"prefix https://example.com suffix";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"prefix&nbsp;<a href=\"https://example.com\">https://example.com</a>&nbsp;suffix";
         CHECK(html == answer);
     }
-    TEST_CASE("not-a-url") {
+    TEST_CASE("plain-text-not-linked") {
         auto const& pltext = u8"not-a-url";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"not-a-url";
         CHECK(html == answer);
     }
-    TEST_CASE("`https://example.com`") {
+    TEST_CASE("inside-code-span") {
         auto const& pltext = u8"`https://example.com`";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<code>https://example.com</code>";
         CHECK(html == answer);
     }
-    TEST_CASE("[click](https://example.com)") {
+    TEST_CASE("markdown-link-wins") {
         auto const& pltext = u8"[click](https://example.com)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"https://example.com\">click</a>";
         CHECK(html == answer);
     }
-    TEST_CASE("Chinese chars after the path are excluded from the auto-...") {
+    TEST_CASE("cjk-excluded-from-link") {
         // Chinese chars after the path are excluded from the auto-link
         auto const& pltext = u8"https://example.com/\u4E2D\u6587";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
@@ -89,7 +89,7 @@ TEST_SUITE("auto_link") {
             u8"<external=https://example.com/>https://example.com/</external>\u4E2D\u6587";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
-    TEST_CASE("Space in the URL is treated as end of the auto-link") {
+    TEST_CASE("space-ends-link") {
         // Space in the URL is treated as end of the auto-link
         auto const& pltext = u8"https://example.com/a b";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
@@ -100,61 +100,61 @@ TEST_SUITE("auto_link") {
             u8"<external=https://example.com/a>https://example.com/a</external>\u00A0b";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
-    TEST_CASE("https://localhost") {
+    TEST_CASE("localhost-rejected") {
         auto const& pltext = u8"https://localhost";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"https://localhost";
         CHECK(html == answer);
     }
-    TEST_CASE("https://localhost:8080") {
+    TEST_CASE("localhost-with-port-rejected") {
         auto const& pltext = u8"https://localhost:8080";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"https://localhost:8080";
         CHECK(html == answer);
     }
-    TEST_CASE("https://127.0.0.1") {
+    TEST_CASE("loopback-ip-rejected") {
         auto const& pltext = u8"https://127.0.0.1";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"https://127.0.0.1";
         CHECK(html == answer);
     }
-    TEST_CASE("https://127.0.0.1:8080") {
+    TEST_CASE("loopback-ip-with-port-rejected") {
         auto const& pltext = u8"https://127.0.0.1:8080";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"https://127.0.0.1:8080";
         CHECK(html == answer);
     }
-    TEST_CASE("https://www.example.wtf") {
+    TEST_CASE("unknown-tld-rejected") {
         auto const& pltext = u8"https://www.example.wtf";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"https://www.example.wtf";
         CHECK(html == answer);
     }
-    TEST_CASE("javascript:alert(1)") {
+    TEST_CASE("javascript-not-linked") {
         auto const& pltext = u8"javascript:alert(1)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"javascript:alert(1)";
         CHECK(html == answer);
     }
-    TEST_CASE("https://example.com (20)") {
+    TEST_CASE("trailing-colon-rejected") {
         auto const& pltext = u8"https://example.com:";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"https://example.com:";
         CHECK(html == answer);
     }
-    TEST_CASE("https://example.com:80javascript:alert(1)") {
+    TEST_CASE("port-followed-by-javascript") {
         auto const& pltext = u8"https://example.com:80javascript:alert(1)";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"https://example.com:80javascript:alert(1)";
         CHECK(html == answer);
     }
-    TEST_CASE("https://example.com@evil.invalid/path") {
+    TEST_CASE("userinfo-truncated") {
         auto const& pltext = u8"https://example.com@evil.invalid/path";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"https://example.com\">https://example.com</a>@evil.invalid/path";
         CHECK(html == answer);
     }
-    TEST_CASE("https://www.bilibili.com/video/BV1df421f7WB") {
+    TEST_CASE("video-url") {
         auto const& pltext = u8"https://www.bilibili.com/video/BV1df421f7WB";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer =
@@ -167,7 +167,7 @@ TEST_SUITE("auto_link") {
             u8"external>";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
-    TEST_CASE("https://www.example.com:65535") {
+    TEST_CASE("max-port-accepted") {
         auto const& pltext = u8"https://www.example.com:65535";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<a href=\"https://www.example.com:65535\">https://www.example.com:65535</a>";
@@ -177,31 +177,31 @@ TEST_SUITE("auto_link") {
             u8"<external=https://www.example.com:65535>https://www.example.com:65535</external>";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
-    TEST_CASE("https://www.example.com:65536") {
+    TEST_CASE("port-out-of-range-rejected") {
         auto const& pltext = u8"https://www.example.com:65536";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"https://www.example.com:65536";
         CHECK(html == answer);
     }
-    TEST_CASE("https://www.example.com:123456") {
+    TEST_CASE("port-too-long-rejected") {
         auto const& pltext = u8"https://www.example.com:123456";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"https://www.example.com:123456";
         CHECK(html == answer);
     }
-    TEST_CASE("https://-example.com/a/path") {
+    TEST_CASE("leading-hyphen-rejected") {
         auto const& pltext = u8"https://-example.com/a/path";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"https://-example.com/a/path";
         CHECK(html == answer);
     }
-    TEST_CASE("https://example-.com/a/path") {
+    TEST_CASE("trailing-hyphen-rejected") {
         auto const& pltext = u8"https://example-.com/a/path";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"https://example-.com/a/path";
         CHECK(html == answer);
     }
-    TEST_CASE("non-ASCII is not auto-linked: only the ASCII prefix beco...") {
+    TEST_CASE("cjk-prefix-only-linked") {
         // non-ASCII is not auto-linked: only the ASCII prefix becomes a link
         auto const& pltext = u8"x https://x.com/中文 y";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
