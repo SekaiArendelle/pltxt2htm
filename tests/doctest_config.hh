@@ -1,5 +1,11 @@
 #pragma once
 
+// proot reports a non-zero TracerPid, so doctest concludes that a debugger is attached
+// and breaks on the first failed assertion. That kills the process before the buffered
+// report reaches the terminal (exit 133, no output at all), which is far more costly
+// than not dropping into a debugger. Remove this if a real debugger is ever attached.
+#define DOCTEST_BREAK_INTO_DEBUGGER() ((void)0)
+
 #include <doctest/doctest.h>
 
 #include <string>

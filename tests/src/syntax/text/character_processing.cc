@@ -5,8 +5,8 @@
 #include <ranges>
 #include "precompile.hh"
 
-constexpr void assert_decoded(::fast_io::u8string_view text, ::std::size_t consumed_size, char32_t first_code_point,
-                              char32_t second_code_point = char32_t{}) {
+constexpr void assert_decoded(::pltxt2htm::container::U8StringView text, ::std::size_t consumed_size,
+                              char32_t first_code_point, char32_t second_code_point = char32_t{}) {
     auto const result =
         ::pltxt2htm::details::try_decode_character_reference<::pltxt2htm::Contracts::quick_enforce>(text);
     pltxt2htm_test_assert_true(result.has_value());
@@ -17,7 +17,7 @@ constexpr void assert_decoded(::fast_io::u8string_view text, ::std::size_t consu
     pltxt2htm_test_assert_true(decoded.has_second_code_point() == (second_code_point != char32_t{}));
 }
 
-constexpr void assert_not_decoded(::fast_io::u8string_view text) {
+constexpr void assert_not_decoded(::pltxt2htm::container::U8StringView text) {
     pltxt2htm_test_assert_true(
         ::pltxt2htm::details::try_decode_character_reference<::pltxt2htm::Contracts::quick_enforce>(text).has_value() ==
         false);
@@ -66,21 +66,21 @@ int main() {
     {
         constexpr auto bytes = ::fast_io::array{char8_t{0xE2}, char8_t{0x82}};
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
-            ::fast_io::u8string_view{bytes.data(), bytes.size()});
+            ::pltxt2htm::container::U8StringView{bytes.data(), bytes.size()});
         pltxt2htm_test_assert_true(decoded.valid == false);
         pltxt2htm_test_assert_true(decoded.consumed_size == 2);
     }
     {
         constexpr auto bytes = ::fast_io::array{char8_t{0xF0}, char8_t{0x90}, char8_t{'A'}};
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
-            ::fast_io::u8string_view{bytes.data(), bytes.size()});
+            ::pltxt2htm::container::U8StringView{bytes.data(), bytes.size()});
         pltxt2htm_test_assert_true(decoded.valid == false);
         pltxt2htm_test_assert_true(decoded.consumed_size == 2);
     }
     {
         constexpr auto bytes = ::fast_io::array{char8_t{0xED}, char8_t{0xA0}, char8_t{0x80}};
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
-            ::fast_io::u8string_view{bytes.data(), bytes.size()});
+            ::pltxt2htm::container::U8StringView{bytes.data(), bytes.size()});
         pltxt2htm_test_assert_true(decoded.valid == false);
         pltxt2htm_test_assert_true(decoded.consumed_size == 3);
     }
@@ -172,8 +172,8 @@ int main() {
 
     // Physics-Lab treats U+0020 and U+00A0 as the same space token, including references.
     {
-        auto const pltext = ::fast_io::u8string_view{u8"a \u00A0&nbsp;&NonBreakingSpace;&#32;&#x20;&#160;&#xA0;b"};
-        auto const answer = ::fast_io::u8string_view{u8"a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b"};
+        auto const& pltext = u8"a \u00A0&nbsp;&NonBreakingSpace;&#32;&#x20;&#160;&#xA0;b";
+        auto const& answer = u8"a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b";
         pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(pltext), answer);
         pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4htmlunittest(pltext), answer);
         pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2common_htmld(pltext), answer);
@@ -198,14 +198,14 @@ int main() {
     {
         auto const first_pass = ::pltxt2htm_test::pltxt4unittest(u8"\"");
         pltxt2htm_test_assert_equal(first_pass, u8"&quot;");
-        auto const first_pass_view = ::fast_io::u8string_view{first_pass.data(), first_pass.size()};
+        auto const first_pass_view = ::pltxt2htm::container::U8StringView{first_pass.data(), first_pass.size()};
         auto const second_pass = ::pltxt2htm_test::pltxt4unittest(first_pass_view);
         pltxt2htm_test_assert_equal(second_pass, u8"&quot;");
     }
     {
         auto const first_pass = ::pltxt2htm_test::pltxt4unittest(u8"<");
         pltxt2htm_test_assert_equal(first_pass, u8"&lt;");
-        auto const first_pass_view = ::fast_io::u8string_view{first_pass.data(), first_pass.size()};
+        auto const first_pass_view = ::pltxt2htm::container::U8StringView{first_pass.data(), first_pass.size()};
         auto const second_pass = ::pltxt2htm_test::pltxt4unittest(first_pass_view);
         pltxt2htm_test_assert_equal(second_pass, u8"&lt;");
     }

@@ -5,92 +5,92 @@
 TEST_CASE("html_sup_tag") {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sup>text</sup>");
-        auto answer = ::fast_io::u8string_view{u8"<sup>text</sup>"};
+        auto const& answer = u8"<sup>text</sup>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<SUP    >text</SUP  >");
-        auto answer = ::fast_io::u8string_view{u8"<sup>text</sup>"};
+        auto const& answer = u8"<sup>text</sup>";
         CHECK(html == answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"x<sup>2</sup>+y<sup>2</sup>"};
+        auto const& pltext = u8"x<sup>2</sup>+y<sup>2</sup>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"x<sup>2</sup>+y<sup>2</sup>"};
+        auto const& answer = u8"x<sup>2</sup>+y<sup>2</sup>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"x<sup>2</sup>+y<sup>2</sup>"};
+        auto const& plunity_richtext_answer = u8"x<sup>2</sup>+y<sup>2</sup>";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sup><color=red>text</color></sup>");
-        auto answer = ::fast_io::u8string_view{u8"<sup><span style=\"color:red;\">text</span></sup>"};
+        auto const& answer = u8"<sup><span style=\"color:red;\">text</span></sup>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sup><color=red>text</sup></color>");
-        auto answer = ::fast_io::u8string_view{u8"<sup><span style=\"color:red;\">text&lt;/sup&gt;</span></sup>"};
+        auto const& answer = u8"<sup><span style=\"color:red;\">text&lt;/sup&gt;</span></sup>";
         CHECK(html == answer);
     }
 
     {
         // nested <sup> must NOT be flattened: the inner text shifts the baseline further
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sup>text<sup>text</sup></sup>");
-        auto answer = ::fast_io::u8string_view{u8"<sup>text<sup>text</sup></sup>"};
+        auto const& answer = u8"<sup>text<sup>text</sup></sup>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sup>text<sup>text</sup>text</sup>");
-        auto answer = ::fast_io::u8string_view{u8"<sup>text<sup>text</sup>text</sup>"};
+        auto const& answer = u8"<sup>text<sup>text</sup>text</sup>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<b><sup>text</sup></b>");
-        auto answer = ::fast_io::u8string_view{u8"<strong><sup>text</sup></strong>"};
+        auto const& answer = u8"<strong><sup>text</sup></strong>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sup>");
-        auto answer = ::fast_io::u8string_view{u8""};
+        auto const& answer = u8"";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sup");
-        auto answer = ::fast_io::u8string_view{u8"&lt;sup"};
+        auto const& answer = u8"&lt;sup";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<sup></sup>t");
-        auto answer = ::fast_io::u8string_view{u8"tt"};
+        auto const& answer = u8"tt";
         CHECK(html == answer);
     }
 
     {
         // unclosed <sup> tag
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<sup>text");
-        auto answer = ::fast_io::u8string_view{u8"<sup>text</sup>"};
+        auto const& answer = u8"<sup>text</sup>";
         CHECK(html == answer);
     }
 
     {
         // <sup> can nest with other formatting tags
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<u>t1<sup>t2</sup>t3</u>");
-        auto answer = ::fast_io::u8string_view{u8"<u>t1<sup>t2</sup>t3</u>"};
+        auto const& answer = u8"<u>t1<sup>t2</sup>t3</u>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<sup>t1<sup>t2</sup></sup>");
-        auto answer = ::fast_io::u8string_view{u8"<sup>t1<sup>t2</sup></sup>"};
+        auto const& answer = u8"<sup>t1<sup>t2</sup></sup>";
         CHECK(html == answer);
     }
 }

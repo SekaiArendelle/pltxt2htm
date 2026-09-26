@@ -6,14 +6,14 @@ TEST_CASE("pl_external_tag") {
     {
         auto html =
             ::pltxt2htm_test::pltxt4unittest(u8"<external=https://example.com/discussion>physicsLab</external>");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com/discussion\">physicsLab</a>"};
+        auto const& answer = u8"<a href=\"https://example.com/discussion\">physicsLab</a>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<eXtErNaL=https://another-example.org/path      >physicsLab</EXTERNAL      >");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://another-example.org/path\">physicsLab</a>"};
+        auto const& answer = u8"<a href=\"https://another-example.org/path\">physicsLab</a>";
         CHECK(html == answer);
     }
 
@@ -23,7 +23,7 @@ TEST_CASE("pl_external_tag") {
 <EXTERNAL=https://site.com/item      >te
  xt</external      >
 )");
-        auto answer = ::fast_io::u8string_view{u8"<br><a href=\"https://site.com/item\">te<br>&nbsp;xt</a><br>"};
+        auto const& answer = u8"<br><a href=\"https://site.com/item\">te<br>&nbsp;xt</a><br>";
         CHECK(html == answer);
     }
 
@@ -31,36 +31,36 @@ TEST_CASE("pl_external_tag") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<External=https://main.com><external=https://nested.com>physicsLab</external></"
             u8"External>");
-        auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://main.com\">&lt;external=https://nested.com&gt;physicsLab</a>&lt;/External&gt;"};
+        auto const& answer =
+            u8"<a href=\"https://main.com\">&lt;external=https://nested.com&gt;physicsLab</a>&lt;/External&gt;";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"ab<External=https://first.com>te<external=https://second.com>physicsLab</external>st</External>cd");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"ab<a "
-            u8"href=\"https://first.com\">te&lt;external=https://second.com&gt;physicsLab</a>st&lt;/External&gt;cd"};
+            u8"href=\"https://first.com\">te&lt;external=https://second.com&gt;physicsLab</a>st&lt;/External&gt;cd";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<eXternal=https://example.com>");
-        auto answer = ::fast_io::u8string_view{u8"test"};
+        auto const& answer = u8"test";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"te<eXternal=https://example.com></external>st");
-        auto answer = ::fast_io::u8string_view{u8"test"};
+        auto const& answer = u8"test";
         CHECK(html == answer);
     }
 
     {
         // test invalid tag
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"test<external=");
-        auto answer = ::fast_io::u8string_view{u8"test&lt;external="};
+        auto const& answer = u8"test&lt;external=";
         CHECK(html == answer);
     }
 
@@ -68,79 +68,76 @@ TEST_CASE("pl_external_tag") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<external=https://example.com>text<external=https://another-example.com>text</external></"
             u8"external>");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<a "
-            u8"href=\"https://example.com\">text&lt;external=https://another-example.com&gt;text</a>&lt;/external&gt;"};
+            u8"href=\"https://example.com\">text&lt;external=https://another-example.com&gt;text</a>&lt;/external&gt;";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<external=https://example.com>physics<external=https://another-site.org>L</external>ab</external>");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<a href=\"https://example.com\">physics"
-            u8"&lt;external=https://another-site.org&gt;L</a>ab&lt;/external&gt;"};
+            u8"&lt;external=https://another-site.org&gt;L</a>ab&lt;/external&gt;";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=https://example.com>physicsLab");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\">physicsLab</a>"};
+        auto const& answer = u8"<a href=\"https://example.com\">physicsLab</a>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<external=https://example.com></external>t");
-        auto answer = ::fast_io::u8string_view{u8"tt"};
+        auto const& answer = u8"tt";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=>t");
-        auto answer = ::fast_io::u8string_view{u8"&lt;external=&gt;t"};
+        auto const& answer = u8"&lt;external=&gt;t";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=https://example.com></external");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://example.com\">&lt;/external</a>"};
+        auto const& answer = u8"<a href=\"https://example.com\">&lt;/external</a>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<external=https://main.com><i><external=https://nested.com>c</external></i></external>");
-        auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://main.com\"><em>&lt;external=https://nested.com&gt;c&lt;/external&gt;</em></a>"};
+        auto const& answer =
+            u8"<a href=\"https://main.com\"><em>&lt;external=https://nested.com&gt;c&lt;/external&gt;</em></a>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=javascript:alert(1)>x</external>");
-        auto answer = ::fast_io::u8string_view{u8"&lt;external=javascript:alert(1)&gt;x&lt;/external&gt;"};
+        auto const& answer = u8"&lt;external=javascript:alert(1)&gt;x&lt;/external&gt;";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=https://a.com\"onclick=\"alert(1)>x</external>");
-        auto answer =
-            ::fast_io::u8string_view{u8"&lt;external=https://a.com&quot;onclick=&quot;alert(1)&gt;x&lt;/external&gt;"};
+        auto const& answer = u8"&lt;external=https://a.com&quot;onclick=&quot;alert(1)&gt;x&lt;/external&gt;";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<external=https://main.com><i><experiment=a>c</experiment></i></external>");
-        auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://main.com\"><em>&lt;experiment=a&gt;c&lt;/experiment&gt;</em></a>"};
+        auto const& answer = u8"<a href=\"https://main.com\"><em>&lt;experiment=a&gt;c&lt;/experiment&gt;</em></a>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<external=https://main.com><i><discussion=a>c</discussion></i></external>");
-        auto answer = ::fast_io::u8string_view{
-            u8"<a href=\"https://main.com\"><em>&lt;discussion=a&gt;c&lt;/discussion&gt;</em></a>"};
+        auto const& answer = u8"<a href=\"https://main.com\"><em>&lt;discussion=a&gt;c&lt;/discussion&gt;</em></a>";
         CHECK(html == answer);
     }
 
@@ -149,36 +146,35 @@ TEST_CASE("pl_external_tag") {
         // the '=' auto-link guard removed the URL inside the rejected tag is auto-linked
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<external=https://main.com\" onmouseover=\"alert('XSS')\">content</external>");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"&lt;external=<a href=\"https://main.com\">https://main.com</a>&quot;&nbsp;onmouseover=&quot;alert(&apos;"
-            u8"XSS&apos;)&quot;&gt;content&lt;/external&gt;"};
+            u8"XSS&apos;)&quot;&gt;content&lt;/external&gt;";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=javascript:alert('XSS')>clickme</external>");
-        auto answer =
-            ::fast_io::u8string_view{u8"&lt;external=javascript:alert(&apos;XSS&apos;)&gt;clickme&lt;/external&gt;"};
+        auto const& answer = u8"&lt;external=javascript:alert(&apos;XSS&apos;)&gt;clickme&lt;/external&gt;";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=example.com>text</external>");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"example.com\">text</a>"};
+        auto const& answer = u8"<a href=\"example.com\">text</a>";
         CHECK(html == answer);
     }
 
     {
         auto html =
             ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<external=https://example.com>example</external>cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<external=https://example.com>example</external>cd"};
+        auto const& answer = u8"ab<external=https://example.com>example</external>cd";
         CHECK(html == answer);
     }
 
     {
         // non-ASCII (CJK) in the external path is accepted and percent-encoded
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<external=https://x.com/中文>x</external>");
-        auto answer = ::fast_io::u8string_view{u8"<a href=\"https://x.com/%E4%B8%AD%E6%96%87\">x</a>"};
+        auto const& answer = u8"<a href=\"https://x.com/%E4%B8%AD%E6%96%87\">x</a>";
         CHECK(html == answer);
     }
 }

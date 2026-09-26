@@ -10,10 +10,10 @@ TEST_CASE("md_table") {
             u8"|----------|----------|\n"
             u8"| Cell 1   | Cell 2   |\n"
             u8"| Cell 3   | Cell 4   |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>Header&nbsp;1</th><th>Header&nbsp;2</th></tr></thead>"
             u8"<tbody><tr><td>Cell&nbsp;1</td><td>Cell&nbsp;2</td></tr>"
-            u8"<tr><td>Cell&nbsp;3</td><td>Cell&nbsp;4</td></tr></tbody></table>"};
+            u8"<tr><td>Cell&nbsp;3</td><td>Cell&nbsp;4</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -23,9 +23,9 @@ TEST_CASE("md_table") {
             u8"\n| A | B |\n"
             u8"|---|---|\n"
             u8"| 1 | 2 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<br><table><thead><tr><th>A</th><th>B</th></tr></thead>"
-            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -35,9 +35,9 @@ TEST_CASE("md_table") {
             u8"|  a  |  b  |\n"
             u8"|-----|-----|\n"
             u8"|  x  |  y  |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>a</th><th>b</th></tr></thead>"
-            u8"<tbody><tr><td>x</td><td>y</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>x</td><td>y</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -47,9 +47,9 @@ TEST_CASE("md_table") {
             u8"| A | B | C |\n"
             u8"|---|---|---|\n"
             u8"| 1 |   | 3 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>A</th><th>B</th><th>C</th></tr></thead>"
-            u8"<tbody><tr><td>1</td><td></td><td>3</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>1</td><td></td><td>3</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -58,7 +58,7 @@ TEST_CASE("md_table") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"| X | Y |\n"
             u8"|---|---|");
-        auto answer = ::fast_io::u8string_view{u8"<table><thead><tr><th>X</th><th>Y</th></tr></thead></table>"};
+        auto const& answer = u8"<table><thead><tr><th>X</th><th>Y</th></tr></thead></table>";
         CHECK(html == answer);
     }
 
@@ -68,9 +68,9 @@ TEST_CASE("md_table") {
             u8"| a & b | c > d |\n"
             u8"|-------|-------|\n"
             u8"| x & y | p < q |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>a&nbsp;&amp;&nbsp;b</th><th>c&nbsp;&gt;&nbsp;d</th></tr></thead>"
-            u8"<tbody><tr><td>x&nbsp;&amp;&nbsp;y</td><td>p&nbsp;&lt;&nbsp;q</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>x&nbsp;&amp;&nbsp;y</td><td>p&nbsp;&lt;&nbsp;q</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -80,9 +80,9 @@ TEST_CASE("md_table") {
             u8"| \\\"quote\\\" |\n"
             u8"|-----------|\n"
             u8"| \\&amp;   |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>&quot;quote&quot;</th></tr></thead>"
-            u8"<tbody><tr><td>&amp;amp;</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>&amp;amp;</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -93,10 +93,10 @@ TEST_CASE("md_table") {
             u8"|---|\n"
             u8"| C |\n"
             u8"after");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>H</th></tr></thead>"
             u8"<tbody><tr><td>C</td></tr></tbody></table>"
-            u8"after"};
+            u8"after";
         CHECK(html == answer);
     }
 
@@ -107,10 +107,10 @@ TEST_CASE("md_table") {
             u8"|---|\n"
             u8"| C |\n"
             u8"after");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"before<br><table><thead><tr><th>H</th></tr></thead>"
             u8"<tbody><tr><td>C</td></tr></tbody></table>"
-            u8"after"};
+            u8"after";
         CHECK(html == answer);
     }
 
@@ -120,9 +120,9 @@ TEST_CASE("md_table") {
             u8"<br>| A | B |\n"
             u8"    |---|---|\n"
             u8"    | 1 | 2 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<br><table><thead><tr><th>A</th><th>B</th></tr></thead>"
-            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -132,9 +132,9 @@ TEST_CASE("md_table") {
             u8"| A | B |\n"
             u8"|:---|:---|\n"
             u8"| 1 | 2 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>A</th><th>B</th></tr></thead>"
-            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -144,11 +144,11 @@ TEST_CASE("md_table") {
             u8"| A | B |\n"
             u8"|:---:|:---:|\n"
             u8"| 1 | 2 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th style=\"text-align:center\">A</th><th "
             u8"style=\"text-align:center\">B</th></tr></thead>"
             u8"<tbody><tr><td style=\"text-align:center\">1</td><td "
-            u8"style=\"text-align:center\">2</td></tr></tbody></table>"};
+            u8"style=\"text-align:center\">2</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -158,11 +158,11 @@ TEST_CASE("md_table") {
             u8"| A | B |\n"
             u8"|---:|---:|\n"
             u8"| 1 | 2 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th style=\"text-align:right\">A</th><th "
             u8"style=\"text-align:right\">B</th></tr></thead>"
             u8"<tbody><tr><td style=\"text-align:right\">1</td><td "
-            u8"style=\"text-align:right\">2</td></tr></tbody></table>"};
+            u8"style=\"text-align:right\">2</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -172,13 +172,13 @@ TEST_CASE("md_table") {
             u8"| Left | Center | Right |\n"
             u8"|:-----|:------:|------:|\n"
             u8"| a    |   b    |   c   |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr>"
             u8"<th>Left</th><th style=\"text-align:center\">Center</th><th style=\"text-align:right\">Right</th>"
             u8"</tr></thead>"
             u8"<tbody><tr>"
             u8"<td>a</td><td style=\"text-align:center\">b</td><td style=\"text-align:right\">c</td>"
-            u8"</tr></tbody></table>"};
+            u8"</tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -187,8 +187,8 @@ TEST_CASE("md_table") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"| X | Y |\n"
             u8"|:---:|:---|");
-        auto answer = ::fast_io::u8string_view{
-            u8"<table><thead><tr><th style=\"text-align:center\">X</th><th>Y</th></tr></thead></table>"};
+        auto const& answer =
+            u8"<table><thead><tr><th style=\"text-align:center\">X</th><th>Y</th></tr></thead></table>";
         CHECK(html == answer);
     }
 
@@ -198,7 +198,7 @@ TEST_CASE("md_table") {
             u8"| A | B | C |\n"
             u8"|:---:|:---:|---:|\n"
             u8"| 1 |   | 3 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr>"
             u8"<th style=\"text-align:center\">A</th>"
             u8"<th style=\"text-align:center\">B</th>"
@@ -208,7 +208,7 @@ TEST_CASE("md_table") {
             u8"<td style=\"text-align:center\">1</td>"
             u8"<td style=\"text-align:center\"></td>"
             u8"<td style=\"text-align:right\">3</td>"
-            u8"</tr></tbody></table>"};
+            u8"</tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -217,51 +217,51 @@ TEST_CASE("md_table") {
     // Single pipe-delimited line without a delimiter row
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"| A | B |\n");
-        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>"};
+        auto const& answer = u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>";
         CHECK(html == answer);
     }
 
     // Text followed by a valid delimiter (first line is not a pipe table row)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"text\n|---|---|\n");
-        auto answer = ::fast_io::u8string_view{u8"text<br>|---|---|<br>"};
+        auto const& answer = u8"text<br>|---|---|<br>";
         CHECK(html == answer);
     }
 
     // Pipe character in the middle of regular text
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"this | that\n");
-        auto answer = ::fast_io::u8string_view{u8"this&nbsp;|&nbsp;that<br>"};
+        auto const& answer = u8"this&nbsp;|&nbsp;that<br>";
         CHECK(html == answer);
     }
 
     // Single pipe character on a line
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"|\n");
-        auto answer = ::fast_io::u8string_view{u8"|<br>"};
+        auto const& answer = u8"|<br>";
         CHECK(html == answer);
     }
 
     // Header line without leading pipe (no table)
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"A | B\n|---|---|\n");
-        auto answer = ::fast_io::u8string_view{u8"A&nbsp;|&nbsp;B<br>|---|---|<br>"};
+        auto const& answer = u8"A&nbsp;|&nbsp;B<br>|---|---|<br>";
         CHECK(html == answer);
     }
 
     // Delimiter row without a preceding header
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"|---|---|---|\n");
-        auto answer = ::fast_io::u8string_view{u8"|---|---|---|<br>"};
+        auto const& answer = u8"|---|---|---|<br>";
         CHECK(html == answer);
     }
 
     // Delimiter row with no dashes (all spaces) - should NOT be a table
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"| A | B |\n|   |   |\n");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>"
-            u8"|&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|<br>"};
+            u8"|&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|<br>";
         CHECK(html == answer);
     }
 
@@ -273,9 +273,9 @@ TEST_CASE("md_table") {
             u8"| A |\n"
             u8"|-|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>A</th></tr></thead>"
-            u8"<tbody><tr><td>B</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>B</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -285,9 +285,9 @@ TEST_CASE("md_table") {
             u8"| A |\n"
             u8"|:--|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>A</th></tr></thead>"
-            u8"<tbody><tr><td>B</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>B</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -297,9 +297,9 @@ TEST_CASE("md_table") {
             u8"| A |\n"
             u8"|---:|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th style=\"text-align:right\">A</th></tr></thead>"
-            u8"<tbody><tr><td style=\"text-align:right\">B</td></tr></tbody></table>"};
+            u8"<tbody><tr><td style=\"text-align:right\">B</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -309,9 +309,9 @@ TEST_CASE("md_table") {
             u8"| H |\n"
             u8"|---|  \n"
             u8"| C |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>H</th></tr></thead>"
-            u8"<tbody><tr><td>C</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>C</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -321,9 +321,9 @@ TEST_CASE("md_table") {
             u8"| A | B |\n"
             u8"|---| --- |\n"
             u8"| 1 | 2 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>A</th><th>B</th></tr></thead>"
-            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -333,13 +333,13 @@ TEST_CASE("md_table") {
             u8"| A | B |\n"
             u8"|:-----------------:|:-----------------:|\n"
             u8"| 1 | 2 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr>"
             u8"<th style=\"text-align:center\">A</th><th style=\"text-align:center\">B</th>"
             u8"</tr></thead>"
             u8"<tbody><tr>"
             u8"<td style=\"text-align:center\">1</td><td style=\"text-align:center\">2</td>"
-            u8"</tr></tbody></table>"};
+            u8"</tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -351,7 +351,7 @@ TEST_CASE("md_table") {
             u8"| A |\n"
             u8"|:-:-|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|:-:-|<br>|&nbsp;B&nbsp;|"};
+        auto const& answer = u8"|&nbsp;A&nbsp;|<br>|:-:-|<br>|&nbsp;B&nbsp;|";
         CHECK(html == answer);
     }
 
@@ -361,7 +361,7 @@ TEST_CASE("md_table") {
             u8"| A |\n"
             u8"|:-- :|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|:--&nbsp;:|<br>|&nbsp;B&nbsp;|"};
+        auto const& answer = u8"|&nbsp;A&nbsp;|<br>|:--&nbsp;:|<br>|&nbsp;B&nbsp;|";
         CHECK(html == answer);
     }
 
@@ -371,7 +371,7 @@ TEST_CASE("md_table") {
             u8"| A |\n"
             u8"|--x--|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|--x--|<br>|&nbsp;B&nbsp;|"};
+        auto const& answer = u8"|&nbsp;A&nbsp;|<br>|--x--|<br>|&nbsp;B&nbsp;|";
         CHECK(html == answer);
     }
 
@@ -381,7 +381,7 @@ TEST_CASE("md_table") {
             u8"| A |\n"
             u8"|::---|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|::---|<br>|&nbsp;B&nbsp;|"};
+        auto const& answer = u8"|&nbsp;A&nbsp;|<br>|::---|<br>|&nbsp;B&nbsp;|";
         CHECK(html == answer);
     }
 
@@ -391,7 +391,7 @@ TEST_CASE("md_table") {
             u8"| A |\n"
             u8"|---::|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|---::|<br>|&nbsp;B&nbsp;|"};
+        auto const& answer = u8"|&nbsp;A&nbsp;|<br>|---::|<br>|&nbsp;B&nbsp;|";
         CHECK(html == answer);
     }
 
@@ -401,7 +401,7 @@ TEST_CASE("md_table") {
             u8"| A |\n"
             u8"|-:-|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|-:-|<br>|&nbsp;B&nbsp;|"};
+        auto const& answer = u8"|&nbsp;A&nbsp;|<br>|-:-|<br>|&nbsp;B&nbsp;|";
         CHECK(html == answer);
     }
 
@@ -411,7 +411,7 @@ TEST_CASE("md_table") {
             u8"| A |\n"
             u8"|---|extra|\n"
             u8"| B |");
-        auto answer = ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|<br>|---|extra|<br>|&nbsp;B&nbsp;|"};
+        auto const& answer = u8"|&nbsp;A&nbsp;|<br>|---|extra|<br>|&nbsp;B&nbsp;|";
         CHECK(html == answer);
     }
 
@@ -421,8 +421,7 @@ TEST_CASE("md_table") {
             u8"| A | B |\n"
             u8"|---|:-:-|\n"
             u8"| 1 | 2 |");
-        auto answer =
-            ::fast_io::u8string_view{u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>|---|:-:-|<br>|&nbsp;1&nbsp;|&nbsp;2&nbsp;|"};
+        auto const& answer = u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>|---|:-:-|<br>|&nbsp;1&nbsp;|&nbsp;2&nbsp;|";
         CHECK(html == answer);
     }
 
@@ -434,9 +433,9 @@ TEST_CASE("md_table") {
             u8"| **bold** | normal |\n"
             u8"|----------|--------|\n"
             u8"| 1        | 2      |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th><strong>bold</strong></th><th>normal</th></tr></thead>"
-            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -446,9 +445,9 @@ TEST_CASE("md_table") {
             u8"| H | I |\n"
             u8"|---|---|\n"
             u8"| *italic* | normal |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>H</th><th>I</th></tr></thead>"
-            u8"<tbody><tr><td><em>italic</em></td><td>normal</td></tr></tbody></table>"};
+            u8"<tbody><tr><td><em>italic</em></td><td>normal</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -458,9 +457,9 @@ TEST_CASE("md_table") {
             u8"| `code` | text |\n"
             u8"|--------|------|\n"
             u8"| a      | b    |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th><code>code</code></th><th>text</th></tr></thead>"
-            u8"<tbody><tr><td>a</td><td>b</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>a</td><td>b</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -470,9 +469,9 @@ TEST_CASE("md_table") {
             u8"| H |\n"
             u8"|---|\n"
             u8"| ~~strike~~ |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>H</th></tr></thead>"
-            u8"<tbody><tr><td><del>strike</del></td></tr></tbody></table>"};
+            u8"<tbody><tr><td><del>strike</del></td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -482,11 +481,11 @@ TEST_CASE("md_table") {
             u8"| **bold** | *italic* |\n"
             u8"|----------|----------|\n"
             u8"| a        | b        |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr>"
             u8"<th><strong>bold</strong></th><th><em>italic</em></th>"
             u8"</tr></thead>"
-            u8"<tbody><tr><td>a</td><td>b</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>a</td><td>b</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -496,11 +495,11 @@ TEST_CASE("md_table") {
             u8"| **bold** *italic* | plain |\n"
             u8"|-------------------|-------|\n"
             u8"| 1                 | 2     |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr>"
             u8"<th><strong>bold</strong>&nbsp;<em>italic</em></th><th>plain</th>"
             u8"</tr></thead>"
-            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -510,13 +509,13 @@ TEST_CASE("md_table") {
             u8"| **bold** |\n"
             u8"|:--------:|\n"
             u8"| *italic* |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr>"
             u8"<th style=\"text-align:center\"><strong>bold</strong></th>"
             u8"</tr></thead>"
             u8"<tbody><tr>"
             u8"<td style=\"text-align:center\"><em>italic</em></td>"
-            u8"</tr></tbody></table>"};
+            u8"</tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -526,13 +525,13 @@ TEST_CASE("md_table") {
             u8"| *italic* |\n"
             u8"|---------:|\n"
             u8"| **bold** |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr>"
             u8"<th style=\"text-align:right\"><em>italic</em></th>"
             u8"</tr></thead>"
             u8"<tbody><tr>"
             u8"<td style=\"text-align:right\"><strong>bold</strong></td>"
-            u8"</tr></tbody></table>"};
+            u8"</tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -541,13 +540,13 @@ TEST_CASE("md_table") {
             u8"| *~~italic~~* |\n"
             u8"|---------:|\n"
             u8"| **bold** |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr>"
             u8"<th style=\"text-align:right\"><em><del>italic</del></em></th>"
             u8"</tr></thead>"
             u8"<tbody><tr>"
             u8"<td style=\"text-align:right\"><strong>bold</strong></td>"
-            u8"</tr></tbody></table>"};
+            u8"</tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -557,9 +556,9 @@ TEST_CASE("md_table") {
             u8"| \\*not italic\\* |\n"
             u8"|-----------------|\n"
             u8"| x               |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>*not&nbsp;italic*</th></tr></thead>"
-            u8"<tbody><tr><td>x</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>x</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -569,11 +568,11 @@ TEST_CASE("md_table") {
             u8"| `<html>` | `a & b` |\n"
             u8"|----------|--------|\n"
             u8"| 1        | 2      |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr>"
             u8"<th><code>&lt;html&gt;</code></th><th><code>a&nbsp;&amp;&nbsp;b</code></th>"
             u8"</tr></thead>"
-            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -583,9 +582,9 @@ TEST_CASE("md_table") {
             u8"| A | **B** |\n"
             u8"|---|---|\n"
             u8"|   | **2** |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>A</th><th><strong>B</strong></th></tr></thead>"
-            u8"<tbody><tr><td></td><td><strong>2</strong></td></tr></tbody></table>"};
+            u8"<tbody><tr><td></td><td><strong>2</strong></td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -596,11 +595,11 @@ TEST_CASE("md_table") {
             u8"|---|---|---|\n"
             u8"| 1 | 2   |\n"
             u8"| 3 | 4 | 5 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|&nbsp;C&nbsp;|<br>"
             u8"|---|---|---|<br>"
             u8"|&nbsp;1&nbsp;|&nbsp;2&nbsp;&nbsp;&nbsp;|<br>"
-            u8"|&nbsp;3&nbsp;|&nbsp;4&nbsp;|&nbsp;5&nbsp;|"};
+            u8"|&nbsp;3&nbsp;|&nbsp;4&nbsp;|&nbsp;5&nbsp;|";
         CHECK(html == answer);
     }
 
@@ -611,11 +610,11 @@ TEST_CASE("md_table") {
             u8"|-------|---|-----|\n"
             u8"| **x** | y |\n"
             u8"| 1     | 2 | *3* |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"|&nbsp;<strong>A</strong>&nbsp;|&nbsp;B&nbsp;|&nbsp;<em>C</em>&nbsp;|<br>"
             u8"|-------|---|-----|<br>"
             u8"|&nbsp;<strong>x</strong>&nbsp;|&nbsp;y&nbsp;|<br>"
-            u8"|&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;2&nbsp;|&nbsp;<em>3</em>&nbsp;|"};
+            u8"|&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;2&nbsp;|&nbsp;<em>3</em>&nbsp;|";
         CHECK(html == answer);
     }
 
@@ -625,10 +624,10 @@ TEST_CASE("md_table") {
             u8"| A | B | C |\n"
             u8"|---|---|---|\n"
             u8"| 1 | 2 | 3 | 4 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|&nbsp;C&nbsp;|<br>"
             u8"|---|---|---|<br>"
-            u8"|&nbsp;1&nbsp;|&nbsp;2&nbsp;|&nbsp;3&nbsp;|&nbsp;4&nbsp;|"};
+            u8"|&nbsp;1&nbsp;|&nbsp;2&nbsp;|&nbsp;3&nbsp;|&nbsp;4&nbsp;|";
         CHECK(html == answer);
     }
 
@@ -638,10 +637,10 @@ TEST_CASE("md_table") {
             u8"| **A** | B | *C* |\n"
             u8"|---|---|---|\n"
             u8"| **x** | y | *z* | extra |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"|&nbsp;<strong>A</strong>&nbsp;|&nbsp;B&nbsp;|&nbsp;<em>C</em>&nbsp;|<br>"
             u8"|---|---|---|<br>"
-            u8"|&nbsp;<strong>x</strong>&nbsp;|&nbsp;y&nbsp;|&nbsp;<em>z</em>&nbsp;|&nbsp;extra&nbsp;|"};
+            u8"|&nbsp;<strong>x</strong>&nbsp;|&nbsp;y&nbsp;|&nbsp;<em>z</em>&nbsp;|&nbsp;extra&nbsp;|";
         CHECK(html == answer);
     }
 
@@ -650,9 +649,9 @@ TEST_CASE("md_table") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"| A | B | C |\n"
             u8"|---|---|");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|&nbsp;C&nbsp;|<br>"
-            u8"|---|---|"};
+            u8"|---|---|";
         CHECK(html == answer);
     }
 
@@ -661,9 +660,9 @@ TEST_CASE("md_table") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"| A | B |\n"
             u8"|---|---|---|");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>"
-            u8"|---|---|---|"};
+            u8"|---|---|---|";
         CHECK(html == answer);
     }
 
@@ -673,9 +672,9 @@ TEST_CASE("md_table") {
             u8"| a \\| b | c |\n"
             u8"|---------|---|\n"
             u8"| 1       | 2 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>a&nbsp;|&nbsp;b</th><th>c</th></tr></thead>"
-            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -685,9 +684,9 @@ TEST_CASE("md_table") {
             u8"| a | b | c |\n"
             u8"|---|---|---|\n"
             u8"| \\\\| 2 | 3 |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>a</th><th>b</th><th>c</th></tr></thead>"
-            u8"<tbody><tr><td>\\</td><td>2</td><td>3</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>\\</td><td>2</td><td>3</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -697,11 +696,11 @@ TEST_CASE("md_table") {
             u8"| **bold** \\| text | plain |\n"
             u8"|--------------------|-------|\n"
             u8"| 1                  | 2     |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr>"
             u8"<th><strong>bold</strong>&nbsp;|&nbsp;text</th><th>plain</th>"
             u8"</tr></thead>"
-            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>1</td><td>2</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -713,9 +712,9 @@ TEST_CASE("md_table") {
             u8"||\n"
             u8"|-|\n"
             u8"|</|");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th></th></tr></thead>"
-            u8"<tbody><tr><td>&lt;/</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>&lt;/</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -726,7 +725,7 @@ TEST_CASE("md_table") {
             u8"|cell\n"
             u8" |--\n"
             u8" |</|");
-        auto answer = ::fast_io::u8string_view{u8"|cell<br>&nbsp;|--<br>&nbsp;|&lt;/|"};
+        auto const& answer = u8"|cell<br>&nbsp;|--<br>&nbsp;|&lt;/|";
         CHECK(html == answer);
     }
 
@@ -736,9 +735,9 @@ TEST_CASE("md_table") {
             u8"|ok|\n"
             u8"|---|\n"
             u8"|</x|");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<table><thead><tr><th>ok</th></tr></thead>"
-            u8"<tbody><tr><td>&lt;/x</td></tr></tbody></table>"};
+            u8"<tbody><tr><td>&lt;/x</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
@@ -747,7 +746,7 @@ TEST_CASE("md_table") {
             u8"| left | center | right |\n"
             u8"|:-----|:------:|------:|\n"
             u8"| a | b | c |");
-        auto answer = ::fast_io::u8string_view{
+        auto const& answer =
             u8"<size=20>\uff1c</size>table<size=20>\uff1e</size><size=20>\uff1c</size>thead<size=20>\uff1e</size>"
             u8"<size=20>\uff1c</size>tr<size=20>\uff1e</size><size=20>\uff1c</size>th<size=20>\uff1e</size>left"
             u8"<size=20>\uff1c</size>/th<size=20>\uff1e</size><size=20>\uff1c</size>th style=\"text-align:center\""
@@ -759,7 +758,7 @@ TEST_CASE("md_table") {
             u8"<size=20>\uff1c</size>td style=\"text-align:center\"<size=20>\uff1e</size>b<size=20>\uff1c</size>/td"
             u8"<size=20>\uff1e</size><size=20>\uff1c</size>td style=\"text-align:right\"<size=20>\uff1e</size>c"
             u8"<size=20>\uff1c</size>/td<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size>"
-            u8"<size=20>\uff1c</size>/tbody<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>"};
+            u8"<size=20>\uff1c</size>/tbody<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>";
         CHECK(html == answer);
     }
 }

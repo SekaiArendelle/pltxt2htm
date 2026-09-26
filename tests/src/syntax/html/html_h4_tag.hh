@@ -4,136 +4,136 @@
 
 TEST_CASE("html_h4_tag") {
     {
-        auto pltext = ::fast_io::u8string_view{u8"<h4>text</h4>"};
+        auto const& pltext = u8"<h4>text</h4>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<h4>text</h4>"};
+        auto const& answer = u8"<h4>text</h4>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=35><b>text</b></size>\n"};
+        auto const& plunity_richtext_answer = u8"<size=35><b>text</b></size>\n";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"<H4    >text</H4  >"};
+        auto const& pltext = u8"<H4    >text</H4  >";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<h4>text</h4>"};
+        auto const& answer = u8"<h4>text</h4>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=35><b>text</b></size>\n"};
+        auto const& plunity_richtext_answer = u8"<size=35><b>text</b></size>\n";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"<h4><color=red>text</color></h4>"};
+        auto const& pltext = u8"<h4><color=red>text</color></h4>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<h4><span style=\"color:red;\">text</span></h4>"};
+        auto const& answer = u8"<h4><span style=\"color:red;\">text</span></h4>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=35><b><color=red>text</color></b></size>\n"};
+        auto const& plunity_richtext_answer = u8"<size=35><b><color=red>text</color></b></size>\n";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"<h4><color=red>text</h4></color>"};
+        auto const& pltext = u8"<h4><color=red>text</h4></color>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<h4><span style=\"color:red;\">text&lt;/h4&gt;</span></h4>"};
+        auto const& answer = u8"<h4><span style=\"color:red;\">text&lt;/h4&gt;</span></h4>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{
+        auto const& plunity_richtext_answer =
             u8"<size=35><b><color=red>text<size=20>\uFF1C</size>/h4<size=20>\uFF1E</size></color></b></"
-            u8"size>\n"};
+            u8"size>\n";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"<h4>text<h4>text</h4></h4>"};
+        auto const& pltext = u8"<h4>text<h4>text</h4></h4>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<h4>text&lt;h4&gt;text</h4>&lt;/h4&gt;"};
+        auto const& answer = u8"<h4>text&lt;h4&gt;text</h4>&lt;/h4&gt;";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{
+        auto const& plunity_richtext_answer =
             u8"<size=35><b>text<size=20>\uFF1C</size>h4<size=20>\uFF1E</size>text</b></size>\n"
-            u8"<size=20>\uFF1C</size>/h4<size=20>\uFF1E</size>"};
+            u8"<size=20>\uFF1C</size>/h4<size=20>\uFF1E</size>";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"<h4>"};
+        auto const& pltext = u8"<h4>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<h4></h4>"};
+        auto const& answer = u8"<h4></h4>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=35><b></b></size>\n"};
+        auto const& plunity_richtext_answer = u8"<size=35><b></b></size>\n";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"<h4></h4"};
+        auto const& pltext = u8"<h4></h4";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<h4>&lt;/h4</h4>"};
+        auto const& answer = u8"<h4>&lt;/h4</h4>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"<size=35><b><size=20>\uFF1C</size>/h4</b></size>\n"};
+        auto const& plunity_richtext_answer = u8"<size=35><b><size=20>\uFF1C</size>/h4</b></size>\n";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"# <h4>text"};
+        auto const& pltext = u8"# <h4>text";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<h1>&lt;h4&gt;text</h1>"};
+        auto const& answer = u8"<h1>&lt;h4&gt;text</h1>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<size=38><b><size=20>\uFF1C</size>h4<size=20>\uFF1E</size>text</b></size>\n"};
+        auto const& plunity_richtext_answer =
+            u8"<size=38><b><size=20>\uFF1C</size>h4<size=20>\uFF1E</size>text</b></size>\n";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"t<h4></h4>t"};
+        auto const& pltext = u8"t<h4></h4>t";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"t&lt;h4&gt;&lt;/h4&gt;t"};
+        auto const& answer = u8"t&lt;h4&gt;&lt;/h4&gt;t";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{
-            u8"t<size=20>\uFF1C</size>h4<size=20>\uFF1E</size><size=20>\uFF1C</size>/h4<size=20>\uFF1E</size>t"};
+        auto const& plunity_richtext_answer =
+            u8"t<size=20>\uFF1C</size>h4<size=20>\uFF1E</size><size=20>\uFF1C</size>/h4<size=20>\uFF1E</size>t";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"t<h4></h4"};
+        auto const& pltext = u8"t<h4></h4";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"t&lt;h4&gt;&lt;/h4"};
+        auto const& answer = u8"t&lt;h4&gt;&lt;/h4";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"t<size=20>\uFF1C</size>h4<size=20>\uFF1E</size><size=20>\uFF1C</size>/h4"};
+        auto const& plunity_richtext_answer =
+            u8"t<size=20>\uFF1C</size>h4<size=20>\uFF1E</size><size=20>\uFF1C</size>/h4";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"text\n<h4>text</h4>"};
+        auto const& pltext = u8"text\n<h4>text</h4>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"text<br><h4>text</h4>"};
+        auto const& answer = u8"text<br><h4>text</h4>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text\n<size=35><b>text</b></size>\n"};
+        auto const& plunity_richtext_answer = u8"text\n<size=35><b>text</b></size>\n";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"text<br><h4>text</h4>"};
+        auto const& pltext = u8"text<br><h4>text</h4>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"text<br><h4>text</h4>"};
+        auto const& answer = u8"text<br><h4>text</h4>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer = ::fast_io::u8string_view{u8"text\n<size=35><b>text</b></size>\n"};
+        auto const& plunity_richtext_answer = u8"text\n<size=35><b>text</b></size>\n";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
-        auto pltext = ::fast_io::u8string_view{u8"text<br><h4>text</h4>"};
+        auto const& pltext = u8"text<br><h4>text</h4>";
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"text<br><h4>text</h4>"};
+        auto const& answer = u8"text<br><h4>text</h4>";
         CHECK(html == answer);
     }
 }
