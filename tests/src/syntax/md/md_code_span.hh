@@ -4,55 +4,54 @@
 
 TEST_CASE("md_code_span") {
     {
-        auto pltext = ::fast_io::u8string_view{u8"`test`"};
+        auto const& pltext = u8"`test`";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<code>test</code>"};
+        auto const& answer = u8"<code>test</code>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>"};
+        auto const& plunity_richtext_answer = u8"<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`t t`");
-        auto answer = ::fast_io::u8string_view{u8"<code>t&nbsp;t</code>"};
+        auto const& answer = u8"<code>t&nbsp;t</code>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t`e`st");
-        auto answer = ::fast_io::u8string_view{u8"t<code>e</code>st"};
+        auto const& answer = u8"t<code>e</code>st";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"``test``");
-        auto answer = ::fast_io::u8string_view{u8"<code>test</code>"};
+        auto const& answer = u8"<code>test</code>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```test```");
-        auto answer = ::fast_io::u8string_view{u8"<code>test</code>"};
+        auto const& answer = u8"<code>test</code>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`t\\`t`");
-        auto answer = ::fast_io::u8string_view{u8"<code>t`t</code>"};
+        auto const& answer = u8"<code>t`t</code>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t``e``st");
-        auto answer = ::fast_io::u8string_view{u8"t<code>e</code>st"};
+        auto const& answer = u8"t<code>e</code>st";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t```e```st");
-        auto answer = ::fast_io::u8string_view{u8"t<code>e</code>st"};
+        auto const& answer = u8"t<code>e</code>st";
         CHECK(html == answer);
     }
 
@@ -60,37 +59,37 @@ TEST_CASE("md_code_span") {
     // not an unterminated code span.
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`t");
-        auto answer = ::fast_io::u8string_view{u8"`t"};
+        auto const& answer = u8"`t";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```<br>```");
-        auto answer = ::fast_io::u8string_view{u8"<code>&lt;br&gt;</code>"};
+        auto const& answer = u8"<code>&lt;br&gt;</code>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`<em>t</em>`");
-        auto answer = ::fast_io::u8string_view{u8"<code>&lt;em&gt;t&lt;/em&gt;</code>"};
+        auto const& answer = u8"<code>&lt;em&gt;t&lt;/em&gt;</code>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab`test`cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd"};
+        auto const& answer = u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab``test``cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd"};
+        auto const& answer = u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab```test```cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd"};
+        auto const& answer = u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd";
         CHECK(html == answer);
     }
 
@@ -101,74 +100,73 @@ TEST_CASE("md_code_span") {
     // fixedadv_fuzzer_crash_analysis.md. Delimiter lengths 1, 2, 3 at top level.
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`");
-        auto answer = ::fast_io::u8string_view{u8"`"};
+        auto const& answer = u8"`";
         CHECK(html == answer);
     }
     // A delimiter run with no content is NOT a code span and stays literal text.
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"``");
-        auto answer = ::fast_io::u8string_view{u8"``"};
+        auto const& answer = u8"``";
         CHECK(html == answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```");
-        auto answer = ::fast_io::u8string_view{u8"```"};
+        auto const& answer = u8"```";
         CHECK(html == answer);
     }
     // Content long enough to fill an unclosed span still must not be consumed by it.
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`t");
-        auto answer = ::fast_io::u8string_view{u8"`t"};
+        auto const& answer = u8"`t";
         CHECK(html == answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"``ab");
-        auto answer = ::fast_io::u8string_view{u8"``ab"};
+        auto const& answer = u8"``ab";
         CHECK(html == answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```x");
-        auto answer = ::fast_io::u8string_view{u8"```x"};
+        auto const& answer = u8"```x";
         CHECK(html == answer);
     }
     // A backslash-escaped backtick at the end is consumed as content, not a closing delimiter.
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`a\\`");
-        auto answer = ::fast_io::u8string_view{u8"`a`"};
+        auto const& answer = u8"`a`";
         CHECK(html == answer);
     }
     // Even balanced delimiter runs with no content stay literal.
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"````");
-        auto answer = ::fast_io::u8string_view{u8"````"};
+        auto const& answer = u8"````";
         CHECK(html == answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"``````");
-        auto answer = ::fast_io::u8string_view{u8"``````"};
+        auto const& answer = u8"``````";
         CHECK(html == answer);
     }
     // The fuzzer crash input: an unclosed code span inside a Markdown list item.
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"* `");
-        auto answer = ::fast_io::u8string_view{u8"<ul><li>`</li></ul>"};
+        auto const& answer = u8"<ul><li>`</li></ul>";
         CHECK(html == answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"* ``");
-        auto answer = ::fast_io::u8string_view{u8"<ul><li>``</li></ul>"};
+        auto const& answer = u8"<ul><li>``</li></ul>";
         CHECK(html == answer);
     }
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"* ```");
-        auto answer = ::fast_io::u8string_view{u8"<ul><li>```</li></ul>"};
+        auto const& answer = u8"<ul><li>```</li></ul>";
         CHECK(html == answer);
     }
     // Unclosed code span inside a table cell.
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"| a |\n|---|\n| `` |");
-        auto answer = ::fast_io::u8string_view{
-            u8"<table><thead><tr><th>a</th></tr></thead><tbody><tr><td>``</td></tr></tbody></table>"};
+        auto const& answer = u8"<table><thead><tr><th>a</th></tr></thead><tbody><tr><td>``</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 }

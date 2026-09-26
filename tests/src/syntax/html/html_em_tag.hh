@@ -5,55 +5,55 @@
 TEST_CASE("html_em_tag") {
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<em>text</em>");
-        auto answer = ::fast_io::u8string_view{u8"<em>text</em>"};
+        auto const& answer = u8"<em>text</em>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<Em    >text</eM  >");
-        auto answer = ::fast_io::u8string_view{u8"<em>text</em>"};
+        auto const& answer = u8"<em>text</em>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<em><color=red>text</color></em>");
-        auto answer = ::fast_io::u8string_view{u8"<em><span style=\"color:red;\">text</span></em>"};
+        auto const& answer = u8"<em><span style=\"color:red;\">text</span></em>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<em><color=red>text</em></color>");
-        auto answer = ::fast_io::u8string_view{u8"<em><span style=\"color:red;\">text&lt;/em&gt;</span></em>"};
+        auto const& answer = u8"<em><span style=\"color:red;\">text&lt;/em&gt;</span></em>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<em>text<em>text</em></em>");
-        auto answer = ::fast_io::u8string_view{u8"<em>texttext</em>"};
+        auto const& answer = u8"<em>texttext</em>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"text<em>");
-        auto answer = ::fast_io::u8string_view{u8"text"};
+        auto const& answer = u8"text";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<em></em>t");
-        auto answer = ::fast_io::u8string_view{u8"tt"};
+        auto const& answer = u8"tt";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<em></em");
-        auto answer = ::fast_io::u8string_view{u8"<em>&lt;/em</em>"};
+        auto const& answer = u8"<em>&lt;/em</em>";
         CHECK(html == answer);
     }
 
     {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab<em>test</em>cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<i>test</i>cd"};
+        auto const& answer = u8"ab<i>test</i>cd";
         CHECK(html == answer);
     }
 }

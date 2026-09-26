@@ -3,14 +3,16 @@
 namespace {
 
 [[nodiscard]]
-constexpr bool contains_u8(::fast_io::u8string_view haystack, ::fast_io::u8string_view needle) noexcept {
+constexpr bool contains_u8(::pltxt2htm::container::U8StringView haystack,
+                           ::pltxt2htm::container::U8StringView needle) noexcept {
     if (needle.size() > haystack.size()) {
         return false;
     }
     for (::std::size_t i{}; i + needle.size() <= haystack.size(); ++i) {
         bool match{true};
         for (::std::size_t j{}; j < needle.size(); ++j) {
-            if (haystack.index_unchecked(i + j) != needle.index_unchecked(j)) {
+            if (haystack.index<::pltxt2htm::Contracts::ignore>(i + j) !=
+                needle.index<::pltxt2htm::Contracts::ignore>(j)) {
                 match = false;
                 break;
             }
@@ -23,19 +25,20 @@ constexpr bool contains_u8(::fast_io::u8string_view haystack, ::fast_io::u8strin
 }
 
 [[nodiscard]]
-constexpr bool has_unescaped_tag(::fast_io::u8string_view html, ::fast_io::u8string_view tag) noexcept {
+constexpr bool has_unescaped_tag(::pltxt2htm::container::U8StringView html,
+                                 ::pltxt2htm::container::U8StringView tag) noexcept {
     ::std::size_t const tag_sz{tag.size()};
     if (tag_sz == 0 || tag_sz + 1 > html.size()) {
         return false;
     }
     ::std::size_t const limit{html.size() - tag_sz};
     for (::std::size_t i{}; i < limit; ++i) {
-        if (html.index_unchecked(i) != u8'<') {
+        if (html.index<::pltxt2htm::Contracts::ignore>(i) != u8'<') {
             continue;
         }
         bool match{true};
         for (::std::size_t j{}; j < tag_sz; ++j) {
-            if (html.index_unchecked(i + 1 + j) != tag.index_unchecked(j)) {
+            if (html.index<::pltxt2htm::Contracts::ignore>(i + 1 + j) != tag.index<::pltxt2htm::Contracts::ignore>(j)) {
                 match = false;
                 break;
             }
@@ -47,7 +50,7 @@ constexpr bool has_unescaped_tag(::fast_io::u8string_view html, ::fast_io::u8str
     return false;
 }
 
-void assert_no_raw_xss_tags(::fast_io::u8string_view html) noexcept {
+void assert_no_raw_xss_tags(::pltxt2htm::container::U8StringView html) noexcept {
     pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"script"));
     pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"iframe"));
     pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"object"));
@@ -65,7 +68,7 @@ void assert_no_raw_xss_tags(::fast_io::u8string_view html) noexcept {
     pltxt2htm_test_assert_true(!has_unescaped_tag(html, u8"select"));
 }
 
-void assert_no_raw_event_handlers(::fast_io::u8string_view html) noexcept {
+void assert_no_raw_event_handlers(::pltxt2htm::container::U8StringView html) noexcept {
     pltxt2htm_test_assert_true(!contains_u8(html, u8"<img onerror="));
     pltxt2htm_test_assert_true(!contains_u8(html, u8"<img onload="));
     pltxt2htm_test_assert_true(!contains_u8(html, u8"<body onload="));
@@ -78,8 +81,8 @@ void assert_no_raw_event_handlers(::fast_io::u8string_view html) noexcept {
 
 // Helper to wrap u8string -> u8string_view for MSVC compat
 [[nodiscard]]
-auto to_view(::pltxt2htm::container::U8String const& s) noexcept -> ::fast_io::u8string_view {
-    return ::fast_io::u8string_view{s.data(), s.size()};
+auto to_view(::pltxt2htm::container::U8String const& s) noexcept -> ::pltxt2htm::container::U8StringView {
+    return ::pltxt2htm::container::U8StringView{s.data(), s.size()};
 }
 
 } // unnamed namespace
