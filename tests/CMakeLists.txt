@@ -3,13 +3,15 @@ project(pltxt2htm-tests LANGUAGES CXX VERSION 0.26.0)
 
 enable_testing()
 
-include(FetchContent)
-FetchContent_Declare(
-    doctest
-    GIT_REPOSITORY https://github.com/doctest/doctest.git
-    GIT_TAG v2.4.12
-)
-FetchContent_MakeAvailable(doctest)
+# doctest is vendored under tests/vendor/ instead of being fetched at configure time, so that
+# configuring (and therefore CI, which also configures inside docker) never needs the network.
+# tests/vendor is the include root, which keeps the `#include <doctest/doctest.h>` spelling used
+# by doctest_config.hh unchanged. The include directory is SYSTEM because the vendored header is
+# third-party code whose warnings are not ours to fix.
+add_library(pltxt2htm_doctest INTERFACE)
+add_library(doctest::doctest ALIAS pltxt2htm_doctest)
+target_include_directories(pltxt2htm_doctest SYSTEM INTERFACE
+    "${CMAKE_CURRENT_SOURCE_DIR}/vendor")
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
