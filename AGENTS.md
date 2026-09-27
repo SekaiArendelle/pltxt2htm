@@ -5,7 +5,7 @@ This file is the entry point for AI coding agents. It contains the development w
 ## Mandatory rules
 
 - **Do NOT run git write operations without explicit human instruction.** An agent must not run `git add`, `git commit`, `git push`, open a **Pull Request**, open an **Issue**, or perform any other write operation to the repository or remote unless the human explicitly asks for it.
-- After changing code, run formatting and tests (commands below). Static analysis (`clang-tidy`) is run in full by CI and does **not** need to be run locally for every change.
+- After changing code, run the affected tests (commands below). Formatting is **optional** — if you do format, use `git-clang-format` so the diff stays limited to the lines you touched (see [Code formatting](#code-formatting)). Static analysis (`clang-tidy`) is run in full by CI and does **not** need to be run locally for every change.
 - **Stop and report when the request appears misguided.** If the agent believes the user's prompt is based on a false premise, points in the wrong direction, or would lead to an incorrect or harmful change, the agent must stop, explain the problem with concrete evidence (file paths, code excerpts, test results), and propose the corrected direction — rather than silently complying or silently "fixing" the intent. Do not use this rule to avoid difficult tasks: when the direction is sound and only the approach is unclear, proceed or ask a focused question instead.
 
 ## Project layout
@@ -36,7 +36,7 @@ Local tools:
 - C++23 compiler (clang / gcc / MSVC)
 - CMake
 - Python 3
-- clang-format (for formatting). clang-tidy is optional locally — CI runs the full pass.
+- clang-format / git-clang-format (optional formatting — see [Code formatting](#code-formatting)). clang-tidy is optional locally — CI runs the full pass.
 
 Docker alternative:
 
@@ -54,7 +54,7 @@ Each sub-project is independently built with CMake — see the respective `READM
 
 1. **Locate** – Read the relevant sub-project README to understand which module to modify.
 2. **Code** – Follow the [Coding conventions](#coding-conventions) below.
-3. **Format** – Run the [formatting](#code-formatting) command. Static analysis is handled by CI, not as a local step.
+3. **Format (optional)** – If you format, prefer the [git-clang-format](#code-formatting) command, which only touches the lines your change adds or modifies; leaving formatting out is acceptable. Static analysis is handled by CI, not as a local step.
 4. **Test** – Run the tests for the module you touched, then the full suite.
 5. **Review** – After a substantive code change, ask a subagent to perform the [independent read-only review](#independent-read-only-review) when subagents are available. Validate its findings, fix confirmed issues, and rerun the affected checks.
 6. **Submit** – Do NOT run any git write operations (such as `git add`, `git commit`, `git push`) or open a PR/Issue without explicit human instruction. Present a patch file or a sketch of the approach instead (see [CONTRIBUTING.md](./CONTRIBUTING.md)).
@@ -76,21 +76,35 @@ The reviewing subagent must:
 - Independently look for correctness defects, regressions, missing edge cases, and inadequate tests rather than assuming the implementation or its rationale is correct.
 - Report only actionable findings, each with severity, location, reasoning, and a triggering example when practical. If no issues are found, explicitly say so and summarize the areas examined.
 
-The implementing agent remains responsible for the final result. It must validate each finding against the code, fix confirmed issues rather than applying suggestions mechanically, and rerun formatting and the affected tests after any fix. Normally one review pass is sufficient; request another only when fixes address high-severity findings or materially change the design. A subagent review supplements, but does not replace, the required automated checks.
+The implementing agent remains responsible for the final result. It must validate each finding against the code, fix confirmed issues rather than applying suggestions mechanically, and rerun the affected tests (plus the formatter, if you had run one) after any fix. Normally one review pass is sufficient; request another only when fixes address high-severity findings or materially change the design. A subagent review supplements, but does not replace, the required automated checks.
 
 ## Quick commands (run from repository root)
 
-### Code formatting
+### Code formatting (optional)
+
+Formatting is optional and is **not enforced by CI**. `.clang-format` at the project root is the single source of truth for style.
+
+If you do format, use `git-clang-format` instead of formatting the whole tree — it reformats only the lines your change touches, which keeps diffs and merges small:
 
 ```sh
-ninja -f format_cpp.ninja
+git-clang-format -i main   # reformat only what this branch changed, relative to main
+git-clang-format --diff    # preview the result without writing anything
 ```
 
-Configuration is in `.clang-format` at the project root. `format_cpp.ninja` is a **generated artifact** — never edit it by hand. After adding new source files, regenerate it:
+Notes:
 
+- Untracked (brand-new) files are ignored by `git-clang-format`. Format them directly instead — every line in them is new anyway:
+```sh
+clang-format -i path/to/new_file.cc
+```
+- If the toolchain only ships a versioned launcher (for example `git-clang-format-20`), use that one so the result matches `.clang-format`.
+- Do not reformat code you did not touch. Unrelated reformatting makes review harder and causes merge conflicts.
+- A one-off sweep over the whole tree is still possible when it is actually wanted:
 ```sh
 python scripts/gen_format_ninja.py
+ninja -f format_cpp.ninja
 ```
+This writes a locally generated `format_cpp.ninja`, which is **not tracked by git** (see `.gitignore`); the script above exists only to produce it.
 
 ### Static analysis
 
