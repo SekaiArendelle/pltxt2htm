@@ -11,8 +11,7 @@ int main() {
             input.append<::pltxt2htm::Contracts::quick_enforce>(u8"</color>");
         }
         auto html = ::pltxt2htm_test::pltxt4unittest(::fast_io::mnp::os_c_str(input));
-        auto answer = ::fast_io::u8string_view{u8"<span style=\"color:red;\">hello</span>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        pltxt2htm_test_assert_equal(html, u8"<span style=\"color:red;\">hello</span>");
     }
 
     return 0;

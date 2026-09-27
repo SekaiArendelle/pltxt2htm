@@ -72,8 +72,8 @@ int main() noexcept {
     }
 
     {
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(0), ::fast_io::u8string_view{u8"0"});
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(42), ::fast_io::u8string_view{u8"42"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(0), u8"0");
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(42), u8"42");
     }
 
     return 0;
