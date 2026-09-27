@@ -181,6 +181,18 @@ public:
 #endif
         ;
 
+    /**
+     * @brief Builds a view over a null-terminated string.
+     * @param[in] string Null-terminated string; must not be null.
+     * @return A view over the string, excluding the terminator.
+     * @pre string != nullptr
+     * @note The length is determined by scanning for the terminator, so this is O(size).
+     */
+    [[nodiscard]]
+    static constexpr auto from_c_str(const_pointer string) noexcept -> BasicStringView {
+        return BasicStringView{string, ::fast_io::cstr_len(string)};
+    }
+
     [[nodiscard]]
     constexpr auto data(this BasicStringView const& self) noexcept -> const_pointer {
         return self.pointer;

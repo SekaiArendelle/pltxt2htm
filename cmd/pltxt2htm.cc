@@ -1,6 +1,5 @@
 #include <cstddef>
 #include <cstring>
-#include <string>
 #include <cassert>
 #include <utility>
 #include <fast_io/fast_io_dsal/string.h>
@@ -28,20 +27,6 @@ constexpr auto usage = ::pltxt2htm::container::U8StringView{
     echo "example" | pltxt2htm --target plunity_text --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string>
     echo "example" | pltxt2htm --target plunity_text --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string> -o <output file>
 )"};
-
-namespace {
-
-/**
- * @brief Builds a view over a null-terminated UTF-8 string.
- * @param[in] string Null-terminated UTF-8 string; the command line options are validated before use.
- * @return A view over the string, excluding the terminator.
- * @pre string != nullptr
- */
-[[nodiscard]] constexpr auto c_str_view(char8_t const* const string) noexcept -> ::pltxt2htm::container::U8StringView {
-    return ::pltxt2htm::container::U8StringView{string, ::std::char_traits<char8_t>::length(string)};
-}
-
-} // namespace
 
 int main(int argc, char const* const* const argv) noexcept {
     if (argc == 1) {
@@ -342,8 +327,12 @@ int main(int argc, char const* const* const argv) noexcept {
 #else
                 ::pltxt2htm::Contracts::quick_enforce
 #endif
-                >(::pltxt2htm::container::U8StringView{input_text}, c_str_view(host), c_str_view(project),
-                  c_str_view(visitor), c_str_view(author), c_str_view(coauthors));
+                >(::pltxt2htm::container::U8StringView{input_text},
+                  ::pltxt2htm::container::U8StringView::from_c_str(host),
+                  ::pltxt2htm::container::U8StringView::from_c_str(project),
+                  ::pltxt2htm::container::U8StringView::from_c_str(visitor),
+                  ::pltxt2htm::container::U8StringView::from_c_str(author),
+                  ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
         }
         else if (target_type == ::TargetType::plunity_text) {
             html = ::pltxt2htm::pltxt2plunity_introduction<
@@ -352,8 +341,11 @@ int main(int argc, char const* const* const argv) noexcept {
 #else
                 ::pltxt2htm::Contracts::quick_enforce
 #endif
-                >(::pltxt2htm::container::U8StringView{input_text}, c_str_view(project), c_str_view(visitor),
-                  c_str_view(author), c_str_view(coauthors));
+                >(::pltxt2htm::container::U8StringView{input_text},
+                  ::pltxt2htm::container::U8StringView::from_c_str(project),
+                  ::pltxt2htm::container::U8StringView::from_c_str(visitor),
+                  ::pltxt2htm::container::U8StringView::from_c_str(author),
+                  ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
         }
         else [[unlikely]] {
             ::pltxt2htm::details::unreachable<

@@ -11,7 +11,6 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <string>
 #include <utility>
 #include <concepts>
 #include "details/trap.hh"
@@ -49,17 +48,6 @@ constexpr char8_t const* c_ptr_style_wrapper(Args&&... args) noexcept(
     return result;
 }
 
-/**
- * @brief Builds a view over a null-terminated UTF-8 string.
- * @param[in] string Null-terminated UTF-8 string; must not be null.
- * @return A view over the string, excluding the terminator.
- * @pre string != nullptr
- */
-[[nodiscard]]
-constexpr auto c_str_view(char8_t const* const string) noexcept -> ::pltxt2htm::container::U8StringView {
-    return ::pltxt2htm::container::U8StringView{string, ::std::char_traits<char8_t>::length(string)};
-}
-
 } // namespace details
 
 /**
@@ -92,8 +80,9 @@ constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t cons
                                          char8_t const* const project, char8_t const* const visitor,
                                          char8_t const* const author, char8_t const* const coauthors) noexcept {
     return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2fixedadv_html<ndebug>>(
-        details::c_str_view(text), details::c_str_view(host), details::c_str_view(project),
-        details::c_str_view(visitor), details::c_str_view(author), details::c_str_view(coauthors));
+        container::U8StringView::from_c_str(text), container::U8StringView::from_c_str(host),
+        container::U8StringView::from_c_str(project), container::U8StringView::from_c_str(visitor),
+        container::U8StringView::from_c_str(author), container::U8StringView::from_c_str(coauthors));
 }
 
 /**
@@ -116,7 +105,8 @@ template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
 [[__gnu__::__nonnull__]]
 #endif
 constexpr char8_t const* common_parser(char8_t const* const text) noexcept {
-    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2common_html<ndebug>>(details::c_str_view(text));
+    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2common_html<ndebug>>(
+        container::U8StringView::from_c_str(text));
 }
 
 /**
@@ -145,8 +135,9 @@ constexpr char8_t const* plrichtext_parser(char8_t const* const text, char8_t co
                                            char8_t const* const visitor, char8_t const* const author,
                                            char8_t const* const coauthors) noexcept {
     return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2plunity_introduction<ndebug>>(
-        details::c_str_view(text), details::c_str_view(project), details::c_str_view(visitor),
-        details::c_str_view(author), details::c_str_view(coauthors));
+        container::U8StringView::from_c_str(text), container::U8StringView::from_c_str(project),
+        container::U8StringView::from_c_str(visitor), container::U8StringView::from_c_str(author),
+        container::U8StringView::from_c_str(coauthors));
 }
 
 } // namespace pltxt2htm
