@@ -64,7 +64,7 @@ inline void panic() noexcept {
 
         // Print frame number and function description
         if (entry.description().size() > 0) {
-            ::std::fputs(entry.description().c_str(), stderr);
+            ::fast_io::io::perr("[", i, "] ", ::fast_io::mnp::os_c_str(entry.description().c_str()));
         }
         else {
             ::fast_io::io::perr("[", i, "] <unknown function>");
@@ -72,8 +72,7 @@ inline void panic() noexcept {
 
         // Print source file and line if available
         if (entry.source_file().size() > 0) {
-            ::std::fputs(" at ", stderr);
-            ::std::fputs(entry.source_file().c_str(), stderr);
+            ::fast_io::io::perr(" at ", ::fast_io::mnp::os_c_str(entry.source_file().c_str()));
 
             if (entry.source_line() > 0) {
                 ::fast_io::io::perr(":", entry.source_line());
