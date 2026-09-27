@@ -87,7 +87,7 @@ Formatting is **not enforced by CI**. When `git-clang-format` is available, use 
 `.clang-format` at the project root is the single source of truth for style.
 
 ```sh
-git-clang-format -i main   # reformat only what this branch changed, relative to main
+git-clang-format main      # reformat only what this branch changed, relative to main
 git-clang-format --diff    # preview the result without writing anything
 ```
 
@@ -97,6 +97,7 @@ Notes:
 ```sh
 clang-format -i path/to/new_file.cc
 ```
+- Unstaged edits are refused by default: pass `--force` (`git-clang-format --force main`) or stage the changes first.
 - If the toolchain only ships a versioned launcher (for example `git-clang-format-20`), use that one so the result matches `.clang-format`.
 - Do not reformat code you did not touch. Unrelated reformatting makes review harder and causes merge conflicts.
 - A one-off sweep over the whole tree is still possible when it is actually wanted:
