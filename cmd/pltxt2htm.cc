@@ -1,5 +1,6 @@
 #include <cstddef>
 #include <cstring>
+#include <string>
 #include <cassert>
 #include <utility>
 #include <fast_io/fast_io_dsal/string.h>
@@ -27,6 +28,20 @@ constexpr auto usage = ::pltxt2htm::container::U8StringView{
     echo "example" | pltxt2htm --target plunity_text --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string>
     echo "example" | pltxt2htm --target plunity_text --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string> -o <output file>
 )"};
+
+namespace {
+
+/**
+ * @brief Builds a view over a null-terminated UTF-8 string.
+ * @param[in] string Null-terminated UTF-8 string; the command line options are validated before use.
+ * @return A view over the string, excluding the terminator.
+ * @pre string != nullptr
+ */
+[[nodiscard]] constexpr auto c_str_view(char8_t const* const string) noexcept -> ::pltxt2htm::container::U8StringView {
+    return ::pltxt2htm::container::U8StringView{string, ::std::char_traits<char8_t>::length(string)};
+}
+
+} // namespace
 
 int main(int argc, char const* const* const argv) noexcept {
     if (argc == 1) {
@@ -111,6 +126,7 @@ int main(int argc, char const* const* const argv) noexcept {
                 target_type = ::TargetType::plunity_text;
             }
             else {
+                // argv is an OS-encoded string printed to the native stderr, so os_c_str is the right tool here.
                 ::fast_io::perrln("Invalid target: ", ::fast_io::mnp::os_c_str(argv[i + 1]));
                 return 1;
             }
@@ -199,6 +215,7 @@ int main(int argc, char const* const* const argv) noexcept {
             return 0;
         }
         else [[unlikely]] {
+            // argv is an OS-encoded string printed to the native stderr, so os_c_str is the right tool here.
             ::fast_io::perrln("Unknown option: ", ::fast_io::mnp::os_c_str(argv[i]));
             return 1;
         }
@@ -303,7 +320,7 @@ int main(int argc, char const* const* const argv) noexcept {
 #else
             constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
 #endif
-            auto ast = ::pltxt2htm::parse_pltxt<ndebug>(::fast_io::mnp::os_c_str(input_text));
+            auto ast = ::pltxt2htm::parse_pltxt<ndebug>(::pltxt2htm::container::U8StringView{input_text});
             ::pltxt2htm::optimize_ast<ndebug>(ast);
             html = ::pltxt2htm::details::plweb_text_backend<ndebug,
                                                             ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
@@ -316,7 +333,7 @@ int main(int argc, char const* const* const argv) noexcept {
 #else
                 ::pltxt2htm::Contracts::quick_enforce
 #endif
-                >(::fast_io::mnp::os_c_str(input_text));
+                >(::pltxt2htm::container::U8StringView{input_text});
         }
         else if (target_type == ::TargetType::fixedadv_html) {
             html = ::pltxt2htm::pltxt2fixedadv_html<
@@ -325,9 +342,8 @@ int main(int argc, char const* const* const argv) noexcept {
 #else
                 ::pltxt2htm::Contracts::quick_enforce
 #endif
-                >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(host),
-                  ::fast_io::mnp::os_c_str(project), ::fast_io::mnp::os_c_str(visitor),
-                  ::fast_io::mnp::os_c_str(author), ::fast_io::mnp::os_c_str(coauthors));
+                >(::pltxt2htm::container::U8StringView{input_text}, c_str_view(host), c_str_view(project),
+                  c_str_view(visitor), c_str_view(author), c_str_view(coauthors));
         }
         else if (target_type == ::TargetType::plunity_text) {
             html = ::pltxt2htm::pltxt2plunity_introduction<
@@ -336,9 +352,8 @@ int main(int argc, char const* const* const argv) noexcept {
 #else
                 ::pltxt2htm::Contracts::quick_enforce
 #endif
-                >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(project),
-                  ::fast_io::mnp::os_c_str(visitor), ::fast_io::mnp::os_c_str(author),
-                  ::fast_io::mnp::os_c_str(coauthors));
+                >(::pltxt2htm::container::U8StringView{input_text}, c_str_view(project), c_str_view(visitor),
+                  c_str_view(author), c_str_view(coauthors));
         }
         else [[unlikely]] {
             ::pltxt2htm::details::unreachable<
@@ -353,6 +368,7 @@ int main(int argc, char const* const* const argv) noexcept {
             ::fast_io::println(::fast_io::u8c_stdout(), html);
         }
         else {
+            // native_file takes an OS path, which is not UTF-8 text, so os_c_str is the right tool here.
             auto const output_file =
                 ::fast_io::native_file{::fast_io::mnp::os_c_str(output_file_path), ::fast_io::open_mode::out};
             auto output_file_handle = ::fast_io::u8native_io_observer{output_file.native_handle()};

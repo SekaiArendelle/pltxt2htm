@@ -5,7 +5,7 @@
 extern "C" int LLVMFuzzerTestOneInput(::std::uint8_t const* const data, ::std::size_t const size) noexcept {
     ::pltxt2htm::container::U8String str(size + 1);
     ::std::memcpy(str.data(), data, size);
-    [[maybe_unused]] auto _ = ::pltxt2htm::pltxt2common_html(::fast_io::mnp::os_c_str(str));
+    [[maybe_unused]] auto _ = ::pltxt2htm::pltxt2common_html(::pltxt2htm::container::U8StringView{str});
 
     return 0;
 }

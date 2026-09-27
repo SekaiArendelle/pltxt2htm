@@ -78,22 +78,6 @@ public:
           length{string.size()} {
     }
 
-    constexpr BasicStringView(::fast_io::manipulators::basic_os_c_str<value_type> string) noexcept
-        : pointer{string.ptr},
-          length{::fast_io::cstr_len(string.ptr)} {
-    }
-
-    constexpr BasicStringView(::fast_io::manipulators::basic_os_c_str_with_known_size<value_type> string) noexcept
-        : pointer{string.ptr},
-          length{string.n} {
-    }
-
-    constexpr BasicStringView(
-        ::fast_io::manipulators::basic_os_str_known_size_without_null_terminated<value_type> string) noexcept
-        : pointer{string.ptr},
-          length{string.n} {
-    }
-
     template<typename Allocator>
     constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator> const& string) noexcept
         : pointer{string.data()},
@@ -352,16 +336,6 @@ BasicStringView(::pltxt2htm::details::BasicLiteralString<CharType, size> const&)
 
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent, ::pltxt2htm::Contracts ndebug>
 BasicStringView(::pltxt2htm::details::BasicInplaceString<CharType, extent, ndebug> const&) -> BasicStringView<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType>
-BasicStringView(::fast_io::manipulators::basic_os_c_str<CharType>) -> BasicStringView<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType>
-BasicStringView(::fast_io::manipulators::basic_os_c_str_with_known_size<CharType>) -> BasicStringView<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType>
-BasicStringView(::fast_io::manipulators::basic_os_str_known_size_without_null_terminated<CharType>)
-    -> BasicStringView<CharType>;
 
 using StringView = BasicStringView<char>;
 using WStringView = BasicStringView<wchar_t>;

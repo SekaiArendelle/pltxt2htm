@@ -129,8 +129,8 @@ int main() {
     auto const printed = ::fast_io::u8concat_fast_io(u8"[", compatible_view, u8"]");
     pltxt2htm_test_assert_true(printed == u8"[view]");
 
-    U8StringView const manipulator_view{::fast_io::mnp::os_c_str(string)};
-    pltxt2htm_test_assert_true(manipulator_view == string_view);
+    U8StringView const explicit_view{string.data(), string.size()};
+    pltxt2htm_test_assert_true(explicit_view == string_view);
 
     return 0;
 }
