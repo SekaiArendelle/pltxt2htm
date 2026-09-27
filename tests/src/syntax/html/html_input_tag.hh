@@ -2,10 +2,10 @@
 
 #include "doctest_config.hh"
 
-TEST_CASE("html_input_tag") {
+TEST_SUITE("html_input_tag") {
     // ---- inline <input> is always literal; checkbox inputs are only recognized
     //      inside a block-level <ul>/<ol> item (see the list tests below) ----
-    {
+    TEST_CASE("inline-stays-literal") {
         auto const& pltext = u8"<input type=\"checkbox\" disabled>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&gt;";
@@ -15,7 +15,7 @@ TEST_CASE("html_input_tag") {
             u8"<size=20>\uff1c</size>input\u00a0type=\"checkbox\"\u00a0disabled<size=20>\uff1e</size>";
         CHECK(plunity == plunity_answer);
     }
-    {
+    TEST_CASE("inline-extra-attr-literal") {
         auto const& pltext = u8"<input type=\"checkbox\" disabled checked>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&nbsp;checked&gt;";
@@ -26,49 +26,49 @@ TEST_CASE("html_input_tag") {
         CHECK(plunity == plunity_answer);
     }
     // ---- uppercase INPUT (tag name case-insensitive) is still literal inline ----
-    {
+    TEST_CASE("uppercase-tag-literal") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<INPUT TYPE=\"checkbox\" DISABLED CHECKED>");
         auto const& answer = u8"&lt;INPUT&nbsp;TYPE=&quot;checkbox&quot;&nbsp;DISABLED&nbsp;CHECKED&gt;";
         CHECK(html == answer);
     }
     // ---- self-closing syntax <input ... /> is literal inline ----
-    {
+    TEST_CASE("self-closing-literal") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" disabled />");
         auto const& answer = u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&nbsp;/&gt;";
         CHECK(html == answer);
     }
     // ---- attribute order: checked before disabled ----
-    {
+    TEST_CASE("attribute-order-preserved") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input disabled checked type=\"checkbox\">");
         auto const& answer = u8"&lt;input&nbsp;disabled&nbsp;checked&nbsp;type=&quot;checkbox&quot;&gt;";
         CHECK(html == answer);
     }
     // ---- text directly adjacent (no spaces) ----
-    {
+    TEST_CASE("adjacent-text-no-spaces") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"a<input type=\"checkbox\" disabled>b");
         auto const& answer = u8"a&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&gt;b";
         CHECK(html == answer);
     }
     // ---- <input> without type="checkbox" should be escaped ----
-    {
+    TEST_CASE("non-checkbox-type-escaped") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"text\" disabled>");
         auto const& answer = u8"&lt;input&nbsp;type=&quot;text&quot;&nbsp;disabled&gt;";
         CHECK(html == answer);
     }
     // ---- <input> without disabled should be escaped ----
-    {
+    TEST_CASE("missing-disabled-escaped") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\">");
         auto const& answer = u8"&lt;input&nbsp;type=&quot;checkbox&quot;&gt;";
         CHECK(html == answer);
     }
     // ---- <input> with extra unknown attribute should be escaped ----
-    {
+    TEST_CASE("unknown-attribute-escaped") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" disabled unknown=\"x\">");
         auto const& answer = u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&nbsp;unknown=&quot;x&quot;&gt;";
         CHECK(html == answer);
     }
     // ---- <input> with event handler should be escaped ----
-    {
+    TEST_CASE("event-handler-escaped") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<input type=\"checkbox\" disabled onclick=\"alert(1)\">");
         auto const& answer =
             u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&nbsp;onclick=&quot;alert(1)&quot;&gt;";
@@ -76,7 +76,7 @@ TEST_CASE("html_input_tag") {
     }
 
     // ---- checkbox <input> at the start of a <ul>/<ol> item is valid ----
-    {
+    TEST_CASE("unchecked-at-item-start") {
         auto const& pltext = u8"<ul><li><input type=\"checkbox\" disabled>task</li></ul>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<ul><li><input type=\"checkbox\" disabled>task</li></ul>";
@@ -85,7 +85,7 @@ TEST_CASE("html_input_tag") {
         auto const& plunity_answer = u8"\u2022 \u2610 task\n";
         CHECK(plunity == plunity_answer);
     }
-    {
+    TEST_CASE("checked-at-item-start") {
         auto const& pltext = u8"<ul><li><input type=\"checkbox\" disabled checked>done</li></ul>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
         auto const& answer = u8"<ul><li><input type=\"checkbox\" disabled checked>done</li></ul>";
@@ -94,7 +94,7 @@ TEST_CASE("html_input_tag") {
         auto const& plunity_answer = u8"\u2022 \u2611 done\n";
         CHECK(plunity == plunity_answer);
     }
-    {
+    TEST_CASE("list-items-newline-normalized") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<ul>\n<li><input type=\"checkbox\" disabled>a</li>\n<li><input type=\"checkbox\" disabled "
             u8"checked>b</li>\n</ul>");
@@ -103,20 +103,20 @@ TEST_CASE("html_input_tag") {
             u8"checked>b</li></ul>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("ordered-list-item") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ol><li><input type=\"checkbox\" disabled>item</li></ol>");
         auto const& answer = u8"<ol><li><input type=\"checkbox\" disabled>item</li></ol>";
         CHECK(html == answer);
     }
 
     // ---- a non-checkbox <input> inside an item is literal text ----
-    {
+    TEST_CASE("non-checkbox-item-literal") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li><input type=\"text\" disabled>t</li></ul>");
         auto const& answer = u8"<ul><li>&lt;input&nbsp;type=&quot;text&quot;&nbsp;disabled&gt;t</li></ul>";
         CHECK(html == answer);
     }
     // ---- a checkbox <input> not at the start of the item is literal text ----
-    {
+    TEST_CASE("not-item-start-literal") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<ul><li>a<input type=\"checkbox\" disabled></li></ul>");
         auto const& answer = u8"<ul><li>a&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&gt;</li></ul>";
         CHECK(html == answer);

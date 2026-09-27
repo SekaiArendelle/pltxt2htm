@@ -2,323 +2,323 @@
 
 #include "doctest_config.hh"
 
-TEST_CASE("html_parser") {
+TEST_SUITE("html_parser") {
     // HTML elements that work identically to the original parser
-    {
+    TEST_CASE("paragraph-default-align") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<p>text</p>");
         auto const& answer = u8"<p style=\"text-align:left\">text</p>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("emphasis-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<em>text</em>");
         auto const& answer = u8"<em>text</em>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("strong-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<strong>text</strong>");
         auto const& answer = u8"<strong>text</strong>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("mark-default-highlight") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<mark>text</mark>");
         auto const& answer = u8"<mark style=\"background-color:#FFFF00;\">text</mark>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("mark-caseless-matching") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<MARK  >text</MaRk>");
         auto const& answer = u8"<mark style=\"background-color:#FFFF00;\">text</mark>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("mark-background-override") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<mark style=\"background-color:red\">text</mark>");
         auto const& answer = u8"<mark style=\"background-color:red;\">text</mark>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("mark-color-style-rejected") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<mark style=\"color:red\">text</mark>");
         auto const& answer = u8"&lt;mark&nbsp;style=&quot;color:red&quot;&gt;text&lt;/mark&gt;";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("h1-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<h1>Title</h1>");
         auto const& answer = u8"<h1>Title</h1>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("anchor-valid-href") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<a href=\"http://example.com\">link</a>");
         auto const& answer = u8"<a href=\"http://example.com\">link</a>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("anchor-invalid-href") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<a href=\"invalid-url\">link</a>");
         auto const& answer = u8"&lt;a&nbsp;href=&quot;invalid-url&quot;&gt;link&lt;/a&gt;";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("image-attributes-preserved") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<img src=\"pic.png\" alt=\"pic\">");
         auto const& answer = u8"<img src=\"pic.png\" alt=\"pic\">";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("line-break-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<br>");
         auto const& answer = u8"<br>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("horizontal-rule-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<hr>");
         auto const& answer = u8"<hr>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("rule-before-heading") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<hr><h1>Title</h1>");
         auto const& answer = u8"<hr><h1>Title</h1>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("headings-around-rule") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<h1>Title</h1><hr><h2>Section</h2>");
         auto const& answer = u8"<h1>Title</h1><hr><h2>Section</h2>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("rule-heading-rule-paragraph") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<hr><h1>Section</h1><hr><p>Paragraph</p>");
         auto const& answer = u8"<hr><h1>Section</h1><hr><p style=\"text-align:left\">Paragraph</p>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("unordered-list-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<ul><li>item</li></ul>");
         auto const& answer = u8"<ul><li>item</li></ul>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("ordered-list-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<ol><li>item</li></ol>");
         auto const& answer = u8"<ol><li>item</li></ol>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("ordered-list-start-value") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<ol start=\"5\"><li>item</li></ol>");
         auto const& answer = u8"<ol start=\"5\"><li>item</li></ol>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("table-row-cell-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><tr><td>cell</td></tr></table>");
         auto const& answer = u8"<table><tr><td>cell</td></tr></table>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("span-style-preserved") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<span style=\"color:red;\">text</span>");
         auto const& answer = u8"<span style=\"color:red;\">text</span>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("inline-code-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<code>code</code>");
         auto const& answer = u8"<code>code</code>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("pre-alone-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre>pre</pre>");
         auto const& answer = u8"&lt;pre&gt;pre&lt;/pre&gt;";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("pre-code-block-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code>code</code></pre>");
         auto const& answer = u8"<pre><code>code</code></pre>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("language-class-preserved") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code class=\"language-cpp\">int x;</code></pre>");
         auto const& answer = u8"<pre><code class=\"language-cpp\">int&nbsp;x;</code></pre>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("pre-code-midline-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"ab<pre><code>c</code></pre>de");
         auto const& answer = u8"ab&lt;pre&gt;<code>c</code>&lt;/pre&gt;de";
         CHECK(html == answer);
     }
     // Backslash is literal inside <pre><code>; \ before </code></pre> must not swallow the
     // closing tag (regression: shared try_parse infra re-introduced MD-escape parsing here).
-    {
+    TEST_CASE("backslash-before-closing-tag") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code>&amp;\\</code></pre>");
         auto const& answer = u8"<pre><code>&amp;\\</code></pre>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("backslash-ampersand-in-code") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code>a\\&b\\</code></pre>");
         auto const& answer = u8"<pre><code>a\\&amp;b\\</code></pre>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("blockquote-quote-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<blockquote>quote</blockquote>");
         auto const& answer = u8"<blockquote>quote</blockquote>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("strikethrough-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<del>deleted</del>");
         auto const& answer = u8"<del>deleted</del>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("comment-stripped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<!-- comment -->");
         auto const& answer = u8"";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("input-checkbox-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<input type=\"checkbox\" disabled>");
         auto const& answer = u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&gt;";
         CHECK(html == answer);
     }
 
     // <b> and <i> are NOT parsed (PL-only syntax, excluded from HTML parser)
-    {
+    TEST_CASE("bold-tag-not-parsed") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<b>bold</b>");
         auto const& answer = u8"&lt;b&gt;bold&lt;/b&gt;";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("italic-tag-not-parsed") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<i>italic</i>");
         auto const& answer = u8"&lt;i&gt;italic&lt;/i&gt;";
         CHECK(html == answer);
     }
 
     // Markdown syntax is NOT parsed
-    {
+    TEST_CASE("markdown-bold-not-parsed") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"**bold**");
         auto const& answer = u8"**bold**";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("markdown-strike-not-parsed") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"~~text~~");
         auto const& answer = u8"~~text~~";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("markdown-code-not-parsed") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"`code`");
         auto const& answer = u8"`code`";
         CHECK(html == answer);
     }
 
     // PL syntax is NOT parsed
-    {
+    TEST_CASE("color-tag-not-parsed") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<color=red>text</color>");
         auto const& answer = u8"&lt;color=red&gt;text&lt;/color&gt;";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("size-tag-not-parsed") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<size=20>text</size>");
         auto const& answer = u8"&lt;size=20&gt;text&lt;/size&gt;";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("mark-value-not-parsed") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<mark=red>text</mark>");
         auto const& answer = u8"&lt;mark=red&gt;text&lt;/mark&gt;";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("project-placeholder-literal") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"{project}");
         auto const& answer = u8"{project}";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("visitor-placeholder-literal") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"{visitor}");
         auto const& answer = u8"{visitor}";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("user-tag-not-parsed") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<user=123>");
         auto const& answer = u8"&lt;user=123&gt;";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("experiment-tag-not-parsed") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<experiment=42>");
         auto const& answer = u8"&lt;experiment=42&gt;";
         CHECK(html == answer);
     }
 
     // Backslash is treated as literal character (no MD escape semantics)
-    {
+    TEST_CASE("backslash-literal-no-escape") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"\\\\n");
         auto const& answer = u8"\\\\n";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("backslash-t-stays-literal") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"a\\\\tb");
         auto const& answer = u8"a\\\\tb";
         CHECK(html == answer);
     }
 
     // Entity references still work
-    {
+    TEST_CASE("entity-ampersand-passthrough") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"&amp;");
         auto const& answer = u8"&amp;";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("lt-gt-entities-preserved") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"&lt;text&gt;");
         auto const& answer = u8"&lt;text&gt;";
         CHECK(html == answer);
     }
 
     // Special characters
-    {
+    TEST_CASE("lone-ampersand-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"&");
         auto const& answer = u8"&amp;";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("lone-less-than") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<");
         auto const& answer = u8"&lt;";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("lone-greater-than") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8">");
         auto const& answer = u8"&gt;";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("entity-quote-preserved") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"&quot;");
         auto const& answer = u8"&quot;";
         CHECK(html == answer);
     }
 
     // Nested HTML tags
-    {
+    TEST_CASE("nested-emphasis-in-paragraph") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<p><em>text</em></p>");
         auto const& answer = u8"<p style=\"text-align:left\"><em>text</em></p>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("nested-strong-in-list") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<ul><li><strong>bold</strong></li></ul>");
         auto const& answer = u8"<ul><li><strong>bold</strong></li></ul>";
         CHECK(html == answer);
     }
 
     // Mixed: PL/MD tag nested inside HTML tag → PL/MD treated as text
-    {
+    TEST_CASE("nested-pl-tag-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<p><color=red>text</color></p>");
         auto const& answer = u8"<p style=\"text-align:left\">&lt;color=red&gt;text&lt;/color&gt;</p>";
         CHECK(html == answer);
     }
 
     // Empty tags
-    {
+    TEST_CASE("empty-paragraph-tag") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<p></p>");
         auto const& answer = u8"<p style=\"text-align:left\"></p>";
         CHECK(html == answer);
     }
-    {
+    TEST_CASE("empty-emphasis-tag") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<em></em>");
         auto const& answer = u8"<em></em>";
         CHECK(html == answer);
     }
 
     // Remaining heading levels
-    {
+    TEST_CASE("lower-heading-levels") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<h2>2</h2><h3>3</h3><h4>4</h4><h5>5</h5><h6>6</h6>");
         auto const& answer = u8"<h2>2</h2><h3>3</h3><h4>4</h4><h5>5</h5><h6>6</h6>";
         CHECK(html == answer);
     }
 
     // Complete table structure
-    {
+    TEST_CASE("full-table-structure") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(
             u8"<table><caption>caption</caption><colgroup><col></colgroup><thead><tr><th "
             u8"style=\"text-align:center\">head</th></tr></thead><tbody><tr><td "
@@ -331,21 +331,21 @@ TEST_CASE("html_parser") {
     }
 
     // Scalar nodes handled directly by the HTML-only parser
-    {
+    TEST_CASE("scalar-whitespace-quotes") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"\n\t'\"");
         auto const& answer = u8"<br>&nbsp;&nbsp;&nbsp;&nbsp;&apos;&quot;";
         CHECK(html == answer);
     }
 
     // Nested tags without explicit closing tags are closed once at end of input.
-    {
+    TEST_CASE("unclosed-tags-auto-close") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<blockquote><p><em><strong>text");
         auto const& answer =
             u8"<blockquote><p style=\"text-align:left\"><em><strong>text</strong></em></p></blockquote>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("deep-unclosed-nesting") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(
             u8"<p><span style=\"color:red\"><a href=\"https://example.com\"><code>text");
         auto const& answer =
@@ -354,56 +354,56 @@ TEST_CASE("html_parser") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("unclosed-table-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><thead><tr><th>head");
         auto const& answer = u8"&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;head";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("unclosed-headings-nested") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<h1><h2><h3><h4><h5><h6>heading");
         auto const& answer = u8"<h1><h2><h3><h4><h5><h6>heading</h6></h5></h4></h3></h2></h1>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("nested-pre-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<del><pre>text");
         auto const& answer = u8"<del>&lt;pre&gt;text</del>";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("unclosed-lists-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<ul><li><ol><li>item");
         auto const& answer = u8"&lt;ul&gt;&lt;li&gt;&lt;ol&gt;&lt;li&gt;item";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("unclosed-table-body-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><tbody><tr><td>body");
         auto const& answer = u8"&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;body";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("unclosed-table-foot-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><tfoot><tr><td>foot");
         auto const& answer = u8"&lt;table&gt;&lt;tfoot&gt;&lt;tr&gt;&lt;td&gt;foot";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("unclosed-caption-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><caption>caption");
         auto const& answer = u8"&lt;table&gt;&lt;caption&gt;caption";
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("unclosed-colgroup-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<table><colgroup><col>");
         auto const& answer = u8"&lt;table&gt;&lt;colgroup&gt;&lt;col&gt;";
         CHECK(html == answer);
     }
 
     // Invalid opening tags are preserved as escaped text.
-    {
+    TEST_CASE("invalid-attributes-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(
             u8"<del invalid><hr invalid><li><ol invalid><pre invalid><table invalid><!invalid>");
         auto const& answer =
@@ -413,7 +413,7 @@ TEST_CASE("html_parser") {
     }
 
     // Mismatched closing tags are preserved inside otherwise valid elements.
-    {
+    TEST_CASE("mismatched-close-as-text") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(
             u8"<span style=\"color:red\"></x></span><a href=\"https://example.com\"></x></a><p></x></p>"
             u8"<h1></x></h1><h2></x></h2><h3></x></h3><h4></x></h4><h5></x></h5><h6></x></h6>"
@@ -430,7 +430,7 @@ TEST_CASE("html_parser") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("mismatched-close-list-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(
             u8"<ul></x></ul><ol></x></ol><ul><li></x></li></ul><ol><li></x></li></ol>");
         auto const& answer =
@@ -440,7 +440,7 @@ TEST_CASE("html_parser") {
         CHECK(html == answer);
     }
 
-    {
+    TEST_CASE("mismatched-close-table-escaped") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(
             u8"<table></x></table><table><tr></x></tr></table><table><tr><td></x></td></tr></table>"
             u8"<table><tr><th></x></th></tr></table><table><thead></x></thead></table>"

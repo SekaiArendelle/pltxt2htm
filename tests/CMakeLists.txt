@@ -154,12 +154,15 @@ endif()
 # parsers, the other directories hold internal components. Everything under src/ is a
 # test, so no file needs a name prefix, and recursing means that moving or adding a test
 # never requires editing this file. Most syntax cases are header-only: every
-# src/syntax/<family>/<stem>.hh defines TEST_CASE("<stem>") and is pulled into
-# src/syntax/syntax_tests.cc by the generated include list below, so adding or removing a
-# case never requires editing a list either. A header under src/syntax/ that is not a case
-# (shared helpers, or a file that needs file scope state) must not match */*.hh - keep it
-# in a deeper directory such as src/syntax/detail/, or give it another extension. Cases
-# that need their own translation unit stay as .cc and keep their own test.
+# src/syntax/<family>/<stem>.hh defines TEST_SUITE("<stem>") with one TEST_CASE per
+# scenario, and is pulled into src/syntax/syntax_tests.cc by the generated include list
+# below, so adding or removing a case never requires editing a list either. A header under
+# src/syntax/ that is not a case (shared helpers, or a file that needs file scope state)
+# must not match */*.hh - keep it in a deeper directory such as src/syntax/detail/, or give
+# it another extension. TEST_SUITE opens a namespace, so anything written directly inside
+# it instead of inside a TEST_CASE has namespace scope, and a case header must still be
+# included by exactly one translation unit. Cases that need their own translation unit stay
+# as .cc and keep their own test.
 file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS LIST_DIRECTORIES FALSE
      "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc")
 
