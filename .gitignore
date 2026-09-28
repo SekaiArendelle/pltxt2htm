@@ -9,6 +9,9 @@ dist/
 **/__pycache__/
 **/*.pyc
 
+# Reasonix
+**/.reasonix
+
 # xmake
 **/.xmake/
 
