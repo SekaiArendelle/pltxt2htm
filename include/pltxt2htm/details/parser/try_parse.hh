@@ -82,7 +82,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr void append_md_escape_result(::pltxt2htm::Ast<ndebug>& ast, TryParseMdEscapeResult const& result) noexcept {
     switch (result.kind) {
     case MdEscapeKind::literal_backslash: {
-        ::pltxt2htm::details::append_text_code_unit<ndebug>(ast, result.character);
+        ast.append_text(result.character);
         return;
     }
     case MdEscapeKind::escaped_punctuation: {
@@ -3728,7 +3728,7 @@ constexpr auto try_parse_md_latex_block_dollar(::pltxt2htm::container::U8StringV
             return TryParseMdLatexResult<ndebug>{.advance_count = current_index + 4, .subast = ::std::move(ast)};
         }
         if (body.template index<ndebug>(current_index) == u8'\n') {
-            ::pltxt2htm::details::append_text_code_unit<ndebug>(ast, u8'\n');
+            ast.append_text(u8'\n');
             ++current_index;
         }
         else {

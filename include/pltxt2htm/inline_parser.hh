@@ -83,8 +83,7 @@ entry:
             auto const plain_text_size =
                 ::pltxt2htm::details::scan_plain_ascii_run<ndebug>(pltext.template subview<ndebug>(current_index));
             if (plain_text_size != 0) {
-                ::pltxt2htm::details::append_text_range<ndebug>(
-                    result, pltext.template subview<ndebug>(current_index, plain_text_size));
+                result.append_text(pltext.template subview<ndebug>(current_index, plain_text_size));
                 current_index += plain_text_size;
                 continue;
             }
@@ -919,8 +918,7 @@ entry:
                                     pltext.template subview<ndebug>(comment_end))) {
                                 break;
                             }
-                            ::pltxt2htm::details::append_text_code_unit<ndebug>(
-                                subast, pltext.template index<ndebug>(comment_end));
+                            subast.append_text(pltext.template index<ndebug>(comment_end));
                         }
 
                         current_index = comment_end + 2; // Point to '>'

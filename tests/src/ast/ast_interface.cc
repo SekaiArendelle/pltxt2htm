@@ -99,6 +99,23 @@ int main() {
         pltxt2htm_test_assert_true(single.is_empty());
     }
 
+    // Text appending coalesces adjacent code units and starts a node after non-text content
+    {
+        Ast ast{};
+        ast.append_text(u8'a');
+        ast.append_text(u8"bc");
+        ast.append_text(::pltxt2htm::container::U8StringView{});
+        pltxt2htm_test_assert_true(ast.size() == 1);
+        pltxt2htm_test_assert_true(ast.front().as_text().size() == 3);
+        pltxt2htm_test_assert_true(ast.front().as_text().index(0) == u8'a');
+        pltxt2htm_test_assert_true(ast.front().as_text().index(2) == u8'c');
+
+        ast.push_back(Node::template emplace<::pltxt2htm::LineBreak>());
+        ast.append_text(u8'd');
+        pltxt2htm_test_assert_true(ast.size() == 3);
+        pltxt2htm_test_assert_true(ast.index(2).as_text().index(0) == u8'd');
+    }
+
     // Iteration, reverse iteration and range-based for
     {
         Ast ast{text_node(u8'a'), text_node(u8'b'), text_node(u8'c')};

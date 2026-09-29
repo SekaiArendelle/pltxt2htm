@@ -640,8 +640,7 @@ entry:
                                     pltext.template subview<ndebug>(comment_end))) {
                                 break;
                             }
-                            ::pltxt2htm::details::append_text_code_unit<ndebug>(
-                                subast, pltext.template index<ndebug>(comment_end));
+                            subast.append_text(pltext.template index<ndebug>(comment_end));
                         }
 
                         current_index = comment_end + 2;

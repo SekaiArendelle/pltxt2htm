@@ -284,7 +284,7 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text,
         return decoded.consumed_size;
     }
     for (::std::size_t index{}; index < decoded.consumed_size; ++index) {
-        ::pltxt2htm::details::append_text_code_unit<ndebug>(result, text.template index<ndebug>(index));
+        result.append_text(text.template index<ndebug>(index));
     }
     return decoded.consumed_size;
 }
@@ -350,7 +350,7 @@ constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<nd
         return;
     }
     for (::std::size_t index{}; index < encoded.size; ++index) {
-        ::pltxt2htm::details::append_text_code_unit<ndebug>(result, encoded.code_units[index]);
+        result.append_text(encoded.code_units[index]);
     }
 }
 

@@ -59,19 +59,18 @@ static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts:
 int main() {
     {
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
-        ::pltxt2htm::details::append_text_range<::pltxt2htm::Contracts::quick_enforce>(ast, u8"abc");
+        ast.append_text(u8"abc");
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> expected{};
         for (auto const character : ::fast_io::u8string_view{u8"abc"}) {
-            ::pltxt2htm::details::append_text_code_unit<::pltxt2htm::Contracts::quick_enforce>(expected, character);
+            expected.append_text(character);
         }
         ::pltxt2htm::container::U8String continuation{};
         for (::std::size_t index{}; index < 70; ++index) {
             continuation.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'x');
         }
-        ::pltxt2htm::details::append_text_range<::pltxt2htm::Contracts::quick_enforce>(
-            ast, ::pltxt2htm::container::U8StringView{continuation});
+        ast.append_text(::pltxt2htm::container::U8StringView{continuation});
         for (auto const character : continuation) {
-            ::pltxt2htm::details::append_text_code_unit<::pltxt2htm::Contracts::quick_enforce>(expected, character);
+            expected.append_text(character);
         }
         pltxt2htm_test_assert_true(ast == expected);
         pltxt2htm_test_assert_true(ast.size() == 2);

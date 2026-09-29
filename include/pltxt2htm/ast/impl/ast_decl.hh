@@ -6,9 +6,11 @@
  *
  *          Ast is a closed wrapper around ::pltxt2htm::container::Vector instead of an alias
  *          for it, so that the AST keeps a name of its own while the backing storage stays an
- *          implementation detail. Its public operations mirror the backing vector, while their
- *          contract checking mode is fixed by Ast's ndebug template argument. When
- *          container/vector.hh gains or changes a public member, mirror it here as well.
+ *          implementation detail. Its public container operations mirror the backing vector,
+ *          while their contract checking mode is fixed by Ast's ndebug template argument. Ast
+ *          also owns AST-specific operations such as appending text while coalescing adjacent
+ *          text nodes. When container/vector.hh gains or changes a public member, mirror it here
+ *          as well.
  *
  * @note Ast is a distinct type rather than an alias, so the two are no longer interchangeable:
  *       an Ast does not convert implicitly to
@@ -37,6 +39,7 @@
 #include <type_traits>
 #include <utility>
 
+#include "../../container/string_view.hh"
 #include "../../container/vector.hh"
 #include "../../contracts.hh"
 
@@ -260,6 +263,22 @@ public:
     {
         self.storage.clear();
     }
+
+    /**
+     * @brief Append one UTF-8 code unit to the trailing text node when possible.
+     * @details Starts a new text node when the AST is empty, the previous node is not text,
+     *          or the previous inline string has reached its fixed capacity.
+     */
+    constexpr void append_text(this Ast& self, char8_t code_unit) noexcept;
+
+    /**
+     * @brief Append a run of UTF-8 code units to trailing fixed-capacity text nodes.
+     * @details Fills an existing trailing Text node first, then constructs as many full Text
+     *          nodes as required. The resulting AST is identical to appending the same code
+     *          units one at a time.
+     * @pre text must not reference character storage owned by this Ast.
+     */
+    constexpr void append_text(this Ast& self, ::pltxt2htm::container::U8StringView text) noexcept;
 
     /**
      * @pre A single-pass input range must not reference elements in this Ast.
