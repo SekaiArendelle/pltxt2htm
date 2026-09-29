@@ -5,8 +5,8 @@
 #include <ranges>
 #include "precompile.hh"
 
-constexpr void assert_decoded(::fast_io::u8string_view text, ::std::size_t consumed_size, char32_t first_code_point,
-                              char32_t second_code_point = char32_t{}) {
+constexpr void assert_decoded(::pltxt2htm::container::U8StringView text, ::std::size_t consumed_size,
+                              char32_t first_code_point, char32_t second_code_point = char32_t{}) {
     auto const result =
         ::pltxt2htm::details::try_decode_character_reference<::pltxt2htm::Contracts::quick_enforce>(text);
     pltxt2htm_test_assert_true(result.has_value());
@@ -17,7 +17,7 @@ constexpr void assert_decoded(::fast_io::u8string_view text, ::std::size_t consu
     pltxt2htm_test_assert_true(decoded.has_second_code_point() == (second_code_point != char32_t{}));
 }
 
-constexpr void assert_not_decoded(::fast_io::u8string_view text) {
+constexpr void assert_not_decoded(::pltxt2htm::container::U8StringView text) {
     pltxt2htm_test_assert_true(
         ::pltxt2htm::details::try_decode_character_reference<::pltxt2htm::Contracts::quick_enforce>(text).has_value() ==
         false);
@@ -66,21 +66,21 @@ int main() {
     {
         constexpr auto bytes = ::fast_io::array{char8_t{0xE2}, char8_t{0x82}};
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
-            ::fast_io::u8string_view{bytes.data(), bytes.size()});
+            ::pltxt2htm::container::U8StringView{bytes.data(), bytes.size()});
         pltxt2htm_test_assert_true(decoded.valid == false);
         pltxt2htm_test_assert_true(decoded.consumed_size == 2);
     }
     {
         constexpr auto bytes = ::fast_io::array{char8_t{0xF0}, char8_t{0x90}, char8_t{'A'}};
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
-            ::fast_io::u8string_view{bytes.data(), bytes.size()});
+            ::pltxt2htm::container::U8StringView{bytes.data(), bytes.size()});
         pltxt2htm_test_assert_true(decoded.valid == false);
         pltxt2htm_test_assert_true(decoded.consumed_size == 2);
     }
     {
         constexpr auto bytes = ::fast_io::array{char8_t{0xED}, char8_t{0xA0}, char8_t{0x80}};
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
-            ::fast_io::u8string_view{bytes.data(), bytes.size()});
+            ::pltxt2htm::container::U8StringView{bytes.data(), bytes.size()});
         pltxt2htm_test_assert_true(decoded.valid == false);
         pltxt2htm_test_assert_true(decoded.consumed_size == 3);
     }
@@ -89,10 +89,10 @@ int main() {
         pltxt2htm_test_assert_true(encoded.size == 0);
     }
     {
-        ::fast_io::u8string encoded{};
-        ::pltxt2htm::details::append_utf8_code_point(encoded, U'A');
-        ::pltxt2htm::details::append_utf8_code_point(encoded, char32_t{0x20AC});
-        ::pltxt2htm::details::append_utf8_code_point(encoded, char32_t{0x1F600});
+        ::pltxt2htm::container::U8String encoded{};
+        ::pltxt2htm::details::append_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(encoded, U'A');
+        ::pltxt2htm::details::append_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(encoded, char32_t{0x20AC});
+        ::pltxt2htm::details::append_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(encoded, char32_t{0x1F600});
         pltxt2htm_test_assert_equal(encoded, u8"A\u20AC\U0001F600");
     }
 
@@ -128,7 +128,7 @@ int main() {
     assert_decoded(u8"&#13;", 5, char32_t{0x0D});
     assert_decoded(u8"&#127;", 6, char32_t{0x7F});
 
-    // Parser-produced ASTs never store raw ASCII control bytes in U8Char nodes.
+    // Parser-produced ASTs never store raw ASCII control bytes in Text nodes.
     for (auto const code_point : ::fast_io::array{char32_t{0x01}, char32_t{0x0D}, char32_t{0x7F}}) {
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
         ::pltxt2htm::details::append_code_point_to_ast<::pltxt2htm::Contracts::quick_enforce>(code_point, ast);
@@ -139,9 +139,9 @@ int main() {
 
     // Every generated named reference round-trips through the decoder.
     for (auto const entity : ::pltxt2htm::details::HtmlNamedCharacterReferenceTable::entries()) {
-        ::fast_io::u8string spelling{u8"&"};
-        spelling.append(entity.name);
-        spelling.push_back(u8';');
+        ::pltxt2htm::container::U8String spelling{u8"&"};
+        spelling.append<::pltxt2htm::Contracts::quick_enforce>(entity.name);
+        spelling.push_back<::pltxt2htm::Contracts::quick_enforce>(u8';');
         auto const decoded =
             ::pltxt2htm::details::try_decode_character_reference<::pltxt2htm::Contracts::quick_enforce>(
                 ::pltxt2htm::container::U8StringView{spelling});
@@ -154,7 +154,7 @@ int main() {
 
     // Backend attribute escaping never treats its input as pre-escaped HTML.
     {
-        ::fast_io::u8string escaped{};
+        ::pltxt2htm::container::U8String escaped{};
         ::pltxt2htm::details::append_html_escaped_attribute_value<::pltxt2htm::Contracts::quick_enforce>(
             escaped, ::pltxt2htm::container::U8StringView{u8"&quot;&bogus;"});
         pltxt2htm_test_assert_equal(escaped, u8"&amp;quot;&amp;bogus;");
@@ -172,8 +172,8 @@ int main() {
 
     // Physics-Lab treats U+0020 and U+00A0 as the same space token, including references.
     {
-        auto const pltext = ::fast_io::u8string_view{u8"a \u00A0&nbsp;&NonBreakingSpace;&#32;&#x20;&#160;&#xA0;b"};
-        auto const answer = ::fast_io::u8string_view{u8"a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b"};
+        auto const& pltext = u8"a \u00A0&nbsp;&NonBreakingSpace;&#32;&#x20;&#160;&#xA0;b";
+        auto const& answer = u8"a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b";
         pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(pltext), answer);
         pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4htmlunittest(pltext), answer);
         pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2common_htmld(pltext), answer);
@@ -198,14 +198,14 @@ int main() {
     {
         auto const first_pass = ::pltxt2htm_test::pltxt4unittest(u8"\"");
         pltxt2htm_test_assert_equal(first_pass, u8"&quot;");
-        auto const first_pass_view = ::fast_io::u8string_view{first_pass.data(), first_pass.size()};
+        auto const first_pass_view = ::pltxt2htm::container::U8StringView{first_pass.data(), first_pass.size()};
         auto const second_pass = ::pltxt2htm_test::pltxt4unittest(first_pass_view);
         pltxt2htm_test_assert_equal(second_pass, u8"&quot;");
     }
     {
         auto const first_pass = ::pltxt2htm_test::pltxt4unittest(u8"<");
         pltxt2htm_test_assert_equal(first_pass, u8"&lt;");
-        auto const first_pass_view = ::fast_io::u8string_view{first_pass.data(), first_pass.size()};
+        auto const first_pass_view = ::pltxt2htm::container::U8StringView{first_pass.data(), first_pass.size()};
         auto const second_pass = ::pltxt2htm_test::pltxt4unittest(first_pass_view);
         pltxt2htm_test_assert_equal(second_pass, u8"&lt;");
     }

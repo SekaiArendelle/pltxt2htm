@@ -1,30 +1,3 @@
-## layout
-
-The build scripts and the shared precompiled header sit at the top level of `tests/`;
-every test case lives under `src/`, grouped by subject. `src/syntax/<family>/` mirrors
-the syntax families of the library (the same split as `NodeKind`), and the remaining
-directories group tests by the internal component they exercise.
-
-```text
-src/
-├── syntax/
-│   ├── html/      HTML tag syntax
-│   ├── md/        Markdown syntax (including LaTeX math)
-│   ├── pl/        Physics-Lab tag syntax
-│   ├── unity/     Unity TextMeshPro syntax
-│   └── text/      text-level syntax shared by all families: URLs, escaping,
-│                  whitespace, UTF-8 handling, ...
-├── parser/        tokenizer and parser internals
-├── container/     container types (array, optional, vector, string_view, ...)
-├── ast/           AST node semantics (copying, nesting depth, operators)
-└── infra/         platform and diagnostics helpers
-```
-
-Everything under `src/` is a test, so no file name needs a `test_` prefix, and a test's
-ctest name is simply its file name without `.cc` - moving a test between directories
-never renames it. Sources are globbed recursively with `CONFIGURE_DEPENDS`, so adding or
-moving one does not require editing `CMakeLists.txt`.
-
 ## run all tests:
 ```sh
 python ./run_all_tests.py

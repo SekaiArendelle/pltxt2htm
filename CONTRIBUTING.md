@@ -30,21 +30,17 @@ A concise reference template covering this structure lives in [`.gitmessage`](./
 
 ### Attribution
 
-When a model materially contributed code, documentation, tests, or other content to a commit, record that provenance with one of these Git trailers:
+When a model materially contributed code, documentation, tests, or other content to a commit, record that provenance with this Git trailer:
 
 ```
 Assisted-by: <model name> [<version if known>]
-Generated-by: <model name> [<version if known>]
 ```
 
-- **`Assisted-by`** means the human contributor has reviewed and understood the model-produced content, tested it as appropriate, and accepts responsibility for explaining and maintaining the complete change.
-- **`Generated-by`** means the change is substantially model-produced and has received only limited human review or revision.
+Replace the placeholders with the exact identity provided by the environment. Include a version only when it is actually known; otherwise, omit it rather than guessing. Use one trailer per participating model.
 
-Replace the placeholders with the exact identity provided by the environment. Include a version only when it is actually known; otherwise, omit it rather than guessing. Use one applicable trailer per participating model.
+The trailer applies when model-produced content is included in the commit. Do not add it merely because a model was used for brainstorming, searching, or review when none of its produced content was incorporated. Commits whose material was written entirely by humans carry no model-attribution trailer.
 
-These trailers apply when model-produced content is included in the commit. Do not add one merely because a model was used for brainstorming, searching, or review when none of its produced content was incorporated. Commits whose material was written entirely by humans carry no model-attribution trailer.
-
-The trailers are disclosure metadata supplied by the contributor, not a mechanism for detecting undisclosed model use. Neither identifies a GitHub co-author. Reserve `Co-authored-by` for human collaborators, using an email address associated with the collaborator's GitHub account. Git (git >= 2.32) can append a model-attribution trailer:
+The trailer is disclosure metadata supplied by the contributor, not a mechanism for detecting undisclosed model use, and does not identify a GitHub co-author. Reserve `Co-authored-by` for human collaborators, using an email address associated with the collaborator's GitHub account. Git (git >= 2.32) can append the trailer:
 
 ```sh
 git commit --trailer "Assisted-by: <model name> [<version if known>]"
@@ -56,7 +52,7 @@ Pull requests are welcome as reviewable implementation proposals. Keeping a chan
 
 An **Issue** is useful for discussing an approach before code exists, but it is not required before opening a pull request.
 
-Pull requests submitted directly by automated or AI agents will be closed. A human-submitted pull request carrying an `Assisted-by` trailer is not considered agent-submitted merely because it discloses model assistance. A `Generated-by` trailer indicates limited human validation and may be grounds for closing the pull request without detailed review.
+Pull requests submitted directly by automated or AI agents will be closed. A human-submitted pull request carrying an `Assisted-by` trailer is not considered agent-submitted merely because it discloses model assistance.
 
 ## Reporting Issues
 

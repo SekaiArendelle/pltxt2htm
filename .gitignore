@@ -9,6 +9,9 @@ dist/
 **/__pycache__/
 **/*.pyc
 
+# Reasonix
+**/.reasonix
+
 # xmake
 **/.xmake/
 
@@ -75,6 +78,9 @@ csharp/bin/
 # ninja
 **/.ninja_log
 **/.ninja_lock
+
+# generated clang-format rules (scripts/gen_format_ninja.py)
+format_cpp.ninja
 
 # docsgen
 **/docs/

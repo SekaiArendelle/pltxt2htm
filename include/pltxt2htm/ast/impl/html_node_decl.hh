@@ -10,7 +10,7 @@
 #include <utility>
 #include <cstddef>
 #include <cstdint>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/optional.hh"
 #include "../../container/string_view.hh"
 #include "ast_decl.hh"
@@ -47,11 +47,11 @@ public:
  * @details Represents &lt;img src=&quot;...&quot; alt=&quot;...&quot;&gt;.
  */
 class HtmlImg {
-    ::fast_io::u8string src;
-    ::fast_io::u8string alt;
+    ::pltxt2htm::container::U8String src;
+    ::pltxt2htm::container::U8String alt;
 
 public:
-    constexpr HtmlImg(::fast_io::u8string&& src_, ::fast_io::u8string&& alt_) noexcept
+    constexpr HtmlImg(::pltxt2htm::container::U8String&& src_, ::pltxt2htm::container::U8String&& alt_) noexcept
         : src(::std::move(src_)),
           alt(::std::move(alt_)) {
     }
@@ -471,13 +471,13 @@ public:
 template<::pltxt2htm::Contracts ndebug>
 class HtmlMark {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string background_color;
+    ::pltxt2htm::container::U8String background_color;
 
 public:
     static constexpr auto default_background_color = ::pltxt2htm::container::U8StringView{u8"#FFFF00"};
 
     constexpr explicit HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_,
-                                ::fast_io::u8string&& background_color_ = ::fast_io::u8string{
+                                ::pltxt2htm::container::U8String&& background_color_ = ::pltxt2htm::container::U8String{
                                     default_background_color}) noexcept;
     constexpr HtmlMark(HtmlMark<ndebug> const&) noexcept;
     constexpr HtmlMark(HtmlMark<ndebug>&&) noexcept;
@@ -728,12 +728,12 @@ class HtmlSpan {
     };
 
     ::pltxt2htm::Ast<ndebug> subast;
-    ::fast_io::u8string color;
+    ::pltxt2htm::container::U8String color;
     StyleStorage style;
 
 public:
     constexpr HtmlSpan(
-        ::pltxt2htm::Ast<ndebug>&& subast_, ::fast_io::u8string&& color_,
+        ::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::U8String&& color_,
         ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size_,
         ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept;
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept;
@@ -777,9 +777,62 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class HtmlDiv {
+    struct MarginStorage {
+        ::std::size_t left_value{};
+        ::std::size_t right_value{};
+        ::pltxt2htm::Unit left_unit : 2 {::pltxt2htm::Unit::px};
+        ::pltxt2htm::Unit right_unit : 2 {::pltxt2htm::Unit::px};
+        bool has_left : 1 {};
+        bool has_right : 1 {};
+
+        constexpr MarginStorage(
+            ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> const& left,
+            ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> const& right) noexcept {
+            if (left.has_value()) {
+                auto const& value = left.template value<ndebug>();
+                left_value = value.value;
+                left_unit = value.unit;
+                has_left = true;
+            }
+            if (right.has_value()) {
+                auto const& value = right.template value<ndebug>();
+                right_value = value.value;
+                right_unit = value.unit;
+                has_right = true;
+            }
+        }
+
+        [[nodiscard]]
+        constexpr auto operator==(this MarginStorage const& self, MarginStorage const& other) noexcept -> bool {
+            bool const left_equal{
+                self.has_left == other.has_left &&
+                (self.has_left == false || (self.left_value == other.left_value && self.left_unit == other.left_unit))};
+            return left_equal && self.has_right == other.has_right &&
+                   (self.has_right == false ||
+                    (self.right_value == other.right_value && self.right_unit == other.right_unit));
+        }
+
+        [[nodiscard]]
+        constexpr auto get_left(this MarginStorage const& self) noexcept
+            -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+            if (self.has_left == false) {
+                return ::pltxt2htm::container::nullopt;
+            }
+            return ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = self.left_value, .unit = self.left_unit};
+        }
+
+        [[nodiscard]]
+        constexpr auto get_right(this MarginStorage const& self) noexcept
+            -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
+            if (self.has_right == false) {
+                return ::pltxt2htm::container::nullopt;
+            }
+            return ::pltxt2htm::ValueWithUnit<::std::size_t>{.value = self.right_value, .unit = self.right_unit};
+        }
+    };
+
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right;
+    MarginStorage margins;
 
 public:
     constexpr HtmlDiv(::pltxt2htm::Ast<ndebug>&& subast_,
@@ -803,13 +856,13 @@ public:
     [[nodiscard]]
     constexpr auto get_left(this auto const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        return self.left;
+        return self.margins.get_left();
     }
 
     [[nodiscard]]
     constexpr auto get_right(this auto const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> {
-        return self.right;
+        return self.margins.get_right();
     }
 };
 
