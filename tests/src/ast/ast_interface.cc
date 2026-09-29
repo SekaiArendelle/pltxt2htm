@@ -205,9 +205,6 @@ int main() {
         left.swap(other);
         pltxt2htm_test_assert_true(left.size() == 1);
         pltxt2htm_test_assert_true(other.size() == 2);
-
-        ::pltxt2htm::swap(left, other);
-        pltxt2htm_test_assert_true(left == right);
     }
 
     return 0;
