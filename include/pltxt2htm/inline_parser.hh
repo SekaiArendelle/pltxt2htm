@@ -38,7 +38,7 @@ namespace pltxt2htm::details {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto is_inline_code_span_content(::pltxt2htm::container::U8StringView content) noexcept -> bool {
-    if (content.empty()) {
+    if (content.is_empty()) {
         return false;
     }
     ::std::size_t const content_size{content.size()};

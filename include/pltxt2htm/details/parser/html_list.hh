@@ -87,7 +87,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</ul">(
                 pltext.template subview<ndebug>(current_index));
             item_kind == ::pltxt2htm::NodeKind::list_ul && opt_len.has_value()) {
-            if (ast.empty()) {
+            if (ast.is_empty()) {
                 return ::pltxt2htm::container::nullopt;
             }
             return ToHtmlListAstResult<ndebug>{.top_node = ListBaseNode<ndebug>{ListUlNode<ndebug>(::std::move(ast))},
@@ -96,7 +96,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</ol">(
                 pltext.template subview<ndebug>(current_index));
             item_kind == ::pltxt2htm::NodeKind::list_ol && opt_len.has_value()) {
-            if (ast.empty()) {
+            if (ast.is_empty()) {
                 return ::pltxt2htm::container::nullopt;
             }
             return ToHtmlListAstResult<ndebug>{
@@ -188,7 +188,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
             ++current_index;
         }
         // Trailing whitespace/newlines are formatting as well (see the leading-skip above).
-        while (text.empty() == false) {
+        while (text.is_empty() == false) {
             auto const chr = text.template index<ndebug>(text.size() - 1);
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;

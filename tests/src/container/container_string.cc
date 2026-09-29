@@ -13,6 +13,15 @@ using U8String = ::pltxt2htm::container::U8String;
 using U8StringView = ::pltxt2htm::container::U8StringView;
 using Contracts = ::pltxt2htm::Contracts;
 
+template<typename T>
+concept can_call_empty = requires(T const& value) { value.empty(); };
+
+template<typename T>
+concept can_call_is_empty = requires(T const& value) { value.is_empty(); };
+
+static_assert(!can_call_empty<U8String>);
+static_assert(can_call_is_empty<U8String>);
+
 class DirtyAllocator {
 public:
     static constexpr auto allocate(::std::size_t size) noexcept -> void* {
@@ -53,14 +62,14 @@ consteval auto test_constexpr_string() noexcept -> bool {
     empty_string.assign(U8StringView{});
     empty_string.assign_characters<Contracts::quick_enforce>(0);
     U8String moved_empty_string{::std::move(empty_string)};
-    if (!empty_string.empty() || empty_string.c_str()[0] != u8'\0' || !moved_empty_string.empty() ||
+    if (!empty_string.is_empty() || empty_string.c_str()[0] != u8'\0' || !moved_empty_string.is_empty() ||
         moved_empty_string.c_str()[0] != u8'\0') {
         return false;
     }
     U8String assigned_empty_string{u8"not empty"};
     assigned_empty_string = ::std::move(moved_empty_string);
-    if (!moved_empty_string.empty() || moved_empty_string.c_str()[0] != u8'\0' || !assigned_empty_string.empty() ||
-        assigned_empty_string.c_str()[0] != u8'\0') {
+    if (!moved_empty_string.is_empty() || moved_empty_string.c_str()[0] != u8'\0' ||
+        !assigned_empty_string.is_empty() || assigned_empty_string.c_str()[0] != u8'\0') {
         return false;
     }
 
@@ -93,7 +102,7 @@ consteval auto test_constexpr_string() noexcept -> bool {
 
     U8String copy{string};
     U8String moved{::std::move(copy)};
-    if (!copy.empty() || moved != string) {
+    if (!copy.is_empty() || moved != string) {
         return false;
     }
 
@@ -173,7 +182,7 @@ int main() {
     ::fast_io::u8ibuffer_view empty_buffer{empty_input, empty_input};
     U8String scanned_empty{u8"old value"};
     ::fast_io::io::scan(empty_buffer, ::fast_io::mnp::whole_get(scanned_empty));
-    pltxt2htm_test_assert_true(scanned_empty.empty());
+    pltxt2htm_test_assert_true(scanned_empty.is_empty());
 
     U8String zero_string{1024};
     for (char8_t const character : zero_string) {

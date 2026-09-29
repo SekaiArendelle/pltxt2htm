@@ -78,22 +78,6 @@ public:
           length{string.size()} {
     }
 
-    constexpr BasicStringView(::fast_io::manipulators::basic_os_c_str<value_type> string) noexcept
-        : pointer{string.ptr},
-          length{::fast_io::cstr_len(string.ptr)} {
-    }
-
-    constexpr BasicStringView(::fast_io::manipulators::basic_os_c_str_with_known_size<value_type> string) noexcept
-        : pointer{string.ptr},
-          length{string.n} {
-    }
-
-    constexpr BasicStringView(
-        ::fast_io::manipulators::basic_os_str_known_size_without_null_terminated<value_type> string) noexcept
-        : pointer{string.ptr},
-          length{string.n} {
-    }
-
     template<typename Allocator>
     constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator> const& string) noexcept
         : pointer{string.data()},
@@ -197,6 +181,18 @@ public:
 #endif
         ;
 
+    /**
+     * @brief Builds a view over a null-terminated string.
+     * @param[in] string Null-terminated string; must not be null.
+     * @return A view over the string, excluding the terminator.
+     * @pre string != nullptr
+     * @note The length is determined by scanning for the terminator, so this is O(size).
+     */
+    [[nodiscard]]
+    static constexpr auto from_c_str(const_pointer string) noexcept -> BasicStringView {
+        return BasicStringView{string, ::fast_io::cstr_len(string)};
+    }
+
     [[nodiscard]]
     constexpr auto data(this BasicStringView const& self) noexcept -> const_pointer {
         return self.pointer;
@@ -208,9 +204,33 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto empty(this BasicStringView const& self) noexcept -> bool {
+    constexpr auto is_empty(this BasicStringView const& self) noexcept -> bool {
         return self.length == 0;
     }
+
+    /**
+     * @brief Tests whether the view has no characters, for downstream users only.
+     * @return true when size() is zero.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto empty(this BasicStringView const&) noexcept -> bool = delete
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("empty() is external-only; use is_empty() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
+    #endif
+        ;
+#else
+    [[nodiscard]]
+    constexpr auto empty(this BasicStringView const& self) noexcept -> bool {
+        return self.is_empty();
+    }
+#endif
 
     [[nodiscard]]
     constexpr auto begin(this BasicStringView const& self) noexcept -> const_iterator {
@@ -328,16 +348,6 @@ BasicStringView(::pltxt2htm::details::BasicLiteralString<CharType, size> const&)
 
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent, ::pltxt2htm::Contracts ndebug>
 BasicStringView(::pltxt2htm::details::BasicInplaceString<CharType, extent, ndebug> const&) -> BasicStringView<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType>
-BasicStringView(::fast_io::manipulators::basic_os_c_str<CharType>) -> BasicStringView<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType>
-BasicStringView(::fast_io::manipulators::basic_os_c_str_with_known_size<CharType>) -> BasicStringView<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType>
-BasicStringView(::fast_io::manipulators::basic_os_str_known_size_without_null_terminated<CharType>)
-    -> BasicStringView<CharType>;
 
 using StringView = BasicStringView<char>;
 using WStringView = BasicStringView<wchar_t>;

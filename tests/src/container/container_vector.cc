@@ -12,6 +12,15 @@
 
 using IntVector = ::pltxt2htm::container::Vector<int>;
 
+template<typename T>
+concept can_call_empty = requires(T const& value) { value.empty(); };
+
+template<typename T>
+concept can_call_is_empty = requires(T const& value) { value.is_empty(); };
+
+static_assert(!can_call_empty<IntVector>);
+static_assert(can_call_is_empty<IntVector>);
+
 class TrackingRawAllocator {
     static inline constexpr ::std::size_t slot_count{4};
     static inline constexpr ::std::size_t additional_bytes{3 * sizeof(int)};
@@ -424,7 +433,7 @@ static_assert(noexcept(::std::declval<IntVector const&>() == ::std::declval<IntV
 
 consteval auto test_constexpr_vector() -> bool {
     IntVector values{};
-    if (!values.empty() || values.size() != 0 || values.capacity() != 0 || values.data() != nullptr) {
+    if (!values.is_empty() || values.size() != 0 || values.capacity() != 0 || values.data() != nullptr) {
         return false;
     }
     if (values.erase(values.begin(), values.end()) != values.end()) {
@@ -546,11 +555,11 @@ int main() {
 
     IntVector moved{};
     moved = ::std::move(copy);
-    pltxt2htm_test_assert_true(copy.empty());
+    pltxt2htm_test_assert_true(copy.is_empty());
     pltxt2htm_test_assert_true(moved == IntVector{4, 2, 3});
     moved.pop_back();
     moved.clear();
-    pltxt2htm_test_assert_true(moved.empty());
+    pltxt2htm_test_assert_true(moved.is_empty());
 
     int const single_pass_values[]{6, 7};
     auto single_pass_range = SinglePassIntRange{single_pass_values, single_pass_values + 2};

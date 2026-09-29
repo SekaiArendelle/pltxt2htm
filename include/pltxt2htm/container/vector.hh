@@ -334,11 +334,34 @@ public:
         return self.begin_pointer;
     }
 
-    // TODO rename to `is_empty`
     [[nodiscard]]
-    constexpr auto empty(this Vector const& self) noexcept -> bool {
+    constexpr auto is_empty(this Vector const& self) noexcept -> bool {
         return self.current_size == 0;
     }
+
+    /**
+     * @brief Tests whether the vector has no elements, for downstream users only.
+     * @return true when size() is zero.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto empty(this Vector const&) noexcept -> bool = delete
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("empty() is external-only; use is_empty() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
+    #endif
+        ;
+#else
+    [[nodiscard]]
+    constexpr auto empty(this Vector const& self) noexcept -> bool {
+        return self.is_empty();
+    }
+#endif
 
     [[nodiscard]]
     constexpr auto size(this Vector const& self) noexcept -> size_type {
@@ -414,14 +437,14 @@ public:
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this Vector& self) noexcept -> reference {
-        pltxt2htm_assert(!self.empty(), u8"Accessing front but Vector is empty");
+        pltxt2htm_assert(!self.is_empty(), u8"Accessing front but Vector is empty");
         return *self.begin_pointer;
     }
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this Vector const& self) noexcept -> const_reference {
-        pltxt2htm_assert(!self.empty(), u8"Accessing front but Vector is empty");
+        pltxt2htm_assert(!self.is_empty(), u8"Accessing front but Vector is empty");
         return *self.begin_pointer;
     }
 
@@ -483,7 +506,7 @@ public:
     constexpr void pop_back(this Vector& self) noexcept
         requires ::std::is_nothrow_destructible_v<value_type>
     {
-        pltxt2htm_assert(!self.empty(), u8"Popping back but Vector is empty");
+        pltxt2htm_assert(!self.is_empty(), u8"Popping back but Vector is empty");
         --self.current_size;
         ::std::destroy_at(self.begin_pointer + self.current_size);
     }

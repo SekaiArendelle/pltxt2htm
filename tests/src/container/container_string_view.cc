@@ -18,6 +18,12 @@ using U8InplaceString = ::pltxt2htm::details::U8InplaceString<8, ::pltxt2htm::Co
 template<typename CharType>
 concept can_form_basic_string_view = requires { typename ::pltxt2htm::container::BasicStringView<CharType>; };
 
+template<typename T>
+concept can_call_empty = requires(T const& value) { value.empty(); };
+
+template<typename T>
+concept can_call_is_empty = requires(T const& value) { value.is_empty(); };
+
 static_assert(::std::is_trivially_copyable_v<U8StringView>);
 static_assert(::std::is_standard_layout_v<U8StringView>);
 static_assert(::std::same_as<U8StringView::value_type, char8_t>);
@@ -26,6 +32,7 @@ static_assert(::std::is_constructible_v<U8StringView, ::fast_io::u8string_view>)
 static_assert(::std::is_constructible_v<U8StringView, ::fast_io::u8string const&>);
 static_assert(!::std::is_constructible_v<U8StringView, ::fast_io::u8string&&>);
 static_assert(::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String const&>);
+static_assert(::std::same_as<decltype(U8StringView::from_c_str(static_cast<char8_t const*>(nullptr))), U8StringView>);
 static_assert(!::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String&&>);
 static_assert(::std::is_convertible_v<::pltxt2htm::container::U8String const&, U8StringView>);
 static_assert(!::std::is_convertible_v<::pltxt2htm::container::U8String&&, U8StringView>);
@@ -43,16 +50,18 @@ static_assert(can_form_basic_string_view<char8_t>);
 static_assert(can_form_basic_string_view<char16_t>);
 static_assert(can_form_basic_string_view<char32_t>);
 static_assert(!can_form_basic_string_view<bool>);
+static_assert(!can_call_empty<U8StringView>);
+static_assert(can_call_is_empty<U8StringView>);
 static_assert(!can_form_basic_string_view<int>);
 
 consteval auto test_constexpr_string_view() noexcept -> bool {
     U8StringView const empty{};
-    if (!empty.empty() || empty.size() != 0 || empty.data() != nullptr || empty.begin() != empty.end()) {
+    if (!empty.is_empty() || empty.size() != 0 || empty.data() != nullptr || empty.begin() != empty.end()) {
         return false;
     }
 
     U8StringView const text{u8"abcdef"};
-    if (text.empty() || text.size() != 6 || text.template index<::pltxt2htm::Contracts::quick_enforce>(2) != u8'c') {
+    if (text.is_empty() || text.size() != 6 || text.template index<::pltxt2htm::Contracts::quick_enforce>(2) != u8'c') {
         return false;
     }
 
@@ -121,8 +130,11 @@ int main() {
     auto const printed = ::fast_io::u8concat_fast_io(u8"[", compatible_view, u8"]");
     pltxt2htm_test_assert_true(printed == u8"[view]");
 
-    U8StringView const manipulator_view{::fast_io::mnp::os_c_str(string)};
-    pltxt2htm_test_assert_true(manipulator_view == string_view);
+    U8StringView const explicit_view{string.data(), string.size()};
+    pltxt2htm_test_assert_true(explicit_view == string_view);
+
+    U8StringView const from_c_str_view = U8StringView::from_c_str(string.data());
+    pltxt2htm_test_assert_true(from_c_str_view == string_view);
 
     return 0;
 }

@@ -1,9 +1,9 @@
-// External-only subscript coverage for BasicString, BasicStringView, Array and BasicInplaceString.
+// External-only API coverage for BasicString, BasicStringView, Array, Vector and BasicInplaceString.
 //
 // Every other test is built as pltxt2htm itself, with PLTXT2HTM_INTERNAL_USE
-// defined, where those operator[] overloads stay deleted. This TU is excluded
+// defined, where these APIs stay deleted. This TU is excluded
 // from that definition in tests/CMakeLists.txt, so it stands in for a downstream
-// user and proves the external-only overloads are usable.
+// user and proves the external-only APIs are usable.
 
 #include <concepts>
 #include <cstddef>
@@ -11,6 +11,7 @@
 #include <pltxt2htm/container/array.hh>
 #include <pltxt2htm/container/string.hh>
 #include <pltxt2htm/container/string_view.hh>
+#include <pltxt2htm/container/vector.hh>
 #include <pltxt2htm/contracts.hh>
 #include <pltxt2htm/details/inplace_string.hh>
 
@@ -19,6 +20,7 @@
 using U8String = ::pltxt2htm::container::U8String;
 using U8StringView = ::pltxt2htm::container::U8StringView;
 using U8Array = ::pltxt2htm::container::Array<char8_t, 4>;
+using IntVector = ::pltxt2htm::container::Vector<int>;
 using U8InplaceString = ::pltxt2htm::details::U8InplaceString<4, ::pltxt2htm::Contracts::quick_enforce>;
 
 static_assert(requires(U8String& string, U8String const& const_string, ::std::size_t position) {
@@ -37,6 +39,23 @@ static_assert(requires(U8InplaceString& string, U8InplaceString const& const_str
     string[position] = u8'a';
     const_string[position];
 });
+static_assert(requires(U8String const& string, U8StringView view, U8Array const& array, IntVector const& vector) {
+    { string.empty() } -> ::std::same_as<bool>;
+    { view.empty() } -> ::std::same_as<bool>;
+    { vector.empty() } -> ::std::same_as<bool>;
+});
+
+consteval auto test_constexpr_empty() noexcept -> bool {
+    U8String const empty_string{};
+    U8String const string{u8"a"};
+    U8StringView const empty_view{};
+    U8StringView const view{u8"a"};
+    U8Array const array{};
+    IntVector const empty_vector{};
+    IntVector const vector{1};
+    return empty_string.empty() && !string.empty() && empty_view.empty() && !view.empty() && empty_vector.empty() &&
+           !vector.empty();
+}
 
 consteval auto test_constexpr_string_subscript() noexcept -> bool {
     U8String string{u8"abcd"};
@@ -86,6 +105,7 @@ consteval auto test_constexpr_container_subscript() noexcept -> bool {
 
 static_assert(test_constexpr_string_subscript());
 static_assert(test_constexpr_container_subscript());
+static_assert(test_constexpr_empty());
 
 int main() {
     U8String string{u8"abcd"};
@@ -100,6 +120,11 @@ int main() {
     U8Array array{u8'a', u8'b', u8'c', u8'd'};
     array[1] = u8'y';
     pltxt2htm_test_assert_true(array[1] == u8'y');
+
+    IntVector empty_vector{};
+    IntVector vector{1};
+    pltxt2htm_test_assert_true(empty_vector.empty());
+    pltxt2htm_test_assert_true(!vector.empty());
 
     return 0;
 }

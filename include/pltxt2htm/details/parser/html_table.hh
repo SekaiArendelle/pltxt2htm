@@ -89,7 +89,7 @@ constexpr auto try_capture_until_tag(::pltxt2htm::container::U8StringView pltext
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr auto trim_table_content(::pltxt2htm::container::U8String& text) noexcept -> void {
-    while (text.empty() == false) {
+    while (text.is_empty() == false) {
         auto const chr = text.template index<ndebug>(text.size() - 1);
         if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
             break;
