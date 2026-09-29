@@ -75,9 +75,9 @@ int main() {
         }
         pltxt2htm_test_assert_true(ast == expected);
         pltxt2htm_test_assert_true(ast.size() == 2);
-        pltxt2htm_test_assert_true(ast.template index<::pltxt2htm::Contracts::quick_enforce>(0).as_text().size() ==
+        pltxt2htm_test_assert_true(ast.index(0).as_text().size() ==
                                    ::pltxt2htm::Text<::pltxt2htm::Contracts::quick_enforce>::capacity());
-        pltxt2htm_test_assert_true(ast.template index<::pltxt2htm::Contracts::quick_enforce>(1).as_text().size() == 9);
+        pltxt2htm_test_assert_true(ast.index(1).as_text().size() == 9);
     }
     {
         for (auto const size : ::fast_io::array<::std::size_t, 6>{0, 1, 63, 64, 65, 129}) {

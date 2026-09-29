@@ -2269,8 +2269,8 @@ constexpr void append_text_range(::pltxt2htm::Ast<ndebug>& ast, ::pltxt2htm::con
     }
 
     constexpr auto text_capacity = ::pltxt2htm::Text<ndebug>::capacity();
-    if (ast.empty() == false) {
-        auto&& last_node = ast.template index<ndebug>(ast.size() - 1);
+    if (ast.is_empty() == false) {
+        auto&& last_node = ast.index(ast.size() - 1);
         if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text) {
             auto&& last_text = last_node.as_text();
             auto const available = text_capacity - last_text.size();
@@ -2288,7 +2288,7 @@ constexpr void append_text_range(::pltxt2htm::Ast<ndebug>& ast, ::pltxt2htm::con
     auto const additional_nodes =
         remaining / text_capacity + static_cast<::std::size_t>(remaining % text_capacity != 0);
     pltxt2htm_assert(additional_nodes <= ast.max_size() - ast.size(), u8"AST size exceeds max_size");
-    ast.template reserve<ndebug>(ast.size() + additional_nodes);
+    ast.reserve(ast.size() + additional_nodes);
 
     while (current != end) {
         auto const remaining_size = static_cast<::std::size_t>(end - current);
