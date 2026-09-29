@@ -284,7 +284,7 @@ consteval auto make_decimal_digit_pairs() noexcept -> ::pltxt2htm::details::U8Li
     return pairs;
 }
 
-constexpr auto decimal_digit_pairs = ::pltxt2htm::details::make_decimal_digit_pairs();
+inline constexpr auto decimal_digit_pairs = ::pltxt2htm::details::make_decimal_digit_pairs();
 
 /**
  * @brief Write the decimal digits of an unsigned integer backward into a buffer.
