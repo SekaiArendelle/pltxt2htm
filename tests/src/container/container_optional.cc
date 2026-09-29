@@ -10,6 +10,12 @@
 
 using IntOptional = ::pltxt2htm::container::Optional<int>;
 
+template<typename Left, typename Right>
+concept can_compare_optionals = requires(Left const& left, Right const& right) {
+    { left == right } -> ::std::same_as<bool>;
+    { right == left } -> ::std::same_as<bool>;
+};
+
 static_assert(::pltxt2htm::container::is_optional<IntOptional>);
 static_assert(!::pltxt2htm::container::is_expected<IntOptional>);
 static_assert(!::std::default_initializable<IntOptional>);
@@ -38,6 +44,8 @@ static_assert(noexcept(::std::declval<IntOptional&&>().value_or(short{})));
 static_assert(noexcept(::std::declval<IntOptional const&&>().value_or(short{})));
 static_assert(!::std::is_assignable_v<IntOptional&&, int>);
 static_assert(!::std::is_assignable_v<IntOptional&&, ::pltxt2htm::container::NulloptType>);
+static_assert(can_compare_optionals<IntOptional, IntOptional>);
+static_assert(!can_compare_optionals<IntOptional, ::pltxt2htm::container::Optional<long>>);
 
 consteval bool optional_constexpr_operations_work() noexcept {
     IntOptional value{42};
@@ -63,7 +71,17 @@ static_assert(optional_constexpr_operations_work());
 using NonZeroUsize = ::pltxt2htm::container::NonZeroUsize;
 using NonZeroUsizeOptional = ::pltxt2htm::container::Optional<NonZeroUsize>;
 
+template<typename T>
+concept can_compare_non_zero_optional_with = requires(NonZeroUsizeOptional const& value, T const& other) {
+    { value == other } -> ::std::same_as<bool>;
+    { other == value } -> ::std::same_as<bool>;
+};
+
 static_assert(!::std::is_trivially_copy_assignable_v<NonZeroUsizeOptional>);
+static_assert(can_compare_non_zero_optional_with<::std::size_t>);
+static_assert(can_compare_non_zero_optional_with<int>);
+static_assert(!can_compare_non_zero_optional_with<bool>);
+static_assert(!can_compare_non_zero_optional_with<float>);
 
 template<typename T>
 consteval auto optional_non_zero_has_niche_representation() noexcept -> bool {
@@ -85,6 +103,10 @@ consteval bool optional_non_zero_constexpr_operations_work() noexcept {
     NonZeroUsizeOptional value{seven};
     NonZeroUsizeOptional empty{::pltxt2htm::container::nullopt};
     if (!value.has_value() || empty.has_value()) {
+        return false;
+    }
+    if (value != ::std::size_t{7} || ::std::size_t{7} != value || value == ::std::size_t{11} ||
+        ::std::size_t{11} == value || empty == ::std::size_t{7} || ::std::size_t{7} == empty) {
         return false;
     }
     if (value.value<::pltxt2htm::Contracts::ignore>().get<::pltxt2htm::Contracts::ignore>() != 7) {
