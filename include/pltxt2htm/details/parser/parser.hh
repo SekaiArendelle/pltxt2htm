@@ -134,7 +134,7 @@ constexpr auto find_next_block_after_line_break(::pltxt2htm::container::U8String
                 ::pltxt2htm::details::try_parse_md_code_fence<ndebug>(pltext.template subview<ndebug>(current_index));
             opt_code_fence.has_value()) {
             auto&& [node, advance_count] = opt_code_fence.template value<ndebug>();
-            result.template push_back<ndebug>(::std::move(node));
+            result.push_back(::std::move(node));
             return FindNextBlockAfterLineBreakResult{.advance_count = current_index + advance_count,
                                                      .new_frame_been_pushed_into_call_stack = false};
         }
@@ -143,7 +143,7 @@ constexpr auto find_next_block_after_line_break(::pltxt2htm::container::U8String
                 pltext.template subview<ndebug>(current_index));
             opt_pre_code_block.has_value()) {
             auto&& [node, advance_count] = opt_pre_code_block.template value<ndebug>();
-            result.template push_back<ndebug>(::std::move(node));
+            result.push_back(::std::move(node));
             return FindNextBlockAfterLineBreakResult{.advance_count = current_index + advance_count,
                                                      .new_frame_been_pushed_into_call_stack = false};
         }
