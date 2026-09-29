@@ -6,9 +6,9 @@
  *
  *          Ast is a closed wrapper around ::pltxt2htm::container::Vector instead of an alias
  *          for it, so that the AST keeps a name of its own while the backing storage stays an
- *          implementation detail. Every public member of the backing vector is mirrored
- *          one-to-one below; when container/vector.hh gains or changes a public member, mirror
- *          it here as well.
+ *          implementation detail. Its public operations mirror the backing vector, while their
+ *          contract checking mode is fixed by Ast's ndebug template argument. When
+ *          container/vector.hh gains or changes a public member, mirror it here as well.
  *
  * @note Ast is a distinct type rather than an alias, so the two are no longer interchangeable:
  *       an Ast does not convert implicitly to
@@ -47,8 +47,9 @@ class PlTxtNode;
 
 /**
  * @brief The Abstract Syntax Tree: an owned sequence of ::pltxt2htm::PlTxtNode<ndebug>.
- * @details Mirrors the public interface of ::pltxt2htm::container::Vector one-to-one; read the
- *          warning in this file's header comment before adding class-scope declarations.
+ * @details Mirrors the operations of ::pltxt2htm::container::Vector, using ndebug as their
+ *          contract checking mode; read the warning in this file's header comment before adding
+ *          class-scope declarations.
  * @tparam ndebug Contract checking mode.
  */
 template<::pltxt2htm::Contracts ndebug>
@@ -201,65 +202,57 @@ public:
         return self.storage.rend();
     }
 
-    template<::pltxt2htm::Contracts contracts>
     [[nodiscard]]
     constexpr auto front(this Ast& self) noexcept -> reference {
-        return self.storage.template front<contracts>();
+        return self.storage.template front<ndebug>();
     }
 
-    template<::pltxt2htm::Contracts contracts>
     [[nodiscard]]
     constexpr auto front(this Ast const& self) noexcept -> const_reference {
-        return self.storage.template front<contracts>();
+        return self.storage.template front<ndebug>();
     }
 
-    template<::pltxt2htm::Contracts contracts>
     [[nodiscard]]
     constexpr auto index(this Ast& self, size_type position) noexcept -> reference {
-        return self.storage.template index<contracts>(position);
+        return self.storage.template index<ndebug>(position);
     }
 
-    template<::pltxt2htm::Contracts contracts>
     [[nodiscard]]
     constexpr auto index(this Ast const& self, size_type position) noexcept -> const_reference {
-        return self.storage.template index<contracts>(position);
+        return self.storage.template index<ndebug>(position);
     }
 
-    template<::pltxt2htm::Contracts contracts = ::pltxt2htm::Contracts::quick_enforce>
     constexpr void reserve(this Ast& self, size_type requested_capacity) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
     {
-        self.storage.template reserve<contracts>(requested_capacity);
+        self.storage.template reserve<ndebug>(requested_capacity);
     }
 
-    template<::pltxt2htm::Contracts contracts = ::pltxt2htm::Contracts::quick_enforce, typename... Args>
+    template<typename... Args>
         requires (::std::is_nothrow_move_constructible_v<value_type> &&
                   ::std::is_nothrow_constructible_v<value_type, Args...> &&
                   ::std::is_nothrow_destructible_v<value_type>)
     constexpr auto emplace_back(this Ast& self, Args&&... args) noexcept -> reference {
-        return self.storage.template emplace_back<contracts>(::std::forward<Args>(args)...);
+        return self.storage.template emplace_back<ndebug>(::std::forward<Args>(args)...);
     }
 
-    template<::pltxt2htm::Contracts contracts = ::pltxt2htm::Contracts::quick_enforce>
     constexpr void push_back(this Ast& self, const_reference value) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> &&
                   ::std::is_nothrow_copy_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
     {
-        self.storage.template push_back<contracts>(value);
+        self.storage.template push_back<ndebug>(value);
     }
 
-    template<::pltxt2htm::Contracts contracts = ::pltxt2htm::Contracts::quick_enforce>
     constexpr void push_back(this Ast& self, value_type&& value) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
     {
-        self.storage.template push_back<contracts>(::std::move(value));
+        self.storage.template push_back<ndebug>(::std::move(value));
     }
 
-    template<::pltxt2htm::Contracts contracts = ::pltxt2htm::Contracts::quick_enforce>
     constexpr void pop_back(this Ast& self) noexcept
         requires ::std::is_nothrow_destructible_v<value_type>
     {
-        self.storage.template pop_back<contracts>();
+        self.storage.template pop_back<ndebug>();
     }
 
     constexpr void clear(this Ast& self) noexcept
@@ -271,14 +264,14 @@ public:
     /**
      * @pre A single-pass input range must not reference elements in this Ast.
      */
-    template<::pltxt2htm::Contracts contracts = ::pltxt2htm::Contracts::quick_enforce, ::std::ranges::input_range R>
+    template<::std::ranges::input_range R>
     constexpr void append_range(this Ast& self, R&& range) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>) &&
                  requires(storage_type& probe_storage, R&& probe_range) {
-                     probe_storage.template append_range<contracts>(::std::forward<R>(probe_range));
+                     probe_storage.template append_range<ndebug>(::std::forward<R>(probe_range));
                  }
     {
-        self.storage.template append_range<contracts>(::std::forward<R>(range));
+        self.storage.template append_range<ndebug>(::std::forward<R>(range));
     }
 
     constexpr auto erase(this Ast& self, const_iterator position) noexcept -> iterator

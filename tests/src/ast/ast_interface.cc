@@ -65,10 +65,10 @@ int main() {
         pltxt2htm_test_assert_true(ast.data() == ast.cbegin());
         pltxt2htm_test_assert_true(ast.begin() == ast.cbegin());
         pltxt2htm_test_assert_true(ast.end() == ast.cend());
-        pltxt2htm_test_assert_true(ast.template index<Contracts::quick_enforce>(0).get_node_kind() ==
+        pltxt2htm_test_assert_true(ast.index(0).get_node_kind() ==
                                    ::pltxt2htm::NodeKind::text);
-        pltxt2htm_test_assert_true(ast.template front<Contracts::quick_enforce>().as_text().index(0) == u8'a');
-        pltxt2htm_test_assert_true(ast.template index<Contracts::quick_enforce>(1).as_text().index(0) == u8'b');
+        pltxt2htm_test_assert_true(ast.front().as_text().index(0) == u8'a');
+        pltxt2htm_test_assert_true(ast.index(1).as_text().index(0) == u8'b');
     }
 
     // Appending, removing and reusing the storage
@@ -77,15 +77,15 @@ int main() {
         Node const node{text_node(u8'x')};
         ast.push_back(node);
         ast.push_back(text_node(u8'y'));
-        auto const& appended = ast.template emplace_back<Contracts::quick_enforce>(text_node(u8'z'));
+        auto const& appended = ast.emplace_back(text_node(u8'z'));
         pltxt2htm_test_assert_true(ast.size() == 3);
         pltxt2htm_test_assert_true(::std::addressof(appended) == ast.data() + 2);
 
-        ast.template pop_back<Contracts::quick_enforce>();
+        ast.pop_back();
         pltxt2htm_test_assert_true(ast.size() == 2);
-        pltxt2htm_test_assert_true(ast.template front<Contracts::quick_enforce>().as_text().index(0) == u8'x');
+        pltxt2htm_test_assert_true(ast.front().as_text().index(0) == u8'x');
 
-        ast.reserve<Contracts::quick_enforce>(16);
+        ast.reserve(16);
         auto const reserved_capacity = ast.capacity();
         pltxt2htm_test_assert_true(reserved_capacity >= 16);
         pltxt2htm_test_assert_true(ast.size() == 2);
@@ -95,7 +95,7 @@ int main() {
         pltxt2htm_test_assert_true(ast.capacity() == reserved_capacity);
 
         Ast single{text_node(u8'q')};
-        single.template pop_back<Contracts::quick_enforce>();
+        single.pop_back();
         pltxt2htm_test_assert_true(single.is_empty());
     }
 
@@ -112,7 +112,7 @@ int main() {
 
         pltxt2htm_test_assert_true(ast.begin() != ast.end());
         pltxt2htm_test_assert_true(ast.end() - ast.begin() == 3);
-        pltxt2htm_test_assert_true(*ast.rbegin() == ast.template index<Contracts::quick_enforce>(2));
+        pltxt2htm_test_assert_true(*ast.rbegin() == ast.index(2));
         pltxt2htm_test_assert_true(ast.rend() == ast.rbegin() + 3);
     }
 
@@ -123,7 +123,7 @@ int main() {
         auto const next = ast.erase(ast.begin());
         pltxt2htm_test_assert_true(ast.size() == 2);
         pltxt2htm_test_assert_true(next == ast.begin());
-        pltxt2htm_test_assert_true(ast.template front<Contracts::quick_enforce>().as_text().index(0) == u8'b');
+        pltxt2htm_test_assert_true(ast.front().as_text().index(0) == u8'b');
 
         auto const unchanged = ast.erase(ast.end(), ast.end());
         pltxt2htm_test_assert_true(unchanged == ast.end());
@@ -132,7 +132,7 @@ int main() {
         auto const after = ast.erase(ast.begin(), ast.begin() + 1);
         pltxt2htm_test_assert_true(ast.size() == 1);
         pltxt2htm_test_assert_true(after == ast.begin());
-        pltxt2htm_test_assert_true(ast.template front<Contracts::quick_enforce>().as_text().index(0) == u8'c');
+        pltxt2htm_test_assert_true(ast.front().as_text().index(0) == u8'c');
     }
 
     // Appending a whole range, from an rvalue, an lvalue and an empty source
@@ -193,7 +193,7 @@ int main() {
 
         ast.swap(ast);
         pltxt2htm_test_assert_true(ast.size() == 2);
-        pltxt2htm_test_assert_true(ast.template front<Contracts::quick_enforce>().as_text().index(0) == u8'a');
+        pltxt2htm_test_assert_true(ast.front().as_text().index(0) == u8'a');
     }
 
     // Swap, through the member and the free function
