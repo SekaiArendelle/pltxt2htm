@@ -197,11 +197,11 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
             "${CMAKE_CURRENT_SOURCE_DIR}/src/syntax")
     endif()
     # Tests are built as pltxt2htm itself, so external-only APIs must stay unavailable to them.
-    # The deep-copy, copy-assignment and container-subscript tests are the exception: they
-    # stand in for a downstream user and cover the copy operations and external-only
-    # container APIs that are part of the public API.
+    # The deep-copy, copy-assignment, ast-interface and container-subscript tests are the
+    # exception: they stand in for a downstream user and cover the copy operations and
+    # external-only container APIs that are part of the public API.
     if(NOT TEST_NAME STREQUAL "deep_copy" AND NOT TEST_NAME STREQUAL "copy_assignment"
-       AND NOT TEST_NAME STREQUAL "container_subscript")
+       AND NOT TEST_NAME STREQUAL "ast_interface" AND NOT TEST_NAME STREQUAL "container_subscript")
         target_compile_definitions(${TEST_NAME} PRIVATE PLTXT2HTM_INTERNAL_USE)
     endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
