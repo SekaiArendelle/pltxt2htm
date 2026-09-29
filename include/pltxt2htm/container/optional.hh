@@ -23,6 +23,22 @@ struct NulloptType {
 
 inline constexpr auto nullopt = NulloptType{};
 
+template<typename T>
+class Optional;
+
+namespace details {
+
+template<typename T>
+constexpr bool is_optional_v = false;
+
+template<typename T>
+constexpr bool is_optional_v<Optional<T>> = true;
+
+} // namespace details
+
+template<typename T>
+concept is_optional = details::is_optional_v<::std::remove_cvref_t<T>>;
+
 namespace details {
 
 template<typename T>
@@ -450,11 +466,12 @@ public:
         return static_cast<bool>(self.storage.value() == rhs.storage.value());
     }
 
+    template<typename U>
+        requires (!is_optional<U> && !::std::same_as<::std::remove_cvref_t<U>, NulloptType> &&
+                  requires(value_type const& value, U const& rhs) { static_cast<bool>(value == rhs); })
     [[nodiscard]]
     constexpr bool operator==(this Optional<T> const& self,
-                              value_type const& rhs) noexcept(noexcept(static_cast<bool>(self.storage.value() == rhs)))
-        requires ::std::equality_comparable<T>
-    {
+                              U const& rhs) noexcept(noexcept(static_cast<bool>(self.storage.value() == rhs))) {
         return self.has_value() && static_cast<bool>(self.storage.value() == rhs);
     }
 
@@ -463,19 +480,6 @@ public:
         return self.has_value() == false;
     }
 };
-
-namespace details {
-
-template<typename T>
-constexpr bool is_optional_v = false;
-
-template<typename T>
-constexpr bool is_optional_v<Optional<T>> = true;
-
-} // namespace details
-
-template<typename T>
-concept is_optional = details::is_optional_v<::std::remove_cvref_t<T>>;
 
 } // namespace pltxt2htm::container
 
