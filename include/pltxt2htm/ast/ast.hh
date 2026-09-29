@@ -2236,25 +2236,55 @@ public:
     }
 };
 
-namespace details {
-
-/**
- * @brief Append one UTF-8 code unit to the trailing text node when possible.
- * @details Starts a new text node when the AST is empty, the previous node is not text,
- *          or the previous inline string has reached its fixed capacity.
- */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_text_code_unit(::pltxt2htm::Ast<ndebug>& ast, char8_t code_unit) noexcept {
-    if (ast.is_empty() == false) {
-        auto&& last_node = ast.index(ast.size() - 1);
+constexpr void Ast<ndebug>::append_text(this Ast& self, char8_t code_unit) noexcept {
+    if (self.is_empty() == false) {
+        auto&& last_node = self.index(self.size() - 1);
         if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text && last_node.as_text().try_push_back(code_unit)) {
             return;
         }
     }
-    ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(code_unit));
+    self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(code_unit));
 }
 
-} // namespace details
+template<::pltxt2htm::Contracts ndebug>
+constexpr void Ast<ndebug>::append_text(this Ast& self, ::pltxt2htm::container::U8StringView text) noexcept {
+    auto current = text.begin();
+    auto const end = text.end();
+    if (current == end) {
+        return;
+    }
+
+    constexpr auto text_capacity = ::pltxt2htm::Text<ndebug>::capacity();
+    if (self.is_empty() == false) {
+        auto&& last_node = self.index(self.size() - 1);
+        if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text) {
+            auto&& last_text = last_node.as_text();
+            auto const available = text_capacity - last_text.size();
+            auto const remaining = static_cast<::std::size_t>(end - current);
+            auto const append_size = remaining < available ? remaining : available;
+            last_text.append(current, current + append_size);
+            current += append_size;
+            if (current == end) {
+                return;
+            }
+        }
+    }
+
+    auto const remaining = static_cast<::std::size_t>(end - current);
+    auto const additional_nodes =
+        remaining / text_capacity + static_cast<::std::size_t>(remaining % text_capacity != 0);
+    pltxt2htm_assert(additional_nodes <= self.max_size() - self.size(), u8"AST size exceeds max_size");
+    self.reserve(self.size() + additional_nodes);
+
+    while (current != end) {
+        auto const remaining_size = static_cast<::std::size_t>(end - current);
+        auto const node_size = remaining_size < text_capacity ? remaining_size : text_capacity;
+        self.push_back(
+            ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(current, current + node_size));
+        current += node_size;
+    }
+}
 
 } // namespace pltxt2htm
 

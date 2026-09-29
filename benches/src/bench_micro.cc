@@ -106,7 +106,7 @@ BENCHMARK_DEFINE_F(MicroFixture, AstAppend_1000_MergedTextCodeUnits)(benchmark::
     for (auto _ : st) {
         ::pltxt2htm::Ast<ndebug> ast;
         for (int i = 0; i < 1000; ++i) {
-            ::pltxt2htm::details::append_text_code_unit<ndebug>(ast, u8'A');
+            ast.append_text(u8'A');
         }
         ::benchmark::DoNotOptimize(ast);
     }

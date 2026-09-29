@@ -18,6 +18,7 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "character_processing.hh"
+#include "url_scheme.hh"
 #include "../push_macro.hh"
 
 /**
@@ -82,7 +83,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr void append_md_escape_result(::pltxt2htm::Ast<ndebug>& ast, TryParseMdEscapeResult const& result) noexcept {
     switch (result.kind) {
     case MdEscapeKind::literal_backslash: {
-        ::pltxt2htm::details::append_text_code_unit<ndebug>(ast, result.character);
+        ast.append_text(result.character);
         return;
     }
     case MdEscapeKind::escaped_punctuation: {
@@ -3728,7 +3729,7 @@ constexpr auto try_parse_md_latex_block_dollar(::pltxt2htm::container::U8StringV
             return TryParseMdLatexResult<ndebug>{.advance_count = current_index + 4, .subast = ::std::move(ast)};
         }
         if (body.template index<ndebug>(current_index) == u8'\n') {
-            ::pltxt2htm::details::append_text_code_unit<ndebug>(ast, u8'\n');
+            ast.append_text(u8'\n');
             ++current_index;
         }
         else {
@@ -3885,32 +3886,6 @@ constexpr auto try_parse_url_port(::pltxt2htm::container::U8StringView pltext) n
         }
     }
     return ::pltxt2htm::container::NonZeroUsize::from<ndebug>(current_index);
-}
-
-/**
- * @brief Detect and return the end offset of `http://` or `https://` scheme.
- *
- * O(1) - does NOT scan for domains. Returns the scheme length (7 or 8) or nullopt.
- *
- * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @param[in] pltext The input text that may begin with a URL scheme.
- * @return 7 for `http://`, 8 for `https://`, or nullopt.
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto try_parse_url_scheme(::pltxt2htm::container::U8StringView pltext) noexcept
-    -> ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZeroUsize> {
-    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"http">(pltext) == false) {
-        return ::pltxt2htm::container::nullopt;
-    }
-    auto const after_http = pltext.template subview<ndebug>(4);
-    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"://">(after_http)) {
-        return ::pltxt2htm::container::NonZeroUsize::from<ndebug>(7);
-    }
-    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"s://">(after_http)) {
-        return ::pltxt2htm::container::NonZeroUsize::from<ndebug>(8);
-    }
-    return ::pltxt2htm::container::nullopt;
 }
 
 /**

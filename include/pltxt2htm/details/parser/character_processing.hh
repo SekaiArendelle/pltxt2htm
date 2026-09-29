@@ -11,8 +11,56 @@
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "html_named_character_references.hh"
+#include "url_scheme.hh"
 
 namespace pltxt2htm::details {
+
+/**
+ * @brief Find a leading run that cannot start inline syntax or require character processing.
+ * @details The returned ASCII range is safe to append directly to Text nodes. Non-ASCII,
+ *          semantic whitespace, HTML-special characters, and inline-syntax introducers stop
+ *          the scan and remain handled by the existing bytewise parser path.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]] constexpr auto scan_plain_ascii_run(::pltxt2htm::container::U8StringView text) noexcept -> ::std::size_t {
+    auto const text_size = text.size();
+    for (::std::size_t index{}; index < text_size; ++index) {
+        auto const character = text.template index<ndebug>(index);
+        if (character <= u8' ' || character >= char8_t{0x7F}) {
+            return index;
+        }
+        switch (character) {
+        case u8'&':
+        case u8'\'':
+        case u8'"':
+        case u8'>':
+        case u8'\\':
+        case u8'{':
+        case u8'*':
+        case u8'_':
+        case u8'~':
+        case u8'`':
+        case u8'$':
+        case u8'[':
+        case u8'!':
+        case u8'<': {
+            return index;
+        }
+        case u8'H':
+            [[fallthrough]];
+        case u8'h': {
+            if (::pltxt2htm::details::try_parse_url_scheme<ndebug>(text.template subview<ndebug>(index)).has_value()) {
+                return index;
+            }
+            break;
+        }
+        default: {
+            break;
+        }
+        }
+    }
+    return text_size;
+}
 
 /**
  * @brief Test whether a code point is a Unicode scalar value.
@@ -222,7 +270,7 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text,
         return decoded.consumed_size;
     }
     for (::std::size_t index{}; index < decoded.consumed_size; ++index) {
-        ::pltxt2htm::details::append_text_code_unit<ndebug>(result, text.template index<ndebug>(index));
+        result.append_text(text.template index<ndebug>(index));
     }
     return decoded.consumed_size;
 }
@@ -288,7 +336,7 @@ constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<nd
         return;
     }
     for (::std::size_t index{}; index < encoded.size; ++index) {
-        ::pltxt2htm::details::append_text_code_unit<ndebug>(result, encoded.code_units[index]);
+        result.append_text(encoded.code_units[index]);
     }
 }
 
