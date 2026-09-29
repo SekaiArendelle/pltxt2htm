@@ -87,6 +87,7 @@ using ::pltxt2htm::VerticalAlignValue;
 // ast2 types
 using ::pltxt2htm::PlTxtNode;
 using ::pltxt2htm::Ast;
+using ::pltxt2htm::swap;
 
 // basic
 using ::pltxt2htm::Text;
