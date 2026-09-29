@@ -307,9 +307,4 @@ public:
     }
 };
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr void swap(Ast<ndebug>& left, Ast<ndebug>& right) noexcept {
-    left.swap(right);
-}
-
 } // namespace pltxt2htm
