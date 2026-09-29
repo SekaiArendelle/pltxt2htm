@@ -33,7 +33,9 @@ constexpr void append_colored_code_syntax_ast(::fast_io::u8string& token_ast, Sy
 template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::CodeLanguage language>
 constexpr void append_code_syntax_kind(::fast_io::u8string& text, unsigned const kind,
                                        ::pltxt2htm::CodeAst<ndebug>& destination) noexcept {
-    destination.template append<language>(text, static_cast<::pltxt2htm::CodeNodeKind<language>>(kind));
+    destination.template append<language>(::pltxt2htm::container::U8StringView{text.data(), text.size()},
+                                          static_cast<::pltxt2htm::CodeNodeKind<language>>(kind));
+    text.clear();
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -176,7 +178,7 @@ constexpr auto parse_plain_code_syntax(::fast_io::u8string_view const content) n
                              ::pltxt2htm::details::u8string_view_subview<ndebug>(content, current_index), text)
                              .advance_count;
     }
-    ast.template append<::pltxt2htm::CodeLanguage::plain>(text, ::pltxt2htm::CodePlainNodeKind::text);
+    ::pltxt2htm::details::append_code_syntax_ast<ndebug>(text, ast);
     return ast;
 }
 

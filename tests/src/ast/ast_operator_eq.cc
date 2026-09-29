@@ -223,11 +223,11 @@ int main() {
     // CodeFence with equal content
     {
         ::pltxt2htm::CodeAst<nd::quick_enforce> ast_a{::pltxt2htm::CodeLanguage::plain};
-        ::fast_io::u8string text_a{u8"a"};
+        ::pltxt2htm::container::U8String text_a{u8"a"};
         ast_a.template append<::pltxt2htm::CodeLanguage::plain>(text_a, ::pltxt2htm::CodePlainNodeKind::text);
 
         ::pltxt2htm::CodeAst<nd::quick_enforce> ast_b{::pltxt2htm::CodeLanguage::plain};
-        ::fast_io::u8string text_b{u8"a"};
+        ::pltxt2htm::container::U8String text_b{u8"a"};
         ast_b.template append<::pltxt2htm::CodeLanguage::plain>(text_b, ::pltxt2htm::CodePlainNodeKind::text);
 
         auto const a =
@@ -238,15 +238,26 @@ int main() {
                 ::std::move(ast_b));
         pltxt2htm_test_assert_true(a == b);
     }
+    // Rendered-code append overloads consume project-owned input buffers.
+    {
+        ::pltxt2htm::CodeAst<nd::quick_enforce> ast{::pltxt2htm::CodeLanguage::rendered};
+        ::pltxt2htm::container::U8String text{u8"text"};
+        ast.append_rendered_text(text);
+        pltxt2htm_test_assert_true(text.is_empty());
+
+        ::pltxt2htm::container::U8String entity{u8"amp"};
+        ast.append_rendered_entity_reference(entity);
+        pltxt2htm_test_assert_true(entity.is_empty());
+    }
 
     // CodeFence with different content
     {
         ::pltxt2htm::CodeAst<nd::quick_enforce> ast_a{::pltxt2htm::CodeLanguage::plain};
-        ::fast_io::u8string text_a{u8"a"};
+        ::pltxt2htm::container::U8String text_a{u8"a"};
         ast_a.template append<::pltxt2htm::CodeLanguage::plain>(text_a, ::pltxt2htm::CodePlainNodeKind::text);
 
         ::pltxt2htm::CodeAst<nd::quick_enforce> ast_b{::pltxt2htm::CodeLanguage::plain};
-        ::fast_io::u8string text_b{u8"b"};
+        ::pltxt2htm::container::U8String text_b{u8"b"};
         ast_b.template append<::pltxt2htm::CodeLanguage::plain>(text_b, ::pltxt2htm::CodePlainNodeKind::text);
 
         auto const a =

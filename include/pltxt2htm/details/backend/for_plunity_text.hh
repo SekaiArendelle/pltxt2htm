@@ -24,25 +24,26 @@
 
 namespace pltxt2htm::details {
 
-constexpr void append_character_reference_code_point_to_plunity_richtext(char32_t code_point,
-                                                                         ::fast_io::u8string& out) noexcept {
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_character_reference_code_point_to_plunity_richtext(
+    char32_t code_point, ::pltxt2htm::container::U8String& out) noexcept {
     if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
         code_point = char32_t{0xFFFD};
     }
     if (code_point == U'<') {
-        out.append(u8"<size=20>\uff1c</size>");
+        out.template append<ndebug>(u8"<size=20>\uff1c</size>");
         return;
     }
     if (code_point == U'>') {
-        out.append(u8"<size=20>\uff1e</size>");
+        out.template append<ndebug>(u8"<size=20>\uff1e</size>");
         return;
     }
     if (code_point == U' ') {
-        out.append(u8"\u00A0");
+        out.template append<ndebug>(u8"\u00A0");
         return;
     }
     auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
-    out.append(::pltxt2htm::container::U8StringView{encoded.code_units, encoded.size});
+    out.template append<ndebug>(::pltxt2htm::container::U8StringView{encoded.code_units, encoded.size});
 }
 
 /**
@@ -52,25 +53,25 @@ constexpr void append_character_reference_code_point_to_plunity_richtext(char32_
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_entity_reference_to_plunity_richtext(::pltxt2htm::container::U8StringView const value_view,
-                                                           ::fast_io::u8string& out) noexcept {
-    ::fast_io::u8string reference{};
-    reference.reserve(value_view.size() + 2);
-    reference.push_back(u8'&');
-    reference.append(value_view);
-    reference.push_back(u8';');
+                                                           ::pltxt2htm::container::U8String& out) noexcept {
+    ::pltxt2htm::container::U8String reference{};
+    reference.template reserve<ndebug>(value_view.size() + 2);
+    reference.template push_back<ndebug>(u8'&');
+    reference.template append<ndebug>(value_view);
+    reference.template push_back<ndebug>(u8';');
     auto const decoded =
         ::pltxt2htm::details::try_decode_character_reference<ndebug>(::pltxt2htm::container::U8StringView{reference});
     if (decoded.has_value() == false) {
-        out.push_back(u8'&');
-        out.append(value_view);
-        out.push_back(u8';');
+        out.template push_back<ndebug>(u8'&');
+        out.template append<ndebug>(value_view);
+        out.template push_back<ndebug>(u8';');
         return;
     }
     auto const& character_reference = decoded.template value<ndebug>();
-    ::pltxt2htm::details::append_character_reference_code_point_to_plunity_richtext(
+    ::pltxt2htm::details::append_character_reference_code_point_to_plunity_richtext<ndebug>(
         character_reference.first_code_point, out);
     if (character_reference.has_second_code_point()) {
-        ::pltxt2htm::details::append_character_reference_code_point_to_plunity_richtext(
+        ::pltxt2htm::details::append_character_reference_code_point_to_plunity_richtext<ndebug>(
             character_reference.second_code_point, out);
     }
 }
@@ -1190,9 +1191,7 @@ entry:
             case ::pltxt2htm::NodeKind::code_fence: {
                 auto&& active_node = node.as_code_fence();
                 result.template append<ndebug>(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n");
-                ::fast_io::u8string code_result{};
-                ::pltxt2htm::details::append_plunity_code_ast<ndebug>(active_node.get_ast(), code_result);
-                result.template append<ndebug>(code_result.data(), code_result.size());
+                ::pltxt2htm::details::append_plunity_code_ast<ndebug>(active_node.get_ast(), result);
                 result.template append<ndebug>(u8"\n</font>");
                 continue;
             }

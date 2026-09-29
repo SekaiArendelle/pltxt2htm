@@ -123,7 +123,7 @@ int main() {
 
     {
         ::pltxt2htm::CodeAst<nd::quick_enforce> original_ast{::pltxt2htm::CodeLanguage::cpp};
-        ::fast_io::u8string original_text{u8"int"};
+        ::pltxt2htm::container::U8String original_text{u8"int"};
         original_ast.template append<::pltxt2htm::CodeLanguage::cpp>(original_text,
                                                                      ::pltxt2htm::CodeCppNodeKind::keyword);
         auto const original = ::pltxt2htm::CodeFence<nd::quick_enforce>(::std::move(original_ast));
@@ -131,7 +131,7 @@ int main() {
             ::pltxt2htm::CodeAst<nd::quick_enforce>{::pltxt2htm::CodeLanguage::rust});
         assigned = original;
         pltxt2htm_test_assert_true(assigned == original);
-        ::fast_io::u8string appended_text{u8" main"};
+        ::pltxt2htm::container::U8String appended_text{u8" main"};
         assigned.get_ast().template append<::pltxt2htm::CodeLanguage::cpp>(appended_text,
                                                                            ::pltxt2htm::CodeCppNodeKind::plain);
         pltxt2htm_test_assert_true(assigned != original);

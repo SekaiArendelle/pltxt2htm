@@ -3145,7 +3145,8 @@ constexpr auto parse_html_code_content(::pltxt2htm::container::U8StringView plte
                 if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"span">(
                         pltext.template subview<ndebug>(current_index + 2));
                     opt_tag_len.has_value()) {
-                    ast.append_rendered_text(text);
+                    ast.append_rendered_text(::pltxt2htm::container::U8StringView{text.data(), text.size()});
+                    text.clear();
                     ast.append_rendered_style_end();
                     --open_style_count;
                     current_index += opt_tag_len.template value<ndebug>() + 3;
@@ -3159,10 +3160,10 @@ constexpr auto parse_html_code_content(::pltxt2htm::container::U8StringView plte
                     opt_span_tag.has_value()) {
                     auto&& [tag_len, color, font_size, vertical_align] = opt_span_tag.template value<ndebug>();
                     ::std::size_t const consumed{tag_len + 2};
-                    ast.append_rendered_text(text);
-                    ::fast_io::u8string rendered_color{color.data(), color.data() + color.size()};
+                    ast.append_rendered_text(::pltxt2htm::container::U8StringView{text.data(), text.size()});
+                    text.clear();
                     ::std::size_t const style_index{
-                        ast.add_rendered_style(::std::move(rendered_color), font_size, ::std::move(vertical_align))};
+                        ast.add_rendered_style(::std::move(color), font_size, ::std::move(vertical_align))};
                     ast.append_rendered_style_begin(style_index);
                     ++open_style_count;
                     current_index += consumed;
@@ -3175,10 +3176,12 @@ constexpr auto parse_html_code_content(::pltxt2htm::container::U8StringView plte
             auto const remaining = pltext.template subview<ndebug>(current_index);
             if (auto const opt_entity = ::pltxt2htm::details::try_decode_character_reference<ndebug>(remaining);
                 opt_entity.has_value()) {
-                ast.append_rendered_text(text);
+                ast.append_rendered_text(::pltxt2htm::container::U8StringView{text.data(), text.size()});
+                text.clear();
                 ::std::size_t const entity_len{opt_entity.template value<ndebug>().consumed_size};
                 ::fast_io::u8string entity{remaining.data() + 1, remaining.data() + entity_len - 1};
-                ast.append_rendered_entity_reference(entity);
+                ast.append_rendered_entity_reference(
+                    ::pltxt2htm::container::U8StringView{entity.data(), entity.size()});
                 current_index += entity_len;
                 continue;
             }
@@ -3189,7 +3192,7 @@ constexpr auto parse_html_code_content(::pltxt2htm::container::U8StringView plte
         current_index += parsed.advance_count;
     }
 
-    ast.append_rendered_text(text);
+    ast.append_rendered_text(::pltxt2htm::container::U8StringView{text.data(), text.size()});
     while (open_style_count != 0) {
         ast.append_rendered_style_end();
         --open_style_count;

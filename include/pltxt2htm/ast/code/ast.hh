@@ -8,10 +8,10 @@
 #include <cstddef>
 #include <memory>
 #include <utility>
-#include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
-#include <fast_io/fast_io_dsal/vector.h>
 #include "../../container/optional.hh"
+#include "../../container/string.hh"
+#include "../../container/string_view.hh"
+#include "../../container/vector.hh"
 #include "../../contracts.hh"
 #include "../value_unit.hh"
 #include "../vertical_align_value.hh"
@@ -22,7 +22,7 @@ namespace pltxt2htm {
 
 template<::pltxt2htm::Contracts ndebug>
 class CodeRenderedStyle {
-    ::fast_io::u8string color;
+    ::pltxt2htm::container::U8String color;
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size{::pltxt2htm::container::nullopt};
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{
         ::pltxt2htm::container::nullopt};
@@ -31,7 +31,7 @@ public:
     constexpr CodeRenderedStyle() noexcept = default;
 
     constexpr CodeRenderedStyle(
-        ::fast_io::u8string&& color_value,
+        ::pltxt2htm::container::U8String&& color_value,
         ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size_value,
         ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>&& vertical_align_value) noexcept
         : color(::std::move(color_value)),
@@ -50,8 +50,8 @@ public:
     constexpr auto operator==(this CodeRenderedStyle const&, CodeRenderedStyle const&) noexcept -> bool = default;
 
     [[nodiscard]]
-    constexpr auto get_color(this CodeRenderedStyle const& self) noexcept -> ::fast_io::u8string_view {
-        return ::fast_io::u8string_view{self.color.data(), self.color.size()};
+    constexpr auto get_color(this CodeRenderedStyle const& self) noexcept -> ::pltxt2htm::container::U8StringView {
+        return ::pltxt2htm::container::U8StringView{self.color.data(), self.color.size()};
     }
 
     [[nodiscard]]
@@ -69,9 +69,9 @@ public:
 
 template<::pltxt2htm::Contracts ndebug>
 class CodeAst {
-    ::fast_io::u8string source;
-    ::fast_io::vector<::pltxt2htm::CodeNode> nodes;
-    ::fast_io::vector<::pltxt2htm::CodeRenderedStyle<ndebug>> rendered_styles;
+    ::pltxt2htm::container::U8String source;
+    ::pltxt2htm::container::Vector<::pltxt2htm::CodeNode> nodes;
+    ::pltxt2htm::container::Vector<::pltxt2htm::CodeRenderedStyle<ndebug>> rendered_styles;
     ::pltxt2htm::CodeLanguage language{::pltxt2htm::CodeLanguage::plain};
 
 public:
@@ -99,38 +99,46 @@ public:
     constexpr auto operator==(this CodeAst const&, CodeAst const&) noexcept -> bool = default;
 
     constexpr void reserve(this CodeAst& self, ::std::size_t const source_size) noexcept {
-        self.source.reserve(source_size);
+        self.source.template reserve<ndebug>(source_size);
     }
 
     template<::pltxt2htm::CodeLanguage node_language>
-    constexpr void append(this CodeAst& self, ::fast_io::u8string& text,
+    constexpr void append(this CodeAst& self, ::pltxt2htm::container::U8StringView const text,
                           ::pltxt2htm::CodeNodeKind<node_language> const node_kind) noexcept {
         pltxt2htm_assert(self.language == node_language, u8"code AST language mismatch");
-        if (text.empty()) {
+        if (text.size() == 0) {
             return;
         }
         ::std::size_t const begin{self.source.size()};
-        self.source.append(text);
-        text.clear();
+        self.source.template append<ndebug>(text.data(), text.size());
         ::std::size_t const end{self.source.size()};
         unsigned const kind{static_cast<unsigned>(node_kind)};
-        if (kind == 0 && self.nodes.empty() == false && self.nodes.back().kind == kind &&
-            self.nodes.back().metadata == 0 && self.nodes.back().end == begin) {
-            self.nodes.back().end = end;
-            return;
+        if (kind == 0 && self.nodes.is_empty() == false) {
+            auto& last = self.nodes.template index<ndebug>(self.nodes.size() - 1);
+            if (last.kind == kind && last.metadata == 0 && last.end == begin) {
+                last.end = end;
+                return;
+            }
         }
-        self.nodes.push_back(::pltxt2htm::CodeNode{begin, end, 0, kind});
+        self.nodes.template push_back<ndebug>(::pltxt2htm::CodeNode{begin, end, 0, kind});
+    }
+
+    template<::pltxt2htm::CodeLanguage node_language>
+    constexpr void append(this CodeAst& self, ::pltxt2htm::container::U8String& text,
+                          ::pltxt2htm::CodeNodeKind<node_language> const node_kind) noexcept {
+        self.template append<node_language>(::pltxt2htm::container::U8StringView{text}, node_kind);
+        text.clear();
     }
 
     constexpr auto add_rendered_style(
-        this CodeAst& self, ::fast_io::u8string&& color,
+        this CodeAst& self, ::pltxt2htm::container::U8String&& color,
         ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> const font_size,
         ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>&& vertical_align) noexcept
         -> ::std::size_t {
         pltxt2htm_assert(self.language == ::pltxt2htm::CodeLanguage::rendered,
                          u8"rendered style added to language code AST");
         ::std::size_t const index{self.rendered_styles.size()};
-        self.rendered_styles.push_back(
+        self.rendered_styles.template push_back<ndebug>(
             ::pltxt2htm::CodeRenderedStyle<ndebug>{::std::move(color), font_size, ::std::move(vertical_align)});
         return index;
     }
@@ -140,7 +148,7 @@ public:
                          u8"rendered node added to language code AST");
         pltxt2htm_assert(style_index < self.rendered_styles.size(), u8"rendered style index out of bounds");
         ::std::size_t const position{self.source.size()};
-        self.nodes.push_back(::pltxt2htm::CodeNode{
+        self.nodes.template push_back<ndebug>(::pltxt2htm::CodeNode{
             position, position, style_index, static_cast<unsigned>(::pltxt2htm::CodeRenderedNodeKind::style_begin)});
     }
 
@@ -148,21 +156,34 @@ public:
         pltxt2htm_assert(self.language == ::pltxt2htm::CodeLanguage::rendered,
                          u8"rendered node added to language code AST");
         ::std::size_t const position{self.source.size()};
-        self.nodes.push_back(::pltxt2htm::CodeNode{
+        self.nodes.template push_back<ndebug>(::pltxt2htm::CodeNode{
             position, position, 0, static_cast<unsigned>(::pltxt2htm::CodeRenderedNodeKind::style_end)});
     }
 
-    constexpr void append_rendered_text(this CodeAst& self, ::fast_io::u8string& text) noexcept {
+    constexpr void append_rendered_text(this CodeAst& self,
+                                        ::pltxt2htm::container::U8StringView const text) noexcept {
         pltxt2htm_assert(self.language == ::pltxt2htm::CodeLanguage::rendered,
                          u8"rendered node added to language code AST");
         self.template append<::pltxt2htm::CodeLanguage::rendered>(text, ::pltxt2htm::CodeRenderedNodeKind::text);
     }
 
-    constexpr void append_rendered_entity_reference(this CodeAst& self, ::fast_io::u8string& entity) noexcept {
+    constexpr void append_rendered_text(this CodeAst& self, ::pltxt2htm::container::U8String& text) noexcept {
+        self.append_rendered_text(::pltxt2htm::container::U8StringView{text});
+        text.clear();
+    }
+
+    constexpr void append_rendered_entity_reference(
+        this CodeAst& self, ::pltxt2htm::container::U8StringView const entity) noexcept {
         pltxt2htm_assert(self.language == ::pltxt2htm::CodeLanguage::rendered,
                          u8"rendered node added to language code AST");
         self.template append<::pltxt2htm::CodeLanguage::rendered>(entity,
                                                                   ::pltxt2htm::CodeRenderedNodeKind::entity_reference);
+    }
+
+    constexpr void append_rendered_entity_reference(this CodeAst& self,
+                                                     ::pltxt2htm::container::U8String& entity) noexcept {
+        self.append_rendered_entity_reference(::pltxt2htm::container::U8StringView{entity});
+        entity.clear();
     }
 
     [[nodiscard]]
@@ -171,16 +192,17 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_nodes(this CodeAst const& self) noexcept -> ::fast_io::vector<::pltxt2htm::CodeNode> const& {
+    constexpr auto get_nodes(this CodeAst const& self) noexcept
+        -> ::pltxt2htm::container::Vector<::pltxt2htm::CodeNode> const& {
         return self.nodes;
     }
 
     [[nodiscard]]
     constexpr auto get_text(this CodeAst const& self, ::pltxt2htm::CodeNode const& node) noexcept
-        -> ::fast_io::u8string_view {
+        -> ::pltxt2htm::container::U8StringView {
         pltxt2htm_assert(node.begin <= node.end && node.end <= self.source.size(),
                          u8"code node source range out of bounds");
-        return ::fast_io::u8string_view{self.source.data() + node.begin, node.end - node.begin};
+        return ::pltxt2htm::container::U8StringView{self.source.data() + node.begin, node.end - node.begin};
     }
 
     template<::pltxt2htm::CodeLanguage node_language>
@@ -197,7 +219,7 @@ public:
         pltxt2htm_assert(self.language == ::pltxt2htm::CodeLanguage::rendered,
                          u8"rendered style requested from language code AST");
         pltxt2htm_assert(node.metadata < self.rendered_styles.size(), u8"rendered style index out of bounds");
-        return self.rendered_styles[node.metadata];
+        return self.rendered_styles.template index<ndebug>(node.metadata);
     }
 };
 

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include <fast_io/fast_io_dsal/string_view.h>
 #include "../../../ast/code/ast.hh"
+#include "../../../container/string_view.hh"
 #include "../../push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -123,7 +123,7 @@ constexpr auto code_style(::pltxt2htm::CodeAst<ndebug> const& ast, ::pltxt2htm::
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto code_style_color(CodeStyle const style) noexcept -> ::fast_io::u8string_view {
+constexpr auto code_style_color(CodeStyle const style) noexcept -> ::pltxt2htm::container::U8StringView {
     switch (style) /* -Werror=switch */ {
     case CodeStyle::plain: {
         return u8"";

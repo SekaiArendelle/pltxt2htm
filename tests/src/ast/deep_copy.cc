@@ -103,8 +103,9 @@ int main() {
     // Copy of a CodeFence node
     {
         ::pltxt2htm::CodeAst<nd::quick_enforce> ast{::pltxt2htm::CodeLanguage::plain};
-        ::fast_io::u8string text{u8"x"};
+        ::pltxt2htm::container::U8String text{u8"x"};
         ast.template append<::pltxt2htm::CodeLanguage::plain>(text, ::pltxt2htm::CodePlainNodeKind::text);
+        pltxt2htm_test_assert_true(text.is_empty());
 
         auto const original =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(

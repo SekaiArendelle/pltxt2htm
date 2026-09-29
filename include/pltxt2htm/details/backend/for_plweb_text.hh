@@ -1192,9 +1192,7 @@ entry:
             case ::pltxt2htm::NodeKind::code_fence: {
                 auto&& active_node = node.as_code_fence();
                 result.template append<ndebug>(u8"<pre><code>");
-                ::fast_io::u8string code_result{};
-                ::pltxt2htm::details::append_plweb_code_ast<ndebug>(active_node.get_ast(), code_result);
-                result.template append<ndebug>(code_result.data(), code_result.size());
+                ::pltxt2htm::details::append_plweb_code_ast<ndebug>(active_node.get_ast(), result);
                 result.template append<ndebug>(u8"</code></pre>");
                 continue;
             }
