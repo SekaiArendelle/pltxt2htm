@@ -829,16 +829,17 @@ print("Hello World")
         pltxt2htm_test_assert_true(root.get_node_kind() == ::pltxt2htm::NodeKind::code_fence);
         auto const& code_ast{root.as_code_fence().get_highlighted_ast()};
 
-        ::fast_io::u8string source{};
+        ::pltxt2htm::container::BasicString<char8_t> source{};
         bool has_keyword{};
         bool has_function_name{};
         for (auto const& node : code_ast.get_nodes()) {
-            source.append(code_ast.get_text(node));
+            source.template append<::pltxt2htm::Contracts::quick_enforce>(code_ast.get_text(node));
             auto const kind{node.get_kind()};
             has_keyword = has_keyword || kind == ::pltxt2htm::CodeHighlightKind::keyword;
             has_function_name = has_function_name || kind == ::pltxt2htm::CodeHighlightKind::function;
         }
-        pltxt2htm_test_assert_equal(source, ::fast_io::u8string_view{u8"int f();"});
+        auto const expected = ::pltxt2htm::container::BasicStringView{u8"int f();"};
+        pltxt2htm_test_assert_true(source == expected);
         pltxt2htm_test_assert_true(has_keyword);
         pltxt2htm_test_assert_true(has_function_name);
     }
