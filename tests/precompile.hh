@@ -1,7 +1,7 @@
 #pragma once
 
-#include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io_dsal/string_view.h>
+#include <pltxt2htm/container/string.hh>
 
 namespace pltxt2htm_test {
 
@@ -9,43 +9,44 @@ namespace pltxt2htm_test {
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-auto pltxt4unittest(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
+auto pltxt4unittest(::fast_io::u8string_view) noexcept -> ::pltxt2htm::container::U8String;
 
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-auto pltxt4htmlunittest(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
+auto pltxt4htmlunittest(::fast_io::u8string_view) noexcept -> ::pltxt2htm::container::U8String;
 
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-auto pltxt2common_html(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
+auto pltxt2common_html(::fast_io::u8string_view) noexcept -> ::pltxt2htm::container::U8String;
 
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-auto pltxt2common_htmld(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
+auto pltxt2common_htmld(::fast_io::u8string_view) noexcept -> ::pltxt2htm::container::U8String;
 
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-auto pltxt2fixedadv_htmld(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
+auto pltxt2fixedadv_htmld(::fast_io::u8string_view) noexcept -> ::pltxt2htm::container::U8String;
 
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-auto pltxt2plunity_introduction(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
+auto pltxt2plunity_introduction(::fast_io::u8string_view) noexcept -> ::pltxt2htm::container::U8String;
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
 auto pltxt2plunity_introduction(::fast_io::u8string_view, ::fast_io::u8string_view, ::fast_io::u8string_view,
-                                ::fast_io::u8string_view, ::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
+                                ::fast_io::u8string_view, ::fast_io::u8string_view) noexcept
+    -> ::pltxt2htm::container::U8String;
 
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
@@ -53,13 +54,14 @@ auto pltxt2plunity_introduction(::fast_io::u8string_view, ::fast_io::u8string_vi
 #endif
 auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext, ::fast_io::u8string_view host,
                           ::fast_io::u8string_view project, ::fast_io::u8string_view visitor,
-                          ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors) -> ::fast_io::u8string;
+                          ::fast_io::u8string_view author, ::fast_io::u8string_view coauthors)
+    -> ::pltxt2htm::container::U8String;
 
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-auto pltxt2roundtrip_htmld(::fast_io::u8string_view) noexcept -> ::fast_io::u8string;
+auto pltxt2roundtrip_htmld(::fast_io::u8string_view) noexcept -> ::pltxt2htm::container::U8String;
 
 void assert_true_impl(::fast_io::u8string_view file, ::std::size_t line, ::fast_io::u8string_view expr,
                       bool cond) noexcept;

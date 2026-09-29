@@ -6,7 +6,7 @@ pub struct U8String {
 }
 
 impl U8String {
-    pub fn new(ptr: *const libc::c_char) -> Self {
+    pub(crate) fn new(ptr: *const libc::c_char) -> Self {
         debug_assert!(!ptr.is_null());
         U8String { ptr }
     }
@@ -20,19 +20,17 @@ impl U8String {
     }
 
     pub fn as_str(&self) -> &str {
-        return unsafe {
-            std::str::from_utf8_unchecked(std::slice::from_raw_parts(
-                self.ptr as *const u8,
-                libc::strlen(self.ptr),
-            ))
-        };
+        return self
+            .as_cstr()
+            .to_str()
+            .expect("pltxt2htm returned invalid UTF-8");
     }
 }
 
 impl Drop for U8String {
     fn drop(&mut self) {
         unsafe {
-            libc::free(self.ptr as *mut libc::c_void);
+            libpltxt2htm_sys::pltxt2htm_free_u8string(self.ptr);
         }
     }
 }

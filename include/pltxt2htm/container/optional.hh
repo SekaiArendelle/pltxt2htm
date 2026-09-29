@@ -335,7 +335,18 @@ public:
     }
 
     template<typename U>
-    constexpr auto operator=(this Optional<T>&&, U&&) noexcept -> Optional<T>& = delete;
+    constexpr auto operator=(this Optional<T>&&, U&&) noexcept -> Optional<T>& = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("assigning to a temporary has no effect")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+        ;
 
     constexpr void swap(this Optional<T>& self, Optional<T>& other) noexcept
         requires (::std::is_lvalue_reference_v<T> ||
@@ -397,7 +408,18 @@ public:
     // Prevent rvalue calls from falling back to the const lvalue overload when moving is unsupported.
     template<typename U = non_reference_value_type>
         requires (!::std::is_reference_v<T> && !::std::is_move_constructible_v<non_reference_value_type>)
-    constexpr auto value_or(this Optional<T>&&, U&&) -> non_reference_value_type = delete;
+    constexpr auto value_or(this Optional<T>&&, U&&) -> non_reference_value_type = delete
+#if __cpp_deleted_function >= 202403L
+    #if defined __clang__
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wc++26-extensions"
+    #endif
+        ("rvalue calls must not fall back to the lvalue overload when the value type is not move constructible")
+    #if defined __clang__
+        #pragma clang diagnostic pop
+    #endif
+#endif
+            ;
 
     template<typename U = ::std::remove_cv_t<value_type>>
         requires (::std::is_lvalue_reference_v<T> && ::std::is_object_v<value_type> && !::std::is_array_v<value_type> &&

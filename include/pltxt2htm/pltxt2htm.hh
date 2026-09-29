@@ -15,8 +15,8 @@
     #warning "gcc/clang are recommended more than MSVC(VS2026)"
 #endif
 
-#include <fast_io/fast_io_dsal/string.h>
 #include "container/deque.hh"
+#include "container/string.hh"
 #include "container/array.hh"
 #include "container/string_view.hh"
 #include "container/optional.hh"
@@ -32,38 +32,6 @@
 #include "version.hh"
 
 namespace pltxt2htm {
-
-/**
- * @brief Convert Physics-Lab (pl) text to advanced HTML with full feature support
- * @details This function provides the most comprehensive HTML generation with support for:
- *          - Physics-Lab-specific tags (experiment, discussion, user, etc.)
- *          - Unity rich-text tags (color, size, bold, italic, etc.)
- *          - Full Markdown syntax (headers, lists, emphasis, links, code blocks, etc.)
- *          - HTML elements with proper escaping and formatting
- *          - Internal linking to experiments and discussions
- * @tparam ndebug Contract checking mode. Supported values are ::pltxt2htm::Contracts
- *                 enumerators such as ::pltxt2htm::Contracts::quick_enforce and
- *                 ::pltxt2htm::Contracts::ignore
- * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
- * @param[in] pltext The Physics-Lab text content to convert
- * @return Generated HTML string with full formatting support
- * @retval fast_io::u8string UTF-8 string containing the generated HTML
- * @note This is the recommended function for most use cases requiring full feature support
- * @note The function automatically optimizes the AST by default for better performance
- * @warning This function uses built-in placeholder link context values
- * @warning Use pltxt2fixedadv_html when host/project/visitor/author/coauthors must be customized
- */
-template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
-[[nodiscard]]
-constexpr auto pltxt4unittest(::pltxt2htm::container::U8StringView pltext) noexcept {
-    using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
-    parser_result_type ast{::pltxt2htm::parse_pltxt<ndebug>(pltext)};
-    if constexpr (optimize) {
-        ::pltxt2htm::optimize_ast<ndebug>(ast);
-    }
-    return ::pltxt2htm::details::plweb_text_backend<ndebug, ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
-        ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
-}
 
 /**
  * @brief Convert Physics-Lab text to advanced HTML
@@ -110,7 +78,7 @@ constexpr auto pltxt2fixedadv_html(::pltxt2htm::container::U8StringView pltext,
  * @param[in] author Author identifier for Physics-Lab context
  * @param[in] coauthors Co-authors identifier for Physics-Lab context
  * @return Generated HTML string for PLUnity introduction rendering
- * @retval fast_io::u8string UTF-8 string containing the generated HTML
+ * @retval container::U8String UTF-8 string containing the generated HTML
  */
 template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
 [[nodiscard]]
@@ -146,7 +114,7 @@ constexpr auto pltxt2plunity_introduction(::pltxt2htm::container::U8StringView p
  * @tparam optimize Whether to optimize the AST before HTML generation (default: false)
  * @param[in] pltext The Physics-Lab text content to convert
  * @return Generated HTML string with basic formatting support
- * @retval fast_io::u8string UTF-8 string containing the generated basic HTML
+ * @retval container::U8String UTF-8 string containing the generated basic HTML
  * @note This function is faster than the advanced versions but supports fewer features
  * @note Markdown block syntax and block-level HTML tags render as literal text in this mode
  * @warning AST optimization is disabled by default for this function

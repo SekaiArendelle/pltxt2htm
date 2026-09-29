@@ -104,45 +104,54 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
         auto&& [subast, consumed_bytes] = ::pltxt2htm::details::parse_pltxt<ndebug>(call_stack);
         switch (type_of_subast) {
         case ::pltxt2htm::NodeKind::md_atx_h1: {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH1<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH1<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_atx_h2: {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH2<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH2<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_atx_h3: {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH3<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH3<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_atx_h4: {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH4<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH4<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_atx_h5: {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH5<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH5<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_atx_h6: {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdAtxH6<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH6<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::MdBlockQuotes<ndebug>{::std::move(subast)}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdBlockQuotes<ndebug>>(
+                ::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::list_ul: {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListUl<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListUl<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::list_ol: {
             auto const list_start = opt_list_start.template value<ndebug>();
-            result.push_back(
-                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::ListOl<ndebug>{::std::move(subast), list_start}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListOl<ndebug>>(
+                ::std::move(subast), list_start));
             continue;
         }
         case ::pltxt2htm::NodeKind::table: {
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::Table<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Table<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_p: {
@@ -151,8 +160,8 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             // past it so the remaining text handler doesn't re-process the consumed content.
             start_index += consumed_bytes;
             auto const html_p_align = opt_html_p_align.template value<ndebug>();
-            result.push_back(
-                ::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlP<ndebug>{::std::move(subast), html_p_align}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlP<ndebug>>(
+                ::std::move(subast), html_p_align));
             continue;
         }
         case ::pltxt2htm::NodeKind::unity_align: {
@@ -160,8 +169,8 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             // the Textalign read from the frame top before the recursive parse popped it.
             start_index += consumed_bytes;
             auto const unity_align_value = opt_unity_align.template value<ndebug>();
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                ::pltxt2htm::UnityAlign<ndebug>{::std::move(subast), unity_align_value}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityAlign<ndebug>>(
+                ::std::move(subast), unity_align_value));
             continue;
         }
         case ::pltxt2htm::NodeKind::unity_margin: {
@@ -169,8 +178,8 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             // the left/right margins read from the frame top before the recursive parse popped it.
             start_index += consumed_bytes;
             auto const unity_margin_info = opt_unity_margin.template value<ndebug>();
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::UnityMargin<ndebug>{
-                ::std::move(subast), unity_margin_info.left, unity_margin_info.right}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityMargin<ndebug>>(
+                ::std::move(subast), unity_margin_info.left, unity_margin_info.right));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_div: {
@@ -178,51 +187,58 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             // the left/right margins read from the frame top before the recursive parse popped it.
             start_index += consumed_bytes;
             auto const margins_info = opt_html_div.template value<ndebug>();
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(
-                ::pltxt2htm::HtmlDiv<ndebug>{::std::move(subast), margins_info.left, margins_info.right}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlDiv<ndebug>>(
+                ::std::move(subast), margins_info.left, margins_info.right));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h1: {
             // Same as html_p: advance start_index past the consumed html_h1 content.
             start_index += consumed_bytes;
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH1<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH1<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h2: {
             // Same as html_p: advance start_index past the consumed html_h2 content.
             start_index += consumed_bytes;
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH2<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH2<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h3: {
             // Same as html_p: advance start_index past the consumed html_h3 content.
             start_index += consumed_bytes;
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH3<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH3<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h4: {
             // Same as html_p: advance start_index past the consumed html_h4 content.
             start_index += consumed_bytes;
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH4<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH4<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h5: {
             // Same as html_p: advance start_index past the consumed html_h5 content.
             start_index += consumed_bytes;
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH5<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH5<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h6: {
             // Same as html_p: advance start_index past the consumed html_h6 content.
             start_index += consumed_bytes;
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlH6<ndebug>{::std::move(subast)}));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH6<ndebug>>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_blockquote: {
             // Same as html_p: advance start_index past the consumed html_blockquote content so the
             // remaining text handler doesn't re-process it.
             start_index += consumed_bytes;
-            result.push_back(::pltxt2htm::PlTxtNode<ndebug>(::pltxt2htm::HtmlBlockquote<ndebug>{::std::move(subast)}));
+            result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlBlockquote<ndebug>>(
+                ::std::move(subast)));
             continue;
         }
         default:

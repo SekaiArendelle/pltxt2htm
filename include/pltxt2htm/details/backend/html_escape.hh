@@ -6,7 +6,7 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../../contracts.hh"
 
@@ -14,31 +14,33 @@ namespace pltxt2htm::details {
 
 /**
  * @brief Append one character, escaping characters with HTML syntax significance.
+ * @tparam ndebug Contract checking mode.
  */
-constexpr void append_html_escaped_character(::fast_io::u8string& out, char8_t const character) noexcept {
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_html_escaped_character(::pltxt2htm::container::U8String& out, char8_t const character) noexcept {
     switch (character) {
     case u8'&': {
-        out.append(u8"&amp;");
+        out.append<ndebug>(u8"&amp;");
         return;
     }
     case u8'\'': {
-        out.append(u8"&apos;");
+        out.append<ndebug>(u8"&apos;");
         return;
     }
     case u8'"': {
-        out.append(u8"&quot;");
+        out.append<ndebug>(u8"&quot;");
         return;
     }
     case u8'<': {
-        out.append(u8"&lt;");
+        out.append<ndebug>(u8"&lt;");
         return;
     }
     case u8'>': {
-        out.append(u8"&gt;");
+        out.append<ndebug>(u8"&gt;");
         return;
     }
     default: {
-        out.push_back(character);
+        out.push_back<ndebug>(character);
         return;
     }
     }
@@ -53,11 +55,11 @@ constexpr void append_html_escaped_character(::fast_io::u8string& out, char8_t c
  * @param[in] value Semantic attribute value to append.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_html_escaped_attribute_value(::fast_io::u8string& result,
+constexpr void append_html_escaped_attribute_value(::pltxt2htm::container::U8String& result,
                                                    ::pltxt2htm::container::U8StringView value) noexcept {
     ::std::size_t const value_size{value.size()};
     for (::std::size_t index{}; index < value_size; ++index) {
-        ::pltxt2htm::details::append_html_escaped_character(result, value.template index<ndebug>(index));
+        ::pltxt2htm::details::append_html_escaped_character<ndebug>(result, value.template index<ndebug>(index));
     }
 }
 

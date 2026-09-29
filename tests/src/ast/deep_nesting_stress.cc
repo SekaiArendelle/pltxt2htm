@@ -1,0 +1,18 @@
+#include "precompile.hh"
+
+int main() {
+    {
+        ::pltxt2htm::container::U8String input;
+        for (::std::size_t i{}; i < 500; ++i) {
+            input.append<::pltxt2htm::Contracts::quick_enforce>(u8"<color=red>");
+        }
+        input.append<::pltxt2htm::Contracts::quick_enforce>(u8"hello");
+        for (::std::size_t i{}; i < 500; ++i) {
+            input.append<::pltxt2htm::Contracts::quick_enforce>(u8"</color>");
+        }
+        auto html = ::pltxt2htm_test::pltxt4unittest(::fast_io::mnp::os_c_str(input));
+        pltxt2htm_test_assert_equal(html, u8"<span style=\"color:red;\">hello</span>");
+    }
+
+    return 0;
+}

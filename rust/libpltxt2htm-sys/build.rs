@@ -35,6 +35,19 @@ fn try_run_cmake(c_root: &Path, out_dir: &Path) -> Result<(), String> {
     let mode = profile_mode();
     cmake_cmd.arg("-DCMAKE_BUILD_TYPE=".to_owned() + mode);
 
+    if std::env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("msvc") {
+        let target_features = std::env::var("CARGO_CFG_TARGET_FEATURE").unwrap_or_default();
+        let runtime_library = if target_features
+            .split(',')
+            .any(|feature| feature == "crt-static")
+        {
+            "MultiThreaded"
+        } else {
+            "MultiThreadedDLL"
+        };
+        cmake_cmd.arg("-DCMAKE_MSVC_RUNTIME_LIBRARY=".to_owned() + runtime_library);
+    }
+
     // Pass toolchain if CXX is set (e.g., cross-compilation via cargo)
     if let Ok(cxx) = std::env::var("CXX") {
         cmake_cmd.arg("-DCMAKE_CXX_COMPILER=".to_owned() + &cxx);
