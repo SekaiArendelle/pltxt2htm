@@ -5,103 +5,102 @@
 #include <pltxt2htm/parser.hh>
 
 TEST_SUITE("md_code_span") {
-    TEST_CASE("merged-001") {
-        auto pltext = ::fast_io::u8string_view{u8"`test`"};
+    TEST_CASE("basic") {
+        auto const& pltext = u8"`test`";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto answer = ::fast_io::u8string_view{u8"<code>test</code>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<code>test</code>";
+        CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto plunity_richtext_answer =
-            ::fast_io::u8string_view{u8"<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>"};
-        pltxt2htm_test_assert_equal(plunity_richtext, plunity_richtext_answer);
+        auto const& plunity_richtext_answer = u8"<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>";
+        CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
-    TEST_CASE("merged-002") {
+    TEST_CASE("inner-space") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`t t`");
-        auto answer = ::fast_io::u8string_view{u8"<code>t&nbsp;t</code>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<code>t&nbsp;t</code>";
+        CHECK(html == answer);
     }
 
-    TEST_CASE("merged-003") {
+    TEST_CASE("surrounded-by-text") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t`e`st");
-        auto answer = ::fast_io::u8string_view{u8"t<code>e</code>st"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"t<code>e</code>st";
+        CHECK(html == answer);
     }
 
-    TEST_CASE("merged-004") {
+    TEST_CASE("double-backtick") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"``test``");
-        auto answer = ::fast_io::u8string_view{u8"<code>test</code>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<code>test</code>";
+        CHECK(html == answer);
     }
 
-    TEST_CASE("merged-005") {
+    TEST_CASE("triple-backtick") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```test```");
-        auto answer = ::fast_io::u8string_view{u8"<code>test</code>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<code>test</code>";
+        CHECK(html == answer);
     }
 
-    TEST_CASE("merged-006") {
+    TEST_CASE("escaped-backtick-inside") {
         // A backslash does not escape a code-span delimiter.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`t\\`t`");
-        auto answer = ::fast_io::u8string_view{u8"<code>t\\</code>t`"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<code>t\\</code>t`";
+        CHECK(html == answer);
     }
 
-    TEST_CASE("merged-007") {
+    TEST_CASE("escapes-and-entities-literal") {
         // Markdown escapes and entity references stay literal inside a code span.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`\\* &lt;`");
-        auto answer = ::fast_io::u8string_view{u8"<code>\\*&nbsp;&amp;lt;</code>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<code>\\*&nbsp;&amp;lt;</code>";
+        CHECK(html == answer);
     }
 
-    TEST_CASE("merged-008") {
+    TEST_CASE("double-backtick-surrounded") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t``e``st");
-        auto answer = ::fast_io::u8string_view{u8"t<code>e</code>st"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"t<code>e</code>st";
+        CHECK(html == answer);
     }
 
-    TEST_CASE("merged-009") {
+    TEST_CASE("triple-backtick-surrounded") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t```e```st");
-        auto answer = ::fast_io::u8string_view{u8"t<code>e</code>st"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"t<code>e</code>st";
+        CHECK(html == answer);
     }
 
     // An opening backtick without a matching closing backtick is literal text,
     // not an unterminated code span.
-    TEST_CASE("merged-010") {
+    TEST_CASE("unmatched-backtick-literal") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`t");
-        auto answer = ::fast_io::u8string_view{u8"`t"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"`t";
+        CHECK(html == answer);
     }
 
-    TEST_CASE("merged-011") {
+    TEST_CASE("html-inside-escaped") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```<br>```");
-        auto answer = ::fast_io::u8string_view{u8"<code>&lt;br&gt;</code>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<code>&lt;br&gt;</code>";
+        CHECK(html == answer);
     }
 
-    TEST_CASE("merged-012") {
+    TEST_CASE("tags-inside-escaped") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`<em>t</em>`");
-        auto answer = ::fast_io::u8string_view{u8"<code>&lt;em&gt;t&lt;/em&gt;</code>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<code>&lt;em&gt;t&lt;/em&gt;</code>";
+        CHECK(html == answer);
     }
 
-    TEST_CASE("merged-013") {
+    TEST_CASE("plunity-mono-font") {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab`test`cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd";
+        CHECK(html == answer);
     }
 
-    TEST_CASE("merged-014") {
+    TEST_CASE("plunity-double-backtick") {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab``test``cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd";
+        CHECK(html == answer);
     }
 
-    TEST_CASE("merged-015") {
+    TEST_CASE("plunity-triple-backtick") {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"ab```test```cd");
-        auto answer = ::fast_io::u8string_view{u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"ab<font=\"PhysicsLab-SarasaMonoSC SDF\"> test </font>cd";
+        CHECK(html == answer);
     }
 
     // Regression: an opening delimiter without a matching closing delimiter must not be
@@ -109,76 +108,75 @@ TEST_SUITE("md_code_span") {
     // subtracted the delimiters from the consumed count and underflowed to a huge size_t,
     // terminating (quick_enforce) or forming an out-of-bounds subview (ignore). See
     // fixedadv_fuzzer_crash_analysis.md. Delimiter lengths 1, 2, 3 at top level.
-    TEST_CASE("merged-016") {
+    TEST_CASE("lone-backtick") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`");
-        auto answer = ::fast_io::u8string_view{u8"`"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"`";
+        CHECK(html == answer);
     }
     // A delimiter run with no content is NOT a code span and stays literal text.
-    TEST_CASE("merged-017") {
+    TEST_CASE("lone-double-backtick") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"``");
-        auto answer = ::fast_io::u8string_view{u8"``"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"``";
+        CHECK(html == answer);
     }
-    TEST_CASE("merged-018") {
+    TEST_CASE("lone-triple-backtick") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```");
-        auto answer = ::fast_io::u8string_view{u8"```"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"```";
+        CHECK(html == answer);
     }
     // Content long enough to fill an unclosed span still must not be consumed by it.
-    TEST_CASE("merged-019") {
+    TEST_CASE("unclosed-with-content") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`t");
-        auto answer = ::fast_io::u8string_view{u8"`t"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"`t";
+        CHECK(html == answer);
     }
-    TEST_CASE("merged-020") {
+    TEST_CASE("unclosed-double-with-content") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"``ab");
-        auto answer = ::fast_io::u8string_view{u8"``ab"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"``ab";
+        CHECK(html == answer);
     }
-    TEST_CASE("merged-021") {
+    TEST_CASE("unclosed-triple-with-content") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"```x");
-        auto answer = ::fast_io::u8string_view{u8"```x"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"```x";
+        CHECK(html == answer);
     }
     // A preceding backslash stays in the content and does not escape the closing delimiter.
-    TEST_CASE("merged-022") {
+    TEST_CASE("escaped-backtick-at-end") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`a\\`");
-        auto answer = ::fast_io::u8string_view{u8"<code>a\\</code>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<code>a\\</code>";
+        CHECK(html == answer);
     }
     // Even balanced delimiter runs with no content stay literal.
-    TEST_CASE("merged-023") {
+    TEST_CASE("lone-quadruple-backtick") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"````");
-        auto answer = ::fast_io::u8string_view{u8"````"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"````";
+        CHECK(html == answer);
     }
-    TEST_CASE("merged-024") {
+    TEST_CASE("lone-sextuple-backtick") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"``````");
-        auto answer = ::fast_io::u8string_view{u8"``````"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"``````";
+        CHECK(html == answer);
     }
     // The fuzzer crash input: an unclosed code span inside a Markdown list item.
-    TEST_CASE("merged-025") {
+    TEST_CASE("unclosed-in-list-item") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"* `");
-        auto answer = ::fast_io::u8string_view{u8"<ul><li>`</li></ul>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<ul><li>`</li></ul>";
+        CHECK(html == answer);
     }
-    TEST_CASE("merged-026") {
+    TEST_CASE("unclosed-double-in-list-item") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"* ``");
-        auto answer = ::fast_io::u8string_view{u8"<ul><li>``</li></ul>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<ul><li>``</li></ul>";
+        CHECK(html == answer);
     }
-    TEST_CASE("merged-027") {
+    TEST_CASE("unclosed-triple-in-list-item") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"* ```");
-        auto answer = ::fast_io::u8string_view{u8"<ul><li>```</li></ul>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<ul><li>```</li></ul>";
+        CHECK(html == answer);
     }
     // Unclosed code span inside a table cell.
-    TEST_CASE("merged-028") {
+    TEST_CASE("unclosed-in-table-cell") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"| a |\n|---|\n| `` |");
-        auto answer = ::fast_io::u8string_view{
-            u8"<table><thead><tr><th>a</th></tr></thead><tbody><tr><td>``</td></tr></tbody></table>"};
-        pltxt2htm_test_assert_equal(html, answer);
+        auto const& answer = u8"<table><thead><tr><th>a</th></tr></thead><tbody><tr><td>``</td></tr></tbody></table>";
+        CHECK(html == answer);
     }
 }
