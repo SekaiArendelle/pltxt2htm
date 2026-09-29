@@ -12,6 +12,12 @@ TEST_SUITE("auto_link") {
         auto const& plunity_richtext_answer = u8"<external=https://example.com>https://example.com</external>";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
+    TEST_CASE("case-insensitive-scheme") {
+        auto const& pltext = u8"HTTPS://example.com";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<a href=\"HTTPS://example.com\">HTTPS://example.com</a>";
+        CHECK(html == answer);
+    }
     TEST_CASE("surrounded-by-text") {
         auto const& pltext = u8"visit https://example.com now";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);

@@ -46,6 +46,8 @@ template<::pltxt2htm::Contracts ndebug>
         case u8'<': {
             return index;
         }
+        case u8'H':
+            [[fallthrough]];
         case u8'h': {
             if (::pltxt2htm::details::try_parse_url_scheme<ndebug>(text.template subview<ndebug>(index)).has_value()) {
                 return index;

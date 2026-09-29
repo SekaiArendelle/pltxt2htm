@@ -60,12 +60,15 @@ static_assert(::pltxt2htm::details::is_ascii_control_code_point(char32_t{0x1F}))
 static_assert(::pltxt2htm::details::is_ascii_control_code_point(char32_t{0x7F}));
 static_assert(::pltxt2htm::details::is_ascii_control_code_point(U' ') == false);
 static_assert(parsed_url_scheme_size(u8"http://x") == 7);
+static_assert(parsed_url_scheme_size(u8"HTTPS://x") == 8);
 static_assert(parsed_url_scheme_size(u8"http:/") == 0);
 static_assert(parsed_url_scheme_size(u8"ftp://x") == 0);
 static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"plain text") == 5);
 static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"hello") == 5);
 static_assert(
     ::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"abchttps://example.com") == 3);
+static_assert(
+    ::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"abcHTTPS://example.com") == 3);
 static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"abc*") == 3);
 static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"abc\u00E9") == 3);
 
