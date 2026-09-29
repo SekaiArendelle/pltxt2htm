@@ -7,13 +7,34 @@
 
 #include <cstddef>
 #include <fast_io/fast_io_dsal/string_view.h>
-#include "../../../ast/code/language.hh"
+#include "../../../ast/code/node.hh"
 #include "../../../contracts.hh"
 #include "../../utils.hh"
 
 namespace pltxt2htm::details {
 
-using SyntaxLanguage = ::pltxt2htm::CodeLanguage;
+enum class SyntaxLanguage : unsigned {
+    plain = 0,
+    bash,
+    c,
+    cpp,
+    csharp,
+    css,
+    go,
+    html,
+    java,
+    javascript,
+    json,
+    kotlin,
+    lua,
+    python,
+    rust,
+    sql,
+    toml,
+    typescript,
+    xml,
+    yaml,
+};
 
 enum class SyntaxTokenKind : unsigned {
     keyword = 0,
@@ -24,6 +45,34 @@ enum class SyntaxTokenKind : unsigned {
     macro,
     preprocessor,
 };
+
+[[nodiscard]]
+constexpr auto syntax_highlight_kind(SyntaxTokenKind const kind) noexcept -> ::pltxt2htm::CodeHighlightKind {
+    switch (kind) /* -Werror=switch */ {
+    case SyntaxTokenKind::keyword: {
+        return ::pltxt2htm::CodeHighlightKind::keyword;
+    }
+    case SyntaxTokenKind::string: {
+        return ::pltxt2htm::CodeHighlightKind::string;
+    }
+    case SyntaxTokenKind::number: {
+        return ::pltxt2htm::CodeHighlightKind::number;
+    }
+    case SyntaxTokenKind::comment: {
+        return ::pltxt2htm::CodeHighlightKind::comment;
+    }
+    case SyntaxTokenKind::function: {
+        return ::pltxt2htm::CodeHighlightKind::function;
+    }
+    case SyntaxTokenKind::macro: {
+        return ::pltxt2htm::CodeHighlightKind::macro;
+    }
+    case SyntaxTokenKind::preprocessor: {
+        return ::pltxt2htm::CodeHighlightKind::preprocessor;
+    }
+    }
+    ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>();
+}
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]

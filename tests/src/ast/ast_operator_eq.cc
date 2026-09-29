@@ -222,13 +222,13 @@ int main() {
 
     // CodeFence with equal content
     {
-        ::pltxt2htm::CodeAst<nd::quick_enforce> ast_a{::pltxt2htm::CodeLanguage::plain};
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> ast_a{};
         ::pltxt2htm::container::U8String text_a{u8"a"};
-        ast_a.template append<::pltxt2htm::CodeLanguage::plain>(text_a, ::pltxt2htm::CodePlainNodeKind::text);
+        ast_a.append(text_a, ::pltxt2htm::CodeHighlightKind::plain);
 
-        ::pltxt2htm::CodeAst<nd::quick_enforce> ast_b{::pltxt2htm::CodeLanguage::plain};
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> ast_b{};
         ::pltxt2htm::container::U8String text_b{u8"a"};
-        ast_b.template append<::pltxt2htm::CodeLanguage::plain>(text_b, ::pltxt2htm::CodePlainNodeKind::text);
+        ast_b.append(text_b, ::pltxt2htm::CodeHighlightKind::plain);
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
@@ -240,25 +240,30 @@ int main() {
     }
     // Rendered-code append overloads consume project-owned input buffers.
     {
-        ::pltxt2htm::CodeAst<nd::quick_enforce> ast{::pltxt2htm::CodeLanguage::rendered};
+        ::pltxt2htm::RenderedCodeAst<nd::quick_enforce> ast{};
         ::pltxt2htm::container::U8String text{u8"text"};
-        ast.append_rendered_text(text);
+        ast.append_text(text);
         pltxt2htm_test_assert_true(text.is_empty());
 
         ::pltxt2htm::container::U8String entity{u8"amp"};
-        ast.append_rendered_entity_reference(entity);
+        ast.append_entity_reference(entity);
         pltxt2htm_test_assert_true(entity.is_empty());
+
+        auto const rendered = ::pltxt2htm::CodeFence<nd::quick_enforce>(::std::move(ast));
+        auto const highlighted =
+            ::pltxt2htm::CodeFence<nd::quick_enforce>(::pltxt2htm::HighlightedCodeAst<nd::quick_enforce>{});
+        pltxt2htm_test_assert_false(rendered == highlighted);
     }
 
     // CodeFence with different content
     {
-        ::pltxt2htm::CodeAst<nd::quick_enforce> ast_a{::pltxt2htm::CodeLanguage::plain};
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> ast_a{};
         ::pltxt2htm::container::U8String text_a{u8"a"};
-        ast_a.template append<::pltxt2htm::CodeLanguage::plain>(text_a, ::pltxt2htm::CodePlainNodeKind::text);
+        ast_a.append(text_a, ::pltxt2htm::CodeHighlightKind::plain);
 
-        ::pltxt2htm::CodeAst<nd::quick_enforce> ast_b{::pltxt2htm::CodeLanguage::plain};
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> ast_b{};
         ::pltxt2htm::container::U8String text_b{u8"b"};
-        ast_b.template append<::pltxt2htm::CodeLanguage::plain>(text_b, ::pltxt2htm::CodePlainNodeKind::text);
+        ast_b.append(text_b, ::pltxt2htm::CodeHighlightKind::plain);
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
@@ -715,7 +720,7 @@ int main() {
         pltxt2htm_test_assert_false(a == b);
     }
     {
-        ::pltxt2htm::CodeAst<nd::quick_enforce> ast_a{::pltxt2htm::CodeLanguage::plain};
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> ast_a{};
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 

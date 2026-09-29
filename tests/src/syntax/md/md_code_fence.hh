@@ -819,25 +819,24 @@ print("Hello World")
         pltxt2htm_test_assert_equal(reparsed, html);
     }
 
-    // CodeFence owns a language-specific code AST instead of a presentation-colored
-    // document AST. The source ranges still reconstruct the original fence contents.
+    // CodeFence owns language-neutral highlighting IR. The source ranges still
+    // reconstruct the original fence contents without retaining cpp metadata.
     TEST_CASE("merged-077") {
         auto const ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(
             ::fast_io::u8string_view{u8"```cpp\nint f();\n```"});
         pltxt2htm_test_assert_true(ast.size() == 1);
         auto const& root{ast.template index<::pltxt2htm::Contracts::quick_enforce>(0)};
         pltxt2htm_test_assert_true(root.get_node_kind() == ::pltxt2htm::NodeKind::code_fence);
-        auto const& code_ast{root.as_code_fence().get_ast()};
-        pltxt2htm_test_assert_true(code_ast.get_language() == ::pltxt2htm::CodeLanguage::cpp);
+        auto const& code_ast{root.as_code_fence().get_highlighted_ast()};
 
         ::fast_io::u8string source{};
         bool has_keyword{};
         bool has_function_name{};
         for (auto const& node : code_ast.get_nodes()) {
             source.append(code_ast.get_text(node));
-            auto const kind{code_ast.template get_node_kind<::pltxt2htm::CodeLanguage::cpp>(node)};
-            has_keyword = has_keyword || kind == ::pltxt2htm::CodeCppNodeKind::keyword;
-            has_function_name = has_function_name || kind == ::pltxt2htm::CodeCppNodeKind::function_name;
+            auto const kind{node.get_kind()};
+            has_keyword = has_keyword || kind == ::pltxt2htm::CodeHighlightKind::keyword;
+            has_function_name = has_function_name || kind == ::pltxt2htm::CodeHighlightKind::function;
         }
         pltxt2htm_test_assert_equal(source, ::fast_io::u8string_view{u8"int f();"});
         pltxt2htm_test_assert_true(has_keyword);

@@ -1191,7 +1191,16 @@ entry:
             case ::pltxt2htm::NodeKind::code_fence: {
                 auto&& active_node = node.as_code_fence();
                 result.template append<ndebug>(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n");
-                ::pltxt2htm::details::append_plunity_code_ast<ndebug>(active_node.get_ast(), result);
+                switch (active_node.get_kind()) /* -Werror=switch */ {
+                case ::pltxt2htm::CodeFenceKind::highlighted: {
+                    ::pltxt2htm::details::append_plunity_code_ast<ndebug>(active_node.get_highlighted_ast(), result);
+                    break;
+                }
+                case ::pltxt2htm::CodeFenceKind::rendered: {
+                    ::pltxt2htm::details::append_plunity_code_ast<ndebug>(active_node.get_rendered_ast(), result);
+                    break;
+                }
+                }
                 result.template append<ndebug>(u8"\n</font>");
                 continue;
             }

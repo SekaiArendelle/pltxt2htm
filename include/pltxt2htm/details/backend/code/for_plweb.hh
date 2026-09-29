@@ -83,7 +83,7 @@ constexpr void append_plweb_code_unit(::pltxt2htm::Unit const unit,
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_plweb_rendered_style(::pltxt2htm::CodeRenderedStyle<ndebug> const& style,
+constexpr void append_plweb_rendered_style(::pltxt2htm::RenderedCodeStyle<ndebug> const& style,
                                            ::pltxt2htm::container::U8String& result) noexcept {
     result.template append<ndebug>(u8"<span style=\"");
     if (style.get_color().is_empty() == false) {
@@ -116,42 +116,42 @@ constexpr void append_plweb_rendered_style(::pltxt2htm::CodeRenderedStyle<ndebug
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_plweb_language_code_ast(::pltxt2htm::CodeAst<ndebug> const& ast,
-                                              ::pltxt2htm::container::U8String& result) noexcept {
+constexpr void append_plweb_highlighted_code_ast(::pltxt2htm::HighlightedCodeAst<ndebug> const& ast,
+                                                 ::pltxt2htm::container::U8String& result) noexcept {
     for (auto const& node : ast.get_nodes()) {
-        CodeStyle const style{::pltxt2htm::details::code_style<ndebug>(ast, node)};
-        if (style != CodeStyle::plain) {
+        ::pltxt2htm::CodeHighlightKind const kind{node.get_kind()};
+        if (kind != ::pltxt2htm::CodeHighlightKind::plain) {
             result.template append<ndebug>(u8"<span style=\"color:");
-            result.template append<ndebug>(::pltxt2htm::details::code_style_color<ndebug>(style));
+            result.template append<ndebug>(::pltxt2htm::details::code_style_color<ndebug>(kind));
             result.template append<ndebug>(u8";\">");
         }
         ::pltxt2htm::details::append_plweb_code_text<ndebug>(ast.get_text(node), result);
-        if (style != CodeStyle::plain) {
+        if (kind != ::pltxt2htm::CodeHighlightKind::plain) {
             result.template append<ndebug>(u8"</span>");
         }
     }
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_plweb_rendered_code_ast(::pltxt2htm::CodeAst<ndebug> const& ast,
+constexpr void append_plweb_rendered_code_ast(::pltxt2htm::RenderedCodeAst<ndebug> const& ast,
                                               ::pltxt2htm::container::U8String& result) noexcept {
     for (auto const& node : ast.get_nodes()) {
-        switch (ast.template get_node_kind<::pltxt2htm::CodeLanguage::rendered>(node)) /* -Werror=switch */ {
-        case ::pltxt2htm::CodeRenderedNodeKind::text: {
+        switch (node.get_kind()) /* -Werror=switch */ {
+        case ::pltxt2htm::RenderedCodeNodeKind::text: {
             ::pltxt2htm::details::append_plweb_code_text<ndebug>(ast.get_text(node), result);
             break;
         }
-        case ::pltxt2htm::CodeRenderedNodeKind::entity_reference: {
+        case ::pltxt2htm::RenderedCodeNodeKind::entity_reference: {
             result.template push_back<ndebug>(u8'&');
             result.template append<ndebug>(ast.get_text(node));
             result.template push_back<ndebug>(u8';');
             break;
         }
-        case ::pltxt2htm::CodeRenderedNodeKind::style_begin: {
-            ::pltxt2htm::details::append_plweb_rendered_style<ndebug>(ast.get_rendered_style(node), result);
+        case ::pltxt2htm::RenderedCodeNodeKind::style_begin: {
+            ::pltxt2htm::details::append_plweb_rendered_style<ndebug>(ast.get_style(node), result);
             break;
         }
-        case ::pltxt2htm::CodeRenderedNodeKind::style_end: {
+        case ::pltxt2htm::RenderedCodeNodeKind::style_end: {
             result.template append<ndebug>(u8"</span>");
             break;
         }
@@ -166,13 +166,15 @@ constexpr void append_plweb_rendered_code_ast(::pltxt2htm::CodeAst<ndebug> const
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_plweb_code_ast(::pltxt2htm::CodeAst<ndebug> const& ast,
+constexpr void append_plweb_code_ast(::pltxt2htm::HighlightedCodeAst<ndebug> const& ast,
                                      ::pltxt2htm::container::U8String& result) noexcept {
-    if (ast.get_language() == ::pltxt2htm::CodeLanguage::rendered) {
-        ::pltxt2htm::details::append_plweb_rendered_code_ast<ndebug>(ast, result);
-        return;
-    }
-    ::pltxt2htm::details::append_plweb_language_code_ast<ndebug>(ast, result);
+    ::pltxt2htm::details::append_plweb_highlighted_code_ast<ndebug>(ast, result);
+}
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_plweb_code_ast(::pltxt2htm::RenderedCodeAst<ndebug> const& ast,
+                                     ::pltxt2htm::container::U8String& result) noexcept {
+    ::pltxt2htm::details::append_plweb_rendered_code_ast<ndebug>(ast, result);
 }
 
 } // namespace pltxt2htm::details

@@ -102,9 +102,9 @@ int main() {
 
     // Copy of a CodeFence node
     {
-        ::pltxt2htm::CodeAst<nd::quick_enforce> ast{::pltxt2htm::CodeLanguage::plain};
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> ast{};
         ::pltxt2htm::container::U8String text{u8"x"};
-        ast.template append<::pltxt2htm::CodeLanguage::plain>(text, ::pltxt2htm::CodePlainNodeKind::text);
+        ast.append(text, ::pltxt2htm::CodeHighlightKind::plain);
         pltxt2htm_test_assert_true(text.is_empty());
 
         auto const original =
@@ -113,6 +113,19 @@ int main() {
 
         auto const copy = original;
         pltxt2htm_test_assert_true(original == copy);
+    }
+
+    // Copy of a rendered CodeFence node
+    {
+        ::pltxt2htm::RenderedCodeAst<nd::quick_enforce> ast{};
+        ::pltxt2htm::container::U8String text{u8"rendered"};
+        ast.append_text(text);
+
+        auto const original = ::pltxt2htm::CodeFence<nd::quick_enforce>(::std::move(ast));
+        auto const copy = original;
+        pltxt2htm_test_assert_true(original == copy);
+        pltxt2htm_test_assert_true(copy.get_kind() == ::pltxt2htm::CodeFenceKind::rendered);
+        pltxt2htm_test_assert_true(copy.get_rendered_ast().get_nodes().size() == 1);
     }
 
     // Copy of a node with Url (MdLink)

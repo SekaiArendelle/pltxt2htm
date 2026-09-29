@@ -9,11 +9,13 @@
 #include <concepts>
 #include <cstddef>
 #include <iterator>
+#include <memory>
 #include <utility>
 #include "../code/ast.hh"
 #include "../../container/string.hh"
 #include "../../details/inplace_string.hh"
 #include "ast_decl.hh"
+#include "../../details/push_macro.hh"
 
 namespace pltxt2htm {
 
@@ -232,24 +234,36 @@ public:
 
 /**
  * @brief Markdown fenced code block
- * @details Contains a language-specific code AST. Syntax nodes retain their
- *          source-language meaning until a backend maps them to presentation.
+ * @details Contains either language-neutral highlighting IR or explicitly
+ *          rendered inline code.
  */
+enum class CodeFenceKind : unsigned {
+    highlighted = 0,
+    rendered,
+};
+
 template<::pltxt2htm::Contracts ndebug>
 class CodeFence {
-    ::pltxt2htm::CodeAst<ndebug> ast;
+    ::pltxt2htm::CodeFenceKind kind;
+    union {
+        ::pltxt2htm::HighlightedCodeAst<ndebug> highlighted_ast;
+        ::pltxt2htm::RenderedCodeAst<ndebug> rendered_ast;
+    };
+
+    constexpr void destroy_active(this CodeFence& self) noexcept;
 
 public:
     /**
      * @brief Construct a fenced code block.
      * @param ast_value The parsed code content.
      */
-    constexpr explicit CodeFence(::pltxt2htm::CodeAst<ndebug>&& ast_value) noexcept;
+    constexpr explicit CodeFence(::pltxt2htm::HighlightedCodeAst<ndebug>&& ast_value) noexcept;
+    constexpr explicit CodeFence(::pltxt2htm::RenderedCodeAst<ndebug>&& ast_value) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
     constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
-    constexpr ~CodeFence() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::CodeFence<ndebug> const&) noexcept
-        -> ::pltxt2htm::CodeFence<ndebug>& = default;
+    constexpr ~CodeFence() noexcept;
+    constexpr auto operator=(this CodeFence<ndebug>& self, ::pltxt2htm::CodeFence<ndebug> const& other) noexcept
+        -> ::pltxt2htm::CodeFence<ndebug>&;
     constexpr auto operator=(this CodeFence<ndebug>& self, ::pltxt2htm::CodeFence<ndebug>&&) noexcept
         -> ::pltxt2htm::CodeFence<ndebug>&;
 
@@ -257,8 +271,38 @@ public:
     constexpr auto operator==(this CodeFence const& self, CodeFence const& other) noexcept -> bool;
 
     [[nodiscard]]
-    constexpr auto get_ast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.ast);
+    constexpr auto get_kind(this CodeFence const& self) noexcept -> ::pltxt2htm::CodeFenceKind {
+        return self.kind;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_highlighted_ast(this CodeFence& self) noexcept -> ::pltxt2htm::HighlightedCodeAst<ndebug>& {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::highlighted,
+                         u8"highlighted AST requested from rendered code fence");
+        return self.highlighted_ast;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_highlighted_ast(this CodeFence const& self) noexcept
+        -> ::pltxt2htm::HighlightedCodeAst<ndebug> const& {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::highlighted,
+                         u8"highlighted AST requested from rendered code fence");
+        return self.highlighted_ast;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_rendered_ast(this CodeFence& self) noexcept -> ::pltxt2htm::RenderedCodeAst<ndebug>& {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::rendered,
+                         u8"rendered AST requested from highlighted code fence");
+        return self.rendered_ast;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_rendered_ast(this CodeFence const& self) noexcept
+        -> ::pltxt2htm::RenderedCodeAst<ndebug> const& {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::rendered,
+                         u8"rendered AST requested from highlighted code fence");
+        return self.rendered_ast;
     }
 };
 
@@ -294,3 +338,5 @@ public:
 };
 
 } // namespace pltxt2htm
+
+#include "../../details/pop_macro.hh"

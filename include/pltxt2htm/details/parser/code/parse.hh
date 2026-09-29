@@ -24,125 +24,28 @@ constexpr void append_code_syntax_ast(::fast_io::u8string& source, ::fast_io::u8
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_code_syntax_ast(::fast_io::u8string& source, ::pltxt2htm::CodeAst<ndebug>& destination) noexcept;
+constexpr void append_code_syntax_ast(::fast_io::u8string& source, ::pltxt2htm::HighlightedCodeAst<ndebug>& destination) noexcept;
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_colored_code_syntax_ast(::fast_io::u8string& token_ast, SyntaxTokenKind const kind,
-                                              ::pltxt2htm::CodeAst<ndebug>& destination) noexcept;
+                                              ::pltxt2htm::HighlightedCodeAst<ndebug>& destination) noexcept;
 
-template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::CodeLanguage language>
-constexpr void append_code_syntax_kind(::fast_io::u8string& text, unsigned const kind,
-                                       ::pltxt2htm::CodeAst<ndebug>& destination) noexcept {
-    destination.template append<language>(::pltxt2htm::container::U8StringView{text.data(), text.size()},
-                                          static_cast<::pltxt2htm::CodeNodeKind<language>>(kind));
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_code_syntax_kind(::fast_io::u8string& text,
+                                       ::pltxt2htm::CodeHighlightKind const kind,
+                                       ::pltxt2htm::HighlightedCodeAst<ndebug>& destination) noexcept {
+    destination.append(::pltxt2htm::container::U8StringView{text.data(), text.size()}, kind);
     text.clear();
 }
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_code_syntax_kind(::fast_io::u8string& text, unsigned const kind,
-                                       ::pltxt2htm::CodeAst<ndebug>& destination) noexcept {
-    switch (destination.get_language()) /* -Werror=switch */ {
-    case ::pltxt2htm::CodeLanguage::plain: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::plain>(text, kind,
-                                                                                                destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::bash: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::bash>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::c: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::c>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::cpp: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::cpp>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::csharp: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::csharp>(text, kind,
-                                                                                                 destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::css: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::css>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::go: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::go>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::html: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::html>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::java: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::java>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::javascript: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::javascript>(text, kind,
-                                                                                                     destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::json: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::json>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::kotlin: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::kotlin>(text, kind,
-                                                                                                 destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::lua: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::lua>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::python: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::python>(text, kind,
-                                                                                                 destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::rust: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::rust>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::sql: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::sql>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::toml: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::toml>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::typescript: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::typescript>(text, kind,
-                                                                                                     destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::xml: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::xml>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::yaml: {
-        ::pltxt2htm::details::append_code_syntax_kind<ndebug, ::pltxt2htm::CodeLanguage::yaml>(text, kind, destination);
-        return;
-    }
-    case ::pltxt2htm::CodeLanguage::rendered: {
-        [[unlikely]] { pltxt2htm_unreachable(u8"Rendered code cannot contain language syntax nodes"); }
-    }
-    }
-    pltxt2htm_unreachable(u8"Unreachable code after exhaustive switch on code language");
-}
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_code_syntax_ast(::fast_io::u8string& source, ::pltxt2htm::CodeAst<ndebug>& destination) noexcept {
-    ::pltxt2htm::details::append_code_syntax_kind<ndebug>(source, 0, destination);
+constexpr void append_code_syntax_ast(::fast_io::u8string& source, ::pltxt2htm::HighlightedCodeAst<ndebug>& destination) noexcept {
+    ::pltxt2htm::details::append_code_syntax_kind<ndebug>(source, ::pltxt2htm::CodeHighlightKind::plain, destination);
 }
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_colored_code_syntax_ast(::fast_io::u8string& token_ast, SyntaxTokenKind const kind,
-                                              ::pltxt2htm::CodeAst<ndebug>& destination) noexcept {
+                                              ::pltxt2htm::HighlightedCodeAst<ndebug>& destination) noexcept {
     ::std::size_t begin{};
     while (begin != token_ast.size()) {
         ::std::size_t end{begin};
@@ -153,7 +56,8 @@ constexpr void append_colored_code_syntax_ast(::fast_io::u8string& token_ast, Sy
         }
         if (begin != end) {
             ::fast_io::u8string line{token_ast.data() + begin, token_ast.data() + end};
-            ::pltxt2htm::details::append_code_syntax_kind<ndebug>(line, static_cast<unsigned>(kind) + 1, destination);
+            ::pltxt2htm::details::append_code_syntax_kind<ndebug>(
+                line, ::pltxt2htm::details::syntax_highlight_kind(kind), destination);
         }
         if (end != token_ast.size()) {
             ::fast_io::u8string newline{u8"\n"};
@@ -168,8 +72,8 @@ constexpr void append_colored_code_syntax_ast(::fast_io::u8string& token_ast, Sy
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_plain_code_syntax(::fast_io::u8string_view const content) noexcept
-    -> ::pltxt2htm::CodeAst<ndebug> {
-    ::pltxt2htm::CodeAst<ndebug> ast{::pltxt2htm::CodeLanguage::plain};
+    -> ::pltxt2htm::HighlightedCodeAst<ndebug> {
+    ::pltxt2htm::HighlightedCodeAst<ndebug> ast{};
     ast.reserve(content.size());
     ::std::size_t current_index{};
     ::fast_io::u8string text{};
@@ -185,11 +89,11 @@ constexpr auto parse_plain_code_syntax(::fast_io::u8string_view const content) n
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content, SyntaxLanguage const language) noexcept
-    -> ::pltxt2htm::CodeAst<ndebug> {
+    -> ::pltxt2htm::HighlightedCodeAst<ndebug> {
     ::fast_io::u8string_view remaining{content};
     ::fast_io::u8string lookahead_ast{};
     char8_t lookahead_ascii{};
-    ::pltxt2htm::CodeAst<ndebug> ast{language};
+    ::pltxt2htm::HighlightedCodeAst<ndebug> ast{};
     ast.reserve(content.size());
 
     while (lookahead_ast.empty() == false || remaining.empty() == false) {
@@ -528,7 +432,7 @@ constexpr auto parse_c_style_code_syntax(::fast_io::u8string_view const content,
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const content,
-                                             SyntaxLanguage const language) noexcept -> ::pltxt2htm::CodeAst<ndebug> {
+                                             SyntaxLanguage const language) noexcept -> ::pltxt2htm::HighlightedCodeAst<ndebug> {
     bool const has_hash_comment{language == SyntaxLanguage::bash || language == SyntaxLanguage::python ||
                                 language == SyntaxLanguage::toml || language == SyntaxLanguage::yaml};
     bool const has_dash_comment{language == SyntaxLanguage::sql};
@@ -537,7 +441,7 @@ constexpr auto parse_data_script_code_syntax(::fast_io::u8string_view const cont
     ::fast_io::u8string_view remaining{content};
     ::fast_io::u8string lookahead_ast{};
     char8_t lookahead_ascii{};
-    ::pltxt2htm::CodeAst<ndebug> ast{language};
+    ::pltxt2htm::HighlightedCodeAst<ndebug> ast{};
     ast.reserve(content.size());
 
     while (lookahead_ast.empty() == false || remaining.empty() == false) {
@@ -889,11 +793,11 @@ constexpr bool parse_lua_long_bracket(::fast_io::u8string_view& remaining, ::fas
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noexcept -> ::pltxt2htm::CodeAst<ndebug> {
+constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noexcept -> ::pltxt2htm::HighlightedCodeAst<ndebug> {
     ::fast_io::u8string_view remaining{content};
     ::fast_io::u8string lookahead_ast{};
     char8_t lookahead_ascii{};
-    ::pltxt2htm::CodeAst<ndebug> ast{::pltxt2htm::CodeLanguage::lua};
+    ::pltxt2htm::HighlightedCodeAst<ndebug> ast{};
     ast.reserve(content.size());
 
     while (lookahead_ast.empty() == false || remaining.empty() == false) {
@@ -1042,11 +946,11 @@ constexpr auto parse_lua_code_syntax(::fast_io::u8string_view const content) noe
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) noexcept -> ::pltxt2htm::CodeAst<ndebug> {
+constexpr auto parse_rust_code_syntax(::fast_io::u8string_view const content) noexcept -> ::pltxt2htm::HighlightedCodeAst<ndebug> {
     ::fast_io::u8string_view remaining{content};
     ::fast_io::u8string lookahead_ast{};
     char8_t lookahead_ascii{};
-    ::pltxt2htm::CodeAst<ndebug> ast{::pltxt2htm::CodeLanguage::rust};
+    ::pltxt2htm::HighlightedCodeAst<ndebug> ast{};
     ast.reserve(content.size());
 
     while (lookahead_ast.empty() == false || remaining.empty() == false) {
@@ -1431,7 +1335,7 @@ constexpr bool syntax_is_html_raw_text_closer(::fast_io::u8string_view const con
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_code_syntax_view(::fast_io::u8string_view const content, ::std::size_t const begin,
-                                       ::std::size_t const end, ::pltxt2htm::CodeAst<ndebug>& ast) noexcept {
+                                       ::std::size_t const end, ::pltxt2htm::HighlightedCodeAst<ndebug>& ast) noexcept {
     if (begin == end) {
         return;
     }
@@ -1448,7 +1352,7 @@ constexpr void append_code_syntax_view(::fast_io::u8string_view const content, :
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_colored_code_syntax_view(::fast_io::u8string_view const content, ::std::size_t const begin,
                                                ::std::size_t const end, SyntaxTokenKind const kind,
-                                               ::pltxt2htm::CodeAst<ndebug>& ast) noexcept {
+                                               ::pltxt2htm::HighlightedCodeAst<ndebug>& ast) noexcept {
     if (begin == end) {
         return;
     }
@@ -1465,8 +1369,8 @@ constexpr void append_colored_code_syntax_view(::fast_io::u8string_view const co
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_markup_code_syntax(::fast_io::u8string_view const content, SyntaxLanguage const language) noexcept
-    -> ::pltxt2htm::CodeAst<ndebug> {
-    ::pltxt2htm::CodeAst<ndebug> ast{language};
+    -> ::pltxt2htm::HighlightedCodeAst<ndebug> {
+    ::pltxt2htm::HighlightedCodeAst<ndebug> ast{};
     ast.reserve(content.size());
     ::std::size_t index{};
     ::std::size_t plain_begin{};
@@ -1627,11 +1531,8 @@ constexpr auto parse_markup_code_syntax(::fast_io::u8string_view const content, 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_code_fence_syntax(::fast_io::u8string_view const content, SyntaxLanguage const language) noexcept
-    -> ::pltxt2htm::CodeAst<ndebug> {
+    -> ::pltxt2htm::HighlightedCodeAst<ndebug> {
     switch (language) /* -Werror=switch */ {
-    case SyntaxLanguage::rendered: {
-        [[unlikely]] { pltxt2htm_unreachable(u8"Rendered code cannot be produced by a language parser"); }
-    }
     case SyntaxLanguage::plain: {
         return ::pltxt2htm::details::parse_plain_code_syntax<ndebug>(content);
     }

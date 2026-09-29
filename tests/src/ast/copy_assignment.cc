@@ -5,6 +5,25 @@
 
 #include <pltxt2htm/ast/ast.hh>
 
+consteval auto code_fence_lifetime_is_valid() -> bool {
+    using nd = ::pltxt2htm::Contracts;
+
+    auto highlighted =
+        ::pltxt2htm::CodeFence<nd::ignore>(::pltxt2htm::HighlightedCodeAst<nd::ignore>{});
+    auto rendered = ::pltxt2htm::CodeFence<nd::ignore>(::pltxt2htm::RenderedCodeAst<nd::ignore>{});
+    auto rendered_copy = rendered;
+
+    highlighted = ::std::move(rendered_copy);
+    if (highlighted.get_kind() != ::pltxt2htm::CodeFenceKind::rendered) {
+        return false;
+    }
+
+    rendered = ::pltxt2htm::CodeFence<nd::ignore>(::pltxt2htm::HighlightedCodeAst<nd::ignore>{});
+    return rendered.get_kind() == ::pltxt2htm::CodeFenceKind::highlighted;
+}
+
+static_assert(code_fence_lifetime_is_valid());
+
 int main() {
     using nd = ::pltxt2htm::Contracts;
 
@@ -122,19 +141,54 @@ int main() {
     }
 
     {
-        ::pltxt2htm::CodeAst<nd::quick_enforce> original_ast{::pltxt2htm::CodeLanguage::cpp};
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> original_ast{};
         ::pltxt2htm::container::U8String original_text{u8"int"};
-        original_ast.template append<::pltxt2htm::CodeLanguage::cpp>(original_text,
-                                                                     ::pltxt2htm::CodeCppNodeKind::keyword);
+        original_ast.append(original_text, ::pltxt2htm::CodeHighlightKind::keyword);
         auto const original = ::pltxt2htm::CodeFence<nd::quick_enforce>(::std::move(original_ast));
-        auto assigned = ::pltxt2htm::CodeFence<nd::quick_enforce>(
-            ::pltxt2htm::CodeAst<nd::quick_enforce>{::pltxt2htm::CodeLanguage::rust});
+        auto assigned = ::pltxt2htm::CodeFence<nd::quick_enforce>(::pltxt2htm::HighlightedCodeAst<nd::quick_enforce>{});
         assigned = original;
         pltxt2htm_test_assert_true(assigned == original);
         ::pltxt2htm::container::U8String appended_text{u8" main"};
-        assigned.get_ast().template append<::pltxt2htm::CodeLanguage::cpp>(appended_text,
-                                                                           ::pltxt2htm::CodeCppNodeKind::plain);
+        assigned.get_highlighted_ast().append(appended_text, ::pltxt2htm::CodeHighlightKind::plain);
         pltxt2htm_test_assert_true(assigned != original);
+    }
+
+    // CodeFence copy assignment reconstructs the active AST when its kind changes.
+    {
+        ::pltxt2htm::RenderedCodeAst<nd::quick_enforce> rendered_ast{};
+        ::pltxt2htm::container::U8String rendered_text{u8"rendered"};
+        rendered_ast.append_text(rendered_text);
+        auto rendered = ::pltxt2htm::CodeFence<nd::quick_enforce>(::std::move(rendered_ast));
+
+        auto assigned = ::pltxt2htm::CodeFence<nd::quick_enforce>(::pltxt2htm::HighlightedCodeAst<nd::quick_enforce>{});
+        assigned = rendered;
+        pltxt2htm_test_assert_true(assigned.get_kind() == ::pltxt2htm::CodeFenceKind::rendered);
+        pltxt2htm_test_assert_true(assigned == rendered);
+
+        auto highlighted = ::pltxt2htm::CodeFence<nd::quick_enforce>(::pltxt2htm::HighlightedCodeAst<nd::quick_enforce>{});
+        assigned = highlighted;
+        pltxt2htm_test_assert_true(assigned.get_kind() == ::pltxt2htm::CodeFenceKind::highlighted);
+        pltxt2htm_test_assert_true(assigned == highlighted);
+    }
+
+    // CodeFence move assignment also reconstructs the active AST when its kind changes.
+    {
+        ::pltxt2htm::RenderedCodeAst<nd::quick_enforce> rendered_ast{};
+        ::pltxt2htm::container::U8String rendered_text{u8"rendered"};
+        rendered_ast.append_text(rendered_text);
+        auto rendered = ::pltxt2htm::CodeFence<nd::quick_enforce>(::std::move(rendered_ast));
+
+        auto assigned =
+            ::pltxt2htm::CodeFence<nd::quick_enforce>(::pltxt2htm::HighlightedCodeAst<nd::quick_enforce>{});
+        assigned = ::std::move(rendered);
+        pltxt2htm_test_assert_true(assigned.get_kind() == ::pltxt2htm::CodeFenceKind::rendered);
+        pltxt2htm_test_assert_true(assigned.get_rendered_ast().get_nodes().size() == 1);
+
+        auto highlighted =
+            ::pltxt2htm::CodeFence<nd::quick_enforce>(::pltxt2htm::HighlightedCodeAst<nd::quick_enforce>{});
+        assigned = ::std::move(highlighted);
+        pltxt2htm_test_assert_true(assigned.get_kind() == ::pltxt2htm::CodeFenceKind::highlighted);
+        pltxt2htm_test_assert_true(assigned.get_highlighted_ast().get_nodes().is_empty());
     }
 
     {
