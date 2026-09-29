@@ -11,25 +11,9 @@
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "html_named_character_references.hh"
+#include "url_scheme.hh"
 
 namespace pltxt2htm::details {
-
-/**
- * @brief Return whether a view starts with a supported auto-link scheme.
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]] constexpr auto starts_with_auto_link_scheme(::pltxt2htm::container::U8StringView text) noexcept -> bool {
-    if (text.size() < 7 || text.template index<ndebug>(0) != u8'h' || text.template index<ndebug>(1) != u8't' ||
-        text.template index<ndebug>(2) != u8't' || text.template index<ndebug>(3) != u8'p') {
-        return false;
-    }
-    if (text.template index<ndebug>(4) == u8':' && text.template index<ndebug>(5) == u8'/' &&
-        text.template index<ndebug>(6) == u8'/') {
-        return true;
-    }
-    return text.size() >= 8 && text.template index<ndebug>(4) == u8's' && text.template index<ndebug>(5) == u8':' &&
-           text.template index<ndebug>(6) == u8'/' && text.template index<ndebug>(7) == u8'/';
-}
 
 /**
  * @brief Find a leading run that cannot start inline syntax or require character processing.
@@ -63,7 +47,7 @@ template<::pltxt2htm::Contracts ndebug>
             return index;
         }
         case u8'h': {
-            if (::pltxt2htm::details::starts_with_auto_link_scheme<ndebug>(text.template subview<ndebug>(index))) {
+            if (::pltxt2htm::details::try_parse_url_scheme<ndebug>(text.template subview<ndebug>(index)).has_value()) {
                 return index;
             }
             break;

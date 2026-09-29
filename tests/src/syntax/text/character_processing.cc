@@ -1,5 +1,6 @@
 #include <fast_io/fast_io_dsal/array.h>
 #include <pltxt2htm/details/backend/for_plweb_text.hh>
+#include <pltxt2htm/details/parser/url_scheme.hh>
 #include <pltxt2htm/details/parser/character_processing.hh>
 #include <pltxt2htm/inline_parser.hh>
 #include <pltxt2htm/parser.hh>
@@ -39,6 +40,15 @@ constexpr auto utf8_helpers_are_constexpr() noexcept -> bool {
            encoded.code_units[2] == char8_t{0x98} && encoded.code_units[3] == char8_t{0x80};
 }
 
+[[nodiscard]]
+constexpr auto parsed_url_scheme_size(::pltxt2htm::container::U8StringView text) noexcept -> ::std::size_t {
+    auto const result = ::pltxt2htm::details::try_parse_url_scheme<::pltxt2htm::Contracts::quick_enforce>(text);
+    if (result.has_value() == false) {
+        return 0;
+    }
+    return result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>();
+}
+
 static_assert(entity_decoder_is_constexpr());
 static_assert(utf8_helpers_are_constexpr());
 static_assert(
@@ -49,6 +59,9 @@ static_assert(::pltxt2htm::details::is_unicode_scalar_value(char32_t{0x110000}) 
 static_assert(::pltxt2htm::details::is_ascii_control_code_point(char32_t{0x1F}));
 static_assert(::pltxt2htm::details::is_ascii_control_code_point(char32_t{0x7F}));
 static_assert(::pltxt2htm::details::is_ascii_control_code_point(U' ') == false);
+static_assert(parsed_url_scheme_size(u8"http://x") == 7);
+static_assert(parsed_url_scheme_size(u8"http:/") == 0);
+static_assert(parsed_url_scheme_size(u8"ftp://x") == 0);
 static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"plain text") == 5);
 static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"hello") == 5);
 static_assert(
