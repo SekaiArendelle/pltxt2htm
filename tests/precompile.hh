@@ -66,21 +66,6 @@ auto pltxt2roundtrip_htmld(::fast_io::u8string_view) noexcept -> ::pltxt2htm::co
 void assert_true_impl(::fast_io::u8string_view file, ::std::size_t line, ::fast_io::u8string_view expr,
                       bool cond) noexcept;
 
-/**
- * @brief Views an assertion operand as a UTF-8 view.
- *
- * The operand can be an owning string (frequently a temporary), a literal, or an existing view.
- * Binding it as `T const&` keeps rvalue containers usable, whereas constructing the view from an
- * `U8String&&` is deliberately disabled to prevent dangling views.
- * @tparam T Operand type
- * @param[in] value Operand to view
- * @return A view over the operand, valid for the enclosing full expression
- */
-template<typename T>
-[[nodiscard]] constexpr auto to_u8string_view(T const& value) noexcept -> ::fast_io::u8string_view {
-    return ::pltxt2htm::container::U8StringView{value};
-}
-
 void assert_equal_impl(::fast_io::u8string_view file, ::std::size_t line, ::fast_io::u8string_view html_expr,
                        ::fast_io::u8string_view answer_expr, ::fast_io::u8string_view html,
                        ::fast_io::u8string_view answer);
@@ -90,8 +75,7 @@ void assert_equal_impl(::fast_io::u8string_view file, ::std::size_t line, ::fast
 #define pltxt2htm_test_assert_equal(html, answer) \
     ::pltxt2htm_test::assert_equal_impl(::fast_io::u8string_view{u8"" __FILE__}, __LINE__, \
                                         ::fast_io::u8string_view{u8"" #html}, ::fast_io::u8string_view{u8"" #answer}, \
-                                        ::pltxt2htm_test::to_u8string_view(html), \
-                                        ::pltxt2htm_test::to_u8string_view(answer))
+                                        html, answer)
 
 #define pltxt2htm_test_assert_true(...) \
     ::pltxt2htm_test::assert_true_impl(::fast_io::u8string_view{u8"" __FILE__}, __LINE__, \
