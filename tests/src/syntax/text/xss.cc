@@ -79,7 +79,7 @@ void assert_no_raw_event_handlers(::pltxt2htm::container::U8StringView html) noe
     pltxt2htm_test_assert_true(!contains_u8(html, u8"<a onclick="));
 }
 
-// Helper to wrap u8string -> u8string_view for MSVC compat
+// Helper to wrap U8String into U8StringView for MSVC compat
 [[nodiscard]]
 auto to_view(::pltxt2htm::container::U8String const& s) noexcept -> ::pltxt2htm::container::U8StringView {
     return ::pltxt2htm::container::U8StringView{s.data(), s.size()};

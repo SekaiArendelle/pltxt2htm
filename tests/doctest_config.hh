@@ -71,6 +71,10 @@ namespace pltxt2htm_test::details {
     return escape_for_message(value.data(), value.size());
 }
 
+[[nodiscard]] inline auto escape_for_message(::pltxt2htm::container::U8StringView value) -> ::doctest::String {
+    return escape_for_message(value.data(), value.size());
+}
+
 } // namespace pltxt2htm_test::details
 
 namespace doctest {
@@ -87,6 +91,13 @@ struct StringMaker<::fast_io::u8string_view> {
 template<>
 struct StringMaker<::pltxt2htm::container::U8String> {
     [[nodiscard]] static auto convert(::pltxt2htm::container::U8String const& value) -> ::doctest::String {
+        return ::pltxt2htm_test::details::escape_for_message(value);
+    }
+};
+
+template<>
+struct StringMaker<::pltxt2htm::container::U8StringView> {
+    [[nodiscard]] static auto convert(::pltxt2htm::container::U8StringView const& value) -> ::doctest::String {
         return ::pltxt2htm_test::details::escape_for_message(value);
     }
 };
