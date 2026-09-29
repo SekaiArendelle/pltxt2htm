@@ -32,6 +32,7 @@ static_assert(::std::is_constructible_v<U8StringView, ::fast_io::u8string_view>)
 static_assert(::std::is_constructible_v<U8StringView, ::fast_io::u8string const&>);
 static_assert(!::std::is_constructible_v<U8StringView, ::fast_io::u8string&&>);
 static_assert(::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String const&>);
+static_assert(::std::same_as<decltype(U8StringView::from_c_str(static_cast<char8_t const*>(nullptr))), U8StringView>);
 static_assert(!::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String&&>);
 static_assert(::std::is_convertible_v<::pltxt2htm::container::U8String const&, U8StringView>);
 static_assert(!::std::is_convertible_v<::pltxt2htm::container::U8String&&, U8StringView>);
@@ -129,8 +130,11 @@ int main() {
     auto const printed = ::fast_io::u8concat_fast_io(u8"[", compatible_view, u8"]");
     pltxt2htm_test_assert_true(printed == u8"[view]");
 
-    U8StringView const manipulator_view{::fast_io::mnp::os_c_str(string)};
-    pltxt2htm_test_assert_true(manipulator_view == string_view);
+    U8StringView const explicit_view{string.data(), string.size()};
+    pltxt2htm_test_assert_true(explicit_view == string_view);
+
+    U8StringView const from_c_str_view = U8StringView::from_c_str(string.data());
+    pltxt2htm_test_assert_true(from_c_str_view == string_view);
 
     return 0;
 }

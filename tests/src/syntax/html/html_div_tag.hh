@@ -184,14 +184,14 @@ TEST_SUITE("html_div_tag") {
     TEST_CASE("roundtrip-idempotency-crash") {
         auto const& pltext = u8"x\n<MARgin=2>";
         auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
-        auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::mnp::os_c_str(once));
+        auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{once});
         CHECK(twice == once);
     }
     // the exact fuzzer input (span-wrapped margin block), without the libFuzzer trailing-junk bytes
     TEST_CASE("fuzzer-margin-roundtrip") {
         auto const& pltext = u8",><sIzE=4>[8t<sIzE\n<MARgin=2>";
         auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
-        auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::mnp::os_c_str(once));
+        auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{once});
         CHECK(twice == once);
     }
 

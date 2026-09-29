@@ -145,7 +145,7 @@ TEST_SUITE("html_a_tag") {
     // roundtrip idempotency for ' in auto-link URL
     TEST_CASE("apostrophe-roundtrip-idempotent") {
         auto pass1 = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"https://example.com/path'with'quote");
-        auto pass2 = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::mnp::os_c_str(pass1));
+        auto pass2 = ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{pass1});
         CHECK(pass2 == pass1);
     }
 
