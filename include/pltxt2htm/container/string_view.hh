@@ -150,11 +150,7 @@ public:
      */
     [[nodiscard]]
     static constexpr auto from_c_str(const_pointer string) noexcept -> BasicStringView {
-        size_type size{};
-        while (string[size] != value_type{}) {
-            ++size;
-        }
-        return BasicStringView{string, size};
+        return BasicStringView{string, ::fast_io::cstr_len(string)};
     }
 
     [[nodiscard]]
