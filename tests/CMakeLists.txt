@@ -192,7 +192,6 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     # The node layout test uses the reflection implementation shipped by GCC 16.
     if(TEST_NAME STREQUAL "node_layout" AND CMAKE_CXX_STANDARD STREQUAL "26"
        AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
-        target_compile_definitions(${TEST_NAME} PRIVATE PLTXT2HTM_TEST_NODE_LAYOUT_REFLECTION)
         target_compile_options(${TEST_NAME} PRIVATE -freflection)
     endif()
     if(HAVE_LD_LLD AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

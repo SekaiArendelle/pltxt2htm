@@ -1,7 +1,7 @@
 #include <cstddef>
 #include <pltxt2htm/ast/ast.hh>
 
-#if defined(PLTXT2HTM_TEST_NODE_LAYOUT_REFLECTION)
+#if __cpp_impl_reflection >= 202506L
 
     #include <meta>
 
