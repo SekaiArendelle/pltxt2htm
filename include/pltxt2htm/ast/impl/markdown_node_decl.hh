@@ -11,7 +11,7 @@
 #include <utility>
 #include "../../container/string.hh"
 #include "ast_decl.hh"
-#include "basic_node_decl.hh"
+#include "url_node_decl.hh"
 #include "../node_kind.hh"
 
 namespace pltxt2htm {

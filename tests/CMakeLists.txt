@@ -189,6 +189,11 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_compile_options(${TEST_NAME} PRIVATE -g -Werror=switch)
     endif()
+    # The node layout test uses the reflection implementation shipped by GCC 16.
+    if(TEST_NAME STREQUAL "node_layout" AND CMAKE_CXX_STANDARD STREQUAL "26"
+       AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
+        target_compile_options(${TEST_NAME} PRIVATE -freflection)
+    endif()
     if(HAVE_LD_LLD AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_link_options(${TEST_NAME} PRIVATE -fuse-ld=lld)
     endif()
