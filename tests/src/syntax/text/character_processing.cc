@@ -1,4 +1,4 @@
-#include <fast_io/fast_io_dsal/array.h>
+#include <pltxt2htm/container/array.hh>
 #include <pltxt2htm/details/backend/for_plweb_text.hh>
 #include <pltxt2htm/details/parser/url_scheme.hh>
 #include <pltxt2htm/details/parser/character_processing.hh>
@@ -78,7 +78,7 @@ int main() {
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
         ast.append_text(u8"abc");
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> expected{};
-        for (auto const character : ::fast_io::u8string_view{u8"abc"}) {
+        for (auto const character : ::pltxt2htm::container::U8StringView{u8"abc"}) {
             expected.append_text(character);
         }
         ::pltxt2htm::container::U8String continuation{};
@@ -96,8 +96,8 @@ int main() {
     }
     {
         constexpr auto text_capacity = ::pltxt2htm::Text<::pltxt2htm::Contracts::quick_enforce>::capacity();
-        for (auto const size : ::fast_io::array<::std::size_t, 6>{0, 1, text_capacity - 1, text_capacity,
-                                                                  text_capacity + 1, text_capacity * 2 + 1}) {
+        for (auto const size : ::pltxt2htm::container::Array<::std::size_t, 6>{
+                 0, 1, text_capacity - 1, text_capacity, text_capacity + 1, text_capacity * 2 + 1}) {
             ::pltxt2htm::container::U8String input{};
             for (::std::size_t index{}; index < size; ++index) {
                 input.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'a');
@@ -112,8 +112,8 @@ int main() {
         }
     }
     {
-        constexpr auto syntax_starters = ::fast_io::array{u8'&', u8'\'', u8'"', u8'>', u8'\\', u8'{', u8'*',
-                                                          u8'_', u8'~',  u8'`', u8'$', u8'[',  u8'!', u8'<'};
+        constexpr auto syntax_starters = ::pltxt2htm::container::Array{
+            u8'&', u8'\'', u8'"', u8'>', u8'\\', u8'{', u8'*', u8'_', u8'~', u8'`', u8'$', u8'[', u8'!', u8'<'};
         for (auto const starter : syntax_starters) {
             ::pltxt2htm::container::U8String input{u8"abc"};
             input.push_back<::pltxt2htm::Contracts::quick_enforce>(starter);
@@ -136,21 +136,21 @@ int main() {
         pltxt2htm_test_assert_true(decoded.code_point == char32_t{0x20AC});
     }
     {
-        constexpr auto bytes = ::fast_io::array{char8_t{0xE2}, char8_t{0x82}};
+        constexpr auto bytes = ::pltxt2htm::container::Array{char8_t{0xE2}, char8_t{0x82}};
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
             ::pltxt2htm::container::U8StringView{bytes.data(), bytes.size()});
         pltxt2htm_test_assert_true(decoded.valid == false);
         pltxt2htm_test_assert_true(decoded.consumed_size == 2);
     }
     {
-        constexpr auto bytes = ::fast_io::array{char8_t{0xF0}, char8_t{0x90}, char8_t{'A'}};
+        constexpr auto bytes = ::pltxt2htm::container::Array{char8_t{0xF0}, char8_t{0x90}, char8_t{'A'}};
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
             ::pltxt2htm::container::U8StringView{bytes.data(), bytes.size()});
         pltxt2htm_test_assert_true(decoded.valid == false);
         pltxt2htm_test_assert_true(decoded.consumed_size == 2);
     }
     {
-        constexpr auto bytes = ::fast_io::array{char8_t{0xED}, char8_t{0xA0}, char8_t{0x80}};
+        constexpr auto bytes = ::pltxt2htm::container::Array{char8_t{0xED}, char8_t{0xA0}, char8_t{0x80}};
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
             ::pltxt2htm::container::U8StringView{bytes.data(), bytes.size()});
         pltxt2htm_test_assert_true(decoded.valid == false);
@@ -201,7 +201,8 @@ int main() {
     assert_decoded(u8"&#127;", 6, char32_t{0x7F});
 
     // Parser-produced ASTs never store raw ASCII control bytes in Text nodes.
-    for (auto const code_point : ::fast_io::array{char32_t{0x01}, char32_t{0x0D}, char32_t{0x7F}}) {
+    for (auto const code_point :
+         ::pltxt2htm::container::Array{char32_t{0x01}, char32_t{0x0D}, char32_t{0x7F}}) {
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
         ::pltxt2htm::details::append_code_point_to_ast<::pltxt2htm::Contracts::quick_enforce>(code_point, ast);
         pltxt2htm_test_assert_true(ast.size() == 1);

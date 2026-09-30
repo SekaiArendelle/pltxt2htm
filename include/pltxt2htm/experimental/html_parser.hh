@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/list.h>
 #include "../container/string.hh"
 #include "../details/call_stack.hh"
 #include "../container/string_view.hh"

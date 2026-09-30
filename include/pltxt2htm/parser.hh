@@ -8,7 +8,6 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/list.h>
 #include "details/call_stack.hh"
 #include "container/string_view.hh"
 #include "container/optional.hh"

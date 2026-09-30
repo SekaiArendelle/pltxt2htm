@@ -9,8 +9,7 @@
 #include <cstddef>
 #include <limits>
 
-#include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include <fast_io/fast_io_core.h>
 
 #include "../contracts.hh"
 #include "../details/concepts.hh"
@@ -72,45 +71,6 @@ public:
           length{size_with_null - 1} {
         static_assert(size_with_null != 0);
     }
-
-    constexpr BasicStringView(::fast_io::basic_string_view<value_type> string) noexcept
-        : pointer{string.data()},
-          length{string.size()} {
-    }
-
-    template<typename Allocator>
-    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator> const& string) noexcept
-        : pointer{string.data()},
-          length{string.size()} {
-    }
-
-    template<typename Allocator>
-    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator>&&) = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("the string_view would outlive the temporary it refers to")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
-
-    template<typename Allocator>
-    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator> const&&) = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("the string_view would outlive the temporary it refers to")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
 
     template<::std::size_t size>
     constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size> const& string) noexcept
@@ -314,11 +274,6 @@ public:
     }
 
     [[nodiscard]]
-    constexpr operator ::fast_io::basic_string_view<value_type>(this BasicStringView const& self) noexcept {
-        return ::fast_io::basic_string_view<value_type>{self.pointer, self.length};
-    }
-
-    [[nodiscard]]
     constexpr auto operator==(this BasicStringView const& self, BasicStringView right) noexcept -> bool {
         return self.length == right.length && ::std::equal(self.begin(), self.end(), right.begin());
     }
@@ -336,12 +291,6 @@ BasicStringView(CharType const*, ::std::size_t) -> BasicStringView<CharType>;
 
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t size_with_null>
 BasicStringView(CharType const (&)[size_with_null]) -> BasicStringView<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType>
-BasicStringView(::fast_io::basic_string_view<CharType>) -> BasicStringView<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
-BasicStringView(::fast_io::containers::basic_string<CharType, Allocator> const&) -> BasicStringView<CharType>;
 
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t size>
 BasicStringView(::pltxt2htm::details::BasicLiteralString<CharType, size> const&) -> BasicStringView<CharType>;

@@ -46,7 +46,7 @@ struct PlainTextPipelineFixture : ::benchmark::Fixture {
 
     void SetUp(::benchmark::State& state) override {
         input = make_plain_text(as_size(state));
-        auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };
@@ -57,7 +57,7 @@ struct RedundantColorPipelineFixture : ::benchmark::Fixture {
 
     void SetUp(::benchmark::State& state) override {
         input = make_redundant_color_nesting(as_size(state));
-        auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };
@@ -68,7 +68,7 @@ struct MixedRedundantPipelineFixture : ::benchmark::Fixture {
 
     void SetUp(::benchmark::State& state) override {
         input = make_mixed_redundant(as_size(state));
-        auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };
@@ -79,7 +79,7 @@ struct AdjacentTextPipelineFixture : ::benchmark::Fixture {
 
     void SetUp(::benchmark::State& state) override {
         input = make_adjacent_text_nodes(as_size(state));
-        auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };
@@ -90,7 +90,7 @@ struct HtmlSpanAttrsPipelineFixture : ::benchmark::Fixture {
 
     void SetUp(::benchmark::State& state) override {
         input = make_html_span_attrs(as_size(state));
-        auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };
