@@ -4,12 +4,6 @@
 
 namespace pltxt2htm_test {
 
-template<typename T>
-[[nodiscard]]
-constexpr auto to_u8string_view(T const& value) noexcept -> ::pltxt2htm::container::U8StringView {
-    return ::pltxt2htm::container::U8StringView{value};
-}
-
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
@@ -87,11 +81,13 @@ void assert_equal_impl(::pltxt2htm::container::U8StringView file, ::std::size_t 
 } // namespace pltxt2htm_test
 
 #define pltxt2htm_test_assert_equal(html, answer) \
-    ::pltxt2htm_test::assert_equal_impl(::pltxt2htm::container::U8StringView{u8"" __FILE__}, __LINE__, \
-                                        ::pltxt2htm::container::U8StringView{u8"" #html}, \
-                                        ::pltxt2htm::container::U8StringView{u8"" #answer}, \
-                                        ::pltxt2htm_test::to_u8string_view(html), \
-                                        ::pltxt2htm_test::to_u8string_view(answer))
+    do { \
+        auto const& pltxt2htm_test_html_ref = html; \
+        auto const& pltxt2htm_test_answer_ref = answer; \
+        ::pltxt2htm_test::assert_equal_impl(::pltxt2htm::container::U8StringView{u8"" __FILE__}, __LINE__, \
+                                            ::pltxt2htm::container::U8StringView{u8"" #html}, \
+                                            ::pltxt2htm::container::U8StringView{u8"" #answer}, html_ref, answer_ref); \
+    } while (0)
 
 #define pltxt2htm_test_assert_true(...) \
     ::pltxt2htm_test::assert_true_impl(::pltxt2htm::container::U8StringView{u8"" __FILE__}, __LINE__, \
