@@ -14,7 +14,9 @@
 #include "node_kind.hh"
 
 #include "impl/basic_node_decl.hh"
+#include "impl/url_node_decl.hh"
 #include "impl/html_node_decl.hh"
+#include "impl/text_node_decl.hh"
 #include "impl/list_node_decl.hh"
 #include "impl/markdown_node_decl.hh"
 #include "impl/physics_lab_node_decl.hh"

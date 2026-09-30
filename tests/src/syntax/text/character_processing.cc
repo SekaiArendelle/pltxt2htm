@@ -74,6 +74,7 @@ static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts:
 
 int main() {
     {
+        constexpr auto text_capacity = ::pltxt2htm::Text<::pltxt2htm::Contracts::quick_enforce>::capacity();
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
         ast.append_text(u8"abc");
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> expected{};
@@ -81,7 +82,7 @@ int main() {
             expected.append_text(character);
         }
         ::pltxt2htm::container::U8String continuation{};
-        for (::std::size_t index{}; index < 70; ++index) {
+        for (::std::size_t index{}; index < text_capacity + 6; ++index) {
             continuation.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'x');
         }
         ast.append_text(::pltxt2htm::container::U8StringView{continuation});
@@ -90,12 +91,13 @@ int main() {
         }
         pltxt2htm_test_assert_true(ast == expected);
         pltxt2htm_test_assert_true(ast.size() == 2);
-        pltxt2htm_test_assert_true(ast.index(0).as_text().size() ==
-                                   ::pltxt2htm::Text<::pltxt2htm::Contracts::quick_enforce>::capacity());
+        pltxt2htm_test_assert_true(ast.index(0).as_text().size() == text_capacity);
         pltxt2htm_test_assert_true(ast.index(1).as_text().size() == 9);
     }
     {
-        for (auto const size : ::fast_io::array<::std::size_t, 6>{0, 1, 63, 64, 65, 129}) {
+        constexpr auto text_capacity = ::pltxt2htm::Text<::pltxt2htm::Contracts::quick_enforce>::capacity();
+        for (auto const size : ::fast_io::array<::std::size_t, 6>{0, 1, text_capacity - 1, text_capacity,
+                                                                  text_capacity + 1, text_capacity * 2 + 1}) {
             ::pltxt2htm::container::U8String input{};
             for (::std::size_t index{}; index < size; ++index) {
                 input.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'a');
@@ -104,10 +106,7 @@ int main() {
                 ::pltxt2htm::container::U8StringView{input});
             auto const inline_ast = ::pltxt2htm::inline_parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(
                 ::pltxt2htm::container::U8StringView{input});
-            auto const expected_nodes =
-                size / ::pltxt2htm::Text<::pltxt2htm::Contracts::quick_enforce>::capacity() +
-                static_cast<::std::size_t>(
-                    size % ::pltxt2htm::Text<::pltxt2htm::Contracts::quick_enforce>::capacity() != 0);
+            auto const expected_nodes = size / text_capacity + static_cast<::std::size_t>(size % text_capacity != 0);
             pltxt2htm_test_assert_true(ast.size() == expected_nodes);
             pltxt2htm_test_assert_true(inline_ast == ast);
         }
