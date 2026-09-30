@@ -86,7 +86,8 @@ void assert_equal_impl(::pltxt2htm::container::U8StringView file, ::std::size_t 
         auto const& pltxt2htm_test_answer_ref = answer; \
         ::pltxt2htm_test::assert_equal_impl(::pltxt2htm::container::U8StringView{u8"" __FILE__}, __LINE__, \
                                             ::pltxt2htm::container::U8StringView{u8"" #html}, \
-                                            ::pltxt2htm::container::U8StringView{u8"" #answer}, html_ref, answer_ref); \
+                                            ::pltxt2htm::container::U8StringView{u8"" #answer}, \
+                                            pltxt2htm_test_html_ref, pltxt2htm_test_answer_ref); \
     } while (0)
 
 #define pltxt2htm_test_assert_true(...) \
