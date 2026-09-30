@@ -1,5 +1,8 @@
 #include "bench_fixtures.hh"
 
+#include <fast_io/fast_io_dsal/string.h>
+#include <fast_io/fast_io_dsal/string_view.h>
+
 // -------------------------------------------------------------------
 // Micro-benchmarks — no data to prepare, everything created inline.
 // Fixture provides ndebug and consistent pattern with other bench files.

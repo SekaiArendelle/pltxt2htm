@@ -23,9 +23,9 @@ static_assert(noexcept(::std::declval<Text&>().append(::std::declval<char8_t con
 
 int main() {
     {
-        ::fast_io::u8string input{};
+        ::pltxt2htm::container::U8String input{};
         for (::std::size_t index{}; index < Text::capacity() * 2 + 1; ++index) {
-            input.push_back(u8'a');
+            input.push_back<ndebug>(u8'a');
         }
 
         auto const ast = ::pltxt2htm::parse_pltxt<ndebug>(::pltxt2htm::container::U8StringView{input});

@@ -13,7 +13,7 @@
 #include <memory>
 #include <utility>
 
-#include <fast_io/fast_io_dsal/string.h>
+#include <fast_io/fast_io_core.h>
 
 #include "../contracts.hh"
 #include "../details/concepts.hh"
@@ -396,14 +396,6 @@ public:
     }
 
     /**
-     * @brief Constructs a string by copying a fast_io string view.
-     * @param string Source view; its characters need not be null-terminated.
-     */
-    constexpr explicit BasicString(::fast_io::basic_string_view<value_type> string) noexcept
-        : BasicString{string_view_type{string}} {
-    }
-
-    /**
      * @brief Constructs a string from a null-terminated character array.
      * @tparam size_with_null Array extent including the final null character.
      * @param string Source array.
@@ -424,17 +416,6 @@ public:
      */
     template<::std::size_t size>
     constexpr explicit BasicString(::pltxt2htm::details::BasicLiteralString<value_type, size> const& string) noexcept {
-        this->construct(string.data(), string.size());
-    }
-
-    /**
-     * @brief Constructs a string by copying a fast_io owning string.
-     * @tparam OtherAllocator Allocator used by the source string.
-     * @param string Source owning string.
-     */
-    template<typename OtherAllocator>
-    constexpr explicit BasicString(
-        ::fast_io::containers::basic_string<value_type, OtherAllocator> const& string) noexcept {
         this->construct(string.data(), string.size());
     }
 
@@ -1145,19 +1126,6 @@ public:
     constexpr operator string_view_type(this BasicString const&&) = delete;
 
     /**
-     * @brief Creates a fast_io string view of this string.
-     * @return Non-owning fast_io view of the logical characters.
-     *
-     * As with data(), allocation-changing operations invalidate the returned view.
-     * Converting a temporary BasicString would produce a dangling view and must be
-     * avoided by the caller.
-     */
-    [[nodiscard]]
-    constexpr operator ::fast_io::basic_string_view<value_type>() const noexcept {
-        return ::fast_io::basic_string_view<value_type>{this->begin_pointer, this->size()};
-    }
-
-    /**
      * @brief Compares two strings by size and character values.
      * @param other Right-hand string.
      * @return true when both strings contain the same character sequence.
@@ -1189,12 +1157,6 @@ BasicString(CharType const*, CharType const*) -> BasicString<CharType>;
 
 template<::pltxt2htm::details::is_char_type CharType>
 BasicString(BasicStringView<CharType>) -> BasicString<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType>
-BasicString(::fast_io::basic_string_view<CharType>) -> BasicString<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
-BasicString(::fast_io::containers::basic_string<CharType, Allocator> const&) -> BasicString<CharType>;
 
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t size>
 BasicString(::pltxt2htm::details::BasicLiteralString<CharType, size> const&) -> BasicString<CharType>;

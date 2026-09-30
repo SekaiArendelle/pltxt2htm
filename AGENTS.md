@@ -184,7 +184,7 @@ Follow the existing low-runtime, cross-platform style used in core headers:
   - If a callable needs a name, extract it as a normal `constexpr` function.
   - Immediately invoked lambda expressions (`[]() { ... }()`) are acceptable only when necessary to compute a `constexpr` value in a context where `if constexpr` is not directly usable (e.g., inside a function with non-`constexpr` scope rules).
 - **Avoid the redundant `(string_view, offset)` parameter pair:**
-  - A `string_view` already carries both a pointer and a length, so a signature like `parse_value(::fast_io::u8string_view s, ::std::size_t pos)` is redundant — the offset is implicit in the view.
+  - A `string_view` already carries both a pointer and a length, so a signature like `parse_value(::pltxt2htm::container::U8StringView s, ::std::size_t pos)` is redundant — the offset is implicit in the view.
   - When a helper must skip a prefix, pass a pre-subviewed view (via `::pltxt2htm::details::u8string_view_subview<ndebug>(...)`) and let the function operate from index `0`. Have the returned `end` be relative to that subview and let the caller re-add the offset when absolute coordinates are needed.
   - This keeps each parser "parse the given view from the start", avoids offset arithmetic and empty-check (`pos == 0`) inside helpers, and keeps the call sites' intent explicit.
 - **Keep side effects separated from algorithms:**
@@ -209,7 +209,7 @@ Follow the existing low-runtime, cross-platform style used in core headers:
   - Write the cv-qualifier after the type it qualifies (`int const`, `T const&`, `auto const`) rather than before it (`const int`, `const T&`, `const auto`).
   - `const` always binds to the declaration to its left, so postfix placement makes `int const*` (pointer to const int) vs `int* const` (const pointer to int) unambiguous at a glance.
 - **Keep core runtime dependencies lightweight and static:**
-  - Avoid runtime-heavy facilities such as iostream and locale; prefer existing `fast_io` containers/string types and exception utilities.
+  - Avoid runtime-heavy facilities such as iostream and locale; prefer `pltxt2htm::container` containers/string types, while retaining existing lightweight `fast_io` I/O, allocator, and exception utilities where appropriate.
   - Do not throw or catch exceptions in core code paths; use the existing assertion and terminate/panic infrastructure.
   - Do not introduce RTTI or runtime polymorphism such as `dynamic_cast` and new virtual dispatch.
 - **Avoid macros:**

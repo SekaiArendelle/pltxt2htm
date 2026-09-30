@@ -28,9 +28,10 @@ static_assert(::std::is_trivially_copyable_v<U8StringView>);
 static_assert(::std::is_standard_layout_v<U8StringView>);
 static_assert(::std::same_as<U8StringView::value_type, char8_t>);
 static_assert(::std::same_as<U8StringView::const_iterator, char8_t const*>);
-static_assert(::std::is_constructible_v<U8StringView, ::fast_io::u8string_view>);
-static_assert(::std::is_constructible_v<U8StringView, ::fast_io::u8string const&>);
+static_assert(!::std::is_constructible_v<U8StringView, ::fast_io::u8string_view>);
+static_assert(!::std::is_constructible_v<U8StringView, ::fast_io::u8string const&>);
 static_assert(!::std::is_constructible_v<U8StringView, ::fast_io::u8string&&>);
+static_assert(!::std::is_convertible_v<U8StringView, ::fast_io::u8string_view>);
 static_assert(::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String const&>);
 static_assert(::std::same_as<decltype(U8StringView::from_c_str(static_cast<char8_t const*>(nullptr))), U8StringView>);
 static_assert(!::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String&&>);
@@ -106,35 +107,16 @@ int main() {
     pltxt2htm_test_assert_true(own_string_view == u8"pltxt2htm");
     pltxt2htm_test_assert_true(converted_own_string_view == own_string_view);
 
-    ::fast_io::u8string string{u8"fast_io"};
-    U8StringView const string_view{string};
-    auto const deduced_string_view = ::pltxt2htm::container::BasicStringView{string};
-    static_assert(::std::same_as<::std::remove_cvref_t<decltype(deduced_string_view)>, U8StringView>);
-    pltxt2htm_test_assert_true(string_view == u8"fast_io");
-    pltxt2htm_test_assert_true(deduced_string_view == string_view);
-    pltxt2htm_test_assert_true(string == string_view);
-    pltxt2htm_test_assert_true(string_view == string);
-
-    ::fast_io::u8string_view const fast_io_view{u8"view"};
-    U8StringView const compatible_view{fast_io_view};
-    pltxt2htm_test_assert_true(fast_io_view == compatible_view);
-    pltxt2htm_test_assert_true(compatible_view == fast_io_view);
-
-    ::fast_io::u8string appended{};
-    appended.append(string_view);
-    pltxt2htm_test_assert_true(appended == string_view);
-
-    auto const converted = static_cast<::fast_io::u8string_view>(compatible_view);
-    pltxt2htm_test_assert_true(converted == fast_io_view);
-
-    auto const printed = ::fast_io::u8concat_fast_io(u8"[", compatible_view, u8"]");
+    U8StringView const view{u8"view"};
+    auto const printed = ::fast_io::u8concat_fast_io(u8"[", view, u8"]");
     pltxt2htm_test_assert_true(printed == u8"[view]");
 
-    U8StringView const explicit_view{string.data(), string.size()};
-    pltxt2htm_test_assert_true(explicit_view == string_view);
+    char8_t const string[]{u8"pltxt2htm"};
+    U8StringView const explicit_view{string, sizeof(string) / sizeof(char8_t) - 1};
+    pltxt2htm_test_assert_true(explicit_view == own_string_view);
 
-    U8StringView const from_c_str_view = U8StringView::from_c_str(string.data());
-    pltxt2htm_test_assert_true(from_c_str_view == string_view);
+    U8StringView const from_c_str_view = U8StringView::from_c_str(string);
+    pltxt2htm_test_assert_true(from_c_str_view == own_string_view);
 
     return 0;
 }

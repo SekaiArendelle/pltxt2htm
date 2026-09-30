@@ -2,7 +2,6 @@
 #include <cstring>
 #include <cassert>
 #include <utility>
-#include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io.h>
 #include <pltxt2htm/pltxt2htm.hh>
 
@@ -194,9 +193,8 @@ int main(int argc, char const* const* const argv) noexcept {
                     "version");
                 return 1;
             }
-            ::fast_io::println(::fast_io::concat_fast_io("pltxt2htm v", ::pltxt2htm::version::major, ".",
-                                                         ::pltxt2htm::version::minor, ".",
-                                                         ::pltxt2htm::version::patch));
+            ::fast_io::println("pltxt2htm v", ::pltxt2htm::version::major, ".", ::pltxt2htm::version::minor, ".",
+                               ::pltxt2htm::version::patch);
             return 0;
         }
         else [[unlikely]] {
