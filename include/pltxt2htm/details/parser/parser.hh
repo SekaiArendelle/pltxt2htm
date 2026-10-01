@@ -2656,12 +2656,6 @@ entry:
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::table_tr: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTr<ndebug>>(
-                    ::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::table_td: {
                 auto&& active_frame_data = frame.as_cell();
                 auto const align = active_frame_data.align;
@@ -2678,34 +2672,9 @@ entry:
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::table_thead: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableThead<ndebug>>(
-                    ::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::table_tbody: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTbody<ndebug>>(
-                    ::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::table_tfoot: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTfoot<ndebug>>(
-                    ::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::table_caption: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableCaption<ndebug>>(
-                        ::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::table_colgroup: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableColgroup<ndebug>>(
                         ::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
@@ -2775,36 +2744,6 @@ entry:
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
                     super_pltext.template subview<ndebug>(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdCodeSpan1Backtick<ndebug>>(
-                        ::std::move(subast)));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdCodeSpan2Backtick<ndebug>>(
-                        ::std::move(subast)));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdCodeSpan3Backtick<ndebug>>(
-                        ::std::move(subast)));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_latex_inline: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdLatexInline<ndebug>>(
-                        ::std::move(subast)));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_latex_block: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdLatexBlock<ndebug>>(
-                        ::std::move(subast)));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
@@ -2910,6 +2849,26 @@ entry:
             case ::pltxt2htm::NodeKind::pl_macro_author:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_macro_coauthors:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_tr:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_thead:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_tbody:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_tfoot:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_colgroup:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_latex_inline:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_latex_block:
                 [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected block node kind in inline context");
                 }

@@ -1192,11 +1192,6 @@ entry:
                     ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Table<ndebug>>(::std::move(subast)));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::table_tr: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTr<ndebug>>(
-                    ::std::move(subast)));
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::table_td: {
                 auto&& active_frame_data = frame.as_cell();
                 auto align = active_frame_data.align;
@@ -1211,30 +1206,9 @@ entry:
                     ::std::move(subast), align));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::table_thead: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableThead<ndebug>>(
-                    ::std::move(subast)));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::table_tbody: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTbody<ndebug>>(
-                    ::std::move(subast)));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::table_tfoot: {
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTfoot<ndebug>>(
-                    ::std::move(subast)));
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::table_caption: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableCaption<ndebug>>(
-                        ::std::move(subast)));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::table_colgroup: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableColgroup<ndebug>>(
                         ::std::move(subast)));
                 goto entry;
             }
