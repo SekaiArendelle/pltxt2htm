@@ -6,8 +6,8 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "../../../container/string.hh"
+#include "../../../container/string_view.hh"
 #include "../../utils.hh"
 
 namespace pltxt2htm::details {
@@ -18,22 +18,23 @@ public:
     char8_t ascii{};
 };
 
-constexpr void append_invalid_code_point(::fast_io::u8string& destination) noexcept {
-    destination.append(u8"\uFFFD");
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_invalid_code_point(::pltxt2htm::container::U8String& destination) noexcept {
+    destination.template append<ndebug>(u8"\uFFFD");
 }
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_code_syntax_unit(::fast_io::u8string_view const input, ::fast_io::u8string& destination) noexcept
-    -> ParsedCodeSyntaxUnit {
+constexpr auto parse_code_syntax_unit(::pltxt2htm::container::U8StringView const input,
+                                      ::pltxt2htm::container::U8String& destination) noexcept -> ParsedCodeSyntaxUnit {
     ::std::size_t const input_size{input.size()};
-    char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(input, 0)};
+    char8_t const chr{input.template index<ndebug>(0)};
     if (chr == u8'\n' || chr == u8'\t' || (chr > 0x1f && chr != 0x7f && (chr & 0x80) == 0)) {
-        destination.push_back(chr);
+        destination.template push_back<ndebug>(chr);
         return {.advance_count = 1, .ascii = chr};
     }
     if (chr <= 0x1f || chr == 0x7f) {
-        ::pltxt2htm::details::append_invalid_code_point(destination);
+        ::pltxt2htm::details::append_invalid_code_point<ndebug>(destination);
         return {.advance_count = 1, .ascii = char8_t{}};
     }
 
@@ -56,13 +57,13 @@ constexpr auto parse_code_syntax_unit(::fast_io::u8string_view const input, ::fa
         minimum = 0x10000;
     }
     else {
-        ::pltxt2htm::details::append_invalid_code_point(destination);
+        ::pltxt2htm::details::append_invalid_code_point<ndebug>(destination);
         return {.advance_count = 1, .ascii = char8_t{}};
     }
 
     ::std::size_t consumed{1};
     while (consumed != count && consumed != input_size) {
-        char8_t const continuation{::pltxt2htm::details::u8string_view_index<ndebug>(input, consumed)};
+        char8_t const continuation{input.template index<ndebug>(consumed)};
         if ((continuation & 0xC0) != 0x80) {
             break;
         }
@@ -70,17 +71,19 @@ constexpr auto parse_code_syntax_unit(::fast_io::u8string_view const input, ::fa
         ++consumed;
     }
     if (consumed != count || value < minimum || value > 0x10FFFF || (0xD800 <= value && value <= 0xDFFF)) {
-        ::pltxt2htm::details::append_invalid_code_point(destination);
+        ::pltxt2htm::details::append_invalid_code_point<ndebug>(destination);
         return {.advance_count = consumed, .ascii = char8_t{}};
     }
     for (::std::size_t index{}; index != count; ++index) {
-        destination.push_back(::pltxt2htm::details::u8string_view_index<ndebug>(input, index));
+        destination.template push_back<ndebug>(input.template index<ndebug>(index));
     }
     return {.advance_count = count, .ascii = char8_t{}};
 }
 
-constexpr void append_code_syntax_text(::fast_io::u8string& source, ::fast_io::u8string& destination) noexcept {
-    destination.append(source);
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_code_syntax_text(::pltxt2htm::container::U8String& source,
+                                       ::pltxt2htm::container::U8String& destination) noexcept {
+    destination.template append<ndebug>(source);
     source.clear();
 }
 

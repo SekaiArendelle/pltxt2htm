@@ -11,9 +11,6 @@
 #include <cstddef>
 #include <ranges>
 #include <type_traits>
-#include <fast_io/fast_io_dsal/stack.h>
-#include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
 #include "../container/string.hh"
 #include "../container/optional.hh"
 #include "../container/string_view.hh"
@@ -110,65 +107,6 @@ constexpr bool is_ascii_punctuation(char8_t const chr) noexcept {
 #endif
 constexpr bool is_url_value_char(char8_t const chr) noexcept {
     return ::pltxt2htm::details::is_ascii_graphic(chr) || chr >= char8_t(0x80);
-}
-
-/**
- * @brief Get a character from a fast_io UTF-8 string view with contract checking.
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto u8string_view_index(::fast_io::u8string_view pltext, ::std::size_t index) noexcept -> char8_t {
-    pltxt2htm_assert(index < pltext.size(), u8"Index of u8string_view out of bound");
-    return pltext.index_unchecked(index);
-}
-
-/**
- * @brief Get a subview from a fast_io UTF-8 string view with contract checking.
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto u8string_view_subview(::fast_io::u8string_view pltext, ::std::size_t position,
-                                     ::std::size_t count = ::fast_io::containers::npos) noexcept
-    -> ::fast_io::u8string_view {
-    if constexpr (ndebug == ::pltxt2htm::Contracts::ignore) {
-        return pltext.subview_unchecked(position, count);
-    }
-    else {
-        return pltext.subview(position, count);
-    }
-}
-
-/**
- * @brief Access the top element of a mutable stack (checked).
- * @tparam ndebug Contract checking mode.
- * @tparam T Element type.
- * @param stack The stack.
- * @return Reference to the top element.
- */
-template<::pltxt2htm::Contracts ndebug, typename T>
-[[nodiscard]]
-constexpr auto& stack_top(::fast_io::containers::stack<T>& stack) noexcept {
-    pltxt2htm_assert(stack.empty() == false, u8"Accessing top but stack is empty");
-
-    return stack.top_unchecked();
-}
-
-/**
- * @brief Access the top element of a const stack (checked).
- * @tparam ndebug Contract checking mode.
- * @tparam T Element type.
- * @param stack The stack.
- * @return Const reference to the top element.
- */
-template<::pltxt2htm::Contracts ndebug, typename T>
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto const& stack_top(::fast_io::containers::stack<T> const& stack) noexcept {
-    pltxt2htm_assert(stack.empty() == false, u8"Accessing top but stack is empty");
-
-    return stack.top_unchecked();
 }
 
 /**

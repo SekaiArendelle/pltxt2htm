@@ -6,8 +6,8 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/string_view.h>
 #include "../../../ast/code/node.hh"
+#include "../../../container/string_view.hh"
 #include "../../../contracts.hh"
 #include "../../utils.hh"
 
@@ -175,7 +175,7 @@ constexpr bool syntax_is_identifier_continue(char8_t const chr) noexcept {
     return ::pltxt2htm::details::syntax_is_identifier_start(chr) || ::pltxt2htm::details::is_ascii_digit(chr);
 }
 
-inline constexpr ::fast_io::u8string_view c23_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView c23_keywords[]{
     u8"alignas",       u8"alignof",       u8"auto",
     u8"bool",          u8"break",         u8"case",
     u8"char",          u8"const",         u8"constexpr",
@@ -200,7 +200,7 @@ inline constexpr ::fast_io::u8string_view c23_keywords[]{
     u8"_Thread_local",
 };
 
-inline constexpr ::fast_io::u8string_view cpp_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView cpp_keywords[]{
     u8"alignas",
     u8"alignof",
     u8"and",
@@ -302,7 +302,7 @@ inline constexpr ::fast_io::u8string_view cpp_keywords[]{
     u8"xor_eq",
 };
 
-inline constexpr ::fast_io::u8string_view cstdint_types[]{
+inline constexpr ::pltxt2htm::container::U8StringView cstdint_types[]{
     u8"int8_t",        u8"int16_t",        u8"int32_t",        u8"int64_t",        u8"uint8_t",       u8"uint16_t",
     u8"uint32_t",      u8"uint64_t",       u8"int_least8_t",   u8"int_least16_t",  u8"int_least32_t", u8"int_least64_t",
     u8"uint_least8_t", u8"uint_least16_t", u8"uint_least32_t", u8"uint_least64_t", u8"int_fast8_t",   u8"int_fast16_t",
@@ -310,7 +310,7 @@ inline constexpr ::fast_io::u8string_view cstdint_types[]{
     u8"intptr_t",      u8"uintptr_t",      u8"intmax_t",       u8"uintmax_t",
 };
 
-inline constexpr ::fast_io::u8string_view csharp_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView csharp_keywords[]{
     u8"abstract",  u8"add",        u8"alias",      u8"and",      u8"as",        u8"ascending", u8"async",
     u8"await",     u8"base",       u8"bool",       u8"break",    u8"by",        u8"byte",      u8"case",
     u8"catch",     u8"char",       u8"checked",    u8"class",    u8"const",     u8"continue",  u8"decimal",
@@ -330,7 +330,7 @@ inline constexpr ::fast_io::u8string_view csharp_keywords[]{
     u8"void",      u8"volatile",   u8"when",       u8"where",    u8"while",     u8"with",      u8"yield",
 };
 
-inline constexpr ::fast_io::u8string_view kotlin_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView kotlin_keywords[]{
     u8"as",          u8"break",    u8"by",          u8"catch",    u8"class",    u8"companion", u8"const",
     u8"constructor", u8"continue", u8"crossinline", u8"data",     u8"delegate", u8"do",        u8"dynamic",
     u8"else",        u8"enum",     u8"expect",      u8"external", u8"false",    u8"field",     u8"file",
@@ -344,7 +344,7 @@ inline constexpr ::fast_io::u8string_view kotlin_keywords[]{
     u8"where",       u8"while",
 };
 
-inline constexpr ::fast_io::u8string_view rust_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView rust_keywords[]{
     u8"Self",     u8"abstract", u8"as",      u8"async", u8"await",    u8"become", u8"box",    u8"break", u8"const",
     u8"continue", u8"crate",    u8"do",      u8"dyn",   u8"else",     u8"enum",   u8"extern", u8"false", u8"final",
     u8"fn",       u8"for",      u8"gen",     u8"if",    u8"impl",     u8"in",     u8"let",    u8"loop",  u8"macro",
@@ -355,25 +355,25 @@ inline constexpr ::fast_io::u8string_view rust_keywords[]{
     u8"str",      u8"u8",       u8"u16",     u8"u32",   u8"u64",      u8"u128",   u8"usize",
 };
 
-inline constexpr ::fast_io::u8string_view lua_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView lua_keywords[]{
     u8"and",      u8"break",  u8"do",   u8"else", u8"elseif", u8"end",   u8"false", u8"for",
     u8"function", u8"goto",   u8"if",   u8"in",   u8"local",  u8"nil",   u8"not",   u8"or",
     u8"repeat",   u8"return", u8"then", u8"true", u8"until",  u8"while",
 };
 
-inline constexpr ::fast_io::u8string_view bash_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView bash_keywords[]{
     u8"case",     u8"coproc", u8"do", u8"done",   u8"elif", u8"else", u8"esac",  u8"fi",    u8"for",
     u8"function", u8"if",     u8"in", u8"select", u8"then", u8"time", u8"until", u8"while",
 };
 
-inline constexpr ::fast_io::u8string_view go_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView go_keywords[]{
     u8"break",  u8"case",        u8"chan", u8"const",   u8"continue", u8"default", u8"defer",
     u8"else",   u8"fallthrough", u8"for",  u8"func",    u8"go",       u8"goto",    u8"if",
     u8"import", u8"interface",   u8"map",  u8"package", u8"range",    u8"return",  u8"select",
     u8"struct", u8"switch",      u8"type", u8"var",     u8"true",     u8"false",   u8"nil",
 };
 
-inline constexpr ::fast_io::u8string_view java_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView java_keywords[]{
     u8"abstract", u8"assert",    u8"boolean",   u8"break",    u8"byte",         u8"case",    u8"catch",
     u8"char",     u8"class",     u8"const",     u8"continue", u8"default",      u8"do",      u8"double",
     u8"else",     u8"enum",      u8"exports",   u8"extends",  u8"false",        u8"final",   u8"finally",
@@ -386,7 +386,7 @@ inline constexpr ::fast_io::u8string_view java_keywords[]{
     u8"var",      u8"void",      u8"volatile",  u8"while",    u8"with",         u8"yield",
 };
 
-inline constexpr ::fast_io::u8string_view javascript_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView javascript_keywords[]{
     u8"async",      u8"await",   u8"break",  u8"case",     u8"catch", u8"class",  u8"const",   u8"continue",
     u8"debugger",   u8"default", u8"delete", u8"do",       u8"else",  u8"export", u8"extends", u8"false",
     u8"finally",    u8"for",     u8"from",   u8"function", u8"get",   u8"if",     u8"import",  u8"in",
@@ -395,7 +395,7 @@ inline constexpr ::fast_io::u8string_view javascript_keywords[]{
     u8"var",        u8"void",    u8"while",  u8"with",     u8"yield",
 };
 
-inline constexpr ::fast_io::u8string_view typescript_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView typescript_keywords[]{
     u8"abstract",  u8"any",     u8"as",         u8"asserts", u8"async",     u8"await",     u8"bigint",
     u8"boolean",   u8"break",   u8"case",       u8"catch",   u8"class",     u8"const",     u8"constructor",
     u8"continue",  u8"declare", u8"default",    u8"delete",  u8"do",        u8"else",      u8"enum",
@@ -409,23 +409,23 @@ inline constexpr ::fast_io::u8string_view typescript_keywords[]{
     u8"var",       u8"void",    u8"while",      u8"with",    u8"yield",
 };
 
-inline constexpr ::fast_io::u8string_view python_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView python_keywords[]{
     u8"False",  u8"None",     u8"True",   u8"and", u8"as",    u8"assert", u8"async",  u8"await",    u8"break", u8"case",
     u8"class",  u8"continue", u8"def",    u8"del", u8"elif",  u8"else",   u8"except", u8"finally",  u8"for",   u8"from",
     u8"global", u8"if",       u8"import", u8"in",  u8"is",    u8"lambda", u8"match",  u8"nonlocal", u8"not",   u8"or",
     u8"pass",   u8"raise",    u8"return", u8"try", u8"while", u8"with",   u8"yield",
 };
 
-inline constexpr ::fast_io::u8string_view json_keywords[]{u8"false", u8"null", u8"true"};
+inline constexpr ::pltxt2htm::container::U8StringView json_keywords[]{u8"false", u8"null", u8"true"};
 
-inline constexpr ::fast_io::u8string_view toml_keywords[]{u8"false", u8"inf", u8"nan", u8"true"};
+inline constexpr ::pltxt2htm::container::U8StringView toml_keywords[]{u8"false", u8"inf", u8"nan", u8"true"};
 
-inline constexpr ::fast_io::u8string_view yaml_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView yaml_keywords[]{
     u8"false", u8"False", u8"FALSE", u8"null", u8"Null", u8"NULL", u8"true", u8"True",
     u8"TRUE",  u8"yes",   u8"Yes",   u8"YES",  u8"no",   u8"No",   u8"NO",
 };
 
-inline constexpr ::fast_io::u8string_view sql_keywords[]{
+inline constexpr ::pltxt2htm::container::U8StringView sql_keywords[]{
     u8"all",   u8"alter",    u8"and",    u8"any",     u8"as",         u8"asc",    u8"begin",    u8"between", u8"by",
     u8"case",  u8"check",    u8"column", u8"commit",  u8"constraint", u8"create", u8"database", u8"default", u8"delete",
     u8"desc",  u8"distinct", u8"drop",   u8"else",    u8"end",        u8"exists", u8"false",    u8"foreign", u8"from",
@@ -436,12 +436,13 @@ inline constexpr ::fast_io::u8string_view sql_keywords[]{
     u8"where", u8"with",
 };
 
-inline constexpr ::fast_io::u8string_view css_keywords[]{u8"important"};
+inline constexpr ::pltxt2htm::container::U8StringView css_keywords[]{u8"important"};
 
 template<::std::size_t keyword_count>
 [[nodiscard]]
-constexpr auto syntax_is_keyword(::fast_io::u8string_view const identifier,
-                                 ::fast_io::u8string_view const (&keywords)[keyword_count]) noexcept -> bool {
+constexpr auto syntax_is_keyword(::pltxt2htm::container::U8StringView const identifier,
+                                 ::pltxt2htm::container::U8StringView const (&keywords)[keyword_count]) noexcept
+    -> bool {
     for (auto const keyword : keywords) {
         if (identifier == keyword) {
             return true;
@@ -452,19 +453,18 @@ constexpr auto syntax_is_keyword(::fast_io::u8string_view const identifier,
 
 template<::std::size_t keyword_count>
 [[nodiscard]]
-constexpr auto syntax_is_keyword_case_insensitive(::fast_io::u8string_view const identifier,
-                                                  ::fast_io::u8string_view const (&keywords)[keyword_count]) noexcept
-    -> bool {
+constexpr auto syntax_is_keyword_case_insensitive(
+    ::pltxt2htm::container::U8StringView const identifier,
+    ::pltxt2htm::container::U8StringView const (&keywords)[keyword_count]) noexcept -> bool {
     for (auto const keyword : keywords) {
         if (identifier.size() != keyword.size()) {
             continue;
         }
         bool equal{true};
         for (::std::size_t index{}; index != identifier.size(); ++index) {
-            char8_t const chr{
-                ::pltxt2htm::details::u8string_view_index<::pltxt2htm::Contracts::ignore>(identifier, index)};
+            char8_t const chr{identifier.template index<::pltxt2htm::Contracts::ignore>(index)};
             char8_t const folded{chr >= u8'A' && chr <= u8'Z' ? static_cast<char8_t>(chr + (u8'a' - u8'A')) : chr};
-            if (folded != ::pltxt2htm::details::u8string_view_index<::pltxt2htm::Contracts::ignore>(keyword, index)) {
+            if (folded != keyword.template index<::pltxt2htm::Contracts::ignore>(index)) {
                 equal = false;
                 break;
             }

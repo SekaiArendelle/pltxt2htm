@@ -3125,7 +3125,7 @@ constexpr auto parse_html_code_content(::pltxt2htm::container::U8StringView plte
     constexpr auto end_string = ::pltxt2htm::details::U8LiteralString{u8"</code></pre>"};
     ::pltxt2htm::RenderedCodeAst<ndebug> ast{};
     ast.reserve(pltext.size());
-    ::fast_io::u8string text{};
+    ::pltxt2htm::container::U8String text{};
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
     ::std::size_t open_style_count{};
@@ -3180,7 +3180,7 @@ constexpr auto parse_html_code_content(::pltxt2htm::container::U8StringView plte
                 ast.append_text(::pltxt2htm::container::U8StringView{text.data(), text.size()});
                 text.clear();
                 ::std::size_t const entity_len{opt_entity.template value<ndebug>().consumed_size};
-                ::fast_io::u8string entity{remaining.data() + 1, remaining.data() + entity_len - 1};
+                ::pltxt2htm::container::U8String entity{remaining.data() + 1, remaining.data() + entity_len - 1};
                 ast.append_entity_reference(
                     ::pltxt2htm::container::U8StringView{entity.data(), entity.size()});
                 current_index += entity_len;
@@ -3189,8 +3189,7 @@ constexpr auto parse_html_code_content(::pltxt2htm::container::U8StringView plte
         }
 
         auto const remaining = pltext.template subview<ndebug>(current_index);
-        auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(
-            ::fast_io::u8string_view{remaining.data(), remaining.size()}, text);
+        auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit<ndebug>(remaining, text);
         current_index += parsed.advance_count;
     }
 
@@ -3443,8 +3442,7 @@ constexpr auto try_parse_md_code_fence_(::pltxt2htm::container::U8StringView plt
 
     SyntaxLanguage const language{
         ::pltxt2htm::details::resolve_syntax_language<ndebug>(::pltxt2htm::container::U8StringView{lang})};
-    auto ast = ::pltxt2htm::details::parse_code_fence_syntax<ndebug>(
-        ::fast_io::u8string_view{code_content.data(), code_content.size()}, language);
+    auto ast = ::pltxt2htm::details::parse_code_fence_syntax<ndebug>(code_content, language);
     return TryParseMdCodeFenceResult<ndebug>{
         .node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::CodeFence<ndebug>>(::std::move(ast)),
         .advance_count = current_index};
