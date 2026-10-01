@@ -132,9 +132,9 @@ constexpr auto try_parse_space(::pltxt2htm::container::U8StringView pltext) noex
  * @par Example
  * &lt;div&gt;, &lt;span&gt;, and &lt;p&gt; are valid bare tags.
  */
-template<::pltxt2htm::Contracts ndebug,
-         ::pltxt2htm::details::U8LiteralString tag_name = ::pltxt2htm::details::U8LiteralString<0>{}>
-[[nodiscard]] constexpr auto try_parse_bare_tag(::pltxt2htm::container::U8StringView pltext) noexcept
+template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString tag_name>
+[[nodiscard]]
+constexpr auto try_parse_bare_tag(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<::std::size_t> {
     constexpr ::std::size_t tag_name_size{tag_name.size()};
     if (::pltxt2htm::details::is_prefix_match<ndebug, tag_name>(pltext) == false) {
@@ -143,6 +143,29 @@ template<::pltxt2htm::Contracts ndebug,
 
     ::std::size_t const pltext_size{pltext.size()};
     for (::std::size_t i{tag_name_size}; i < pltext_size; ++i) {
+        auto const forward_chr = pltext.template index<ndebug>(i);
+        if (forward_chr == u8'>') {
+            return i;
+        }
+        if (forward_chr != u8' ' && forward_chr != u8'\t') {
+            return ::pltxt2htm::container::nullopt;
+        }
+    }
+    return ::pltxt2htm::container::nullopt;
+}
+
+/**
+ * @brief Parse the remainder of a bare HTML tag after its name has already been consumed.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @param[in] pltext The input text immediately following the tag name.
+ * @return The offset of the closing `>`, or nullopt if the remainder contains characters other than spaces or tabs.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto try_parse_bare_tag(::pltxt2htm::container::U8StringView pltext) noexcept
+    -> ::pltxt2htm::container::Optional<::std::size_t> {
+    ::std::size_t const pltext_size{pltext.size()};
+    for (::std::size_t i{}; i < pltext_size; ++i) {
         auto const forward_chr = pltext.template index<ndebug>(i);
         if (forward_chr == u8'>') {
             return i;
