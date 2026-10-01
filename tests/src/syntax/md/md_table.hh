@@ -761,4 +761,11 @@ TEST_SUITE("md_table") {
             u8"<size=20>\uff1c</size>/tbody<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>";
         CHECK(html == answer);
     }
+    TEST_CASE("table-closed-at-end-of-input") {
+        // A table whose last row ends the input still closes with its sections.
+        auto const& pltext = u8"| h |\n|-|\n| d |";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<table><thead><tr><th>h</th></tr></thead><tbody><tr><td>d</td></tr></tbody></table>";
+        CHECK(html == answer);
+    }
 }

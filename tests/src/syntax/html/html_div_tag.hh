@@ -250,4 +250,18 @@ TEST_SUITE("html_div_tag") {
         auto const& answer = u8"<div style=\"margin-left:2em;\"><div style=\"margin-right:1em;\">x</div></div>";
         CHECK(html == answer);
     }
+    TEST_CASE("unclosed-tag-closed-at-end-of-input") {
+        // An open <div> that reaches the end of the input still closes around its text.
+        auto const& pltext = u8"<div style=\"margin-left:2em\">text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<div style=\"margin-left:2em;\">text</div>";
+        CHECK(html == answer);
+    }
+    TEST_CASE("nested-unclosed-tag-closed-at-end-of-input") {
+        // A <div> nested in a blockquote is attached by the nested end-of-input path.
+        auto const& pltext = u8"<blockquote><div style=\"margin-left:2em\">text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<blockquote><div style=\"margin-left:2em;\">text</div></blockquote>";
+        CHECK(html == answer);
+    }
 }

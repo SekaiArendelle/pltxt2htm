@@ -457,4 +457,82 @@ TEST_SUITE("html_parser") {
             u8"&lt;table&gt;&lt;colgroup&gt;&lt;/x&gt;&lt;/colgroup&gt;&lt;/table&gt;";
         CHECK(html == answer);
     }
+    TEST_CASE("unclosed-u-tag-closed-at-end-of-input") {
+        // An open <u> that reaches the end of the input still closes around its text.
+        auto const& pltext = u8"<u>text";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<u>text</u>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("unclosed-s-tag-closed-at-end-of-input") {
+        // An open <s> that reaches the end of the input still closes around its text.
+        auto const& pltext = u8"<s>text";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<s>text</s>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("unclosed-sup-tag-closed-at-end-of-input") {
+        // An open <sup> that reaches the end of the input still closes around its text.
+        auto const& pltext = u8"<sup>text";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<sup>text</sup>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("unclosed-sub-tag-closed-at-end-of-input") {
+        // An open <sub> that reaches the end of the input still closes around its text.
+        auto const& pltext = u8"<sub>text";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<sub>text</sub>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("unclosed-mark-tag-closed-at-end-of-input") {
+        // An open <mark> that reaches the end of the input still closes with its default colour.
+        auto const& pltext = u8"<mark>text";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<mark style=\"background-color:#FFFF00;\">text</mark>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("unclosed-div-tag-closed-at-end-of-input") {
+        // An open <div> that reaches the end of the input still closes around its text.
+        auto const& pltext = u8"<div style=\"margin-left:2em\">text";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<div style=\"margin-left:2em;\">text</div>";
+        CHECK(html == answer);
+    }
+    TEST_CASE("closed-u-tag") {
+        // A closed <u> is handled by the HTML parser's closing-tag path.
+        auto const& pltext = u8"<u>text</u>";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<u>text</u>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("closed-s-tag") {
+        // A closed <s> is handled by the HTML parser's closing-tag path.
+        auto const& pltext = u8"<s>text</s>";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<s>text</s>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("closed-sup-tag") {
+        // A closed <sup> is handled by the HTML parser's closing-tag path.
+        auto const& pltext = u8"<sup>text</sup>";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<sup>text</sup>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("closed-sub-tag") {
+        // A closed <sub> is handled by the HTML parser's closing-tag path.
+        auto const& pltext = u8"<sub>text</sub>";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<sub>text</sub>";
+        CHECK(html == answer);
+    }
 }

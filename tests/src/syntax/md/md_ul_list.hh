@@ -217,4 +217,11 @@ TEST_SUITE("md_ul_list") {
             ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{once.data(), once.size()});
         CHECK(twice == once);
     }
+    TEST_CASE("list-closed-at-end-of-input") {
+        // A bullet list whose last item ends the input still closes.
+        auto const& pltext = u8"- item";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<ul><li>item</li></ul>";
+        CHECK(html == answer);
+    }
 }

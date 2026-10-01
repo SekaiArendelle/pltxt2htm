@@ -302,4 +302,18 @@ TEST_SUITE("unity_align_tag") {
         auto const& answer = u8"a<br><p style=\"text-align:center\"></p><br>b";
         CHECK(html == answer);
     }
+    TEST_CASE("unclosed-tag-closed-at-end-of-input") {
+        // An open <align> that reaches the end of the input still closes around its text.
+        auto const& pltext = u8"<align=center>text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<p style=\"text-align:center\">text</p>";
+        CHECK(html == answer);
+    }
+    TEST_CASE("nested-unclosed-tag-closed-at-end-of-input") {
+        // An <align> nested in a blockquote is attached by the nested end-of-input path.
+        auto const& pltext = u8"<blockquote><align=center>text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<blockquote><p style=\"text-align:center\">text</p></blockquote>";
+        CHECK(html == answer);
+    }
 }

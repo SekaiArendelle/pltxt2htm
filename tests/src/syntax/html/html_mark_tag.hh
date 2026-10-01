@@ -341,4 +341,19 @@ TEST_SUITE("html_mark_tag") {
         auto const& answer = u8"&lt;mark=red&nbsp;class=&quot;x&quot;&gt;text&lt;/mark&gt;";
         CHECK(html == answer);
     }
+    TEST_CASE("unclosed-unity-mark-closed-at-end-of-input") {
+        // An open Unity <mark=color> that reaches the end of the input still closes.
+        auto const& pltext = u8"<mark=#FF0000>text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<mark style=\"background-color:#FF0000;\">text</mark>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("unclosed-html-mark-closed-at-end-of-input") {
+        // An open HTML <mark> that reaches the end of the input still closes with its default colour.
+        auto const& pltext = u8"<mark>text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<mark style=\"background-color:#FFFF00;\">text</mark>";
+        CHECK(html == answer);
+    }
 }
