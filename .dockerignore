@@ -21,8 +21,8 @@ dist/
 # release dir, $target-pltxt2htm-[debug|release]
 **/*-pltxt2htm*/
 
-# lcov
-tests/lcov-report/
+# lcov coverage report (extracted pltxt2htm-codecov.tar.xz)
+/codecov/
 
 # archive
 **/*.7z
