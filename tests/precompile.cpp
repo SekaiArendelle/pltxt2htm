@@ -84,6 +84,20 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4unittest(::pltxt2htm::container::U8Strin
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
+PLTXT2HTM_VISIBILITY_DEFAULT auto inline_pltxt4unittest(::pltxt2htm::container::U8StringView pltext) noexcept
+    -> ::pltxt2htm::container::U8String {
+    auto ast = ::pltxt2htm::inline_parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(pltext);
+    return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
+                                                    ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+        ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
+}
+
+#if __has_cpp_attribute(__gnu__::__used__)
+[[__gnu__::__used__]]
+#endif
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4htmlunittest(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
     auto ast = ::pltxt2htm::experimental::parse_pltxt_html<::pltxt2htm::Contracts::quick_enforce>(pltext);
