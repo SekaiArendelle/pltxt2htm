@@ -3106,12 +3106,96 @@ constexpr auto try_parse_md_thematic_break(::pltxt2htm::container::U8StringView 
     return ::pltxt2htm::container::NonZeroUsize::from<ndebug>(i);
 }
 
+/**
+ * @brief Result of parsing a plain text view in full.
+ */
 template<::pltxt2htm::Contracts ndebug>
 struct SimplyParsePLtextResult {
-    ::std::size_t advance_count; ///< Number of characters consumed.
+    ::std::size_t advance_count; ///< Number of characters consumed; always the size of the input view.
     ::pltxt2htm::Ast<ndebug> ast; ///< Parsed AST.
-    bool found_end; ///< Whether `end_string` was actually matched (only meaningful when end_string is non-empty).
 };
+
+/**
+ * @brief Result of parsing a plain text view up to a termination string.
+ */
+template<::pltxt2htm::Contracts ndebug>
+struct SimplyParsePLtextUntilResult {
+    ::std::size_t advance_count; ///< Number of characters consumed, including `end_string` when it was found.
+    ::pltxt2htm::Ast<ndebug> ast; ///< Parsed AST of the text preceding `end_string`.
+    bool found_end; ///< Whether `end_string` was actually matched.
+};
+
+/**
+ * @brief Parse one plain text unit at the start of a view and append it to an AST.
+ *
+ * A unit is exactly one of: a newline, a space token (U+0020 or U+00A0), a
+ * character reference, a quote, greater-than, or tab character, a backslash
+ * escape sequence (only when @p process_md_escape is true), a less-than
+ * character, or a single UTF-8 code point.
+ *
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @tparam process_md_escape When true, backslash escape sequences are processed.
+ * @param[in] pltext Non-empty input text starting at the unit to parse.
+ * @param[out] ast The AST that receives the parsed nodes.
+ * @return The number of characters consumed, which is never zero.
+ * @note Special characters such as newline, space, ampersand, quotes,
+ *       greater-than, and tab are converted to specific AST nodes.
+ * @note A space unit is a single space token: one `U+0020` byte or the two bytes of `U+00A0`.
+ * @note Backslash escape sequences are converted to their escaped equivalents when
+ *       @p process_md_escape is true.
+ * @note UTF-8 multi-byte characters are properly handled and appended to Text nodes.
+ */
+template<::pltxt2htm::Contracts ndebug, bool process_md_escape>
+[[nodiscard]]
+constexpr auto simply_parse_pltext_unit(::pltxt2htm::container::U8StringView pltext,
+                                        ::pltxt2htm::Ast<ndebug>& ast) noexcept -> ::std::size_t {
+    pltxt2htm_assert(pltext.is_empty() == false, u8"simply_parse_pltext_unit requires a non-empty view");
+    char8_t const chr{pltext.template index<ndebug>(0)};
+    if (chr == u8'\n') {
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LineBreak>());
+        return 1;
+    }
+    if (auto const opt_space_size = ::pltxt2htm::details::try_parse_space<ndebug>(pltext); opt_space_size.has_value()) {
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Space>());
+        return opt_space_size.template value<ndebug>().template get<ndebug>();
+    }
+    if (chr == u8'&') {
+        if (auto const opt_entity_len = ::pltxt2htm::details::try_append_character_reference<ndebug>(pltext, ast);
+            opt_entity_len.has_value()) {
+            return opt_entity_len.template value<ndebug>();
+        }
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Ampersand>());
+        return 1;
+    }
+    if (chr == u8'\'') {
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::SingleQuote>());
+        return 1;
+    }
+    if (chr == u8'\"') {
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::DoubleQuote>());
+        return 1;
+    }
+    if (chr == u8'>') {
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::GreaterThan>());
+        return 1;
+    }
+    if (chr == u8'\t') {
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Tab>());
+        return 1;
+    }
+    if constexpr (process_md_escape) {
+        if (auto opt_escape = ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext); opt_escape.has_value()) {
+            auto const& escape_result = opt_escape.template value<ndebug>();
+            ::pltxt2htm::details::append_md_escape_result<ndebug>(ast, escape_result);
+            return escape_result.advance_count;
+        }
+    }
+    if (chr == u8'<') {
+        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
+        return 1;
+    }
+    return ::pltxt2htm::details::parse_utf8_code_point<ndebug>(pltext, ast);
+}
 
 /**
  * @brief Parse plain text content into an AST until a termination string is encountered.
@@ -3121,103 +3205,74 @@ struct SimplyParsePLtextResult {
  * encounters the specified termination string.
  *
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
- * @tparam end_string The exact string that marks the end of parsing. When empty, the whole
- *                    input view is parsed.
+ * @tparam end_string The exact non-empty string that marks the end of parsing.
+ * @tparam process_md_escape When true, backslash escape sequences are processed.
  * @param[in] pltext The input text to parse.
- * @return A structure containing the parsed AST and the index to continue parsing from.
+ * @return A structure containing the parsed AST, the index to continue parsing from, and whether
+ *         `end_string` was found.
  * @note Special characters such as newline, space, ampersand, quotes,
  *       greater-than, and tab are converted to specific AST nodes.
  * @note Backslash escape sequences are processed and converted to their escaped equivalents.
  * @note UTF-8 multi-byte characters are properly handled and appended to Text nodes.
- * @note When end_string is non-empty, the function consumes it and stops parsing immediately after.
+ * @note The function consumes end_string and stops parsing immediately after it.
+ * @note Use `simply_parse_pltext` to parse the whole input view.
  */
 template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString end_string, bool process_md_escape = true>
+[[nodiscard]]
+constexpr auto simply_parse_pltext_until(::pltxt2htm::container::U8StringView pltext) noexcept
+    -> ::pltxt2htm::details::SimplyParsePLtextUntilResult<ndebug> {
+    constexpr ::std::size_t end_size{end_string.size()};
+    static_assert(end_size != 0,
+                  "simply_parse_pltext_until requires a non-empty end_string; use simply_parse_pltext to parse the "
+                  "whole input");
+    ::std::size_t const pltext_size{pltext.size()};
+    ::pltxt2htm::Ast<ndebug> ast{};
+    ::std::size_t current_index{};
+    bool found_end{false};
+
+    while (current_index < pltext_size) {
+        if (::pltxt2htm::details::is_prefix_match<ndebug, end_string>(pltext.template subview<ndebug>(current_index))) {
+            current_index += end_size;
+            found_end = true;
+            break;
+        }
+        current_index += ::pltxt2htm::details::simply_parse_pltext_unit<ndebug, process_md_escape>(
+            pltext.template subview<ndebug>(current_index), ast);
+    }
+    return {.advance_count = current_index, .ast = ::std::move(ast), .found_end = found_end};
+}
+
+/**
+ * @brief Parse plain text content into an AST until the end of the input view.
+ *
+ * This function processes plain text content character by character, converting special
+ * characters and escape sequences into appropriate AST nodes. The whole input view is
+ * consumed.
+ *
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @tparam process_md_escape When true, backslash escape sequences are processed.
+ * @param[in] pltext The input text to parse.
+ * @return A structure containing the parsed AST and the number of characters consumed, which
+ *         always equals `pltext.size()`.
+ * @note Special characters such as newline, space, ampersand, quotes,
+ *       greater-than, and tab are converted to specific AST nodes.
+ * @note Backslash escape sequences are processed and converted to their escaped equivalents.
+ * @note UTF-8 multi-byte characters are properly handled and appended to Text nodes.
+ * @note Use `simply_parse_pltext_until` when parsing must stop at a termination string.
+ */
+template<::pltxt2htm::Contracts ndebug, bool process_md_escape = true>
 [[nodiscard]]
 constexpr auto simply_parse_pltext(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::details::SimplyParsePLtextResult<ndebug> {
     ::std::size_t const pltext_size{pltext.size()};
     ::pltxt2htm::Ast<ndebug> ast{};
     ::std::size_t current_index{};
-    constexpr ::std::size_t end_size{end_string.size()};
-    ::std::conditional_t<end_size == 0, bool const, bool> found_end{};
 
     while (current_index < pltext_size) {
-        char8_t const chr{pltext.template index<ndebug>(current_index)};
-
-        if constexpr (end_size != 0) {
-            if (::pltxt2htm::details::is_prefix_match<ndebug, end_string>(
-                    pltext.template subview<ndebug>(current_index))) {
-                current_index += end_size;
-                found_end = true;
-                break;
-            }
-        }
-
-        if (chr == u8'\n') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LineBreak>());
-            ++current_index;
-            continue;
-        }
-        if (auto const opt_space_size =
-                ::pltxt2htm::details::try_parse_space<ndebug>(pltext.template subview<ndebug>(current_index));
-            opt_space_size.has_value()) {
-            auto const space_size = opt_space_size.template value<ndebug>().template get<ndebug>();
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Space>());
-            current_index += space_size;
-            continue;
-        }
-        if (chr == u8'&') {
-            if (auto const opt_entity_len = ::pltxt2htm::details::try_append_character_reference<ndebug>(
-                    pltext.template subview<ndebug>(current_index), ast);
-                opt_entity_len.has_value()) {
-                current_index += opt_entity_len.template value<ndebug>();
-                continue;
-            }
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Ampersand>());
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'\'') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::SingleQuote>());
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'\"') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::DoubleQuote>());
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'>') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::GreaterThan>());
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'\t') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Tab>());
-            ++current_index;
-            continue;
-        }
-        if constexpr (process_md_escape) {
-            if (auto opt_escape =
-                    ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
-                opt_escape.has_value()) {
-                auto const& escape_result = opt_escape.template value<ndebug>();
-                ::pltxt2htm::details::append_md_escape_result<ndebug>(ast, escape_result);
-                current_index += escape_result.advance_count;
-                continue;
-            }
-        }
-        if (chr == u8'<') {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-            ++current_index;
-            continue;
-        }
-        auto const advance_count =
-            ::pltxt2htm::details::parse_utf8_code_point<ndebug>(pltext.template subview<ndebug>(current_index), ast);
-        current_index += advance_count;
-        continue;
+        current_index += ::pltxt2htm::details::simply_parse_pltext_unit<ndebug, process_md_escape>(
+            pltext.template subview<ndebug>(current_index), ast);
     }
-    return {.advance_count = current_index, .ast = ::std::move(ast), .found_end = found_end};
+    return {.advance_count = current_index, .ast = ::std::move(ast)};
 }
 
 template<::pltxt2htm::Contracts ndebug>
@@ -3277,7 +3332,7 @@ constexpr auto try_parse_html_pre_code_block(::pltxt2htm::container::U8StringVie
     // parse content until the closing </code></pre>
     constexpr auto end_string = ::pltxt2htm::details::U8LiteralString{u8"</code></pre>"};
     auto&& [advance_count, ast, found_end] =
-        ::pltxt2htm::details::simply_parse_pltext<ndebug, end_string, process_md_escape>(
+        ::pltxt2htm::details::simply_parse_pltext_until<ndebug, end_string, process_md_escape>(
             pltext.template subview<ndebug>(pos));
     if (found_end == false) {
         // No closing </code></pre> in the input: treat the whole construct as literal
@@ -3480,16 +3535,14 @@ constexpr auto try_parse_md_code_fence_(::pltxt2htm::container::U8StringView plt
     if (auto opt_fence_end = ::pltxt2htm::details::find_md_code_fence_end<ndebug, is_backtick>(content);
         opt_fence_end.has_value()) {
         auto&& [content_end, consumed] = opt_fence_end.template value<ndebug>();
-        auto&& [_, ast_, found_end_] =
-            ::pltxt2htm::details::simply_parse_pltext<ndebug, ::pltxt2htm::details::U8LiteralString<0>{}>(
-                content.template subview<ndebug>(0, content_end));
+        auto&& [_, ast_] =
+            ::pltxt2htm::details::simply_parse_pltext<ndebug>(content.template subview<ndebug>(0, content_end));
         ast = ::std::move(ast_);
         current_index += consumed;
     }
     else {
         // No valid closing fence: content runs to the end of the input.
-        auto&& [advance_count, ast_, found_end_] =
-            ::pltxt2htm::details::simply_parse_pltext<ndebug, ::pltxt2htm::details::U8LiteralString<0>{}>(content);
+        auto&& [advance_count, ast_] = ::pltxt2htm::details::simply_parse_pltext<ndebug>(content);
         ast = ::std::move(ast_);
         current_index += advance_count;
     }
@@ -3695,7 +3748,7 @@ constexpr auto try_parse_md_code_span(::pltxt2htm::container::U8StringView pltex
         return ::pltxt2htm::container::nullopt;
     }
 
-    auto&& [advance_count, ast, found_end] = ::pltxt2htm::details::simply_parse_pltext<ndebug, embraced_string>(
+    auto&& [advance_count, ast, found_end] = ::pltxt2htm::details::simply_parse_pltext_until<ndebug, embraced_string>(
         pltext.template subview<ndebug>(embraced_size));
     if (found_end == false) {
         // The closing delimiter is missing: `advance_count` only reaches the end of the
