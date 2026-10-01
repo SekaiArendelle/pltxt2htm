@@ -2860,7 +2860,7 @@ entry:
                 [[fallthrough]];
             default:
 #endif
-            [[unlikely]] {
+                [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected node kind in the unclosed-tag switch");
                 }
             }
