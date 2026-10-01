@@ -146,7 +146,8 @@ consteval auto shrink_string_literal_impl() noexcept {
 /**
  * @brief Render a non-negative integer as its decimal digits, least significant digit first.
  * @param[in] number The value to render; zero yields a single `'0'` digit.
- * @return The digit buffer, zero-padded up to the buffer size.
+ * @return The digits, least significant first; the remaining elements are value-initialized to
+ *         `char8_t{0}`, the terminator that `shrink_string_literal_impl` scans for.
  * @note The caller is expected to shrink the result with `shrink_string_literal_impl`.
  */
 [[nodiscard]]
