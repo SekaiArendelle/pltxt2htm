@@ -2513,8 +2513,12 @@ entry:
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_strong:
-                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_strong: {
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlStrong<ndebug>>(
+                    ::std::move(subast)));
+                parent_index += staged_index;
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::unity_b: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityB<ndebug>>(::std::move(subast)));
