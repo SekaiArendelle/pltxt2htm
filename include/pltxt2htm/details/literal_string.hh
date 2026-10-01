@@ -143,15 +143,21 @@ consteval auto shrink_string_literal_impl() noexcept {
     }
 }
 
+/**
+ * @brief Render a non-negative integer as its decimal digits, least significant digit first.
+ * @param[in] number The value to render; zero yields a single `'0'` digit.
+ * @return The digit buffer, zero-padded up to the buffer size.
+ * @note The caller is expected to shrink the result with `shrink_string_literal_impl`.
+ */
 [[nodiscard]]
 consteval auto uint_to_literal_string_impl(unsigned number) noexcept {
     using result_type = U8LiteralString<::std::numeric_limits<decltype(number)>::digits10 + 2>;
     auto result = result_type{};
     ::std::size_t index{};
-    while (number) {
+    do {
         result[index++] = static_cast<char8_t>(number % 10 + '0');
         number /= 10;
-    }
+    } while (number);
     return result;
 }
 
