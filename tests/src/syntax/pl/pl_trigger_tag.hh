@@ -116,4 +116,12 @@ TEST_SUITE("pl_trigger_tag") {
         auto const& answer = u8"<table><tr><td>x</td></tr></table>";
         CHECK(html == answer);
     }
+    TEST_CASE("unclosed-tag-closed-at-end-of-input") {
+        // An open <trigger=...> that reaches the end of the input still closes; the web backend escapes
+        // both tags.
+        auto const& pltext = u8"<trigger=run>text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"&lt;trigger=run&gt;text&lt;/trigger&gt;";
+        CHECK(html == answer);
+    }
 }

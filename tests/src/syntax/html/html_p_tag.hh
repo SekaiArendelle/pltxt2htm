@@ -295,4 +295,18 @@ TEST_SUITE("html_p_tag") {
         auto const& plunity_richtext_answer = u8"<align=center><b>text</b></align>";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
+    TEST_CASE("unclosed-tag-closed-at-end-of-input") {
+        // An open <p> that reaches the end of the input still closes around its text.
+        auto const& pltext = u8"<p>text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<p style=\"text-align:left\">text</p>";
+        CHECK(html == answer);
+    }
+    TEST_CASE("nested-unclosed-tag-closed-at-end-of-input") {
+        // A <p> nested in a blockquote is attached by the nested end-of-input path.
+        auto const& pltext = u8"<blockquote><p>text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<blockquote><p style=\"text-align:left\">text</p></blockquote>";
+        CHECK(html == answer);
+    }
 }

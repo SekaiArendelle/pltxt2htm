@@ -200,4 +200,12 @@ TEST_SUITE("html_ul_and_li_tag") {
         auto const& answer = u8"<size=20>＜</size>ul<size=20>＞</size>\n<size=20>＜</size>/ul<size=20>＞</size>";
         CHECK(html == answer);
     }
+    TEST_CASE("checkbox-list-item") {
+        // An HTML list item whose text starts with a disabled checkbox input keeps the input in its
+        // rendered form.
+        auto const& pltext = u8"<ul><li><input type=\"checkbox\" disabled>a</li></ul>";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<ul><li><input type=\"checkbox\" disabled>a</li></ul>";
+        CHECK(html == answer);
+    }
 }

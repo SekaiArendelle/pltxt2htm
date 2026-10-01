@@ -135,4 +135,18 @@ TEST_SUITE("html_h5_tag") {
         auto const& answer = u8"text<br><h5>text</h5>";
         CHECK(html == answer);
     }
+    TEST_CASE("unclosed-tag-closed-at-end-of-input") {
+        // An open <h5> that reaches the end of the input still closes around its text.
+        auto const& pltext = u8"<h5>text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<h5>text</h5>";
+        CHECK(html == answer);
+    }
+    TEST_CASE("nested-unclosed-tag-closed-at-end-of-input") {
+        // An <h5> nested in a blockquote is attached by the nested end-of-input path.
+        auto const& pltext = u8"<blockquote><h5>text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<blockquote><h5>text</h5></blockquote>";
+        CHECK(html == answer);
+    }
 }

@@ -90,4 +90,18 @@ TEST_SUITE("html_blockquote_tag") {
         auto const& plunity_richtext_answer = u8"\n\n<margin left=2em>text</margin>\n";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
+    TEST_CASE("unclosed-tag-closed-at-end-of-input") {
+        // An open <blockquote> that reaches the end of the input still closes around its text.
+        auto const& pltext = u8"<blockquote>text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<blockquote>text</blockquote>";
+        CHECK(html == answer);
+    }
+    TEST_CASE("nested-unclosed-blockquote-closed-at-end-of-input") {
+        // A blockquote nested directly inside another one is still closed at the end of the input.
+        auto const& pltext = u8"<blockquote><blockquote>text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<blockquote><blockquote>text</blockquote></blockquote>";
+        CHECK(html == answer);
+    }
 }

@@ -262,4 +262,82 @@ TEST_SUITE("md_atx_header") {
         auto const& answer = u8"<b>heading</b>\n";
         CHECK(html == answer);
     }
+    TEST_CASE("header-closed-at-end-of-input-h2") {
+        // An ATX heading whose text ends the input still closes.
+        auto const& pltext = u8"## h2";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<h2>h2</h2>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("header-closed-at-end-of-input-h3") {
+        // An ATX heading whose text ends the input still closes.
+        auto const& pltext = u8"### h3";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<h3>h3</h3>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("header-closed-at-end-of-input-h4") {
+        // An ATX heading whose text ends the input still closes.
+        auto const& pltext = u8"#### h4";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<h4>h4</h4>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("header-closed-at-end-of-input-h5") {
+        // An ATX heading whose text ends the input still closes.
+        auto const& pltext = u8"##### h5";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<h5>h5</h5>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("header-closed-at-end-of-input-h6") {
+        // An ATX heading whose text ends the input still closes.
+        auto const& pltext = u8"###### h6";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<h6>h6</h6>";
+        CHECK(html == answer);
+    }
+    TEST_CASE("nested-unclosed-header-closed-at-end-of-input-h2") {
+        // An ATX heading inside a blockquote is attached by the nested end-of-input path.
+        auto const& pltext = u8"> ## h2";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<blockquote><h2>h2</h2></blockquote>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("nested-unclosed-header-closed-at-end-of-input-h3") {
+        // An ATX heading inside a blockquote is attached by the nested end-of-input path.
+        auto const& pltext = u8"> ### h3";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<blockquote><h3>h3</h3></blockquote>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("nested-unclosed-header-closed-at-end-of-input-h4") {
+        // An ATX heading inside a blockquote is attached by the nested end-of-input path.
+        auto const& pltext = u8"> #### h4";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<blockquote><h4>h4</h4></blockquote>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("nested-unclosed-header-closed-at-end-of-input-h5") {
+        // An ATX heading inside a blockquote is attached by the nested end-of-input path.
+        auto const& pltext = u8"> ##### h5";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<blockquote><h5>h5</h5></blockquote>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("nested-unclosed-header-closed-at-end-of-input-h6") {
+        // An ATX heading inside a blockquote is attached by the nested end-of-input path.
+        auto const& pltext = u8"> ###### h6";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<blockquote><h6>h6</h6></blockquote>";
+        CHECK(html == answer);
+    }
 }
