@@ -2856,15 +2856,13 @@ entry:
             case ::pltxt2htm::NodeKind::list_ol:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::table:
-                [[unlikely]] {
-                    pltxt2htm_unreachable(u8"Unexpected block node kind in inline context");
-                }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                [[fallthrough]];
             default:
-                [[unlikely]] {
+#endif
+            [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected node kind in the unclosed-tag switch");
                 }
-#endif
             }
             pltxt2htm_unreachable(u8"Unreachable after block-node-in-inline switch");
         }
