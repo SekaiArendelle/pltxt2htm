@@ -45,6 +45,10 @@ concept is_literal_string = ::pltxt2htm::details::details::is_literal_string_<::
 template<typename CharType, ::std::size_t N>
 class BasicLiteralString {
 public:
+    // A zero-length literal string would need a zero-length array member, which is a
+    // non-standard extension, and its empty prefix would vacuously match every input.
+    static_assert(N != 0, "BasicLiteralString must hold at least one character");
+
     using value_type = CharType;
     using size_type = ::std::size_t;
     using difference_type = ::std::ptrdiff_t;
@@ -61,7 +65,7 @@ public:
 
     template<::std::size_t M>
     constexpr BasicLiteralString(CharType const (&str)[M]) noexcept {
-        static_assert(N > 0 && N + 1 == M);
+        static_assert(N + 1 == M);
         for (::std::size_t i{}; i < N; ++i) {
             this->storage[i] = str[i];
         }
