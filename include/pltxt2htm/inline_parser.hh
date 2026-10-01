@@ -1629,6 +1629,10 @@ entry:
                     case ::pltxt2htm::NodeKind::list_ol:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_escape:
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                        [[fallthrough]];
+                    default:
+#endif
                         [[unlikely]] {
                             pltxt2htm_unreachable(u8"Unexpected frame kind in the inline closing-tag switch");
                         }
@@ -2030,6 +2034,10 @@ entry:
             case ::pltxt2htm::NodeKind::pl_macro_author:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_macro_coauthors:
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                [[fallthrough]];
+            default:
+#endif
                 [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected frame kind in the inline end-of-input switch");
                 }

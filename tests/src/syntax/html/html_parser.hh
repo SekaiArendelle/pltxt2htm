@@ -535,4 +535,20 @@ TEST_SUITE("html_parser") {
         auto const& answer = u8"<sub>text</sub>";
         CHECK(html == answer);
     }
+    TEST_CASE("checkbox-list-item-attached-at-end-of-item") {
+        // An HTML list item whose text starts with a disabled checkbox input is attached as a checkbox
+        // item when the item ends.
+        auto const& pltext = u8"<ul><li><input type=\"checkbox\" disabled>a</li></ul>";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<ul><li><input type=\"checkbox\" disabled>a</li></ul>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("checked-checkbox-list-item-attached-at-end-of-item") {
+        // The same for a checked checkbox input.
+        auto const& pltext = u8"<ul><li><input type=\"checkbox\" disabled checked>a</li></ul>";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<ul><li><input type=\"checkbox\" disabled checked>a</li></ul>";
+        CHECK(html == answer);
+    }
 }

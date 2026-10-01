@@ -2623,18 +2623,6 @@ entry:
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::list_ul: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListUl<ndebug>>(::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::list_ol: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListOl<ndebug>>(::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::list_li: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListLi<ndebug>>(::std::move(subast)));
@@ -2647,12 +2635,6 @@ entry:
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListLiCheckbox<ndebug>>(
                         ::std::move(subast), checked));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::table: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Table<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
@@ -2869,9 +2851,20 @@ entry:
             case ::pltxt2htm::NodeKind::md_latex_inline:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_latex_block:
+            case ::pltxt2htm::NodeKind::list_ul:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::list_ol:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table:
                 [[unlikely]] {
                     pltxt2htm_unreachable(u8"Unexpected block node kind in inline context");
                 }
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+            default:
+                [[unlikely]] {
+                    pltxt2htm_unreachable(u8"Unexpected node kind in the unclosed-tag switch");
+                }
+#endif
             }
             pltxt2htm_unreachable(u8"Unreachable after block-node-in-inline switch");
         }
