@@ -551,4 +551,30 @@ TEST_SUITE("html_parser") {
         auto const& answer = u8"<ul><li><input type=\"checkbox\" disabled checked>a</li></ul>";
         CHECK(html == answer);
     }
+
+    TEST_CASE("stray-end-tag-kept-literal-at-top-level") {
+        // The root `group` frame has no end-tag handling, so a stray end tag after text is rendered
+        // literally through the closing-tag switch's literal-`<` fallback.
+        auto const& pltext = u8"a</x>";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"a&lt;/x&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("stray-end-tag-alone-kept-literal") {
+        // The same for an end tag that is the whole input.
+        auto const& pltext = u8"</x>";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"&lt;/x&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("stray-end-tag-in-checkbox-item-kept-literal") {
+        // A checkbox item's text is parsed with the list_li_checkbox root frame, whose end-tag
+        // handling is the same literal-`<` fallback.
+        auto const& pltext = u8"<ul><li><input type=\"checkbox\" disabled>a</x</li></ul>";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        auto const& answer = u8"<ul><li><input type=\"checkbox\" disabled>a&lt;/x</li></ul>";
+        CHECK(html == answer);
+    }
 }
