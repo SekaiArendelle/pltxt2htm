@@ -3,6 +3,11 @@
 #include <cassert>
 #include <utility>
 #include <fast_io/fast_io.h>
+// fast_io only ships a runtime install-path backend for these platforms; the
+// banner reports `<unknown>` where there is none (e.g. wasm32-wasip1).
+#if defined(__linux__) || defined(_WIN32) || defined(__APPLE__)
+    #include <fast_io/fast_io_driver/install_path.h>
+#endif
 #include <pltxt2htm/pltxt2htm.hh>
 
 enum class TargetType : unsigned {
@@ -26,6 +31,40 @@ constexpr auto usage = ::pltxt2htm::container::U8StringView{
     echo "example" | pltxt2htm --target plunity_text --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string>
     echo "example" | pltxt2htm --target plunity_text --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string> -o <output file>
 )"};
+
+namespace {
+
+/**
+ * @brief Get the directory the running executable was loaded from
+ * @return UTF-8 install directory without a trailing separator, or an empty
+ *         string when the current platform has no runtime source for it
+ */
+[[nodiscard]] ::fast_io::u8string get_installed_dir() noexcept {
+#if defined(__linux__) || defined(_WIN32) || defined(__APPLE__)
+    #if __cpp_exceptions >= 199711L
+    try {
+        return ::fast_io::get_module_install_path().path_name;
+    } catch (::fast_io::error const&) {
+        return {};
+    }
+    #else
+    return ::fast_io::get_module_install_path().path_name;
+    #endif
+#else
+    return {};
+#endif
+}
+
+void print_installed_dir() noexcept {
+    auto const installed_dir = get_installed_dir();
+    if (installed_dir.empty()) {
+        ::fast_io::println(::fast_io::u8c_stdout(), u8"* installed dir: <unknown>");
+        return;
+    }
+    ::fast_io::println(::fast_io::u8c_stdout(), u8"* installed dir: ", installed_dir);
+}
+
+} // namespace
 
 int main(int argc, char const* const* const argv) noexcept {
     if (argc == 1) {
@@ -66,6 +105,7 @@ int main(int argc, char const* const* const argv) noexcept {
     #include "repo_info.ignore"
 #endif
         );
+        print_installed_dir();
         return 0;
     }
 

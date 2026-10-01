@@ -66,7 +66,7 @@ if(GIT_RESULT EQUAL 0 AND GIT_STATUS)
     )
     string(REPLACE "\"" "\\\"" GIT_FULL_STATUS "${GIT_FULL_STATUS}")
     string(REPLACE "\n" "\\n" GIT_FULL_STATUS "${GIT_FULL_STATUS}")
-    file(WRITE ${REPO_INFO_FILE} "\"* repo status: UNCOMMITED\\n${GIT_FULL_STATUS}\"")
+    file(WRITE ${REPO_INFO_FILE} "\"* repo status: UNCOMMITED\\n${GIT_FULL_STATUS}\\n\"")
 else()
     execute_process(
         COMMAND git rev-parse HEAD
