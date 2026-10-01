@@ -1256,27 +1256,6 @@ entry:
                         ++current_index;
                         continue;
                     }
-                    case ::pltxt2htm::NodeKind::unity_align: {
-                        auto&& active_frame_data = frame.as_align_info();
-                        // parsing </align>
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"align">(
-                                pltext.template subview<ndebug>(current_index + 2));
-                            opt_tag_len.has_value()) {
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::UnityAlign staged_node(::std::move(result), active_frame_data.align);
-                            call_stack.template discard_current_frame<ndebug>();
-                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
-                                    ::std::move(staged_node)));
-                            parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-                        ++current_index;
-                        continue;
-                    }
                     case ::pltxt2htm::NodeKind::unity_mark: {
                         auto&& active_frame_data = frame.as_background_color_info();
                         // parsing </mark>
@@ -1290,50 +1269,6 @@ entry:
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityMark<ndebug>>(
-                                    ::std::move(staged_node)));
-                            parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-                        ++current_index;
-                        continue;
-                    }
-                    case ::pltxt2htm::NodeKind::unity_margin: {
-                        auto&& active_frame_data = frame.as_margins_info();
-                        // parsing </margin>
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"margin">(
-                                pltext.template subview<ndebug>(current_index + 2));
-                            opt_tag_len.has_value()) {
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::UnityMargin staged_node(::std::move(result), active_frame_data.left,
-                                                                 active_frame_data.right);
-                            call_stack.template discard_current_frame<ndebug>();
-                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
-                                    ::std::move(staged_node)));
-                            parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-                        ++current_index;
-                        continue;
-                    }
-                    case ::pltxt2htm::NodeKind::html_div: {
-                        auto&& active_frame_data = frame.as_margins_info();
-                        // parsing </div>
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"div">(
-                                pltext.template subview<ndebug>(current_index + 2));
-                            opt_tag_len.has_value()) {
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlDiv staged_node(::std::move(result), active_frame_data.left,
-                                                             active_frame_data.right);
-                            call_stack.template discard_current_frame<ndebug>();
-                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
                             goto entry;
@@ -1369,148 +1304,6 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::UnityI staged_node(::std::move(result));
                             call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
-                                    ::std::move(staged_node)));
-                            parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-                        ++current_index;
-                        continue;
-                    }
-                    case ::pltxt2htm::NodeKind::html_p: {
-                        auto&& active_frame_data = frame.as_align_info();
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"p">(
-                                pltext.template subview<ndebug>(current_index + 2));
-                            opt_tag_len.has_value()) {
-                            // parsing end tag </p> successed
-                            ::std::size_t const staged_index{current_index};
-                            auto const align = active_frame_data.align;
-                            ::pltxt2htm::HtmlP staged_node(::std::move(result), align);
-                            call_stack.template discard_current_frame<ndebug>();
-                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
-                                    ::std::move(staged_node)));
-                            parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-                        ++current_index;
-                        continue;
-                    }
-                    case ::pltxt2htm::NodeKind::html_h1: {
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h1">(
-                                pltext.template subview<ndebug>(current_index + 2));
-                            opt_tag_len.has_value()) {
-                            // parsing end tag </h1> successed
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlH1 staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
-                                    ::std::move(staged_node)));
-                            parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-                        ++current_index;
-                        continue;
-                    }
-                    case ::pltxt2htm::NodeKind::html_h2: {
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h2">(
-                                pltext.template subview<ndebug>(current_index + 2));
-                            opt_tag_len.has_value()) {
-                            // parsing end tag </h2> successed
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlH2 staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
-                                    ::std::move(staged_node)));
-                            parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-                        ++current_index;
-                        continue;
-                    }
-                    case ::pltxt2htm::NodeKind::html_h3: {
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h3">(
-                                pltext.template subview<ndebug>(current_index + 2));
-                            opt_tag_len.has_value()) {
-                            // parsing end tag </h3> successed
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlH3 staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
-                                    ::std::move(staged_node)));
-                            parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-                        ++current_index;
-                        continue;
-                    }
-                    case ::pltxt2htm::NodeKind::html_h4: {
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h4">(
-                                pltext.template subview<ndebug>(current_index + 2));
-                            opt_tag_len.has_value()) {
-                            // parsing end tag </h4> successed
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlH4 staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
-                                    ::std::move(staged_node)));
-                            parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-                        ++current_index;
-                        continue;
-                    }
-                    case ::pltxt2htm::NodeKind::html_h5: {
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h5">(
-                                pltext.template subview<ndebug>(current_index + 2));
-                            opt_tag_len.has_value()) {
-                            // parsing end tag </h5> successed
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlH5 staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
-                                    ::std::move(staged_node)));
-                            parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-                        ++current_index;
-                        continue;
-                    }
-                    case ::pltxt2htm::NodeKind::html_h6: {
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"h6">(
-                                pltext.template subview<ndebug>(current_index + 2));
-                            opt_tag_len.has_value()) {
-                            // parsing end tag </h6> successed
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlH6 staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
                             auto& parent_frame = call_stack.template current_frame<ndebug>();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
@@ -1560,10 +1353,6 @@ entry:
                         ++current_index;
                         continue;
                     }
-                    case ::pltxt2htm::NodeKind::html_note:
-                        [[unlikely]] {
-                            pltxt2htm_unreachable(u8"Unexpected html_note node during end-tag parsing");
-                        }
                     case ::pltxt2htm::NodeKind::html_em: {
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"em">(
                                 pltext.template subview<ndebug>(current_index + 2));
@@ -1699,45 +1488,9 @@ entry:
                         ++current_index;
                         continue;
                     }
-                    case ::pltxt2htm::NodeKind::html_blockquote: {
-                        if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"blockquote">(
-                                pltext.template subview<ndebug>(current_index + 2));
-                            opt_tag_len.has_value()) {
-                            // parsing end tag </blockquote> successed
-                            ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::HtmlBlockquote staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            pltxt2htm_assert(call_stack.empty() == false, u8"inline parser root frame was popped");
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
-                            parent_frame.subast.push_back(
-                                ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
-                                    ::std::move(staged_node)));
-                            parent_frame.current_index += staged_index + opt_tag_len.template value<ndebug>() + 3;
-                            goto entry;
-                        }
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-                        ++current_index;
-                        continue;
-                    }
-                    case ::pltxt2htm::NodeKind::md_block_quotes:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::code_fence:
-                        [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_del:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_link:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_atx_h1:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_atx_h2:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_atx_h3:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_atx_h4:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_atx_h5:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::md_atx_h6:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::group:
                         [[fallthrough]];
@@ -1757,6 +1510,56 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
                         [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::table_caption:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::table_th:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::table_td: {
+                        // any tag contains `</` context would hit this branch
+                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
+                        ++current_index;
+                        continue;
+                    }
+                    case ::pltxt2htm::NodeKind::unity_align:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::unity_margin:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::html_div:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::html_p:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::html_h1:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::html_h2:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::html_h3:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::html_h4:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::html_h5:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::html_h6:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::html_note:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::html_blockquote:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::md_block_quotes:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::code_fence:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::md_atx_h1:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::md_atx_h2:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::md_atx_h3:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::md_atx_h4:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::md_atx_h5:
+                        [[fallthrough]];
+                    case ::pltxt2htm::NodeKind::md_atx_h6:
+                        [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
@@ -1775,16 +1578,6 @@ entry:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::table_tr:
                         [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::table_caption:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::table_th:
-                        [[fallthrough]];
-                    case ::pltxt2htm::NodeKind::table_td: {
-                        // any tag contains `</` context would hit this branch
-                        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-                        ++current_index;
-                        continue;
-                    }
                     case ::pltxt2htm::NodeKind::table_tfoot:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::table_colgroup:
@@ -1836,11 +1629,15 @@ entry:
                     case ::pltxt2htm::NodeKind::list_ol:
                         [[fallthrough]];
                     case ::pltxt2htm::NodeKind::md_escape:
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                        [[fallthrough]];
+                    default:
+#endif
                         [[unlikely]] {
-                            pltxt2htm_unreachable(u8"Unexpected escape node kind in inner switch");
+                            pltxt2htm_unreachable(u8"Unexpected frame kind in the inline closing-tag switch");
                         }
                     }
-                    pltxt2htm_unreachable(u8"Unreachable after escape-node inner switch");
+                    pltxt2htm_unreachable(u8"Unreachable after the inline closing-tag switch");
                 }
 
                 default: {
@@ -1979,27 +1776,6 @@ entry:
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::unity_align: {
-                auto&& active_frame_data = frame.as_align_info();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityAlign<ndebug>>(
-                    ::std::move(subast), active_frame_data.align));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::unity_margin: {
-                auto&& active_frame_data = frame.as_margins_info();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityMargin<ndebug>>(
-                    ::std::move(subast), active_frame_data.left, active_frame_data.right));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_div: {
-                auto&& active_frame_data = frame.as_margins_info();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlDiv<ndebug>>(
-                    ::std::move(subast), active_frame_data.left, active_frame_data.right));
-                parent_index += staged_index;
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::unity_mark: {
                 auto&& active_frame_data = frame.as_background_color_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityMark<ndebug>>(
@@ -2022,8 +1798,12 @@ entry:
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::html_strong:
-                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_strong: {
+                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlStrong<ndebug>>(
+                    ::std::move(subast)));
+                parent_index += staged_index;
+                goto entry;
+            }
             case ::pltxt2htm::NodeKind::unity_b: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityB<ndebug>>(::std::move(subast)));
@@ -2033,49 +1813,6 @@ entry:
             case ::pltxt2htm::NodeKind::unity_i: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityI<ndebug>>(::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_p: {
-                auto&& active_frame_data = frame.as_align_info();
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlP<ndebug>>(
-                    ::std::move(subast), active_frame_data.align));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h1: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH1<ndebug>>(::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h2: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH2<ndebug>>(::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h3: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH3<ndebug>>(::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h4: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH4<ndebug>>(::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h5: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH5<ndebug>>(::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_h6: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlH6<ndebug>>(::std::move(subast)));
                 parent_index += staged_index;
                 goto entry;
             }
@@ -2128,99 +1865,6 @@ entry:
                 parent_index += staged_index;
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::list_ul: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListUl<ndebug>>(::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::list_ol: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListOl<ndebug>>(::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::list_li: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListLi<ndebug>>(::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::list_li_checkbox: {
-                auto&& active_frame_data = frame.as_list_li_checkbox();
-                auto const checked = active_frame_data.checked;
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListLiCheckbox<ndebug>>(
-                        ::std::move(subast), checked));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::table_th: {
-                auto&& active_frame_data = frame.as_cell();
-                auto const align = active_frame_data.align;
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTh<ndebug>>(
-                    ::std::move(subast), align));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::table_td: {
-                auto&& active_frame_data = frame.as_cell();
-                auto const align = active_frame_data.align;
-                parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTd<ndebug>>(
-                    ::std::move(subast), align));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::html_blockquote: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlBlockquote<ndebug>>(
-                        ::std::move(subast)));
-                parent_index += staged_index;
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_atx_h1:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_atx_h2:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_atx_h3:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_atx_h4:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_atx_h5:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::md_atx_h6: {
-                [[unlikely]] { pltxt2htm_unreachable(u8"Unexpected block node kind in inline context"); }
-            }
-            case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdCodeSpan1Backtick<ndebug>>(
-                        ::std::move(subast)));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdCodeSpan2Backtick<ndebug>>(
-                        ::std::move(subast)));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdCodeSpan3Backtick<ndebug>>(
-                        ::std::move(subast)));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_latex_inline: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdLatexInline<ndebug>>(
-                        ::std::move(subast)));
-                goto entry;
-            }
-            case ::pltxt2htm::NodeKind::md_latex_block: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdLatexBlock<ndebug>>(
-                        ::std::move(subast)));
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>>(
@@ -2262,12 +1906,6 @@ entry:
                     ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdDel<ndebug>>(::std::move(subast)));
                 goto entry;
             }
-            case ::pltxt2htm::NodeKind::md_block_quotes: {
-                parent_ast.push_back(
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdBlockQuotes<ndebug>>(
-                        ::std::move(subast)));
-                goto entry;
-            }
             case ::pltxt2htm::NodeKind::md_link: {
                 auto&& active_frame_data = frame.as_url_info();
                 auto&& link_url = active_frame_data.url;
@@ -2275,11 +1913,69 @@ entry:
                     ::std::move(subast), ::std::move(link_url)));
                 goto entry;
             }
+            case ::pltxt2htm::NodeKind::group:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::unity_align:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::unity_margin:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_div:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_p:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h1:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h2:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h3:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h4:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h5:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_h6:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::list_ul:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::list_ol:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::list_li:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::list_li_checkbox:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_th:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::table_td:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::html_blockquote:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h1:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h2:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h3:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h4:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h5:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_atx_h6:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_code_span_1_backtick:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_code_span_2_backtick:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_code_span_3_backtick:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_latex_inline:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_latex_block:
+                [[fallthrough]];
+            case ::pltxt2htm::NodeKind::md_block_quotes:
+                [[fallthrough]];
             case ::pltxt2htm::NodeKind::text:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::invalid_utf8:
-                [[fallthrough]];
-            case ::pltxt2htm::NodeKind::group:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::line_break:
                 [[fallthrough]];
@@ -2338,11 +2034,15 @@ entry:
             case ::pltxt2htm::NodeKind::pl_macro_author:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::pl_macro_coauthors:
+#ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
+                [[fallthrough]];
+            default:
+#endif
                 [[unlikely]] {
-                    pltxt2htm_unreachable(u8"Unexpected block node kind in inline context");
+                    pltxt2htm_unreachable(u8"Unexpected frame kind in the inline end-of-input switch");
                 }
             }
-            pltxt2htm_unreachable(u8"Unreachable after block-node-in-inline switch");
+            pltxt2htm_unreachable(u8"Unreachable after the inline end-of-input switch");
         }
     }
 }

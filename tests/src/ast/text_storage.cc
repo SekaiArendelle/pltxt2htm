@@ -4,6 +4,7 @@
 #include <ranges>
 #include <type_traits>
 #include <pltxt2htm/ast/ast.hh>
+#include <pltxt2htm/inline_parser.hh>
 #include <pltxt2htm/optimizer.hh>
 #include <pltxt2htm/parser.hh>
 #include <utility>
@@ -89,6 +90,26 @@ int main() {
         for (::std::size_t index{}; index < 5; ++index) {
             pltxt2htm_test_assert_true(first.index(Text::capacity() - 5 + index) == u8'b');
             pltxt2htm_test_assert_true(second.index(index) == u8'b');
+        }
+    }
+
+    {
+        // A <strong> that is never closed is attached by the end-of-input path. It has to
+        // keep its own kind, so that the node kind never depends on whether the closing tag
+        // was written. Every render backend prints html_strong and unity_b alike, so only an
+        // AST-level check can pin this; the syntax cases stay end-to-end.
+        constexpr ::pltxt2htm::container::U8StringView unclosed_strong[]{
+            u8"<strong>text",
+            u8"<strong>text</q>",
+        };
+        for (auto const pltext : unclosed_strong) {
+            auto const ast = ::pltxt2htm::parse_pltxt<ndebug>(pltext);
+            pltxt2htm_test_assert_true(ast.size() == 1);
+            pltxt2htm_test_assert_true(ast.index(0).get_node_kind() == ::pltxt2htm::NodeKind::html_strong);
+
+            auto const inline_ast = ::pltxt2htm::inline_parse_pltxt<ndebug>(pltext);
+            pltxt2htm_test_assert_true(inline_ast.size() == 1);
+            pltxt2htm_test_assert_true(inline_ast.index(0).get_node_kind() == ::pltxt2htm::NodeKind::html_strong);
         }
     }
 

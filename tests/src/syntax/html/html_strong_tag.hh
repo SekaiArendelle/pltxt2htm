@@ -39,6 +39,14 @@ TEST_SUITE("html_strong_tag") {
         CHECK(html == answer);
     }
 
+    TEST_CASE("unclosed-tag-with-content-kept") {
+        // An open <strong> that reaches the end of the input is still attached to the text
+        // it opened, so the emphasis survives without a closing tag.
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<strong>text");
+        auto const& answer = u8"<strong>text</strong>";
+        CHECK(html == answer);
+    }
+
     TEST_CASE("empty-strong-removed") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<strong></strong>t");
         auto const& answer = u8"tt";

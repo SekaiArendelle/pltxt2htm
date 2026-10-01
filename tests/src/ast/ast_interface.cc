@@ -65,8 +65,7 @@ int main() {
         pltxt2htm_test_assert_true(ast.data() == ast.cbegin());
         pltxt2htm_test_assert_true(ast.begin() == ast.cbegin());
         pltxt2htm_test_assert_true(ast.end() == ast.cend());
-        pltxt2htm_test_assert_true(ast.index(0).get_node_kind() ==
-                                   ::pltxt2htm::NodeKind::text);
+        pltxt2htm_test_assert_true(ast.index(0).get_node_kind() == ::pltxt2htm::NodeKind::text);
         pltxt2htm_test_assert_true(ast.front().as_text().index(0) == u8'a');
         pltxt2htm_test_assert_true(ast.index(1).as_text().index(0) == u8'b');
     }

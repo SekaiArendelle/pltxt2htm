@@ -212,4 +212,11 @@ TEST_SUITE("md_ol_list") {
         auto roundtrip = ::pltxt2htm_test::pltxt4unittest(u8"<ol start=\"3\"><li>test</li><li>test</li></ol>");
         CHECK(html == roundtrip);
     }
+    TEST_CASE("list-closed-at-end-of-input") {
+        // An ordered list whose last item ends the input still closes.
+        auto const& pltext = u8"1. item";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<ol><li>item</li></ol>";
+        CHECK(html == answer);
+    }
 }

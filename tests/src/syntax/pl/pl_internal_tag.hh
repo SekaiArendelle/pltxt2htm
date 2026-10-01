@@ -80,4 +80,12 @@ TEST_SUITE("pl_internal_tag") {
         auto const& answer = u8"test&lt;internal=";
         CHECK(html == answer);
     }
+    TEST_CASE("unclosed-tag-closed-at-end-of-input") {
+        // An open <internal=...> that reaches the end of the input still closes; the web backend escapes
+        // both tags.
+        auto const& pltext = u8"<internal=run>text";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"&lt;internal=run&gt;text&lt;/internal&gt;";
+        CHECK(html == answer);
+    }
 }
