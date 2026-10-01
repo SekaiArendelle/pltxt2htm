@@ -5,6 +5,7 @@ This file is the entry point for AI coding agents. It contains the development w
 ## Mandatory rules
 
 - **Do NOT run git write operations without explicit human instruction.** An agent must not run `git add`, `git commit`, `git push`, open a **Pull Request**, open an **Issue**, or perform any other write operation to the repository or remote unless the human explicitly asks for it.
+- **Treat the git index as human-owned shared state.** The human may stage files by hand at any time, and often does while reviewing your work. Unexpected staged changes are not your mistake — never undo them, leave the index alone, and mention them in your summary instead of stopping or asking.
 - After changing code, run the affected tests (commands below). If `git-clang-format` is available, format your changes with it so the diff stays limited to the lines you touched; if it is not installed, skip formatting (see [Code formatting](#code-formatting)). Static analysis (`clang-tidy`) is run in full by CI and does **not** need to be run locally for every change.
 - **Stop and report when the request appears misguided.** If the agent believes the user's prompt is based on a false premise, points in the wrong direction, or would lead to an incorrect or harmful change, the agent must stop, explain the problem with concrete evidence (file paths, code excerpts, test results), and propose the corrected direction — rather than silently complying or silently "fixing" the intent. Do not use this rule to avoid difficult tasks: when the direction is sound and only the approach is unclear, proceed or ask a focused question instead.
 
@@ -184,7 +185,7 @@ Follow the existing low-runtime, cross-platform style used in core headers:
   - If a callable needs a name, extract it as a normal `constexpr` function.
   - Immediately invoked lambda expressions (`[]() { ... }()`) are acceptable only when necessary to compute a `constexpr` value in a context where `if constexpr` is not directly usable (e.g., inside a function with non-`constexpr` scope rules).
 - **Avoid the redundant `(string_view, offset)` parameter pair:**
-  - A `string_view` already carries both a pointer and a length, so a signature like `parse_value(::fast_io::u8string_view s, ::std::size_t pos)` is redundant — the offset is implicit in the view.
+  - A `string_view` already carries both a pointer and a length, so a signature like `parse_value(::pltxt2htm::container::U8StringView s, ::std::size_t pos)` is redundant — the offset is implicit in the view.
   - When a helper must skip a prefix, pass a pre-subviewed view (via `::pltxt2htm::details::u8string_view_subview<ndebug>(...)`) and let the function operate from index `0`. Have the returned `end` be relative to that subview and let the caller re-add the offset when absolute coordinates are needed.
   - This keeps each parser "parse the given view from the start", avoids offset arithmetic and empty-check (`pos == 0`) inside helpers, and keeps the call sites' intent explicit.
 - **Keep side effects separated from algorithms:**
@@ -209,7 +210,7 @@ Follow the existing low-runtime, cross-platform style used in core headers:
   - Write the cv-qualifier after the type it qualifies (`int const`, `T const&`, `auto const`) rather than before it (`const int`, `const T&`, `const auto`).
   - `const` always binds to the declaration to its left, so postfix placement makes `int const*` (pointer to const int) vs `int* const` (const pointer to int) unambiguous at a glance.
 - **Keep core runtime dependencies lightweight and static:**
-  - Avoid runtime-heavy facilities such as iostream and locale; prefer existing `fast_io` containers/string types and exception utilities.
+  - Avoid runtime-heavy facilities such as iostream and locale; prefer `pltxt2htm::container` containers/string types, while retaining existing lightweight `fast_io` I/O, allocator, and exception utilities where appropriate.
   - Do not throw or catch exceptions in core code paths; use the existing assertion and terminate/panic infrastructure.
   - Do not introduce RTTI or runtime polymorphism such as `dynamic_cast` and new virtual dispatch.
 - **Avoid macros:**

@@ -24,7 +24,7 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr void append_plunity_code_text(::pltxt2htm::container::U8StringView const text,
                                         ::pltxt2htm::container::U8String& result) noexcept {
     for (::std::size_t index{}; index != text.size(); ++index) {
-        char8_t const chr{::pltxt2htm::details::u8string_view_index<ndebug>(text, index)};
+        char8_t const chr{text.template index<ndebug>(index)};
         switch (chr) {
         case u8' ': {
             result.template append<ndebug>(u8"\u00A0");

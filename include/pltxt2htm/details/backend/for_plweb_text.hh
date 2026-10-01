@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include <fast_io/fast_io_dsal/list.h>
 #include "../call_stack.hh"
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
@@ -34,7 +33,7 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
     out.template reserve<ndebug>(out.size() + ast.size() * 6);
     ::std::size_t const ast_size{ast.size()};
     for (::std::size_t index{}; index < ast_size; ++index) {
-        auto const& node = ast.template index<ndebug>(index);
+        auto const& node = ast.index(index);
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::text: {
             auto&& active_node = node.as_text();

@@ -835,7 +835,7 @@ print("Hello World")
     TEST_CASE("language-neutral-highlight-ir") {
         auto const ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(u8"```cpp\nint f();\n```");
         CHECK(ast.size() == 1);
-        auto const& root{ast.template index<::pltxt2htm::Contracts::quick_enforce>(0)};
+        auto const& root{ast.index(0)};
         CHECK(root.get_node_kind() == ::pltxt2htm::NodeKind::code_fence);
         auto const& code_ast{root.as_code_fence().get_highlighted_ast()};
 

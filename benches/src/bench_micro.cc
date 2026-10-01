@@ -1,5 +1,8 @@
 #include "bench_fixtures.hh"
 
+#include <fast_io/fast_io_dsal/string.h>
+#include <fast_io/fast_io_dsal/string_view.h>
+
 // -------------------------------------------------------------------
 // Micro-benchmarks — no data to prepare, everything created inline.
 // Fixture provides ndebug and consistent pattern with other bench files.
@@ -106,7 +109,7 @@ BENCHMARK_DEFINE_F(MicroFixture, AstAppend_1000_MergedTextCodeUnits)(benchmark::
     for (auto _ : st) {
         ::pltxt2htm::Ast<ndebug> ast;
         for (int i = 0; i < 1000; ++i) {
-            ::pltxt2htm::details::append_text_code_unit<ndebug>(ast, u8'A');
+            ast.append_text(u8'A');
         }
         ::benchmark::DoNotOptimize(ast);
     }

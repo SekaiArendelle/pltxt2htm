@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/list.h>
 #include "../container/string.hh"
 #include "../details/call_stack.hh"
 #include "../container/string_view.hh"
@@ -59,7 +58,7 @@ constexpr auto find_next_block_after_line_break(
                 pltext.template subview<ndebug>(current_index));
             opt_pre_code_block.has_value()) {
             auto&& [node, advance_count] = opt_pre_code_block.template value<ndebug>();
-            result.template push_back<ndebug>(::std::move(node));
+            result.push_back(::std::move(node));
             return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = false};
         }
@@ -640,8 +639,7 @@ entry:
                                     pltext.template subview<ndebug>(comment_end))) {
                                 break;
                             }
-                            ::pltxt2htm::details::append_text_code_unit<ndebug>(
-                                subast, pltext.template index<ndebug>(comment_end));
+                            subast.append_text(pltext.template index<ndebug>(comment_end));
                         }
 
                         current_index = comment_end + 2;

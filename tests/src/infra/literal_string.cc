@@ -41,17 +41,17 @@ int main() noexcept {
     {
         constexpr auto str = pltxt2htm::details::U8LiteralString{u8"test"};
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
-            ::fast_io::u8string_view{u8"test"}));
+            ::pltxt2htm::container::U8StringView{u8"test"}));
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
-            ::fast_io::u8string_view{u8"TEST"}));
+            ::pltxt2htm::container::U8StringView{u8"TEST"}));
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
-                                       ::fast_io::u8string_view{u8"kksk"}) == false);
+                                       ::pltxt2htm::container::U8StringView{u8"kksk"}) == false);
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_exact_match<::pltxt2htm::Contracts::quick_enforce, str>(
-            ::fast_io::u8string_view{u8"TeSt"}));
+            ::pltxt2htm::container::U8StringView{u8"TeSt"}));
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_exact_match<::pltxt2htm::Contracts::quick_enforce, str>(
-                                       ::fast_io::u8string_view{u8"test-extra"}) == false);
+                                       ::pltxt2htm::container::U8StringView{u8"test-extra"}) == false);
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_exact_match<::pltxt2htm::Contracts::quick_enforce, str>(
-                                       ::fast_io::u8string_view{u8"tes"}) == false);
+                                       ::pltxt2htm::container::U8StringView{u8"tes"}) == false);
     }
 
     {

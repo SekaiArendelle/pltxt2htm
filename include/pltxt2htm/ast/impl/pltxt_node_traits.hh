@@ -18,7 +18,9 @@
 #include "markdown_node_decl.hh"
 #include "physics_lab_node_decl.hh"
 #include "table_node_decl.hh"
+#include "text_node_decl.hh"
 #include "unity_node_decl.hh"
+#include "url_node_decl.hh"
 
 namespace pltxt2htm::details {
 

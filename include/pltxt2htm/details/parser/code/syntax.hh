@@ -76,7 +76,7 @@ constexpr auto syntax_highlight_kind(SyntaxTokenKind const kind) noexcept -> ::p
 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto resolve_syntax_language(::fast_io::u8string_view const language) noexcept -> SyntaxLanguage {
+constexpr auto resolve_syntax_language(::pltxt2htm::container::U8StringView const language) noexcept -> SyntaxLanguage {
     if (::pltxt2htm::details::is_exact_match<ndebug, u8"bash">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"sh">(language) ||
         ::pltxt2htm::details::is_exact_match<ndebug, u8"shell">(language) ||

@@ -17,7 +17,7 @@ struct PlainTextBackendFixture : ::benchmark::Fixture {
         for (::std::size_t i = 0; i < n / 40; ++i)
             text.append<ndebug>(u8"Lorem ipsum dolor sit amet, consectetur adipiscing.\n");
         input_bytes = text.size();
-        auto sv = ::fast_io::u8string_view{text.data(), text.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{text.data(), text.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };
@@ -39,7 +39,7 @@ struct RichHtmlBackendFixture : ::benchmark::Fixture {
 <img src="image.png" alt="desc"/>
 )");
         input_bytes = text.size();
-        auto sv = ::fast_io::u8string_view{text.data(), text.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{text.data(), text.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };
@@ -61,7 +61,7 @@ struct PlTagsBackendFixture : ::benchmark::Fixture {
 <external=url>ext</external>
 )");
         input_bytes = text.size();
-        auto sv = ::fast_io::u8string_view{text.data(), text.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{text.data(), text.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };
@@ -91,7 +91,7 @@ int x = 1;
 ```
 )");
         input_bytes = text.size();
-        auto sv = ::fast_io::u8string_view{text.data(), text.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{text.data(), text.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };

@@ -14,7 +14,7 @@
 #include "../../container/optional.hh"
 #include "../../container/string_view.hh"
 #include "ast_decl.hh"
-#include "basic_node_decl.hh"
+#include "url_node_decl.hh"
 #include "../value_unit.hh"
 #include "../vertical_align_value.hh"
 #include "../node_kind.hh"

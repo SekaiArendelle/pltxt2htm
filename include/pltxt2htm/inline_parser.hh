@@ -10,7 +10,6 @@
 #pragma once
 
 #include <cstddef>
-#include <fast_io/fast_io_dsal/list.h>
 #include "container/string.hh"
 #include "details/call_stack.hh"
 #include "container/string_view.hh"
@@ -80,6 +79,13 @@ entry:
         ::std::size_t const pltext_size{pltext.size()};
 
         while (current_index < pltext_size) {
+            auto const plain_text_size =
+                ::pltxt2htm::details::scan_plain_ascii_run<ndebug>(pltext.template subview<ndebug>(current_index));
+            if (plain_text_size != 0) {
+                result.append_text(pltext.template subview<ndebug>(current_index, plain_text_size));
+                current_index += plain_text_size;
+                continue;
+            }
             char8_t const chr{pltext.template index<ndebug>(current_index)};
 
             if (chr == u8'\n') {
@@ -908,8 +914,7 @@ entry:
                                     pltext.template subview<ndebug>(comment_end))) {
                                 break;
                             }
-                            ::pltxt2htm::details::append_text_code_unit<ndebug>(
-                                subast, pltext.template index<ndebug>(comment_end));
+                            subast.append_text(pltext.template index<ndebug>(comment_end));
                         }
 
                         current_index = comment_end + 2; // Point to '>'

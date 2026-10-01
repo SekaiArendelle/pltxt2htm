@@ -1,19 +1,14 @@
 /**
  * @file basic_node_decl.hh
  * @brief Basic AST node declarations for pltxt2htm
- * @details Defines fundamental node types: character nodes, text container, and URL.
+ * @details Defines character nodes and basic AST containers.
  */
 
 #pragma once
 
-#include <concepts>
-#include <cstddef>
-#include <iterator>
-#include <memory>
 #include <utility>
+
 #include "../code/ast.hh"
-#include "../../container/string.hh"
-#include "../../details/inplace_string.hh"
 #include "ast_decl.hh"
 #include "../../details/push_macro.hh"
 
@@ -97,99 +92,6 @@ class DoubleQuote {
 public:
     [[nodiscard]]
     constexpr auto operator==(this DoubleQuote const&, DoubleQuote const&) noexcept -> bool = default;
-};
-
-/**
- * @brief A leaf node containing a run of UTF-8 code units.
- * @details Stores up to eight pointer-sized words of UTF-8 code units inline, plus its size field.
- */
-template<::pltxt2htm::Contracts ndebug>
-class Text {
-    // Keep this node smaller than HtmlSpan without penalizing 32-bit targets.
-    static constexpr ::std::size_t storage_capacity{sizeof(void*) * 8};
-    using Storage = ::pltxt2htm::details::U8InplaceString<storage_capacity, ndebug>;
-
-    Storage storage;
-
-public:
-    using size_type = ::std::size_t;
-    using iterator = char8_t*;
-    using const_iterator = char8_t const*;
-
-    constexpr explicit Text(char8_t character) noexcept
-        : storage{character} {
-    }
-
-    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::std::same_as<::std::iter_value_t<InputIterator>, char8_t> &&
-                  ::std::constructible_from<char8_t, ::std::iter_reference_t<InputIterator>>)
-    constexpr Text(InputIterator first,
-                   Sentinel last) noexcept(noexcept(Storage{::std::move(first), ::std::move(last)}))
-        : storage{::std::move(first), ::std::move(last)} {
-    }
-
-    constexpr Text(Text const&) = default;
-    constexpr Text(Text&&) noexcept = default;
-    constexpr auto operator=(this Text&, Text const&) -> Text& = default;
-    constexpr auto operator=(this Text&, Text&&) noexcept -> Text& = default;
-    constexpr ~Text() noexcept = default;
-
-    [[nodiscard]]
-    constexpr auto operator==(this Text const&, Text const&) noexcept -> bool = default;
-
-    [[nodiscard]]
-    static constexpr auto capacity() noexcept -> size_type {
-        return Storage::capacity();
-    }
-
-    [[nodiscard]]
-    constexpr auto size(this Text const& self) noexcept -> size_type {
-        return self.storage.size();
-    }
-
-    [[nodiscard]]
-    constexpr auto begin(this Text& self) noexcept -> iterator {
-        return self.storage.begin();
-    }
-
-    [[nodiscard]]
-    constexpr auto begin(this Text const& self) noexcept -> const_iterator {
-        return self.storage.begin();
-    }
-
-    [[nodiscard]]
-    constexpr auto end(this Text& self) noexcept -> iterator {
-        return self.storage.end();
-    }
-
-    [[nodiscard]]
-    constexpr auto end(this Text const& self) noexcept -> const_iterator {
-        return self.storage.end();
-    }
-
-    [[nodiscard]]
-    constexpr auto index(this Text& self, size_type position) noexcept -> char8_t& {
-        return self.storage.index(position);
-    }
-
-    [[nodiscard]]
-    constexpr auto index(this Text const& self, size_type position) noexcept -> char8_t const& {
-        return self.storage.index(position);
-    }
-
-    [[nodiscard]]
-    constexpr auto try_push_back(this Text& self, char8_t character) noexcept -> bool {
-        return self.storage.try_push_back(character);
-    }
-
-    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::std::same_as<::std::iter_value_t<InputIterator>, char8_t> &&
-                  ::std::constructible_from<char8_t, ::std::iter_reference_t<InputIterator>>)
-    constexpr void append(this Text& self, InputIterator first,
-                          Sentinel last) noexcept(noexcept(self.storage.append(::std::move(first),
-                                                                               ::std::move(last)))) {
-        self.storage.append(::std::move(first), ::std::move(last));
-    }
 };
 
 /**
@@ -303,37 +205,6 @@ public:
         pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::rendered,
                          u8"rendered AST requested from highlighted code fence");
         return self.rendered_ast;
-    }
-};
-
-/**
- * @brief URL node
- * @details Represents a semantic URL value stored independently of any backend's escaping syntax.
- */
-class Url {
-    ::pltxt2htm::container::U8String url_str;
-
-public:
-    /**
-     * @brief Construct a ::pltxt2htm::Url from a semantic URL string.
-     * @param url The URL string without HTML attribute escaping.
-     */
-    constexpr explicit Url(::pltxt2htm::container::U8String&& url) noexcept
-        : url_str(::std::move(url)) {
-    }
-
-    constexpr Url(Url const&) noexcept = default;
-    constexpr Url(Url&&) noexcept = default;
-    constexpr ~Url() noexcept = default;
-    constexpr auto operator=(Url const&) noexcept -> Url& = default;
-    constexpr auto operator=(this Url& self, Url&&) noexcept -> Url& = default;
-
-    [[nodiscard]]
-    constexpr auto operator==(this Url const&, Url const&) noexcept -> bool = default;
-
-    [[nodiscard]]
-    constexpr auto as_string(this Url const& self) noexcept -> ::pltxt2htm::container::U8String const& {
-        return self.url_str;
     }
 };
 

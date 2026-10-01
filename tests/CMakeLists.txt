@@ -178,13 +178,21 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
             "${CMAKE_CURRENT_BINARY_DIR}/generated"
             "${CMAKE_CURRENT_SOURCE_DIR}/src")
     endif()
-    # These three tests exercise public APIs as downstream users.
+    # Tests are built as pltxt2htm itself, so external-only APIs must stay unavailable to them.
+    # The deep-copy, copy-assignment, ast-interface and container-subscript tests are the
+    # exception: they stand in for a downstream user and cover the copy operations and
+    # external-only container APIs that are part of the public API.
     if(NOT TEST_NAME STREQUAL "deep_copy" AND NOT TEST_NAME STREQUAL "copy_assignment"
-       AND NOT TEST_NAME STREQUAL "container_subscript")
+       AND NOT TEST_NAME STREQUAL "ast_interface" AND NOT TEST_NAME STREQUAL "container_subscript")
         target_compile_definitions(${TEST_NAME} PRIVATE PLTXT2HTM_INTERNAL_USE)
     endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_compile_options(${TEST_NAME} PRIVATE -g -Werror=switch)
+    endif()
+    # The node layout test uses the reflection implementation shipped by GCC 16.
+    if(TEST_NAME STREQUAL "node_layout" AND CMAKE_CXX_STANDARD STREQUAL "26"
+       AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
+        target_compile_options(${TEST_NAME} PRIVATE -freflection)
     endif()
     if(HAVE_LD_LLD AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_link_options(${TEST_NAME} PRIVATE -fuse-ld=lld)
