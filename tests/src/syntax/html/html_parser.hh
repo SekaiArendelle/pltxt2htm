@@ -126,7 +126,8 @@ TEST_SUITE("html_parser") {
     }
     TEST_CASE("language-class-preserved") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code class=\"language-cpp\">int x;</code></pre>");
-        auto const& answer = u8"<pre><code class=\"language-cpp\">int&nbsp;x;</code></pre>";
+        auto const& answer =
+            u8"&lt;pre&gt;&lt;code&nbsp;class=&quot;language-cpp&quot;&gt;int&nbsp;x;&lt;/code&gt;&lt;/pre&gt;";
         CHECK(html == answer);
     }
     TEST_CASE("pre-code-midline-escaped") {

@@ -100,19 +100,32 @@ int main() {
         pltxt2htm_test_assert_true(original == copy);
     }
 
-    // Copy of a node with optional language (CodeFence)
+    // Copy of a CodeFence node
     {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast{};
-        ast.emplace_back(
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'x'));
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> ast{};
+        ::pltxt2htm::container::U8String text{u8"x"};
+        ast.append(text, ::pltxt2htm::CodeHighlightKind::plain);
+        pltxt2htm_test_assert_true(text.is_empty());
 
         auto const original =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                      ::pltxt2htm::container::U8String{u8"cpp"}));
+                ::std::move(ast));
 
         auto const copy = original;
         pltxt2htm_test_assert_true(original == copy);
+    }
+
+    // Copy of a rendered CodeFence node
+    {
+        ::pltxt2htm::RenderedCodeAst<nd::quick_enforce> ast{};
+        ::pltxt2htm::container::U8String text{u8"rendered"};
+        ast.append_text(text);
+
+        auto const original = ::pltxt2htm::CodeFence<nd::quick_enforce>(::std::move(ast));
+        auto const copy = original;
+        pltxt2htm_test_assert_true(original == copy);
+        pltxt2htm_test_assert_true(copy.get_kind() == ::pltxt2htm::CodeFenceKind::rendered);
+        pltxt2htm_test_assert_true(copy.get_rendered_ast().get_nodes().size() == 1);
     }
 
     // Copy of a node with Url (MdLink)

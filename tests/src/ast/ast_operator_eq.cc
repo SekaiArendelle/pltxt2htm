@@ -220,151 +220,57 @@ int main() {
         pltxt2htm_test_assert_true(a == b);
     }
 
-    // CodeFence without language
+    // CodeFence with equal content
     {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> ast_a{};
+        ::pltxt2htm::container::U8String text_a{u8"a"};
+        ast_a.append(text_a, ::pltxt2htm::CodeHighlightKind::plain);
 
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> ast_b{};
+        ::pltxt2htm::container::U8String text_b{u8"a"};
+        ast_b.append(text_b, ::pltxt2htm::CodeHighlightKind::plain);
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_a),
-                ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
+                ::std::move(ast_a));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_b),
-                ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
+                ::std::move(ast_b));
         pltxt2htm_test_assert_true(a == b);
     }
-
-    // CodeFence with same language
+    // Rendered-code append overloads consume project-owned input buffers.
     {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
+        ::pltxt2htm::RenderedCodeAst<nd::quick_enforce> ast{};
+        ::pltxt2htm::container::U8String text{u8"text"};
+        ast.append_text(text);
+        pltxt2htm_test_assert_true(text.is_empty());
 
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
+        ::pltxt2htm::container::U8String entity{u8"amp"};
+        ast.append_entity_reference(entity);
+        pltxt2htm_test_assert_true(entity.is_empty());
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        pltxt2htm_test_assert_true(a == b);
+        auto const rendered = ::pltxt2htm::CodeFence<nd::quick_enforce>(::std::move(ast));
+        auto const highlighted =
+            ::pltxt2htm::CodeFence<nd::quick_enforce>(::pltxt2htm::HighlightedCodeAst<nd::quick_enforce>{});
+        pltxt2htm_test_assert_false(rendered == highlighted);
     }
 
-    // CodeFence with different languages
+    // CodeFence with different content
     {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> ast_a{};
+        ::pltxt2htm::container::U8String text_a{u8"a"};
+        ast_a.append(text_a, ::pltxt2htm::CodeHighlightKind::plain);
 
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> ast_b{};
+        ::pltxt2htm::container::U8String text_b{u8"b"};
+        ast_b.append(text_b, ::pltxt2htm::CodeHighlightKind::plain);
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
+                ::std::move(ast_a));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"python"}));
-        pltxt2htm_test_assert_false(a == b);
-    }
-
-    // CodeFence: one has language, the other does not
-    {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-
-        auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_b),
-                ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
-        pltxt2htm_test_assert_false(a == b);
-    }
-
-    // CodeFence without language
-    {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-
-        auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_a),
-                ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
-        auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_b),
-                ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
-        pltxt2htm_test_assert_true(a == b);
-    }
-
-    // CodeFence with same language
-    {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-
-        auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        pltxt2htm_test_assert_true(a == b);
-    }
-
-    // CodeFence with different languages
-    {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-
-        auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"python"}));
-        pltxt2htm_test_assert_false(a == b);
-    }
-
-    // CodeFence: one has language, the other does not
-    {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
-
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
-
-        auto const a =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto const b =
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_b),
-                ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
+                ::std::move(ast_b));
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -814,14 +720,13 @@ int main() {
         pltxt2htm_test_assert_false(a == b);
     }
     {
-        ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
+        ::pltxt2htm::HighlightedCodeAst<nd::quick_enforce> ast_a{};
 
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::CodeFence<nd::quick_enforce>>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
+                ::std::move(ast_a));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Group<nd::quick_enforce>>(
                 ::std::move(ast_b));

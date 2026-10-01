@@ -95,6 +95,16 @@ using ::pltxt2htm::Group;
 using ::pltxt2htm::CodeFence;
 using ::pltxt2htm::Url;
 
+// fenced-code highlighting IR
+using ::pltxt2htm::CodeFenceKind;
+using ::pltxt2htm::CodeHighlightKind;
+using ::pltxt2htm::CodeNode;
+using ::pltxt2htm::HighlightedCodeAst;
+using ::pltxt2htm::RenderedCodeAst;
+using ::pltxt2htm::RenderedCodeNode;
+using ::pltxt2htm::RenderedCodeNodeKind;
+using ::pltxt2htm::RenderedCodeStyle;
+
 using ::pltxt2htm::LineBreak;
 using ::pltxt2htm::Space;
 using ::pltxt2htm::LessThan;

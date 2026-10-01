@@ -2,6 +2,8 @@
 
 #include "doctest_config.hh"
 
+#include <pltxt2htm/parser.hh>
+
 TEST_SUITE("html_pre_tag") {
     // bare <pre> is literal escaped text now
     TEST_CASE("bare-tag-escaped") {
@@ -26,13 +28,19 @@ TEST_SUITE("html_pre_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
+    // Attributes on <code> are not part of the roundtrip HTML subset.
     TEST_CASE("code-language-class") {
         auto const& pltext = u8"<pre><code class=\"language-cpp\">int x;</code></pre>";
         auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
-        auto const& answer = u8"<pre><code class=\"language-cpp\">int&nbsp;x;</code></pre>";
+        auto const& answer =
+            u8"&lt;pre&gt;&lt;code&nbsp;class=&quot;language-cpp&quot;&gt;int&nbsp;x;&lt;/code&gt;&lt;/pre&gt;";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
-        auto const& plunity_richtext_answer = u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\nint\u00A0x;\n</font>";
+        auto const& plunity_richtext_answer =
+            u8"<size=20>\uff1c</size>pre<size=20>\uff1e</size><size=20>\uff1c</size>code\u00A0class=\"language-cpp\""
+            u8"<size=20>\uff1e</size>int\u00A0x;<size=20>\uff1c</size>/code<size=20>\uff1e</size><size=20>\uff1c</"
+            u8"size>/"
+            u8"pre<size=20>\uff1e</size>";
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
@@ -44,6 +52,72 @@ TEST_SUITE("html_pre_tag") {
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto const& plunity_richtext_answer = u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\nline1\nline2\n</font>";
         CHECK(plunity_richtext == plunity_richtext_answer);
+    }
+
+    // HTML code content is literal in the PL text frontend as well as in the HTML frontend.
+    TEST_CASE("code-content-literal") {
+        auto const& pltext = u8"<pre><code>a\\&b\\*</code></pre>";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<pre><code>a\\&amp;b\\*</code></pre>";
+        CHECK(html == answer);
+    }
+
+    // Canonical style spans emitted by the HTML backend remain markup inside code blocks.
+    TEST_CASE("style-span-roundtrip") {
+        auto const& pltext = u8"<pre><code><span style=\"color:#cf222e;\">int</span>&nbsp;x;</code></pre>";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        CHECK(html == pltext);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto const& plunity_richtext_answer =
+            u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n<color=#cf222e>int</color>\u00A0x;\n</font>";
+        CHECK(plunity_richtext == plunity_richtext_answer);
+    }
+
+    // Rendered-code character references use HTML replacement rules before Unity escaping.
+    TEST_CASE("rendered-code-character-references") {
+        auto const& pltext = u8"<pre><code>&#0;&#128;&#xD800;&lt;&gt;&nbsp;</code></pre>";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        CHECK(html == pltext);
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
+        auto const& plunity_richtext_answer =
+            u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n\uFFFD\u20AC\uFFFD<size=20>\uff1c</size>"
+            u8"<size=20>\uff1e</size>\u00A0\n</font>";
+        CHECK(plunity_richtext == plunity_richtext_answer);
+    }
+
+    // Style spans keep their declarations even when they are not part of the canonical subset.
+    TEST_CASE("style-span-extra-declarations") {
+        auto const& pltext =
+            u8"<pre><code><span style=\"color:red;font-size:12px;vertical-align:2px;\">x</span></code></pre>";
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        CHECK(html == pltext);
+    }
+
+    // An unterminated style span is closed with the surrounding code block.
+    TEST_CASE("unterminated-style-span-closed") {
+        auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<pre><code><span style=\"color:red;\">text</code></pre>");
+        auto const& answer = u8"<pre><code><span style=\"color:red;\">text</span></code></pre>";
+        CHECK(html == answer);
+    }
+
+    // Once the opening tags match, an unterminated code block extends to EOF.
+    TEST_CASE("unterminated-code-block-extends-to-eof") {
+        auto const& pltext = u8"<pre><code>a\n<pre><code>b";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto const& answer = u8"<pre><code>a\n&lt;pre&gt;&lt;code&gt;b</code></pre>";
+        CHECK(html == answer);
+        auto html_parser_result = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        CHECK(html_parser_result == answer);
+    }
+
+    // Unterminated style spans and their surrounding code block are both closed at EOF.
+    TEST_CASE("unterminated-style-span-and-code-block-closed") {
+        auto const& pltext = u8"<pre><code><span style=\"color:red;\">text";
+        auto const& answer = u8"<pre><code><span style=\"color:red;\">text</span></code></pre>";
+        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        CHECK(html == answer);
+        auto html_parser_result = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
+        CHECK(html_parser_result == answer);
     }
 
     // <pre> wrapping anything other than <code> is literal escaped text

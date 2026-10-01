@@ -2,6 +2,8 @@
 
 #include "doctest_config.hh"
 
+#include <pltxt2htm/parser.hh>
+
 TEST_SUITE("md_code_span") {
     TEST_CASE("basic") {
         auto const& pltext = u8"`test`";
@@ -38,8 +40,16 @@ TEST_SUITE("md_code_span") {
     }
 
     TEST_CASE("escaped-backtick-inside") {
+        // A backslash does not escape a code-span delimiter.
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`t\\`t`");
-        auto const& answer = u8"<code>t`t</code>";
+        auto const& answer = u8"<code>t\\</code>t`";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("escapes-and-entities-literal") {
+        // Markdown escapes and entity references stay literal inside a code span.
+        auto html = ::pltxt2htm_test::pltxt4unittest(u8"`\\* &lt;`");
+        auto const& answer = u8"<code>\\*&nbsp;&amp;lt;</code>";
         CHECK(html == answer);
     }
 
@@ -130,10 +140,10 @@ TEST_SUITE("md_code_span") {
         auto const& answer = u8"```x";
         CHECK(html == answer);
     }
-    // A backslash-escaped backtick at the end is consumed as content, not a closing delimiter.
+    // A preceding backslash stays in the content and does not escape the closing delimiter.
     TEST_CASE("escaped-backtick-at-end") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"`a\\`");
-        auto const& answer = u8"`a`";
+        auto const& answer = u8"<code>a\\</code>";
         CHECK(html == answer);
     }
     // Even balanced delimiter runs with no content stay literal.

@@ -14,12 +14,66 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
+#include "code/for_plunity.hh"
 #include "html_escape.hh"
+#include "../parser/character_processing.hh"
 #include "../utils.hh"
 #include "../../contracts.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_character_reference_code_point_to_plunity_richtext(
+    char32_t code_point, ::pltxt2htm::container::U8String& out) noexcept {
+    if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
+        code_point = char32_t{0xFFFD};
+    }
+    if (code_point == U'<') {
+        out.template append<ndebug>(u8"<size=20>\uff1c</size>");
+        return;
+    }
+    if (code_point == U'>') {
+        out.template append<ndebug>(u8"<size=20>\uff1e</size>");
+        return;
+    }
+    if (code_point == U' ') {
+        out.template append<ndebug>(u8"\u00A0");
+        return;
+    }
+    auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
+    out.template append<ndebug>(::pltxt2htm::container::U8StringView{encoded.code_units, encoded.size});
+}
+
+/**
+ * @brief Append an entity reference from a rendered code AST to Unity Rich Text output.
+ * @details Uses the same HTML character-reference rules as the parser, while escaping
+ *          decoded angle brackets so TextMeshPro cannot interpret them as tags.
+ */
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_entity_reference_to_plunity_richtext(::pltxt2htm::container::U8StringView const value_view,
+                                                           ::pltxt2htm::container::U8String& out) noexcept {
+    ::pltxt2htm::container::U8String reference{};
+    reference.template reserve<ndebug>(value_view.size() + 2);
+    reference.template push_back<ndebug>(u8'&');
+    reference.template append<ndebug>(value_view);
+    reference.template push_back<ndebug>(u8';');
+    auto const decoded =
+        ::pltxt2htm::details::try_decode_character_reference<ndebug>(::pltxt2htm::container::U8StringView{reference});
+    if (decoded.has_value() == false) {
+        out.template push_back<ndebug>(u8'&');
+        out.template append<ndebug>(value_view);
+        out.template push_back<ndebug>(u8';');
+        return;
+    }
+    auto const& character_reference = decoded.template value<ndebug>();
+    ::pltxt2htm::details::append_character_reference_code_point_to_plunity_richtext<ndebug>(
+        character_reference.first_code_point, out);
+    if (character_reference.has_second_code_point()) {
+        ::pltxt2htm::details::append_character_reference_code_point_to_plunity_richtext<ndebug>(
+            character_reference.second_code_point, out);
+    }
+}
 
 /**
  * @brief Convert a simple (leaf-only) AST to Unity Rich Text with unescaping.
@@ -40,6 +94,10 @@ constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<nde
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
             out.template append<ndebug>(u8"\uFFFD");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::line_break: {
+            out.template push_back<ndebug>(u8'\n');
             continue;
         }
         case ::pltxt2htm::NodeKind::space: {
@@ -1132,9 +1190,18 @@ entry:
             case ::pltxt2htm::NodeKind::code_fence: {
                 auto&& active_node = node.as_code_fence();
                 result.template append<ndebug>(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n");
-                call_stack.push_frame(
-                    BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::code_fence));
-                goto entry;
+                switch (active_node.get_kind()) /* -Werror=switch */ {
+                case ::pltxt2htm::CodeFenceKind::highlighted: {
+                    ::pltxt2htm::details::append_plunity_code_ast<ndebug>(active_node.get_highlighted_ast(), result);
+                    break;
+                }
+                case ::pltxt2htm::CodeFenceKind::rendered: {
+                    ::pltxt2htm::details::append_plunity_code_ast<ndebug>(active_node.get_rendered_ast(), result);
+                    break;
+                }
+                }
+                result.template append<ndebug>(u8"\n</font>");
+                continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_project: {
                 result.template append<ndebug>(project);
