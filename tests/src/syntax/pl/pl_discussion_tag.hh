@@ -107,4 +107,15 @@ TEST_SUITE("pl_discussion_tag") {
         auto const& answer = u8"<discussion=id>text</discussion>";
         CHECK(html == answer);
     }
+
+    TEST_CASE("host-with-injected-markup") {
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussion=discid>dis</discussion>",
+                                                   u8"localhost:5173\" onclick=\"alert(1)<img src=x onerror=alert(2)>",
+                                                   u8"project", u8"visitor", u8"author", u8"coauthors");
+        auto const& answer =
+            u8"<a href=\"localhost:5173&quot; onclick=&quot;alert(1)&lt;img src=x "
+            u8"onerror=alert(2)&gt;/p/Discussion/discid\" internal>dis</a>";
+        CHECK(html == answer);
+    }
 }
