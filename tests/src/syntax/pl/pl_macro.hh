@@ -4,25 +4,25 @@
 
 TEST_SUITE("pl_macro") {
     TEST_CASE("project-macro") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"test{Project}test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"test{Project}test");
         auto const& answer = u8"test$PROJECTtest";
         CHECK(html == answer);
     }
 
     TEST_CASE("visitor-macro") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"test{Visitor}test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"test{Visitor}test");
         auto const& answer = u8"test$VISITORtest";
         CHECK(html == answer);
     }
 
     TEST_CASE("author-macro") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"test{Author}test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"test{Author}test");
         auto const& answer = u8"test$AUTHORtest";
         CHECK(html == answer);
     }
 
     TEST_CASE("coauthors-macro") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"test{CoAuthors}test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"test{CoAuthors}test");
         auto const& answer = u8"test$CO_AUTHORStest";
         CHECK(html == answer);
     }
