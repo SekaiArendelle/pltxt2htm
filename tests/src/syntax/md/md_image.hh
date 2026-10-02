@@ -27,7 +27,7 @@ TEST_SUITE("md_image") {
         pltext.push_back<::pltxt2htm::Contracts::quick_enforce>(char8_t{0x80});
         pltext.append<::pltxt2htm::Contracts::quick_enforce>(u8"](https://example.com/image.png)");
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(::pltxt2htm::container::U8StringView{pltext.data(), pltext.size()});
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(::pltxt2htm::container::U8StringView{pltext.data(), pltext.size()});
         auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"�\">";
         CHECK(html == answer);
     }

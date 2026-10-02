@@ -56,7 +56,7 @@ TEST_SUITE("html_img_tag") {
     TEST_CASE("alt-nbsp-entities-canonicalized") {
         auto const& pltext =
             u8"<img src=\"https://example.com/image.png\" alt=\"a&nbsp;&#160;&#xA0;&NonBreakingSpace;b\">";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"a&nbsp;&nbsp;&nbsp;&nbsp;b\">";
         CHECK(html == answer);
     }
@@ -66,7 +66,7 @@ TEST_SUITE("html_img_tag") {
         pltext.push_back<::pltxt2htm::Contracts::quick_enforce>(char8_t{0x80});
         pltext.append<::pltxt2htm::Contracts::quick_enforce>(u8"\">");
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(::pltxt2htm::container::U8StringView{pltext.data(), pltext.size()});
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(::pltxt2htm::container::U8StringView{pltext.data(), pltext.size()});
         auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"�\">";
         CHECK(html == answer);
     }
