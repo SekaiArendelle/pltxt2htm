@@ -14,6 +14,12 @@ auto pltxt4unittest(::pltxt2htm::container::U8StringView) noexcept -> ::pltxt2ht
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
+auto inline_pltxt4unittest(::pltxt2htm::container::U8StringView) noexcept -> ::pltxt2htm::container::U8String;
+
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
 auto pltxt4htmlunittest(::pltxt2htm::container::U8StringView) noexcept -> ::pltxt2htm::container::U8String;
 
 [[nodiscard]]
