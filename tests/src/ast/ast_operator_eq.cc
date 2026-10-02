@@ -406,15 +406,26 @@ int main() {
         pltxt2htm_test_assert_false(a == b);
     }
 
-    // MdImage with sub-AST and URL
+    // PlainTextBuilder preserves valid UTF-8 for every code point.
     {
-        ::pltxt2htm::Ast<nd::quick_enforce> alt_a{};
-        alt_a.emplace_back(
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
+        ::pltxt2htm::details::PlainTextBuilder builder{};
+        builder.append_code_point<nd::quick_enforce>(char32_t{0x10FFFF});
+        builder.append_code_point<nd::quick_enforce>(char32_t{0xD800});
+        builder.append_code_point<nd::quick_enforce>(char32_t{0x110000});
+        auto const text = ::std::move(builder).finish();
+        auto const expected = ::pltxt2htm::container::U8String{u8"\U0010FFFF\uFFFD\uFFFD"};
+        pltxt2htm_test_assert_true(text.as_string() == expected);
+    }
 
-        ::pltxt2htm::Ast<nd::quick_enforce> alt_b{};
-        alt_b.emplace_back(
-            ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
+    // MdImage with plain-text alt and URL
+    {
+        ::pltxt2htm::details::PlainTextBuilder alt_a_builder{};
+        alt_a_builder.append_code_point<nd::quick_enforce>(U'a');
+        auto alt_a = ::std::move(alt_a_builder).finish();
+
+        ::pltxt2htm::details::PlainTextBuilder alt_b_builder{};
+        alt_b_builder.append_code_point<nd::quick_enforce>(U'a');
+        auto alt_b = ::std::move(alt_b_builder).finish();
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdImage<nd::quick_enforce>>(

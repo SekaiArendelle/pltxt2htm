@@ -12,6 +12,7 @@
 
 #include "../contracts.hh"
 #include "node_kind.hh"
+#include "plain_text.hh"
 
 #include "impl/basic_node_decl.hh"
 #include "impl/url_node_decl.hh"

@@ -13,6 +13,7 @@
 #include "../../container/string.hh"
 #include "../../container/optional.hh"
 #include "../../container/string_view.hh"
+#include "../plain_text.hh"
 #include "ast_decl.hh"
 #include "url_node_decl.hh"
 #include "../value_unit.hh"
@@ -48,10 +49,10 @@ public:
  */
 class HtmlImg {
     ::pltxt2htm::container::U8String src;
-    ::pltxt2htm::container::U8String alt;
+    ::pltxt2htm::PlainText alt;
 
 public:
-    constexpr HtmlImg(::pltxt2htm::container::U8String&& src_, ::pltxt2htm::container::U8String&& alt_) noexcept
+    constexpr HtmlImg(::pltxt2htm::container::U8String&& src_, ::pltxt2htm::PlainText&& alt_) noexcept
         : src(::std::move(src_)),
           alt(::std::move(alt_)) {
     }
