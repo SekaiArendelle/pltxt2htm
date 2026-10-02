@@ -146,7 +146,7 @@ BENCHMARK_DEFINE_F(PlainTextBackendFixture, PlwebText)(benchmark::State& st) {
     for (auto _ : st) {
         auto result =
             ::pltxt2htm::details::plweb_text_backend<ndebug,
-                                                     ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                     ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
                 ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         ::benchmark::DoNotOptimize(result);
     }
@@ -159,7 +159,7 @@ BENCHMARK_DEFINE_F(RichHtmlBackendFixture, PlwebText)(benchmark::State& st) {
     for (auto _ : st) {
         auto result =
             ::pltxt2htm::details::plweb_text_backend<ndebug,
-                                                     ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                     ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
                 ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         ::benchmark::DoNotOptimize(result);
     }
@@ -172,7 +172,7 @@ BENCHMARK_DEFINE_F(PlTagsBackendFixture, PlwebText)(benchmark::State& st) {
     for (auto _ : st) {
         auto result =
             ::pltxt2htm::details::plweb_text_backend<ndebug,
-                                                     ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                     ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
                 ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         ::benchmark::DoNotOptimize(result);
     }
@@ -185,7 +185,7 @@ BENCHMARK_DEFINE_F(MarkdownBackendFixture, PlwebText)(benchmark::State& st) {
     for (auto _ : st) {
         auto result =
             ::pltxt2htm::details::plweb_text_backend<ndebug,
-                                                     ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                     ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
                 ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         ::benchmark::DoNotOptimize(result);
     }

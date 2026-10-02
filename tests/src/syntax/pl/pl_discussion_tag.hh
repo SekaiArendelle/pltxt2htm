@@ -6,7 +6,7 @@ TEST_SUITE("pl_discussion_tag") {
     TEST_CASE("basic-discussion-link") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussion=642cf37a494746375aae306a>physicsLab</discussion>");
         auto const& answer =
-            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\" "
+            u8"<a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306a\" "
             u8"internal>physicsLab</a>";
         CHECK(html == answer);
     }
@@ -15,7 +15,7 @@ TEST_SUITE("pl_discussion_tag") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<dIscUssion=642cf37a494746375aae306a      >physicsLab</DISCUSSION      >");
         auto const& answer =
-            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\" "
+            u8"<a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306a\" "
             u8"internal>physicsLab</a>";
         CHECK(html == answer);
     }
@@ -27,7 +27,7 @@ TEST_SUITE("pl_discussion_tag") {
  xt</DISCUSSION      >
 )");
         auto const& answer =
-            u8"<br><a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\" "
+            u8"<br><a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306a\" "
             u8"internal>te<br>&nbsp;xt</a><br>";
         CHECK(html == answer);
     }
@@ -37,7 +37,7 @@ TEST_SUITE("pl_discussion_tag") {
             u8"<Discussion=642cf37a494746375aae306a><discussion=642cf37a494746375aae306a>physicsLab</discussion></"
             u8"Discussion>");
         auto const& answer =
-            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\" "
+            u8"<a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306a\" "
             u8"internal>&lt;discussion=642cf37a494746375aae306a&gt;physicsLab</a>&lt;/Discussion&gt;";
         CHECK(html == answer);
     }
@@ -46,7 +46,7 @@ TEST_SUITE("pl_discussion_tag") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<Discussion=123><discussion=642cf37a494746375aae306a>physicsLab</discussion></Discussion>");
         auto const& answer =
-            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/123\" "
+            u8"<a href=\"localhost:5173/p/Discussion/123\" "
             u8"internal>&lt;discussion=642cf37a494746375aae306a&gt;physicsLab</a>&lt;/Discussion&gt;";
         CHECK(html == answer);
     }
@@ -69,7 +69,7 @@ TEST_SUITE("pl_discussion_tag") {
             u8"<discussion=642cf37a494746375aae306a>text<discussion=642cf37a494746375aae306a>text</discussion></"
             u8"Discussion>");
         auto const& answer =
-            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\" "
+            u8"<a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306a\" "
             u8"internal>text&lt;discussion=642cf37a494746375aae306a&gt;text</a>&lt;/Discussion&gt;";
         CHECK(html == answer);
     }
@@ -78,7 +78,7 @@ TEST_SUITE("pl_discussion_tag") {
         auto html = ::pltxt2htm_test::pltxt4unittest(
             u8"<discussion=642cf37a494746375aae306a>physics<discussion=123>L</Discussion>ab</discussion>");
         auto const& answer =
-            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\" "
+            u8"<a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306a\" "
             u8"internal>physics&lt;discussion=123&gt;L</a>ab&lt;/discussion&gt;";
         CHECK(html == answer);
     }
@@ -98,7 +98,7 @@ TEST_SUITE("pl_discussion_tag") {
     TEST_CASE("unterminated-close-literal") {
         auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussion=123></discussion");
         auto const& answer =
-            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/123\" internal>&lt;/discussion</a>";
+            u8"<a href=\"localhost:5173/p/Discussion/123\" internal>&lt;/discussion</a>";
         CHECK(html == answer);
     }
 

@@ -36,7 +36,7 @@ extern "C" int LLVMFuzzerTestOneInput(::std::uint8_t const* const data, ::std::s
         ::pltxt2htm::container::U8StringView{html1});
     auto const html2 =
         ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
-                                                 ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                 ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
             html2_ast, u8"_", u8"_", u8"_", u8"_", u8"_");
 
     if (html1 != html2) {
