@@ -58,17 +58,6 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_htmld(::pltxt2htm::container::U8S
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_html(::pltxt2htm::container::U8StringView pltext) noexcept
-    -> ::pltxt2htm::container::U8String {
-    return ::pltxt2htm::pltxt2common_html<::pltxt2htm::Contracts::quick_enforce, true>(pltext);
-}
-
-#if __has_cpp_attribute(__gnu__::__used__)
-[[__gnu__::__used__]]
-#endif
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto inline_pltxt4unittest(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
     auto ast = ::pltxt2htm::inline_parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(pltext);
