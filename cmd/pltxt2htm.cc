@@ -346,7 +346,7 @@ int main(int argc, char const* const* const argv) noexcept {
             auto ast = ::pltxt2htm::parse_pltxt<ndebug>(::pltxt2htm::container::U8StringView{input_text});
             ::pltxt2htm::optimize_ast<ndebug>(ast);
             html = ::pltxt2htm::details::plweb_text_backend<ndebug,
-                                                            ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                            ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
                 ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         }
         else if (target_type == ::TargetType::common_html) {

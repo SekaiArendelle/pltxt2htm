@@ -6,7 +6,7 @@ TEST_SUITE("md_checkbox") {
     // ---- unchecked checkbox ----
     TEST_CASE("unchecked") {
         auto const& pltext = u8"- [ ] task";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<ul><li><input type=\"checkbox\" disabled>task</li></ul>";
         CHECK(html == answer);
         auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -16,7 +16,7 @@ TEST_SUITE("md_checkbox") {
     // ---- checked checkbox ----
     TEST_CASE("checked") {
         auto const& pltext = u8"- [x] done";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<ul><li><input type=\"checkbox\" disabled checked>done</li></ul>";
         CHECK(html == answer);
         auto plunity = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -25,13 +25,13 @@ TEST_SUITE("md_checkbox") {
     }
     // ---- uppercase X ----
     TEST_CASE("uppercase-x") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [X] done");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- [X] done");
         auto const& answer = u8"<ul><li><input type=\"checkbox\" disabled checked>done</li></ul>";
         CHECK(html == answer);
     }
     // ---- nested checkboxes ----
     TEST_CASE("nested") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [ ] parent\n  - [x] child");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- [ ] parent\n  - [x] child");
         auto const& answer =
             u8"<ul><li><input type=\"checkbox\" disabled>parent<ul><li><input type=\"checkbox\" disabled "
             u8"checked>child</li></ul></li></ul>";
@@ -39,19 +39,19 @@ TEST_SUITE("md_checkbox") {
     }
     // ---- checkbox in mixed list ----
     TEST_CASE("mixed-with-normal-item") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [ ] task\n- normal");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- [ ] task\n- normal");
         auto const& answer = u8"<ul><li><input type=\"checkbox\" disabled>task</li><li>normal</li></ul>";
         CHECK(html == answer);
     }
     // ---- [ ] without following space is not a checkbox ----
     TEST_CASE("missing-space-rejected") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [] not a checkbox");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- [] not a checkbox");
         auto const& answer = u8"<ul><li>[]&nbsp;not&nbsp;a&nbsp;checkbox</li></ul>";
         CHECK(html == answer);
     }
     // ---- [x] without following space is not a checkbox ----
     TEST_CASE("missing-space-after-checked") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [x]not a checkbox");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- [x]not a checkbox");
         auto const& answer = u8"<ul><li>[x]not&nbsp;a&nbsp;checkbox</li></ul>";
         CHECK(html == answer);
     }
@@ -73,7 +73,7 @@ TEST_SUITE("md_checkbox") {
     }
 
     TEST_CASE("heading-after-checkbox") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- [x] # **done**");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- [x] # **done**");
         auto const& answer =
             u8"<ul><li><input type=\"checkbox\" disabled checked>#&nbsp;<strong>done</strong></li></ul>";
         CHECK(html == answer);

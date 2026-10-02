@@ -15,19 +15,19 @@ TEST_SUITE("html_note") {
 
     TEST_CASE("comment-stripped-web") {
         auto const& pltext = u8"t<!--es-->t";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"tt";
         CHECK(html == answer);
     }
 
     TEST_CASE("unterminated-comment-dropped") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<!-- est");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"t<!-- est");
         auto const& answer = u8"t";
         CHECK(html == answer);
     }
 
     TEST_CASE("incomplete-comment-open") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<!");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<!");
         auto const& answer = u8"&lt;!";
         CHECK(html == answer);
     }

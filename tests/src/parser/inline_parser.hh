@@ -55,7 +55,7 @@ TEST_SUITE("inline_parser") {
         auto const& pltext = u8"<discussion=642cf37a494746375aae306a>x</discussion>";
         auto html = ::pltxt2htm_test::inline_pltxt4unittest(pltext);
         auto const& answer =
-            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\" internal>x</a>";
+            u8"<a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306a\" internal>x</a>";
         CHECK(html == answer);
     }
 
@@ -76,7 +76,7 @@ TEST_SUITE("inline_parser") {
     TEST_CASE("closed-experiment-tag") {
         auto const& pltext = u8"<experiment=42>x</experiment>";
         auto html = ::pltxt2htm_test::inline_pltxt4unittest(pltext);
-        auto const& answer = u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/42\" internal>x</a>";
+        auto const& answer = u8"<a href=\"localhost:5173/p/Experiment/42\" internal>x</a>";
         CHECK(html == answer);
     }
 
@@ -246,7 +246,7 @@ TEST_SUITE("inline_parser") {
         auto const& pltext = u8"<discussion=642cf37a494746375aae306a>x";
         auto html = ::pltxt2htm_test::inline_pltxt4unittest(pltext);
         auto const& answer =
-            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\" internal>x</a>";
+            u8"<a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306a\" internal>x</a>";
         CHECK(html == answer);
     }
 
@@ -267,7 +267,7 @@ TEST_SUITE("inline_parser") {
     TEST_CASE("unclosed-experiment-tag") {
         auto const& pltext = u8"<experiment=42>x";
         auto html = ::pltxt2htm_test::inline_pltxt4unittest(pltext);
-        auto const& answer = u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/42\" internal>x</a>";
+        auto const& answer = u8"<a href=\"localhost:5173/p/Experiment/42\" internal>x</a>";
         CHECK(html == answer);
     }
 
@@ -438,7 +438,7 @@ TEST_SUITE("inline_parser") {
         auto const& pltext = u8"<discussion=642cf37a494746375aae306a>x</q>";
         auto html = ::pltxt2htm_test::inline_pltxt4unittest(pltext);
         auto const& answer =
-            u8"<a href=\"localhost:5173/ExperimentSummary/Discussion/642cf37a494746375aae306a\" "
+            u8"<a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306a\" "
             u8"internal>x&lt;/q&gt;</a>";
         CHECK(html == answer);
     }
@@ -460,7 +460,7 @@ TEST_SUITE("inline_parser") {
     TEST_CASE("mismatched-experiment-tag") {
         auto const& pltext = u8"<experiment=42>x</q>";
         auto html = ::pltxt2htm_test::inline_pltxt4unittest(pltext);
-        auto const& answer = u8"<a href=\"localhost:5173/ExperimentSummary/Experiment/42\" internal>x&lt;/q&gt;</a>";
+        auto const& answer = u8"<a href=\"localhost:5173/p/Experiment/42\" internal>x&lt;/q&gt;</a>";
         CHECK(html == answer);
     }
 

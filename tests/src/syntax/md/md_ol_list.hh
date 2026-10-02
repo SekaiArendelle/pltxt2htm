@@ -5,7 +5,7 @@
 TEST_SUITE("md_ol_list") {
     TEST_CASE("basic") {
         auto const& pltext = u8"1. test";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<ol><li>test</li></ol>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -13,75 +13,75 @@ TEST_SUITE("md_ol_list") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
     TEST_CASE("two-items") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1. test\n 2. test");
         auto const& answer = u8"<ol><li>test</li><li>test</li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("text-after-list") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\ntest");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1. test\n 2. test\ntest");
         auto const& answer = u8"<ol><li>test</li><li>test</li></ol>test";
         CHECK(html == answer);
     }
     TEST_CASE("indented") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"  1. test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"  1. test");
         auto const& answer = u8"<ol><li>test</li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("nested-ordered") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n   1. text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1. test\n 2. test\n   1. text");
         auto const& answer = u8"<ol><li>test</li><li>test<ol><li>text</li></ol></li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("nested-unordered") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n   - text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1. test\n 2. test\n   - text");
         auto const& answer = u8"<ol><li>test</li><li>test<ul><li>text</li></ul></li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("ordered-inside-unordered") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- test\n - test\n   1. text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- test\n - test\n   1. text");
         auto const& answer = u8"<ul><li>test</li><li>test<ol><li>text</li></ol></li></ul>";
         CHECK(html == answer);
     }
     TEST_CASE("triple-nested") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 1. test\n   1. text\n     1. test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1. test\n 1. test\n   1. text\n     1. test");
         auto const& answer = u8"<ol><li>test</li><li>test<ol><li>text<ol><li>test</li></ol></li></ol></li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("same-level-different-markers") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- test\n - test\n 1. text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- test\n - test\n 1. text");
         auto const& answer = u8"<ul><li>test</li><li>test</li></ul><ol><li>text</li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("bullet-after-ordered") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n - text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1. test\n 2. test\n - text");
         auto const& answer = u8"<ol><li>test</li><li>test</li></ol><ul><li>text</li></ul>";
         CHECK(html == answer);
     }
     TEST_CASE("nested-with-bold") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n   1. t**ex**t");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1. test\n 2. test\n   1. t**ex**t");
         auto const& answer = u8"<ol><li>test</li><li>test<ol><li>t<strong>ex</strong>t</li></ol></li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("lone-number-literal") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1 ");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1 ");
         auto const& answer = u8"1";
         CHECK(html == answer);
     }
 
     TEST_CASE("tab-after-marker") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1.\ttest");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1.\ttest");
         auto const& answer = u8"<ol><li>test</li></ol>";
         CHECK(html == answer);
     }
 
     // ---- mixed ul inside ol ----
     TEST_CASE("asterisk-inside-ordered") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n   * text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1. test\n 2. test\n   * text");
         auto const& answer = u8"<ol><li>test</li><li>test<ul><li>text</li></ul></li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("no-space-rejected") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1x test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1x test");
         auto const& answer = u8"1x&nbsp;test";
         CHECK(html == answer);
     }
@@ -113,36 +113,36 @@ TEST_SUITE("md_ol_list") {
 
     // ---- ) delimiter ----
     TEST_CASE("paren-delimiter") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1) test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1) test");
         auto const& answer = u8"<ol><li>test</li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("paren-two-items") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1) test\n 2) test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1) test\n 2) test");
         auto const& answer = u8"<ol><li>test</li><li>test</li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("paren-nested") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1) test\n 2) test\n   1) text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1) test\n 2) test\n   1) text");
         auto const& answer = u8"<ol><li>test</li><li>test<ol><li>text</li></ol></li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("dot-and-paren-separate-lists") {
         // . and ) are different marker types -> separate lists (CommonMark rule);
         // each list starts at its own first item number
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2) test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1. test\n 2) test");
         auto const& answer = u8"<ol><li>test</li></ol><ol start=\"2\"><li>test</li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("paren-inside-dot-list") {
         // nested ) list inside a . list
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n   1) text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1. test\n 2. test\n   1) text");
         auto const& answer = u8"<ol><li>test</li><li>test<ol><li>text</li></ol></li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("paren-after-bullet") {
         // ) delimiter after a bullet list starts a new ordered list
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- test\n 1) text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- test\n 1) text");
         auto const& answer = u8"<ul><li>test</li></ul><ol><li>text</li></ol>";
         CHECK(html == answer);
     }
@@ -154,37 +154,37 @@ TEST_SUITE("md_ol_list") {
 
     // ---- start attribute from the first item number ----
     TEST_CASE("start-attribute") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"3. test\n 4. test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"3. test\n 4. test");
         auto const& answer = u8"<ol start=\"3\"><li>test</li><li>test</li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("subsequent-numbers-ignored") {
         // subsequent item numbers are ignored; items renumber sequentially from start
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"3. test\n 1. test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"3. test\n 1. test");
         auto const& answer = u8"<ol start=\"3\"><li>test</li><li>test</li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("paren-start-attribute") {
         // ) delimiter start
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"5) test\n 6) test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"5) test\n 6) test");
         auto const& answer = u8"<ol start=\"5\"><li>test</li><li>test</li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("nested-keeps-start") {
         // nested ordered list keeps its own start
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 2. test\n   3. text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1. test\n 2. test\n   3. text");
         auto const& answer = u8"<ol><li>test</li><li>test<ol start=\"3\"><li>text</li></ol></li></ol>";
         CHECK(html == answer);
     }
     TEST_CASE("ordered-in-unordered-keeps-start") {
         // ordered list nested inside an unordered list keeps its start
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"- test\n - test\n   4. text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- test\n - test\n   4. text");
         auto const& answer = u8"<ul><li>test</li><li>test<ol start=\"4\"><li>text</li></ol></li></ul>";
         CHECK(html == answer);
     }
     TEST_CASE("start-one-normalized") {
         // start=1 is normalized away
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"1. test\n 1. test");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"1. test\n 1. test");
         auto const& answer = u8"<ol><li>test</li><li>test</li></ol>";
         CHECK(html == answer);
     }
@@ -208,14 +208,14 @@ TEST_SUITE("md_ol_list") {
     }
     TEST_CASE("roundtrip-start-attribute") {
         // roundtrip: generated <ol start> re-parses back to the same list
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"3. test\n 4. test");
-        auto roundtrip = ::pltxt2htm_test::pltxt4unittest(u8"<ol start=\"3\"><li>test</li><li>test</li></ol>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"3. test\n 4. test");
+        auto roundtrip = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<ol start=\"3\"><li>test</li><li>test</li></ol>");
         CHECK(html == roundtrip);
     }
     TEST_CASE("list-closed-at-end-of-input") {
         // An ordered list whose last item ends the input still closes.
         auto const& pltext = u8"1. item";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<ol><li>item</li></ol>";
         CHECK(html == answer);
     }

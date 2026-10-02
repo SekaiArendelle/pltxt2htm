@@ -10,7 +10,7 @@ TEST_SUITE("html_br_tag") {
 )";
 
     TEST_CASE("br-normalization") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(text);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(text);
         auto const& answer =
             u8R"(<br>文本1<br>文本2<br>文本3<br>文本4&lt;br&nbsp;&nbsp;&nbsp;&nbsp;/<br>文本5&lt;Br<br><br>)";
         CHECK(html == answer);
@@ -23,7 +23,7 @@ TEST_SUITE("html_br_tag") {
     }
 
     TEST_CASE("tab-before-self-close") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<br\t/>text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<br\t/>text");
         auto const& answer = u8"<br>text";
         CHECK(html == answer);
     }

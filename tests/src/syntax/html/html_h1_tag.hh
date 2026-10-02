@@ -5,7 +5,7 @@
 TEST_SUITE("html_h1_tag") {
     TEST_CASE("wellformed-tag-preserved") {
         auto const& pltext = u8"<h1>test</h1>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<h1>test</h1>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -15,7 +15,7 @@ TEST_SUITE("html_h1_tag") {
 
     TEST_CASE("trailing-text-after-tag") {
         auto const& pltext = u8"<h1>test</h1>text";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<h1>test</h1>text";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -25,7 +25,7 @@ TEST_SUITE("html_h1_tag") {
 
     TEST_CASE("uppercase-whitespace-normalize") {
         auto const& pltext = u8"<H1    >text</h1  >";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<h1>text</h1>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -35,7 +35,7 @@ TEST_SUITE("html_h1_tag") {
 
     TEST_CASE("nested-color-in-heading") {
         auto const& pltext = u8"<h1><color=red>text</color></h1>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<h1><span style=\"color:red;\">text</span></h1>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -45,7 +45,7 @@ TEST_SUITE("html_h1_tag") {
 
     TEST_CASE("misnested-close-escaped") {
         auto const& pltext = u8"<h1><color=red>text</h1></color>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<h1><span style=\"color:red;\">text&lt;/h1&gt;</span></h1>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -57,7 +57,7 @@ TEST_SUITE("html_h1_tag") {
 
     TEST_CASE("nested-same-tag-escaped") {
         auto const& pltext = u8"<h1>text<h1>text</h1></h1>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<h1>text&lt;h1&gt;text</h1>&lt;/h1&gt;";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -69,7 +69,7 @@ TEST_SUITE("html_h1_tag") {
 
     TEST_CASE("unclosed-heading-autoclose") {
         auto const& pltext = u8"<h1>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<h1></h1>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -79,7 +79,7 @@ TEST_SUITE("html_h1_tag") {
 
     TEST_CASE("hash-heading-literal-tag") {
         auto const& pltext = u8"# <h1>text";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<h1>&lt;h1&gt;text</h1>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -90,7 +90,7 @@ TEST_SUITE("html_h1_tag") {
 
     TEST_CASE("unterminated-close-escaped") {
         auto const& pltext = u8"<h1></h1";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<h1>&lt;/h1</h1>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -100,7 +100,7 @@ TEST_SUITE("html_h1_tag") {
 
     TEST_CASE("same-line-tags-literal") {
         auto const& pltext = u8"t<h1></h1>t";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"t&lt;h1&gt;&lt;/h1&gt;t";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -111,7 +111,7 @@ TEST_SUITE("html_h1_tag") {
 
     TEST_CASE("same-line-unclosed-literal") {
         auto const& pltext = u8"t<h1></h1";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"t&lt;h1&gt;&lt;/h1";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -122,7 +122,7 @@ TEST_SUITE("html_h1_tag") {
 
     TEST_CASE("newline-before-heading") {
         auto const& pltext = u8"text\n<h1>text</h1>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"text<br><h1>text</h1>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -132,7 +132,7 @@ TEST_SUITE("html_h1_tag") {
 
     TEST_CASE("br-before-heading") {
         auto const& pltext = u8"text<br><h1>text</h1>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"text<br><h1>text</h1>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -149,14 +149,14 @@ TEST_SUITE("html_h1_tag") {
     TEST_CASE("unclosed-tag-closed-at-end-of-input") {
         // An open <h1> that reaches the end of the input still closes around its text.
         auto const& pltext = u8"<h1>text";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<h1>text</h1>";
         CHECK(html == answer);
     }
     TEST_CASE("nested-unclosed-tag-closed-at-end-of-input") {
         // An <h1> nested in a blockquote is attached by the nested end-of-input path.
         auto const& pltext = u8"<blockquote><h1>text";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<blockquote><h1>text</h1></blockquote>";
         CHECK(html == answer);
     }
