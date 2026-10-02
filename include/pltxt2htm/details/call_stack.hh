@@ -9,8 +9,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <fast_io/fast_io_dsal/deque.h>
-
+#include "../container/deque.hh"
 #include "../contracts.hh"
 #include "push_macro.hh"
 
@@ -25,12 +24,12 @@ template<typename Frame>
 class CallStack {
 public:
     using frame_type = Frame;
-    using size_type = typename ::fast_io::deque<frame_type>::size_type;
+    using size_type = typename ::pltxt2htm::container::Deque<frame_type>::size_type;
     using reference = frame_type&;
     using const_reference = frame_type const&;
 
 private:
-    ::fast_io::deque<frame_type> frames{};
+    ::pltxt2htm::container::Deque<frame_type> frames{};
 
 public:
     constexpr CallStack() noexcept = default;

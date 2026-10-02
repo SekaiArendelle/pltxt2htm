@@ -15,6 +15,7 @@
     #warning "gcc/clang are recommended more than MSVC(VS2026)"
 #endif
 
+#include "container/deque.hh"
 #include "container/string.hh"
 #include "container/array.hh"
 #include "container/string_view.hh"
