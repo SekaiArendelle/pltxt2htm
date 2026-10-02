@@ -53,6 +53,24 @@ TEST_SUITE("html_img_tag") {
         CHECK(html == answer);
     }
 
+    TEST_CASE("alt-nbsp-entities-canonicalized") {
+        auto const& pltext =
+            u8"<img src=\"https://example.com/image.png\" alt=\"a&nbsp;&#160;&#xA0;&NonBreakingSpace;b\">";
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
+        auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"a&nbsp;&nbsp;&nbsp;&nbsp;b\">";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("alt-invalid-utf8-replaced") {
+        auto pltext = ::pltxt2htm::container::U8String{u8"<img src=\"https://example.com/image.png\" alt=\""};
+        pltext.push_back<::pltxt2htm::Contracts::quick_enforce>(char8_t{0x80});
+        pltext.append<::pltxt2htm::Contracts::quick_enforce>(u8"\">");
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(::pltxt2htm::container::U8StringView{pltext.data(), pltext.size()});
+        auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"�\">";
+        CHECK(html == answer);
+    }
+
     TEST_CASE("inline-surrounding-text") {
         auto const& pltext = u8"前<img src=\"a.jpg\" alt=\"中间\">后";
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);

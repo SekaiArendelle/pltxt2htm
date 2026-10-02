@@ -13,6 +13,25 @@ TEST_SUITE("md_image") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
+    TEST_CASE("roundtrip-alt-space") {
+        auto const first_pass = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"![ alt](https://example.com/image.png)");
+        auto const& expected = u8"<img src=\"https://example.com/image.png\" alt=\"&nbsp;alt\">";
+        CHECK(first_pass == expected);
+        auto const second_pass = ::pltxt2htm_test::pltxt4htmlunittest(
+            ::pltxt2htm::container::U8StringView{first_pass.data(), first_pass.size()});
+        CHECK(second_pass == first_pass);
+    }
+
+    TEST_CASE("alt-invalid-utf8-replaced") {
+        auto pltext = ::pltxt2htm::container::U8String{u8"!["};
+        pltext.push_back<::pltxt2htm::Contracts::quick_enforce>(char8_t{0x80});
+        pltext.append<::pltxt2htm::Contracts::quick_enforce>(u8"](https://example.com/image.png)");
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(::pltxt2htm::container::U8StringView{pltext.data(), pltext.size()});
+        auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"�\">";
+        CHECK(html == answer);
+    }
+
     TEST_CASE("relative-path-rejected") {
         auto const& pltext = u8"![logo](/images/logo.jpg)";
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
