@@ -234,20 +234,20 @@ int main() {
     }
 
     // Web output is normalized from text semantics rather than preserving source spelling.
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&quot;"), u8"&quot;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&amp;"), u8"&amp;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&#38;"), u8"&amp;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&#x26;"), u8"&amp;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&QUOT;"), u8"&quot;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&copy;"), u8"©");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&NotEqualTilde;"), u8"≂̸");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&#1;&#13;&#127;"), u8"���");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&quot;"), u8"&quot;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&amp;"), u8"&amp;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&#38;"), u8"&amp;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&#x26;"), u8"&amp;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&QUOT;"), u8"&quot;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&copy;"), u8"©");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&NotEqualTilde;"), u8"≂̸");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&#1;&#13;&#127;"), u8"���");
 
     // Physics-Lab treats U+0020 and U+00A0 as the same space token, including references.
     {
         auto const& pltext = u8"a \u00A0&nbsp;&NonBreakingSpace;&#32;&#x20;&#160;&#xA0;b";
         auto const& answer = u8"a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b";
-        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(pltext), answer);
+        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(pltext), answer);
         pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4htmlunittest(pltext), answer);
         pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2common_htmld(pltext), answer);
     }
@@ -261,25 +261,25 @@ int main() {
     }
 
     // Unknown and unterminated names remain literal text and cannot be reinterpreted by HTML.
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&bogus;"), u8"&amp;bogus;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&notit;"), u8"&amp;notit;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&amp"), u8"&amp;amp");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&;"), u8"&amp;;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&"), u8"&amp;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&bogus;"), u8"&amp;bogus;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&notit;"), u8"&amp;notit;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&amp"), u8"&amp;amp");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&;"), u8"&amp;;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&"), u8"&amp;");
 
     // Rendering HTML and parsing it again preserves text semantics.
     {
-        auto const first_pass = ::pltxt2htm_test::pltxt4unittest(u8"\"");
+        auto const first_pass = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"\"");
         pltxt2htm_test_assert_equal(first_pass, u8"&quot;");
         auto const first_pass_view = ::pltxt2htm::container::U8StringView{first_pass.data(), first_pass.size()};
-        auto const second_pass = ::pltxt2htm_test::pltxt4unittest(first_pass_view);
+        auto const second_pass = ::pltxt2htm_test::pltxt2fixedadv_htmld(first_pass_view);
         pltxt2htm_test_assert_equal(second_pass, u8"&quot;");
     }
     {
-        auto const first_pass = ::pltxt2htm_test::pltxt4unittest(u8"<");
+        auto const first_pass = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<");
         pltxt2htm_test_assert_equal(first_pass, u8"&lt;");
         auto const first_pass_view = ::pltxt2htm::container::U8StringView{first_pass.data(), first_pass.size()};
-        auto const second_pass = ::pltxt2htm_test::pltxt4unittest(first_pass_view);
+        auto const second_pass = ::pltxt2htm_test::pltxt2fixedadv_htmld(first_pass_view);
         pltxt2htm_test_assert_equal(second_pass, u8"&lt;");
     }
 
