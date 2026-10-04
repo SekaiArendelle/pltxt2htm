@@ -18,8 +18,13 @@ concept can_call_empty = requires(T const& value) { value.empty(); };
 template<typename T>
 concept can_call_is_empty = requires(T const& value) { value.is_empty(); };
 
+template<typename T>
+concept can_subscript = requires(T& value) { value[0]; };
+
 static_assert(!can_call_empty<IntVector>);
 static_assert(can_call_is_empty<IntVector>);
+static_assert(!can_subscript<IntVector>);
+static_assert(!can_subscript<IntVector const>);
 
 class TrackingRawAllocator {
     static inline constexpr ::std::size_t slot_count{4};
