@@ -522,14 +522,32 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto empty(this Deque const& self) noexcept -> bool {
+    constexpr auto is_empty(this Deque const& self) noexcept -> bool {
         return self.element_count == 0;
     }
 
+    /**
+     * @brief Tests whether the deque has no elements, for downstream users only.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto empty(this Deque const&) noexcept -> bool = delete
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("empty() is external-only; use is_empty() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
+    #endif
+        ;
+#else
     [[nodiscard]]
-    constexpr auto is_empty(this Deque const& self) noexcept -> bool {
-        return self.empty();
+    constexpr auto empty(this Deque const& self) noexcept -> bool {
+        return self.is_empty();
     }
+#endif
 
     [[nodiscard]]
     constexpr auto size(this Deque const& self) noexcept -> size_type {
@@ -548,15 +566,53 @@ public:
         return {};
     }
 
+    /**
+     * @brief Unchecked element access, for downstream users only.
+     * @pre index < size().
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator[](this Deque&, size_type) noexcept -> reference = delete
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
+    #endif
+        ;
+#else
     [[nodiscard]]
     constexpr auto operator[](this Deque& self, size_type index) noexcept -> reference {
         return *self.pointer_at(index);
     }
+#endif
 
+    /**
+     * @brief Unchecked read-only element access, for downstream users only.
+     * @pre index < size().
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator[](this Deque const&, size_type) noexcept -> const_reference = delete
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
+    #endif
+        ;
+#else
     [[nodiscard]]
     constexpr auto operator[](this Deque const& self, size_type index) noexcept -> const_reference {
         return *self.pointer_at(index);
     }
+#endif
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
@@ -575,28 +631,28 @@ public:
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this Deque& self) noexcept -> reference {
-        pltxt2htm_assert(!self.empty(), u8"Accessing front of empty Deque");
+        pltxt2htm_assert(!self.is_empty(), u8"Accessing front of empty Deque");
         return *self.pointer_at(0);
     }
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this Deque const& self) noexcept -> const_reference {
-        pltxt2htm_assert(!self.empty(), u8"Accessing front of empty Deque");
+        pltxt2htm_assert(!self.is_empty(), u8"Accessing front of empty Deque");
         return *self.pointer_at(0);
     }
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this Deque& self) noexcept -> reference {
-        pltxt2htm_assert(!self.empty(), u8"Accessing back of empty Deque");
+        pltxt2htm_assert(!self.is_empty(), u8"Accessing back of empty Deque");
         return *self.pointer_at(self.element_count - 1);
     }
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this Deque const& self) noexcept -> const_reference {
-        pltxt2htm_assert(!self.empty(), u8"Accessing back of empty Deque");
+        pltxt2htm_assert(!self.is_empty(), u8"Accessing back of empty Deque");
         return *self.pointer_at(self.element_count - 1);
     }
 
@@ -628,7 +684,7 @@ public:
         requires ::std::is_nothrow_constructible_v<value_type, Arguments...>
     constexpr auto emplace_front(this Deque& self, Arguments&&... arguments) noexcept -> reference {
         self.ensure_can_grow();
-        if (self.empty()) {
+        if (self.is_empty()) {
             return self.emplace_back(::std::forward<Arguments>(arguments)...);
         }
 
@@ -677,7 +733,7 @@ public:
 
     template<::pltxt2htm::Contracts ndebug>
     constexpr void pop_back(this Deque& self) noexcept {
-        pltxt2htm_assert(!self.empty(), u8"Popping back of empty Deque");
+        pltxt2htm_assert(!self.is_empty(), u8"Popping back of empty Deque");
         size_type const erased_index{self.element_count - 1};
         size_type const erased_offset{self.first_offset + erased_index};
         size_type const erased_block{self.first_block + erased_offset / elements_per_block};
@@ -697,7 +753,7 @@ public:
 
     template<::pltxt2htm::Contracts ndebug>
     constexpr void pop_front(this Deque& self) noexcept {
-        pltxt2htm_assert(!self.empty(), u8"Popping front of empty Deque");
+        pltxt2htm_assert(!self.is_empty(), u8"Popping front of empty Deque");
         size_type const erased_block{self.first_block};
         ::std::destroy_at(self.pointer_at(0));
         --self.element_count;

@@ -1,4 +1,4 @@
-// External-only API coverage for BasicString, BasicStringView, Array, Vector and BasicInplaceString.
+// External-only API coverage for BasicString, BasicStringView, Array, Vector, Deque and BasicInplaceString.
 //
 // Every other test is built as pltxt2htm itself, with PLTXT2HTM_INTERNAL_USE
 // defined, where these APIs stay deleted. This TU is excluded
@@ -9,6 +9,7 @@
 #include <cstddef>
 
 #include <pltxt2htm/container/array.hh>
+#include <pltxt2htm/container/deque.hh>
 #include <pltxt2htm/container/string.hh>
 #include <pltxt2htm/container/string_view.hh>
 #include <pltxt2htm/container/vector.hh>
@@ -21,6 +22,7 @@ using U8String = ::pltxt2htm::container::U8String;
 using U8StringView = ::pltxt2htm::container::U8StringView;
 using U8Array = ::pltxt2htm::container::Array<char8_t, 4>;
 using IntVector = ::pltxt2htm::container::Vector<int>;
+using IntDeque = ::pltxt2htm::container::Deque<int>;
 using U8InplaceString = ::pltxt2htm::details::U8InplaceString<4, ::pltxt2htm::Contracts::quick_enforce>;
 
 static_assert(requires(U8String& string, U8String const& const_string, ::std::size_t position) {
@@ -38,6 +40,13 @@ static_assert(requires(U8InplaceString& string, U8InplaceString const& const_str
     string[position];
     string[position] = u8'a';
     const_string[position];
+});
+static_assert(requires(IntDeque& deque, IntDeque const& const_deque, ::std::size_t position) {
+    { deque[position] } -> ::std::same_as<int&>;
+    deque[position] = 1;
+    { const_deque[position] } -> ::std::same_as<int const&>;
+    { deque.empty() } -> ::std::same_as<bool>;
+    { const_deque.empty() } -> ::std::same_as<bool>;
 });
 static_assert(requires(U8String const& string, U8StringView view, U8Array const& array, IntVector const& vector) {
     { string.empty() } -> ::std::same_as<bool>;
@@ -107,7 +116,24 @@ static_assert(test_constexpr_string_subscript());
 static_assert(test_constexpr_container_subscript());
 static_assert(test_constexpr_empty());
 
+constexpr auto test_deque_external_access() noexcept -> bool {
+    IntDeque values{};
+    if (!values.empty()) {
+        return false;
+    }
+    for (int value{}; value != 300; ++value) {
+        values.push_back(value);
+    }
+    values[129] = 42;
+    auto const& const_values = values;
+    return !values.empty() && !const_values.empty() && values[129] == 42 && const_values[129] == 42 &&
+           const_values[299] == 299;
+}
+
+static_assert(test_deque_external_access());
+
 int main() {
+    pltxt2htm_test_assert_true(test_deque_external_access());
     U8String string{u8"abcd"};
     pltxt2htm_test_assert_true(string[0] == u8'a');
     pltxt2htm_test_assert_true(string[3] == u8'd');

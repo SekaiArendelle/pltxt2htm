@@ -33,6 +33,17 @@ static_assert(!has_unchecked_operation<IntDeque const>);
 static_assert(!has_access_without_contract<IntDeque>);
 static_assert(!has_access_without_contract<IntDeque const>);
 
+template<typename Deque>
+concept has_external_subscript = requires(Deque& values) { values[0]; };
+
+template<typename Deque>
+concept has_external_empty = requires(Deque& values) { values.empty(); };
+
+static_assert(!has_external_subscript<IntDeque>);
+static_assert(!has_external_subscript<IntDeque const>);
+static_assert(!has_external_empty<IntDeque>);
+static_assert(!has_external_empty<IntDeque const>);
+
 struct ThrowingCopy {
     ThrowingCopy() noexcept = default;
 
@@ -87,7 +98,7 @@ consteval auto test_constexpr_deque() -> bool {
     }
 
     values.erase<ndebug>(values.cbegin() + 50, values.cbegin() + 350);
-    if (values.size() != 100 || values[49] != -51 || values[50] != 250) {
+    if (values.size() != 100 || values.template index<ndebug>(49) != -51 || values.template index<ndebug>(50) != 250) {
         return false;
     }
 
@@ -96,7 +107,8 @@ consteval auto test_constexpr_deque() -> bool {
         return false;
     }
     copy.insert<ndebug>(copy.cbegin() + 50, {7, 8, 9});
-    if (copy.size() != 103 || copy[50] != 7 || copy[51] != 8 || copy[52] != 9) {
+    if (copy.size() != 103 || copy.template index<ndebug>(50) != 7 || copy.template index<ndebug>(51) != 8 ||
+        copy.template index<ndebug>(52) != 9) {
         return false;
     }
 
@@ -142,7 +154,7 @@ constexpr auto test_contract_operations() noexcept -> bool {
     values.template pop_front<ndebug>();
     values.push_front(5);
     values.template pop_back<ndebug>();
-    return values.empty();
+    return values.is_empty();
 }
 
 static_assert(test_contract_operations<Contracts::quick_enforce>());
@@ -367,7 +379,7 @@ int main() {
     pltxt2htm_test_assert_true(copy < values || copy > values);
 
     IntDeque moved{::std::move(copy)};
-    pltxt2htm_test_assert_true(copy.empty());
+    pltxt2htm_test_assert_true(copy.is_empty());
     pltxt2htm_test_assert_true(moved.size() == 1997);
 
     moved.assign({1, 2, 3, 4});
@@ -384,13 +396,14 @@ int main() {
     pltxt2htm_test_assert_true(moved.size() == 1 && moved.front<Contracts::quick_enforce>() == 1);
     moved.clear();
     moved.shrink_to_fit();
-    pltxt2htm_test_assert_true(moved.empty());
+    pltxt2htm_test_assert_true(moved.is_empty());
 
     ::pltxt2htm::container::Deque<int, ::fast_io::native_thread_local_allocator> thread_local_values{};
     thread_local_values.push_front(2);
     thread_local_values.push_front(1);
     thread_local_values.push_back(3);
-    pltxt2htm_test_assert_true(thread_local_values[0] == 1 && thread_local_values[2] == 3);
+    pltxt2htm_test_assert_true(thread_local_values.index<Contracts::quick_enforce>(0) == 1 &&
+                               thread_local_values.index<Contracts::quick_enforce>(2) == 3);
 
     {
         ::pltxt2htm::container::Deque<::pltxt2htm_test::TrackedValue> tracked{};
