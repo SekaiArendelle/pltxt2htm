@@ -48,6 +48,11 @@ static_assert(requires(IntDeque& deque, IntDeque const& const_deque, ::std::size
     { deque.empty() } -> ::std::same_as<bool>;
     { const_deque.empty() } -> ::std::same_as<bool>;
 });
+static_assert(requires(IntVector& vector, IntVector const& const_vector, ::std::size_t position) {
+    { vector[position] } noexcept -> ::std::same_as<int&>;
+    vector[position] = 1;
+    { const_vector[position] } noexcept -> ::std::same_as<int const&>;
+});
 static_assert(requires(U8String const& string, U8StringView view, U8Array const& array, IntVector const& vector) {
     { string.empty() } -> ::std::same_as<bool>;
     { view.empty() } -> ::std::same_as<bool>;
@@ -132,8 +137,26 @@ constexpr auto test_deque_external_access() noexcept -> bool {
 
 static_assert(test_deque_external_access());
 
+constexpr auto test_vector_subscript() noexcept -> bool {
+    IntVector values{1, 2, 3};
+    if (values[0] != 1 || values[2] != 3) {
+        return false;
+    }
+    auto& element = values[1];
+    element = 42;
+    auto const& const_values = values;
+    if (values[1] != 42 || const_values[1] != 42 || const_values[2] != 3) {
+        return false;
+    }
+    IntVector const const_vector{4, 5};
+    return const_vector[0] == 4 && const_vector[1] == 5;
+}
+
+static_assert(test_vector_subscript());
+
 int main() {
     pltxt2htm_test_assert_true(test_deque_external_access());
+    pltxt2htm_test_assert_true(test_vector_subscript());
     U8String string{u8"abcd"};
     pltxt2htm_test_assert_true(string[0] == u8'a');
     pltxt2htm_test_assert_true(string[3] == u8'd');
