@@ -82,6 +82,51 @@ static_assert(
     noexcept(::std::declval<IntDeque&>().erase<Contracts::quick_enforce>(::std::declval<IntDeque::const_iterator>())));
 static_assert(noexcept(::std::declval<IntDeque&>().assign(::std::declval<int const*>(), ::std::declval<int const*>())));
 
+struct UnevenBlockValue {
+    int value{};
+    char padding[296]{};
+};
+
+constexpr auto test_offset_relocation() -> bool {
+    using Queue = ::pltxt2htm::container::Deque<UnevenBlockValue>;
+    static_assert(Queue::elements_per_block == 3);
+    Queue queue{};
+    for (int index{}; index != 40; ++index) {
+        queue.emplace_back(UnevenBlockValue{index});
+    }
+    queue.pop_front<Contracts::quick_enforce>();
+    auto const survivor = ::std::addressof(queue.front<Contracts::quick_enforce>());
+    queue.shrink_to_fit();
+    for (int index{40}; index != 200; ++index) {
+        queue.emplace_back(UnevenBlockValue{index});
+    }
+    if (survivor != ::std::addressof(queue.front<Contracts::quick_enforce>())) {
+        return false;
+    }
+    for (int index{1}; index != 200; ++index) {
+        if (queue.front<Contracts::quick_enforce>().value != index) {
+            return false;
+        }
+        queue.pop_front<Contracts::quick_enforce>();
+        queue.emplace_back(UnevenBlockValue{index + 199});
+    }
+    for (int index{199}; index != 0; --index) {
+        queue.pop_back<Contracts::quick_enforce>();
+        queue.emplace_front(UnevenBlockValue{index});
+    }
+    for (int index{1}; index != 200; ++index) {
+        if (queue.front<Contracts::quick_enforce>().value != index) {
+            return false;
+        }
+        queue.pop_front<Contracts::quick_enforce>();
+    }
+    queue.shrink_to_fit();
+    queue.emplace_front(UnevenBlockValue{7});
+    return queue.size() == 1 && queue.back<Contracts::quick_enforce>().value == 7;
+}
+
+static_assert(test_offset_relocation());
+
 template<Contracts ndebug>
 consteval auto test_constexpr_deque() -> bool {
     IntDeque values{};
@@ -164,7 +209,7 @@ namespace pltxt2htm_test {
 
 struct BlockValue {
     int value{};
-    char padding[508]{};
+    char padding[1020]{};
 };
 
 struct CountingAllocator {
@@ -304,6 +349,7 @@ struct TrackedValue {
 } // namespace pltxt2htm_test
 
 int main() {
+    pltxt2htm_test_assert_true(test_offset_relocation());
     pltxt2htm_test_assert_true(test_contract_operations<Contracts::quick_enforce>());
     pltxt2htm_test_assert_true(test_contract_operations<Contracts::ignore>());
     ::pltxt2htm_test::test_rolling_queue(true);
