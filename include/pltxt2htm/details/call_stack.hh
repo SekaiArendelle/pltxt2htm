@@ -38,14 +38,14 @@ public:
     [[nodiscard]]
     constexpr auto current_frame(this CallStack& self) noexcept -> reference {
         pltxt2htm_assert(self.empty() == false, u8"Accessing current frame but CallStack is empty");
-        return self.frames.back_unchecked();
+        return self.frames.template back<ndebug>();
     }
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto current_frame(this CallStack const& self) noexcept -> const_reference {
         pltxt2htm_assert(self.empty() == false, u8"Accessing current frame but CallStack is empty");
-        return self.frames.back_unchecked();
+        return self.frames.template back<ndebug>();
     }
 
     [[nodiscard]]
@@ -75,15 +75,15 @@ public:
     template<::pltxt2htm::Contracts ndebug>
     constexpr void discard_current_frame(this CallStack& self) noexcept {
         pltxt2htm_assert(self.empty() == false, u8"Popping current frame but CallStack is empty");
-        self.frames.pop_back_unchecked();
+        self.frames.template pop_back<ndebug>();
     }
 
     template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto pop_frame(this CallStack& self) noexcept -> frame_type {
         pltxt2htm_assert(self.empty() == false, u8"Popping current frame but CallStack is empty");
-        frame_type frame{::std::move(self.frames.back_unchecked())};
-        self.frames.pop_back_unchecked();
+        frame_type frame{::std::move(self.frames.template back<ndebug>())};
+        self.frames.template pop_back<ndebug>();
         return frame;
     }
 

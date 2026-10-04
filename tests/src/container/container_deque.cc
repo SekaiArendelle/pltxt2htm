@@ -13,7 +13,25 @@
 
 #include "precompile.hh"
 
+using Contracts = ::pltxt2htm::Contracts;
+
 using IntDeque = ::pltxt2htm::container::Deque<int>;
+
+template<typename Deque>
+concept has_unchecked_operation =
+    requires(Deque& values) { values.front_unchecked(); } || requires(Deque& values) { values.back_unchecked(); } ||
+    requires(Deque& values) { values.pop_front_unchecked(); } ||
+    requires(Deque& values) { values.pop_back_unchecked(); };
+
+template<typename Deque>
+concept has_access_without_contract = requires(Deque& values) { values.front(); } || requires(Deque& values) {
+    values.back();
+} || requires(Deque& values) { values.pop_front(); } || requires(Deque& values) { values.pop_back(); };
+
+static_assert(!has_unchecked_operation<IntDeque>);
+static_assert(!has_unchecked_operation<IntDeque const>);
+static_assert(!has_access_without_contract<IntDeque>);
+static_assert(!has_access_without_contract<IntDeque const>);
 
 struct ThrowingCopy {
     ThrowingCopy() noexcept = default;
@@ -44,12 +62,16 @@ static_assert(noexcept(::std::declval<IntDeque&>().emplace_back(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().emplace_front(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().push_back(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().push_front(1)));
-static_assert(noexcept(::std::declval<IntDeque&>().resize(1)));
-static_assert(noexcept(::std::declval<IntDeque&>().emplace(::std::declval<IntDeque::const_iterator>(), 1)));
-static_assert(noexcept(::std::declval<IntDeque&>().insert(::std::declval<IntDeque::const_iterator>(), 1)));
-static_assert(noexcept(::std::declval<IntDeque&>().erase(::std::declval<IntDeque::const_iterator>())));
+static_assert(noexcept(::std::declval<IntDeque&>().resize<Contracts::quick_enforce>(1)));
+static_assert(noexcept(
+    ::std::declval<IntDeque&>().emplace<Contracts::quick_enforce>(::std::declval<IntDeque::const_iterator>(), 1)));
+static_assert(noexcept(
+    ::std::declval<IntDeque&>().insert<Contracts::quick_enforce>(::std::declval<IntDeque::const_iterator>(), 1)));
+static_assert(
+    noexcept(::std::declval<IntDeque&>().erase<Contracts::quick_enforce>(::std::declval<IntDeque::const_iterator>())));
 static_assert(noexcept(::std::declval<IntDeque&>().assign(::std::declval<int const*>(), ::std::declval<int const*>())));
 
+template<Contracts ndebug>
 consteval auto test_constexpr_deque() -> bool {
     IntDeque values{};
     for (int value{}; value != 300; ++value) {
@@ -59,13 +81,12 @@ consteval auto test_constexpr_deque() -> bool {
         values.push_front(-value);
     }
 
-    if (values.size() != 400 || values.front<::pltxt2htm::Contracts::quick_enforce>() != -100 ||
-        values.back<::pltxt2htm::Contracts::quick_enforce>() != 299 ||
-        values.index<::pltxt2htm::Contracts::quick_enforce>(100) != 0) {
+    if (values.size() != 400 || values.front<ndebug>() != -100 || values.back<ndebug>() != 299 ||
+        values.index<ndebug>(100) != 0) {
         return false;
     }
 
-    values.erase(values.cbegin() + 50, values.cbegin() + 350);
+    values.erase<ndebug>(values.cbegin() + 50, values.cbegin() + 350);
     if (values.size() != 100 || values[49] != -51 || values[50] != 250) {
         return false;
     }
@@ -74,7 +95,7 @@ consteval auto test_constexpr_deque() -> bool {
     if (copy != values) {
         return false;
     }
-    copy.insert(copy.cbegin() + 50, {7, 8, 9});
+    copy.insert<ndebug>(copy.cbegin() + 50, {7, 8, 9});
     if (copy.size() != 103 || copy[50] != 7 || copy[51] != 8 || copy[52] != 9) {
         return false;
     }
@@ -90,7 +111,42 @@ consteval auto test_constexpr_deque() -> bool {
     return *saved == 250 && saved == values.begin() + 50 && saved_const == saved;
 }
 
-static_assert(test_constexpr_deque());
+static_assert(test_constexpr_deque<Contracts::quick_enforce>());
+static_assert(test_constexpr_deque<Contracts::ignore>());
+
+template<Contracts ndebug>
+constexpr auto test_contract_operations() noexcept -> bool {
+    IntDeque values{};
+    values.template insert<ndebug>(values.cbegin(), {1, 2, 3});
+    values.template emplace<ndebug>(values.cbegin(), 0);
+    values.template emplace<ndebug>(values.cend(), 4);
+    values.template emplace<ndebug>(values.cbegin() + 2, 7);
+    int const more[]{8, 9};
+    values.template insert<ndebug>(values.cbegin() + 2, more, more + 2);
+    values.template insert<ndebug>(values.cbegin() + 4, more[0]);
+    values.template insert<ndebug>(values.cbegin() + 1, 6);
+    if (values != IntDeque{0, 6, 1, 8, 9, 8, 7, 2, 3, 4}) {
+        return false;
+    }
+    values.template pop_front<ndebug>();
+    values.template pop_back<ndebug>();
+    values.template erase<ndebug>(values.cbegin() + 1);
+    values.template erase<ndebug>(values.cbegin() + 1, values.cbegin() + 5);
+    values.template resize<ndebug>(5);
+    auto const& const_values = values;
+    if (const_values.template front<ndebug>() != 6 || const_values.template back<ndebug>() != 0 ||
+        const_values.template index<ndebug>(1) != 2) {
+        return false;
+    }
+    values.template resize<ndebug>(1);
+    values.template pop_front<ndebug>();
+    values.push_front(5);
+    values.template pop_back<ndebug>();
+    return values.empty();
+}
+
+static_assert(test_contract_operations<Contracts::quick_enforce>());
+static_assert(test_contract_operations<Contracts::ignore>());
 
 namespace pltxt2htm_test {
 
@@ -127,18 +183,20 @@ void test_rolling_queue(bool front_to_back) {
     queue.emplace_back(BlockValue{front_to_back ? 1 : 0});
     for (int index{2}; index != 10'000; ++index) {
         if (front_to_back) {
-            auto const survivor = ::std::addressof(queue.back());
-            queue.pop_front();
+            auto const survivor = ::std::addressof(queue.back<Contracts::quick_enforce>());
+            queue.pop_front<Contracts::quick_enforce>();
             queue.emplace_back(BlockValue{index});
-            pltxt2htm_test_assert_true(survivor == ::std::addressof(queue.front()));
-            pltxt2htm_test_assert_true(queue.front().value == index - 1 && queue.back().value == index);
+            pltxt2htm_test_assert_true(survivor == ::std::addressof(queue.front<Contracts::quick_enforce>()));
+            pltxt2htm_test_assert_true(queue.front<Contracts::quick_enforce>().value == index - 1 &&
+                                       queue.back<Contracts::quick_enforce>().value == index);
         }
         else {
-            auto const survivor = ::std::addressof(queue.front());
-            queue.pop_back();
+            auto const survivor = ::std::addressof(queue.front<Contracts::quick_enforce>());
+            queue.pop_back<Contracts::quick_enforce>();
             queue.emplace_front(BlockValue{index});
-            pltxt2htm_test_assert_true(survivor == ::std::addressof(queue.back()));
-            pltxt2htm_test_assert_true(queue.front().value == index && queue.back().value == index - 1);
+            pltxt2htm_test_assert_true(survivor == ::std::addressof(queue.back<Contracts::quick_enforce>()));
+            pltxt2htm_test_assert_true(queue.front<Contracts::quick_enforce>().value == index &&
+                                       queue.back<Contracts::quick_enforce>().value == index - 1);
         }
         pltxt2htm_test_assert_true(queue.size() == 2);
     }
@@ -158,7 +216,7 @@ void test_iterator_storage() {
         }
         // Exercise nonzero front offsets as well as several block boundaries.
         for (int index{}; index != 17; ++index) {
-            source.pop_front();
+            source.pop_front<Contracts::quick_enforce>();
         }
         saved = source.begin() + 150;
         saved_const = saved;
@@ -179,7 +237,7 @@ void test_iterator_storage() {
     pltxt2htm_test_assert_true(destination.end() - saved == 233 && saved - destination.end() == -233);
     pltxt2htm_test_assert_true(*saved_reverse == 399);
     auto const survivor = destination.begin() + 1;
-    destination.pop_front();
+    destination.pop_front<Contracts::quick_enforce>();
     pltxt2htm_test_assert_true(survivor == destination.begin() && *survivor == 18);
     IntDeque empty{};
     pltxt2htm_test_assert_true(empty.end() - empty.begin() == 0 && empty.begin() + 0 == empty.end());
@@ -234,6 +292,8 @@ struct TrackedValue {
 } // namespace pltxt2htm_test
 
 int main() {
+    pltxt2htm_test_assert_true(test_contract_operations<Contracts::quick_enforce>());
+    pltxt2htm_test_assert_true(test_contract_operations<Contracts::ignore>());
     ::pltxt2htm_test::test_rolling_queue(true);
     ::pltxt2htm_test::test_rolling_queue(false);
     ::pltxt2htm_test::test_iterator_storage();
@@ -253,26 +313,28 @@ int main() {
             break;
         case 2:
             if (!reference.empty()) {
-                differential.pop_front();
+                differential.pop_front<Contracts::quick_enforce>();
                 reference.pop_front();
             }
             break;
         case 3:
             if (!reference.empty()) {
-                differential.pop_back();
+                differential.pop_back<Contracts::quick_enforce>();
                 reference.pop_back();
             }
             break;
         case 4:
             if (!reference.empty()) {
                 ::std::size_t const index{random_value % reference.size()};
-                differential.erase(differential.cbegin() + static_cast<::std::ptrdiff_t>(index));
+                differential.erase<Contracts::quick_enforce>(differential.cbegin() +
+                                                             static_cast<::std::ptrdiff_t>(index));
                 reference.erase(reference.cbegin() + static_cast<::std::ptrdiff_t>(index));
             }
             break;
         case 5: {
             ::std::size_t const index{reference.empty() ? 0 : random_value % (reference.size() + 1)};
-            differential.insert(differential.cbegin() + static_cast<::std::ptrdiff_t>(index), operation);
+            differential.insert<Contracts::quick_enforce>(differential.cbegin() + static_cast<::std::ptrdiff_t>(index),
+                                                          operation);
             reference.insert(reference.cbegin() + static_cast<::std::ptrdiff_t>(index), operation);
             break;
         }
@@ -300,8 +362,8 @@ int main() {
 
     IntDeque copy{values};
     pltxt2htm_test_assert_true(copy == values);
-    copy.pop_front();
-    copy.pop_back();
+    copy.pop_front<Contracts::quick_enforce>();
+    copy.pop_back<Contracts::quick_enforce>();
     pltxt2htm_test_assert_true(copy < values || copy > values);
 
     IntDeque moved{::std::move(copy)};
@@ -309,17 +371,17 @@ int main() {
     pltxt2htm_test_assert_true(moved.size() == 1997);
 
     moved.assign({1, 2, 3, 4});
-    moved.insert(moved.cbegin() + 2, {9, 9});
+    moved.insert<Contracts::quick_enforce>(moved.cbegin() + 2, {9, 9});
     pltxt2htm_test_assert_true((moved == IntDeque{1, 2, 9, 9, 3, 4}));
-    auto const after_erase = moved.erase(moved.cbegin() + 1, moved.cbegin() + 5);
+    auto const after_erase = moved.erase<Contracts::quick_enforce>(moved.cbegin() + 1, moved.cbegin() + 5);
     pltxt2htm_test_assert_true(after_erase == moved.begin() + 1);
     pltxt2htm_test_assert_true((moved == IntDeque{1, 4}));
 
-    moved.resize(300);
-    pltxt2htm_test_assert_true(moved.size() == 300 && moved.back_unchecked() == 0);
-    moved.resize(1);
+    moved.resize<Contracts::quick_enforce>(300);
+    pltxt2htm_test_assert_true(moved.size() == 300 && moved.back<Contracts::quick_enforce>() == 0);
+    moved.resize<Contracts::quick_enforce>(1);
     moved.shrink_to_fit();
-    pltxt2htm_test_assert_true(moved.size() == 1 && moved.front_unchecked() == 1);
+    pltxt2htm_test_assert_true(moved.size() == 1 && moved.front<Contracts::quick_enforce>() == 1);
     moved.clear();
     moved.shrink_to_fit();
     pltxt2htm_test_assert_true(moved.empty());
@@ -335,8 +397,8 @@ int main() {
         for (int value{}; value != 500; ++value) {
             tracked.emplace_back(value);
         }
-        tracked.erase(tracked.cbegin() + 100, tracked.cbegin() + 400);
-        tracked.resize(50);
+        tracked.erase<Contracts::quick_enforce>(tracked.cbegin() + 100, tracked.cbegin() + 400);
+        tracked.resize<Contracts::quick_enforce>(50);
         auto tracked_copy{tracked};
         tracked_copy = tracked;
         pltxt2htm_test_assert_true(::pltxt2htm_test::TrackedValue::alive == 100);
