@@ -401,14 +401,6 @@ public:
         }
     }
 
-    constexpr Deque(size_type count, const_reference value) noexcept
-        requires ::std::is_nothrow_copy_constructible_v<value_type>
-    {
-        for (size_type index{}; index != count; ++index) {
-            this->emplace_back(value);
-        }
-    }
-
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires (is_nothrow_input_range<InputIterator, Sentinel>())
     constexpr Deque(InputIterator first, Sentinel last) noexcept {
@@ -810,17 +802,6 @@ public:
         }
     }
 
-    constexpr void resize(this Deque& self, size_type count, const_reference value) noexcept
-        requires ::std::is_nothrow_copy_constructible_v<value_type>
-    {
-        while (self.element_count > count) {
-            self.pop_back_unchecked();
-        }
-        while (self.element_count < count) {
-            self.emplace_back(value);
-        }
-    }
-
     template<typename... Arguments>
         requires (::std::is_nothrow_constructible_v<value_type, Arguments...> &&
                   ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
@@ -864,22 +845,6 @@ public:
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     {
         return self.emplace(position, ::std::move(value));
-    }
-
-    constexpr auto insert(this Deque& self, const_iterator position, size_type count, const_reference value) noexcept
-        -> iterator
-        requires (::std::is_nothrow_copy_constructible_v<value_type> &&
-                  ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
-    {
-        size_type const index{static_cast<size_type>(position - self.cbegin())};
-        if (count == 0) {
-            return self.begin() + static_cast<difference_type>(index);
-        }
-        value_type copy{value};
-        for (size_type inserted{}; inserted != count; ++inserted) {
-            self.emplace(self.cbegin() + static_cast<difference_type>(index + inserted), copy);
-        }
-        return self.begin() + static_cast<difference_type>(index);
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
@@ -939,13 +904,6 @@ public:
             }
         }
         return self.begin() + static_cast<difference_type>(first_index);
-    }
-
-    constexpr void assign(this Deque& self, size_type count, const_reference value) noexcept
-        requires ::std::is_nothrow_copy_constructible_v<value_type>
-    {
-        Deque replacement{count, value};
-        self.swap(replacement);
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>

@@ -35,7 +35,7 @@ static_assert(::std::same_as<::std::iter_reference_t<IntDeque::const_iterator>, 
 static_assert(::std::is_nothrow_move_constructible_v<IntDeque>);
 static_assert(::std::is_nothrow_move_assignable_v<IntDeque>);
 static_assert(::std::is_nothrow_constructible_v<IntDeque, ::std::size_t>);
-static_assert(::std::is_nothrow_constructible_v<IntDeque, ::std::size_t, int const&>);
+static_assert(!::std::is_constructible_v<IntDeque, ::std::size_t, int const&>);
 static_assert(::std::is_nothrow_constructible_v<IntDeque, int const*, int const*>);
 static_assert(::std::is_nothrow_copy_constructible_v<IntDeque>);
 static_assert(::std::is_nothrow_copy_assignable_v<IntDeque>);
@@ -45,7 +45,6 @@ static_assert(noexcept(::std::declval<IntDeque&>().emplace_front(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().push_back(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().push_front(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().resize(1)));
-static_assert(noexcept(::std::declval<IntDeque&>().resize(1, 2)));
 static_assert(noexcept(::std::declval<IntDeque&>().emplace(::std::declval<IntDeque::const_iterator>(), 1)));
 static_assert(noexcept(::std::declval<IntDeque&>().insert(::std::declval<IntDeque::const_iterator>(), 1)));
 static_assert(noexcept(::std::declval<IntDeque&>().erase(::std::declval<IntDeque::const_iterator>())));
@@ -310,14 +309,14 @@ int main() {
     pltxt2htm_test_assert_true(moved.size() == 1997);
 
     moved.assign({1, 2, 3, 4});
-    moved.insert(moved.cbegin() + 2, 2, 9);
+    moved.insert(moved.cbegin() + 2, {9, 9});
     pltxt2htm_test_assert_true((moved == IntDeque{1, 2, 9, 9, 3, 4}));
     auto const after_erase = moved.erase(moved.cbegin() + 1, moved.cbegin() + 5);
     pltxt2htm_test_assert_true(after_erase == moved.begin() + 1);
     pltxt2htm_test_assert_true((moved == IntDeque{1, 4}));
 
-    moved.resize(300, 5);
-    pltxt2htm_test_assert_true(moved.size() == 300 && moved.back_unchecked() == 5);
+    moved.resize(300);
+    pltxt2htm_test_assert_true(moved.size() == 300 && moved.back_unchecked() == 0);
     moved.resize(1);
     moved.shrink_to_fit();
     pltxt2htm_test_assert_true(moved.size() == 1 && moved.front_unchecked() == 1);
