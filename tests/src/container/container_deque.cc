@@ -76,12 +76,115 @@ consteval auto test_constexpr_deque() -> bool {
         return false;
     }
     copy.insert(copy.cbegin() + 50, {7, 8, 9});
-    return copy.size() == 103 && copy[50] == 7 && copy[51] == 8 && copy[52] == 9;
+    if (copy.size() != 103 || copy[50] != 7 || copy[51] != 8 || copy[52] != 9) {
+        return false;
+    }
+
+    auto const saved = values.begin() + 50;
+    auto const saved_const = values.cbegin() + 50;
+    values.swap(copy);
+    if (*saved != 250 || saved != copy.begin() + 50 || saved_const - copy.cbegin() != 50) {
+        return false;
+    }
+    IntDeque moved{::std::move(copy)};
+    values = ::std::move(moved);
+    return *saved == 250 && saved == values.begin() + 50 && saved_const == saved;
 }
 
 static_assert(test_constexpr_deque());
 
 namespace pltxt2htm_test {
+
+struct BlockValue {
+    int value{};
+    char padding[508]{};
+};
+
+struct CountingAllocator {
+    static inline ::std::size_t map_allocations{};
+    static inline ::std::size_t largest_allocation{};
+
+    [[nodiscard]]
+    static auto allocate(::std::size_t bytes) noexcept -> void* {
+        if (bytes != sizeof(BlockValue)) {
+            ++map_allocations;
+        }
+        largest_allocation = ::std::max(largest_allocation, bytes);
+        return ::fast_io::native_global_allocator::allocate(bytes);
+    }
+
+    static void deallocate(void* storage) noexcept {
+        ::fast_io::native_global_allocator::deallocate(storage);
+    }
+};
+
+void test_rolling_queue(bool front_to_back) {
+    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
+    static_assert(Queue::elements_per_block == 1);
+    CountingAllocator::map_allocations = 0;
+    CountingAllocator::largest_allocation = 0;
+    Queue queue{};
+    queue.emplace_back(BlockValue{front_to_back ? 0 : 1});
+    queue.emplace_back(BlockValue{front_to_back ? 1 : 0});
+    for (int index{2}; index != 10'000; ++index) {
+        if (front_to_back) {
+            auto const survivor = ::std::addressof(queue.back());
+            queue.pop_front();
+            queue.emplace_back(BlockValue{index});
+            pltxt2htm_test_assert_true(survivor == ::std::addressof(queue.front()));
+            pltxt2htm_test_assert_true(queue.front().value == index - 1 && queue.back().value == index);
+        }
+        else {
+            auto const survivor = ::std::addressof(queue.front());
+            queue.pop_back();
+            queue.emplace_front(BlockValue{index});
+            pltxt2htm_test_assert_true(survivor == ::std::addressof(queue.back()));
+            pltxt2htm_test_assert_true(queue.front().value == index && queue.back().value == index - 1);
+        }
+        pltxt2htm_test_assert_true(queue.size() == 2);
+    }
+    pltxt2htm_test_assert_true(CountingAllocator::map_allocations == 1);
+    pltxt2htm_test_assert_true(CountingAllocator::largest_allocation == sizeof(BlockValue));
+}
+
+void test_iterator_storage() {
+    IntDeque destination{9};
+    IntDeque::iterator saved{};
+    IntDeque::const_iterator saved_const{};
+    IntDeque::reverse_iterator saved_reverse{};
+    {
+        IntDeque source{};
+        for (int index{}; index != 400; ++index) {
+            source.push_back(index);
+        }
+        // Exercise nonzero front offsets as well as several block boundaries.
+        for (int index{}; index != 17; ++index) {
+            source.pop_front();
+        }
+        saved = source.begin() + 150;
+        saved_const = saved;
+        saved_reverse = source.rbegin();
+        auto const address = ::std::addressof(*saved);
+        auto const old_destination = destination.begin();
+        source.swap(destination);
+        pltxt2htm_test_assert_true(*old_destination == 9 && old_destination == source.begin());
+        pltxt2htm_test_assert_true(*saved == 167 && ::std::addressof(*saved) == address);
+        pltxt2htm_test_assert_true(saved == destination.begin() + 150 && saved_const - destination.cbegin() == 150);
+        IntDeque moved{::std::move(destination)};
+        pltxt2htm_test_assert_true(saved == moved.begin() + 150 && saved_reverse == moved.rbegin());
+        destination = ::std::move(moved);
+    }
+    pltxt2htm_test_assert_true(*saved == 167 && saved_const == destination.cbegin() + 150);
+    pltxt2htm_test_assert_true(saved[-150] == 17 && saved[200] == 367);
+    pltxt2htm_test_assert_true(saved - 150 == destination.begin() && saved + 233 == destination.end());
+    pltxt2htm_test_assert_true(destination.end() - saved == 233 && saved - destination.end() == -233);
+    pltxt2htm_test_assert_true(*saved_reverse == 399);
+    auto const survivor = destination.begin() + 1;
+    destination.pop_front();
+    pltxt2htm_test_assert_true(survivor == destination.begin() && *survivor == 18);
+    IntDeque empty{};
+    pltxt2htm_test_assert_true(empty.end() - empty.begin() == 0 && empty.begin() + 0 == empty.end());
+}
 
 constexpr auto next_random(::std::uint_least32_t& state) noexcept -> ::std::uint_least32_t {
     state ^= state << 13;
@@ -132,6 +235,9 @@ struct TrackedValue {
 } // namespace pltxt2htm_test
 
 int main() {
+    ::pltxt2htm_test::test_rolling_queue(true);
+    ::pltxt2htm_test::test_rolling_queue(false);
+    ::pltxt2htm_test::test_iterator_storage();
     IntDeque differential{};
     ::std::deque<int> reference{};
     ::std::uint_least32_t random_state{0xC0FFEEu};

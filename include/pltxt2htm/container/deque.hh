@@ -31,6 +31,9 @@ namespace pltxt2htm::container {
  * Elements are stored in independently allocated fixed-size blocks. Growing the block map
  * moves only block pointers, so references and pointers to existing elements remain valid
  * across push_front and push_back. Element and iterator operations used by Deque must not throw.
+ * Iterators to elements follow storage across swap and move. Insertion, shrink_to_fit, clear,
+ * and middle erasure invalidate iterators; erasure at an end invalidates only erased elements
+ * and the past-the-end iterator.
  */
 template<typename T, typename Allocator = ::fast_io::native_global_allocator>
 class Deque {
@@ -144,7 +147,8 @@ private:
         size_type const used_blocks{self.allocated_block_count()};
         size_type const required_capacity{used_blocks + required_front + required_back};
         size_type new_capacity{self.map_capacity == 0 ? initial_map_capacity : self.map_capacity};
-        while (new_capacity < required_capacity || new_capacity == self.map_capacity) {
+        // Leave enough slack to amortize map movement when the queue is nearly full.
+        while (new_capacity < required_capacity || used_blocks > new_capacity / 2) {
             if (new_capacity > ::std::numeric_limits<size_type>::max() / 2) [[unlikely]] {
                 new_capacity = required_capacity;
                 break;
@@ -159,7 +163,27 @@ private:
         if (new_capacity - new_first_block - used_blocks < required_back) {
             new_first_block = new_capacity - used_blocks - required_back;
         }
-        self.relocate_map(new_capacity, new_first_block);
+        if (new_capacity != self.map_capacity) {
+            self.relocate_map(new_capacity, new_first_block);
+            return;
+        }
+
+        if (new_first_block < self.first_block) {
+            for (size_type index{}; index != used_blocks; ++index) {
+                self.blocks[new_first_block + index] = self.blocks[self.first_block + index];
+            }
+        }
+        else {
+            for (size_type index{used_blocks}; index != 0; --index) {
+                self.blocks[new_first_block + index - 1] = self.blocks[self.first_block + index - 1];
+            }
+        }
+        for (size_type index{}; index != self.map_capacity; ++index) {
+            if (index < new_first_block || index >= new_first_block + used_blocks) {
+                self.blocks[index] = nullptr;
+            }
+        }
+        self.first_block = new_first_block;
     }
 
     constexpr void ensure_map(this Deque& self) noexcept {
@@ -216,14 +240,12 @@ private:
 public:
     template<bool is_const>
     class BasicIterator {
-        using owner_type = ::std::conditional_t<is_const, Deque const, Deque>;
+        T** block{};
+        size_type block_offset{};
 
-        owner_type* owner{};
-        size_type position{};
-
-        constexpr BasicIterator(owner_type* owner_, size_type position_) noexcept
-            : owner{owner_},
-              position{position_} {
+        constexpr BasicIterator(T** block_, size_type offset_) noexcept
+            : block{block_},
+              block_offset{offset_} {
         }
 
         friend class Deque;
@@ -243,13 +265,13 @@ public:
         template<bool other_const>
             requires (is_const && !other_const)
         constexpr BasicIterator(BasicIterator<other_const> const& other) noexcept
-            : owner{other.owner},
-              position{other.position} {
+            : block{other.block},
+              block_offset{other.block_offset} {
         }
 
         [[nodiscard]]
         constexpr auto operator*(this BasicIterator const& self) noexcept -> reference {
-            return *self.owner->pointer_at(self.position);
+            return (*self.block)[self.block_offset];
         }
 
         [[nodiscard]]
@@ -259,12 +281,11 @@ public:
 
         [[nodiscard]]
         constexpr auto operator[](this BasicIterator const& self, difference_type offset) noexcept -> reference {
-            return *self.owner->pointer_at(
-                static_cast<size_type>(static_cast<difference_type>(self.position) + offset));
+            return *(self + offset);
         }
 
         constexpr auto operator++(this BasicIterator& self) noexcept -> BasicIterator& {
-            ++self.position;
+            self += 1;
             return self;
         }
 
@@ -275,7 +296,7 @@ public:
         }
 
         constexpr auto operator--(this BasicIterator& self) noexcept -> BasicIterator& {
-            --self.position;
+            self -= 1;
             return self;
         }
 
@@ -286,7 +307,21 @@ public:
         }
 
         constexpr auto operator+=(this BasicIterator& self, difference_type offset) noexcept -> BasicIterator& {
-            self.position = static_cast<size_type>(static_cast<difference_type>(self.position) + offset);
+            constexpr difference_type block_size{static_cast<difference_type>(elements_per_block)};
+            difference_type block_delta{offset / block_size};
+            difference_type new_offset{static_cast<difference_type>(self.block_offset) + offset % block_size};
+            if (new_offset < 0) {
+                new_offset += block_size;
+                --block_delta;
+            }
+            else if (new_offset >= block_size) {
+                new_offset -= block_size;
+                ++block_delta;
+            }
+            if (block_delta != 0) {
+                self.block += block_delta;
+            }
+            self.block_offset = static_cast<size_type>(new_offset);
             return self;
         }
 
@@ -316,20 +351,38 @@ public:
         [[nodiscard]]
         constexpr auto operator-(this BasicIterator const& self, BasicIterator<other_const> other) noexcept
             -> difference_type {
-            return static_cast<difference_type>(self.position) - static_cast<difference_type>(other.position);
+            difference_type const offset_delta{static_cast<difference_type>(self.block_offset) -
+                                               static_cast<difference_type>(other.block_offset)};
+            if (self.block == other.block) {
+                return offset_delta;
+            }
+            constexpr difference_type block_size{static_cast<difference_type>(elements_per_block)};
+            difference_type const block_delta{self.block - other.block};
+            // Normalize the partial block before multiplying, so an otherwise representable
+            // distance near max_size() does not overflow in the intermediate product.
+            if (block_delta > 0 && offset_delta < 0) {
+                return (block_delta - 1) * block_size + (block_size + offset_delta);
+            }
+            if (block_delta < 0 && offset_delta > 0) {
+                return (block_delta + 1) * block_size - (block_size - offset_delta);
+            }
+            return block_delta * block_size + offset_delta;
         }
 
         template<bool other_const>
         [[nodiscard]]
         constexpr auto operator==(this BasicIterator const& self, BasicIterator<other_const> other) noexcept -> bool {
-            return self.owner == other.owner && self.position == other.position;
+            return self.block == other.block && self.block_offset == other.block_offset;
         }
 
         template<bool other_const>
         [[nodiscard]]
         constexpr auto operator<=>(this BasicIterator const& self, BasicIterator<other_const> other) noexcept
             -> ::std::strong_ordering {
-            return self.position <=> other.position;
+            if (auto const order = self.block <=> other.block; order != 0) {
+                return order;
+            }
+            return self.block_offset <=> other.block_offset;
         }
     };
 
@@ -418,12 +471,12 @@ public:
 
     [[nodiscard]]
     constexpr auto begin(this Deque& self) noexcept -> iterator {
-        return iterator{::std::addressof(self), 0};
+        return iterator{self.blocks == nullptr ? nullptr : self.blocks + self.first_block, self.first_offset};
     }
 
     [[nodiscard]]
     constexpr auto begin(this Deque const& self) noexcept -> const_iterator {
-        return const_iterator{::std::addressof(self), 0};
+        return const_iterator{self.blocks == nullptr ? nullptr : self.blocks + self.first_block, self.first_offset};
     }
 
     [[nodiscard]]
@@ -433,12 +486,12 @@ public:
 
     [[nodiscard]]
     constexpr auto end(this Deque& self) noexcept -> iterator {
-        return iterator{::std::addressof(self), self.element_count};
+        return self.begin() + static_cast<difference_type>(self.element_count);
     }
 
     [[nodiscard]]
     constexpr auto end(this Deque const& self) noexcept -> const_iterator {
-        return const_iterator{::std::addressof(self), self.element_count};
+        return self.begin() + static_cast<difference_type>(self.element_count);
     }
 
     [[nodiscard]]
@@ -772,7 +825,7 @@ public:
         requires (::std::is_nothrow_constructible_v<value_type, Arguments...> &&
                   ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     constexpr auto emplace(this Deque& self, const_iterator position, Arguments&&... arguments) noexcept -> iterator {
-        size_type const index{position.position};
+        size_type const index{static_cast<size_type>(position - self.cbegin())};
         if (index == 0) {
             self.emplace_front(::std::forward<Arguments>(arguments)...);
             return self.begin();
@@ -818,7 +871,7 @@ public:
         requires (::std::is_nothrow_copy_constructible_v<value_type> &&
                   ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     {
-        size_type const index{position.position};
+        size_type const index{static_cast<size_type>(position - self.cbegin())};
         if (count == 0) {
             return self.begin() + static_cast<difference_type>(index);
         }
@@ -834,7 +887,7 @@ public:
                   ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     constexpr auto insert(this Deque& self, const_iterator position, InputIterator first, Sentinel last) noexcept
         -> iterator {
-        size_type const index{position.position};
+        size_type const index{static_cast<size_type>(position - self.cbegin())};
         Deque values{first, last};
         size_type inserted{};
         for (reference value : values) {
@@ -861,8 +914,8 @@ public:
     constexpr auto erase(this Deque& self, const_iterator first, const_iterator last) noexcept -> iterator
         requires ::std::is_nothrow_move_assignable_v<value_type>
     {
-        size_type const first_index{first.position};
-        size_type const last_index{last.position};
+        size_type const first_index{static_cast<size_type>(first - self.cbegin())};
+        size_type const last_index{static_cast<size_type>(last - self.cbegin())};
         size_type const erased_count{last_index - first_index};
         if (erased_count == 0) {
             return self.begin() + static_cast<difference_type>(first_index);
