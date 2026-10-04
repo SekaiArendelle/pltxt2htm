@@ -46,8 +46,8 @@ enum class NodeKind : unsigned {
     unity_mark, ///< Unity text highlight: &lt;mark=Xxx&gt;...&lt;/mark&gt;
     unity_margin, ///< Unity text margin: &lt;margin left=v right=v&gt;...&lt;/margin&gt;
     unity_link, ///< Unity link: &lt;link=&quot;url&quot;&gt;...&lt;/link&gt;
-    unity_b, ///< Unity bold text: &lt;b&gt;...&lt;/b&gt;; also used for Markdown and HTML strong emphasis
-    unity_i, ///< Unity italic text: &lt;i&gt;...&lt;/i&gt;; also used for Markdown and HTML emphasis
+    unity_b, ///< Unity/HTML bold text: &lt;b&gt;...&lt;/b&gt;
+    unity_i, ///< Unity/HTML italic text: &lt;i&gt;...&lt;/i&gt;
 
     // Physics-Lab-specific tags
     pl_a, ///< Physics-Lab anchor tag: &lt;a&gt;...&lt;/a&gt; (styled like a link)

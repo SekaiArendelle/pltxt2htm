@@ -9,8 +9,7 @@
 #include <cstddef>
 #include <limits>
 
-#include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
+#include <fast_io/fast_io_core.h>
 
 #include "../contracts.hh"
 #include "../details/concepts.hh"
@@ -72,61 +71,6 @@ public:
           length{size_with_null - 1} {
         static_assert(size_with_null != 0);
     }
-
-    constexpr BasicStringView(::fast_io::basic_string_view<value_type> string) noexcept
-        : pointer{string.data()},
-          length{string.size()} {
-    }
-
-    constexpr BasicStringView(::fast_io::manipulators::basic_os_c_str<value_type> string) noexcept
-        : pointer{string.ptr},
-          length{::fast_io::cstr_len(string.ptr)} {
-    }
-
-    constexpr BasicStringView(::fast_io::manipulators::basic_os_c_str_with_known_size<value_type> string) noexcept
-        : pointer{string.ptr},
-          length{string.n} {
-    }
-
-    constexpr BasicStringView(
-        ::fast_io::manipulators::basic_os_str_known_size_without_null_terminated<value_type> string) noexcept
-        : pointer{string.ptr},
-          length{string.n} {
-    }
-
-    template<typename Allocator>
-    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator> const& string) noexcept
-        : pointer{string.data()},
-          length{string.size()} {
-    }
-
-    template<typename Allocator>
-    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator>&&) = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("the string_view would outlive the temporary it refers to")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
-
-    template<typename Allocator>
-    constexpr BasicStringView(::fast_io::containers::basic_string<value_type, Allocator> const&&) = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("the string_view would outlive the temporary it refers to")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
 
     template<::std::size_t size>
     constexpr BasicStringView(::pltxt2htm::details::BasicLiteralString<value_type, size> const& string) noexcept
@@ -196,6 +140,18 @@ public:
     #endif
 #endif
         ;
+
+    /**
+     * @brief Builds a view over a null-terminated string.
+     * @param[in] string Null-terminated string; must not be null.
+     * @return A view over the string, excluding the terminator.
+     * @pre string != nullptr
+     * @note The length is determined by scanning for the terminator, so this is O(size).
+     */
+    [[nodiscard]]
+    static constexpr auto from_c_str(const_pointer string) noexcept -> BasicStringView {
+        return BasicStringView{string, ::fast_io::cstr_len(string)};
+    }
 
     [[nodiscard]]
     constexpr auto data(this BasicStringView const& self) noexcept -> const_pointer {
@@ -318,11 +274,6 @@ public:
     }
 
     [[nodiscard]]
-    constexpr operator ::fast_io::basic_string_view<value_type>(this BasicStringView const& self) noexcept {
-        return ::fast_io::basic_string_view<value_type>{self.pointer, self.length};
-    }
-
-    [[nodiscard]]
     constexpr auto operator==(this BasicStringView const& self, BasicStringView right) noexcept -> bool {
         return self.length == right.length && ::std::equal(self.begin(), self.end(), right.begin());
     }
@@ -341,27 +292,11 @@ BasicStringView(CharType const*, ::std::size_t) -> BasicStringView<CharType>;
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t size_with_null>
 BasicStringView(CharType const (&)[size_with_null]) -> BasicStringView<CharType>;
 
-template<::pltxt2htm::details::is_char_type CharType>
-BasicStringView(::fast_io::basic_string_view<CharType>) -> BasicStringView<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
-BasicStringView(::fast_io::containers::basic_string<CharType, Allocator> const&) -> BasicStringView<CharType>;
-
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t size>
 BasicStringView(::pltxt2htm::details::BasicLiteralString<CharType, size> const&) -> BasicStringView<CharType>;
 
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent, ::pltxt2htm::Contracts ndebug>
 BasicStringView(::pltxt2htm::details::BasicInplaceString<CharType, extent, ndebug> const&) -> BasicStringView<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType>
-BasicStringView(::fast_io::manipulators::basic_os_c_str<CharType>) -> BasicStringView<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType>
-BasicStringView(::fast_io::manipulators::basic_os_c_str_with_known_size<CharType>) -> BasicStringView<CharType>;
-
-template<::pltxt2htm::details::is_char_type CharType>
-BasicStringView(::fast_io::manipulators::basic_os_str_known_size_without_null_terminated<CharType>)
-    -> BasicStringView<CharType>;
 
 using StringView = BasicStringView<char>;
 using WStringView = BasicStringView<wchar_t>;

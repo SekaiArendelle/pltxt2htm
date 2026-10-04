@@ -25,17 +25,18 @@ extern "C" int LLVMFuzzerTestOneInput(::std::uint8_t const* const data, ::std::s
     ::pltxt2htm::container::U8String str(size + 1);
     ::std::memcpy(str.data(), data, size);
 
-    auto html1_ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(::fast_io::mnp::os_c_str(str));
+    auto html1_ast =
+        ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(::pltxt2htm::container::U8StringView{str});
     ::pltxt2htm::optimize_ast<::pltxt2htm::Contracts::quick_enforce>(html1_ast);
     auto const html1 = ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
                                                                 ::pltxt2htm::details::PlWebTextBackendMode::roundtrip>(
         html1_ast, u8"https://plweb.turtlesim.com", u8"_", u8"_", u8"_", u8"_");
 
     auto const html2_ast = ::pltxt2htm::experimental::parse_pltxt_html<::pltxt2htm::Contracts::quick_enforce>(
-        ::fast_io::mnp::os_c_str(html1));
+        ::pltxt2htm::container::U8StringView{html1});
     auto const html2 =
         ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
-                                                 ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                 ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
             html2_ast, u8"_", u8"_", u8"_", u8"_", u8"_");
 
     if (html1 != html2) {

@@ -1,6 +1,8 @@
-#include <fast_io/fast_io_dsal/array.h>
+#include <pltxt2htm/container/array.hh>
 #include <pltxt2htm/details/backend/for_plweb_text.hh>
+#include <pltxt2htm/details/parser/url_scheme.hh>
 #include <pltxt2htm/details/parser/character_processing.hh>
+#include <pltxt2htm/inline_parser.hh>
 #include <pltxt2htm/parser.hh>
 #include <ranges>
 #include "precompile.hh"
@@ -38,6 +40,15 @@ constexpr auto utf8_helpers_are_constexpr() noexcept -> bool {
            encoded.code_units[2] == char8_t{0x98} && encoded.code_units[3] == char8_t{0x80};
 }
 
+[[nodiscard]]
+constexpr auto parsed_url_scheme_size(::pltxt2htm::container::U8StringView text) noexcept -> ::std::size_t {
+    auto const result = ::pltxt2htm::details::try_parse_url_scheme<::pltxt2htm::Contracts::quick_enforce>(text);
+    if (result.has_value() == false) {
+        return 0;
+    }
+    return result.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>();
+}
+
 static_assert(entity_decoder_is_constexpr());
 static_assert(utf8_helpers_are_constexpr());
 static_assert(
@@ -48,8 +59,69 @@ static_assert(::pltxt2htm::details::is_unicode_scalar_value(char32_t{0x110000}) 
 static_assert(::pltxt2htm::details::is_ascii_control_code_point(char32_t{0x1F}));
 static_assert(::pltxt2htm::details::is_ascii_control_code_point(char32_t{0x7F}));
 static_assert(::pltxt2htm::details::is_ascii_control_code_point(U' ') == false);
+static_assert(parsed_url_scheme_size(u8"http://x") == 7);
+static_assert(parsed_url_scheme_size(u8"HTTPS://x") == 8);
+static_assert(parsed_url_scheme_size(u8"http:/") == 0);
+static_assert(parsed_url_scheme_size(u8"ftp://x") == 0);
+static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"plain text") == 5);
+static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"hello") == 5);
+static_assert(
+    ::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"abchttps://example.com") == 3);
+static_assert(
+    ::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"abcHTTPS://example.com") == 3);
+static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"abc*") == 3);
+static_assert(::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(u8"abc\u00E9") == 3);
 
 int main() {
+    {
+        constexpr auto text_capacity = ::pltxt2htm::Text<::pltxt2htm::Contracts::quick_enforce>::capacity();
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
+        ast.append_text(u8"abc");
+        ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> expected{};
+        for (auto const character : ::pltxt2htm::container::U8StringView{u8"abc"}) {
+            expected.append_text(character);
+        }
+        ::pltxt2htm::container::U8String continuation{};
+        for (::std::size_t index{}; index < text_capacity + 6; ++index) {
+            continuation.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'x');
+        }
+        ast.append_text(::pltxt2htm::container::U8StringView{continuation});
+        for (auto const character : continuation) {
+            expected.append_text(character);
+        }
+        pltxt2htm_test_assert_true(ast == expected);
+        pltxt2htm_test_assert_true(ast.size() == 2);
+        pltxt2htm_test_assert_true(ast.index(0).as_text().size() == text_capacity);
+        pltxt2htm_test_assert_true(ast.index(1).as_text().size() == 9);
+    }
+    {
+        constexpr auto text_capacity = ::pltxt2htm::Text<::pltxt2htm::Contracts::quick_enforce>::capacity();
+        for (auto const size : ::pltxt2htm::container::Array<::std::size_t, 6>{
+                 0, 1, text_capacity - 1, text_capacity, text_capacity + 1, text_capacity * 2 + 1}) {
+            ::pltxt2htm::container::U8String input{};
+            for (::std::size_t index{}; index < size; ++index) {
+                input.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'a');
+            }
+            auto const ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(
+                ::pltxt2htm::container::U8StringView{input});
+            auto const inline_ast = ::pltxt2htm::inline_parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(
+                ::pltxt2htm::container::U8StringView{input});
+            auto const expected_nodes = size / text_capacity + static_cast<::std::size_t>(size % text_capacity != 0);
+            pltxt2htm_test_assert_true(ast.size() == expected_nodes);
+            pltxt2htm_test_assert_true(inline_ast == ast);
+        }
+    }
+    {
+        constexpr auto syntax_starters = ::pltxt2htm::container::Array{
+            u8'&', u8'\'', u8'"', u8'>', u8'\\', u8'{', u8'*', u8'_', u8'~', u8'`', u8'$', u8'[', u8'!', u8'<'};
+        for (auto const starter : syntax_starters) {
+            ::pltxt2htm::container::U8String input{u8"abc"};
+            input.push_back<::pltxt2htm::Contracts::quick_enforce>(starter);
+            pltxt2htm_test_assert_true(
+                ::pltxt2htm::details::scan_plain_ascii_run<::pltxt2htm::Contracts::quick_enforce>(
+                    ::pltxt2htm::container::U8StringView{input}) == 3);
+        }
+    }
     {
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(u8"A");
         pltxt2htm_test_assert_true(decoded.valid);
@@ -64,21 +136,21 @@ int main() {
         pltxt2htm_test_assert_true(decoded.code_point == char32_t{0x20AC});
     }
     {
-        constexpr auto bytes = ::fast_io::array{char8_t{0xE2}, char8_t{0x82}};
+        constexpr auto bytes = ::pltxt2htm::container::Array{char8_t{0xE2}, char8_t{0x82}};
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
             ::pltxt2htm::container::U8StringView{bytes.data(), bytes.size()});
         pltxt2htm_test_assert_true(decoded.valid == false);
         pltxt2htm_test_assert_true(decoded.consumed_size == 2);
     }
     {
-        constexpr auto bytes = ::fast_io::array{char8_t{0xF0}, char8_t{0x90}, char8_t{'A'}};
+        constexpr auto bytes = ::pltxt2htm::container::Array{char8_t{0xF0}, char8_t{0x90}, char8_t{'A'}};
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
             ::pltxt2htm::container::U8StringView{bytes.data(), bytes.size()});
         pltxt2htm_test_assert_true(decoded.valid == false);
         pltxt2htm_test_assert_true(decoded.consumed_size == 2);
     }
     {
-        constexpr auto bytes = ::fast_io::array{char8_t{0xED}, char8_t{0xA0}, char8_t{0x80}};
+        constexpr auto bytes = ::pltxt2htm::container::Array{char8_t{0xED}, char8_t{0xA0}, char8_t{0x80}};
         auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<::pltxt2htm::Contracts::quick_enforce>(
             ::pltxt2htm::container::U8StringView{bytes.data(), bytes.size()});
         pltxt2htm_test_assert_true(decoded.valid == false);
@@ -129,11 +201,12 @@ int main() {
     assert_decoded(u8"&#127;", 6, char32_t{0x7F});
 
     // Parser-produced ASTs never store raw ASCII control bytes in Text nodes.
-    for (auto const code_point : ::fast_io::array{char32_t{0x01}, char32_t{0x0D}, char32_t{0x7F}}) {
+    for (auto const code_point :
+         ::pltxt2htm::container::Array{char32_t{0x01}, char32_t{0x0D}, char32_t{0x7F}}) {
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
         ::pltxt2htm::details::append_code_point_to_ast<::pltxt2htm::Contracts::quick_enforce>(code_point, ast);
         pltxt2htm_test_assert_true(ast.size() == 1);
-        pltxt2htm_test_assert_true(ast.template index<::pltxt2htm::Contracts::quick_enforce>(0).get_node_kind() ==
+        pltxt2htm_test_assert_true(ast.index(0).get_node_kind() ==
                                    ::pltxt2htm::NodeKind::invalid_utf8);
     }
 
@@ -161,20 +234,20 @@ int main() {
     }
 
     // Web output is normalized from text semantics rather than preserving source spelling.
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&quot;"), u8"&quot;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&amp;"), u8"&amp;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&#38;"), u8"&amp;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&#x26;"), u8"&amp;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&QUOT;"), u8"&quot;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&copy;"), u8"©");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&NotEqualTilde;"), u8"≂̸");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&#1;&#13;&#127;"), u8"���");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&quot;"), u8"&quot;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&amp;"), u8"&amp;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&#38;"), u8"&amp;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&#x26;"), u8"&amp;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&QUOT;"), u8"&quot;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&copy;"), u8"©");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&NotEqualTilde;"), u8"≂̸");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&#1;&#13;&#127;"), u8"���");
 
     // Physics-Lab treats U+0020 and U+00A0 as the same space token, including references.
     {
         auto const& pltext = u8"a \u00A0&nbsp;&NonBreakingSpace;&#32;&#x20;&#160;&#xA0;b";
         auto const& answer = u8"a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b";
-        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(pltext), answer);
+        pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(pltext), answer);
         pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4htmlunittest(pltext), answer);
         pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2common_htmld(pltext), answer);
     }
@@ -188,25 +261,25 @@ int main() {
     }
 
     // Unknown and unterminated names remain literal text and cannot be reinterpreted by HTML.
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&bogus;"), u8"&amp;bogus;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&notit;"), u8"&amp;notit;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&amp"), u8"&amp;amp");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&;"), u8"&amp;;");
-    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt4unittest(u8"&"), u8"&amp;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&bogus;"), u8"&amp;bogus;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&notit;"), u8"&amp;notit;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&amp"), u8"&amp;amp");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&;"), u8"&amp;;");
+    pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2fixedadv_htmld(u8"&"), u8"&amp;");
 
     // Rendering HTML and parsing it again preserves text semantics.
     {
-        auto const first_pass = ::pltxt2htm_test::pltxt4unittest(u8"\"");
+        auto const first_pass = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"\"");
         pltxt2htm_test_assert_equal(first_pass, u8"&quot;");
         auto const first_pass_view = ::pltxt2htm::container::U8StringView{first_pass.data(), first_pass.size()};
-        auto const second_pass = ::pltxt2htm_test::pltxt4unittest(first_pass_view);
+        auto const second_pass = ::pltxt2htm_test::pltxt2fixedadv_htmld(first_pass_view);
         pltxt2htm_test_assert_equal(second_pass, u8"&quot;");
     }
     {
-        auto const first_pass = ::pltxt2htm_test::pltxt4unittest(u8"<");
+        auto const first_pass = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<");
         pltxt2htm_test_assert_equal(first_pass, u8"&lt;");
         auto const first_pass_view = ::pltxt2htm::container::U8StringView{first_pass.data(), first_pass.size()};
-        auto const second_pass = ::pltxt2htm_test::pltxt4unittest(first_pass_view);
+        auto const second_pass = ::pltxt2htm_test::pltxt2fixedadv_htmld(first_pass_view);
         pltxt2htm_test_assert_equal(second_pass, u8"&lt;");
     }
 

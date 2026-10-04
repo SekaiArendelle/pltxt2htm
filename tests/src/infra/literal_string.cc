@@ -29,6 +29,18 @@ consteval void test_uint_to_literal_string() noexcept {
     constexpr auto answer = pltxt2htm::details::U8LiteralString{u8"42"};
     static_assert(str.size() == 2);
     static_assert(str == answer);
+
+    // Zero used to render as an empty literal string.
+    constexpr auto zero = ::pltxt2htm::details::uint_to_literal_string<0>();
+    constexpr auto zero_answer = pltxt2htm::details::U8LiteralString{u8"0"};
+    static_assert(zero.size() == 1);
+    static_assert(zero == zero_answer);
+
+    // Ten digits is the widest a 32-bit unsigned needs.
+    constexpr auto wide = ::pltxt2htm::details::uint_to_literal_string<1000000000U>();
+    constexpr auto wide_answer = pltxt2htm::details::U8LiteralString{u8"1000000000"};
+    static_assert(wide.size() == 10);
+    static_assert(wide == wide_answer);
 }
 
 consteval void test_for_loop() noexcept {
@@ -41,11 +53,11 @@ int main() noexcept {
     {
         constexpr auto str = pltxt2htm::details::U8LiteralString{u8"test"};
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
-            ::fast_io::u8string_view{u8"test"}));
+            ::pltxt2htm::container::U8StringView{u8"test"}));
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
-            ::fast_io::u8string_view{u8"TEST"}));
+            ::pltxt2htm::container::U8StringView{u8"TEST"}));
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
-                                       ::fast_io::u8string_view{u8"kksk"}) == false);
+                                       ::pltxt2htm::container::U8StringView{u8"kksk"}) == false);
     }
 
     {

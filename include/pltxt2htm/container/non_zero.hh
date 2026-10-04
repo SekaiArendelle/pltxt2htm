@@ -77,6 +77,25 @@ public:
 
     [[nodiscard]]
     constexpr bool operator==(this NonZero const&, NonZero const&) noexcept = default;
+
+    /**
+     * @brief Compare with a non-boolean unsigned integer.
+     */
+    template<::std::unsigned_integral U>
+        requires (!::std::same_as<U, bool>)
+    [[nodiscard]]
+    constexpr auto operator==(this NonZero const& self, U value) noexcept -> bool {
+        return self.value_storage == value;
+    }
+
+    /**
+     * @brief Compare with a signed integer, treating every negative value as unequal.
+     */
+    template<::std::signed_integral U>
+    [[nodiscard]]
+    constexpr auto operator==(this NonZero const& self, U value) noexcept -> bool {
+        return value >= 0 && self.value_storage == static_cast<::std::make_unsigned_t<U>>(value);
+    }
 };
 
 using NonZeroU8 = ::pltxt2htm::container::NonZero<::std::uint8_t>;

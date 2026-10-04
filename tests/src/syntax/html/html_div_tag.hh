@@ -6,7 +6,7 @@ TEST_SUITE("html_div_tag") {
     // web backend renders <div style="margin-left:..."> as a block-level div with CSS margins
     TEST_CASE("margin-left-block-div") {
         auto const& pltext = u8"<div style=\"margin-left:2em\">text</div>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<div style=\"margin-left:2em;\">text</div>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -16,7 +16,7 @@ TEST_SUITE("html_div_tag") {
 
     TEST_CASE("margin-right-block-div") {
         auto const& pltext = u8"<div style=\"margin-right:1em\">text</div>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<div style=\"margin-right:1em;\">text</div>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -26,7 +26,7 @@ TEST_SUITE("html_div_tag") {
 
     TEST_CASE("left-right-margins") {
         auto const& pltext = u8"<div style=\"margin-left:2em;margin-right:3em\">text</div>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<div style=\"margin-left:2em;margin-right:3em;\">text</div>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -37,7 +37,7 @@ TEST_SUITE("html_div_tag") {
     // px is emitted explicitly with a px suffix in the web backend
     TEST_CASE("pixel-unit-suffix") {
         auto const& pltext = u8"<div style=\"margin-left:10px\">text</div>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<div style=\"margin-left:10px;\">text</div>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -48,7 +48,7 @@ TEST_SUITE("html_div_tag") {
     // percent unit is preserved
     TEST_CASE("percent-unit-preserved") {
         auto const& pltext = u8"<div style=\"margin-left:5%\">text</div>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<div style=\"margin-left:5%;\">text</div>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -59,7 +59,7 @@ TEST_SUITE("html_div_tag") {
     // an empty div is kept, not erased by the optimizer
     TEST_CASE("empty-div-preserved") {
         auto const& pltext = u8"<div style=\"margin-left:2em\"></div>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<div style=\"margin-left:2em;\"></div>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -70,7 +70,7 @@ TEST_SUITE("html_div_tag") {
     // an unclosed div still parses
     TEST_CASE("unclosed-div-parsed") {
         auto const& pltext = u8"<div style=\"margin-left:2em\">text";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<div style=\"margin-left:2em;\">text</div>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -80,14 +80,14 @@ TEST_SUITE("html_div_tag") {
 
     // a newline inside a div still renders as <br>
     TEST_CASE("newline-to-br") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:2em\">line1\nline2</div>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<div style=\"margin-left:2em\">line1\nline2</div>");
         auto const& answer = u8"<div style=\"margin-left:2em;\">line1<br>line2</div>";
         CHECK(html == answer);
     }
 
     // text after the closing </div> stays on its own content line
     TEST_CASE("newline-after-div-br") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:2em\">a</div>\nb");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<div style=\"margin-left:2em\">a</div>\nb");
         auto const& answer = u8"<div style=\"margin-left:2em;\">a</div><br>b";
         CHECK(html == answer);
     }
@@ -95,63 +95,63 @@ TEST_SUITE("html_div_tag") {
     // text before and after a block-level div
     TEST_CASE("text-around-block-div") {
         auto const& pltext = u8"a\n<div style=\"margin-left:2em\">b</div>\nc";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"a<br><div style=\"margin-left:2em;\">b</div><br>c";
         CHECK(html == answer);
     }
 
     // mid-line <div> sequences are literal text (block-level only)
     TEST_CASE("midline-div-literal") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<div style=\"margin-left:2em\">x</div>t");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"t<div style=\"margin-left:2em\">x</div>t");
         auto const& answer = u8"t&lt;div&nbsp;style=&quot;margin-left:2em&quot;&gt;x&lt;/div&gt;t";
         CHECK(html == answer);
     }
 
     // non-numeric margin value renders as literal text
     TEST_CASE("nonnumeric-margin-literal") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:abc\">x</div>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<div style=\"margin-left:abc\">x</div>");
         auto const& answer = u8"&lt;div&nbsp;style=&quot;margin-left:abc&quot;&gt;x&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // an unknown style declaration (e.g. color) makes the whole tag literal text
     TEST_CASE("unknown-style-declaration") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"color:red\">x</div>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<div style=\"color:red\">x</div>");
         auto const& answer = u8"&lt;div&nbsp;style=&quot;color:red&quot;&gt;x&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // a style mix with a non-margin declaration is rejected entirely
     TEST_CASE("mixed-style-rejected") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:2em;color:red\">x</div>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<div style=\"margin-left:2em;color:red\">x</div>");
         auto const& answer = u8"&lt;div&nbsp;style=&quot;margin-left:2em;color:red&quot;&gt;x&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // a div without the style attribute is literal text (not parsed as a margin block)
     TEST_CASE("missing-style-escaped") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div>plain</div>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<div>plain</div>");
         auto const& answer = u8"&lt;div&gt;plain&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // a script tag is not an allowed attribute and renders as literal text (XSS guard)
     TEST_CASE("disallowed-attribute-escaped") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div onclick=\"alert(1)\">x</div>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<div onclick=\"alert(1)\">x</div>");
         auto const& answer = u8"&lt;div&nbsp;onclick=&quot;alert(1)&quot;&gt;x&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // malformed quote (unterminated style value) renders as literal text
     TEST_CASE("unterminated-quote-escaped") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left:2em>x</div>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<div style=\"margin-left:2em>x</div>");
         auto const& answer = u8"&lt;div&nbsp;style=&quot;margin-left:2em&gt;x&lt;/div&gt;";
         CHECK(html == answer);
     }
 
     // a missing ':' separator renders as literal text
     TEST_CASE("missing-colon-escaped") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<div style=\"margin-left 2em\">x</div>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<div style=\"margin-left 2em\">x</div>");
         auto const& answer = u8"&lt;div&nbsp;style=&quot;margin-left&nbsp;2em&quot;&gt;x&lt;/div&gt;";
         CHECK(html == answer);
     }
@@ -184,14 +184,14 @@ TEST_SUITE("html_div_tag") {
     TEST_CASE("roundtrip-idempotency-crash") {
         auto const& pltext = u8"x\n<MARgin=2>";
         auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
-        auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::mnp::os_c_str(once));
+        auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{once});
         CHECK(twice == once);
     }
     // the exact fuzzer input (span-wrapped margin block), without the libFuzzer trailing-junk bytes
     TEST_CASE("fuzzer-margin-roundtrip") {
         auto const& pltext = u8",><sIzE=4>[8t<sIzE\n<MARgin=2>";
         auto once = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
-        auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::fast_io::mnp::os_c_str(once));
+        auto twice = ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{once});
         CHECK(twice == once);
     }
 
@@ -248,6 +248,20 @@ TEST_SUITE("html_div_tag") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(
             u8"<div style=\"margin-left:2em\"><div style=\"margin-right:1em\">x</div></div>");
         auto const& answer = u8"<div style=\"margin-left:2em;\"><div style=\"margin-right:1em;\">x</div></div>";
+        CHECK(html == answer);
+    }
+    TEST_CASE("unclosed-tag-closed-at-end-of-input") {
+        // An open <div> that reaches the end of the input still closes around its text.
+        auto const& pltext = u8"<div style=\"margin-left:2em\">text";
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
+        auto const& answer = u8"<div style=\"margin-left:2em;\">text</div>";
+        CHECK(html == answer);
+    }
+    TEST_CASE("nested-unclosed-tag-closed-at-end-of-input") {
+        // A <div> nested in a blockquote is attached by the nested end-of-input path.
+        auto const& pltext = u8"<blockquote><div style=\"margin-left:2em\">text";
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
+        auto const& answer = u8"<blockquote><div style=\"margin-left:2em;\">text</div></blockquote>";
         CHECK(html == answer);
     }
 }

@@ -5,7 +5,7 @@
 TEST_SUITE("md_table") {
     // Basic table with header and data rows
     TEST_CASE("basic-with-data-rows") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| Header 1 | Header 2 |\n"
             u8"|----------|----------|\n"
             u8"| Cell 1   | Cell 2   |\n"
@@ -19,7 +19,7 @@ TEST_SUITE("md_table") {
 
     // Table preceded by a line break
     TEST_CASE("preceded-by-line-break") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"\n| A | B |\n"
             u8"|---|---|\n"
             u8"| 1 | 2 |");
@@ -31,7 +31,7 @@ TEST_SUITE("md_table") {
 
     // Table with varying spaces
     TEST_CASE("varying-spaces") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"|  a  |  b  |\n"
             u8"|-----|-----|\n"
             u8"|  x  |  y  |");
@@ -43,7 +43,7 @@ TEST_SUITE("md_table") {
 
     // Table with empty cells
     TEST_CASE("empty-cells") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | B | C |\n"
             u8"|---|---|---|\n"
             u8"| 1 |   | 3 |");
@@ -55,7 +55,7 @@ TEST_SUITE("md_table") {
 
     // Table with only header (no data rows)
     TEST_CASE("header-only") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| X | Y |\n"
             u8"|---|---|");
         auto const& answer = u8"<table><thead><tr><th>X</th><th>Y</th></tr></thead></table>";
@@ -64,7 +64,7 @@ TEST_SUITE("md_table") {
 
     // Table with special characters in cells
     TEST_CASE("special-characters") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| a & b | c > d |\n"
             u8"|-------|-------|\n"
             u8"| x & y | p < q |");
@@ -76,7 +76,7 @@ TEST_SUITE("md_table") {
 
     // Table with escape sequences
     TEST_CASE("escape-sequences") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| \\\"quote\\\" |\n"
             u8"|-----------|\n"
             u8"| \\&amp;   |");
@@ -88,7 +88,7 @@ TEST_SUITE("md_table") {
 
     // Table followed by text (text should be separated)
     TEST_CASE("followed-by-text") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| H |\n"
             u8"|---|\n"
             u8"| C |\n"
@@ -101,7 +101,7 @@ TEST_SUITE("md_table") {
     }
 
     TEST_CASE("text-before-and-after") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"before\n"
             u8"| H |\n"
             u8"|---|\n"
@@ -116,7 +116,7 @@ TEST_SUITE("md_table") {
 
     // Table after a <br> tag
     TEST_CASE("after-br-tag") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<br>| A | B |\n"
             u8"    |---|---|\n"
             u8"    | 1 | 2 |");
@@ -128,7 +128,7 @@ TEST_SUITE("md_table") {
 
     // Left-aligned columns (default, no style attribute)
     TEST_CASE("left-aligned-default") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | B |\n"
             u8"|:---|:---|\n"
             u8"| 1 | 2 |");
@@ -140,7 +140,7 @@ TEST_SUITE("md_table") {
 
     // Center-aligned columns
     TEST_CASE("center-aligned") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | B |\n"
             u8"|:---:|:---:|\n"
             u8"| 1 | 2 |");
@@ -154,7 +154,7 @@ TEST_SUITE("md_table") {
 
     // Right-aligned columns
     TEST_CASE("right-aligned") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | B |\n"
             u8"|---:|---:|\n"
             u8"| 1 | 2 |");
@@ -168,7 +168,7 @@ TEST_SUITE("md_table") {
 
     // Mixed alignment in one table
     TEST_CASE("mixed-alignment") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| Left | Center | Right |\n"
             u8"|:-----|:------:|------:|\n"
             u8"| a    |   b    |   c   |");
@@ -184,7 +184,7 @@ TEST_SUITE("md_table") {
 
     // Header-only table with alignment
     TEST_CASE("header-only-with-alignment") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| X | Y |\n"
             u8"|:---:|:---|");
         auto const& answer =
@@ -194,7 +194,7 @@ TEST_SUITE("md_table") {
 
     // Alignment with empty cells
     TEST_CASE("alignment-with-empty-cells") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | B | C |\n"
             u8"|:---:|:---:|---:|\n"
             u8"| 1 |   | 3 |");
@@ -216,49 +216,49 @@ TEST_SUITE("md_table") {
 
     // Single pipe-delimited line without a delimiter row
     TEST_CASE("single-line-no-delimiter-not-table") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"| A | B |\n");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"| A | B |\n");
         auto const& answer = u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>";
         CHECK(html == answer);
     }
 
     // Text followed by a valid delimiter (first line is not a pipe table row)
     TEST_CASE("text-then-delimiter-not-table") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"text\n|---|---|\n");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"text\n|---|---|\n");
         auto const& answer = u8"text<br>|---|---|<br>";
         CHECK(html == answer);
     }
 
     // Pipe character in the middle of regular text
     TEST_CASE("pipe-in-text-not-table") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"this | that\n");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"this | that\n");
         auto const& answer = u8"this&nbsp;|&nbsp;that<br>";
         CHECK(html == answer);
     }
 
     // Single pipe character on a line
     TEST_CASE("lone-pipe-not-table") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"|\n");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"|\n");
         auto const& answer = u8"|<br>";
         CHECK(html == answer);
     }
 
     // Header line without leading pipe (no table)
     TEST_CASE("no-leading-pipe-not-table") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"A | B\n|---|---|\n");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"A | B\n|---|---|\n");
         auto const& answer = u8"A&nbsp;|&nbsp;B<br>|---|---|<br>";
         CHECK(html == answer);
     }
 
     // Delimiter row without a preceding header
     TEST_CASE("delimiter-without-header-not-table") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"|---|---|---|\n");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"|---|---|---|\n");
         auto const& answer = u8"|---|---|---|<br>";
         CHECK(html == answer);
     }
 
     // Delimiter row with no dashes (all spaces) - should NOT be a table
     TEST_CASE("delimiter-all-spaces-not-table") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"| A | B |\n|   |   |\n");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"| A | B |\n|   |   |\n");
         auto const& answer =
             u8"|&nbsp;A&nbsp;|&nbsp;B&nbsp;|<br>"
             u8"|&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|<br>";
@@ -269,7 +269,7 @@ TEST_SUITE("md_table") {
 
     // Single dash in delimiter (minimum valid: -+)
     TEST_CASE("single-dash-delimiter") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A |\n"
             u8"|-|\n"
             u8"| B |");
@@ -281,7 +281,7 @@ TEST_SUITE("md_table") {
 
     // Two dashes left-aligned
     TEST_CASE("two-dashes-left") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A |\n"
             u8"|:--|\n"
             u8"| B |");
@@ -293,7 +293,7 @@ TEST_SUITE("md_table") {
 
     // Three dashes right-aligned
     TEST_CASE("three-dashes-right") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A |\n"
             u8"|---:|\n"
             u8"| B |");
@@ -305,7 +305,7 @@ TEST_SUITE("md_table") {
 
     // Trailing whitespace in delimiter row
     TEST_CASE("trailing-whitespace-in-delimiter") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| H |\n"
             u8"|---|  \n"
             u8"| C |");
@@ -317,7 +317,7 @@ TEST_SUITE("md_table") {
 
     // Spaces around dashes within delimiter cells
     TEST_CASE("spaces-around-dashes") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | B |\n"
             u8"|---| --- |\n"
             u8"| 1 | 2 |");
@@ -329,7 +329,7 @@ TEST_SUITE("md_table") {
 
     // Very long dashes with center alignment
     TEST_CASE("long-dashes-center") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | B |\n"
             u8"|:-----------------:|:-----------------:|\n"
             u8"| 1 | 2 |");
@@ -347,7 +347,7 @@ TEST_SUITE("md_table") {
 
     // Extra dash after trailing colon (|:-:-|)
     TEST_CASE("extra-dash-after-colon") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A |\n"
             u8"|:-:-|\n"
             u8"| B |");
@@ -357,7 +357,7 @@ TEST_SUITE("md_table") {
 
     // Space between dashes and trailing colon within cell
     TEST_CASE("space-before-trailing-colon") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A |\n"
             u8"|:-- :|\n"
             u8"| B |");
@@ -367,7 +367,7 @@ TEST_SUITE("md_table") {
 
     // Invalid character inside delimiter cell
     TEST_CASE("invalid-char-in-delimiter") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A |\n"
             u8"|--x--|\n"
             u8"| B |");
@@ -377,7 +377,7 @@ TEST_SUITE("md_table") {
 
     // Double leading colon
     TEST_CASE("double-leading-colon") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A |\n"
             u8"|::---|\n"
             u8"| B |");
@@ -387,7 +387,7 @@ TEST_SUITE("md_table") {
 
     // Double trailing colon
     TEST_CASE("double-trailing-colon") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A |\n"
             u8"|---::|\n"
             u8"| B |");
@@ -397,7 +397,7 @@ TEST_SUITE("md_table") {
 
     // Colon in middle of dashes (not at edge)
     TEST_CASE("colon-in-middle") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A |\n"
             u8"|-:-|\n"
             u8"| B |");
@@ -407,7 +407,7 @@ TEST_SUITE("md_table") {
 
     // Extraneous text after valid delimiter cell
     TEST_CASE("extraneous-text-after-cell") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A |\n"
             u8"|---|extra|\n"
             u8"| B |");
@@ -417,7 +417,7 @@ TEST_SUITE("md_table") {
 
     // Second column has invalid delimiter, first is valid
     TEST_CASE("second-column-invalid-delimiter") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | B |\n"
             u8"|---|:-:-|\n"
             u8"| 1 | 2 |");
@@ -429,7 +429,7 @@ TEST_SUITE("md_table") {
 
     // Bold in header cell
     TEST_CASE("bold-in-header") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| **bold** | normal |\n"
             u8"|----------|--------|\n"
             u8"| 1        | 2      |");
@@ -441,7 +441,7 @@ TEST_SUITE("md_table") {
 
     // Italic in data cell
     TEST_CASE("italic-in-data-cell") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| H | I |\n"
             u8"|---|---|\n"
             u8"| *italic* | normal |");
@@ -453,7 +453,7 @@ TEST_SUITE("md_table") {
 
     // Code span in cell
     TEST_CASE("code-span-in-cell") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| `code` | text |\n"
             u8"|--------|------|\n"
             u8"| a      | b    |");
@@ -465,7 +465,7 @@ TEST_SUITE("md_table") {
 
     // Strikethrough in cell
     TEST_CASE("strikethrough-in-cell") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| H |\n"
             u8"|---|\n"
             u8"| ~~strike~~ |");
@@ -477,7 +477,7 @@ TEST_SUITE("md_table") {
 
     // Bold and italic in separate cells
     TEST_CASE("bold-and-italic-separate-cells") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| **bold** | *italic* |\n"
             u8"|----------|----------|\n"
             u8"| a        | b        |");
@@ -491,7 +491,7 @@ TEST_SUITE("md_table") {
 
     // Inline markdown in same cell
     TEST_CASE("inline-markdown-same-cell") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| **bold** *italic* | plain |\n"
             u8"|-------------------|-------|\n"
             u8"| 1                 | 2     |");
@@ -505,7 +505,7 @@ TEST_SUITE("md_table") {
 
     // Inline markdown with center alignment
     TEST_CASE("inline-markdown-center") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| **bold** |\n"
             u8"|:--------:|\n"
             u8"| *italic* |");
@@ -521,7 +521,7 @@ TEST_SUITE("md_table") {
 
     // Inline markdown with right alignment
     TEST_CASE("inline-markdown-right") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| *italic* |\n"
             u8"|---------:|\n"
             u8"| **bold** |");
@@ -536,7 +536,7 @@ TEST_SUITE("md_table") {
     }
 
     TEST_CASE("italic-and-strikethrough-header") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| *~~italic~~* |\n"
             u8"|---------:|\n"
             u8"| **bold** |");
@@ -552,7 +552,7 @@ TEST_SUITE("md_table") {
 
     // Escaped asterisks render as literal *, not italic
     TEST_CASE("escaped-asterisks-literal") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| \\*not italic\\* |\n"
             u8"|-----------------|\n"
             u8"| x               |");
@@ -564,7 +564,7 @@ TEST_SUITE("md_table") {
 
     // Code span with HTML entities
     TEST_CASE("code-span-with-entities") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| `<html>` | `a & b` |\n"
             u8"|----------|--------|\n"
             u8"| 1        | 2      |");
@@ -578,7 +578,7 @@ TEST_SUITE("md_table") {
 
     // Bold inside empty cell should still work
     TEST_CASE("bold-inside-empty-cell") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | **B** |\n"
             u8"|---|---|\n"
             u8"|   | **2** |");
@@ -590,7 +590,7 @@ TEST_SUITE("md_table") {
 
     // Uneven column counts: body row with fewer cells than header → not a table
     TEST_CASE("fewer-body-cells") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | B | C |\n"
             u8"|---|---|---|\n"
             u8"| 1 | 2   |\n"
@@ -605,7 +605,7 @@ TEST_SUITE("md_table") {
 
     // Uneven column counts with inline markdown → not a table
     TEST_CASE("fewer-body-cells-with-markdown") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| **A** | B | *C* |\n"
             u8"|-------|---|-----|\n"
             u8"| **x** | y |\n"
@@ -620,7 +620,7 @@ TEST_SUITE("md_table") {
 
     // More cells in body row than header → not a table
     TEST_CASE("more-body-cells") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | B | C |\n"
             u8"|---|---|---|\n"
             u8"| 1 | 2 | 3 | 4 |");
@@ -633,7 +633,7 @@ TEST_SUITE("md_table") {
 
     // More cells in body row than header with inline markdown → not a table
     TEST_CASE("more-body-cells-with-markdown") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| **A** | B | *C* |\n"
             u8"|---|---|---|\n"
             u8"| **x** | y | *z* | extra |");
@@ -646,7 +646,7 @@ TEST_SUITE("md_table") {
 
     // Delimiter row with fewer cells than header row → not a table
     TEST_CASE("fewer-delimiter-cells") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | B | C |\n"
             u8"|---|---|");
         auto const& answer =
@@ -657,7 +657,7 @@ TEST_SUITE("md_table") {
 
     // Delimiter row with more cells than header row → not a table
     TEST_CASE("more-delimiter-cells") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| A | B |\n"
             u8"|---|---|---|");
         auto const& answer =
@@ -668,7 +668,7 @@ TEST_SUITE("md_table") {
 
     // Escaped pipe \| in cell content → literal |, not column separator
     TEST_CASE("escaped-pipe-in-cell") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| a \\| b | c |\n"
             u8"|---------|---|\n"
             u8"| 1       | 2 |");
@@ -680,7 +680,7 @@ TEST_SUITE("md_table") {
 
     // Double backslash \\| → literal \, pipe is separator (3-col table)
     TEST_CASE("double-backslash-pipe") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| a | b | c |\n"
             u8"|---|---|---|\n"
             u8"| \\\\| 2 | 3 |");
@@ -692,7 +692,7 @@ TEST_SUITE("md_table") {
 
     // Escaped pipe with inline markdown
     TEST_CASE("escaped-pipe-with-markdown") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"| **bold** \\| text | plain |\n"
             u8"|--------------------|-------|\n"
             u8"| 1                  | 2     |");
@@ -708,7 +708,7 @@ TEST_SUITE("md_table") {
 
     // Minimal table with empty header and `</` in body cell
     TEST_CASE("escaped-close-tag-in-cell") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"||\n"
             u8"|-|\n"
             u8"|</|");
@@ -721,7 +721,7 @@ TEST_SUITE("md_table") {
     // Table with indented delimiter and `</` in body cell
     // (rows without trailing | are NOT parsed as a table — see md_table.hh)
     TEST_CASE("no-trailing-pipe-not-table") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"|cell\n"
             u8" |--\n"
             u8" |</|");
@@ -731,7 +731,7 @@ TEST_SUITE("md_table") {
 
     // Table with `</x` (tag-like content) in body cell
     TEST_CASE("tag-like-close-in-cell") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"|ok|\n"
             u8"|---|\n"
             u8"|</x|");
@@ -759,6 +759,13 @@ TEST_SUITE("md_table") {
             u8"<size=20>\uff1e</size><size=20>\uff1c</size>td style=\"text-align:right\"<size=20>\uff1e</size>c"
             u8"<size=20>\uff1c</size>/td<size=20>\uff1e</size><size=20>\uff1c</size>/tr<size=20>\uff1e</size>"
             u8"<size=20>\uff1c</size>/tbody<size=20>\uff1e</size><size=20>\uff1c</size>/table<size=20>\uff1e</size>";
+        CHECK(html == answer);
+    }
+    TEST_CASE("table-closed-at-end-of-input") {
+        // A table whose last row ends the input still closes with its sections.
+        auto const& pltext = u8"| h |\n|-|\n| d |";
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
+        auto const& answer = u8"<table><thead><tr><th>h</th></tr></thead><tbody><tr><td>d</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 }

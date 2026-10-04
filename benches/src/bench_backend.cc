@@ -17,7 +17,7 @@ struct PlainTextBackendFixture : ::benchmark::Fixture {
         for (::std::size_t i = 0; i < n / 40; ++i)
             text.append<ndebug>(u8"Lorem ipsum dolor sit amet, consectetur adipiscing.\n");
         input_bytes = text.size();
-        auto sv = ::fast_io::u8string_view{text.data(), text.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{text.data(), text.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };
@@ -39,7 +39,7 @@ struct RichHtmlBackendFixture : ::benchmark::Fixture {
 <img src="image.png" alt="desc"/>
 )");
         input_bytes = text.size();
-        auto sv = ::fast_io::u8string_view{text.data(), text.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{text.data(), text.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };
@@ -61,7 +61,7 @@ struct PlTagsBackendFixture : ::benchmark::Fixture {
 <external=url>ext</external>
 )");
         input_bytes = text.size();
-        auto sv = ::fast_io::u8string_view{text.data(), text.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{text.data(), text.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };
@@ -91,7 +91,7 @@ int x = 1;
 ```
 )");
         input_bytes = text.size();
-        auto sv = ::fast_io::u8string_view{text.data(), text.size()};
+        auto sv = ::pltxt2htm::container::U8StringView{text.data(), text.size()};
         ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
     }
 };
@@ -146,7 +146,7 @@ BENCHMARK_DEFINE_F(PlainTextBackendFixture, PlwebText)(benchmark::State& st) {
     for (auto _ : st) {
         auto result =
             ::pltxt2htm::details::plweb_text_backend<ndebug,
-                                                     ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                     ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
                 ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         ::benchmark::DoNotOptimize(result);
     }
@@ -159,7 +159,7 @@ BENCHMARK_DEFINE_F(RichHtmlBackendFixture, PlwebText)(benchmark::State& st) {
     for (auto _ : st) {
         auto result =
             ::pltxt2htm::details::plweb_text_backend<ndebug,
-                                                     ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                     ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
                 ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         ::benchmark::DoNotOptimize(result);
     }
@@ -172,7 +172,7 @@ BENCHMARK_DEFINE_F(PlTagsBackendFixture, PlwebText)(benchmark::State& st) {
     for (auto _ : st) {
         auto result =
             ::pltxt2htm::details::plweb_text_backend<ndebug,
-                                                     ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                     ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
                 ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         ::benchmark::DoNotOptimize(result);
     }
@@ -185,7 +185,7 @@ BENCHMARK_DEFINE_F(MarkdownBackendFixture, PlwebText)(benchmark::State& st) {
     for (auto _ : st) {
         auto result =
             ::pltxt2htm::details::plweb_text_backend<ndebug,
-                                                     ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                     ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
                 ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         ::benchmark::DoNotOptimize(result);
     }

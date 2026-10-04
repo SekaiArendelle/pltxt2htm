@@ -63,10 +63,6 @@ namespace pltxt2htm_test::details {
     return ::doctest::String{escaped.data(), static_cast<::doctest::String::size_type>(escaped.size())};
 }
 
-[[nodiscard]] inline auto escape_for_message(::fast_io::u8string_view value) -> ::doctest::String {
-    return escape_for_message(value.data(), value.size());
-}
-
 [[nodiscard]] inline auto escape_for_message(::pltxt2htm::container::U8String const& value) -> ::doctest::String {
     return escape_for_message(value.data(), value.size());
 }
@@ -81,13 +77,6 @@ namespace doctest {
 
 // Without these, every failing `CHECK(html == answer)` in the syntax cases reports
 // `values: CHECK( {?} == {?} )` instead of the two values that differ.
-template<>
-struct StringMaker<::fast_io::u8string_view> {
-    [[nodiscard]] static auto convert(::fast_io::u8string_view const& value) -> ::doctest::String {
-        return ::pltxt2htm_test::details::escape_for_message(value);
-    }
-};
-
 template<>
 struct StringMaker<::pltxt2htm::container::U8String> {
     [[nodiscard]] static auto convert(::pltxt2htm::container::U8String const& value) -> ::doctest::String {

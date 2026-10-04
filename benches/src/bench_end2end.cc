@@ -3,7 +3,7 @@
 
 // Full document (~32KB)
 BENCHMARK_DEFINE_F(FullDocE2EFixture, CommonHtml)(benchmark::State& st) {
-    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
     for (auto _ : st) {
         auto result = ::pltxt2htm::pltxt2common_html<ndebug>(sv);
         ::benchmark::DoNotOptimize(result);
@@ -14,7 +14,7 @@ BENCHMARK_DEFINE_F(FullDocE2EFixture, CommonHtml)(benchmark::State& st) {
 BENCHMARK_REGISTER_F(FullDocE2EFixture, CommonHtml)->Arg(30);
 
 BENCHMARK_DEFINE_F(FullDocE2EFixture, FixedAdv)(benchmark::State& st) {
-    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
     for (auto _ : st) {
         auto result = ::pltxt2htm::pltxt2fixedadv_html<ndebug>(sv, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR",
                                                                u8"$AUTHOR", u8"$CO_AUTHORS");
@@ -26,7 +26,7 @@ BENCHMARK_DEFINE_F(FullDocE2EFixture, FixedAdv)(benchmark::State& st) {
 BENCHMARK_REGISTER_F(FullDocE2EFixture, FixedAdv)->Arg(30);
 
 BENCHMARK_DEFINE_F(FullDocE2EFixture, Plunity)(benchmark::State& st) {
-    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
     for (auto _ : st) {
         auto result = ::pltxt2htm::pltxt2plunity_introduction<ndebug>(sv, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
                                                                       u8"$CO_AUTHORS");
@@ -39,7 +39,7 @@ BENCHMARK_REGISTER_F(FullDocE2EFixture, Plunity)->Arg(30);
 
 // Terse document (~21KB)
 BENCHMARK_DEFINE_F(TerseDocE2EFixture, CommonHtml)(benchmark::State& st) {
-    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
     for (auto _ : st) {
         auto result = ::pltxt2htm::pltxt2common_html<ndebug>(sv);
         ::benchmark::DoNotOptimize(result);
@@ -50,7 +50,7 @@ BENCHMARK_DEFINE_F(TerseDocE2EFixture, CommonHtml)(benchmark::State& st) {
 BENCHMARK_REGISTER_F(TerseDocE2EFixture, CommonHtml)->Arg(200);
 
 BENCHMARK_DEFINE_F(TerseDocE2EFixture, FixedAdv)(benchmark::State& st) {
-    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
     for (auto _ : st) {
         auto result = ::pltxt2htm::pltxt2fixedadv_html<ndebug>(sv, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR",
                                                                u8"$AUTHOR", u8"$CO_AUTHORS");
@@ -62,7 +62,7 @@ BENCHMARK_DEFINE_F(TerseDocE2EFixture, FixedAdv)(benchmark::State& st) {
 BENCHMARK_REGISTER_F(TerseDocE2EFixture, FixedAdv)->Arg(200);
 
 BENCHMARK_DEFINE_F(TerseDocE2EFixture, Plunity)(benchmark::State& st) {
-    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
     for (auto _ : st) {
         auto result = ::pltxt2htm::pltxt2plunity_introduction<ndebug>(sv, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
                                                                       u8"$CO_AUTHORS");
@@ -75,7 +75,7 @@ BENCHMARK_REGISTER_F(TerseDocE2EFixture, Plunity)->Arg(200);
 
 // Plain document (100KB)
 BENCHMARK_DEFINE_F(PlainDocE2EFixture, CommonHtml)(benchmark::State& st) {
-    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
     for (auto _ : st) {
         auto result = ::pltxt2htm::pltxt2common_html<ndebug>(sv);
         ::benchmark::DoNotOptimize(result);
@@ -86,7 +86,7 @@ BENCHMARK_DEFINE_F(PlainDocE2EFixture, CommonHtml)(benchmark::State& st) {
 BENCHMARK_REGISTER_F(PlainDocE2EFixture, CommonHtml)->Arg(100000);
 
 BENCHMARK_DEFINE_F(PlainDocE2EFixture, FixedAdv)(benchmark::State& st) {
-    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
     for (auto _ : st) {
         auto result = ::pltxt2htm::pltxt2fixedadv_html<ndebug>(sv, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR",
                                                                u8"$AUTHOR", u8"$CO_AUTHORS");
@@ -98,7 +98,7 @@ BENCHMARK_DEFINE_F(PlainDocE2EFixture, FixedAdv)(benchmark::State& st) {
 BENCHMARK_REGISTER_F(PlainDocE2EFixture, FixedAdv)->Arg(100000);
 
 BENCHMARK_DEFINE_F(PlainDocE2EFixture, Plunity)(benchmark::State& st) {
-    auto sv = ::fast_io::u8string_view{input.data(), input.size()};
+    auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
     for (auto _ : st) {
         auto result = ::pltxt2htm::pltxt2plunity_introduction<ndebug>(sv, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
                                                                       u8"$CO_AUTHORS");

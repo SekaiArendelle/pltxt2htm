@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include <fast_io/fast_io_dsal/list.h>
 #include "../call_stack.hh"
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
@@ -33,7 +32,7 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
     out.template reserve<ndebug>(out.size() + ast.size() * 6);
     ::std::size_t const ast_size{ast.size()};
     for (::std::size_t index{}; index < ast_size; ++index) {
-        auto const& node = ast.template index<ndebug>(index);
+        auto const& node = ast.index(index);
         switch (node.get_node_kind()) {
         case ::pltxt2htm::NodeKind::text: {
             auto&& active_node = node.as_text();
@@ -86,8 +85,7 @@ constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> c
 }
 
 enum class PlWebTextBackendMode : unsigned {
-    pltxt4unittest = 0,
-    fixedadv_html,
+    fixedadv_html = 0,
     roundtrip,
 };
 
@@ -214,12 +212,7 @@ entry:
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_experiment));
                 result.template append<ndebug>(u8"<a href=\"");
                 ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(result, host);
-                if constexpr (mode != PlWebTextBackendMode::pltxt4unittest) {
-                    result.template append<ndebug>(u8"/p/Experiment/");
-                }
-                else {
-                    result.template append<ndebug>(u8"/ExperimentSummary/Experiment/");
-                }
+                result.template append<ndebug>(u8"/p/Experiment/");
                 auto const& experiment_id = active_node.get_id();
                 // Under normal circumstances, `experiment_id` should never contain characters that could enable XSS in
                 // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
@@ -244,12 +237,7 @@ entry:
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_discussion));
                 result.template append<ndebug>(u8"<a href=\"");
                 ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(result, host);
-                if constexpr (mode != PlWebTextBackendMode::pltxt4unittest) {
-                    result.template append<ndebug>(u8"/p/Discussion/");
-                }
-                else {
-                    result.template append<ndebug>(u8"/ExperimentSummary/Discussion/");
-                }
+                result.template append<ndebug>(u8"/p/Discussion/");
                 auto const& discussion_id = active_node.get_id();
                 // Under normal circumstances, `discussion_id` should never contain characters that could enable XSS in
                 // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only

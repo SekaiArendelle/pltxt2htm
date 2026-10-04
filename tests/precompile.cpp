@@ -14,7 +14,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <fast_io/fast_io.h>
-#include <fast_io/fast_io_dsal/string_view.h>
 #include <pltxt2htm/pltxt2htm.hh>
 #include <pltxt2htm/experimental/html_parser.hh>
 
@@ -48,7 +47,7 @@ namespace pltxt2htm_test {
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_htmld(::fast_io::u8string_view pltext) noexcept
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_htmld(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
     return ::pltxt2htm::pltxt2common_html<::pltxt2htm::Contracts::quick_enforce>(pltext);
 }
@@ -59,23 +58,11 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_htmld(::fast_io::u8string_view pl
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_html(::fast_io::u8string_view pltext) noexcept
+PLTXT2HTM_VISIBILITY_DEFAULT auto inline_pltxt4unittest(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
-    return ::pltxt2htm::pltxt2common_html<::pltxt2htm::Contracts::quick_enforce, true>(pltext);
-}
-
-#if __has_cpp_attribute(__gnu__::__used__)
-[[__gnu__::__used__]]
-#endif
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4unittest(::fast_io::u8string_view pltext) noexcept
-    -> ::pltxt2htm::container::U8String {
-    auto ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(pltext);
-    ::pltxt2htm::optimize_ast<::pltxt2htm::Contracts::quick_enforce>(ast);
+    auto ast = ::pltxt2htm::inline_parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(pltext);
     return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
-                                                    ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                    ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
         ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
@@ -85,11 +72,11 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4unittest(::fast_io::u8string_view pltext
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4htmlunittest(::fast_io::u8string_view pltext) noexcept
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4htmlunittest(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
     auto ast = ::pltxt2htm::experimental::parse_pltxt_html<::pltxt2htm::Contracts::quick_enforce>(pltext);
     return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
-                                                    ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                    ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
         ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
@@ -99,7 +86,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4htmlunittest(::fast_io::u8string_view pl
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2roundtrip_htmld(::fast_io::u8string_view pltext) noexcept
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2roundtrip_htmld(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
     auto ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(pltext);
     ::pltxt2htm::optimize_ast<::pltxt2htm::Contracts::quick_enforce>(ast);
@@ -114,7 +101,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2roundtrip_htmld(::fast_io::u8string_view
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext) noexcept
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
     return ::pltxt2htm::pltxt2fixedadv_html<::pltxt2htm::Contracts::quick_enforce>(
         pltext, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
@@ -126,11 +113,10 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(::fast_io::u8string_view 
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(::fast_io::u8string_view pltext, ::fast_io::u8string_view host,
-                                                       ::fast_io::u8string_view project,
-                                                       ::fast_io::u8string_view visitor,
-                                                       ::fast_io::u8string_view author,
-                                                       ::fast_io::u8string_view coauthors) noexcept
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(
+    ::pltxt2htm::container::U8StringView pltext, ::pltxt2htm::container::U8StringView host,
+    ::pltxt2htm::container::U8StringView project, ::pltxt2htm::container::U8StringView visitor,
+    ::pltxt2htm::container::U8StringView author, ::pltxt2htm::container::U8StringView coauthors) noexcept
     -> ::pltxt2htm::container::U8String {
     return ::pltxt2htm::pltxt2fixedadv_html<::pltxt2htm::Contracts::quick_enforce>(pltext, host, project, visitor,
                                                                                    author, coauthors);
@@ -142,7 +128,8 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(::fast_io::u8string_view 
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(::fast_io::u8string_view pltext) noexcept
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(
+    ::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
     return ::pltxt2htm::pltxt2plunity_introduction<::pltxt2htm::Contracts::quick_enforce>(
         pltext, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
@@ -154,11 +141,10 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(::fast_io::u8string
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(::fast_io::u8string_view pltext,
-                                                             ::fast_io::u8string_view project,
-                                                             ::fast_io::u8string_view visitor,
-                                                             ::fast_io::u8string_view author,
-                                                             ::fast_io::u8string_view coauthors) noexcept
+PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(
+    ::pltxt2htm::container::U8StringView pltext, ::pltxt2htm::container::U8StringView project,
+    ::pltxt2htm::container::U8StringView visitor, ::pltxt2htm::container::U8StringView author,
+    ::pltxt2htm::container::U8StringView coauthors) noexcept
     -> ::pltxt2htm::container::U8String {
     return ::pltxt2htm::pltxt2plunity_introduction<::pltxt2htm::Contracts::quick_enforce>(pltext, project, visitor,
                                                                                           author, coauthors);
@@ -167,8 +153,9 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(::fast_io::u8string
 #if __has_cpp_attribute(__gnu__::__used__)
 [[__gnu__::__used__]]
 #endif
-PLTXT2HTM_VISIBILITY_DEFAULT void assert_true_impl(::fast_io::u8string_view file, ::std::size_t line,
-                                                   ::fast_io::u8string_view expr, bool cond) noexcept {
+PLTXT2HTM_VISIBILITY_DEFAULT void assert_true_impl(::pltxt2htm::container::U8StringView file,
+                                                   ::std::size_t line,
+                                                   ::pltxt2htm::container::U8StringView expr, bool cond) noexcept {
     if (!cond) [[unlikely]] {
         ::fast_io::io::perr(::fast_io::u8err(), u8"unittest failed: `", expr, u8"` is false\n  at ", file, u8":",
                             static_cast<::std::size_t>(line), u8"\n");
@@ -179,15 +166,14 @@ PLTXT2HTM_VISIBILITY_DEFAULT void assert_true_impl(::fast_io::u8string_view file
 #if __has_cpp_attribute(__gnu__::__used__)
 [[__gnu__::__used__]]
 #endif
-PLTXT2HTM_VISIBILITY_DEFAULT void assert_equal_impl(::fast_io::u8string_view file, ::std::size_t line,
-                                                    ::fast_io::u8string_view html_expr,
-                                                    ::fast_io::u8string_view answer_expr, ::fast_io::u8string_view html,
-                                                    ::fast_io::u8string_view answer) noexcept {
+PLTXT2HTM_VISIBILITY_DEFAULT void assert_equal_impl(
+    ::pltxt2htm::container::U8StringView file, ::std::size_t line,
+    ::pltxt2htm::container::U8StringView html_expr, ::pltxt2htm::container::U8StringView answer_expr,
+    ::pltxt2htm::container::U8StringView html, ::pltxt2htm::container::U8StringView answer) noexcept {
     if (html != answer) [[unlikely]] {
         ::fast_io::io::perr(::fast_io::u8err(), u8"unittest failed due to `", html_expr, u8" != ", answer_expr,
                             u8"`\n  at ", file, u8":", static_cast<::std::size_t>(line), u8"\n  ", html_expr, u8": ",
-                            ::fast_io::u8string_view{::std::data(html), ::std::size(html)}, u8"\n  ", answer_expr,
-                            u8": ", ::fast_io::u8string_view{::std::data(answer), ::std::size(answer)}, u8"\n");
+                            html, u8"\n  ", answer_expr, u8": ", answer, u8"\n");
         ::std::_Exit(EXIT_FAILURE);
     }
 }

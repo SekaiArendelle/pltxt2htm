@@ -34,7 +34,5 @@ or `-DPLTXT2HTM_SANITIZER=undefined` or `-DPLTXT2HTM_SANITIZER=memory`.
 | `PLTXT2HTM_SANITIZER` | Sanitizer: `address`, `undefined`, `memory` |
 | `PLTXT2HTM_ENABLE_COVERAGE` | Enable code coverage |
 
-## Generate Code Coverage
-```sh
-python ./codecov.py
-```
+## Generate code coverage
+Requires GCC plus `lcov` and `genhtml`. Use the container image in [`docker/codecov/`](./docker/codecov/README.md), or configure a local build with `-DPLTXT2HTM_ENABLE_COVERAGE=ON` and run `lcov` + `genhtml` over it.

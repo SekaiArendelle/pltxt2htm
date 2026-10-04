@@ -1,4 +1,4 @@
-### Please run `python gen_dockerignore.py` after change this file ###
+### Please run `python scripts/gen_dockerignore.py` after change this file ###
 
 # Python
 **/venv/
@@ -9,20 +9,14 @@ dist/
 **/__pycache__/
 **/*.pyc
 
-# Reasonix
-**/.reasonix
-
-# xmake
-**/.xmake/
-
 # vscode
 .vscode/
 
 # release dir, $target-pltxt2htm-[debug|release]
 **/*-pltxt2htm*/
 
-# lcov
-tests/lcov-report/
+# lcov coverage report (extracted pltxt2htm-codecov.tar.xz)
+/codecov/
 
 # archive
 **/*.7z
@@ -87,6 +81,9 @@ format_cpp.ninja
 
 # pixi
 **/.pixi
+
+# Reasonix
+**/.reasonix
 
 # OpenCode
 .opencode

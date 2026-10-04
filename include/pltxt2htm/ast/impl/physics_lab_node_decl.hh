@@ -10,7 +10,7 @@
 #include "../../container/string.hh"
 #include "../../details/literal_string.hh"
 #include "ast_decl.hh"
-#include "basic_node_decl.hh"
+#include "url_node_decl.hh"
 #include "../node_kind.hh"
 #include "../../contracts.hh"
 

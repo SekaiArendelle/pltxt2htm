@@ -4,6 +4,8 @@
 #include <utility>
 
 #include <fast_io/fast_io.h>
+#include <fast_io/fast_io_dsal/string.h>
+#include <fast_io/fast_io_dsal/string_view.h>
 
 #include <pltxt2htm/container/string.hh>
 
@@ -43,7 +45,9 @@ template<typename String>
 concept has_subscript_operator = requires(String& string) { string[0]; };
 
 static_assert(::std::same_as<U8String::value_type, char8_t>);
-static_assert(::std::is_constructible_v<U8String, ::fast_io::u8string const&>);
+static_assert(!::std::is_constructible_v<U8String, ::fast_io::u8string_view>);
+static_assert(!::std::is_constructible_v<U8String, ::fast_io::u8string const&>);
+static_assert(!::std::is_convertible_v<U8String const&, ::fast_io::u8string_view>);
 static_assert(::std::is_constructible_v<U8StringView, U8String const&>);
 static_assert(!::std::is_constructible_v<U8StringView, U8String&&>);
 static_assert(::std::is_convertible_v<U8String const&, U8StringView>);
@@ -151,10 +155,6 @@ int main() {
     U8String const string{u8"abc"};
     auto const printed = ::fast_io::u8concat_fast_io(string, 123);
     pltxt2htm_test_assert_true(printed == u8"abc123");
-
-    ::fast_io::u8string const fast_io_string{u8"fast_io"};
-    U8String const compatible{fast_io_string};
-    pltxt2htm_test_assert_true(compatible == u8"fast_io");
 
     char8_t const token_input[]{u8"  first second"};
     ::fast_io::u8ibuffer_view token_buffer{token_input, token_input + sizeof(token_input) / sizeof(char8_t) - 1};

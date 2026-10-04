@@ -2,8 +2,12 @@
 #include <cstring>
 #include <cassert>
 #include <utility>
-#include <fast_io/fast_io_dsal/string.h>
 #include <fast_io/fast_io.h>
+// fast_io only ships a runtime install-path backend for these platforms; the
+// banner reports `<unknown>` where there is none (e.g. wasm32-wasip1).
+#if defined(__linux__) || defined(_WIN32) || defined(__APPLE__)
+    #include <fast_io/fast_io_driver/install_path.h>
+#endif
 #include <pltxt2htm/pltxt2htm.hh>
 
 enum class TargetType : unsigned {
@@ -27,6 +31,40 @@ constexpr auto usage = ::pltxt2htm::container::U8StringView{
     echo "example" | pltxt2htm --target plunity_text --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string>
     echo "example" | pltxt2htm --target plunity_text --project <project name> --visitor <visitor name> --author <author name> --coauthors <coauthors string> -o <output file>
 )"};
+
+namespace {
+
+/**
+ * @brief Get the directory the running executable was loaded from
+ * @return UTF-8 install directory without a trailing separator, or an empty
+ *         string when the current platform has no runtime source for it
+ */
+[[nodiscard]] ::fast_io::u8string get_installed_dir() noexcept {
+#if defined(__linux__) || defined(_WIN32) || defined(__APPLE__)
+    #if __cpp_exceptions >= 199711L
+    try {
+        return ::fast_io::get_module_install_path().path_name;
+    } catch (::fast_io::error const&) {
+        return {};
+    }
+    #else
+    return ::fast_io::get_module_install_path().path_name;
+    #endif
+#else
+    return {};
+#endif
+}
+
+void print_installed_dir() noexcept {
+    auto const installed_dir = get_installed_dir();
+    if (installed_dir.empty()) {
+        ::fast_io::println(::fast_io::u8c_stdout(), u8"* installed dir: <unknown>");
+        return;
+    }
+    ::fast_io::println(::fast_io::u8c_stdout(), u8"* installed dir: ", installed_dir);
+}
+
+} // namespace
 
 int main(int argc, char const* const* const argv) noexcept {
     if (argc == 1) {
@@ -67,6 +105,7 @@ int main(int argc, char const* const* const argv) noexcept {
     #include "repo_info.ignore"
 #endif
         );
+        print_installed_dir();
         return 0;
     }
 
@@ -111,6 +150,7 @@ int main(int argc, char const* const* const argv) noexcept {
                 target_type = ::TargetType::plunity_text;
             }
             else {
+                // argv is an OS-encoded string printed to the native stderr, so os_c_str is the right tool here.
                 ::fast_io::perrln("Invalid target: ", ::fast_io::mnp::os_c_str(argv[i + 1]));
                 return 1;
             }
@@ -193,12 +233,12 @@ int main(int argc, char const* const* const argv) noexcept {
                     "version");
                 return 1;
             }
-            ::fast_io::println(::fast_io::concat_fast_io("pltxt2htm v", ::pltxt2htm::version::major, ".",
-                                                         ::pltxt2htm::version::minor, ".",
-                                                         ::pltxt2htm::version::patch));
+            ::fast_io::println("pltxt2htm v", ::pltxt2htm::version::major, ".", ::pltxt2htm::version::minor, ".",
+                               ::pltxt2htm::version::patch);
             return 0;
         }
         else [[unlikely]] {
+            // argv is an OS-encoded string printed to the native stderr, so os_c_str is the right tool here.
             ::fast_io::perrln("Unknown option: ", ::fast_io::mnp::os_c_str(argv[i]));
             return 1;
         }
@@ -303,10 +343,10 @@ int main(int argc, char const* const* const argv) noexcept {
 #else
             constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
 #endif
-            auto ast = ::pltxt2htm::parse_pltxt<ndebug>(::fast_io::mnp::os_c_str(input_text));
+            auto ast = ::pltxt2htm::parse_pltxt<ndebug>(::pltxt2htm::container::U8StringView{input_text});
             ::pltxt2htm::optimize_ast<ndebug>(ast);
             html = ::pltxt2htm::details::plweb_text_backend<ndebug,
-                                                            ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
+                                                            ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
                 ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         }
         else if (target_type == ::TargetType::common_html) {
@@ -316,7 +356,7 @@ int main(int argc, char const* const* const argv) noexcept {
 #else
                 ::pltxt2htm::Contracts::quick_enforce
 #endif
-                >(::fast_io::mnp::os_c_str(input_text));
+                >(::pltxt2htm::container::U8StringView{input_text});
         }
         else if (target_type == ::TargetType::fixedadv_html) {
             html = ::pltxt2htm::pltxt2fixedadv_html<
@@ -325,9 +365,12 @@ int main(int argc, char const* const* const argv) noexcept {
 #else
                 ::pltxt2htm::Contracts::quick_enforce
 #endif
-                >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(host),
-                  ::fast_io::mnp::os_c_str(project), ::fast_io::mnp::os_c_str(visitor),
-                  ::fast_io::mnp::os_c_str(author), ::fast_io::mnp::os_c_str(coauthors));
+                >(::pltxt2htm::container::U8StringView{input_text},
+                  ::pltxt2htm::container::U8StringView::from_c_str(host),
+                  ::pltxt2htm::container::U8StringView::from_c_str(project),
+                  ::pltxt2htm::container::U8StringView::from_c_str(visitor),
+                  ::pltxt2htm::container::U8StringView::from_c_str(author),
+                  ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
         }
         else if (target_type == ::TargetType::plunity_text) {
             html = ::pltxt2htm::pltxt2plunity_introduction<
@@ -336,9 +379,11 @@ int main(int argc, char const* const* const argv) noexcept {
 #else
                 ::pltxt2htm::Contracts::quick_enforce
 #endif
-                >(::fast_io::mnp::os_c_str(input_text), ::fast_io::mnp::os_c_str(project),
-                  ::fast_io::mnp::os_c_str(visitor), ::fast_io::mnp::os_c_str(author),
-                  ::fast_io::mnp::os_c_str(coauthors));
+                >(::pltxt2htm::container::U8StringView{input_text},
+                  ::pltxt2htm::container::U8StringView::from_c_str(project),
+                  ::pltxt2htm::container::U8StringView::from_c_str(visitor),
+                  ::pltxt2htm::container::U8StringView::from_c_str(author),
+                  ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
         }
         else [[unlikely]] {
             ::pltxt2htm::details::unreachable<
@@ -353,6 +398,7 @@ int main(int argc, char const* const* const argv) noexcept {
             ::fast_io::println(::fast_io::u8c_stdout(), html);
         }
         else {
+            // native_file takes an OS path, which is not UTF-8 text, so os_c_str is the right tool here.
             auto const output_file =
                 ::fast_io::native_file{::fast_io::mnp::os_c_str(output_file_path), ::fast_io::open_mode::out};
             auto output_file_handle = ::fast_io::u8native_io_observer{output_file.native_handle()};

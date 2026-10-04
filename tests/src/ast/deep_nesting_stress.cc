@@ -10,8 +10,9 @@ int main() {
         for (::std::size_t i{}; i < 500; ++i) {
             input.append<::pltxt2htm::Contracts::quick_enforce>(u8"</color>");
         }
-        auto html = ::pltxt2htm_test::pltxt4unittest(::fast_io::mnp::os_c_str(input));
-        pltxt2htm_test_assert_equal(html, u8"<span style=\"color:red;\">hello</span>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(::pltxt2htm::container::U8StringView{input});
+        auto const& answer = u8"<span style=\"color:red;\">hello</span>";
+        pltxt2htm_test_assert_equal(html, answer);
     }
 
     return 0;
