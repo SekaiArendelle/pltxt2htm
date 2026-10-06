@@ -7,6 +7,7 @@
 
 #include <concepts>
 #include <cstddef>
+#include <utility>
 
 #include <pltxt2htm/container/array.hh>
 #include <pltxt2htm/container/deque.hh>
@@ -154,7 +155,38 @@ constexpr auto test_vector_subscript() noexcept -> bool {
 
 static_assert(test_vector_subscript());
 
+[[nodiscard]]
+constexpr auto test_deque_external_self_assignment() noexcept -> bool {
+    IntDeque empty{};
+    auto& empty_alias = empty;
+    empty = empty_alias;
+    empty = ::std::move(empty_alias);
+    if (!empty.empty()) {
+        return false;
+    }
+    IntDeque values{};
+    for (int value{}; value != 300; ++value) {
+        values.push_back<::pltxt2htm::Contracts::quick_enforce>(value);
+    }
+    auto& alias = values;
+    auto const first_element = ::std::addressof(values[0]);
+    values = alias;
+    values = ::std::move(alias);
+    if (values.size() != 300 || ::std::addressof(values[0]) != first_element) {
+        return false;
+    }
+    for (int value{}; value != 300; ++value) {
+        if (values[static_cast<::std::size_t>(value)] != value) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static_assert(test_deque_external_self_assignment());
+
 int main() {
+    pltxt2htm_test_assert_true(test_deque_external_self_assignment());
     pltxt2htm_test_assert_true(test_deque_external_access());
     pltxt2htm_test_assert_true(test_vector_subscript());
     U8String string{u8"abcd"};

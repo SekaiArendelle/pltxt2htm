@@ -454,21 +454,43 @@ public:
         this->destroy_storage();
     }
 
+    /// @pre Internal callers must not assign the Deque to itself.
     constexpr auto operator=(this Deque& self, Deque const& other) noexcept -> Deque&
         requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    #ifdef NDEBUG
+        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+    #else
+        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+    #endif
+        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
+                         u8"Internal self-assignment is not allowed");
+#else
         if (::std::addressof(self) == ::std::addressof(other)) {
             return self;
         }
+#endif
         Deque copy{other};
         self.swap(copy);
         return self;
     }
 
+    /// @pre Internal callers must not assign the Deque to itself.
     constexpr auto operator=(this Deque& self, Deque&& other) noexcept -> Deque& {
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    #ifdef NDEBUG
+        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+    #else
+        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+    #endif
+        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
+                         u8"Internal self-assignment is not allowed");
+#else
         if (::std::addressof(self) == ::std::addressof(other)) {
             return self;
         }
+#endif
         self.swap(other);
         return self;
     }
