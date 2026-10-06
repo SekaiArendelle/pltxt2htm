@@ -519,7 +519,7 @@ public:
     }
 #endif
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void reserve(this Vector& self, size_type requested_capacity) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
     {
@@ -530,7 +530,7 @@ public:
         self.reallocate(requested_capacity);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, typename... Args>
+    template<::pltxt2htm::Contracts ndebug, typename... Args>
         requires (::std::is_nothrow_move_constructible_v<value_type> &&
                   ::std::is_nothrow_constructible_v<value_type, Args...> &&
                   ::std::is_nothrow_destructible_v<value_type>)
@@ -544,7 +544,7 @@ public:
         return self.template reallocate_and_emplace<ndebug>(::std::forward<Args>(args)...);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this Vector& self, const_reference value) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> &&
                   ::std::is_nothrow_copy_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
@@ -552,14 +552,14 @@ public:
         self.template emplace_back<ndebug>(value);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this Vector& self, value_type&& value) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
     {
         self.template emplace_back<ndebug>(::std::move(value));
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void pop_back(this Vector& self) noexcept
         requires ::std::is_nothrow_destructible_v<value_type>
     {
@@ -581,7 +581,7 @@ public:
     /**
      * @pre A single-pass input range must not reference elements in this Vector.
      */
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, ::std::ranges::input_range R>
+    template<::pltxt2htm::Contracts ndebug, ::std::ranges::input_range R>
     constexpr void append_range(this Vector& self, R&& range) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type> &&
                   is_nothrow_append_range<R>())
