@@ -149,7 +149,7 @@ private:
     constexpr void construct_zero(this BasicString& self, size_type count) noexcept {
         // Work around constructors being unable to receive an explicitly selected Contracts template argument.
 #ifndef NDEBUG
-        constexpr auto ndebug{::pltxt2htm::Contracts::quick_enforce};
+        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
         pltxt2htm_assert(count != 0, u8"BasicString capacity can not be zero");
         pltxt2htm_assert(count < self.max_size(), u8"BasicString capacity is too large");
 #endif
@@ -184,7 +184,7 @@ private:
         }
         // Constructors cannot receive an explicitly selected Contracts template argument.
 #ifndef NDEBUG
-        constexpr auto ndebug{::pltxt2htm::Contracts::quick_enforce};
+        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
         pltxt2htm_assert(count < self.max_size(), u8"BasicString capacity is too large");
 #endif
         auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(count + 1);
@@ -1215,7 +1215,7 @@ constexpr auto scan_context_define_basic_string(bool& copying, CharType const* f
 #else
     constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
 #endif
-    auto iterator{first};
+    auto iterator = first;
     if constexpr (!noskipws && !line) {
         if (!copying) {
             iterator = ::fast_io::find_none_c_space(iterator, last);
@@ -1227,7 +1227,7 @@ constexpr auto scan_context_define_basic_string(bool& copying, CharType const* f
         }
     }
 
-    auto end_iterator{iterator};
+    auto end_iterator = iterator;
     if constexpr (line) {
         end_iterator = ::fast_io::find_lf(end_iterator, last);
     }
