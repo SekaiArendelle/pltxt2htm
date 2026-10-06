@@ -34,12 +34,12 @@ template<::pltxt2htm::Contracts ndebug>
 constexpr auto plweb_title_backend(::pltxt2htm::Ast<ndebug> const& ast_init) noexcept
     -> ::pltxt2htm::container::U8String {
     ::pltxt2htm::container::U8String result{};
-    ::pltxt2htm::details::CallStack<BackendFrame<ndebug>> call_stack{};
+    ::pltxt2htm::details::CallStack<ndebug, BackendFrame<ndebug>> call_stack{};
     call_stack.push_frame(BackendFrame<ndebug>(ast_init, ::pltxt2htm::NodeKind::group));
 
 entry:
     while (true) {
-        auto&& current_frame = call_stack.template current_frame<ndebug>();
+        auto&& current_frame = call_stack.current_frame();
         auto&& next = current_frame.next;
         auto const end = current_frame.end;
         while (next != end) {
@@ -559,7 +559,7 @@ entry:
 
         {
             bool const has_parent{call_stack.has_parent()};
-            auto const top_frame = call_stack.template pop_frame<ndebug>();
+            auto const top_frame = call_stack.pop_frame();
             if (!has_parent) {
                 return result;
             }

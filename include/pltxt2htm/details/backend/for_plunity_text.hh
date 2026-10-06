@@ -105,13 +105,13 @@ constexpr auto plunity_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init,
                                     ::pltxt2htm::container::U8StringView coauthors) noexcept
     -> ::pltxt2htm::container::U8String {
     ::pltxt2htm::container::U8String result{};
-    ::pltxt2htm::details::CallStack<BackendFrame<ndebug>> call_stack{};
+    ::pltxt2htm::details::CallStack<ndebug, BackendFrame<ndebug>> call_stack{};
     call_stack.push_frame(BackendFrame<ndebug>(ast_init, ::pltxt2htm::NodeKind::group));
     ::std::size_t list_nesting_depth{};
 
 entry:
     while (true) {
-        auto&& current_frame = call_stack.template current_frame<ndebug>();
+        auto&& current_frame = call_stack.current_frame();
         auto&& next = current_frame.next;
         auto const end = current_frame.end;
         while (next != end) {
@@ -824,7 +824,7 @@ entry:
                 auto&& active_node = node.as_list_ul();
                 auto const& list_ul = active_node;
                 pltxt2htm_assert(list_ul.get_subast().is_empty() == false, u8"List container must not be empty");
-                auto const parent_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto const parent_tag_type = call_stack.current_frame().get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
                     result.template push_back<ndebug>(u8'\n');
@@ -837,7 +837,7 @@ entry:
                 auto&& active_node = node.as_list_ol();
                 auto const& list_ol = active_node;
                 pltxt2htm_assert(list_ol.get_subast().is_empty() == false, u8"List container must not be empty");
-                auto const parent_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto const parent_tag_type = call_stack.current_frame().get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_li ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_li_checkbox) {
                     result.template push_back<ndebug>(u8'\n');
@@ -850,7 +850,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::list_li: {
                 auto&& active_node = node.as_list_li();
-                auto&& list_frame = call_stack.template current_frame<ndebug>();
+                auto&& list_frame = call_stack.current_frame();
                 auto const list_tag_type = list_frame.get_nested_tag_type();
                 pltxt2htm_assert(
                     list_tag_type == ::pltxt2htm::NodeKind::list_ol || list_tag_type == ::pltxt2htm::NodeKind::list_ul,
@@ -887,7 +887,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::list_li_checkbox: {
                 auto&& active_node = node.as_list_li_checkbox();
-                auto&& list_frame = call_stack.template current_frame<ndebug>();
+                auto&& list_frame = call_stack.current_frame();
                 auto const list_tag_type = list_frame.get_nested_tag_type();
                 auto const indent_level = list_nesting_depth;
                 for (::std::size_t i = 1; i < indent_level; ++i) {
@@ -1163,7 +1163,7 @@ entry:
 
         {
             bool const has_parent{call_stack.has_parent()};
-            auto const top_frame = call_stack.template pop_frame<ndebug>();
+            auto const top_frame = call_stack.pop_frame();
             if (!has_parent) {
                 return result;
             }
@@ -1284,7 +1284,7 @@ entry:
                 if (top_frame.as_align_info().has_align) {
                     result.template append<ndebug>(u8"</align>");
                 }
-                auto const& parent_frame = call_stack.template current_frame<ndebug>();
+                auto const& parent_frame = call_stack.current_frame();
                 if (parent_frame.next != parent_frame.end) {
                     auto const next_kind = parent_frame.next->get_node_kind();
                     if (next_kind != ::pltxt2htm::NodeKind::line_break && next_kind != ::pltxt2htm::NodeKind::html_br &&
