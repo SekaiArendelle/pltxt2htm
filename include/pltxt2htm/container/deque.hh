@@ -145,12 +145,11 @@ private:
         self.start_offset = new_first_block * elements_per_block + self.start_offset % elements_per_block;
     }
 
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void grow_map(this Deque& self, size_type required_front, size_type required_back) noexcept {
         size_type const used_blocks{self.allocated_block_count()};
         size_type const required_capacity{used_blocks + required_front + required_back};
-        if (required_capacity > max_map_capacity) [[unlikely]] {
-            ::fast_io::fast_terminate();
-        }
+        pltxt2htm_assert(required_capacity <= max_map_capacity, u8"Deque map capacity exceeds max_map_capacity");
         size_type new_capacity{self.map_capacity == 0 ? initial_map_capacity : self.map_capacity};
         // Leave enough slack to amortize map movement when the queue is nearly full.
         while (new_capacity < required_capacity || used_blocks > new_capacity / 2) {
@@ -203,18 +202,20 @@ private:
         pltxt2htm_assert(self.element_count < self.max_size(), u8"Deque size exceeds max_size");
     }
 
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void ensure_front_slot(this Deque& self) noexcept {
         self.ensure_map();
         if (self.start_offset / elements_per_block == 0) [[unlikely]] {
-            self.grow_map(1, 0);
+            self.template grow_map<ndebug>(1, 0);
         }
     }
 
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void ensure_back_slot(this Deque& self) noexcept {
         self.ensure_map();
         size_type const used_blocks{self.allocated_block_count()};
         if (self.start_offset / elements_per_block + used_blocks == self.map_capacity) [[unlikely]] {
-            self.grow_map(0, 1);
+            self.template grow_map<ndebug>(0, 1);
         }
     }
 
@@ -686,7 +687,7 @@ public:
         bool const needs_block{self.element_count == 0 || block_offset == 0};
 
         if (needs_block) {
-            self.ensure_back_slot();
+            self.template ensure_back_slot<ndebug>();
             size_type const map_index{self.start_offset / elements_per_block + self.allocated_block_count()};
             pointer const new_block{element_allocator::allocate(elements_per_block)};
             pointer const result{::std::construct_at(new_block, ::std::forward<Arguments>(arguments)...)};
@@ -718,7 +719,7 @@ public:
             return *result;
         }
 
-        self.ensure_front_slot();
+        self.template ensure_front_slot<ndebug>();
         pointer const new_block{element_allocator::allocate(elements_per_block)};
         pointer const result{
             ::std::construct_at(new_block + elements_per_block - 1, ::std::forward<Arguments>(arguments)...)};
