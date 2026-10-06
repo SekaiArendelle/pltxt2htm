@@ -34,6 +34,14 @@ static_assert(!has_access_without_contract<IntDeque>);
 static_assert(!has_access_without_contract<IntDeque const>);
 
 template<typename Deque>
+concept has_growth_without_contract = requires(Deque& values) { values.emplace_back(1); } || requires(Deque& values) {
+    values.push_back(1);
+} || requires(Deque& values) { values.push_front(1); };
+
+static_assert(has_growth_without_contract<IntDeque>);
+static_assert(!has_growth_without_contract<IntDeque const>);
+
+template<typename Deque>
 concept has_external_subscript = requires(Deque& values) { values[0]; };
 
 template<typename Deque>
