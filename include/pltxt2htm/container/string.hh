@@ -454,7 +454,8 @@ public:
      * @param other String to copy.
      * @return self.
      *
-     * Existing capacity is reused when sufficient. Self-assignment has no effect.
+     * Existing capacity is reused when sufficient. External self-assignment has no effect.
+     * @pre Internal callers must not assign the string to itself.
      */
     constexpr auto operator=(this BasicString& self, BasicString const& other) noexcept -> BasicString& {
 #ifdef NDEBUG
@@ -462,9 +463,15 @@ public:
 #else
         constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
 #endif
-        if (::std::addressof(self) != ::std::addressof(other)) {
-            self.template assign_impl<ndebug>(other.data(), other.size());
+#if defined(PLTXT2HTM_INTERNAL_USE)
+        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
+                         u8"Internal self-assignment is not allowed");
+#else
+        if (::std::addressof(self) == ::std::addressof(other)) {
+            return self;
         }
+#endif
+        self.template assign_impl<ndebug>(other.data(), other.size());
         return self;
     }
 
@@ -474,12 +481,23 @@ public:
      * @return self.
      *
      * Existing owned storage is released. After the operation, other is a valid
-     * empty string. Self-move-assignment has no effect.
+     * empty string. External self-move-assignment has no effect.
+     * @pre Internal callers must not move-assign the string to itself.
      */
     constexpr auto operator=(this BasicString& self, BasicString&& other) noexcept -> BasicString& {
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    #ifdef NDEBUG
+        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+    #else
+        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+    #endif
+        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
+                         u8"Internal self-move-assignment is not allowed");
+#else
         if (::std::addressof(self) == ::std::addressof(other)) {
             return self;
         }
+#endif
         self.destroy();
         self.begin_pointer = other.begin_pointer;
         self.current_pointer = other.current_pointer;

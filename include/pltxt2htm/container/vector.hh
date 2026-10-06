@@ -299,23 +299,45 @@ public:
           current_capacity{::std::exchange(other.current_capacity, 0)} {
     }
 
+    /// @pre Internal callers must not assign the Vector to itself.
     constexpr auto operator=(this Vector& self, Vector const& other) noexcept -> Vector& {
         static_assert(::std::is_nothrow_copy_constructible_v<value_type>,
                       "Vector requires nothrow-copy-constructible elements when copied");
         static_assert(::std::is_nothrow_destructible_v<value_type>, "Vector requires nothrow-destructible elements");
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    #ifdef NDEBUG
+        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+    #else
+        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+    #endif
+        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
+                         u8"Internal self-assignment is not allowed");
+#else
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
+#endif
         Vector temporary{other};
         self.swap(temporary);
         return self;
     }
 
+    /// @pre Internal callers must not assign the Vector to itself.
     constexpr auto operator=(this Vector& self, Vector&& other) noexcept -> Vector& {
         static_assert(::std::is_nothrow_destructible_v<value_type>, "Vector requires nothrow-destructible elements");
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    #ifdef NDEBUG
+        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+    #else
+        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+    #endif
+        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
+                         u8"Internal self-assignment is not allowed");
+#else
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
+#endif
         self.swap(other);
         return self;
     }

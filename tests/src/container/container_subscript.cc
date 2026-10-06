@@ -7,6 +7,7 @@
 
 #include <concepts>
 #include <cstddef>
+#include <utility>
 
 #include <pltxt2htm/container/array.hh>
 #include <pltxt2htm/container/string.hh>
@@ -129,7 +130,41 @@ constexpr auto test_vector_subscript() noexcept -> bool {
 
 static_assert(test_vector_subscript());
 
+[[nodiscard]]
+constexpr auto test_external_self_assignment() noexcept -> bool {
+    U8String string{u8"abc"};
+    auto& string_alias = string;
+    auto const string_capacity = string.capacity();
+    string = string_alias;
+    if (string != u8"abc" || string.capacity() != string_capacity) {
+        return false;
+    }
+    string = ::std::move(string_alias);
+    if (string != u8"abc" || string.capacity() != string_capacity || string.c_str()[3] != u8'\0') {
+        return false;
+    }
+    U8InplaceString inplace{u8'a'};
+    auto& inplace_alias = inplace;
+    inplace = inplace_alias;
+    inplace = ::std::move(inplace_alias);
+    if (inplace.size() != 1 || inplace[0] != u8'a') {
+        return false;
+    }
+    IntVector vector{1, 2, 3};
+    auto& vector_alias = vector;
+    auto const vector_capacity = vector.capacity();
+    vector = vector_alias;
+    if (vector != IntVector{1, 2, 3} || vector.capacity() != vector_capacity) {
+        return false;
+    }
+    vector = ::std::move(vector_alias);
+    return vector == IntVector{1, 2, 3} && vector.capacity() == vector_capacity;
+}
+
+static_assert(test_external_self_assignment());
+
 int main() {
+    pltxt2htm_test_assert_true(test_external_self_assignment());
     pltxt2htm_test_assert_true(test_vector_subscript());
     U8String string{u8"abcd"};
     pltxt2htm_test_assert_true(string[0] == u8'a');
