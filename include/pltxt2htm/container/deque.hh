@@ -153,7 +153,7 @@ private:
         size_type new_capacity{self.map_capacity == 0 ? initial_map_capacity : self.map_capacity};
         // Leave enough slack to amortize map movement when the queue is nearly full.
         while (new_capacity < required_capacity || used_blocks > new_capacity / 2) {
-            if (new_capacity > max_map_capacity / 2) [[unlikely]] {
+            if (new_capacity > max_map_capacity / 2) {
                 new_capacity = required_capacity;
                 break;
             }
@@ -205,7 +205,7 @@ private:
     template<::pltxt2htm::Contracts ndebug>
     constexpr void ensure_front_slot(this Deque& self) noexcept {
         self.ensure_map();
-        if (self.start_offset / elements_per_block == 0) [[unlikely]] {
+        if (self.start_offset / elements_per_block == 0) {
             self.template grow_map<ndebug>(1, 0);
         }
     }
@@ -214,7 +214,7 @@ private:
     constexpr void ensure_back_slot(this Deque& self) noexcept {
         self.ensure_map();
         size_type const used_blocks{self.allocated_block_count()};
-        if (self.start_offset / elements_per_block + used_blocks == self.map_capacity) [[unlikely]] {
+        if (self.start_offset / elements_per_block + used_blocks == self.map_capacity) {
             self.template grow_map<ndebug>(0, 1);
         }
     }
@@ -457,7 +457,7 @@ public:
     constexpr auto operator=(this Deque& self, Deque const& other) noexcept -> Deque&
         requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
-        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
+        if (::std::addressof(self) == ::std::addressof(other)) {
             return self;
         }
         Deque copy{other};
@@ -466,7 +466,7 @@ public:
     }
 
     constexpr auto operator=(this Deque& self, Deque&& other) noexcept -> Deque& {
-        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
+        if (::std::addressof(self) == ::std::addressof(other)) {
             return self;
         }
         self.swap(other);
