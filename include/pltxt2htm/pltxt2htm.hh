@@ -20,7 +20,6 @@
 #include "container/array.hh"
 #include "container/string_view.hh"
 #include "container/optional.hh"
-#include "container/expected.hh"
 #include "container/vector.hh"
 #include "contracts.hh"
 #include "parser.hh"

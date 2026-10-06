@@ -18,8 +18,9 @@ namespace pltxt2htm::details {
 /**
  * @brief Manually managed call stack used by iterative parsers and AST traversals.
  * @tparam Frame Nothrow-movable activation-record type.
+ * @tparam ndebug Contract checking mode for stack operations.
  */
-template<typename Frame>
+template<::pltxt2htm::Contracts ndebug, typename Frame>
     requires ::std::is_nothrow_move_constructible_v<Frame>
 class CallStack {
 public:
@@ -34,14 +35,12 @@ private:
 public:
     constexpr CallStack() noexcept = default;
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto current_frame(this CallStack& self) noexcept -> reference {
         pltxt2htm_assert(self.empty() == false, u8"Accessing current frame but CallStack is empty");
         return self.frames.template back<ndebug>();
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto current_frame(this CallStack const& self) noexcept -> const_reference {
         pltxt2htm_assert(self.empty() == false, u8"Accessing current frame but CallStack is empty");
@@ -72,13 +71,11 @@ public:
         self.frames.template push_back<::pltxt2htm::Contracts::quick_enforce>(::std::move(frame));
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void discard_current_frame(this CallStack& self) noexcept {
         pltxt2htm_assert(self.empty() == false, u8"Popping current frame but CallStack is empty");
         self.frames.template pop_back<ndebug>();
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto pop_frame(this CallStack& self) noexcept -> frame_type {
         pltxt2htm_assert(self.empty() == false, u8"Popping current frame but CallStack is empty");
