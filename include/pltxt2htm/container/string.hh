@@ -323,6 +323,7 @@ private:
 
     /**
      * @brief Replaces the contents with a counted character sequence.
+     * @tparam ndebug Contract policy used for capacity validation.
      * @param source First source character; it may point into self.
      * @param count Number of characters to assign.
      *
@@ -330,13 +331,14 @@ private:
      * length is bounded by self.size(). Once capacity is sufficient, the runtime
      * path uses overlap-safe copying and therefore needs no alias scan.
      */
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void assign_impl(this BasicString& self, const_pointer source, size_type count) noexcept {
         if (count == 0) {
             self.clear();
             return;
         }
         if (count > self.capacity()) {
-            self.reserve<::pltxt2htm::Contracts::quick_enforce>(count);
+            self.template reserve<ndebug>(count);
         }
 
         if consteval {
@@ -455,8 +457,13 @@ public:
      * Existing capacity is reused when sufficient. Self-assignment has no effect.
      */
     constexpr auto operator=(this BasicString& self, BasicString const& other) noexcept -> BasicString& {
+#ifdef NDEBUG
+        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+#else
+        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+#endif
         if (::std::addressof(self) != ::std::addressof(other)) {
-            self.assign_impl(other.data(), other.size());
+            self.template assign_impl<ndebug>(other.data(), other.size());
         }
         return self;
     }
@@ -487,7 +494,12 @@ public:
      * @return self.
      */
     constexpr auto operator=(this BasicString& self, string_view_type string) noexcept -> BasicString& {
-        self.assign_impl(string.data(), string.size());
+#ifdef NDEBUG
+        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+#else
+        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+#endif
+        self.template assign_impl<ndebug>(string.data(), string.size());
         return self;
     }
 
@@ -895,22 +907,26 @@ public:
 
     /**
      * @brief Replaces the contents with a view.
+     * @tparam ndebug Contract policy used for capacity validation.
      * @param string Source view, which may refer to self.
      *
      * Existing capacity is retained and reused when sufficient.
      */
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void assign(this BasicString& self, string_view_type string) noexcept {
-        self.assign_impl(string.data(), string.size());
+        self.template assign_impl<ndebug>(string.data(), string.size());
     }
 
     /**
      * @brief Replaces the contents with the half-open range `[first, last)`.
+     * @tparam ndebug Contract policy used for capacity validation.
      * @param first First source character.
      * @param last One past the last source character.
      * @pre first and last describe one valid contiguous range, with first <= last.
      */
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void assign(this BasicString& self, const_pointer first, const_pointer last) noexcept {
-        self.assign_impl(first, static_cast<size_type>(last - first));
+        self.template assign_impl<ndebug>(first, static_cast<size_type>(last - first));
     }
 
     /**
@@ -1221,7 +1237,7 @@ constexpr auto scan_context_define_basic_string(bool& copying, CharType const* f
 
     if constexpr (noskipws || line) {
         if (!copying) {
-            string_.assign(iterator, end_iterator);
+            string_.template assign<ndebug>(iterator, end_iterator);
             copying = true;
         }
         else {
@@ -1251,7 +1267,7 @@ constexpr auto scan_context_define_whole_basic_string(bool& copying, CharType co
     constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
 #endif
     if (!copying) {
-        string_.assign(first, last);
+        string_.template assign<ndebug>(first, last);
         copying = true;
     }
     else {

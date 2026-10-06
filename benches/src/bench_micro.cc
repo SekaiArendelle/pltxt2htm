@@ -225,7 +225,7 @@ BENCHMARK_DEFINE_F(MicroFixture, BasicStringAssign)(benchmark::State& st) {
     ::pltxt2htm::container::U8String target;
     target.reserve<ndebug>(as_size(st));
     for (auto _ : st) {
-        target.assign(::pltxt2htm::container::U8StringView{source});
+        target.assign<ndebug>(::pltxt2htm::container::U8StringView{source});
         ::benchmark::DoNotOptimize(target);
     }
 }
