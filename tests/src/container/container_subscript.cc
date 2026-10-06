@@ -127,7 +127,7 @@ constexpr auto test_deque_external_access() noexcept -> bool {
         return false;
     }
     for (int value{}; value != 300; ++value) {
-        values.push_back(value);
+        values.push_back<::pltxt2htm::Contracts::quick_enforce>(value);
     }
     values[129] = 42;
     auto const& const_values = values;

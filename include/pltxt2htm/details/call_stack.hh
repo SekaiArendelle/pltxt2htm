@@ -69,7 +69,7 @@ public:
     }
 
     constexpr void push_frame(this CallStack& self, frame_type&& frame) noexcept {
-        self.frames.push_back(::std::move(frame));
+        self.frames.template push_back<::pltxt2htm::Contracts::quick_enforce>(::std::move(frame));
     }
 
     template<::pltxt2htm::Contracts ndebug>

@@ -677,7 +677,7 @@ public:
         return *self.pointer_at(self.element_count - 1);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, typename... Arguments>
+    template<::pltxt2htm::Contracts ndebug, typename... Arguments>
         requires ::std::is_nothrow_constructible_v<value_type, Arguments...>
     constexpr auto emplace_back(this Deque& self, Arguments&&... arguments) noexcept -> reference {
         self.template ensure_can_grow<ndebug>();
@@ -701,7 +701,7 @@ public:
         return *result;
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, typename... Arguments>
+    template<::pltxt2htm::Contracts ndebug, typename... Arguments>
         requires ::std::is_nothrow_constructible_v<value_type, Arguments...>
     constexpr auto emplace_front(this Deque& self, Arguments&&... arguments) noexcept -> reference {
         self.template ensure_can_grow<ndebug>();
@@ -728,28 +728,28 @@ public:
         return *result;
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this Deque& self, const_reference value) noexcept
         requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
         self.template emplace_back<ndebug>(value);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this Deque& self, value_type&& value) noexcept
         requires ::std::is_nothrow_move_constructible_v<value_type>
     {
         self.template emplace_back<ndebug>(::std::move(value));
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_front(this Deque& self, const_reference value) noexcept
         requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
         self.template emplace_front<ndebug>(value);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_front(this Deque& self, value_type&& value) noexcept
         requires ::std::is_nothrow_move_constructible_v<value_type>
     {
