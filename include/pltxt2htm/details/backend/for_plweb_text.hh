@@ -117,12 +117,12 @@ constexpr auto plweb_text_backend(::pltxt2htm::Ast<ndebug> const& ast_init, ::pl
                                   ::pltxt2htm::container::U8StringView coauthors) noexcept
     -> ::pltxt2htm::container::U8String {
     ::pltxt2htm::container::U8String result{};
-    ::pltxt2htm::details::CallStack<BackendFrame<ndebug>> call_stack{};
+    ::pltxt2htm::details::CallStack<ndebug, BackendFrame<ndebug>> call_stack{};
     call_stack.push_frame(BackendFrame<ndebug>(ast_init, ::pltxt2htm::NodeKind::group));
 
 entry:
     while (true) {
-        auto&& current_frame = call_stack.template current_frame<ndebug>();
+        auto&& current_frame = call_stack.current_frame();
         auto const nested_tag_type = current_frame.get_nested_tag_type();
         auto&& next = current_frame.next;
         auto const end = current_frame.end;
@@ -1216,7 +1216,7 @@ entry:
 
         {
             bool const has_parent{call_stack.has_parent()};
-            auto const top_frame = call_stack.template pop_frame<ndebug>();
+            auto const top_frame = call_stack.pop_frame();
             if (!has_parent) {
                 return result;
             }
@@ -1382,14 +1382,14 @@ entry:
             }
             case ::pltxt2htm::NodeKind::list_ul: {
                 result.template append<ndebug>(u8"</ul>");
-                auto const parent_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto const parent_tag_type = call_stack.current_frame().get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_ul ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_ol) {
                     // A sibling-nested list defers the parent item's </li>. Consecutive
                     // sibling lists ([li, ul, ul]) share one deferred </li>, so keep it open
                     // while another list follows as the next sibling and emit it only after
                     // the last list of the run.
-                    auto const& parent_frame = call_stack.template current_frame<ndebug>();
+                    auto const& parent_frame = call_stack.current_frame();
                     if (parent_frame.next == parent_frame.end ||
                         (parent_frame.next->get_node_kind() != ::pltxt2htm::NodeKind::list_ul &&
                          parent_frame.next->get_node_kind() != ::pltxt2htm::NodeKind::list_ol)) {
@@ -1400,12 +1400,12 @@ entry:
             }
             case ::pltxt2htm::NodeKind::list_ol: {
                 result.template append<ndebug>(u8"</ol>");
-                auto const parent_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto const parent_tag_type = call_stack.current_frame().get_nested_tag_type();
                 if (parent_tag_type == ::pltxt2htm::NodeKind::list_ul ||
                     parent_tag_type == ::pltxt2htm::NodeKind::list_ol) {
                     // See the list_ul case above: keep the deferred </li> open across
                     // consecutive sibling lists and close it after the last one.
-                    auto const& parent_frame = call_stack.template current_frame<ndebug>();
+                    auto const& parent_frame = call_stack.current_frame();
                     if (parent_frame.next == parent_frame.end ||
                         (parent_frame.next->get_node_kind() != ::pltxt2htm::NodeKind::list_ul &&
                          parent_frame.next->get_node_kind() != ::pltxt2htm::NodeKind::list_ol)) {
@@ -1420,7 +1420,7 @@ entry:
                 // If the next sibling in the parent list is itself a list (the Markdown
                 // nested-list shape), defer </li> so the nested list renders inside this
                 // item; the nested list's closing appends the deferred </li>.
-                auto const& parent_frame = call_stack.template current_frame<ndebug>();
+                auto const& parent_frame = call_stack.current_frame();
                 if (parent_frame.next != parent_frame.end) {
                     auto const next_kind = parent_frame.next->get_node_kind();
                     if (next_kind == ::pltxt2htm::NodeKind::list_ul || next_kind == ::pltxt2htm::NodeKind::list_ol) {

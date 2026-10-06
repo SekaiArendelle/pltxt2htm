@@ -1370,7 +1370,7 @@ public:
  * @brief Push a list frame for a freshly parsed top-level ListUlNode/ListOlNode.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void push_list_frame(::pltxt2htm::details::CallStack<ParserFrame<ndebug>>& call_stack,
+constexpr void push_list_frame(::pltxt2htm::details::CallStack<ndebug, ParserFrame<ndebug>>& call_stack,
                                ListBaseNode<ndebug>&& top_node) noexcept {
     switch (top_node.get_type()) {
     case ListNodeType::list_ul: {
@@ -1415,9 +1415,9 @@ constexpr void push_list_frame(::pltxt2htm::details::CallStack<ParserFrame<ndebu
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<ndebug>>& call_stack) noexcept
+constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ndebug, ParserFrame<ndebug>>& call_stack) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::Ast<ndebug>> {
-    auto&& frame = call_stack.template current_frame<ndebug>();
+    auto&& frame = call_stack.current_frame();
     auto&& raw_ast = frame.as_table().raw_ast;
     auto const state = frame.as_table().state;
     auto const row_index = frame.as_table().row_index;
@@ -1458,7 +1458,7 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
     }
     case TableParsePhase::finish: {
         auto previous_frame = ::std::move(frame);
-        call_stack.template discard_current_frame<ndebug>();
+        call_stack.discard_current_frame();
 
         ::pltxt2htm::Ast<ndebug> flat_ast = ::std::move(previous_frame.subast);
         auto&& prev_raw_ast = previous_frame.as_table().raw_ast;
@@ -1525,7 +1525,7 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame<n
             return table_ast;
         }
 
-        auto&& parent_frame = call_stack.template current_frame<ndebug>();
+        auto&& parent_frame = call_stack.current_frame();
         parent_frame.subast.push_back(
             ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Table<ndebug>>(::std::move(table_ast)));
         return ::pltxt2htm::container::nullopt;
