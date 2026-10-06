@@ -180,7 +180,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
                 }
                 auto&& [nested_node, nested_advance] = opt_nested.template value<ndebug>();
                 current_index += nested_advance;
-                pending_nested.emplace_back(::std::move(nested_node));
+                pending_nested.template emplace_back<ndebug>(::std::move(nested_node));
                 continue;
             }
             // Ordinary content character.
@@ -196,15 +196,15 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
             text.template pop_back<ndebug>();
         }
         if (checkbox) {
-            ast.emplace_back(ListLiCheckboxNode(::std::move(text), checkbox_checked));
+            ast.template emplace_back<ndebug>(ListLiCheckboxNode(::std::move(text), checkbox_checked));
         }
         else {
-            ast.emplace_back(ListLiNode(::std::move(text)));
+            ast.template emplace_back<ndebug>(ListLiNode(::std::move(text)));
         }
         // Append the nested lists as siblings after the item (the Markdown sibling shape),
         // so the shared list frame handling and backends apply uniformly.
         for (auto& node : pending_nested) {
-            ast.emplace_back(::std::move(node));
+            ast.template emplace_back<ndebug>(::std::move(node));
         }
     }
 }

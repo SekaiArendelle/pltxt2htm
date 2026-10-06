@@ -339,12 +339,12 @@ entry:
                 auto const& unity_size = active_node.get_font_size();
                 switch (unity_size.unit) /* -Werror=switch */ {
                 case ::pltxt2htm::Unit::percent: {
-                    result.template append<ndebug>(::pltxt2htm::details::double2str(unity_size.value));
+                    result.template append<ndebug>(::pltxt2htm::details::double2str<ndebug>(unity_size.value));
                     result.template append<ndebug>(u8"%;\">");
                     break;
                 }
                 case ::pltxt2htm::Unit::em: {
-                    result.template append<ndebug>(::pltxt2htm::details::double2str(unity_size.value));
+                    result.template append<ndebug>(::pltxt2htm::details::double2str<ndebug>(unity_size.value));
                     result.template append<ndebug>(u8"em;\">");
                     break;
                 }
@@ -577,7 +577,7 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.template value<ndebug>();
                     result.template append<ndebug>(u8"font-size:");
-                    result.template append<ndebug>(::pltxt2htm::details::double2str(font_size.value));
+                    result.template append<ndebug>(::pltxt2htm::details::double2str<ndebug>(font_size.value));
                     switch (font_size.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.template push_back<ndebug>(u8'%');

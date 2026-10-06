@@ -265,7 +265,7 @@ entry:
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_size));
                 result.template append<ndebug>(u8"<size=");
                 auto const& unity_size = active_node.get_font_size();
-                result.template append<ndebug>(::pltxt2htm::details::double2str(unity_size.value));
+                result.template append<ndebug>(::pltxt2htm::details::double2str<ndebug>(unity_size.value));
                 switch (unity_size.unit) /* -Werror=switch */ {
                 case ::pltxt2htm::Unit::percent: {
                     result.template push_back<ndebug>(u8'%');
@@ -497,19 +497,19 @@ entry:
                     result.template append<ndebug>(u8"<size=");
                     switch (font_size.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
-                        result.template append<ndebug>(::pltxt2htm::details::double2str(font_size.value));
+                        result.template append<ndebug>(::pltxt2htm::details::double2str<ndebug>(font_size.value));
                         result.template push_back<ndebug>(u8'%');
                         break;
                     }
                     case ::pltxt2htm::Unit::em: {
-                        result.template append<ndebug>(::pltxt2htm::details::double2str(font_size.value));
+                        result.template append<ndebug>(::pltxt2htm::details::double2str<ndebug>(font_size.value));
                         result.template append<ndebug>(u8"em");
                         break;
                     }
                     case ::pltxt2htm::Unit::px: {
                         // plunity <size> counts two scale units per CSS px; match the /2 applied
                         // by the plunity->plweb mapping (e.g. 12.5px -> <size=25>, size=11 -> 6px).
-                        result.template append<ndebug>(::pltxt2htm::details::double2str(font_size.value * 2));
+                        result.template append<ndebug>(::pltxt2htm::details::double2str<ndebug>(font_size.value * 2));
                         break;
                     }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK

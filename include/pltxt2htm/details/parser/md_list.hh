@@ -398,10 +398,10 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
                 opt_item.template value<ndebug>();
             MdListFrame<ndebug> current_frame{item_kind, space_hierarchy, pltext, advance_count, ordered_number};
             if (checkbox) {
-                current_frame.md_list_ast.emplace_back(ListLiCheckboxNode(::std::move(text), checked));
+                current_frame.md_list_ast.template emplace_back<ndebug>(ListLiCheckboxNode(::std::move(text), checked));
             }
             else {
-                current_frame.md_list_ast.emplace_back(ListLiNode(::std::move(text)));
+                current_frame.md_list_ast.template emplace_back<ndebug>(ListLiNode(::std::move(text)));
             }
             if (advance_count >= current_frame.pltext.size()) {
                 return ToListAstResult<ndebug>{
@@ -439,7 +439,7 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
             case MdUlListItemKind::ordered_item:
                 [[fallthrough]];
             case MdUlListItemKind::ordered_item_paren: {
-                parent_frame.md_list_ast.emplace_back(
+                parent_frame.md_list_ast.template emplace_back<ndebug>(
                     ListOlNode<ndebug>(::std::move(frame.md_list_ast), frame.get_start()));
                 break;
             }
@@ -448,7 +448,8 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
             case MdUlListItemKind::plus:
                 [[fallthrough]];
             case MdUlListItemKind::asterisk: {
-                parent_frame.md_list_ast.emplace_back(ListUlNode<ndebug>(::std::move(frame.md_list_ast)));
+                parent_frame.md_list_ast.template emplace_back<ndebug>(
+                    ListUlNode<ndebug>(::std::move(frame.md_list_ast)));
                 break;
             }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
@@ -470,18 +471,18 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
                                                       ::std::size_t{0}, ordered_number});
             auto&& child_frame = call_stack.current_frame();
             if (checkbox) {
-                child_frame.md_list_ast.emplace_back(ListLiCheckboxNode(::std::move(text), checked));
+                child_frame.md_list_ast.template emplace_back<ndebug>(ListLiCheckboxNode(::std::move(text), checked));
             }
             else {
-                child_frame.md_list_ast.emplace_back(ListLiNode(::std::move(text)));
+                child_frame.md_list_ast.template emplace_back<ndebug>(ListLiNode(::std::move(text)));
             }
             continue;
         }
         if (checkbox) {
-            result.emplace_back(ListLiCheckboxNode(::std::move(text), checked));
+            result.template emplace_back<ndebug>(ListLiCheckboxNode(::std::move(text), checked));
         }
         else {
-            result.emplace_back(ListLiNode(::std::move(text)));
+            result.template emplace_back<ndebug>(ListLiNode(::std::move(text)));
         }
         top_frame.space_hierarchy = space_hierarchy;
 
@@ -500,7 +501,7 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
         case MdUlListItemKind::ordered_item:
             [[fallthrough]];
         case MdUlListItemKind::ordered_item_paren: {
-            parent_frame.md_list_ast.emplace_back(
+            parent_frame.md_list_ast.template emplace_back<ndebug>(
                 ListOlNode<ndebug>(::std::move(frame.md_list_ast), frame.get_start()));
             break;
         }
@@ -509,7 +510,7 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
         case MdUlListItemKind::plus:
             [[fallthrough]];
         case MdUlListItemKind::asterisk: {
-            parent_frame.md_list_ast.emplace_back(ListUlNode<ndebug>(::std::move(frame.md_list_ast)));
+            parent_frame.md_list_ast.template emplace_back<ndebug>(ListUlNode<ndebug>(::std::move(frame.md_list_ast)));
             break;
         }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK

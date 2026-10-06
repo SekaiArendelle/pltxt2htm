@@ -24,6 +24,37 @@ concept can_call_is_empty = requires(T const& value) { value.is_empty(); };
 static_assert(!can_call_empty<U8String>);
 static_assert(can_call_is_empty<U8String>);
 
+template<typename T>
+concept can_assign_view_without_contract = requires(T& string, U8StringView view) { string.assign(view); };
+
+template<typename T>
+concept can_assign_range_without_contract = requires(T& string, char8_t const* first) { string.assign(first, first); };
+
+static_assert(!can_assign_view_without_contract<U8String>);
+static_assert(!can_assign_range_without_contract<U8String>);
+
+[[nodiscard]]
+constexpr auto test_assign_growth_and_range() noexcept -> bool {
+    U8String string{};
+    string.assign<Contracts::quick_enforce>(U8StringView{u8"abcdef"});
+    if (string != u8"abcdef" || string.c_str()[string.size()] != u8'\0') {
+        return false;
+    }
+    string.assign<Contracts::quick_enforce>(string.data() + 2, string.data() + 5);
+    if (string != u8"cde" || string.c_str()[string.size()] != u8'\0') {
+        return false;
+    }
+    constexpr char8_t source[]{u8"longer replacement"};
+    string.assign<Contracts::quick_enforce>(source, source + sizeof(source) / sizeof(char8_t) - 1);
+    if (string != u8"longer replacement" || string.c_str()[string.size()] != u8'\0') {
+        return false;
+    }
+    string.assign<Contracts::quick_enforce>(source, source);
+    return string.is_empty() && string.c_str()[0] == u8'\0';
+}
+
+static_assert(test_assign_growth_and_range());
+
 class DirtyAllocator {
 public:
     static constexpr auto allocate(::std::size_t size) noexcept -> void* {
@@ -63,7 +94,7 @@ static_assert(::fast_io::context_scannable<char8_t, decltype(::fast_io::mnp::who
 consteval auto test_constexpr_string() noexcept -> bool {
     U8String empty_string;
     empty_string.clear();
-    empty_string.assign(U8StringView{});
+    empty_string.assign<Contracts::quick_enforce>(U8StringView{});
     empty_string.assign_characters<Contracts::quick_enforce>(0);
     U8String moved_empty_string{::std::move(empty_string)};
     if (!empty_string.is_empty() || empty_string.c_str()[0] != u8'\0' || !moved_empty_string.is_empty() ||
@@ -111,7 +142,7 @@ consteval auto test_constexpr_string() noexcept -> bool {
     }
 
     moved.pop_back<Contracts::quick_enforce>();
-    moved.assign(U8StringView{u8"xy"});
+    moved.assign<Contracts::quick_enforce>(U8StringView{u8"xy"});
     if (moved != u8"xy" || moved.front<Contracts::quick_enforce>() != u8'x' ||
         moved.back<Contracts::quick_enforce>() != u8'y') {
         return false;
@@ -125,7 +156,7 @@ consteval auto test_constexpr_string() noexcept -> bool {
     }
 
     U8String self_assign{u8"abcdef"};
-    self_assign.assign(U8StringView{self_assign.data() + 2, 3});
+    self_assign.assign<Contracts::quick_enforce>(U8StringView{self_assign.data() + 2, 3});
     if (self_assign != u8"cde") {
         return false;
     }
@@ -139,11 +170,12 @@ consteval auto test_constexpr_string() noexcept -> bool {
 static_assert(test_constexpr_string());
 
 int main() {
+    pltxt2htm_test_assert_true(test_assign_growth_and_range());
     U8String empty_string;
     pltxt2htm_test_assert_true(empty_string.data() == ::fast_io::null_terminated_c_str_v<char8_t>);
     pltxt2htm_test_assert_true(empty_string.capacity() == 0);
     empty_string.clear();
-    empty_string.assign(U8StringView{});
+    empty_string.assign<Contracts::quick_enforce>(U8StringView{});
     empty_string.assign_characters<Contracts::quick_enforce>(0);
     U8String moved_empty_string{::std::move(empty_string)};
     U8String assigned_empty_string{u8"not empty"};
@@ -225,7 +257,7 @@ int main() {
     pltxt2htm_test_assert_true(self_insert_overlapping == u8"abcbcdedef");
 
     U8String self_assign{u8"abcdef"};
-    self_assign.assign(U8StringView{self_assign.data() + 2, 3});
+    self_assign.assign<Contracts::quick_enforce>(U8StringView{self_assign.data() + 2, 3});
     pltxt2htm_test_assert_true(self_assign == u8"cde");
 
     U8String self_insert_reallocate{u8"abc"};

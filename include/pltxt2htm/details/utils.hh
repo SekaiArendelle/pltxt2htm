@@ -461,6 +461,7 @@ constexpr auto double_to_size_t_ceil(double value) noexcept -> ::std::size_t {
  *          a decimal point (e.g. 12.0 -> "12"), while fractional values print with the minimal
  *          number of digits (e.g. 12.5 -> "12.5").
  */
+template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8String {
     constexpr ::std::size_t max_fractional_digits{17};
@@ -487,24 +488,22 @@ constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8St
         }
         else if (digit_str_size > fractional_digits) {
             auto const frac_start = digit_str_size - fractional_digits;
-            candidate.append<::pltxt2htm::Contracts::quick_enforce>(
-                ::pltxt2htm::container::U8StringView{digit_str.data(), frac_start});
-            candidate.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'.');
-            candidate.append<::pltxt2htm::Contracts::quick_enforce>(
+            candidate.append<ndebug>(::pltxt2htm::container::U8StringView{digit_str.data(), frac_start});
+            candidate.push_back<ndebug>(u8'.');
+            candidate.append<ndebug>(
                 ::pltxt2htm::container::U8StringView{digit_str.data() + frac_start, fractional_digits});
         }
         else {
-            candidate.append<::pltxt2htm::Contracts::quick_enforce>(u8"0.");
+            candidate.append<ndebug>(u8"0.");
             ::std::size_t const padding_size{fractional_digits - digit_str_size};
             for (::std::size_t i{0}; i < padding_size; ++i) {
-                candidate.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'0');
+                candidate.push_back<ndebug>(u8'0');
             }
-            candidate.append<::pltxt2htm::Contracts::quick_enforce>(digit_str);
+            candidate.append<ndebug>(digit_str);
         }
-        auto opt_reparsed = ::pltxt2htm::details::try_parse_double_decimal_value<::pltxt2htm::Contracts::quick_enforce>(
+        auto opt_reparsed = ::pltxt2htm::details::try_parse_double_decimal_value<ndebug>(
             ::pltxt2htm::container::U8StringView{candidate});
-        bool const round_trips =
-            opt_reparsed.has_value() && (opt_reparsed.template value<::pltxt2htm::Contracts::ignore>().value == value);
+        bool const round_trips = opt_reparsed.has_value() && (opt_reparsed.template value<ndebug>().value == value);
         if (round_trips) {
             return candidate;
         }
