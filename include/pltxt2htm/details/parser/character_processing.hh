@@ -471,7 +471,7 @@ constexpr auto decode_character_references(::pltxt2htm::container::U8StringView 
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_html_attribute_plain_text(::pltxt2htm::container::U8StringView text) noexcept
+constexpr auto make_plain_text_from_html_attribute(::pltxt2htm::container::U8StringView text) noexcept
     -> ::pltxt2htm::PlainText<ndebug> {
     ::pltxt2htm::PlainText<ndebug> result{};
     ::std::size_t const text_size{text.size()};

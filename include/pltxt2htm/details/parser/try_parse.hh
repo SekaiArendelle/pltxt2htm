@@ -2859,7 +2859,7 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
             if (found_alt) {
                 return ::pltxt2htm::container::nullopt; // duplicate alt
             }
-            alt = ::pltxt2htm::details::parse_html_attribute_plain_text<ndebug>(attr_val);
+            alt = ::pltxt2htm::details::make_plain_text_from_html_attribute<ndebug>(attr_val);
             found_alt = true;
         }
         else {
