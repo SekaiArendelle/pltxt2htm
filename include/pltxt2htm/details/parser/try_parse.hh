@@ -4541,11 +4541,6 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
             current_index += space_size;
             continue;
         }
-        if (chr == u8'\t') {
-            alt.append_code_point(static_cast<char32_t>(chr));
-            ++current_index;
-            continue;
-        }
         if (auto opt_escape =
                 ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
             opt_escape.has_value()) {

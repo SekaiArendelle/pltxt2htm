@@ -490,11 +490,6 @@ constexpr auto make_plain_text_from_html_attribute(::pltxt2htm::container::U8Str
                 continue;
             }
         }
-        if (character == u8'\t' || character == u8'\n') {
-            result.append_code_point(static_cast<char32_t>(character));
-            ++index;
-            continue;
-        }
         index += result.append_first_utf8_code_point(text.template subview<ndebug>(index));
     }
     return result;

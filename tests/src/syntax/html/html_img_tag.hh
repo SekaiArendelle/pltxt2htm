@@ -3,6 +3,19 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("html_img_tag") {
+    TEST_CASE("alt-controls-normalized") {
+        auto const& source =
+            u8"<img src=\"https://example.com/image.png\" alt=\"a\t\n\r\x7F&#9;&#10;&Tab;&NewLine;b\">";
+        auto const html = ::pltxt2htm_test::pltxt2fixedadv_htmld(source);
+        auto const& expected =
+            u8"<img src=\"https://example.com/image.png\" "
+            u8"alt=\"a&nbsp;&nbsp;&nbsp;&nbsp;\n\uFFFD\uFFFD&nbsp;&nbsp;&nbsp;&nbsp;\n&nbsp;&nbsp;&nbsp;&nbsp;\nb\">";
+        CHECK(html == expected);
+        auto const second_pass =
+            ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{html.data(), html.size()});
+        CHECK(second_pass == html);
+    }
+
     TEST_CASE("valid-attribute-passthrough") {
         auto const& pltext = u8"<img src=\"https://example.com/image.png\" alt=\"description\">";
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);

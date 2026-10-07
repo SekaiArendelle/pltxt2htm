@@ -3,6 +3,15 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("md_image") {
+    TEST_CASE("alt-tab-preserved") {
+        auto const& source = u8"![a\tb](https://example.com/image.png)";
+        auto const html = ::pltxt2htm_test::pltxt2fixedadv_htmld(source);
+        auto const& expected = u8"<img src=\"https://example.com/image.png\" alt=\"a&nbsp;&nbsp;&nbsp;&nbsp;b\">";
+        CHECK(html == expected);
+        auto const unity = ::pltxt2htm_test::pltxt2plunity_introduction(source);
+        CHECK(unity == u8"![a\tb](https://example.com/image.png)");
+    }
+
     TEST_CASE("basic") {
         auto const& pltext = u8"![alt text](https://example.com/image.png)";
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);

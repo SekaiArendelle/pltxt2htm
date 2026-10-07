@@ -416,10 +416,13 @@ int main() {
         pltxt2htm_test_assert_true(text.as_string() == expected);
     }
 
-    // PlainText replaces all ASCII controls while preserving adjacent scalar values.
+    // PlainText preserves tab and line feed while replacing other ASCII controls.
     {
         auto const replacement = ::pltxt2htm::container::U8String{u8"\uFFFD"};
         for (char32_t control{}; control < char32_t{0x20}; ++control) {
+            if (control == U'\t' || control == U'\n') {
+                continue;
+            }
             ::pltxt2htm::PlainText<nd::quick_enforce> text{};
             text.append_code_point(control);
             pltxt2htm_test_assert_true(text.as_string() == replacement);
@@ -429,10 +432,12 @@ int main() {
         pltxt2htm_test_assert_true(text.as_string() == replacement);
 
         ::pltxt2htm::PlainText<nd::quick_enforce> boundaries{};
+        boundaries.append_code_point(U'\t');
+        boundaries.append_code_point(U'\n');
         boundaries.append_code_point(U' ');
         boundaries.append_code_point(U'~');
         boundaries.append_code_point(char32_t{0x80});
-        auto const expected = ::pltxt2htm::container::U8String{u8" ~\u0080"};
+        auto const expected = ::pltxt2htm::container::U8String{u8"\t\n ~\u0080"};
         pltxt2htm_test_assert_true(boundaries.as_string() == expected);
     }
 
@@ -446,11 +451,12 @@ int main() {
         pltxt2htm_test_assert_true(text.append_first_utf8_code_point(u8"\u20ACx") == 3);
         pltxt2htm_test_assert_true(text.append_first_utf8_code_point(u8"\U0001F600x") == 4);
         pltxt2htm_test_assert_true(text.append_first_utf8_code_point(u8"\t") == 1);
+        pltxt2htm_test_assert_true(text.append_first_utf8_code_point(u8"\n") == 1);
         pltxt2htm_test_assert_true(text.append_first_utf8_code_point(u8"\xE2\x82"
                                                                      "x") == 2);
         pltxt2htm_test_assert_true(text.append_first_utf8_code_point(u8"\xC0\xAF") == 2);
         pltxt2htm_test_assert_true(text.append_first_utf8_code_point(u8"\xFF") == 1);
-        auto const expected = ::pltxt2htm::container::U8String{u8"A\u00A2\u20AC\U0001F600\uFFFD\uFFFD\uFFFD\uFFFD"};
+        auto const expected = ::pltxt2htm::container::U8String{u8"A\u00A2\u20AC\U0001F600\t\n\uFFFD\uFFFD\uFFFD"};
         pltxt2htm_test_assert_true(text.as_string() == expected);
     }
 
