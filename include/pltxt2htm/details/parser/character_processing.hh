@@ -74,12 +74,11 @@ constexpr auto is_ascii_control_code_point(char32_t code_point) noexcept -> bool
 }
 
 /**
- * @brief Append one semantic code point to a PlainText builder.
+ * @brief Append one semantic code point to a PlainText.
  * @details Invalid scalar values and parser-disallowed ASCII controls become U+FFFD.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_code_point_to_plain_text(char32_t code_point,
-                                               ::pltxt2htm::details::PlainTextBuilder& result) noexcept {
+constexpr void append_code_point_to_plain_text(char32_t code_point, ::pltxt2htm::PlainText& result) noexcept {
     if (::pltxt2htm::details::is_unicode_scalar_value(code_point) == false ||
         ::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
         result.template append_replacement_character<ndebug>();
@@ -95,8 +94,7 @@ constexpr void append_code_point_to_plain_text(char32_t code_point,
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_utf8_code_point_to_plain_text(::pltxt2htm::container::U8StringView text,
-                                                   ::pltxt2htm::details::PlainTextBuilder& result) noexcept
-    -> ::std::size_t {
+                                                   ::pltxt2htm::PlainText& result) noexcept -> ::std::size_t {
     char8_t const first{text.template index<ndebug>(0)};
     if (::pltxt2htm::details::is_ascii_control_code_point(static_cast<char32_t>(first))) {
         result.template append_replacement_character<ndebug>();
@@ -511,7 +509,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_html_attribute_plain_text(::pltxt2htm::container::U8StringView text) noexcept
     -> ::pltxt2htm::PlainText {
-    ::pltxt2htm::details::PlainTextBuilder result{};
+    ::pltxt2htm::PlainText result{};
     ::std::size_t const text_size{text.size()};
     for (::std::size_t index{}; index < text_size;) {
         char8_t const character{text.template index<ndebug>(index)};
@@ -536,7 +534,7 @@ constexpr auto parse_html_attribute_plain_text(::pltxt2htm::container::U8StringV
         index += ::pltxt2htm::details::parse_utf8_code_point_to_plain_text<ndebug>(text.template subview<ndebug>(index),
                                                                                    result);
     }
-    return ::std::move(result).finish();
+    return result;
 }
 
 } // namespace pltxt2htm::details

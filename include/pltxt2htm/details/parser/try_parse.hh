@@ -4521,7 +4521,7 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
 
     ::std::size_t current_index{2};
 
-    ::pltxt2htm::details::PlainTextBuilder alt{};
+    ::pltxt2htm::PlainText alt{};
     while (current_index < pltext_size) {
         char8_t const chr{pltext.template index<ndebug>(current_index)};
 
@@ -4578,9 +4578,8 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
     if (current_index >= pltext_size || pltext.template index<ndebug>(current_index) != u8')') {
         return ::pltxt2htm::container::nullopt;
     }
-    return TryParseMdImageResult<ndebug>{.advance_count = current_index + 1,
-                                         .alt = ::std::move(alt).finish(),
-                                         .link_url = ::std::move(md_url_result.url)};
+    return TryParseMdImageResult<ndebug>{
+        .advance_count = current_index + 1, .alt = ::std::move(alt), .link_url = ::std::move(md_url_result.url)};
 }
 
 } // namespace pltxt2htm::details
