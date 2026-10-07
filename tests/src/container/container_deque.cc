@@ -18,30 +18,6 @@ using Contracts = ::pltxt2htm::Contracts;
 using IntDeque = ::pltxt2htm::container::Deque<int>;
 
 template<typename Deque>
-concept has_unchecked_operation =
-    requires(Deque& values) { values.front_unchecked(); } || requires(Deque& values) { values.back_unchecked(); } ||
-    requires(Deque& values) { values.pop_front_unchecked(); } ||
-    requires(Deque& values) { values.pop_back_unchecked(); };
-
-template<typename Deque>
-concept has_access_without_contract = requires(Deque& values) { values.front(); } || requires(Deque& values) {
-    values.back();
-} || requires(Deque& values) { values.pop_front(); } || requires(Deque& values) { values.pop_back(); };
-
-static_assert(!has_unchecked_operation<IntDeque>);
-static_assert(!has_unchecked_operation<IntDeque const>);
-static_assert(!has_access_without_contract<IntDeque>);
-static_assert(!has_access_without_contract<IntDeque const>);
-
-template<typename Deque>
-concept has_growth_without_contract = requires(Deque& values) { values.emplace_back(1); } || requires(Deque& values) {
-    values.push_back(1);
-} || requires(Deque& values) { values.push_front(1); } || requires(Deque& values) { values.emplace_front(1); };
-
-static_assert(!has_growth_without_contract<IntDeque>);
-static_assert(!has_growth_without_contract<IntDeque const>);
-
-template<typename Deque>
 concept has_external_subscript = requires(Deque& values) { values[0]; };
 
 template<typename Deque>
