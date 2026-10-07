@@ -339,7 +339,7 @@ constexpr auto ::pltxt2htm::MdLink<ndebug>::operator==(this MdLink<ndebug> const
                                                        ::pltxt2htm::MdLink<ndebug> const&) noexcept -> bool = default;
 
 template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::MdImage<ndebug>::MdImage(::pltxt2htm::PlainText&& alt_, ::pltxt2htm::Url&& url_) noexcept
+constexpr ::pltxt2htm::MdImage<ndebug>::MdImage(::pltxt2htm::PlainText<ndebug>&& alt_, ::pltxt2htm::Url&& url_) noexcept
     : alt(::std::move(alt_)),
       url(::std::move(url_)) {
 }

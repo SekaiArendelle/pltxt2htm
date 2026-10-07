@@ -408,21 +408,21 @@ int main() {
 
     // PlainText preserves valid UTF-8 for every code point.
     {
-        ::pltxt2htm::PlainText text{};
-        text.append_code_point<nd::quick_enforce>(char32_t{0x10FFFF});
-        text.append_code_point<nd::quick_enforce>(char32_t{0xD800});
-        text.append_code_point<nd::quick_enforce>(char32_t{0x110000});
+        ::pltxt2htm::PlainText<nd::quick_enforce> text{};
+        text.append_code_point(char32_t{0x10FFFF});
+        text.append_code_point(char32_t{0xD800});
+        text.append_code_point(char32_t{0x110000});
         auto const expected = ::pltxt2htm::container::U8String{u8"\U0010FFFF\uFFFD\uFFFD"};
         pltxt2htm_test_assert_true(text.as_string() == expected);
     }
 
     // MdImage with plain-text alt and URL
     {
-        ::pltxt2htm::PlainText alt_a{};
-        alt_a.append_code_point<nd::quick_enforce>(U'a');
+        ::pltxt2htm::PlainText<nd::quick_enforce> alt_a{};
+        alt_a.append_code_point(U'a');
 
-        ::pltxt2htm::PlainText alt_b{};
-        alt_b.append_code_point<nd::quick_enforce>(U'a');
+        ::pltxt2htm::PlainText<nd::quick_enforce> alt_b{};
+        alt_b.append_code_point(U'a');
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdImage<nd::quick_enforce>>(

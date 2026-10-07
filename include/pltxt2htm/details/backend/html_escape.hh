@@ -69,7 +69,7 @@ constexpr void append_html_escaped_attribute_value(::pltxt2htm::container::U8Str
  */
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_plain_text_as_html_attribute(::pltxt2htm::container::U8String& result,
-                                                   ::pltxt2htm::PlainText const& value) noexcept {
+                                                   ::pltxt2htm::PlainText<ndebug> const& value) noexcept {
     auto const& text = value.as_string();
     ::std::size_t const text_size{text.size()};
     for (::std::size_t index{}; index < text_size; ++index) {

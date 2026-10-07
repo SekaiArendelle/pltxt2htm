@@ -2754,10 +2754,11 @@ constexpr auto try_parse_ol_tag(::pltxt2htm::container::U8StringView pltext) noe
 /**
  * @brief Result of parsing an `<img>` tag.
  */
+template<::pltxt2htm::Contracts ndebug>
 struct TryParseImgTagResult {
     ::std::size_t tag_len;
     ::pltxt2htm::container::U8String src;
-    ::pltxt2htm::PlainText alt;
+    ::pltxt2htm::PlainText<ndebug> alt;
 };
 
 /**
@@ -2771,7 +2772,7 @@ struct TryParseImgTagResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) noexcept
-    -> ::pltxt2htm::container::Optional<TryParseImgTagResult> {
+    -> ::pltxt2htm::container::Optional<TryParseImgTagResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     // match "mg" (case-insensitive)
     if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"mg"}>(pltext) == false) {
@@ -2782,7 +2783,7 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
     bool found_src{false};
     bool found_alt{false};
     ::pltxt2htm::container::U8String src{};
-    ::pltxt2htm::PlainText alt{};
+    ::pltxt2htm::PlainText<ndebug> alt{};
 
     while (pos < pltext_size) {
         // skip whitespace
@@ -2879,7 +2880,7 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
     if (pos >= pltext_size || pltext.template index<ndebug>(pos) != u8'>') {
         return ::pltxt2htm::container::nullopt;
     }
-    return TryParseImgTagResult{.tag_len = pos + 1, .src = ::std::move(src), .alt = ::std::move(alt)};
+    return TryParseImgTagResult<ndebug>{.tag_len = pos + 1, .src = ::std::move(src), .alt = ::std::move(alt)};
 }
 
 /**
@@ -4500,7 +4501,7 @@ constexpr auto try_parse_md_link(::pltxt2htm::container::U8StringView pltext) no
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdImageResult {
     ::std::size_t advance_count;
-    ::pltxt2htm::PlainText alt;
+    ::pltxt2htm::PlainText<ndebug> alt;
     ::pltxt2htm::Url link_url;
 };
 
@@ -4521,7 +4522,7 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
 
     ::std::size_t current_index{2};
 
-    ::pltxt2htm::PlainText alt{};
+    ::pltxt2htm::PlainText<ndebug> alt{};
     while (current_index < pltext_size) {
         char8_t const chr{pltext.template index<ndebug>(current_index)};
 
@@ -4536,12 +4537,12 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
                 ::pltxt2htm::details::try_parse_space<ndebug>(pltext.template subview<ndebug>(current_index));
             opt_space_size.has_value()) {
             auto const space_size = opt_space_size.template value<ndebug>().template get<ndebug>();
-            alt.template append_code_point<ndebug>(char32_t{0xA0});
+            alt.append_code_point(char32_t{0xA0});
             current_index += space_size;
             continue;
         }
         if (chr == u8'\t') {
-            alt.template append_code_point<ndebug>(static_cast<char32_t>(chr));
+            alt.append_code_point(static_cast<char32_t>(chr));
             ++current_index;
             continue;
         }
@@ -4549,7 +4550,7 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
                 ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
             opt_escape.has_value()) {
             auto const& escape_result = opt_escape.template value<ndebug>();
-            alt.template append_code_point<ndebug>(static_cast<char32_t>(escape_result.character));
+            alt.append_code_point(static_cast<char32_t>(escape_result.character));
             current_index += escape_result.advance_count;
             continue;
         }

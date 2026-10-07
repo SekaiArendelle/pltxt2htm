@@ -47,21 +47,24 @@ public:
  * @brief HTML &lt;img&gt; image node (self-closing)
  * @details Represents &lt;img src=&quot;...&quot; alt=&quot;...&quot;&gt;.
  */
+template<::pltxt2htm::Contracts ndebug>
 class HtmlImg {
     ::pltxt2htm::container::U8String src;
-    ::pltxt2htm::PlainText alt;
+    ::pltxt2htm::PlainText<ndebug> alt;
 
 public:
-    constexpr HtmlImg(::pltxt2htm::container::U8String&& src_, ::pltxt2htm::PlainText&& alt_) noexcept
+    constexpr HtmlImg(::pltxt2htm::container::U8String&& src_, ::pltxt2htm::PlainText<ndebug>&& alt_) noexcept
         : src(::std::move(src_)),
           alt(::std::move(alt_)) {
     }
 
-    constexpr HtmlImg(::pltxt2htm::HtmlImg const&) noexcept = default;
-    constexpr HtmlImg(::pltxt2htm::HtmlImg&&) noexcept = default;
+    constexpr HtmlImg(::pltxt2htm::HtmlImg<ndebug> const&) noexcept = default;
+    constexpr HtmlImg(::pltxt2htm::HtmlImg<ndebug>&&) noexcept = default;
     constexpr ~HtmlImg() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlImg const&) noexcept -> ::pltxt2htm::HtmlImg& = default;
-    constexpr auto operator=(this HtmlImg& self, ::pltxt2htm::HtmlImg&&) noexcept -> ::pltxt2htm::HtmlImg& = default;
+    constexpr auto operator=(this HtmlImg& self, ::pltxt2htm::HtmlImg<ndebug> const&) noexcept
+        -> ::pltxt2htm::HtmlImg<ndebug>& = default;
+    constexpr auto operator=(this HtmlImg& self, ::pltxt2htm::HtmlImg<ndebug>&&) noexcept
+        -> ::pltxt2htm::HtmlImg<ndebug>& = default;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlImg const&, HtmlImg const&) noexcept -> bool = default;

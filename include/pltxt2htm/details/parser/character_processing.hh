@@ -78,13 +78,13 @@ constexpr auto is_ascii_control_code_point(char32_t code_point) noexcept -> bool
  * @details Invalid scalar values and parser-disallowed ASCII controls become U+FFFD.
  */
 template<::pltxt2htm::Contracts ndebug>
-constexpr void append_code_point_to_plain_text(char32_t code_point, ::pltxt2htm::PlainText& result) noexcept {
+constexpr void append_code_point_to_plain_text(char32_t code_point, ::pltxt2htm::PlainText<ndebug>& result) noexcept {
     if (::pltxt2htm::details::is_unicode_scalar_value(code_point) == false ||
         ::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
-        result.template append_replacement_character<ndebug>();
+        result.append_replacement_character();
         return;
     }
-    result.template append_code_point<ndebug>(code_point);
+    result.append_code_point(code_point);
 }
 
 /**
@@ -94,18 +94,18 @@ constexpr void append_code_point_to_plain_text(char32_t code_point, ::pltxt2htm:
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_utf8_code_point_to_plain_text(::pltxt2htm::container::U8StringView text,
-                                                   ::pltxt2htm::PlainText& result) noexcept -> ::std::size_t {
+                                                   ::pltxt2htm::PlainText<ndebug>& result) noexcept -> ::std::size_t {
     char8_t const first{text.template index<ndebug>(0)};
     if (::pltxt2htm::details::is_ascii_control_code_point(static_cast<char32_t>(first))) {
-        result.template append_replacement_character<ndebug>();
+        result.append_replacement_character();
         return 1;
     }
     auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<ndebug>(text);
     if (decoded.valid == false) {
-        result.template append_replacement_character<ndebug>();
+        result.append_replacement_character();
         return decoded.consumed_size;
     }
-    result.template append_code_point<ndebug>(decoded.code_point);
+    result.append_code_point(decoded.code_point);
     return decoded.consumed_size;
 }
 
@@ -508,8 +508,8 @@ constexpr auto decode_character_references(::pltxt2htm::container::U8StringView 
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_html_attribute_plain_text(::pltxt2htm::container::U8StringView text) noexcept
-    -> ::pltxt2htm::PlainText {
-    ::pltxt2htm::PlainText result{};
+    -> ::pltxt2htm::PlainText<ndebug> {
+    ::pltxt2htm::PlainText<ndebug> result{};
     ::std::size_t const text_size{text.size()};
     for (::std::size_t index{}; index < text_size;) {
         char8_t const character{text.template index<ndebug>(index)};
@@ -527,7 +527,7 @@ constexpr auto parse_html_attribute_plain_text(::pltxt2htm::container::U8StringV
             }
         }
         if (character == u8'\t' || character == u8'\n') {
-            result.template append_code_point<ndebug>(static_cast<char32_t>(character));
+            result.append_code_point(static_cast<char32_t>(character));
             ++index;
             continue;
         }

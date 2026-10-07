@@ -512,7 +512,7 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class MdImage {
-    ::pltxt2htm::PlainText alt;
+    ::pltxt2htm::PlainText<ndebug> alt;
     ::pltxt2htm::Url url;
 
 public:
@@ -521,7 +521,7 @@ public:
      * @param alt The parsed alt text.
      * @param url The image source URL.
      */
-    constexpr explicit MdImage(::pltxt2htm::PlainText&& alt_, ::pltxt2htm::Url&& url_) noexcept;
+    constexpr explicit MdImage(::pltxt2htm::PlainText<ndebug>&& alt_, ::pltxt2htm::Url&& url_) noexcept;
     constexpr MdImage(::pltxt2htm::MdImage<ndebug> const&) noexcept;
     constexpr MdImage(::pltxt2htm::MdImage<ndebug>&&) noexcept;
     constexpr ~MdImage() noexcept = default;

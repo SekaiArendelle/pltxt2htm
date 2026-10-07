@@ -16,6 +16,7 @@ namespace pltxt2htm {
  * @details Source syntax such as HTML character references and Markdown escapes is resolved before storage.
  *          Invalid UTF-8 input is represented by U+FFFD.
  */
+template<::pltxt2htm::Contracts ndebug>
 class PlainText {
     ::pltxt2htm::container::U8String text;
 
@@ -27,16 +28,14 @@ public:
     constexpr auto operator=(this PlainText& self, PlainText const&) noexcept -> PlainText& = default;
     constexpr auto operator=(this PlainText& self, PlainText&&) noexcept -> PlainText& = default;
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void append_code_point(this PlainText& self, char32_t const code_point) noexcept {
         if (::pltxt2htm::details::is_unicode_scalar_value(code_point) == false) {
-            self.template append_replacement_character<ndebug>();
+            self.append_replacement_character();
             return;
         }
         ::pltxt2htm::details::append_utf8_code_point<ndebug>(self.text, code_point);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void append_replacement_character(this PlainText& self) noexcept {
         self.text.template append<ndebug>(u8"\uFFFD");
     }
