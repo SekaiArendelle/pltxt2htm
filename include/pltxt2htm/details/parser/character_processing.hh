@@ -74,23 +74,6 @@ constexpr auto is_ascii_control_code_point(char32_t code_point) noexcept -> bool
 }
 
 /**
- * @brief Parse one UTF-8 code point and append its normalized semantics to PlainText.
- * @return Number of consumed input code units.
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto parse_utf8_code_point_to_plain_text(::pltxt2htm::container::U8StringView text,
-                                                   ::pltxt2htm::PlainText<ndebug>& result) noexcept -> ::std::size_t {
-    auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<ndebug>(text);
-    if (decoded.valid == false) {
-        result.append_replacement_character();
-        return decoded.consumed_size;
-    }
-    result.append_code_point(decoded.code_point);
-    return decoded.consumed_size;
-}
-
-/**
  * @brief Parse one UTF-8 code point and append its original code units to an AST.
  * @details Parser-disallowed ASCII control characters and invalid UTF-8 prefixes append one
  *          InvalidUtf8 node. The returned size preserves the existing invalid-prefix recovery.
@@ -512,8 +495,7 @@ constexpr auto parse_html_attribute_plain_text(::pltxt2htm::container::U8StringV
             ++index;
             continue;
         }
-        index += ::pltxt2htm::details::parse_utf8_code_point_to_plain_text<ndebug>(text.template subview<ndebug>(index),
-                                                                                   result);
+        index += result.append_first_utf8_code_point(text.template subview<ndebug>(index));
     }
     return result;
 }

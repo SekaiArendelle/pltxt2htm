@@ -4554,8 +4554,7 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
             current_index += escape_result.advance_count;
             continue;
         }
-        auto const advance_count = ::pltxt2htm::details::parse_utf8_code_point_to_plain_text<ndebug>(
-            pltext.template subview<ndebug>(current_index), alt);
+        auto const advance_count = alt.append_first_utf8_code_point(pltext.template subview<ndebug>(current_index));
         current_index += advance_count;
         continue;
     }

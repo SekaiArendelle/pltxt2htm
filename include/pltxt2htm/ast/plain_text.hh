@@ -5,7 +5,10 @@
 
 #pragma once
 
+#include <cstddef>
+
 #include "../container/string.hh"
+#include "../container/string_view.hh"
 #include "../contracts.hh"
 #include "../details/utf8.hh"
 
@@ -35,6 +38,25 @@ public:
             return;
         }
         ::pltxt2htm::details::append_utf8_code_point<ndebug>(self.text, code_point);
+    }
+
+    /**
+     * @brief Decode and append the first UTF-8 code point, replacing invalid input with U+FFFD.
+     * @return Number of consumed input code units. Empty input consumes zero and appends nothing.
+     */
+    [[nodiscard]]
+    constexpr auto append_first_utf8_code_point(this PlainText& self,
+                                                ::pltxt2htm::container::U8StringView input) noexcept -> ::std::size_t {
+        if (input.is_empty()) {
+            return 0;
+        }
+        auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<ndebug>(input);
+        if (decoded.valid == false) {
+            self.append_replacement_character();
+            return decoded.consumed_size;
+        }
+        self.append_code_point(decoded.code_point);
+        return decoded.consumed_size;
     }
 
     constexpr void append_replacement_character(this PlainText& self) noexcept {
