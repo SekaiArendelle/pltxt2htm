@@ -74,20 +74,6 @@ constexpr auto is_ascii_control_code_point(char32_t code_point) noexcept -> bool
 }
 
 /**
- * @brief Append one semantic code point to a PlainText.
- * @details Invalid scalar values and parser-disallowed ASCII controls become U+FFFD.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_code_point_to_plain_text(char32_t code_point, ::pltxt2htm::PlainText<ndebug>& result) noexcept {
-    if (::pltxt2htm::details::is_unicode_scalar_value(code_point) == false ||
-        ::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
-        result.append_replacement_character();
-        return;
-    }
-    result.append_code_point(code_point);
-}
-
-/**
  * @brief Parse one UTF-8 code point and append its normalized semantics to PlainText.
  * @return Number of consumed input code units.
  */
@@ -95,11 +81,6 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_utf8_code_point_to_plain_text(::pltxt2htm::container::U8StringView text,
                                                    ::pltxt2htm::PlainText<ndebug>& result) noexcept -> ::std::size_t {
-    char8_t const first{text.template index<ndebug>(0)};
-    if (::pltxt2htm::details::is_ascii_control_code_point(static_cast<char32_t>(first))) {
-        result.append_replacement_character();
-        return 1;
-    }
     auto const decoded = ::pltxt2htm::details::decode_utf8_code_point<ndebug>(text);
     if (decoded.valid == false) {
         result.append_replacement_character();
@@ -518,9 +499,9 @@ constexpr auto parse_html_attribute_plain_text(::pltxt2htm::container::U8StringV
                 ::pltxt2htm::details::try_decode_character_reference<ndebug>(text.template subview<ndebug>(index));
             if (decoded.has_value()) {
                 auto const& reference = decoded.template value<ndebug>();
-                ::pltxt2htm::details::append_code_point_to_plain_text<ndebug>(reference.first_code_point, result);
+                result.append_code_point(reference.first_code_point);
                 if (reference.has_second_code_point()) {
-                    ::pltxt2htm::details::append_code_point_to_plain_text<ndebug>(reference.second_code_point, result);
+                    result.append_code_point(reference.second_code_point);
                 }
                 index += reference.consumed_size;
                 continue;

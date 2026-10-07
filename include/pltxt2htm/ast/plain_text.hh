@@ -14,7 +14,7 @@ namespace pltxt2htm {
 /**
  * @brief Parsed plain-text semantics stored as valid UTF-8.
  * @details Source syntax such as HTML character references and Markdown escapes is resolved before storage.
- *          Invalid UTF-8 input is represented by U+FFFD.
+ *          Invalid Unicode scalar values and ASCII controls (U+0000-U+001F and U+007F) become U+FFFD.
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlainText {
@@ -29,7 +29,8 @@ public:
     constexpr auto operator=(this PlainText& self, PlainText&&) noexcept -> PlainText& = default;
 
     constexpr void append_code_point(this PlainText& self, char32_t const code_point) noexcept {
-        if (::pltxt2htm::details::is_unicode_scalar_value(code_point) == false) {
+        if (::pltxt2htm::details::is_unicode_scalar_value(code_point) == false || code_point <= char32_t{0x1F} ||
+            code_point == char32_t{0x7F}) {
             self.append_replacement_character();
             return;
         }

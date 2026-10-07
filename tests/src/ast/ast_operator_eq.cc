@@ -416,6 +416,26 @@ int main() {
         pltxt2htm_test_assert_true(text.as_string() == expected);
     }
 
+    // PlainText replaces all ASCII controls while preserving adjacent scalar values.
+    {
+        auto const replacement = ::pltxt2htm::container::U8String{u8"\uFFFD"};
+        for (char32_t control{}; control < char32_t{0x20}; ++control) {
+            ::pltxt2htm::PlainText<nd::quick_enforce> text{};
+            text.append_code_point(control);
+            pltxt2htm_test_assert_true(text.as_string() == replacement);
+        }
+        ::pltxt2htm::PlainText<nd::quick_enforce> text{};
+        text.append_code_point(char32_t{0x7F});
+        pltxt2htm_test_assert_true(text.as_string() == replacement);
+
+        ::pltxt2htm::PlainText<nd::quick_enforce> boundaries{};
+        boundaries.append_code_point(U' ');
+        boundaries.append_code_point(U'~');
+        boundaries.append_code_point(char32_t{0x80});
+        auto const expected = ::pltxt2htm::container::U8String{u8" ~\u0080"};
+        pltxt2htm_test_assert_true(boundaries.as_string() == expected);
+    }
+
     // MdImage with plain-text alt and URL
     {
         ::pltxt2htm::PlainText<nd::quick_enforce> alt_a{};
