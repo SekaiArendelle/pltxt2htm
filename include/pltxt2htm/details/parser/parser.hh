@@ -47,7 +47,7 @@ struct FindNextBlockAfterLineBreakResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto find_next_block_after_line_break(::pltxt2htm::container::U8StringView pltext,
-                                                ::pltxt2htm::details::CallStack<ParserFrame<ndebug>>& call_stack,
+                                                ::pltxt2htm::details::CallStack<ndebug, ParserFrame<ndebug>>& call_stack,
                                                 ::pltxt2htm::Ast<ndebug>& result) noexcept
     -> FindNextBlockAfterLineBreakResult {
     ::std::size_t const pltext_size{pltext.size()};
@@ -368,29 +368,29 @@ struct ParsePlTxtResult {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto parse_pltxt(::pltxt2htm::details::CallStack<ParserFrame<ndebug>>& call_stack) noexcept
+constexpr auto parse_pltxt(::pltxt2htm::details::CallStack<ndebug, ParserFrame<ndebug>>& call_stack) noexcept
     -> ParsePlTxtResult<ndebug> {
 entry:
     while (true) {
-        if (auto const nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+        if (auto const nested_tag_type = call_stack.current_frame().get_nested_tag_type();
             nested_tag_type == ::pltxt2htm::NodeKind::list_ul || nested_tag_type == ::pltxt2htm::NodeKind::list_ol) {
             // ListAst to ::pltxt2htm::Ast<ndebug>
-            auto&& frame = call_stack.template current_frame<ndebug>();
+            auto&& frame = call_stack.current_frame();
             auto&& frame_list_ast = frame.as_list_info().list_ast;
             auto&& frame_iter = frame.as_list_info().iter;
             if (frame_iter == frame_list_ast.end()) {
                 ParserFrame<ndebug> previous_frame(::std::move(frame));
-                call_stack.template discard_current_frame<ndebug>();
+                call_stack.discard_current_frame();
                 if (call_stack.empty()) {
                     return ParsePlTxtResult<ndebug>{.subast = ::std::move(previous_frame.subast)};
                 }
                 if (nested_tag_type == ::pltxt2htm::NodeKind::list_ul) {
-                    call_stack.template current_frame<ndebug>().subast.emplace_back(
+                    call_stack.current_frame().subast.emplace_back(
                         ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListUl<ndebug>>(
                             ::std::move(previous_frame.subast)));
                 }
                 else {
-                    call_stack.template current_frame<ndebug>().subast.emplace_back(
+                    call_stack.current_frame().subast.emplace_back(
                         ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::ListOl<ndebug>>(
                             ::std::move(previous_frame.subast), previous_frame.as_list_info().list_start));
                 }
@@ -409,7 +409,7 @@ entry:
                 //
                 // When the parent is another list (child nested inside a parent list):
                 // no re-scan needed -- the parent iterates its own AST.
-                auto&& parent_frame = call_stack.template current_frame<ndebug>();
+                auto&& parent_frame = call_stack.current_frame();
                 if (parent_frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::list_ul &&
                     parent_frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::list_ol) {
                     ::std::size_t& parent_index = parent_frame.current_index;
@@ -473,7 +473,7 @@ entry:
             }
             pltxt2htm_unreachable(u8"Unreachable after ListNodeType switch");
         }
-        if (auto const nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+        if (auto const nested_tag_type = call_stack.current_frame().get_nested_tag_type();
             nested_tag_type == ::pltxt2htm::NodeKind::table) {
             ::std::size_t const previous_stack_size{call_stack.frame_count()};
             auto opt_table_ast = ::pltxt2htm::details::process_table_frame<ndebug>(call_stack);
@@ -487,7 +487,7 @@ entry:
             goto entry;
         }
 
-        auto&& top_frame = call_stack.template current_frame<ndebug>();
+        auto&& top_frame = call_stack.current_frame();
         auto&& current_index = top_frame.current_index;
         ::pltxt2htm::container::U8StringView const pltext{top_frame.get_pltext()};
         auto&& result = top_frame.subast;
@@ -1370,7 +1370,7 @@ entry:
                 }
 
                 case u8'/': {
-                    auto&& frame = call_stack.template current_frame<ndebug>();
+                    auto&& frame = call_stack.current_frame();
                     switch (frame.get_nested_tag_type()) /* -Werror=switch */ {
                     case ::pltxt2htm::NodeKind::unity_color: {
                         auto&& active_frame_data = frame.as_equal_sign_tag();
@@ -1386,8 +1386,8 @@ entry:
                             // parsing end tag </color> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::UnityColor staged_node(::std::move(result), ::std::move(active_frame_data.id));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1411,8 +1411,8 @@ entry:
                             // parsing end tag </a> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlA staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1433,8 +1433,8 @@ entry:
                             ::pltxt2htm::HtmlSpan staged_node(::std::move(result), ::std::move(active_frame_data.color),
                                                               active_frame_data.font_size,
                                                               active_frame_data.vertical_align);
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1454,8 +1454,8 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlA staged_node(::std::move(result), ::std::move(active_frame_data.url),
                                                            active_frame_data.internal);
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1476,8 +1476,8 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlExperiment staged_node(::std::move(result),
                                                                   ::std::move(active_frame_data.id));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1498,8 +1498,8 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlExperiments staged_node(::std::move(result),
                                                                    ::std::move(active_frame_data.id));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1520,8 +1520,8 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlDiscussion staged_node(::std::move(result),
                                                                   ::std::move(active_frame_data.id));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1542,8 +1542,8 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlDiscussions staged_node(::std::move(result),
                                                                    ::std::move(active_frame_data.id));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1564,8 +1564,8 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlExternal staged_node(::std::move(result),
                                                                 ::std::move(active_frame_data.url));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1584,8 +1584,8 @@ entry:
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::UnityLink staged_node(::std::move(result), ::std::move(active_frame_data.url));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1604,8 +1604,8 @@ entry:
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlTrigger staged_node(::std::move(result), ::std::move(active_frame_data.id));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1624,8 +1624,8 @@ entry:
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlInternal staged_node(::std::move(result), ::std::move(active_frame_data.id));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1644,8 +1644,8 @@ entry:
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlUser staged_node(::std::move(result), ::std::move(active_frame_data.id));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1664,8 +1664,8 @@ entry:
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::UnitySize staged_node(::std::move(result), active_frame_data.value);
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1684,8 +1684,8 @@ entry:
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::UnityVoffset staged_node(::std::move(result), active_frame_data.value);
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1704,13 +1704,13 @@ entry:
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::UnityAlign staged_node(::std::move(result), active_frame_data.align);
-                            call_stack.template discard_current_frame<ndebug>();
+                            call_stack.discard_current_frame();
                             if (call_stack.empty()) {
                                 return ParsePlTxtResult<ndebug>{
                                     .subast = ::std::move(staged_node.get_subast()),
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1730,8 +1730,8 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::UnityMark staged_node(::std::move(result),
                                                                ::std::move(active_frame_data.background_color));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityMark<ndebug>>(
                                     ::std::move(staged_node)));
@@ -1751,13 +1751,13 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::UnityMargin staged_node(::std::move(result), active_frame_data.left,
                                                                  active_frame_data.right);
-                            call_stack.template discard_current_frame<ndebug>();
+                            call_stack.discard_current_frame();
                             if (call_stack.empty()) {
                                 return ParsePlTxtResult<ndebug>{
                                     .subast = ::std::move(staged_node.get_subast()),
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1777,13 +1777,13 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlDiv staged_node(::std::move(result), active_frame_data.left,
                                                              active_frame_data.right);
-                            call_stack.template discard_current_frame<ndebug>();
+                            call_stack.discard_current_frame();
                             if (call_stack.empty()) {
                                 return ParsePlTxtResult<ndebug>{
                                     .subast = ::std::move(staged_node.get_subast()),
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1801,8 +1801,8 @@ entry:
                             // parsing end tag </b> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::UnityB staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1820,8 +1820,8 @@ entry:
                             // parsing end tag </a> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::UnityI staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1841,13 +1841,13 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             auto const align = active_frame_data.align;
                             ::pltxt2htm::HtmlP staged_node(::std::move(result), align);
-                            call_stack.template discard_current_frame<ndebug>();
+                            call_stack.discard_current_frame();
                             if (call_stack.empty()) {
                                 return ParsePlTxtResult<ndebug>{
                                     .subast = ::std::move(staged_node.get_subast()),
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1865,13 +1865,13 @@ entry:
                             // parsing end tag </h1> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH1 staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
+                            call_stack.discard_current_frame();
                             if (call_stack.empty()) {
                                 return ParsePlTxtResult<ndebug>{
                                     .subast = ::std::move(staged_node.get_subast()),
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1889,13 +1889,13 @@ entry:
                             // parsing end tag </h2> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH2 staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
+                            call_stack.discard_current_frame();
                             if (call_stack.empty()) {
                                 return ParsePlTxtResult<ndebug>{
                                     .subast = ::std::move(staged_node.get_subast()),
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1913,13 +1913,13 @@ entry:
                             // parsing end tag </h3> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH3 staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
+                            call_stack.discard_current_frame();
                             if (call_stack.empty()) {
                                 return ParsePlTxtResult<ndebug>{
                                     .subast = ::std::move(staged_node.get_subast()),
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1937,13 +1937,13 @@ entry:
                             // parsing end tag </h4> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH4 staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
+                            call_stack.discard_current_frame();
                             if (call_stack.empty()) {
                                 return ParsePlTxtResult<ndebug>{
                                     .subast = ::std::move(staged_node.get_subast()),
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1961,13 +1961,13 @@ entry:
                             // parsing end tag </h5> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH5 staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
+                            call_stack.discard_current_frame();
                             if (call_stack.empty()) {
                                 return ParsePlTxtResult<ndebug>{
                                     .subast = ::std::move(staged_node.get_subast()),
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -1985,13 +1985,13 @@ entry:
                             // parsing end tag </h6> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlH6 staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
+                            call_stack.discard_current_frame();
                             if (call_stack.empty()) {
                                 return ParsePlTxtResult<ndebug>{
                                     .subast = ::std::move(staged_node.get_subast()),
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -2009,8 +2009,8 @@ entry:
                             // parsing end tag </del> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlDel staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -2028,8 +2028,8 @@ entry:
                             // parsing end tag </code> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlCode staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -2051,8 +2051,8 @@ entry:
                             // parsing end tag </em> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlEm staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -2070,8 +2070,8 @@ entry:
                             // parsing end tag </strong> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlStrong staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -2091,8 +2091,8 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlMark staged_node(::std::move(result),
                                                               ::std::move(active_frame_data.background_color));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -2110,8 +2110,8 @@ entry:
                             // parsing end tag </u> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlU staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -2129,8 +2129,8 @@ entry:
                             // parsing end tag </s> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlS staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -2148,8 +2148,8 @@ entry:
                             // parsing end tag </sup> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlSup staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -2167,8 +2167,8 @@ entry:
                             // parsing end tag </sub> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlSub staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            call_stack.discard_current_frame();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -2186,13 +2186,13 @@ entry:
                             // parsing end tag </blockquote> successed
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::HtmlBlockquote staged_node(::std::move(result));
-                            call_stack.template discard_current_frame<ndebug>();
+                            call_stack.discard_current_frame();
                             if (call_stack.empty()) {
                                 return ParsePlTxtResult<ndebug>{
                                     .subast = ::std::move(staged_node.get_subast()),
                                     .consumed_bytes = staged_index + opt_tag_len.template value<ndebug>() + 3};
                             }
-                            auto& parent_frame = call_stack.template current_frame<ndebug>();
+                            auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
                                 ::pltxt2htm::PlTxtNode<ndebug>::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
@@ -2345,7 +2345,7 @@ entry:
         }
 
         {
-            ParserFrame<ndebug> frame{call_stack.template pop_frame<ndebug>()};
+            ParserFrame<ndebug> frame{call_stack.pop_frame()};
             ::std::size_t const staged_index = pltext_size;
             if (call_stack.empty()) {
                 // Considering the following markdown:
@@ -2361,7 +2361,7 @@ entry:
             // ```
             // Any tag without a closing tag will hit this branch.
             auto&& subast = frame.subast;
-            auto&& parent_frame = call_stack.template current_frame<ndebug>();
+            auto&& parent_frame = call_stack.current_frame();
             auto&& parent_ast = parent_frame.subast;
             auto&& parent_index = parent_frame.current_index;
             switch (frame.get_nested_tag_type()) /* -Werror=switch */ {
@@ -2670,7 +2670,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_atx_h1: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
-                    call_stack.template current_frame<ndebug>().get_pltext()};
+                    call_stack.current_frame().get_pltext()};
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH1<ndebug>>(
                     ::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
@@ -2680,7 +2680,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_atx_h2: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
-                    call_stack.template current_frame<ndebug>().get_pltext()};
+                    call_stack.current_frame().get_pltext()};
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH2<ndebug>>(
                     ::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
@@ -2690,7 +2690,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_atx_h3: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
-                    call_stack.template current_frame<ndebug>().get_pltext()};
+                    call_stack.current_frame().get_pltext()};
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH3<ndebug>>(
                     ::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
@@ -2700,7 +2700,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_atx_h4: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
-                    call_stack.template current_frame<ndebug>().get_pltext()};
+                    call_stack.current_frame().get_pltext()};
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH4<ndebug>>(
                     ::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
@@ -2710,7 +2710,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_atx_h5: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
-                    call_stack.template current_frame<ndebug>().get_pltext()};
+                    call_stack.current_frame().get_pltext()};
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH5<ndebug>>(
                     ::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(
@@ -2720,7 +2720,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_atx_h6: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
-                    call_stack.template current_frame<ndebug>().get_pltext()};
+                    call_stack.current_frame().get_pltext()};
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdAtxH6<ndebug>>(
                     ::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break<ndebug>(

@@ -110,11 +110,17 @@ public:
         this->size_storage = other.size_storage;
     }
 
+    /// @pre Internal callers must not assign the string to itself.
     constexpr auto operator=(this BasicInplaceString& self, BasicInplaceString const& other) noexcept
         -> BasicInplaceString& {
+#if defined(PLTXT2HTM_INTERNAL_USE)
+        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
+                         u8"Internal self-assignment is not allowed");
+#else
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
+#endif
         auto const count = other.size();
         ::std::copy_n(other.storage, count, self.storage);
         self.size_storage = other.size_storage;

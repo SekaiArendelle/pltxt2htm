@@ -389,7 +389,7 @@ template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<ToListAstResult<ndebug>> {
-    ::pltxt2htm::details::CallStack<MdListFrame<ndebug>> call_stack{};
+    ::pltxt2htm::details::CallStack<ndebug, MdListFrame<ndebug>> call_stack{};
 
     // manually managing stack to avoid stack-overflow
     {
@@ -398,10 +398,10 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
                 opt_item.template value<ndebug>();
             MdListFrame<ndebug> current_frame{item_kind, space_hierarchy, pltext, advance_count, ordered_number};
             if (checkbox) {
-                current_frame.md_list_ast.emplace_back(ListLiCheckboxNode(::std::move(text), checked));
+                current_frame.md_list_ast.template emplace_back<ndebug>(ListLiCheckboxNode(::std::move(text), checked));
             }
             else {
-                current_frame.md_list_ast.emplace_back(ListLiNode(::std::move(text)));
+                current_frame.md_list_ast.template emplace_back<ndebug>(ListLiNode(::std::move(text)));
             }
             if (advance_count >= current_frame.pltext.size()) {
                 return ToListAstResult<ndebug>{
@@ -416,7 +416,7 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
         }
     }
     while (true) {
-        auto&& top_frame = call_stack.template current_frame<ndebug>();
+        auto&& top_frame = call_stack.current_frame();
         auto&& current_index = top_frame.current_index;
         auto&& result = top_frame.md_list_ast;
         ::std::size_t const pltext_size{top_frame.pltext.size()};
@@ -427,19 +427,19 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
                                                                           .item_kind = top_frame.get_item_kind()});
         if (opt_list_item.has_value() == false) {
             auto frame = ::std::move(top_frame);
-            call_stack.template discard_current_frame<ndebug>();
+            call_stack.discard_current_frame();
             if (call_stack.empty()) {
                 return ToListAstResult<ndebug>{
                     .top_node = ::pltxt2htm::details::to_top_list_node<ndebug>(
                         ::std::move(frame.md_list_ast), frame.get_item_kind(), frame.get_start()),
                     .advance_count = frame.current_index};
             }
-            auto& parent_frame = call_stack.template current_frame<ndebug>();
+            auto& parent_frame = call_stack.current_frame();
             switch (frame.get_item_kind()) {
             case MdUlListItemKind::ordered_item:
                 [[fallthrough]];
             case MdUlListItemKind::ordered_item_paren: {
-                parent_frame.md_list_ast.emplace_back(
+                parent_frame.md_list_ast.template emplace_back<ndebug>(
                     ListOlNode<ndebug>(::std::move(frame.md_list_ast), frame.get_start()));
                 break;
             }
@@ -448,7 +448,8 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
             case MdUlListItemKind::plus:
                 [[fallthrough]];
             case MdUlListItemKind::asterisk: {
-                parent_frame.md_list_ast.emplace_back(ListUlNode<ndebug>(::std::move(frame.md_list_ast)));
+                parent_frame.md_list_ast.template emplace_back<ndebug>(
+                    ListUlNode<ndebug>(::std::move(frame.md_list_ast)));
                 break;
             }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
@@ -468,39 +469,39 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
             call_stack.push_frame(MdListFrame<ndebug>{item_kind, space_hierarchy,
                                                       top_frame.pltext.template subview<ndebug>(current_index),
                                                       ::std::size_t{0}, ordered_number});
-            auto&& child_frame = call_stack.template current_frame<ndebug>();
+            auto&& child_frame = call_stack.current_frame();
             if (checkbox) {
-                child_frame.md_list_ast.emplace_back(ListLiCheckboxNode(::std::move(text), checked));
+                child_frame.md_list_ast.template emplace_back<ndebug>(ListLiCheckboxNode(::std::move(text), checked));
             }
             else {
-                child_frame.md_list_ast.emplace_back(ListLiNode(::std::move(text)));
+                child_frame.md_list_ast.template emplace_back<ndebug>(ListLiNode(::std::move(text)));
             }
             continue;
         }
         if (checkbox) {
-            result.emplace_back(ListLiCheckboxNode(::std::move(text), checked));
+            result.template emplace_back<ndebug>(ListLiCheckboxNode(::std::move(text), checked));
         }
         else {
-            result.emplace_back(ListLiNode(::std::move(text)));
+            result.template emplace_back<ndebug>(ListLiNode(::std::move(text)));
         }
         top_frame.space_hierarchy = space_hierarchy;
 
         if (current_index < pltext_size) {
             continue;
         }
-        auto frame = call_stack.template pop_frame<ndebug>();
+        auto frame = call_stack.pop_frame();
         if (call_stack.empty()) {
             return ToListAstResult<ndebug>{
                 .top_node = ::pltxt2htm::details::to_top_list_node<ndebug>(::std::move(frame.md_list_ast),
                                                                            frame.get_item_kind(), frame.get_start()),
                 .advance_count = pltext_size};
         }
-        auto&& parent_frame = call_stack.template current_frame<ndebug>();
+        auto&& parent_frame = call_stack.current_frame();
         switch (frame.get_item_kind()) {
         case MdUlListItemKind::ordered_item:
             [[fallthrough]];
         case MdUlListItemKind::ordered_item_paren: {
-            parent_frame.md_list_ast.emplace_back(
+            parent_frame.md_list_ast.template emplace_back<ndebug>(
                 ListOlNode<ndebug>(::std::move(frame.md_list_ast), frame.get_start()));
             break;
         }
@@ -509,7 +510,7 @@ constexpr auto optionally_to_md_list_ast(::pltxt2htm::container::U8StringView pl
         case MdUlListItemKind::plus:
             [[fallthrough]];
         case MdUlListItemKind::asterisk: {
-            parent_frame.md_list_ast.emplace_back(ListUlNode<ndebug>(::std::move(frame.md_list_ast)));
+            parent_frame.md_list_ast.template emplace_back<ndebug>(ListUlNode<ndebug>(::std::move(frame.md_list_ast)));
             break;
         }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK

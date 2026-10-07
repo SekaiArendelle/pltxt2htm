@@ -106,7 +106,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
         while (!cell.is_empty() && (cell.template back<ndebug>() == u8' ' || cell.template back<ndebug>() == u8'\t')) {
             cell.template pop_back<ndebug>();
         }
-        row.push_back(::std::move(cell));
+        row.template push_back<ndebug>(::std::move(cell));
         if (current_index < pltext_size && pltext.template index<ndebug>(current_index) == u8'|') {
             has_trailing_pipe = true;
             ++current_index; // skip |
@@ -228,7 +228,7 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
     for (auto const& cell : delim_row) {
         auto const cell_view = ::pltxt2htm::container::U8StringView{cell};
         if (cell_view.is_empty()) {
-            aligns.push_back(::pltxt2htm::TableAlign::left);
+            aligns.template push_back<ndebug>(::pltxt2htm::TableAlign::left);
             continue;
         }
         auto opt_align = ::pltxt2htm::details::try_parse_table_align<ndebug>(cell_view);
@@ -236,7 +236,7 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
             return ::pltxt2htm::container::nullopt;
         }
         has_delimiter_content = true;
-        aligns.push_back(opt_align.template value<ndebug>());
+        aligns.template push_back<ndebug>(opt_align.template value<ndebug>());
     }
     if (has_delimiter_content == false) {
         return ::pltxt2htm::container::nullopt;
@@ -252,7 +252,7 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
     TableRowRaw header_row_raw{.cells = {}, .section = TableRowSection::thead};
     for (::std::size_t col{}; col < num_cols; ++col) {
         auto const align_val = aligns.template index<ndebug>(col);
-        header_row_raw.cells.push_back(TableCellRaw{
+        header_row_raw.cells.template push_back<ndebug>(TableCellRaw{
             .text = ::std::move(header_row.template index<ndebug>(col)),
             .align = align_val,
             .is_header = true,
@@ -277,7 +277,7 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
         TableRowRaw body_row_raw{.cells = {}, .section = TableRowSection::tbody};
         for (::std::size_t col{}; col < num_cols; ++col) {
             auto const align_val = aligns.template index<ndebug>(col);
-            body_row_raw.cells.push_back(TableCellRaw{
+            body_row_raw.cells.template push_back<ndebug>(TableCellRaw{
                 .text = ::std::move(row.template index<ndebug>(col)),
                 .align = align_val,
                 .is_header = false,

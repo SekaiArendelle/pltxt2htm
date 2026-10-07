@@ -4,7 +4,6 @@
 
 #include "precompile.hh"
 
-#include <pltxt2htm/container/expected.hh>
 #include <pltxt2htm/container/non_zero.hh>
 #include <pltxt2htm/container/optional.hh>
 
@@ -17,7 +16,6 @@ concept can_compare_optionals = requires(Left const& left, Right const& right) {
 };
 
 static_assert(::pltxt2htm::container::is_optional<IntOptional>);
-static_assert(!::pltxt2htm::container::is_expected<IntOptional>);
 static_assert(!::std::default_initializable<IntOptional>);
 static_assert(::std::same_as<IntOptional::value_type, int>);
 static_assert(::std::same_as<IntOptional::rebind<double>, ::pltxt2htm::container::Optional<double>>);

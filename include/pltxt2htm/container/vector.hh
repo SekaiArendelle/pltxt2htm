@@ -299,23 +299,45 @@ public:
           current_capacity{::std::exchange(other.current_capacity, 0)} {
     }
 
+    /// @pre Internal callers must not assign the Vector to itself.
     constexpr auto operator=(this Vector& self, Vector const& other) noexcept -> Vector& {
         static_assert(::std::is_nothrow_copy_constructible_v<value_type>,
                       "Vector requires nothrow-copy-constructible elements when copied");
         static_assert(::std::is_nothrow_destructible_v<value_type>, "Vector requires nothrow-destructible elements");
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    #ifdef NDEBUG
+        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+    #else
+        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+    #endif
+        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
+                         u8"Internal self-assignment is not allowed");
+#else
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
+#endif
         Vector temporary{other};
         self.swap(temporary);
         return self;
     }
 
+    /// @pre Internal callers must not assign the Vector to itself.
     constexpr auto operator=(this Vector& self, Vector&& other) noexcept -> Vector& {
         static_assert(::std::is_nothrow_destructible_v<value_type>, "Vector requires nothrow-destructible elements");
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    #ifdef NDEBUG
+        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
+    #else
+        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+    #endif
+        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
+                         u8"Internal self-assignment is not allowed");
+#else
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
+#endif
         self.swap(other);
         return self;
     }
@@ -462,7 +484,64 @@ public:
         return self.begin_pointer[position];
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    /**
+     * @brief Unchecked element access, provided to downstream users only.
+     *
+     * Contract-bearing access stays on index(); this overload is external-only:
+     * while pltxt2htm itself is being built (PLTXT2HTM_INTERNAL_USE) it stays
+     * deleted, so implementation code must name a Contracts policy.
+     * @param position Zero-based element position.
+     * @return Mutable reference to the requested element.
+     * @pre position < size(); otherwise the behavior is undefined.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator[](this Vector&, size_type) noexcept -> reference = delete
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
+    #endif
+        ;
+#else
+    [[nodiscard]]
+    constexpr auto operator[](this Vector& self, size_type position) noexcept -> reference {
+        return self.begin_pointer[position];
+    }
+#endif
+
+    /**
+     * @brief Unchecked read-only element access, provided to downstream users only.
+     * @param position Zero-based element position.
+     * @return Read-only reference to the requested element.
+     * @pre position < size(); otherwise the behavior is undefined.
+     * @note External-only, mirroring the mutable overload above.
+     */
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator[](this Vector const&, size_type) noexcept -> const_reference = delete
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
+    #endif
+        ;
+#else
+    [[nodiscard]]
+    constexpr auto operator[](this Vector const& self, size_type position) noexcept -> const_reference {
+        return self.begin_pointer[position];
+    }
+#endif
+
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void reserve(this Vector& self, size_type requested_capacity) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
     {
@@ -473,7 +552,7 @@ public:
         self.reallocate(requested_capacity);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, typename... Args>
+    template<::pltxt2htm::Contracts ndebug, typename... Args>
         requires (::std::is_nothrow_move_constructible_v<value_type> &&
                   ::std::is_nothrow_constructible_v<value_type, Args...> &&
                   ::std::is_nothrow_destructible_v<value_type>)
@@ -487,7 +566,7 @@ public:
         return self.template reallocate_and_emplace<ndebug>(::std::forward<Args>(args)...);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this Vector& self, const_reference value) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> &&
                   ::std::is_nothrow_copy_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
@@ -495,14 +574,14 @@ public:
         self.template emplace_back<ndebug>(value);
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this Vector& self, value_type&& value) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
     {
         self.template emplace_back<ndebug>(::std::move(value));
     }
 
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce>
+    template<::pltxt2htm::Contracts ndebug>
     constexpr void pop_back(this Vector& self) noexcept
         requires ::std::is_nothrow_destructible_v<value_type>
     {
@@ -524,7 +603,7 @@ public:
     /**
      * @pre A single-pass input range must not reference elements in this Vector.
      */
-    template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, ::std::ranges::input_range R>
+    template<::pltxt2htm::Contracts ndebug, ::std::ranges::input_range R>
     constexpr void append_range(this Vector& self, R&& range) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type> &&
                   is_nothrow_append_range<R>())

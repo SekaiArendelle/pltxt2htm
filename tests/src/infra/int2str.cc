@@ -113,6 +113,15 @@ consteval auto test_write_decimal_digits_backward() noexcept -> bool {
 static_assert(test_write_decimal_digits_backward());
 
 int main() noexcept {
+    {
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str<::pltxt2htm::Contracts::quick_enforce>(0.0), u8"0");
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str<::pltxt2htm::Contracts::quick_enforce>(12.0), u8"12");
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str<::pltxt2htm::Contracts::quick_enforce>(12.5), u8"12.5");
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str<::pltxt2htm::Contracts::quick_enforce>(0.125), u8"0.125");
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str<::pltxt2htm::Contracts::quick_enforce>(0.03125), u8"0.03125");
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str<::pltxt2htm::Contracts::quick_enforce>(1.0625), u8"1.0625");
+    }
+
     // size_t2str: boundary values around the single-digit / pair / loop transitions
     {
         pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(0), ::pltxt2htm::container::U8StringView{u8"0"});

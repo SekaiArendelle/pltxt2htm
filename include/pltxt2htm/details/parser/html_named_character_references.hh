@@ -45,7 +45,7 @@ class HtmlNamedCharacterReferenceTable {
         ::std::size_t const candidate_size{candidate.name_size};
         ::std::size_t const common_size{name_size < candidate_size ? name_size : candidate_size};
         for (::std::size_t index{}; index < common_size; ++index) {
-            auto const comparison{name.template index<ndebug>(index) <=> names[candidate.name_offset + index]};
+            auto const comparison = name.template index<ndebug>(index) <=> names[candidate.name_offset + index];
             if (comparison != 0) {
                 return comparison;
             }
@@ -71,7 +71,7 @@ class HtmlNamedCharacterReferenceTable {
 
         [[nodiscard]]
         constexpr auto operator*(this const_iterator const& self) noexcept -> value_type {
-            auto const& entry{*self.current};
+            auto const& entry = *self.current;
             return {.name = ::pltxt2htm::container::U8StringView{names + entry.name_offset, entry.name_size},
                     .reference = entry.reference};
         }
@@ -82,7 +82,7 @@ class HtmlNamedCharacterReferenceTable {
         }
 
         constexpr auto operator++(this const_iterator& self, int) noexcept -> const_iterator {
-            auto const previous{self};
+            auto const previous = self;
             ++self;
             return previous;
         }
@@ -100,8 +100,8 @@ public:
         ::std::size_t last{compressed_entries.size()};
         while (first < last) {
             ::std::size_t const middle{first + (last - first) / 2};
-            auto const& candidate{compressed_entries.template index<ndebug>(middle)};
-            auto const comparison{compare<ndebug>(name, candidate)};
+            auto const& candidate = compressed_entries.template index<ndebug>(middle);
+            auto const comparison = compare<ndebug>(name, candidate);
             if (comparison < 0) {
                 last = middle;
             }

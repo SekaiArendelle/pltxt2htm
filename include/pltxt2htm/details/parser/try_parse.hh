@@ -4001,8 +4001,8 @@ constexpr auto try_parse_url_authority(::pltxt2htm::container::U8StringView plte
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_percent_encoded_url_byte(::pltxt2htm::container::U8String& result, char8_t byte) noexcept {
     result.push_back<ndebug>(u8'%');
-    auto const hi{static_cast<unsigned>(byte) >> 4};
-    auto const lo{static_cast<unsigned>(byte) & 0x0F};
+    auto const hi = static_cast<unsigned>(byte) >> 4;
+    auto const lo = static_cast<unsigned>(byte) & 0x0F;
     result.push_back<ndebug>(static_cast<char8_t>(hi < 10 ? u8'0' + hi : u8'A' + (hi - 10)));
     result.push_back<ndebug>(static_cast<char8_t>(lo < 10 ? u8'0' + lo : u8'A' + (lo - 10)));
 }
@@ -4010,7 +4010,7 @@ constexpr void append_percent_encoded_url_byte(::pltxt2htm::container::U8String&
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_code_point_to_url(::pltxt2htm::container::U8String& result, char32_t code_point) noexcept {
     if (code_point < char32_t{0x80}) {
-        auto const chr{static_cast<char8_t>(code_point)};
+        auto const chr = static_cast<char8_t>(code_point);
         if (chr < u8'!' || chr > u8'~' || chr == u8'\'' || chr == u8'<' || chr == u8'>' || chr == u8'"') {
             ::pltxt2htm::details::append_percent_encoded_url_byte<ndebug>(result, chr);
         }

@@ -134,12 +134,12 @@ public:
 
     /// Append a row (its section tag is supplied by the scanner).
     constexpr void add_row(this TableAstRaw& self, TableRowRaw&& row) noexcept {
-        self.rows.push_back(::std::move(row));
+        self.rows.template push_back<ndebug>(::std::move(row));
     }
 
     /// Append a cell to the most recently added row.
     constexpr void add_cell_to_last_row(this TableAstRaw& self, TableCellRaw&& cell) noexcept {
-        self.rows.template index<ndebug>(self.rows.size() - 1).cells.push_back(::std::move(cell));
+        self.rows.template index<ndebug>(self.rows.size() - 1).cells.template push_back<ndebug>(::std::move(cell));
     }
 };
 
