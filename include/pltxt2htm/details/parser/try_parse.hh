@@ -2754,10 +2754,11 @@ constexpr auto try_parse_ol_tag(::pltxt2htm::container::U8StringView pltext) noe
 /**
  * @brief Result of parsing an `<img>` tag.
  */
+template<::pltxt2htm::Contracts ndebug>
 struct TryParseImgTagResult {
     ::std::size_t tag_len;
     ::pltxt2htm::container::U8String src;
-    ::pltxt2htm::container::U8String alt;
+    ::pltxt2htm::PlainText<ndebug> alt;
 };
 
 /**
@@ -2771,7 +2772,7 @@ struct TryParseImgTagResult {
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) noexcept
-    -> ::pltxt2htm::container::Optional<TryParseImgTagResult> {
+    -> ::pltxt2htm::container::Optional<TryParseImgTagResult<ndebug>> {
     ::std::size_t const pltext_size{pltext.size()};
     // match "mg" (case-insensitive)
     if (::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"mg"}>(pltext) == false) {
@@ -2782,7 +2783,7 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
     bool found_src{false};
     bool found_alt{false};
     ::pltxt2htm::container::U8String src{};
-    ::pltxt2htm::container::U8String alt{};
+    ::pltxt2htm::PlainText<ndebug> alt{};
 
     while (pos < pltext_size) {
         // skip whitespace
@@ -2858,7 +2859,7 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
             if (found_alt) {
                 return ::pltxt2htm::container::nullopt; // duplicate alt
             }
-            alt = ::pltxt2htm::details::decode_character_references<ndebug>(attr_val);
+            alt = ::pltxt2htm::details::make_plain_text_from_html_attribute<ndebug>(attr_val);
             found_alt = true;
         }
         else {
@@ -2879,7 +2880,7 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
     if (pos >= pltext_size || pltext.template index<ndebug>(pos) != u8'>') {
         return ::pltxt2htm::container::nullopt;
     }
-    return TryParseImgTagResult{.tag_len = pos + 1, .src = ::std::move(src), .alt = ::std::move(alt)};
+    return TryParseImgTagResult<ndebug>{.tag_len = pos + 1, .src = ::std::move(src), .alt = ::std::move(alt)};
 }
 
 /**
@@ -4500,7 +4501,7 @@ constexpr auto try_parse_md_link(::pltxt2htm::container::U8StringView pltext) no
 template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdImageResult {
     ::std::size_t advance_count;
-    ::pltxt2htm::Ast<ndebug> link_text;
+    ::pltxt2htm::PlainText<ndebug> alt;
     ::pltxt2htm::Url link_url;
 };
 
@@ -4508,7 +4509,7 @@ struct TryParseMdImageResult {
  * @brief Parse Markdown image syntax.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text beginning with an exclamation mark and an opening bracket.
- * @return Parsed image payload (alt text AST + URL + continuation index), or nullopt if invalid.
+ * @return Parsed image payload (semantic alt text + URL + continuation index), or nullopt if invalid.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -4521,8 +4522,7 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
 
     ::std::size_t current_index{2};
 
-    // Parse link text
-    ::pltxt2htm::Ast<ndebug> link_text_ast{};
+    ::pltxt2htm::PlainText<ndebug> alt{};
     while (current_index < pltext_size) {
         char8_t const chr{pltext.template index<ndebug>(current_index)};
 
@@ -4537,50 +4537,19 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
                 ::pltxt2htm::details::try_parse_space<ndebug>(pltext.template subview<ndebug>(current_index));
             opt_space_size.has_value()) {
             auto const space_size = opt_space_size.template value<ndebug>().template get<ndebug>();
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Space>());
+            alt.append_code_point(char32_t{0xA0});
             current_index += space_size;
-            continue;
-        }
-        if (chr == u8'&') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Ampersand>());
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'\'') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::SingleQuote>());
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'\"') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::DoubleQuote>());
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'>') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::GreaterThan>());
-            ++current_index;
-            continue;
-        }
-        if (chr == u8'\t') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Tab>());
-            ++current_index;
             continue;
         }
         if (auto opt_escape =
                 ::pltxt2htm::details::try_parse_md_escape<ndebug>(pltext.template subview<ndebug>(current_index));
             opt_escape.has_value()) {
             auto const& escape_result = opt_escape.template value<ndebug>();
-            ::pltxt2htm::details::append_md_escape_result<ndebug>(link_text_ast, escape_result);
+            alt.append_code_point(static_cast<char32_t>(escape_result.character));
             current_index += escape_result.advance_count;
             continue;
         }
-        if (chr == u8'<') {
-            link_text_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-            ++current_index;
-            continue;
-        }
-        auto const advance_count = ::pltxt2htm::details::parse_utf8_code_point<ndebug>(
-            pltext.template subview<ndebug>(current_index), link_text_ast);
+        auto const advance_count = alt.append_first_utf8_code_point(pltext.template subview<ndebug>(current_index));
         current_index += advance_count;
         continue;
     }
@@ -4604,9 +4573,8 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
     if (current_index >= pltext_size || pltext.template index<ndebug>(current_index) != u8')') {
         return ::pltxt2htm::container::nullopt;
     }
-    return TryParseMdImageResult<ndebug>{.advance_count = current_index + 1,
-                                         .link_text = ::std::move(link_text_ast),
-                                         .link_url = ::std::move(md_url_result.url)};
+    return TryParseMdImageResult<ndebug>{
+        .advance_count = current_index + 1, .alt = ::std::move(alt), .link_url = ::std::move(md_url_result.url)};
 }
 
 } // namespace pltxt2htm::details

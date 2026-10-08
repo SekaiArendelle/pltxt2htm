@@ -3,6 +3,19 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("html_img_tag") {
+    TEST_CASE("alt-controls-normalized") {
+        auto const& source =
+            u8"<img src=\"https://example.com/image.png\" alt=\"a\t\n\r\x7F&#9;&#10;&Tab;&NewLine;b\">";
+        auto const html = ::pltxt2htm_test::pltxt2fixedadv_htmld(source);
+        auto const& expected =
+            u8"<img src=\"https://example.com/image.png\" "
+            u8"alt=\"a&nbsp;&nbsp;&nbsp;&nbsp;\n\uFFFD\uFFFD&nbsp;&nbsp;&nbsp;&nbsp;\n&nbsp;&nbsp;&nbsp;&nbsp;\nb\">";
+        CHECK(html == expected);
+        auto const second_pass =
+            ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{html.data(), html.size()});
+        CHECK(second_pass == html);
+    }
+
     TEST_CASE("valid-attribute-passthrough") {
         auto const& pltext = u8"<img src=\"https://example.com/image.png\" alt=\"description\">";
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
@@ -50,6 +63,24 @@ TEST_SUITE("html_img_tag") {
         auto const& pltext = u8"<img src=\"https://example.com/?a=1&amp;b=2\" alt=\"&quot;&bogus;&copy;\">";
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<img src=\"https://example.com/?a=1&amp;b=2\" alt=\"&quot;&amp;bogus;©\">";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("alt-nbsp-entities-canonicalized") {
+        auto const& pltext =
+            u8"<img src=\"https://example.com/image.png\" alt=\"a&nbsp;&#160;&#xA0;&NonBreakingSpace;b\">";
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
+        auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"a&nbsp;&nbsp;&nbsp;&nbsp;b\">";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("alt-invalid-utf8-replaced") {
+        auto pltext = ::pltxt2htm::container::U8String{u8"<img src=\"https://example.com/image.png\" alt=\""};
+        pltext.push_back<::pltxt2htm::Contracts::quick_enforce>(char8_t{0x80});
+        pltext.append<::pltxt2htm::Contracts::quick_enforce>(u8"\">");
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(::pltxt2htm::container::U8StringView{pltext.data(), pltext.size()});
+        auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"�\">";
         CHECK(html == answer);
     }
 

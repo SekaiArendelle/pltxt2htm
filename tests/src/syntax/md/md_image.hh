@@ -3,6 +3,15 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("md_image") {
+    TEST_CASE("alt-tab-preserved") {
+        auto const& source = u8"![a\tb](https://example.com/image.png)";
+        auto const html = ::pltxt2htm_test::pltxt2fixedadv_htmld(source);
+        auto const& expected = u8"<img src=\"https://example.com/image.png\" alt=\"a&nbsp;&nbsp;&nbsp;&nbsp;b\">";
+        CHECK(html == expected);
+        auto const unity = ::pltxt2htm_test::pltxt2plunity_introduction(source);
+        CHECK(unity == u8"![a\tb](https://example.com/image.png)");
+    }
+
     TEST_CASE("basic") {
         auto const& pltext = u8"![alt text](https://example.com/image.png)";
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
@@ -11,6 +20,25 @@ TEST_SUITE("md_image") {
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto const& plunity_richtext_answer = u8"![alt\u00A0text](https://example.com/image.png)";
         CHECK(plunity_richtext == plunity_richtext_answer);
+    }
+
+    TEST_CASE("roundtrip-alt-space") {
+        auto const first_pass = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"![ alt](https://example.com/image.png)");
+        auto const& expected = u8"<img src=\"https://example.com/image.png\" alt=\"&nbsp;alt\">";
+        CHECK(first_pass == expected);
+        auto const second_pass = ::pltxt2htm_test::pltxt4htmlunittest(
+            ::pltxt2htm::container::U8StringView{first_pass.data(), first_pass.size()});
+        CHECK(second_pass == first_pass);
+    }
+
+    TEST_CASE("alt-invalid-utf8-replaced") {
+        auto pltext = ::pltxt2htm::container::U8String{u8"!["};
+        pltext.push_back<::pltxt2htm::Contracts::quick_enforce>(char8_t{0x80});
+        pltext.append<::pltxt2htm::Contracts::quick_enforce>(u8"](https://example.com/image.png)");
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(::pltxt2htm::container::U8StringView{pltext.data(), pltext.size()});
+        auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"�\">";
+        CHECK(html == answer);
     }
 
     TEST_CASE("relative-path-rejected") {

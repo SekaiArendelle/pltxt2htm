@@ -6,6 +6,7 @@
 #pragma once
 
 #include <cstddef>
+#include "../../ast/plain_text.hh"
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../../contracts.hh"
@@ -60,6 +61,30 @@ constexpr void append_html_escaped_attribute_value(::pltxt2htm::container::U8Str
     ::std::size_t const value_size{value.size()};
     for (::std::size_t index{}; index < value_size; ++index) {
         ::pltxt2htm::details::append_html_escaped_character<ndebug>(result, value.template index<ndebug>(index));
+    }
+}
+
+/**
+ * @brief Append semantic plain text as a canonical HTML attribute value.
+ */
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_plain_text_as_html_attribute(::pltxt2htm::container::U8String& result,
+                                                   ::pltxt2htm::PlainText<ndebug> const& value) noexcept {
+    auto const& text = value.as_string();
+    ::std::size_t const text_size{text.size()};
+    for (::std::size_t index{}; index < text_size; ++index) {
+        char8_t const character{text.template index<ndebug>(index)};
+        if (character == char8_t{0xC2} && index + 1 < text_size &&
+            text.template index<ndebug>(index + 1) == char8_t{0xA0}) {
+            result.template append<ndebug>(u8"&nbsp;");
+            ++index;
+            continue;
+        }
+        if (character == u8'\t') {
+            result.template append<ndebug>(u8"&nbsp;&nbsp;&nbsp;&nbsp;");
+            continue;
+        }
+        ::pltxt2htm::details::append_html_escaped_character<ndebug>(result, character);
     }
 }
 
