@@ -145,7 +145,7 @@ constexpr auto try_parse_bare_tag(::pltxt2htm::container::U8StringView pltext) n
     for (::std::size_t i{tag_name_size}; i < pltext_size; ++i) {
         auto const forward_chr = pltext.template index<ndebug>(i);
         if (forward_chr == u8'>') {
-            return i;
+            return i + 1;
         }
         if (forward_chr != u8' ' && forward_chr != u8'\t') {
             return ::pltxt2htm::container::nullopt;
@@ -158,7 +158,8 @@ constexpr auto try_parse_bare_tag(::pltxt2htm::container::U8StringView pltext) n
  * @brief Parse the remainder of a bare HTML tag after its name has already been consumed.
  * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
  * @param[in] pltext The input text immediately following the tag name.
- * @return The offset of the closing `>`, or nullopt if the remainder contains characters other than spaces or tabs.
+ * @return The length of the matched tag including the closing `>`, or nullopt if the remainder contains characters
+ * other than spaces or tabs.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
@@ -168,7 +169,7 @@ constexpr auto try_parse_bare_tag(::pltxt2htm::container::U8StringView pltext) n
     for (::std::size_t i{}; i < pltext_size; ++i) {
         auto const forward_chr = pltext.template index<ndebug>(i);
         if (forward_chr == u8'>') {
-            return i;
+            return i + 1;
         }
         if (forward_chr != u8' ' && forward_chr != u8'\t') {
             return ::pltxt2htm::container::nullopt;
@@ -448,7 +449,7 @@ constexpr auto try_parse_td_style(::pltxt2htm::container::U8StringView pltext, c
  * @brief Return type of try_parse_th_tag and try_parse_td_tag: tag length and cell alignment.
  */
 struct TryParseTdTagResult {
-    ::std::size_t tag_len; ///< Length of the matched tag up to the closing `>`.
+    ::std::size_t tag_len; ///< Length of the matched tag including the closing `>`.
     ::pltxt2htm::TableAlign align; ///< Cell alignment parsed from `style="text-align:..."`.
 };
 
@@ -485,7 +486,7 @@ constexpr auto try_parse_th_tag(::pltxt2htm::container::U8StringView pltext,
             return ::pltxt2htm::container::nullopt;
         }
         if (pltext.template index<ndebug>(pos) == u8'>') {
-            return TryParseTdTagResult{.tag_len = pos, .align = align};
+            return TryParseTdTagResult{.tag_len = pos + 1, .align = align};
         }
 
         // parse attribute name
@@ -626,7 +627,7 @@ constexpr auto try_parse_td_tag(::pltxt2htm::container::U8StringView pltext,
             return ::pltxt2htm::container::nullopt;
         }
         if (pltext.template index<ndebug>(pos) == u8'>') {
-            return TryParseTdTagResult{.tag_len = pos, .align = align};
+            return TryParseTdTagResult{.tag_len = pos + 1, .align = align};
         }
 
         // parse attribute name
@@ -681,7 +682,7 @@ constexpr auto try_parse_td_tag(::pltxt2htm::container::U8StringView pltext,
  * @brief Return type of try_parse_p_tag: tag length and alignment.
  */
 struct TryParsePTagResult {
-    ::std::size_t tag_len; ///< Length of the matched tag up to the closing `>`.
+    ::std::size_t tag_len; ///< Length of the matched tag including the closing `>`.
     ::pltxt2htm::TextAlign align; ///< Alignment parsed from `style="text-align:..."`.
 };
 
@@ -712,7 +713,7 @@ constexpr auto try_parse_p_tag(::pltxt2htm::container::U8StringView pltext) noex
             return ::pltxt2htm::container::nullopt;
         }
         if (pltext.template index<ndebug>(pos) == u8'>') {
-            return TryParsePTagResult{.tag_len = pos, .align = align};
+            return TryParsePTagResult{.tag_len = pos + 1, .align = align};
         }
 
         // parse attribute name
@@ -876,8 +877,8 @@ constexpr bool is_equal_sign_tag_prefix(::pltxt2htm::container::U8StringView plt
 /**
  * @brief Parse trailing whitespace and the closing bracket of an equals-sign tag.
  * @details `pltext` must already be subviewed so that it starts at the end of the
- *          tag value. The returned value is the index of the closing `>` relative
- *          to that subview; callers re-add the value-end offset when they need
+ *          tag value. The returned value is the length up to and including the closing
+ *          `>` relative to that subview; callers re-add the value-end offset when they need
  *          absolute coordinates. The caller is responsible for the value substring.
  */
 template<::pltxt2htm::Contracts ndebug>
@@ -893,7 +894,7 @@ constexpr auto try_parse_equal_sign_tag_suffix(::pltxt2htm::container::U8StringV
     if (pos >= pltext_size || pltext.template index<ndebug>(pos) != u8'>') {
         return ::pltxt2htm::container::nullopt;
     }
-    return pos;
+    return pos + 1;
 }
 
 /**
@@ -1390,7 +1391,7 @@ constexpr auto try_parse_margin_attributes(::pltxt2htm::container::U8StringView 
             if (saw_attribute == false) {
                 return ::pltxt2htm::container::nullopt;
             }
-            return TryParseMarginTagResult{.tag_len = pos, .left = left, .right = right};
+            return TryParseMarginTagResult{.tag_len = pos + 1, .left = left, .right = right};
         }
         bool const is_left =
             ::pltxt2htm::details::is_prefix_match<ndebug, ::pltxt2htm::details::U8LiteralString{u8"left"}>(
@@ -1654,7 +1655,7 @@ constexpr auto try_parse_html_div_tag(::pltxt2htm::container::U8StringView pltex
         return ::pltxt2htm::container::nullopt;
     }
 
-    return TryParseHtmlDivTagResult{.tag_len = pos, .left = left, .right = right};
+    return TryParseHtmlDivTagResult{.tag_len = pos + 1, .left = left, .right = right};
 }
 
 /**
@@ -2292,7 +2293,7 @@ constexpr auto try_parse_mark_equal_sign_tag(::pltxt2htm::container::U8StringVie
         return ::pltxt2htm::container::nullopt;
     }
     auto const close_rel = opt_close.template value<ndebug>();
-    return TryParseMarkTagResult{.tag_len = value_end + close_rel + 1,
+    return TryParseMarkTagResult{.tag_len = value_end + close_rel,
                                  .background_color = ::pltxt2htm::container::U8String{
                                      pltext.template subview<ndebug>(value_start, value_end - value_start)}};
 }
@@ -3306,7 +3307,7 @@ constexpr auto try_parse_html_pre_code_block(::pltxt2htm::container::U8StringVie
     if (opt_pre_tag_len.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    ::std::size_t pos{opt_pre_tag_len.template value<ndebug>() + 1};
+    ::std::size_t pos{opt_pre_tag_len.template value<ndebug>()};
 
     // allow spaces/tabs between <pre> and <code>
     while (pos < pltext_size &&
