@@ -4537,7 +4537,8 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
                 ::pltxt2htm::details::try_parse_space<ndebug>(pltext.template subview<ndebug>(current_index));
             opt_space_size.has_value()) {
             auto const space_size = opt_space_size.template value<ndebug>().template get<ndebug>();
-            alt.append_code_point(char32_t{0xA0});
+            // The space token is stored in the canonical no-break form by `PlainText`.
+            alt.append_code_point(char32_t{0x20});
             current_index += space_size;
             continue;
         }

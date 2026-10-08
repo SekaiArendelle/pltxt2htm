@@ -416,7 +416,8 @@ int main() {
         pltxt2htm_test_assert_true(text.as_string() == expected);
     }
 
-    // PlainText preserves tab and line feed while replacing other ASCII controls.
+    // PlainText preserves tab and line feed, canonicalizes spaces to the no-break form, and replaces other ASCII
+    // controls.
     {
         auto const replacement = ::pltxt2htm::container::U8String{u8"\uFFFD"};
         for (char32_t control{}; control < char32_t{0x20}; ++control) {
@@ -437,8 +438,16 @@ int main() {
         boundaries.append_code_point(U' ');
         boundaries.append_code_point(U'~');
         boundaries.append_code_point(char32_t{0x80});
-        auto const expected = ::pltxt2htm::container::U8String{u8"\t\n ~\u0080"};
+        auto const expected = ::pltxt2htm::container::U8String{u8"\t\n\u00A0~\u0080"};
         pltxt2htm_test_assert_true(boundaries.as_string() == expected);
+
+        // U+0020 and U+00A0 are the same Physics-Lab space token, so both must be stored identically.
+        ::pltxt2htm::PlainText<nd::quick_enforce> ascii_space{};
+        ascii_space.append_code_point(U' ');
+        ::pltxt2htm::PlainText<nd::quick_enforce> no_break_space{};
+        no_break_space.append_code_point(char32_t{0xA0});
+        pltxt2htm_test_assert_true(ascii_space.as_string() == no_break_space.as_string());
+        pltxt2htm_test_assert_true(ascii_space.as_string() == ::pltxt2htm::container::U8String{u8"\u00A0"});
     }
 
     // UTF-8 appends consume one sequence and preserve invalid-prefix recovery.
