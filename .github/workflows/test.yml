@@ -144,6 +144,30 @@ jobs:
       - name: Build docker image (clang-tidy runs during build)
         run: |
           docker build -f tests/docker/x86_64-linux-gnu-clang-tidy/Dockerfile -t x86_64-linux-gnu-clang-tidy .
+
+  x86_64-linux-gnu-install:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: gcc
+            compiler: g++
+          - name: clang
+            compiler: clang++
+
+    name: x86_64-linux-gnu (install + consumer smoke test, ${{ matrix.name }})
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build docker image (the consumers run during build)
+        run: |
+          docker build -f tests/docker/x86_64-linux-gnu-install/Dockerfile \
+            --build-arg compiler=${{ matrix.compiler }} \
+            -t x86_64-linux-gnu-install-${{ matrix.name }} .
+
   x86_64-windows-msvc-cmd:
     strategy:
       fail-fast: false
