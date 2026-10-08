@@ -9,6 +9,25 @@
 
 int main() {
     namespace trace = ::pltxt2htm::details::stacktrace;
+#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(__linux__) && __has_include(<execinfo.h>) && __has_include(<cxxabi.h>)
+    char symbol[] = "demo(_Z9demo_leafv+0x66) [0x1234]";
+    char decoded[128]{};
+    pltxt2htm_test_assert_true(!trace::copy_symbol_text(decoded, symbol));
+    pltxt2htm_test_assert_true(::std::strcmp(decoded, "demo(demo_leaf()+0x66) [0x1234]") == 0);
+    pltxt2htm_test_assert_true(::std::strcmp(symbol, "demo(_Z9demo_leafv+0x66) [0x1234]") == 0);
+    char short_text[12]{};
+    pltxt2htm_test_assert_true(trace::copy_symbol_text(short_text, symbol));
+    pltxt2htm_test_assert_true(::std::strcmp(short_text, "demo(demo_l") == 0);
+    char plain[] = "libc(__libc_start_main+0x89) [0x1234]";
+    pltxt2htm_test_assert_true(!trace::copy_symbol_text(decoded, plain));
+    pltxt2htm_test_assert_true(::std::strcmp(decoded, plain) == 0);
+    char invalid[] = "demo(_Zinvalid+0x1) [0x1234]";
+    pltxt2htm_test_assert_true(!trace::copy_symbol_text(decoded, invalid));
+    pltxt2htm_test_assert_true(::std::strcmp(decoded, invalid) == 0);
+    char unknown[] = "libc(+0x27781) [0x1234]";
+    pltxt2htm_test_assert_true(!trace::copy_symbol_text(decoded, unknown));
+    pltxt2htm_test_assert_true(::std::strcmp(decoded, unknown) == 0);
+#endif
     void* storage[8]{};
     auto const empty = trace::capture({});
     pltxt2htm_test_assert_true(empty.size == 0 && !empty.possibly_truncated);
