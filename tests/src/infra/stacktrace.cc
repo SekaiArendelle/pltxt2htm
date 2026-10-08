@@ -6,6 +6,45 @@
 #include "precompile.hh"
 #include <limits>
 #include <memory>
+#include <concepts>
+#include <iterator>
+#include <utility>
+
+struct TrackingAllocator {
+    static inline ::std::size_t allocations{};
+    static inline ::std::size_t outstanding{};
+
+    [[nodiscard]] static void* allocate(::std::size_t bytes) noexcept {
+        ++allocations;
+        ++outstanding;
+        return ::fast_io::native_global_allocator::allocate(bytes);
+    }
+
+    static void deallocate(void* pointer) noexcept {
+        if (pointer != nullptr) {
+            --outstanding;
+        }
+        ::fast_io::native_global_allocator::deallocate(pointer);
+    }
+};
+
+[[nodiscard]]
+#if defined(_MSC_VER)
+__declspec(noinline)
+#elif defined(__GNUC__)
+[[gnu::noinline]]
+#endif
+::pltxt2htm::details::stacktrace::Stacktrace deep_trace(::std::size_t depth) noexcept {
+    if (depth == 0) {
+        return ::pltxt2htm::details::stacktrace::Stacktrace::current();
+    }
+    auto result = ::deep_trace(depth - 1);
+    // Keep work after recursion so optimized builds cannot use a tail call.
+    if (result.empty()) {
+        return {};
+    }
+    return result;
+}
 
 int main() {
     namespace trace = ::pltxt2htm::details::stacktrace;
@@ -69,13 +108,70 @@ int main() {
 #else
     pltxt2htm_test_assert_true(single.size == 0 && !single.possibly_truncated);
 #endif
-    auto const snapshot = trace::Stacktrace<8>::current();
+    static_assert(::std::random_access_iterator<trace::Stacktrace::const_iterator>);
+    static_assert(::std::same_as<decltype(::std::declval<trace::Stacktrace const&>()[0]), trace::StacktraceEntry const&>);
+    constexpr trace::StacktraceEntry empty_entry{};
+    static_assert(!empty_entry && empty_entry.native_handle() == nullptr);
+    pltxt2htm_test_assert_true(empty_entry.description().empty());
+    pltxt2htm_test_assert_true(empty_entry.source_file().empty() && empty_entry.source_line() == 0);
+    auto const snapshot = trace::Stacktrace::current(0, 8);
     auto const copied_snapshot = snapshot;
     pltxt2htm_test_assert_true(snapshot.size() == copied_snapshot.size());
     for (::std::size_t i = 0; i < snapshot.size(); ++i) {
-        pltxt2htm_test_assert_true(snapshot.addresses()[i] == copied_snapshot.addresses()[i]);
+        pltxt2htm_test_assert_true(snapshot[i].native_handle() == copied_snapshot[i].native_handle());
+        pltxt2htm_test_assert_true(snapshot.at(i) == copied_snapshot[i]);
     }
-    pltxt2htm_test_assert_true(trace::Stacktrace<0>::current().empty());
+    pltxt2htm_test_assert_true(snapshot == copied_snapshot && (snapshot <=> copied_snapshot) == 0);
+    pltxt2htm_test_assert_true(snapshot.cbegin() == snapshot.begin() && snapshot.cend() == snapshot.end());
+    pltxt2htm_test_assert_true(snapshot.crbegin() == snapshot.rbegin() && snapshot.crend() == snapshot.rend());
+    auto reverse = snapshot.rbegin();
+    for (::std::size_t i = snapshot.size(); i != 0; --i, ++reverse) {
+        pltxt2htm_test_assert_true(*reverse == snapshot[i - 1]);
+    }
+    pltxt2htm_test_assert_true(reverse == snapshot.rend());
+    pltxt2htm_test_assert_true(trace::Stacktrace::current(0, 0).empty());
+    pltxt2htm_test_assert_true(trace::Stacktrace::current((::std::numeric_limits<::std::size_t>::max)()).empty());
+    auto moved_source = snapshot;
+    auto moved = ::std::move(moved_source);
+    pltxt2htm_test_assert_true(moved == snapshot && moved_source.empty());
+    moved_source = ::std::move(moved);
+    pltxt2htm_test_assert_true(moved_source == snapshot && moved.empty());
+    moved_source.swap(moved);
+    pltxt2htm_test_assert_true(moved == snapshot && moved_source.empty());
+    moved_source = snapshot;
+    pltxt2htm_test_assert_true(moved_source == snapshot);
+    trace::BasicStacktrace<::fast_io::native_thread_local_allocator> alternate{};
+    pltxt2htm_test_assert_true(alternate == trace::Stacktrace{});
+    (void)alternate.get_allocator();
+    {
+        TrackingAllocator const alloc{};
+        using TrackedTrace = trace::BasicStacktrace<TrackingAllocator>;
+        auto tracked = TrackedTrace::current(0, 8, alloc);
+        TrackedTrace copy{tracked, alloc};
+        TrackedTrace moved_copy{::std::move(copy), alloc};
+        pltxt2htm_test_assert_true(tracked == moved_copy && copy.empty());
+        tracked = tracked;
+        pltxt2htm_test_assert_true(tracked == moved_copy);
+        tracked = ::std::move(tracked);
+        pltxt2htm_test_assert_true(tracked == moved_copy);
+    }
+    pltxt2htm_test_assert_true(TrackingAllocator::outstanding == 0);
+#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && (defined(_WIN32) || (defined(__linux__) && __has_include(<execinfo.h>)))
+    pltxt2htm_test_assert_true(TrackingAllocator::allocations > 0);
+    auto const deep = ::deep_trace(96);
+    pltxt2htm_test_assert_true(deep.size() > 64 && !deep.possibly_truncated());
+    auto const one_entry = trace::Stacktrace::current(0, 1);
+    pltxt2htm_test_assert_true(one_entry.size() == 1 && one_entry.possibly_truncated() && one_entry[0]);
+    pltxt2htm_test_assert_true((one_entry <=> deep) < 0);
+    // Entry queries and formatting use the saved address, not a new capture.
+    auto const description = one_entry[0].description();
+    auto const file = one_entry[0].source_file();
+    (void)one_entry[0].source_line();
+    auto const entry_text = ::fast_io::concat_fast_io(one_entry[0]);
+    auto const resolved_text = ::fast_io::concat_fast_io(trace::resolve(one_entry[0].native_handle()));
+    pltxt2htm_test_assert_true(entry_text == resolved_text);
+    pltxt2htm_test_assert_true(one_entry.max_size() >= one_entry.size());
+#endif
     auto const captured = trace::capture(storage);
     auto const resolved = trace::resolve(captured.size != 0 ? storage[0] : nullptr);
 #if defined(_WIN32) && defined(PLTXT2HTM_ENABLE_STACKTRACE)

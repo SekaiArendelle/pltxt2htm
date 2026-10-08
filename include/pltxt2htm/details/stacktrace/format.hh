@@ -2,6 +2,7 @@
 
 #include <fast_io/fast_io.h>
 #include "entry.hh"
+#include "stacktrace_entry.hh"
 
 namespace pltxt2htm::details::stacktrace {
 /** fast_io formatting customization. Only reads caller-owned data; it never
@@ -31,5 +32,16 @@ constexpr void print_define(::fast_io::io_reserve_type_t<char, ResolvedFrame>, O
     if (frame.text_truncated) {
         ::fast_io::io::print(output, " <text truncated>");
     }
+}
+
+/** Formatting an address entry resolves it once. Use ResolvedFrame when
+ * formatting must consume previously saved
+ * symbol data without resolution.
+ */
+template<typename Output>
+constexpr void print_define(::fast_io::io_reserve_type_t<char, StacktraceEntry>, Output output,
+                            StacktraceEntry const& entry) {
+    auto const frame = ::pltxt2htm::details::stacktrace::resolve(entry.native_handle());
+    ::pltxt2htm::details::stacktrace::print_define(::fast_io::io_reserve_type_t<char, ResolvedFrame>{}, output, frame);
 }
 } // namespace pltxt2htm::details::stacktrace
