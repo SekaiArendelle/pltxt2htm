@@ -1,26 +1,32 @@
+/**
+ * @file html_parser.hh
+ * @brief Second-stage parser for HTML input text.
+ * @details Parses text whose block structure comes from HTML tags into the shared AST. It is
+ *          the HTML counterpart of the Markdown/pl-text inline parser and is driven by the
+ *          roundtrip checks that re-parse emitted HTML.
+ */
 #pragma once
 
 #include <cstddef>
-#include "../container/string.hh"
-#include "../details/call_stack.hh"
-#include "../container/string_view.hh"
-#include "../ast/node_kind.hh"
-#include "../ast/ast.hh"
-#include "../contracts.hh"
-#include "../details/utils.hh"
-#include "../details/parser/frame_context.hh"
-#include "../details/parser/try_parse.hh"
-#include "../details/parser/html_list.hh"
-#include "../details/parser/html_table.hh"
-#include "../details/push_macro.hh"
+#include "../../container/string.hh"
+#include "../call_stack.hh"
+#include "../../container/string_view.hh"
+#include "../../ast/node_kind.hh"
+#include "../../ast/ast.hh"
+#include "../../contracts.hh"
+#include "../utils.hh"
+#include "frame_context.hh"
+#include "try_parse.hh"
+#include "html_list.hh"
+#include "html_table.hh"
+#include "../push_macro.hh"
 
-namespace pltxt2htm::experimental {
-namespace details {
+namespace pltxt2htm::details {
 
 /**
- * @brief Return type of find_next_block_after_line_break.
+ * @brief Return type of html_find_next_block_after_line_break.
  */
-struct FindNextBlockAfterLineBreakResult {
+struct HtmlFindNextBlockAfterLineBreakResult {
     ::std::size_t advance_count; ///< Bytes consumed from the input subview.
     bool new_frame_been_pushed_into_call_stack; ///< Whether a new frame was pushed.
 };
@@ -36,11 +42,10 @@ struct FindNextBlockAfterLineBreakResult {
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto find_next_block_after_line_break(
+constexpr auto html_find_next_block_after_line_break(
     ::pltxt2htm::container::U8StringView pltext,
     ::pltxt2htm::details::CallStack<ndebug, ::pltxt2htm::details::ParserFrame<ndebug>>& call_stack,
-    ::pltxt2htm::Ast<ndebug>& result) noexcept
-    -> ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult {
+    ::pltxt2htm::Ast<ndebug>& result) noexcept -> ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult {
     ::std::size_t current_index{};
     while (true) {
         // Check for HTML <hr> self-closing tag at block position. Emit it as a leaf and keep
@@ -59,7 +64,7 @@ constexpr auto find_next_block_after_line_break(
             opt_pre_code_block.has_value()) {
             auto&& [node, advance_count] = opt_pre_code_block.template value<ndebug>();
             result.push_back(::std::move(node));
-            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = false};
         }
         if (auto opt_p_tag =
@@ -73,7 +78,7 @@ constexpr auto find_next_block_after_line_break(
                         pltext.template subview<ndebug>(current_index + consumed), align},
                     ::pltxt2htm::NodeKind::html_p},
                 ::pltxt2htm::Ast<ndebug>{}));
-            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
         }
         if (auto opt_h1_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h1">(
@@ -86,7 +91,7 @@ constexpr auto find_next_block_after_line_break(
                         pltext.template subview<ndebug>(current_index + consumed)},
                     ::pltxt2htm::NodeKind::html_h1},
                 ::pltxt2htm::Ast<ndebug>{}));
-            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
         }
         if (auto opt_h2_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h2">(
@@ -99,7 +104,7 @@ constexpr auto find_next_block_after_line_break(
                         pltext.template subview<ndebug>(current_index + consumed)},
                     ::pltxt2htm::NodeKind::html_h2},
                 ::pltxt2htm::Ast<ndebug>{}));
-            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
         }
         if (auto opt_h3_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h3">(
@@ -112,7 +117,7 @@ constexpr auto find_next_block_after_line_break(
                         pltext.template subview<ndebug>(current_index + consumed)},
                     ::pltxt2htm::NodeKind::html_h3},
                 ::pltxt2htm::Ast<ndebug>{}));
-            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
         }
         if (auto opt_h4_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h4">(
@@ -125,7 +130,7 @@ constexpr auto find_next_block_after_line_break(
                         pltext.template subview<ndebug>(current_index + consumed)},
                     ::pltxt2htm::NodeKind::html_h4},
                 ::pltxt2htm::Ast<ndebug>{}));
-            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
         }
         if (auto opt_h5_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h5">(
@@ -138,7 +143,7 @@ constexpr auto find_next_block_after_line_break(
                         pltext.template subview<ndebug>(current_index + consumed)},
                     ::pltxt2htm::NodeKind::html_h5},
                 ::pltxt2htm::Ast<ndebug>{}));
-            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
         }
         if (auto opt_h6_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<h6">(
@@ -151,7 +156,7 @@ constexpr auto find_next_block_after_line_break(
                         pltext.template subview<ndebug>(current_index + consumed)},
                     ::pltxt2htm::NodeKind::html_h6},
                 ::pltxt2htm::Ast<ndebug>{}));
-            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
         }
         if (auto opt_blockquote_tag = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<blockquote">(
@@ -164,7 +169,7 @@ constexpr auto find_next_block_after_line_break(
                         pltext.template subview<ndebug>(current_index + consumed)},
                     ::pltxt2htm::NodeKind::html_blockquote},
                 ::pltxt2htm::Ast<ndebug>{}));
-            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
         }
         // Check for an HTML <div style="margin-left:...;margin-right:..."> at a block position.
@@ -179,7 +184,7 @@ constexpr auto find_next_block_after_line_break(
                         pltext.template subview<ndebug>(current_index + consumed), left, right},
                     ::pltxt2htm::NodeKind::html_div},
                 ::pltxt2htm::Ast<ndebug>{}));
-            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + consumed, .new_frame_been_pushed_into_call_stack = true};
         }
         // Check for HTML <ul>/<ol> list at a block position (block-level lists).
@@ -188,7 +193,7 @@ constexpr auto find_next_block_after_line_break(
             opt_html_list_ast.has_value()) {
             auto&& [top_node, advance_count] = opt_html_list_ast.template value<ndebug>();
             ::pltxt2htm::details::push_list_frame<ndebug>(call_stack, ::std::move(top_node));
-            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
         // Check for an HTML <table> block at a block position (block-level tables).
@@ -201,14 +206,20 @@ constexpr auto find_next_block_after_line_break(
                     ::pltxt2htm::details::ParserFrameContextWithTableInfo<ndebug>{::std::move(raw_ast)},
                     ::pltxt2htm::NodeKind::table},
                 ::pltxt2htm::Ast<ndebug>{}));
-            return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+            return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
                 .advance_count = current_index + advance_count, .new_frame_been_pushed_into_call_stack = true};
         }
-        return ::pltxt2htm::experimental::details::FindNextBlockAfterLineBreakResult{
+        return ::pltxt2htm::details::HtmlFindNextBlockAfterLineBreakResult{
             .advance_count = current_index, .new_frame_been_pushed_into_call_stack = false};
     }
 }
 
+/**
+ * @brief Parse the top frame's text with the shared parser stack.
+ * @tparam ndebug Contract checking mode.
+ * @param[in,out] call_stack Active parser call stack whose top frame holds the text to parse.
+ * @return The AST built from the top frame.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_pltxt_html(
@@ -304,9 +315,8 @@ entry:
         ::std::size_t const pltext_size{pltext.size()};
 
         // Check for block-level <p> tag at line start (start of input or after frame completion)
-        auto&& [entry_advance, entry_new_frame] =
-            ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
-                pltext.template subview<ndebug>(current_index), call_stack, result);
+        auto&& [entry_advance, entry_new_frame] = ::pltxt2htm::details::html_find_next_block_after_line_break<ndebug>(
+            pltext.template subview<ndebug>(current_index), call_stack, result);
         current_index += entry_advance;
         if (entry_new_frame) {
             goto entry;
@@ -319,9 +329,8 @@ entry:
                 result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LineBreak>());
                 ++current_index;
                 // Check for block-level <p> tag after newline
-                auto&& [nl_advance, nl_new_frame] =
-                    ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
-                        pltext.template subview<ndebug>(current_index), call_stack, result);
+                auto&& [nl_advance, nl_new_frame] = ::pltxt2htm::details::html_find_next_block_after_line_break<ndebug>(
+                    pltext.template subview<ndebug>(current_index), call_stack, result);
                 current_index += nl_advance;
                 if (nl_new_frame) {
                     goto entry;
@@ -410,7 +419,7 @@ entry:
                         current_index += opt_br_tag_len.template value<ndebug>().template get<ndebug>() + 2;
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlBr>());
                         auto&& [br_advance, br_new_frame] =
-                            ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
+                            ::pltxt2htm::details::html_find_next_block_after_line_break<ndebug>(
                                 pltext.template subview<ndebug>(current_index), call_stack, result);
                         current_index += br_advance;
                         if (br_new_frame) {
@@ -1510,8 +1519,12 @@ entry:
     }
 }
 
-} // namespace details
-
+/**
+ * @brief Parse HTML input text into an Abstract Syntax Tree.
+ * @tparam ndebug Contract checking mode.
+ * @param[in] html_text Text whose block structure comes from HTML tags.
+ * @return An AST representing the parsed structure of @p html_text.
+ */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_pltxt_html(::pltxt2htm::container::U8StringView html_text) noexcept -> ::pltxt2htm::Ast<ndebug> {
@@ -1522,13 +1535,13 @@ constexpr auto parse_pltxt_html(::pltxt2htm::container::U8StringView html_text) 
             ::pltxt2htm::details::ParserFrameContextWithPltextInfo{html_text}, ::pltxt2htm::NodeKind::group},
         ::pltxt2htm::Ast<ndebug>{}));
 
-    auto result = details::parse_pltxt_html<ndebug>(call_stack);
+    auto result = parse_pltxt_html<ndebug>(call_stack);
 
     pltxt2htm_assert(call_stack.empty(), u8"call_stack is not empty");
 
     return result;
 }
 
-} // namespace pltxt2htm::experimental
+} // namespace pltxt2htm::details
 
-#include "../details/pop_macro.hh"
+#include "../pop_macro.hh"
