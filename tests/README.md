@@ -17,6 +17,14 @@ exercise supported C++26 code paths, while other compilers use C++23. Override
 it with `-DCMAKE_CXX_STANDARD=23` or `-DCMAKE_CXX_STANDARD=26`. When
 using `run_all_tests.py`, pass `--cxx-standard 23` or `--cxx-standard 26`.
 
+## install smoke test
+
+[`install/`](./install/README.md) consumes the library from CMake — once through
+`find_package` against an installation and once with the source tree added as a
+subdirectory. It runs in CI (see
+[`docker/x86_64-linux-gnu-install/`](./docker/x86_64-linux-gnu-install/Dockerfile)),
+not as part of the suite below.
+
 ## enable sanitizer:
 ```sh
 cmake -S tests -B tests/build -GNinja -DPLTXT2HTM_SANITIZER=address
