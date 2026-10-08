@@ -47,9 +47,9 @@ docker buildx imagetools inspect gcr.io/oss-fuzz-base/base-clang:latest
 
 Replace the digest in the Dockerfile, then rebuild and run the image locally.
 
-This libc++ configuration does not provide the project's optional `<stacktrace>`
-support. CMake therefore reports `PLTXT2HTM_ENABLE_STACKTRACE: disabled` for this
-test image.
+Native stacktrace support uses glibc's `backtrace`, independently of libc++'s
+`<stacktrace>` support. Configure `-DPLTXT2HTM_ENABLE_STACKTRACE=OFF` when a
+sanitizer setup cannot safely unwind through its runtime.
 
 ## Seccomp issue
 

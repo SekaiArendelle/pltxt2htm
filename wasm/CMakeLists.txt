@@ -8,7 +8,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
     set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 endif()
 
-option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
+option(PLTXT2HTM_ENABLE_STACKTRACE "Enable native stacktrace" OFF)
 
 add_executable(pltxt2htm pltxt2htm.cc)
 

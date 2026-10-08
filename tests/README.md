@@ -30,7 +30,7 @@ or `-DPLTXT2HTM_SANITIZER=undefined` or `-DPLTXT2HTM_SANITIZER=memory`.
 | Option | Description |
 |---|---|
 | `CMAKE_CXX_STANDARD` | C++ standard: `23` or `26`; when unset, GCC 16+ uses C++26 and other compilers use C++23 |
-| `PLTXT2HTM_ENABLE_STACKTRACE` | Enable C++23 `<stacktrace>`: `AUTO` (default, detect by compiling/running a probe), `ON` (force), `OFF` (disable). libstdc++ requires linking `libstdc++exp`, which is detected automatically |
+| `PLTXT2HTM_ENABLE_STACKTRACE` | Enable native stack capture: `AUTO` (default, compile/link detection), `ON` (require a backend), `OFF` (disable). Windows links ntdll; Linux requires execinfo/backtrace. No standard-library stacktrace dependency. |
 | `PLTXT2HTM_SANITIZER` | Sanitizer: `address`, `undefined`, `memory` |
 | `PLTXT2HTM_ENABLE_COVERAGE` | Enable code coverage |
 

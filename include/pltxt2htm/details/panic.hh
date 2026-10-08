@@ -6,12 +6,10 @@
 
 #pragma once
 
-// Currently, only STL supports <stacktrace>
-// libstdc++ do supports <stacktrace>, but it's experimental
-// libc++ does not supports <stacktrace> currently
-#if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_ENABLE_STACKTRACE)
-    #include <stacktrace>
-    #include <fast_io/fast_io.h>
+#if defined(PLTXT2HTM_ENABLE_STACKTRACE)
+    #include "stacktrace/stacktrace.hh"
+    #include "stacktrace/resolve.hh"
+    #include "stacktrace/format.hh"
 #endif
 #include <cstdio>
 #include "literal_string.hh"
@@ -55,31 +53,27 @@ inline void panic() noexcept {
     ::std::fwrite(to_be_printed.cdata(), sizeof(typename decltype(to_be_printed)::value_type), to_be_printed.size(),
                   stderr);
 
-#if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_ENABLE_STACKTRACE)
-    ::std::fputs("* stack trace:\n", stderr);
-    auto stacktrace = ::std::stacktrace::current();
-    auto const stacktrace_size = stacktrace.size();
-    for (::std::size_t i = 0; i < stacktrace_size; ++i) {
-        auto const& entry = stacktrace[i];
-
-        // Print frame number and function description
-        if (entry.description().size() > 0) {
-            ::fast_io::io::perr("[", i, "] ", ::fast_io::mnp::os_c_str(entry.description().c_str()));
+#if defined(PLTXT2HTM_ENABLE_STACKTRACE)
+    ::std::fflush(stderr);
+    auto const trace = ::pltxt2htm::details::stacktrace::Stacktrace<>::current();
+    auto const frames = trace.addresses();
+    ::fast_io::io::perr("* stack trace:\n");
+    if (trace.size() == 0) {
+        ::fast_io::io::perr("<unavailable>\n");
+    }
+    for (::std::size_t i = 0; i < trace.size(); ++i) {
+        ::fast_io::io::perr("[", i, "] ", ::fast_io::mnp::hex0x(reinterpret_cast<::std::uintptr_t>(frames[i])), "\n");
+    }
+    if (trace.possibly_truncated()) {
+        ::fast_io::io::perr("<possibly truncated>\n");
+    }
+    // Preserve addresses even if resolution subsequently fails or stalls.
+    ::std::fflush(stderr);
+    for (::std::size_t i = 0; i < trace.size(); ++i) {
+        auto const frame = ::pltxt2htm::details::stacktrace::resolve(frames[i]);
+        if (frame.description[0] != '\0' || frame.source_file[0] != '\0') {
+            ::fast_io::io::perr("[", i, "] ", frame, "\n");
         }
-        else {
-            ::fast_io::io::perr("[", i, "] <unknown function>");
-        }
-
-        // Print source file and line if available
-        if (entry.source_file().size() > 0) {
-            ::fast_io::io::perr(" at ", ::fast_io::mnp::os_c_str(entry.source_file().c_str()));
-
-            if (entry.source_line() > 0) {
-                ::fast_io::io::perr(":", entry.source_line());
-            }
-        }
-
-        ::fast_io::io::perr("\n");
     }
 #endif
     ::std::fflush(stderr);
