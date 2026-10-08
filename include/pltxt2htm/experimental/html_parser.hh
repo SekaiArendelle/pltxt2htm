@@ -405,19 +405,17 @@ entry:
                     if (auto opt_br_tag_len = ::pltxt2htm::details::try_parse_self_closing_tag<ndebug, u8"r">(
                             pltext.template subview<ndebug>(current_index + 2));
                         opt_br_tag_len.has_value()) {
-                        current_index += opt_br_tag_len.template value<ndebug>().template get<ndebug>() + 1;
+                        // The helper counts the bytes after "<b", so the two leading bytes put
+                        // current_index right after the closing '>'; the block candidate starts there.
+                        current_index += opt_br_tag_len.template value<ndebug>().template get<ndebug>() + 2;
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlBr>());
-                        // Check for block-level <p> tag right after <br>. current_index currently sits
-                        // on the '>' of <br>, so the candidate block starts at current_index + 1.
                         auto&& [br_advance, br_new_frame] =
                             ::pltxt2htm::experimental::details::find_next_block_after_line_break<ndebug>(
-                                pltext.template subview<ndebug>(current_index + 1), call_stack, result);
+                                pltext.template subview<ndebug>(current_index), call_stack, result);
                         current_index += br_advance;
                         if (br_new_frame) {
-                            current_index += 1;
                             goto entry;
                         }
-                        ++current_index;
                         continue;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
@@ -496,10 +494,9 @@ entry:
                             pltext.template subview<ndebug>(current_index + 2));
                         opt_img_tag.has_value()) {
                         auto&& [tag_len, src, alt] = opt_img_tag.template value<ndebug>();
-                        current_index += tag_len + 1;
+                        current_index += tag_len + 2;
                         result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlImg<ndebug>>(
                             ::std::move(src), ::std::move(alt)));
-                        ++current_index;
                         continue;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
