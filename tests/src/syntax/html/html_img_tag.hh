@@ -16,6 +16,28 @@ TEST_SUITE("html_img_tag") {
         CHECK(second_pass == html);
     }
 
+    TEST_CASE("alt-space-normalized") {
+        // A space in HTML alt text shares the Markdown spelling: it becomes a no-break space, not a literal space.
+        auto const& pltext = u8"<img src=\"https://example.com/image.png\" alt=\"  a b\">";
+        auto const html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
+        auto const& expected = u8"<img src=\"https://example.com/image.png\" alt=\"&nbsp;&nbsp;a&nbsp;b\">";
+        CHECK(html == expected);
+        auto const second_pass =
+            ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{html.data(), html.size()});
+        CHECK(second_pass == html);
+    }
+
+    TEST_CASE("alt-space-matches-markdown") {
+        auto const& markdown_source = u8"![a b](https://example.com/i.png)";
+        auto const& html_source = u8"<img src=\"https://example.com/i.png\" alt=\"a b\">";
+        CHECK(::pltxt2htm_test::pltxt2fixedadv_htmld(markdown_source) ==
+              ::pltxt2htm_test::pltxt2fixedadv_htmld(html_source));
+        auto const plunity = ::pltxt2htm_test::pltxt2plunity_introduction(html_source);
+        auto const& plunity_answer =
+            u8"<size=20>\uff1c</size>img src=\"https://example.com/i.png\" alt=\"a\u00A0b\"<size=20>\uff1e</size>";
+        CHECK(plunity == plunity_answer);
+    }
+
     TEST_CASE("valid-attribute-passthrough") {
         auto const& pltext = u8"<img src=\"https://example.com/image.png\" alt=\"description\">";
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);

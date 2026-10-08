@@ -468,6 +468,7 @@ constexpr auto decode_character_references(::pltxt2htm::container::U8StringView 
 /**
  * @brief Parse an HTML attribute's source text into valid semantic plain text.
  * @details Character references are decoded, invalid UTF-8 becomes U+FFFD, and unknown references remain literal.
+ *          Spaces reach the canonical no-break form through `PlainText`, matching Markdown image alt text.
  */
 template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]

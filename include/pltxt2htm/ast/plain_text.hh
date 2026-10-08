@@ -18,6 +18,7 @@ namespace pltxt2htm {
  * @brief Parsed plain-text semantics stored as valid UTF-8.
  * @details Source syntax such as HTML character references and Markdown escapes is resolved before storage.
  *          Tab and line feed are preserved; invalid Unicode scalars and other ASCII controls become U+FFFD.
+ *          Spaces are stored as U+00A0 because Physics-Lab treats U+0020 and U+00A0 as the same space token.
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlainText {
@@ -38,7 +39,10 @@ public:
             self.append_replacement_character();
             return;
         }
-        ::pltxt2htm::details::append_utf8_code_point<ndebug>(self.text, code_point);
+        // Physics-Lab spells the same space token as either U+0020 or U+00A0, so store the canonical no-break form
+        // and leave the backends a single spelling to recognize.
+        char32_t const canonical_code_point = code_point == U' ' ? char32_t{0xA0} : code_point;
+        ::pltxt2htm::details::append_utf8_code_point<ndebug>(self.text, canonical_code_point);
     }
 
     /**
