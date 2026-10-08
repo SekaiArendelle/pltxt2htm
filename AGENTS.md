@@ -15,6 +15,7 @@ Header-only C++23 library converting Physics-Lab text to HTML, with bindings and
 
 | Path | Purpose |
 |------|---------|
+| `CMakeLists.txt` | Header-only interface target and the install/export rules behind `find_package(pltxt2htm CONFIG)` |
 | `include/pltxt2htm/` | Core headers (the library) |
 | `cmd/` | CLI — see [cmd/README.md](./cmd/README.md) |
 | `tests/` | Test suites — see [tests/README.md](./tests/README.md) |
@@ -49,7 +50,7 @@ docker exec -it pltxt2htm-dev bash
 
 The source directory is mounted into the container, so edits are shared both ways.
 
-Each sub-project is independently built with CMake — see the respective `README.md`.
+Each sub-project is independently built with CMake — see the respective `README.md`. The repository root is a separate CMake project that only defines the header-only interface target and the install/export rules behind `find_package(pltxt2htm CONFIG)`, so it can be consumed with `add_subdirectory`/`FetchContent` as well — see [README.md](./README.md#cmake).
 
 ## Workflow
 
