@@ -7,8 +7,7 @@
 #pragma once
 
 #if defined(PLTXT2HTM_ENABLE_STACKTRACE)
-    #include "stacktrace/stacktrace.hh"
-    #include "stacktrace/format.hh"
+    #include "stacktrace/dump.hh"
 #endif
 #include <cstdio>
 #include "literal_string.hh"
@@ -54,13 +53,7 @@ inline void panic() noexcept {
 
 #if defined(PLTXT2HTM_ENABLE_STACKTRACE)
     ::std::fflush(stderr);
-    ::fast_io::io::perr("* stack trace:\n");
-    auto const stacktrace = ::pltxt2htm::details::stacktrace::Stacktrace::current();
-    auto const stacktrace_size = stacktrace.size();
-    for (::std::size_t i = 0; i < stacktrace_size; ++i) {
-        auto const& entry = stacktrace[i];
-        ::fast_io::io::perr("[", i, "] ", entry, "\n");
-    }
+    ::pltxt2htm::details::stacktrace::dump_current_stacktrace();
 #endif
     ::std::fflush(stderr);
 

@@ -5,7 +5,8 @@
 #include <limits>
 #include <type_traits>
 #include <utility>
-#include <fast_io/fast_io_dsal/vector.h>
+#include "../../container/vector.hh"
+#include "../../contracts.hh"
 #include "../trap.hh"
 #include "capture.hh"
 #include "stacktrace_entry.hh"
@@ -23,7 +24,7 @@ template<typename Allocator = ::fast_io::native_global_allocator>
 class BasicStacktrace {
     static_assert(::std::is_empty_v<Allocator>, "stacktrace requires a stateless fast_io allocator");
     using storage_allocator = ::fast_io::generic_allocator_adapter<Allocator>;
-    ::fast_io::vector<StacktraceEntry, storage_allocator> entries_{};
+    ::pltxt2htm::container::Vector<StacktraceEntry, storage_allocator> entries_{};
     CaptureResult captured_{};
 
 public:
@@ -59,6 +60,9 @@ public:
     }
 
     constexpr BasicStacktrace& operator=(this BasicStacktrace& self, BasicStacktrace const& other) noexcept {
+        if (::std::addressof(self) == ::std::addressof(other)) {
+            return self;
+        }
         self.entries_ = other.entries_;
         self.captured_ = other.captured_;
         return self;
@@ -101,10 +105,13 @@ public:
         if (limit == 0) {
             return result;
         }
-        ::fast_io::vector<void*, storage_allocator> addresses{};
+        ::pltxt2htm::container::Vector<void*, storage_allocator> addresses{};
         auto depth = limit < 64 ? limit : 64;
         for (;;) {
-            addresses.resize(depth);
+            addresses.template reserve<::pltxt2htm::Contracts::ignore>(depth);
+            while (addresses.size() < depth) {
+                addresses.template emplace_back<::pltxt2htm::Contracts::ignore>(nullptr);
+            }
             result.captured_ = ::pltxt2htm::details::stacktrace::capture({addresses.data(), depth}, skip);
             if (!result.captured_.possibly_truncated || depth == limit) {
                 break;
@@ -112,9 +119,10 @@ public:
             depth = depth > limit / 2 ? limit : depth * 2;
         }
         auto const size = result.captured_.size;
-        result.entries_.resize(size);
+        result.entries_.template reserve<::pltxt2htm::Contracts::ignore>(size);
         for (size_type i = 0; i < size; ++i) {
-            result.entries_[i].address_ = addresses[i];
+            auto& entry = result.entries_.template emplace_back<::pltxt2htm::Contracts::ignore>();
+            entry.address_ = addresses.template index<::pltxt2htm::Contracts::ignore>(i);
         }
 #else
         (void)skip;
@@ -167,7 +175,7 @@ public:
     }
 
     [[nodiscard]] constexpr size_type max_size(this BasicStacktrace const&) noexcept {
-        return ::fast_io::vector<StacktraceEntry, storage_allocator>::max_size();
+        return ::pltxt2htm::container::Vector<StacktraceEntry, storage_allocator>::max_size();
     }
 
     [[nodiscard]] constexpr bool empty(this BasicStacktrace const& self) noexcept {
@@ -175,7 +183,7 @@ public:
     }
 
     [[nodiscard]] constexpr const_reference operator[](this BasicStacktrace const& self, size_type index) noexcept {
-        return self.entries_[index];
+        return self.entries_.template index<::pltxt2htm::Contracts::ignore>(index);
     }
 
     [[nodiscard]] constexpr const_reference at(this BasicStacktrace const& self, size_type index) noexcept {
@@ -186,7 +194,7 @@ public:
     }
 
     constexpr void swap(this BasicStacktrace& self, BasicStacktrace& other) noexcept {
-        ::std::swap(self.entries_, other.entries_);
+        self.entries_.swap(other.entries_);
         ::std::swap(self.captured_, other.captured_);
     }
 

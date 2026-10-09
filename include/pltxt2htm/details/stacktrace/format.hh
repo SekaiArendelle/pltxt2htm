@@ -11,9 +11,8 @@ namespace pltxt2htm::details::stacktrace {
 template<typename Output>
 constexpr void print_define(::fast_io::io_reserve_type_t<char, ResolvedFrame>, Output output,
                             ResolvedFrame const& frame) {
-    if (frame.description[0] != '\0') {
-        auto const text = ::pltxt2htm::details::stacktrace::text_view(frame.description);
-        ::fast_io::io::print(output, ::fast_io::basic_io_scatter_t<char>{.base = text.data(), .len = text.size()});
+    if (!frame.description.is_empty()) {
+        ::fast_io::io::print(output, frame.description);
     }
     else {
         ::fast_io::io::print(output, ::fast_io::mnp::hex0x(reinterpret_cast<::std::uintptr_t>(frame.address)));
@@ -21,18 +20,14 @@ constexpr void print_define(::fast_io::io_reserve_type_t<char, ResolvedFrame>, O
     if (frame.displacement != 0) {
         ::fast_io::io::print(output, " + ", ::fast_io::mnp::hex0x(frame.displacement));
     }
-    if (frame.source_file[0] != '\0') {
-        auto const text = ::pltxt2htm::details::stacktrace::text_view(frame.source_file);
-        ::fast_io::io::print(output, " at ",
-                             ::fast_io::basic_io_scatter_t<char>{.base = text.data(), .len = text.size()});
+    if (!frame.source_file.is_empty()) {
+        ::fast_io::io::print(output, " at ", frame.source_file);
         if (frame.source_line != 0) {
             ::fast_io::io::print(output, ":", frame.source_line);
         }
     }
-    else if (frame.module_file[0] != '\0') {
-        auto const text = ::pltxt2htm::details::stacktrace::text_view(frame.module_file);
-        ::fast_io::io::print(output, " in ",
-                             ::fast_io::basic_io_scatter_t<char>{.base = text.data(), .len = text.size()});
+    else if (!frame.module_file.is_empty()) {
+        ::fast_io::io::print(output, " in ", frame.module_file);
     }
     if (frame.text_truncated) {
         ::fast_io::io::print(output, " <text truncated>");

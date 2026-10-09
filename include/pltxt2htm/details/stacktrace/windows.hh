@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <memory>
-#include "entry.hh"
+#include "native_frame.hh"
 
 #include "../symbols/nt/ntdll.hh"
 #include "../symbols/nt/kernel32.hh"
@@ -107,45 +107,70 @@ inline bool shutdown_symbols() noexcept {
     return true;
 }
 
-[[nodiscard]]
-inline ResolvedFrame resolve_native(void* address) noexcept {
+inline void resolve_description(NativeResolvedFrame& result, DbgHelpSession& session,
+                                ::std::uint64_t native_address) noexcept {
     namespace nt = ::pltxt2htm::details::symbols::nt;
-    ResolvedFrame result{.address = address};
+    constexpr auto name_offset = offsetof(nt::SymbolInfo, name);
+    ::std::size_t capacity{nt::max_symbol_name_length};
+    bool refreshed{};
+    for (;;) {
+        if (capacity > (::std::numeric_limits<unsigned long>::max)() ||
+            capacity > (::std::numeric_limits<::std::size_t>::max)() - name_offset) {
+            result.text_truncated = true;
+            return;
+        }
+        auto const storage_size = name_offset + capacity;
+        auto* storage = static_cast<unsigned char*>(::std::calloc(storage_size, 1));
+        if (storage == nullptr) {
+            result.text_truncated = true;
+            return;
+        }
+        auto* info = reinterpret_cast<nt::SymbolInfo*>(storage);
+        info->size_of_struct = sizeof(nt::SymbolInfo);
+        info->max_name_len = static_cast<unsigned long>(capacity);
+        auto const found = session.from_addr(session.process, native_address, ::std::addressof(result.displacement),
+                                             info) != 0;
+        auto const name_size = static_cast<::std::size_t>(info->name_len);
+        if (name_size >= capacity) {
+            ::std::free(storage);
+            auto const max_size = (::std::numeric_limits<::std::size_t>::max)();
+            auto const required = name_size == max_size ? name_size : name_size + 1;
+            auto const doubled = capacity > max_size / 2 ? max_size : capacity * 2;
+            auto const new_capacity = required > doubled ? required : doubled;
+            if (new_capacity <= capacity) {
+                result.text_truncated = true;
+                return;
+            }
+            capacity = new_capacity;
+            continue;
+        }
+        if (!found) {
+            ::std::free(storage);
+            if (!refreshed && session.refresh != nullptr && session.refresh(session.process)) {
+                refreshed = true;
+                continue;
+            }
+            return;
+        }
+        if (!result.description.assign(reinterpret_cast<char const*>(storage + name_offset), name_size)) {
+            result.text_truncated = true;
+        }
+        ::std::free(storage);
+        return;
+    }
+}
+
+[[nodiscard]]
+inline NativeResolvedFrame resolve_native(void* address) noexcept {
+    namespace nt = ::pltxt2htm::details::symbols::nt;
+    NativeResolvedFrame result{.address = address};
     auto& session = ::pltxt2htm::details::stacktrace::get_symbol_session();
     if (!nt::pltxt2htm_nt_try_acquire_srw_lock_exclusive(::std::addressof(session.lock))) {
         return result;
     }
     if (session.try_initialize()) {
-        // The containing object owns SYMBOL_INFO's flexible trailing storage.
-        struct alignas(nt::SymbolInfo) SymbolStorage {
-            nt::SymbolInfo info;
-            char tail[1024];
-        } storage{};
-
-        storage.info.size_of_struct = sizeof(nt::SymbolInfo);
-        storage.info.max_name_len = sizeof(result.description);
         auto const native_address = static_cast<::std::uint64_t>(reinterpret_cast<::std::uintptr_t>(address));
-        auto found = session.from_addr(session.process, native_address, ::std::addressof(result.displacement),
-                                       ::std::addressof(storage.info)) != 0;
-        // Modules may be loaded after session initialization. Refresh only on a
-        // miss, then retry once while holding the same resolver lock.
-        if (!found && session.refresh != nullptr && session.refresh(session.process)) {
-            found = session.from_addr(session.process, native_address, ::std::addressof(result.displacement),
-                                      ::std::addressof(storage.info)) != 0;
-        }
-        if (found) {
-            auto const capacity = sizeof(result.description) - 1;
-            auto const size = storage.info.name_len < capacity ? storage.info.name_len : capacity;
-            // Read through the containing object's representation, not past
-            // SYMBOL_INFO's one-element name subarray.
-            auto const* bytes = reinterpret_cast<char const*>(::std::addressof(storage));
-            auto const name_offset = offsetof(nt::SymbolInfo, name);
-            for (::std::size_t i = 0; i < size; ++i) {
-                result.description[i] = bytes[name_offset + i];
-            }
-            result.description[size] = '\0';
-            result.text_truncated = storage.info.name_len > capacity;
-        }
+        ::pltxt2htm::details::stacktrace::resolve_description(result, session, native_address);
         // File/line lookup is independent of function-name lookup.
         nt::ImageHlpLine64 line{};
         line.size_of_struct = sizeof(line);
@@ -154,7 +179,7 @@ inline ResolvedFrame resolve_native(void* address) noexcept {
             session.get_line(session.process, native_address, ::std::addressof(line_displacement),
                              ::std::addressof(line)) &&
             line.file_name != nullptr) {
-            result.text_truncated = ::pltxt2htm::details::stacktrace::copy_text(result.source_file, line.file_name) ||
+            result.text_truncated = !::pltxt2htm::details::stacktrace::assign_text(result.source_file, line.file_name) ||
                                     result.text_truncated;
             result.source_line = line.line_number;
         }

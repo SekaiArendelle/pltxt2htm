@@ -56,12 +56,13 @@ Unlike the standard library, `skip` counts native frames including implementatio
 helpers. Forwarding `current()` overloads can add frames in unoptimized builds;
 their prefixes need not match `current(skip, max_depth)`. Inlining and tail calls
 also affect frame identity, as in the low-level capture API.
-Entry text queries return owning `fast_io::string` values. Resolution remains
+Entry text queries return owning `pltxt2htm::container::String` values. Resolution remains
 explicit through those queries (or `resolve(entry.native_handle())`), and copying
 or iterating a snapshot does not capture or resolve it again. `at()` terminates
-on an invalid index rather than throwing; fast_io allocation failure also
-terminates. The low-level `capture`, `resolve` and `ResolvedFrame` APIs remain
-available for bounded capture and one-time resolution.
+on an invalid index rather than throwing; allocator failure also terminates.
+The low-level `capture`, `resolve` and `ResolvedFrame` APIs remain available for
+caller-bounded capture and one-time resolution. Resolved symbol and path text is
+dynamically sized rather than stored in fixed-capacity character arrays.
 
 Linux resolution loads the optional elfutils `libdw.so.1` at runtime, without a
 build dependency on elfutils development headers. With matching DWARF information

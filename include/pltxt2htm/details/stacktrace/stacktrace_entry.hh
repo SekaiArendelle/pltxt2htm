@@ -2,7 +2,6 @@
 
 #include <compare>
 #include <functional>
-#include <fast_io/fast_io_dsal/string.h>
 #include "resolve.hh"
 
 namespace pltxt2htm::details::stacktrace {
@@ -42,22 +41,20 @@ public:
         return self.address_ != nullptr;
     }
 
-    [[nodiscard]] ::fast_io::string description(this StacktraceEntry const& self) noexcept {
+    [[nodiscard]] ::pltxt2htm::container::String description(this StacktraceEntry const& self) noexcept {
         if (!self) {
             return {};
         }
         auto const frame = ::pltxt2htm::details::stacktrace::resolve(self.address_);
-        auto const text = ::pltxt2htm::details::stacktrace::text_view(frame.description);
-        return ::fast_io::string{text.data(), text.data() + text.size()};
+        return frame.description;
     }
 
-    [[nodiscard]] ::fast_io::string source_file(this StacktraceEntry const& self) noexcept {
+    [[nodiscard]] ::pltxt2htm::container::String source_file(this StacktraceEntry const& self) noexcept {
         if (!self) {
             return {};
         }
         auto const frame = ::pltxt2htm::details::stacktrace::resolve(self.address_);
-        auto const text = ::pltxt2htm::details::stacktrace::text_view(frame.source_file);
-        return ::fast_io::string{text.data(), text.data() + text.size()};
+        return frame.source_file;
     }
 
     [[nodiscard]] ::std::uint_least32_t source_line(this StacktraceEntry const& self) noexcept {

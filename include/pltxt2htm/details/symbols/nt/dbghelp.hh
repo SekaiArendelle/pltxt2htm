@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
 #if defined(_MSC_VER)
@@ -11,6 +12,9 @@
 #endif
 
 namespace pltxt2htm::details::symbols::nt {
+// DbgHelp's documented MAX_SYM_NAME scratch capacity.
+constexpr ::std::size_t max_symbol_name_length{2000};
+
 // DbgHelp structures use the SDK's default packing even when a consumer has
 // changed the packing around its includes.
 #pragma pack(push, 8)

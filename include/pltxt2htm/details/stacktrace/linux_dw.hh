@@ -4,7 +4,6 @@
 #include <memory>
 #include <unistd.h>
 #include "../symbols/linux/libdw.hh"
-#include "entry.hh"
 
 namespace pltxt2htm::details::stacktrace {
 /** Per-resolution library ownership: sessions never share mutable libdw state. */

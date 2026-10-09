@@ -20,7 +20,8 @@ namespace pltxt2htm::details::stacktrace {
 [[nodiscard]]
 inline ResolvedFrame resolve(void* address) noexcept {
 #if defined(PLTXT2HTM_ENABLE_STACKTRACE) && (defined(_WIN32) || (defined(__linux__) && __has_include(<execinfo.h>)))
-    return ::pltxt2htm::details::stacktrace::resolve_native(address);
+    return ::pltxt2htm::details::stacktrace::own_frame(
+        ::pltxt2htm::details::stacktrace::resolve_native(address));
 #else
     return {.address = address};
 #endif

@@ -50,31 +50,31 @@ int main() {
     namespace trace = ::pltxt2htm::details::stacktrace;
 #if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(__linux__) && __has_include(<execinfo.h>) && __has_include(<cxxabi.h>)
     char symbol[] = "demo(_Z9demo_leafv+0x66) [0x1234]";
-    trace::ResolvedFrame decoded{};
+    trace::NativeResolvedFrame decoded{};
     trace::resolve_symbol_text(decoded, symbol);
-    pltxt2htm_test_assert_true(::std::strcmp(decoded.description, "demo_leaf") == 0);
+    pltxt2htm_test_assert_true(::std::strcmp(decoded.description.c_str(), "demo_leaf") == 0);
     pltxt2htm_test_assert_true(decoded.displacement == 0x66);
-    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(decoded) == "demo_leaf + 0x66 in demo");
+    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(trace::own_frame(decoded)) == "demo_leaf + 0x66 in demo");
     pltxt2htm_test_assert_true(::std::strcmp(symbol, "demo(_Z9demo_leafv+0x66) [0x1234]") == 0);
     char plain[] = "libc(__libc_start_main+0x89) [0x1234]";
-    trace::ResolvedFrame c_symbol{};
+    trace::NativeResolvedFrame c_symbol{};
     trace::resolve_symbol_text(c_symbol, plain);
-    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(c_symbol) == "__libc_start_main + 0x89 in libc");
+    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(trace::own_frame(c_symbol)) == "__libc_start_main + 0x89 in libc");
     char invalid[] = "demo(_Zinvalid+0x1) [0x1234]";
-    trace::ResolvedFrame invalid_symbol{};
+    trace::NativeResolvedFrame invalid_symbol{};
     trace::resolve_symbol_text(invalid_symbol, invalid);
-    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(invalid_symbol) == "_Zinvalid + 0x1 in demo");
+    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(trace::own_frame(invalid_symbol)) == "_Zinvalid + 0x1 in demo");
     char unknown[] = "libc(+0x27781) [0x1234]";
-    trace::ResolvedFrame unnamed{.address = reinterpret_cast<void*>(0x1234)};
+    trace::NativeResolvedFrame unnamed{.address = reinterpret_cast<void*>(0x1234)};
     trace::resolve_symbol_text(unnamed, unknown);
-    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(unnamed) == "0x1234 in libc");
+    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(trace::own_frame(unnamed)) == "0x1234 in libc");
     char malformed[] = "demo(main+0x10000000000000000) [0x1234]";
     trace::resolve_symbol_text(unnamed, malformed);
-    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(unnamed) == "0x1234 in demo");
+    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(trace::own_frame(unnamed)) == "0x1234 in demo");
     char address_only[] = "no-symbol-module [0x1234]";
-    trace::ResolvedFrame address_frame{.address = reinterpret_cast<void*>(0x1234)};
+    trace::NativeResolvedFrame address_frame{.address = reinterpret_cast<void*>(0x1234)};
     trace::resolve_symbol_text(address_frame, address_only);
-    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(address_frame) == "0x1234 in no-symbol-module");
+    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(trace::own_frame(address_frame)) == "0x1234 in no-symbol-module");
     pltxt2htm_test_assert_true(::std::strcmp(address_only, "no-symbol-module [0x1234]") == 0);
     char call_operator[] = "Functor::operator()(int (*)(double)) const";
     trace::remove_symbol_parameters(call_operator);
@@ -89,16 +89,16 @@ int main() {
     ::std::memcpy(long_symbol, "demo(", 5);
     ::std::memset(long_symbol + 5, 'a', 1100);
     ::std::memcpy(long_symbol + 1105, "+0x2) [0x1234]", 15);
-    trace::ResolvedFrame long_frame{};
+    trace::NativeResolvedFrame long_frame{};
     trace::resolve_symbol_text(long_frame, long_symbol);
-    pltxt2htm_test_assert_true(long_frame.text_truncated && long_frame.displacement == 2);
-    pltxt2htm_test_assert_true(::std::strlen(long_frame.description) == sizeof(long_frame.description) - 1);
+    pltxt2htm_test_assert_true(!long_frame.text_truncated && long_frame.displacement == 2);
+    pltxt2htm_test_assert_true(long_frame.description.size() == 1100);
     trace::LibdwApi missing_api{"/pltxt2htm-tests/nonexistent-libdw.so"};
     pltxt2htm_test_assert_true(!missing_api.ready());
-    auto const fallback = ::fast_io::concat_fast_io(decoded);
+    auto const fallback = ::fast_io::concat_fast_io(trace::own_frame(decoded));
     decoded.address = reinterpret_cast<void*>(0x1234);
     trace::resolve_dwarf(decoded, missing_api);
-    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(decoded) == fallback);
+    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(trace::own_frame(decoded)) == fallback);
     trace::LibdwApi dwarf_api{};
     if (dwarf_api.ready()) {
         auto const dwarf_trace = trace::Stacktrace::current(0, 1);
@@ -133,8 +133,8 @@ int main() {
     static_assert(::std::same_as<decltype(::std::declval<trace::Stacktrace const&>()[0]), trace::StacktraceEntry const&>);
     constexpr trace::StacktraceEntry empty_entry{};
     static_assert(!empty_entry && empty_entry.native_handle() == nullptr);
-    pltxt2htm_test_assert_true(empty_entry.description().empty());
-    pltxt2htm_test_assert_true(empty_entry.source_file().empty() && empty_entry.source_line() == 0);
+    pltxt2htm_test_assert_true(empty_entry.description().is_empty());
+    pltxt2htm_test_assert_true(empty_entry.source_file().is_empty() && empty_entry.source_line() == 0);
     auto const snapshot = trace::Stacktrace::current(0, 8);
     auto const copied_snapshot = snapshot;
     pltxt2htm_test_assert_true(snapshot.size() == copied_snapshot.size());
@@ -205,16 +205,16 @@ int main() {
     auto const late_function = nt::pltxt2htm_nt_get_proc_address(late_module, "PlaySoundW");
     pltxt2htm_test_assert_true(late_function != nullptr);
     auto const late_frame = trace::resolve(reinterpret_cast<void*>(late_function));
-    pltxt2htm_test_assert_true(late_frame.description[0] != '\0');
+    pltxt2htm_test_assert_true(!late_frame.description.is_empty());
     (void)nt::pltxt2htm_nt_free_library(late_module);
     // Exercise contention fallback without depending on another thread's timing.
     nt::pltxt2htm_nt_acquire_srw_lock_exclusive(::std::addressof(session.lock));
     auto const busy = trace::resolve(storage[0]);
-    pltxt2htm_test_assert_true(busy.address == storage[0] && busy.description[0] == '\0');
+    pltxt2htm_test_assert_true(busy.address == storage[0] && busy.description.is_empty());
     pltxt2htm_test_assert_true(!trace::shutdown_symbols());
     nt::pltxt2htm_nt_release_srw_lock_exclusive(::std::addressof(session.lock));
     auto const invalid = trace::resolve(nullptr);
-    pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description[0] == '\0');
+    pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.is_empty());
     pltxt2htm_test_assert_true(trace::shutdown_symbols());
     pltxt2htm_test_assert_true(!session.ready && session.process == nullptr && session.library == nullptr);
     // Saved data survives resolver teardown; printing must not reinitialize it.
@@ -231,33 +231,23 @@ int main() {
     synthetic.address = reinterpret_cast<void*>(1);
     synthetic.displacement = 42;
     synthetic.source_line = 7;
-    pltxt2htm_test_assert_true(!trace::copy_text(synthetic.description, "saved_function"));
-    pltxt2htm_test_assert_true(!trace::copy_text(synthetic.source_file, "saved.cc"));
-    char bounded[4]{};
-    pltxt2htm_test_assert_true(trace::copy_text(bounded, "abcdef"));
-    pltxt2htm_test_assert_true(::std::strcmp(bounded, "abc") == 0);
-    trace::ResolvedFrame unterminated{};
-    for (auto& ch : unterminated.description) {
-        ch = 'x';
-    }
-    auto const bounded_format = ::fast_io::concat_fast_io(unterminated);
-    pltxt2htm_test_assert_true(bounded_format.size() == sizeof(unterminated.description));
+    synthetic.description = ::pltxt2htm::container::String{"saved_function"};
+    synthetic.source_file = ::pltxt2htm::container::String{"saved.cc"};
     auto const formatted = ::fast_io::concat_fast_io("[3] ", synthetic, "\n");
     constexpr char expected[] = "[3] saved_function + 0x2a at saved.cc:7\n";
     pltxt2htm_test_assert_true(::std::strcmp(formatted.c_str(), expected) == 0);
-    pltxt2htm_test_assert_true(!trace::copy_text(synthetic.module_file, "demo.so"));
+    synthetic.module_file = ::pltxt2htm::container::String{"demo.so"};
     pltxt2htm_test_assert_true(::fast_io::concat_fast_io("[3] ", synthetic, "\n") == formatted);
-    trace::ResolvedFrame source{};
-    trace::copy_source_location(source, "tests/demo.cc", "/workspace", 42);
-    pltxt2htm_test_assert_true(::std::strcmp(source.source_file, "/workspace/tests/demo.cc") == 0 &&
+    trace::NativeResolvedFrame source{};
+    trace::assign_source_location(source, "tests/demo.cc", "/workspace", 42);
+    pltxt2htm_test_assert_true(::std::strcmp(source.source_file.c_str(), "/workspace/tests/demo.cc") == 0 &&
                                source.source_line == 42);
-    trace::copy_source_location(source, "demo.cc", "/workspace/", 0);
-    pltxt2htm_test_assert_true(::std::strcmp(source.source_file, "/workspace/demo.cc") == 0 && source.source_line == 0);
-    trace::copy_source_location(source, "/other/demo.cc", "/workspace", -1);
-    pltxt2htm_test_assert_true(::std::strcmp(source.source_file, "/other/demo.cc") == 0 && source.source_line == 0);
+    trace::assign_source_location(source, "demo.cc", "/workspace/", 0);
+    pltxt2htm_test_assert_true(::std::strcmp(source.source_file.c_str(), "/workspace/demo.cc") == 0 && source.source_line == 0);
+    trace::assign_source_location(source, "/other/demo.cc", "/workspace", -1);
+    pltxt2htm_test_assert_true(::std::strcmp(source.source_file.c_str(), "/other/demo.cc") == 0 && source.source_line == 0);
     char long_directory[2100]{};
     ::std::memset(long_directory, 'x', sizeof(long_directory) - 1);
-    trace::copy_source_location(source, "demo.cc", long_directory, 7);
-    pltxt2htm_test_assert_true(source.text_truncated &&
-                               ::std::strlen(source.source_file) == sizeof(source.source_file) - 1);
+    trace::assign_source_location(source, "demo.cc", long_directory, 7);
+    pltxt2htm_test_assert_true(!source.text_truncated && source.source_file.size() == 2107);
 }
