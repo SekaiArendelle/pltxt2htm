@@ -15,7 +15,6 @@
 #undef PLTXT2HTM_DETAIL_NT_ASM_NAME
 
 namespace pltxt2htm::details::symbols::nt {
-extern "C" {
 
 #if defined(_MSC_VER) && !defined(__clang__)
     #define PLTXT2HTM_DETAIL_NT_DLLIMPORT __declspec(dllimport)
@@ -52,7 +51,6 @@ extern "C" {
 
 #include "ntdll.inc"
 
-} // extern "C"
 } // namespace pltxt2htm::details::symbols::nt
 
 #if defined(_MSC_VER) && !defined(__clang__)

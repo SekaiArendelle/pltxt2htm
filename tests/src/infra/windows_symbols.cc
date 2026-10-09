@@ -58,18 +58,15 @@ using ExpectedLoadLibraryExW = win32::ModuleHandle(WINAPI*)(wchar_t const*, win3
 using ExpectedGetProcAddress = win32::Procedure(WINAPI*)(win32::ModuleHandle, char const*) noexcept;
 using ExpectedFreeLibrary = int(WINAPI*)(win32::ModuleHandle) noexcept;
 
-static_assert(::std::is_same_v<decltype(&nt::pltxt2htm_nt_capture_stack_back_trace), ExpectedCaptureStackBackTrace>);
-static_assert(
-    ::std::is_same_v<decltype(&nt::pltxt2htm_nt_try_acquire_srw_lock_exclusive), ExpectedTryAcquireSrwLockExclusive>);
-static_assert(
-    ::std::is_same_v<decltype(&nt::pltxt2htm_nt_acquire_srw_lock_exclusive), ExpectedAcquireSrwLockExclusive>);
-static_assert(
-    ::std::is_same_v<decltype(&nt::pltxt2htm_nt_release_srw_lock_exclusive), ExpectedReleaseSrwLockExclusive>);
-static_assert(::std::is_same_v<decltype(&nt::pltxt2htm_nt_duplicate_object), ExpectedDuplicateObject>);
-static_assert(::std::is_same_v<decltype(&nt::pltxt2htm_nt_close), ExpectedClose>);
-static_assert(::std::is_same_v<decltype(&win32::pltxt2htm_win32_load_library_ex_w), ExpectedLoadLibraryExW>);
-static_assert(::std::is_same_v<decltype(&win32::pltxt2htm_win32_get_proc_address), ExpectedGetProcAddress>);
-static_assert(::std::is_same_v<decltype(&win32::pltxt2htm_win32_free_library), ExpectedFreeLibrary>);
+static_assert(::std::is_same_v<decltype(&nt::RtlCaptureStackBackTrace), ExpectedCaptureStackBackTrace>);
+static_assert(::std::is_same_v<decltype(&nt::RtlTryAcquireSRWLockExclusive), ExpectedTryAcquireSrwLockExclusive>);
+static_assert(::std::is_same_v<decltype(&nt::RtlAcquireSRWLockExclusive), ExpectedAcquireSrwLockExclusive>);
+static_assert(::std::is_same_v<decltype(&nt::RtlReleaseSRWLockExclusive), ExpectedReleaseSrwLockExclusive>);
+static_assert(::std::is_same_v<decltype(&nt::NtDuplicateObject), ExpectedDuplicateObject>);
+static_assert(::std::is_same_v<decltype(&nt::NtClose), ExpectedClose>);
+static_assert(::std::is_same_v<decltype(&win32::LoadLibraryExW), ExpectedLoadLibraryExW>);
+static_assert(::std::is_same_v<decltype(&win32::GetProcAddress), ExpectedGetProcAddress>);
+static_assert(::std::is_same_v<decltype(&win32::FreeLibrary), ExpectedFreeLibrary>);
 
 static_assert(sizeof(nt::NtStatus) == sizeof(NTSTATUS));
 static_assert(sizeof(nt::SrwLock) == sizeof(SRWLOCK));
@@ -109,15 +106,15 @@ static_assert(offsetof(win32::ImageHlpLine64, line_number) == offsetof(IMAGEHLP_
 static_assert(offsetof(win32::ImageHlpLine64, file_name) == offsetof(IMAGEHLP_LINE64, FileName));
 static_assert(offsetof(win32::ImageHlpLine64, address) == offsetof(IMAGEHLP_LINE64, Address));
 
-auto* volatile nt_close_reference = &nt::pltxt2htm_nt_close;
-auto* volatile capture_reference = &nt::pltxt2htm_nt_capture_stack_back_trace;
-auto* volatile try_acquire_srw_lock_reference = &nt::pltxt2htm_nt_try_acquire_srw_lock_exclusive;
-auto* volatile acquire_srw_lock_reference = &nt::pltxt2htm_nt_acquire_srw_lock_exclusive;
-auto* volatile release_srw_lock_reference = &nt::pltxt2htm_nt_release_srw_lock_exclusive;
-auto* volatile duplicate_object_reference = &nt::pltxt2htm_nt_duplicate_object;
-auto* volatile load_library_reference = &win32::pltxt2htm_win32_load_library_ex_w;
-auto* volatile get_proc_address_reference = &win32::pltxt2htm_win32_get_proc_address;
-auto* volatile free_library_reference = &win32::pltxt2htm_win32_free_library;
+auto* volatile nt_close_reference = &nt::NtClose;
+auto* volatile capture_reference = &nt::RtlCaptureStackBackTrace;
+auto* volatile try_acquire_srw_lock_reference = &nt::RtlTryAcquireSRWLockExclusive;
+auto* volatile acquire_srw_lock_reference = &nt::RtlAcquireSRWLockExclusive;
+auto* volatile release_srw_lock_reference = &nt::RtlReleaseSRWLockExclusive;
+auto* volatile duplicate_object_reference = &nt::NtDuplicateObject;
+auto* volatile load_library_reference = &win32::LoadLibraryExW;
+auto* volatile get_proc_address_reference = &win32::GetProcAddress;
+auto* volatile free_library_reference = &win32::FreeLibrary;
 #endif
 
 int main() {

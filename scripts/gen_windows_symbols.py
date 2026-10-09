@@ -19,7 +19,6 @@ SYMBOL_ROOT = ROOT / "include" / "pltxt2htm" / "details" / "symbols"
 @dataclasses.dataclass(frozen=True)
 class Symbol:
     export_name: str
-    local_name: str
     return_type: str
     parameters: tuple[str, ...]
     nodiscard: bool = False
@@ -31,6 +30,7 @@ class Library:
     name: str
     namespace: str
     macro_prefix: str
+    probe_definitions: str
     symbols: tuple[Symbol, ...]
 
 
@@ -40,43 +40,42 @@ LIBRARIES = (
         name="ntdll",
         namespace="pltxt2htm::details::symbols::nt",
         macro_prefix="PLTXT2HTM_DETAIL_NT",
+        probe_definitions="""using Handle = void*;
+using NtStatus = long;
+struct SrwLock {
+    void* pointer;
+};""",
         symbols=(
             Symbol(
                 "RtlCaptureStackBackTrace",
-                "pltxt2htm_nt_capture_stack_back_trace",
                 "unsigned short",
                 ("unsigned long", "unsigned long", "void**", "unsigned long*"),
                 nodiscard=True,
             ),
             Symbol(
                 "RtlTryAcquireSRWLockExclusive",
-                "pltxt2htm_nt_try_acquire_srw_lock_exclusive",
                 "unsigned char",
                 ("SrwLock*",),
                 nodiscard=True,
             ),
             Symbol(
                 "RtlAcquireSRWLockExclusive",
-                "pltxt2htm_nt_acquire_srw_lock_exclusive",
                 "void",
                 ("SrwLock*",),
             ),
             Symbol(
                 "RtlReleaseSRWLockExclusive",
-                "pltxt2htm_nt_release_srw_lock_exclusive",
                 "void",
                 ("SrwLock*",),
             ),
             Symbol(
                 "NtDuplicateObject",
-                "pltxt2htm_nt_duplicate_object",
                 "NtStatus",
                 ("Handle", "Handle", "Handle", "Handle*", "unsigned long", "unsigned long", "unsigned long"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtClose",
-                "pltxt2htm_nt_close",
                 "NtStatus",
                 ("Handle",),
                 nodiscard=True,
@@ -88,24 +87,24 @@ LIBRARIES = (
         name="kernel32",
         namespace="pltxt2htm::details::symbols::win32",
         macro_prefix="PLTXT2HTM_DETAIL_WIN32",
+        probe_definitions="""using Handle = void*;
+using ModuleHandle = void*;
+using Procedure = __INTPTR_TYPE__(__stdcall*)();""",
         symbols=(
             Symbol(
                 "LoadLibraryExW",
-                "pltxt2htm_win32_load_library_ex_w",
                 "ModuleHandle",
                 ("wchar_t const*", "Handle", "unsigned long"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetProcAddress",
-                "pltxt2htm_win32_get_proc_address",
                 "Procedure",
                 ("ModuleHandle", "char const*"),
                 nodiscard=True,
             ),
             Symbol(
                 "FreeLibrary",
-                "pltxt2htm_win32_free_library",
                 "int",
                 ("ModuleHandle",),
                 nodiscard=True,
@@ -149,7 +148,7 @@ def declaration(symbol: Symbol, library: Library, x86_stack_bytes: int) -> str:
     attribute = "[[nodiscard]]\n" if symbol.nodiscard else ""
     suffix = f" {prefix}_ASM_NAME({symbol.export_name}, {x86_stack_bytes})"
     return (
-        f"{attribute}{prefix}_DLLIMPORT {symbol.return_type} {prefix}_CALL {symbol.local_name}"
+        f"{attribute}{prefix}_DLLIMPORT {symbol.return_type} {prefix}_CALL {symbol.export_name}"
         f"({format_parameters(symbol.parameters)}) noexcept{suffix};\n"
     )
 
@@ -163,27 +162,39 @@ def generate_declarations(library: Library, x86_stack_bytes: dict[str, int]) -> 
     return "".join(result)
 
 
-def probe_source(symbol: Symbol) -> str:
-    result = probe_type(symbol.return_type)
-    parameters = format_parameters(tuple(probe_type(parameter) for parameter in symbol.parameters))
-    return f"""extern \"C\" __declspec(dllimport) {result} __stdcall {symbol.local_name}({parameters}) noexcept;
-extern \"C\" __declspec(dllimport) {result} __stdcall {symbol.export_name}({parameters}) noexcept;
+def local_probe_source(symbol: Symbol, library: Library) -> str:
+    parameters = format_parameters(symbol.parameters)
+    return f"""namespace {library.namespace} {{
+{library.probe_definitions}
 
-auto* volatile pltxt2htm_probe_local = &{symbol.local_name};
-auto* volatile pltxt2htm_probe_export = &{symbol.export_name};
+__declspec(dllimport) {symbol.return_type} __stdcall {symbol.export_name}({parameters}) noexcept;
+}}
+
+auto* volatile pltxt2htm_probe = &::{library.namespace}::{symbol.export_name};
 """
 
 
-def undefined_symbols(
+def export_probe_source(symbol: Symbol) -> str:
+    result = probe_type(symbol.return_type)
+    parameters = format_parameters(tuple(probe_type(parameter) for parameter in symbol.parameters))
+    return f"""extern \"C\" __declspec(dllimport) {result} __stdcall {symbol.export_name}({parameters}) noexcept;
+
+auto* volatile pltxt2htm_probe = &{symbol.export_name};
+"""
+
+
+def undefined_imports(
+    source_text: str,
     symbol: Symbol,
     target: str,
     clang: str,
     llvm_nm: str,
     temporary_directory: pathlib.Path,
-) -> tuple[tuple[str, str], ...]:
-    source = temporary_directory / "probe.cc"
-    object_file = temporary_directory / "probe.obj"
-    source.write_text(probe_source(symbol), encoding="ascii", newline="\n")
+    stem: str,
+) -> tuple[str, ...]:
+    source = temporary_directory / f"{stem}.cc"
+    object_file = temporary_directory / f"{stem}.obj"
+    source.write_text(source_text, encoding="ascii", newline="\n")
     compile_result = subprocess.run(
         [clang, f"--target={target}", "-std=c++23", "-c", str(source), "-o", str(object_file)],
         check=False,
@@ -205,19 +216,40 @@ def undefined_symbols(
             f"llvm-nm failed for {symbol.export_name} ({target}):\n{nm_result.stderr.strip()}"
         )
     names = [line.split()[0] for line in nm_result.stdout.splitlines() if line.strip()]
-    imported = [name for name in names if "__imp_" in name]
-    local = [name for name in imported if symbol.local_name in name]
-    exported = {name for name in imported if symbol.export_name in name and symbol.local_name not in name}
-    pairs = []
-    for local_name in local:
-        export_name = local_name.replace(symbol.local_name, symbol.export_name)
-        if export_name in exported:
-            pairs.append((local_name, export_name))
-    if not pairs or len(pairs) != len(local) or len(pairs) != len(exported):
+    imported = tuple(name for name in names if "__imp_" in name)
+    if not imported:
         raise RuntimeError(
-            f"could not identify import symbols for {symbol.export_name} ({target}); found: {names}"
+            f"could not identify import symbol for {symbol.export_name} ({target}); found: {names}"
         )
-    return tuple(pairs)
+    return imported
+
+
+def import_flavor(name: str) -> str:
+    return "aux" if "__imp_aux_" in name else "native"
+
+
+def undefined_symbols(
+    symbol: Symbol,
+    library: Library,
+    target: str,
+    clang: str,
+    llvm_nm: str,
+    temporary_directory: pathlib.Path,
+) -> tuple[tuple[str, str], ...]:
+    local = undefined_imports(
+        local_probe_source(symbol, library), symbol, target, clang, llvm_nm, temporary_directory, "local"
+    )
+    exported = undefined_imports(
+        export_probe_source(symbol), symbol, target, clang, llvm_nm, temporary_directory, "export"
+    )
+    exported_by_flavor = {import_flavor(name): name for name in exported}
+    pairs = tuple((name, exported_by_flavor[import_flavor(name)]) for name in local)
+    if len(pairs) != len(exported) or len(exported_by_flavor) != len(exported):
+        raise RuntimeError(
+            f"could not pair import symbols for {symbol.export_name} ({target}); "
+            f"local: {local}; exported: {exported}"
+        )
+    return pairs
 
 
 def generate_linker_aliases(
@@ -228,7 +260,7 @@ def generate_linker_aliases(
     with tempfile.TemporaryDirectory(prefix="pltxt2htm-symbols-") as temporary:
         temporary_directory = pathlib.Path(temporary)
         for symbol in library.symbols:
-            pairs = undefined_symbols(symbol, target, clang, llvm_nm, temporary_directory)
+            pairs = undefined_symbols(symbol, library, target, clang, llvm_nm, temporary_directory)
             for local, exported in pairs:
                 result.append(f'#pragma comment(linker, "/alternatename:{local}={exported}")\n')
             if target.startswith("i686-"):

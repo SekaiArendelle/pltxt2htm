@@ -14,8 +14,8 @@ static_assert(sizeof(nt::SrwLock) == sizeof(SRWLOCK));
 static_assert(sizeof(win32::SymbolInfo) == sizeof(SYMBOL_INFO));
 static_assert(offsetof(win32::SymbolInfo, name) == offsetof(SYMBOL_INFO, Name));
 
-auto* volatile nt_close_include_order_reference = &nt::pltxt2htm_nt_close;
-auto* volatile load_library_include_order_reference = &win32::pltxt2htm_win32_load_library_ex_w;
+auto* volatile nt_close_include_order_reference = &nt::NtClose;
+auto* volatile load_library_include_order_reference = &win32::LoadLibraryExW;
 #endif
 
 int main() {

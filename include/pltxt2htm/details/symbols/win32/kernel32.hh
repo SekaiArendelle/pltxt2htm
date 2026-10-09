@@ -37,8 +37,6 @@
 namespace pltxt2htm::details::symbols::win32 {
 using Procedure = ::std::intptr_t(PLTXT2HTM_DETAIL_WIN32_CALL*)();
 
-extern "C" {
-
 #if defined(__GNUC__) || defined(__clang__)
     #if defined(_M_HYBRID)
         #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME(name, count) __asm__("#" #name "@" #count)
@@ -57,7 +55,6 @@ extern "C" {
 
 #include "kernel32.inc"
 
-} // extern "C"
 } // namespace pltxt2htm::details::symbols::win32
 
 #if defined(_MSC_VER) && !defined(__clang__)
