@@ -44,5 +44,30 @@ static_assert(offsetof(nt::ImageHlpLine64, key) == offsetof(IMAGEHLP_LINE64, Key
 static_assert(offsetof(nt::ImageHlpLine64, line_number) == offsetof(IMAGEHLP_LINE64, LineNumber));
 #endif
 
+#if defined(__linux__) && __has_include(<elfutils/libdwfl.h>)
+    #include <pltxt2htm/details/symbols/linux/libdw.hh>
+    #include <type_traits>
+    #include <cstddef>
+namespace dw = ::pltxt2htm::details::symbols::linux_dw;
+static_assert(sizeof(dw::Callbacks) == sizeof(Dwfl_Callbacks));
+static_assert(alignof(dw::Callbacks) == alignof(Dwfl_Callbacks));
+static_assert(offsetof(dw::Callbacks, find_elf) == offsetof(Dwfl_Callbacks, find_elf));
+static_assert(offsetof(dw::Callbacks, find_debuginfo) == offsetof(Dwfl_Callbacks, find_debuginfo));
+static_assert(offsetof(dw::Callbacks, section_address) == offsetof(Dwfl_Callbacks, section_address));
+static_assert(offsetof(dw::Callbacks, debuginfo_path) == offsetof(Dwfl_Callbacks, debuginfo_path));
+static_assert(::std::is_same_v<dw::FindElf, decltype(Dwfl_Callbacks::find_elf)>);
+static_assert(::std::is_same_v<dw::FindDebugInfo, decltype(Dwfl_Callbacks::find_debuginfo)>);
+static_assert(::std::is_same_v<dw::SectionAddress, decltype(Dwfl_Callbacks::section_address)>);
+static_assert(::std::is_same_v<dw::End, decltype(&::dwfl_end)>);
+static_assert(::std::is_same_v<dw::ProcReport, decltype(&::dwfl_linux_proc_report)>);
+static_assert(::std::is_same_v<dw::ReportEnd, decltype(&::dwfl_report_end)>);
+static_assert(::std::is_same_v<dw::AddrModule, decltype(&::dwfl_addrmodule)>);
+static_assert(::std::is_same_v<dw::ModuleInfo, decltype(&::dwfl_module_info)>);
+static_assert(::std::is_same_v<dw::AddrInfo, decltype(&::dwfl_module_addrinfo)>);
+static_assert(::std::is_same_v<dw::GetSource, decltype(&::dwfl_module_getsrc)>);
+static_assert(::std::is_same_v<dw::LineInfo, decltype(&::dwfl_lineinfo)>);
+static_assert(::std::is_same_v<dw::CompDir, decltype(&::dwfl_line_comp_dir)>);
+#endif
+
 int main() {
 }

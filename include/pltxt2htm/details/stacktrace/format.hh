@@ -29,6 +29,11 @@ constexpr void print_define(::fast_io::io_reserve_type_t<char, ResolvedFrame>, O
             ::fast_io::io::print(output, ":", frame.source_line);
         }
     }
+    else if (frame.module_file[0] != '\0') {
+        auto const text = ::pltxt2htm::details::stacktrace::text_view(frame.module_file);
+        ::fast_io::io::print(output, " in ",
+                             ::fast_io::basic_io_scatter_t<char>{.base = text.data(), .len = text.size()});
+    }
     if (frame.text_truncated) {
         ::fast_io::io::print(output, " <text truncated>");
     }

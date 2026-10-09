@@ -55,6 +55,8 @@ if(NOT PLTXT2HTM_ENABLE_STACKTRACE STREQUAL "OFF")
         set(CMAKE_REQUIRED_LIBRARIES ntdll)
         set(_pltxt2htm_native_available TRUE)
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        set(PLTXT2HTM_STACKTRACE_LINK_LIB "${CMAKE_DL_LIBS}")
+        set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_DL_LIBS}")
         check_cxx_source_compiles("#include <execinfo.h>
             int main() { void* frames[1]; return backtrace(frames, 1) < 0; }"
             _pltxt2htm_execinfo_available)
@@ -64,7 +66,9 @@ if(NOT PLTXT2HTM_ENABLE_STACKTRACE STREQUAL "OFF")
     endif()
     if(_pltxt2htm_native_available)
         check_cxx_source_compiles("#include <pltxt2htm/details/stacktrace/capture.hh>
+            #include <pltxt2htm/details/stacktrace/resolve.hh>
             int main() { void* frames[1];
+                (void)pltxt2htm::details::stacktrace::resolve(nullptr);
                 return pltxt2htm::details::stacktrace::capture(frames).size == 0; }"
             _pltxt2htm_native_stacktrace_ok)
         set(PLTXT2HTM_USE_STACKTRACE ${_pltxt2htm_native_stacktrace_ok})

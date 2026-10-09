@@ -78,6 +78,9 @@ target_compile_features(pltxt2htm PRIVATE cxx_std_23)
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
     target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        target_link_libraries(pltxt2htm PRIVATE ${CMAKE_DL_LIBS})
+    endif()
 endif()
 
 # Compile/link flags for GCC/Clang-style toolchains

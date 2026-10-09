@@ -12,6 +12,7 @@ struct ResolvedFrame {
     void* address{};
     char description[1024]{};
     char source_file[2048]{};
+    char module_file[2048]{};
     ::std::uint64_t displacement{};
     unsigned long source_line{};
     bool text_truncated{};
@@ -43,5 +44,30 @@ constexpr bool copy_text(::std::span<char> destination, char const* source) noex
     }
     destination[size] = '\0';
     return source[size] != '\0';
+}
+
+/** Turn a relative DWARF file name into a path using its compilation directory. */
+constexpr void copy_source_location(ResolvedFrame& result, char const* file, char const* directory, int line) noexcept {
+    if (file == nullptr || file[0] == '\0') {
+        return;
+    }
+    ::std::span<char> destination{result.source_file};
+    bool truncated{};
+    if (file[0] != '/' && directory != nullptr && directory[0] != '\0') {
+        truncated = ::pltxt2htm::details::stacktrace::copy_text(destination, directory);
+        auto const size = ::pltxt2htm::details::stacktrace::text_view(destination).size();
+        destination = destination.subspan(size);
+        if (!truncated && directory[size - 1] != '/') {
+            truncated = ::pltxt2htm::details::stacktrace::copy_text(destination, "/");
+            if (!truncated) {
+                destination = destination.subspan(1);
+            }
+        }
+    }
+    if (!truncated) {
+        truncated = ::pltxt2htm::details::stacktrace::copy_text(destination, file);
+    }
+    result.text_truncated = result.text_truncated || truncated;
+    result.source_line = line > 0 ? static_cast<unsigned long>(line) : 0;
 }
 } // namespace pltxt2htm::details::stacktrace

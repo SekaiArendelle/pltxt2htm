@@ -8,7 +8,6 @@
 
 #if defined(PLTXT2HTM_ENABLE_STACKTRACE)
     #include "stacktrace/stacktrace.hh"
-    #include "stacktrace/resolve.hh"
     #include "stacktrace/format.hh"
 #endif
 #include <cstdio>
@@ -55,25 +54,12 @@ inline void panic() noexcept {
 
 #if defined(PLTXT2HTM_ENABLE_STACKTRACE)
     ::std::fflush(stderr);
-    auto const trace = ::pltxt2htm::details::stacktrace::Stacktrace::current();
     ::fast_io::io::perr("* stack trace:\n");
-    if (trace.size() == 0) {
-        ::fast_io::io::perr("<unavailable>\n");
-    }
-    for (::std::size_t i = 0; i < trace.size(); ++i) {
-        ::fast_io::io::perr("[", i, "] ",
-                            ::fast_io::mnp::hex0x(reinterpret_cast<::std::uintptr_t>(trace[i].native_handle())), "\n");
-    }
-    if (trace.possibly_truncated()) {
-        ::fast_io::io::perr("<possibly truncated>\n");
-    }
-    // Preserve addresses even if resolution subsequently fails or stalls.
-    ::std::fflush(stderr);
-    for (::std::size_t i = 0; i < trace.size(); ++i) {
-        auto const frame = ::pltxt2htm::details::stacktrace::resolve(trace[i].native_handle());
-        if (frame.description[0] != '\0' || frame.source_file[0] != '\0') {
-            ::fast_io::io::perr("[", i, "] ", frame, "\n");
-        }
+    auto const stacktrace = ::pltxt2htm::details::stacktrace::Stacktrace::current();
+    auto const stacktrace_size = stacktrace.size();
+    for (::std::size_t i = 0; i < stacktrace_size; ++i) {
+        auto const& entry = stacktrace[i];
+        ::fast_io::io::perr("[", i, "] ", entry, "\n");
     }
 #endif
     ::std::fflush(stderr);

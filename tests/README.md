@@ -63,5 +63,15 @@ on an invalid index rather than throwing; fast_io allocation failure also
 terminates. The low-level `capture`, `resolve` and `ResolvedFrame` APIs remain
 available for bounded capture and one-time resolution.
 
+Linux resolution loads the optional elfutils `libdw.so.1` at runtime, without a
+build dependency on elfutils development headers. With matching DWARF information
+(`-g` for your executable), frames include `at source_file:line`. Module relocation
+is handled by libdwfl for PIE executables and shared libraries. Missing libdw,
+missing debug data or lookup failures preserve libc symbols and display
+`in module_path` instead. Relative source paths are joined with the compilation
+directory. Resolved frames own their text after the per-lookup session is released.
+On older glibc versions, standalone consumers must additionally link with `-ldl`;
+the CMake targets link `${CMAKE_DL_LIBS}` when stacktrace is enabled.
+
 ## Generate code coverage
 Requires GCC plus `lcov` and `genhtml`. Use the container image in [`docker/codecov/`](./docker/codecov/README.md), or configure a local build with `-DPLTXT2HTM_ENABLE_COVERAGE=ON` and run `lcov` + `genhtml` over it.
