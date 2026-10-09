@@ -57,6 +57,12 @@ using ExpectedClose = nt::NtStatus(NTAPI*)(nt::Handle) noexcept;
 using ExpectedLoadLibraryExW = win32::ModuleHandle(WINAPI*)(wchar_t const*, win32::Handle, unsigned long) noexcept;
 using ExpectedGetProcAddress = win32::Procedure(WINAPI*)(win32::ModuleHandle, char const*) noexcept;
 using ExpectedFreeLibrary = int(WINAPI*)(win32::ModuleHandle) noexcept;
+using ExpectedSymInitialize = int(WINAPI*)(win32::Handle, char const*, int) noexcept;
+using ExpectedSymRefreshModuleList = int(WINAPI*)(win32::Handle) noexcept;
+using ExpectedSymCleanup = int(WINAPI*)(win32::Handle) noexcept;
+using ExpectedSymFromAddr = int(WINAPI*)(win32::Handle, ::std::uint64_t, ::std::uint64_t*, win32::SymbolInfo*) noexcept;
+using ExpectedSymGetLineFromAddr64 = int(WINAPI*)(win32::Handle, ::std::uint64_t, unsigned long*,
+                                                  win32::ImageHlpLine64*) noexcept;
 
 static_assert(::std::is_same_v<decltype(&nt::RtlCaptureStackBackTrace), ExpectedCaptureStackBackTrace>);
 static_assert(::std::is_same_v<decltype(&nt::RtlTryAcquireSRWLockExclusive), ExpectedTryAcquireSrwLockExclusive>);
@@ -67,15 +73,17 @@ static_assert(::std::is_same_v<decltype(&nt::NtClose), ExpectedClose>);
 static_assert(::std::is_same_v<decltype(&win32::LoadLibraryExW), ExpectedLoadLibraryExW>);
 static_assert(::std::is_same_v<decltype(&win32::GetProcAddress), ExpectedGetProcAddress>);
 static_assert(::std::is_same_v<decltype(&win32::FreeLibrary), ExpectedFreeLibrary>);
+static_assert(::std::is_same_v<decltype(&win32::SymInitialize), ExpectedSymInitialize>);
+static_assert(::std::is_same_v<decltype(&win32::SymRefreshModuleList), ExpectedSymRefreshModuleList>);
+static_assert(::std::is_same_v<decltype(&win32::SymCleanup), ExpectedSymCleanup>);
+static_assert(::std::is_same_v<decltype(&win32::SymFromAddr), ExpectedSymFromAddr>);
+static_assert(::std::is_same_v<decltype(&win32::SymGetLineFromAddr64), ExpectedSymGetLineFromAddr64>);
 
 static_assert(sizeof(nt::NtStatus) == sizeof(NTSTATUS));
 static_assert(sizeof(nt::SrwLock) == sizeof(SRWLOCK));
 static_assert(alignof(nt::SrwLock) == alignof(SRWLOCK));
 
 static_assert(::std::is_same_v<win32::Procedure, FARPROC>);
-static_assert(::std::is_same_v<win32::SymInitialize, decltype(&::SymInitialize)>);
-static_assert(::std::is_same_v<win32::SymCleanup, decltype(&::SymCleanup)>);
-
 static_assert(sizeof(win32::SymbolInfo) == sizeof(SYMBOL_INFO));
 static_assert(alignof(win32::SymbolInfo) == alignof(SYMBOL_INFO));
 static_assert(offsetof(win32::SymbolInfo, size_of_struct) == offsetof(SYMBOL_INFO, SizeOfStruct));
@@ -115,6 +123,11 @@ auto* volatile duplicate_object_reference = &nt::NtDuplicateObject;
 auto* volatile load_library_reference = &win32::LoadLibraryExW;
 auto* volatile get_proc_address_reference = &win32::GetProcAddress;
 auto* volatile free_library_reference = &win32::FreeLibrary;
+auto* volatile sym_initialize_reference = &win32::SymInitialize;
+auto* volatile sym_refresh_module_list_reference = &win32::SymRefreshModuleList;
+auto* volatile sym_cleanup_reference = &win32::SymCleanup;
+auto* volatile sym_from_addr_reference = &win32::SymFromAddr;
+auto* volatile sym_get_line_from_addr_64_reference = &win32::SymGetLineFromAddr64;
 #endif
 
 int main() {

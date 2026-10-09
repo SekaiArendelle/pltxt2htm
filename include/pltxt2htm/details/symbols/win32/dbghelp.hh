@@ -1,61 +1,77 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
+#include "dbghelp_definitions.hh"
+#include "definitions.hh"
 
 #if !defined(_WIN32)
     #error "DbgHelp is only available on Windows"
 #endif
 
+#pragma push_macro("PLTXT2HTM_DETAIL_WIN32_DLLIMPORT")
 #pragma push_macro("PLTXT2HTM_DETAIL_WIN32_CALL")
-#undef PLTXT2HTM_DETAIL_WIN32_CALL
+#pragma push_macro("PLTXT2HTM_DETAIL_WIN32_ASM_NAME")
 
-#if defined(_MSC_VER)
+#undef PLTXT2HTM_DETAIL_WIN32_DLLIMPORT
+#undef PLTXT2HTM_DETAIL_WIN32_CALL
+#undef PLTXT2HTM_DETAIL_WIN32_ASM_NAME
+
+#if defined(_MSC_VER) && !defined(__clang__)
+    #define PLTXT2HTM_DETAIL_WIN32_DLLIMPORT __declspec(dllimport)
     #define PLTXT2HTM_DETAIL_WIN32_CALL __stdcall
-#elif defined(__i386__)
-    #define PLTXT2HTM_DETAIL_WIN32_CALL __attribute__((stdcall))
+    #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME(name, count)
+#elif defined(__clang__) || defined(__GNUC__)
+    #if defined(_MSC_VER)
+        #define PLTXT2HTM_DETAIL_WIN32_DLLIMPORT __declspec(dllimport)
+        #define PLTXT2HTM_DETAIL_WIN32_CALL __stdcall
+    #elif defined(__i386__)
+        #define PLTXT2HTM_DETAIL_WIN32_DLLIMPORT __attribute__((dllimport))
+        #define PLTXT2HTM_DETAIL_WIN32_CALL __attribute__((stdcall))
+    #else
+        #define PLTXT2HTM_DETAIL_WIN32_DLLIMPORT __attribute__((dllimport))
+        #define PLTXT2HTM_DETAIL_WIN32_CALL
+    #endif
 #else
-    #define PLTXT2HTM_DETAIL_WIN32_CALL
+    #error "unsupported compiler for pltxt2htm DbgHelp symbols"
 #endif
 
 namespace pltxt2htm::details::symbols::win32 {
-constexpr ::std::size_t max_symbol_name_length{2000};
 
-#pragma pack(push, 8)
+#if defined(__GNUC__) || defined(__clang__)
+    #if defined(_M_HYBRID)
+        #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME(name, count) __asm__("#" #name "@" #count)
+    #elif defined(__arm64ec__) || defined(_M_ARM64EC)
+        #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME(name, count) __asm__("#" #name)
+    #elif defined(__i386__) || defined(_M_IX86)
+        #if defined(__clang__)
+            #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME(name, count) __asm__("_" #name "@" #count)
+        #else
+            #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME(name, count) __asm__(#name "@" #count)
+        #endif
+    #else
+        #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME(name, count) __asm__(#name)
+    #endif
+#endif
 
-struct SymbolInfo {
-    unsigned long size_of_struct;
-    unsigned long type_index;
-    ::std::uint64_t reserved[2];
-    unsigned long index;
-    unsigned long size;
-    ::std::uint64_t mod_base;
-    unsigned long flags;
-    ::std::uint64_t value;
-    ::std::uint64_t address;
-    unsigned long register_number;
-    unsigned long scope;
-    unsigned long tag;
-    unsigned long name_len;
-    unsigned long max_name_len;
-    char name[1];
-};
+#include "dbghelp.inc"
 
-struct ImageHlpLine64 {
-    unsigned long size_of_struct;
-    void* key;
-    unsigned long line_number;
-    char* file_name;
-    ::std::uint64_t address;
-};
-
-#pragma pack(pop)
-
-using SymInitialize = int(PLTXT2HTM_DETAIL_WIN32_CALL*)(void*, char const*, int);
-using SymRefreshModuleList = int(PLTXT2HTM_DETAIL_WIN32_CALL*)(void*);
-using SymCleanup = int(PLTXT2HTM_DETAIL_WIN32_CALL*)(void*);
-using SymFromAddr = int(PLTXT2HTM_DETAIL_WIN32_CALL*)(void*, ::std::uint64_t, ::std::uint64_t*, SymbolInfo*);
-using SymGetLineFromAddr64 = int(PLTXT2HTM_DETAIL_WIN32_CALL*)(void*, ::std::uint64_t, unsigned long*, ImageHlpLine64*);
 } // namespace pltxt2htm::details::symbols::win32
 
+#if defined(_MSC_VER) && !defined(__clang__)
+    #if defined(_M_ARM64EC)
+        #include "dbghelp_msvc_linker_arm64ec.inc"
+    #elif defined(_M_X64)
+        #include "dbghelp_msvc_linker_x64.inc"
+    #elif defined(_M_IX86)
+        #include "dbghelp_msvc_linker_i686.inc"
+    #elif defined(_M_ARM64)
+        #include "dbghelp_msvc_linker_arm64.inc"
+    #elif defined(_M_ARM)
+        #include "dbghelp_msvc_linker_arm32.inc"
+    #else
+        #error "unsupported MSVC target for pltxt2htm DbgHelp symbols"
+    #endif
+#endif
+
+#pragma pop_macro("PLTXT2HTM_DETAIL_WIN32_ASM_NAME")
 #pragma pop_macro("PLTXT2HTM_DETAIL_WIN32_CALL")
+#pragma pop_macro("PLTXT2HTM_DETAIL_WIN32_DLLIMPORT")

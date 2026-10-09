@@ -16,6 +16,7 @@ static_assert(offsetof(win32::SymbolInfo, name) == offsetof(SYMBOL_INFO, Name));
 
 auto* volatile nt_close_include_order_reference = &nt::NtClose;
 auto* volatile load_library_include_order_reference = &win32::LoadLibraryExW;
+auto* volatile sym_initialize_include_order_reference = &win32::SymInitialize;
 #endif
 
 int main() {

@@ -111,6 +111,47 @@ using Procedure = __INTPTR_TYPE__(__stdcall*)();""",
             ),
         ),
     ),
+    Library(
+        api="win32",
+        name="dbghelp",
+        namespace="pltxt2htm::details::symbols::win32",
+        macro_prefix="PLTXT2HTM_DETAIL_WIN32",
+        probe_definitions="""using Handle = void*;
+struct SymbolInfo;
+struct ImageHlpLine64;""",
+        symbols=(
+            Symbol(
+                "SymInitialize",
+                "int",
+                ("Handle", "char const*", "int"),
+                nodiscard=True,
+            ),
+            Symbol(
+                "SymRefreshModuleList",
+                "int",
+                ("Handle",),
+                nodiscard=True,
+            ),
+            Symbol(
+                "SymCleanup",
+                "int",
+                ("Handle",),
+                nodiscard=True,
+            ),
+            Symbol(
+                "SymFromAddr",
+                "int",
+                ("Handle", "::std::uint64_t", "::std::uint64_t*", "SymbolInfo*"),
+                nodiscard=True,
+            ),
+            Symbol(
+                "SymGetLineFromAddr64",
+                "int",
+                ("Handle", "::std::uint64_t", "unsigned long*", "ImageHlpLine64*"),
+                nodiscard=True,
+            ),
+        ),
+    ),
 )
 
 
@@ -132,6 +173,15 @@ PROBE_TYPES = {
     "NtStatus": "long",
     "Procedure": "void*",
     "SrwLock*": "void*",
+    "SymbolInfo*": "void*",
+    "ImageHlpLine64*": "void*",
+    "::std::uint64_t": "__UINT64_TYPE__",
+    "::std::uint64_t*": "__UINT64_TYPE__*",
+}
+
+LOCAL_PROBE_TYPES = {
+    "::std::uint64_t": "__UINT64_TYPE__",
+    "::std::uint64_t*": "__UINT64_TYPE__*",
 }
 
 
@@ -141,6 +191,10 @@ def format_parameters(parameters: tuple[str, ...]) -> str:
 
 def probe_type(type_name: str) -> str:
     return PROBE_TYPES.get(type_name, type_name)
+
+
+def local_probe_type(type_name: str) -> str:
+    return LOCAL_PROBE_TYPES.get(type_name, type_name)
 
 
 def declaration(symbol: Symbol, library: Library, x86_stack_bytes: int) -> str:
@@ -163,11 +217,12 @@ def generate_declarations(library: Library, x86_stack_bytes: dict[str, int]) -> 
 
 
 def local_probe_source(symbol: Symbol, library: Library) -> str:
-    parameters = format_parameters(symbol.parameters)
+    result = local_probe_type(symbol.return_type)
+    parameters = format_parameters(tuple(local_probe_type(parameter) for parameter in symbol.parameters))
     return f"""namespace {library.namespace} {{
 {library.probe_definitions}
 
-__declspec(dllimport) {symbol.return_type} __stdcall {symbol.export_name}({parameters}) noexcept;
+__declspec(dllimport) {result} __stdcall {symbol.export_name}({parameters}) noexcept;
 }}
 
 auto* volatile pltxt2htm_probe = &::{library.namespace}::{symbol.export_name};
