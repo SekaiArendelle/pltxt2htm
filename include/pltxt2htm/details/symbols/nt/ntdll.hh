@@ -20,7 +20,7 @@ extern "C" {
 #if defined(_MSC_VER) && !defined(__clang__)
     #define PLTXT2HTM_DETAIL_NT_DLLIMPORT __declspec(dllimport)
     #define PLTXT2HTM_DETAIL_NT_CALL __stdcall
-    #include "ntdll_msvc.inc"
+    #define PLTXT2HTM_DETAIL_NT_ASM_NAME(name, count)
 #elif defined(__clang__) || defined(__GNUC__)
     #if defined(_MSC_VER)
         #define PLTXT2HTM_DETAIL_NT_DLLIMPORT __declspec(dllimport)
@@ -46,10 +46,11 @@ extern "C" {
     #else
         #define PLTXT2HTM_DETAIL_NT_ASM_NAME(name, count) __asm__(#name)
     #endif
-    #include "ntdll_asm.inc"
 #else
     #error "unsupported compiler for pltxt2htm NT symbols"
 #endif
+
+#include "ntdll.inc"
 
 } // extern "C"
 } // namespace pltxt2htm::details::symbols::nt

@@ -18,6 +18,7 @@
 #if defined(_MSC_VER) && !defined(__clang__)
     #define PLTXT2HTM_DETAIL_WIN32_DLLIMPORT __declspec(dllimport)
     #define PLTXT2HTM_DETAIL_WIN32_CALL __stdcall
+    #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME(name, count)
 #elif defined(__clang__) || defined(__GNUC__)
     #if defined(_MSC_VER)
         #define PLTXT2HTM_DETAIL_WIN32_DLLIMPORT __declspec(dllimport)
@@ -38,9 +39,7 @@ using Procedure = ::std::intptr_t(PLTXT2HTM_DETAIL_WIN32_CALL*)();
 
 extern "C" {
 
-#if defined(_MSC_VER) && !defined(__clang__)
-    #include "kernel32_msvc.inc"
-#else
+#if defined(__GNUC__) || defined(__clang__)
     #if defined(_M_HYBRID)
         #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME(name, count) __asm__("#" #name "@" #count)
     #elif defined(__arm64ec__) || defined(_M_ARM64EC)
@@ -54,8 +53,9 @@ extern "C" {
     #else
         #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME(name, count) __asm__(#name)
     #endif
-    #include "kernel32_asm.inc"
 #endif
+
+#include "kernel32.inc"
 
 } // extern "C"
 } // namespace pltxt2htm::details::symbols::win32

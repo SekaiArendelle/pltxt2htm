@@ -144,32 +144,20 @@ def probe_type(type_name: str) -> str:
     return PROBE_TYPES.get(type_name, type_name)
 
 
-def declaration(symbol: Symbol, library: Library, asm: bool, x86_stack_bytes: int | None = None) -> str:
+def declaration(symbol: Symbol, library: Library, x86_stack_bytes: int) -> str:
     prefix = library.macro_prefix
     attribute = "[[nodiscard]]\n" if symbol.nodiscard else ""
-    if asm:
-        if x86_stack_bytes is None:
-            raise ValueError(f"missing i686 decoration for {symbol.export_name}")
-        suffix = f" {prefix}_ASM_NAME({symbol.export_name}, {x86_stack_bytes})"
-    else:
-        suffix = ""
+    suffix = f" {prefix}_ASM_NAME({symbol.export_name}, {x86_stack_bytes})"
     return (
         f"{attribute}{prefix}_DLLIMPORT {symbol.return_type} {prefix}_CALL {symbol.local_name}"
         f"({format_parameters(symbol.parameters)}) noexcept{suffix};\n"
     )
 
 
-def generate_declarations(
-    library: Library, asm: bool, x86_stack_bytes: dict[str, int] | None = None
-) -> str:
+def generate_declarations(library: Library, x86_stack_bytes: dict[str, int]) -> str:
     result = [GENERATED_NOTICE, "\n"]
     result.extend(
-        declaration(
-            symbol,
-            library,
-            asm,
-            None if x86_stack_bytes is None else x86_stack_bytes[symbol.export_name],
-        )
+        declaration(symbol, library, x86_stack_bytes[symbol.export_name])
         for symbol in library.symbols
     )
     return "".join(result)
@@ -262,10 +250,7 @@ def generated_files(clang: str, llvm_nm: str) -> dict[pathlib.Path, str]:
             )
             result[directory / f"{library.name}_msvc_linker_{architecture}.inc"] = aliases
             i686_stack_bytes.update(target_stack_bytes)
-        result[directory / f"{library.name}_asm.inc"] = generate_declarations(
-            library, asm=True, x86_stack_bytes=i686_stack_bytes
-        )
-        result[directory / f"{library.name}_msvc.inc"] = generate_declarations(library, asm=False)
+        result[directory / f"{library.name}.inc"] = generate_declarations(library, i686_stack_bytes)
     return result
 
 
