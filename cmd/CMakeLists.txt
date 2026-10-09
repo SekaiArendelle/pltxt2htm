@@ -8,7 +8,8 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
     set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 endif()
 
-option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
+option(PLTXT2HTM_ENABLE_STACKTRACE "Enable native stacktrace" OFF)
+include("${CMAKE_CURRENT_LIST_DIR}/../cmake/pltxt2htm_stacktrace.cmake")
 
 add_executable(pltxt2htm pltxt2htm.cc)
 
@@ -17,7 +18,7 @@ target_include_directories(pltxt2htm PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../inc
 target_compile_features(pltxt2htm PRIVATE cxx_std_23)
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
-    target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
+    pltxt2htm_enable_stacktrace(pltxt2htm PRIVATE)
 endif()
 
 if(WIN32 OR MINGW OR CMAKE_CXX_COMPILER_TARGET MATCHES "windows-msvc$")
@@ -37,8 +38,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         target_compile_options(pltxt2htm PRIVATE
             -fno-rtti
-            -fno-unwind-tables
-            -fno-asynchronous-unwind-tables
+            $<$<NOT:$<BOOL:${PLTXT2HTM_ENABLE_STACKTRACE}>>:-fno-unwind-tables>
+            $<$<NOT:$<BOOL:${PLTXT2HTM_ENABLE_STACKTRACE}>>:-fno-asynchronous-unwind-tables>
             -fno-ident
             -fno-exceptions
         )

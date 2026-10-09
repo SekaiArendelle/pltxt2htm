@@ -3,6 +3,7 @@ RUN apt update && apt install -y --no-install-recommends clang clang-tidy cmake 
 WORKDIR /pltxt2htm
 COPY .clang-tidy /pltxt2htm/.clang-tidy
 COPY include/ /pltxt2htm/include/
+COPY cmake/ /pltxt2htm/cmake/
 COPY scripts/ /pltxt2htm/scripts/
 COPY examples/ /pltxt2htm/examples/
 COPY cmd/ /pltxt2htm/cmd/

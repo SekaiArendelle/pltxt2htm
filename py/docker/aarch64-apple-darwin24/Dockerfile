@@ -30,6 +30,7 @@ ENV TARGET=aarch64-apple-darwin24
 
 WORKDIR /pltxt2htm
 COPY include/ /pltxt2htm/include/
+COPY cmake/ /pltxt2htm/cmake/
 COPY py/ /pltxt2htm/py/
 
 # Configure and build with CMake

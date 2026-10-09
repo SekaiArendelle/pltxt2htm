@@ -13,7 +13,8 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
+option(PLTXT2HTM_ENABLE_STACKTRACE "Enable native stacktrace" OFF)
+include("${CMAKE_CURRENT_LIST_DIR}/../cmake/pltxt2htm_stacktrace.cmake")
 set(PLTXT2HTM_SANITIZER "" CACHE STRING "Sanitizer to enable: asan, msan, ubsan, or empty")
 set_property(CACHE PLTXT2HTM_SANITIZER PROPERTY STRINGS "" asan msan ubsan)
 
@@ -32,7 +33,7 @@ foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roun
     target_compile_features(${FUZZER_SRC} PRIVATE cxx_std_23)
 
     if(PLTXT2HTM_ENABLE_STACKTRACE)
-        target_compile_definitions(${FUZZER_SRC} PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
+        pltxt2htm_enable_stacktrace(${FUZZER_SRC} PRIVATE)
     endif()
 
     set_target_properties(${FUZZER_SRC} PROPERTIES

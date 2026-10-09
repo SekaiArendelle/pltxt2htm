@@ -13,6 +13,7 @@ RUN xwin --accept-license --include-debug-runtime splat --include-debug-libs --o
 
 WORKDIR /pltxt2htm
 COPY ../../../include /pltxt2htm/include/
+COPY ../../../cmake /pltxt2htm/cmake/
 COPY ../../../c /pltxt2htm/c/
 
 WORKDIR /pltxt2htm/c
