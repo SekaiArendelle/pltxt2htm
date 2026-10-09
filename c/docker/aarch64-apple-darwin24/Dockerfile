@@ -10,6 +10,7 @@ RUN wget -q "${MACOS_SDK_URL}" -O /tmp/macos-sdk.tar.xz \
 
 WORKDIR /pltxt2htm
 COPY ../../../include /pltxt2htm/include/
+COPY ../../../cmake /pltxt2htm/cmake/
 COPY ../../../c /pltxt2htm/c/
 
 WORKDIR /pltxt2htm/c

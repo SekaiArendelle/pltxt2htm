@@ -93,22 +93,14 @@ int main() {
     trace::resolve_symbol_text(long_frame, long_symbol);
     pltxt2htm_test_assert_true(!long_frame.text_truncated && long_frame.displacement == 2);
     pltxt2htm_test_assert_true(long_frame.description.size() == 1100);
-    trace::LibdwApi missing_api{"/pltxt2htm-tests/nonexistent-libdw.so"};
-    pltxt2htm_test_assert_true(!missing_api.ready());
-    auto const fallback = ::fast_io::concat_fast_io(trace::own_frame(decoded));
-    decoded.address = reinterpret_cast<void*>(0x1234);
-    trace::resolve_dwarf(decoded, missing_api);
-    pltxt2htm_test_assert_true(::fast_io::concat_fast_io(trace::own_frame(decoded)) == fallback);
-    trace::LibdwApi dwarf_api{};
-    if (dwarf_api.ready()) {
-        auto const dwarf_trace = trace::Stacktrace::current(0, 1);
-        auto const source_frame = trace::resolve(dwarf_trace[0].native_handle());
-        pltxt2htm_test_assert_true(source_frame.source_file[0] != '\0' && source_frame.source_line > 0);
-        pltxt2htm_test_assert_true(source_frame.module_file[0] != '\0');
-        pltxt2htm_test_assert_true(::std::strstr(source_frame.source_file, "capture.hh") != nullptr);
-        auto const owned_source = dwarf_trace[0].source_file();
-        pltxt2htm_test_assert_true(::std::strcmp(owned_source.c_str(), source_frame.source_file) == 0);
-    }
+    #if defined(PLTXT2HTM_DETAIL_STACKTRACE_HAS_LIBDWFL)
+    auto const dwarf_trace = trace::Stacktrace::current(0, 1);
+    auto const source_frame = trace::resolve(dwarf_trace[0].native_handle());
+    pltxt2htm_test_assert_true(!source_frame.source_file.is_empty() && source_frame.source_line > 0);
+    pltxt2htm_test_assert_true(!source_frame.module_file.is_empty());
+    auto const owned_source = dwarf_trace[0].source_file();
+    pltxt2htm_test_assert_true(::std::strcmp(owned_source.c_str(), source_frame.source_file.c_str()) == 0);
+    #endif
 #endif
     void* storage[8]{};
     auto const empty = trace::capture({});

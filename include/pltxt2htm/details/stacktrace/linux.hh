@@ -5,20 +5,22 @@
 #include <cstring>
 #include <execinfo.h>
 #include <memory>
+#include <span>
 #if __has_include(<cxxabi.h>)
     #include <cxxabi.h>
 #endif
 #include "native_frame.hh"
-#include "linux_dw.hh"
+#if defined(PLTXT2HTM_DETAIL_STACKTRACE_HAS_LIBDWFL)
+    #include "linux_dw.hh"
+#endif
 
 namespace pltxt2htm::details::stacktrace {
 /** Drop ordinary argument lists, retaining operator() and template arguments.
  * Preserve complex return declarators rather than stripping their type syntax.
  */
 constexpr void remove_symbol_parameters(::std::span<char> name) noexcept {
-    auto const text = ::pltxt2htm::details::stacktrace::text_view(name);
-    ::std::size_t end = text.size();
-    while (end != 0 && text[end - 1] != ')') {
+    ::std::size_t end = name.size();
+    while (end != 0 && name[end - 1] != ')') {
         --end;
     }
     if (end == 0) {
@@ -27,22 +29,22 @@ constexpr void remove_symbol_parameters(::std::span<char> name) noexcept {
     ::std::size_t depth{};
     for (auto i = end; i != 0;) {
         --i;
-        if (text[i] == ')') {
+        if (name[i] == ')') {
             ++depth;
         }
-        else if (text[i] == '(' && --depth == 0) {
-            if (i != 0 && text[i - 1] == ')') {
+        else if (name[i] == '(' && --depth == 0) {
+            if (i != 0 && name[i - 1] == ')') {
                 // A function returning a function pointer, such as
                 // void (*make_callback<int>())(double), has its return type's
                 // arguments here. It is not the function parameter list.
                 ::std::size_t return_depth{};
                 for (auto j = i; j != 0;) {
                     --j;
-                    if (text[j] == ')') {
+                    if (name[j] == ')') {
                         ++return_depth;
                     }
-                    else if (text[j] == '(' && --return_depth == 0) {
-                        if (text[j + 1] == '*' || text[j + 1] == '&') {
+                    else if (name[j] == '(' && --return_depth == 0) {
+                        if (name[j + 1] == '*' || name[j + 1] == '&') {
                             return;
                         }
                         break;
@@ -115,40 +117,42 @@ inline void resolve_symbol_text(NativeResolvedFrame& result, char* symbol) noexc
     result.displacement = displacement;
 }
 
-inline void resolve_dwarf(NativeResolvedFrame& result, LibdwApi& api) noexcept {
+#if defined(PLTXT2HTM_DETAIL_STACKTRACE_HAS_LIBDWFL)
+inline void resolve_dwarf(NativeResolvedFrame& result) noexcept {
     if (result.address == nullptr) {
         return;
     }
-    DwflSession session{api};
+    DwflSession session{};
     if (session.handle == nullptr) {
         return;
     }
-    auto const address = static_cast<Elf64_Addr>(reinterpret_cast<::std::uintptr_t>(result.address));
-    auto* module = api.addr_module(session.handle, address);
+    auto const address = static_cast<GElf_Addr>(reinterpret_cast<::std::uintptr_t>(result.address));
+    auto* module = ::dwfl_addrmodule(session.handle, address);
     if (module == nullptr) {
         return;
     }
-    Elf64_Off displacement{};
-    Elf64_Sym symbol{};
-    auto const* name = api.addr_info(module, address, ::std::addressof(displacement), ::std::addressof(symbol), nullptr,
-                                     nullptr, nullptr);
+    GElf_Off displacement{};
+    GElf_Sym symbol{};
+    auto const* name = ::dwfl_module_addrinfo(module, address, ::std::addressof(displacement), ::std::addressof(symbol),
+                                              nullptr, nullptr, nullptr);
     if (name != nullptr) {
         ::pltxt2htm::details::stacktrace::copy_function_name(result, name);
         result.displacement = displacement;
     }
     char const* main_file{};
     auto const* module_name =
-        api.module_info(module, nullptr, nullptr, nullptr, nullptr, nullptr, ::std::addressof(main_file), nullptr);
+        ::dwfl_module_info(module, nullptr, nullptr, nullptr, nullptr, nullptr, ::std::addressof(main_file), nullptr);
     result.text_truncated = !::pltxt2htm::details::stacktrace::assign_text(
                                 result.module_file, main_file != nullptr ? main_file : module_name) ||
                             result.text_truncated;
-    auto* source = api.get_source(module, address);
+    auto* source = ::dwfl_module_getsrc(module, address);
     if (source != nullptr) {
         int line{};
-        auto const* file = api.line_info(source, nullptr, ::std::addressof(line), nullptr, nullptr, nullptr);
-        ::pltxt2htm::details::stacktrace::assign_source_location(result, file, api.comp_dir(source), line);
+        auto const* file = ::dwfl_lineinfo(source, nullptr, ::std::addressof(line), nullptr, nullptr, nullptr);
+        ::pltxt2htm::details::stacktrace::assign_source_location(result, file, ::dwfl_line_comp_dir(source), line);
     }
 }
+#endif
 
 [[nodiscard]]
 inline NativeResolvedFrame resolve_native(void* address) noexcept {
@@ -162,8 +166,9 @@ inline NativeResolvedFrame resolve_native(void* address) noexcept {
         ::pltxt2htm::details::stacktrace::resolve_symbol_text(result, symbols[0]);
         ::std::free(symbols);
     }
-    LibdwApi api{};
-    ::pltxt2htm::details::stacktrace::resolve_dwarf(result, api);
+#if defined(PLTXT2HTM_DETAIL_STACKTRACE_HAS_LIBDWFL)
+    ::pltxt2htm::details::stacktrace::resolve_dwarf(result);
+#endif
     return result;
 }
 } // namespace pltxt2htm::details::stacktrace

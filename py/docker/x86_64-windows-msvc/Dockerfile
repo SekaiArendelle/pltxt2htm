@@ -42,6 +42,7 @@ ENV TARGET=x86_64-windows-msvc
 
 WORKDIR /pltxt2htm
 COPY include/ /pltxt2htm/include/
+COPY cmake/ /pltxt2htm/cmake/
 COPY py/ /pltxt2htm/py/
 
 # Configure and build the Python extension

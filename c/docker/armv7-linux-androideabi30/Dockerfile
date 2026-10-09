@@ -16,6 +16,7 @@ ENV PATH=/llvm/android-ndk-r30-beta2/toolchains/llvm/prebuilt/linux-x86_64/bin:$
 
 WORKDIR /pltxt2htm
 COPY ../../../include /pltxt2htm/include/
+COPY ../../../cmake /pltxt2htm/cmake/
 COPY ../../../c /pltxt2htm/c/
 
 WORKDIR /pltxt2htm/c

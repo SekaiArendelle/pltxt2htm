@@ -4,6 +4,7 @@ RUN apt update && apt install -y --no-install-recommends clang clang-tools cmake
 
 WORKDIR /pltxt2htm
 COPY include/ /pltxt2htm/include/
+COPY cmake/ /pltxt2htm/cmake/
 COPY tests/ /pltxt2htm/tests/
 
 RUN scan-build --status-bugs --use-cc=clang --use-c++=clang++ -o /scan-build-report \

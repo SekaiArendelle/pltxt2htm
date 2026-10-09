@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm-tests LANGUAGES CXX VERSION 0.26.0)
+include("${CMAKE_CURRENT_LIST_DIR}/../cmake/pltxt2htm_stacktrace.cmake")
 
 enable_testing()
 
@@ -43,7 +44,6 @@ endif()
 
 include(CheckCXXSourceCompiles)
 set(PLTXT2HTM_USE_STACKTRACE FALSE)
-set(PLTXT2HTM_STACKTRACE_LINK_LIB "")
 if(NOT PLTXT2HTM_ENABLE_STACKTRACE STREQUAL "OFF")
     set(_pltxt2htm_saved_required_libs "${CMAKE_REQUIRED_LIBRARIES}")
     set(_pltxt2htm_saved_required_includes "${CMAKE_REQUIRED_INCLUDES}")
@@ -51,12 +51,9 @@ if(NOT PLTXT2HTM_ENABLE_STACKTRACE STREQUAL "OFF")
     set(CMAKE_REQUIRED_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/../include")
     set(CMAKE_REQUIRED_DEFINITIONS -DPLTXT2HTM_ENABLE_STACKTRACE)
     if(WIN32)
-        set(PLTXT2HTM_STACKTRACE_LINK_LIB ntdll)
         set(CMAKE_REQUIRED_LIBRARIES ntdll)
         set(_pltxt2htm_native_available TRUE)
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        set(PLTXT2HTM_STACKTRACE_LINK_LIB "${CMAKE_DL_LIBS}")
-        set(CMAKE_REQUIRED_LIBRARIES "${CMAKE_DL_LIBS}")
         check_cxx_source_compiles("#include <execinfo.h>
             int main() { void* frames[1]; return backtrace(frames, 1) < 0; }"
             _pltxt2htm_execinfo_available)
@@ -89,10 +86,7 @@ target_include_directories(pltxt2htm_base INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if(PLTXT2HTM_USE_STACKTRACE)
-    target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_ENABLE_STACKTRACE)
-    if(PLTXT2HTM_STACKTRACE_LINK_LIB)
-        target_link_libraries(pltxt2htm_base INTERFACE "${PLTXT2HTM_STACKTRACE_LINK_LIB}")
-    endif()
+    pltxt2htm_enable_stacktrace(pltxt2htm_base INTERFACE)
 endif()
 
 target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK)

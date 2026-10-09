@@ -9,7 +9,7 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
 endif()
 
 option(PLTXT2HTM_ENABLE_STACKTRACE "Enable native stacktrace" OFF)
-
+include("${CMAKE_CURRENT_LIST_DIR}/../cmake/pltxt2htm_stacktrace.cmake")
 
 add_library(pltxt2htm src/pltxt2htm.cc)
 
@@ -21,10 +21,7 @@ target_include_directories(pltxt2htm PUBLIC
 target_compile_features(pltxt2htm PUBLIC cxx_std_23)
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
-    target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
-    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        target_link_libraries(pltxt2htm PRIVATE ${CMAKE_DL_LIBS})
-    endif()
+    pltxt2htm_enable_stacktrace(pltxt2htm PRIVATE)
 endif()
 
 if(WIN32)
