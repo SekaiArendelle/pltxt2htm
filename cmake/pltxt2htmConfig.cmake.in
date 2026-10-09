@@ -1,0 +1,10 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/pltxt2htmTargets.cmake")
+
+# The installation carries two header trees under one include directory: pltxt2htm/
+# and the fast_io snapshot the headers include as <fast_io/...>. fast_io is not a
+# CMake package here, so do not put another fast_io on the include path of a target
+# that links pltxt2htm::pltxt2htm.
+
+check_required_components(pltxt2htm)

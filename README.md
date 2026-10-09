@@ -16,6 +16,27 @@ You can also use `pltxt2htm` in console (cmd/README.md), browser (wasm/README.md
 
 C++20 module example is in [cxxmodule/examples/example.cc](cxxmodule/examples/example.cc)
 
+### CMake
+
+```cmake
+find_package(pltxt2htm CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE pltxt2htm::pltxt2htm)
+```
+
+Install the library and point a consumer at it:
+
+```sh
+cmake -S . -B build
+cmake --install build --prefix <prefix>
+cmake -S <consumer> -B build -DCMAKE_PREFIX_PATH=<prefix>
+```
+
+`add_subdirectory()` and `FetchContent` provide the same `pltxt2htm::pltxt2htm` target from the source tree. The target carries the C++23 requirement and the platform flags the headers need, so consumers do not have to configure them. `-DPLTXT2HTM_INSTALL=OFF` skips the install rules, which is what happens automatically when the project is not built standalone.
+
+Compile-time switches such as `PLTXT2HTM_ENABLE_STACKTRACE` and `PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK` are deliberately not part of the target: they change the definition of inline functions, so every translation unit of a program that links the library has to agree on them.
+
+The package installs the `fast_io` snapshot the headers include as `<fast_io/...>` as well: it is not a CMake package, so do not put another `fast_io` on the include path of a target that links `pltxt2htm::pltxt2htm`. Versions follow the Compatibility section below: a `0.x` minor release is not compatible with the next one, a patch release is.
+
 ## Documentation
 See [docsgen](./docsgen/README.md).
 
