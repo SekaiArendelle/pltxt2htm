@@ -69,7 +69,7 @@ union PlTxtNodeStorage {
     ::pltxt2htm::HtmlBlockquote<ndebug> html_blockquote_node;
 
     // html img node
-    ::pltxt2htm::HtmlImg html_img_node;
+    ::pltxt2htm::HtmlImg<ndebug> html_img_node;
 
     // table node
     ::pltxt2htm::TableCol col_node;
@@ -511,7 +511,7 @@ struct PlTxtNodeTraits<ndebug, ::pltxt2htm::TableCol> {
 };
 
 template<::pltxt2htm::Contracts ndebug>
-struct PlTxtNodeTraits<ndebug, ::pltxt2htm::HtmlImg> {
+struct PlTxtNodeTraits<ndebug, ::pltxt2htm::HtmlImg<ndebug>> {
     static constexpr ::pltxt2htm::NodeKind kind{::pltxt2htm::NodeKind::html_img};
     static constexpr auto member = &::pltxt2htm::details::PlTxtNodeStorage<ndebug>::html_img_node;
 };

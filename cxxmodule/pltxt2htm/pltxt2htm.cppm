@@ -91,6 +91,7 @@ using ::pltxt2htm::InvalidUtf8;
 using ::pltxt2htm::Group;
 using ::pltxt2htm::CodeFence;
 using ::pltxt2htm::Url;
+using ::pltxt2htm::PlainText;
 
 using ::pltxt2htm::LineBreak;
 using ::pltxt2htm::Space;

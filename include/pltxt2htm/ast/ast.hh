@@ -12,6 +12,7 @@
 
 #include "../contracts.hh"
 #include "node_kind.hh"
+#include "plain_text.hh"
 
 #include "impl/basic_node_decl.hh"
 #include "impl/url_node_decl.hh"
@@ -329,7 +330,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::html_img: {
-            new (::std::addressof(storage.html_img_node))::pltxt2htm::HtmlImg(other.storage.html_img_node);
+            new (::std::addressof(storage.html_img_node))::pltxt2htm::HtmlImg<ndebug>(other.storage.html_img_node);
             break;
         }
         case ::pltxt2htm::NodeKind::table: {
