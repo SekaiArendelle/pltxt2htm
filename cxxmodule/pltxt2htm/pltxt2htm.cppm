@@ -8,6 +8,7 @@ export namespace pltxt2htm {
 
 namespace container {
 
+using ::pltxt2htm::container::Deque;
 using ::pltxt2htm::container::BasicString;
 using ::pltxt2htm::container::String;
 using ::pltxt2htm::container::WString;
