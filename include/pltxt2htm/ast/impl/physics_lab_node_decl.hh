@@ -39,10 +39,10 @@ public:
 
     /**
      * @brief Constructs an identifier from an already-canonical spelling.
-     * @details Mirrors ::pltxt2htm::Url: the constructor trusts its caller, so construction
-     *          sites outside the parser must use try_make or try_normalize first. It exists
-     *          for callers that validated a payload before storing it somewhere else (the
-     *          parser keeps the canonical text in a frame context until the node is built).
+     * @details Mirrors ::pltxt2htm::Url: the constructor trusts its caller, so callers outside
+     *          the library must use try_make first. It exists for callers that validated a
+     *          payload and then moved the text on before the node was built (the parser keeps
+     *          the canonical text in a frame context until then).
      * @param text_ Exactly 24 lowercase hexadecimal digits.
      */
     constexpr explicit PlObjectId(::pltxt2htm::container::U8String&& text_) noexcept
@@ -59,16 +59,15 @@ public:
     constexpr auto operator==(this PlObjectId const&, PlObjectId const&) noexcept -> bool = default;
 
     /**
-     * @brief Normalizes a source payload to the canonical ObjectId spelling.
-     * @details Uppercase digits are folded to lowercase. Callers that only need the
-     *          normalized text (for example the parser storing it in a frame context)
-     *          can use this directly instead of building an identifier.
+    /**
+     * @brief Builds an identifier from a source payload, or fails when it is not one.
+     * @details Uppercase digits are folded to the lowercase spelling BSON emits.
      * @param input Candidate payload.
-     * @return The canonical spelling, or nullopt when the length or a digit is wrong.
+     * @return The canonical identifier, or nullopt when the length or a digit is wrong.
      */
     [[nodiscard]]
-    static constexpr auto try_normalize(::pltxt2htm::container::U8StringView input) noexcept
-        -> ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> {
+    static constexpr auto try_make(::pltxt2htm::container::U8StringView input) noexcept
+        -> ::pltxt2htm::container::Optional<PlObjectId> {
         if (input.size() != hex_digits) {
             return ::pltxt2htm::container::nullopt;
         }
@@ -83,28 +82,22 @@ public:
             // to 'a'-'f' without changing the digits or an already-lowercase spelling.
             canonical.template push_back<ndebug>(static_cast<char8_t>(digit | char8_t{0x20}));
         }
-        return canonical;
-    }
-
-    /**
-     * @brief Builds an identifier from a source payload, or fails when it is not one.
-     * @param input Candidate payload.
-     * @return The canonical identifier, or nullopt when the length or a digit is wrong.
-     */
-    [[nodiscard]]
-    static constexpr auto try_make(::pltxt2htm::container::U8StringView input) noexcept
-        -> ::pltxt2htm::container::Optional<PlObjectId> {
-        auto opt_canonical = PlObjectId::try_normalize(input);
-        if (opt_canonical.has_value() == false) {
-            return ::pltxt2htm::container::nullopt;
-        }
-        auto canonical = ::std::move(opt_canonical).template value<ndebug>();
         return PlObjectId{::std::move(canonical)};
     }
-
     [[nodiscard]]
     constexpr auto as_string(this PlObjectId const& self) noexcept -> ::pltxt2htm::container::U8String const& {
         return self.text;
+    }
+    /**
+     * @brief Moves the canonical spelling out of the identifier.
+     * @details The parser validates a payload with try_make and then hands the text on to a frame
+     *          context, which stores plain text rather than the identifier type. Moving it keeps
+     *          that hand-off allocation-free. The identifier is left empty.
+     * @return The canonical spelling.
+     */
+    [[nodiscard]]
+    constexpr auto take_string(this PlObjectId&& self) noexcept -> ::pltxt2htm::container::U8String {
+        return ::std::move(self.text);
     }
 };
 

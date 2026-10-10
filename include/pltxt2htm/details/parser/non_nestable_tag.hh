@@ -78,7 +78,7 @@ template<::pltxt2htm::Contracts ndebug, U8LiteralString prefix_str>
 constexpr auto try_parse_non_nestable_object_id_tag(
     ::pltxt2htm::container::U8StringView pltext,
     ::pltxt2htm::details::CallStack<ndebug, ParserFrame<ndebug>> const& call_stack) noexcept
-    -> ::pltxt2htm::container::Optional<TryParseObjectIdTagResult> {
+    -> ::pltxt2htm::container::Optional<TryParseObjectIdTagResult<ndebug>> {
     auto result = ::pltxt2htm::details::try_parse_object_id_tag<ndebug, prefix_str>(pltext);
     if (result.has_value() == false) {
         return ::pltxt2htm::container::nullopt;

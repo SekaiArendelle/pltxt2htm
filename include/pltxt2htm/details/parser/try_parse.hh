@@ -925,11 +925,12 @@ constexpr auto try_parse_equal_sign_tag(::pltxt2htm::container::U8StringView plt
 }
 
 /**
- * @brief Return type of try_parse_object_id_tag: tag length and normalized identifier.
+ * @brief Return type of try_parse_object_id_tag: tag length and parsed identifier.
  */
+template<::pltxt2htm::Contracts ndebug>
 struct TryParseObjectIdTagResult {
     ::std::size_t tag_len; ///< Length of the tag.
-    ::pltxt2htm::container::U8String id; ///< Canonical lowercase ObjectId spelling, ready to be stored.
+    ::pltxt2htm::PlObjectId<ndebug> id; ///< Parsed identifier, in the canonical lowercase spelling.
 };
 
 /**
@@ -937,15 +938,16 @@ struct TryParseObjectIdTagResult {
  * @details The identifier grammar is part of the tag grammar, so a payload that is not exactly
  *          `PlObjectId::hex_digits` hexadecimal digits makes this parse fail: the input is not
  *          such a tag at all, rather than a tag whose value the caller has to validate again.
- *          Uppercase digits are folded to the lowercase spelling BSON emits.
+ *          The identifier itself comes from `PlObjectId::try_make`, which also folds uppercase
+ *          digits to the lowercase spelling BSON emits.
  * @tparam ndebug Contract checking mode.
  * @tparam prefix_str Tag-name prefix used by `is_equal_sign_tag_prefix`.
- * @return The tag length and the normalized identifier, or nullopt when the input is not one.
+ * @return The tag length and the parsed identifier, or nullopt when the input is not one.
  */
 template<::pltxt2htm::Contracts ndebug, ::pltxt2htm::details::U8LiteralString prefix_str>
 [[nodiscard]]
 constexpr auto try_parse_object_id_tag(::pltxt2htm::container::U8StringView pltext) noexcept
-    -> ::pltxt2htm::container::Optional<TryParseObjectIdTagResult> {
+    -> ::pltxt2htm::container::Optional<TryParseObjectIdTagResult<ndebug>> {
     if (::pltxt2htm::details::is_equal_sign_tag_prefix<ndebug, prefix_str>(pltext) == false) {
         return ::pltxt2htm::container::nullopt;
     }
@@ -954,8 +956,7 @@ constexpr auto try_parse_object_id_tag(::pltxt2htm::container::U8StringView plte
     if (pltext.size() < value_start + id_size) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto opt_id =
-        ::pltxt2htm::PlObjectId<ndebug>::try_normalize(pltext.template subview<ndebug>(value_start, id_size));
+    auto opt_id = ::pltxt2htm::PlObjectId<ndebug>::try_make(pltext.template subview<ndebug>(value_start, id_size));
     if (opt_id.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
@@ -966,9 +967,9 @@ constexpr auto try_parse_object_id_tag(::pltxt2htm::container::U8StringView plte
     if (opt_close.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto id = ::std::move(opt_id).template value<ndebug>();
-    return TryParseObjectIdTagResult{.tag_len = value_start + id_size + opt_close.template value<ndebug>(),
-                                     .id = ::std::move(id)};
+    return TryParseObjectIdTagResult<ndebug>{
+        .tag_len = value_start + id_size + opt_close.template value<ndebug>(),
+        .id = ::std::move(opt_id).template value<ndebug>()};
 }
 
 /**

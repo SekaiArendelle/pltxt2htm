@@ -969,7 +969,7 @@ entry:
                         call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
                                 ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::std::move(id)},
+                                                                       ::std::move(id).take_string()},
                                 ::pltxt2htm::NodeKind::pl_discussion},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -1008,7 +1008,7 @@ entry:
                         call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
                                 ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::std::move(id)},
+                                                                       ::std::move(id).take_string()},
                                 ::pltxt2htm::NodeKind::pl_experiment},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -1294,7 +1294,7 @@ entry:
                         call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
                                 ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::std::move(id)},
+                                                                       ::std::move(id).take_string()},
                                 ::pltxt2htm::NodeKind::pl_user},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;

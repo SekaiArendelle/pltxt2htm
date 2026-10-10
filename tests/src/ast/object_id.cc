@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 #include <pltxt2htm/ast/ast.hh>
 
 namespace {
@@ -60,11 +61,11 @@ int main() {
         pltxt2htm_test_assert_true(ObjectId::try_make(U8StringView{u8"000000000000000000000000"}).has_value());
     }
     {
-        // try_normalize exposes the same grammar without building the identifier.
-        auto opt_text = ObjectId::try_normalize(U8StringView{u8"642CF37A494746375AAE306A"});
-        pltxt2htm_test_assert_true(opt_text.has_value());
-        pltxt2htm_test_assert_true(opt_text.template value<ndebug>() == canonical);
-        pltxt2htm_test_assert_true(ObjectId::try_normalize(U8StringView{u8"expid"}).has_value() == false);
+        // take_string moves the spelling out without copying, which is how the parser hands
+        // the text to a frame context; the identifier is left empty.
+        auto id = ObjectId::try_make(U8StringView{u8"642CF37A494746375AAE306A"}).template value<ndebug>();
+        auto text = ::std::move(id).take_string();
+        pltxt2htm_test_assert_true(text == canonical);
     }
 
     return 0;
