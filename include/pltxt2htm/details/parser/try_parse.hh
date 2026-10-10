@@ -2860,7 +2860,24 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
             if (found_alt) {
                 return ::pltxt2htm::container::nullopt; // duplicate alt
             }
-            alt = ::pltxt2htm::details::make_plain_text_from_html_attribute<ndebug>(attr_val);
+            auto const attr_val_size = attr_val.size();
+            for (::std::size_t index{}; index < attr_val_size;) {
+                char8_t const character{attr_val.template index<ndebug>(index)};
+                if (character == u8'&') {
+                    auto const decoded = ::pltxt2htm::details::try_decode_character_reference<ndebug>(
+                        attr_val.template subview<ndebug>(index));
+                    if (decoded.has_value()) {
+                        auto const& reference = decoded.template value<ndebug>();
+                        alt.append_code_point(reference.first_code_point);
+                        if (reference.has_second_code_point()) {
+                            alt.append_code_point(reference.second_code_point);
+                        }
+                        index += reference.consumed_size;
+                        continue;
+                    }
+                }
+                index += alt.append_first_utf8_code_point(attr_val.template subview<ndebug>(index));
+            }
             found_alt = true;
         }
         else {

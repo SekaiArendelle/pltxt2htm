@@ -259,35 +259,4 @@ constexpr auto decode_character_references(::pltxt2htm::container::U8StringView 
     return result;
 }
 
-/**
- * @brief Parse an HTML attribute's source text into valid semantic plain text.
- * @details Character references are decoded, invalid UTF-8 becomes U+FFFD, and unknown references remain literal.
- *          Spaces reach the canonical no-break form through `PlainText`, matching Markdown image alt text.
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto make_plain_text_from_html_attribute(::pltxt2htm::container::U8StringView text) noexcept
-    -> ::pltxt2htm::PlainText<ndebug> {
-    ::pltxt2htm::PlainText<ndebug> result{};
-    ::std::size_t const text_size{text.size()};
-    for (::std::size_t index{}; index < text_size;) {
-        char8_t const character{text.template index<ndebug>(index)};
-        if (character == u8'&') {
-            auto const decoded =
-                ::pltxt2htm::details::try_decode_character_reference<ndebug>(text.template subview<ndebug>(index));
-            if (decoded.has_value()) {
-                auto const& reference = decoded.template value<ndebug>();
-                result.append_code_point(reference.first_code_point);
-                if (reference.has_second_code_point()) {
-                    result.append_code_point(reference.second_code_point);
-                }
-                index += reference.consumed_size;
-                continue;
-            }
-        }
-        index += result.append_first_utf8_code_point(text.template subview<ndebug>(index));
-    }
-    return result;
-}
-
 } // namespace pltxt2htm::details
