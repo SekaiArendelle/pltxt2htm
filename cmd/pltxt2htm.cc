@@ -3,6 +3,7 @@
 #include <cassert>
 #include <utility>
 #include <fast_io/fast_io.h>
+#include <fast_io/fast_io_dsal/string.h>
 // fast_io only ships a runtime install-path backend for these platforms; the
 // banner reports `<unknown>` where there is none (e.g. wasm32-wasip1).
 #if defined(__linux__) || defined(_WIN32) || defined(__APPLE__)
