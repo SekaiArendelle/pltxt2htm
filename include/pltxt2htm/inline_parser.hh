@@ -517,25 +517,20 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
-                    // parsing: <discussion=$1>$2</discussion>
-                    if (auto opt_discussion_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
-                            ndebug, u8"iscussion", ::pltxt2htm::details::is_ascii_hexdigit>(
-                            pltext.template subview<ndebug>(current_index + 2), call_stack);
+                    // parsing: <discussion=$1>$2</discussion>; the payload must be an ObjectId
+                    if (auto opt_discussion_tag =
+                            ::pltxt2htm::details::try_parse_non_nestable_object_id_tag<ndebug, u8"iscussion">(
+                                pltext.template subview<ndebug>(current_index + 2), call_stack);
                         opt_discussion_tag.has_value()) {
                         auto&& [tag_len, id] = opt_discussion_tag.template value<ndebug>();
-                        // A payload that is not an ObjectId leaves the whole tag as literal text.
-                        if (auto opt_object_id = ::pltxt2htm::PlObjectId<ndebug>::try_normalize(id);
-                            opt_object_id.has_value()) {
-                            current_index += tag_len + 2;
-                            call_stack.push_frame(ParserFrame<ndebug>(
-                                FrontendContextVariant<ndebug>{
-                                    ParserFrameContextWithEqualSignTagInfo{
-                                        pltext.template subview<ndebug>(current_index),
-                                        ::std::move(opt_object_id).template value<ndebug>()},
-                                    ::pltxt2htm::NodeKind::pl_discussion},
-                                ::pltxt2htm::Ast<ndebug>{}));
-                            goto entry;
-                        }
+                        current_index += tag_len + 2;
+                        call_stack.push_frame(ParserFrame<ndebug>(
+                            FrontendContextVariant<ndebug>{
+                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
+                                                                       ::std::move(id)},
+                                ::pltxt2htm::NodeKind::pl_discussion},
+                            ::pltxt2htm::Ast<ndebug>{}));
+                        goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
@@ -561,25 +556,20 @@ entry:
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
                     }
-                    if (auto opt_experiment_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
-                            ndebug, u8"xperiment", ::pltxt2htm::details::is_ascii_hexdigit>(
-                            pltext.template subview<ndebug>(current_index + 2), call_stack);
+                    // parsing: <experiment=$1>$2</experiment>; the payload must be an ObjectId
+                    if (auto opt_experiment_tag =
+                            ::pltxt2htm::details::try_parse_non_nestable_object_id_tag<ndebug, u8"xperiment">(
+                                pltext.template subview<ndebug>(current_index + 2), call_stack);
                         opt_experiment_tag.has_value()) {
-                        // parsing: <experiment=$1>$2</experiment>
                         auto&& [tag_len, id] = opt_experiment_tag.template value<ndebug>();
-                        // A payload that is not an ObjectId leaves the whole tag as literal text.
-                        if (auto opt_object_id = ::pltxt2htm::PlObjectId<ndebug>::try_normalize(id);
-                            opt_object_id.has_value()) {
-                            current_index += tag_len + 2;
-                            call_stack.push_frame(ParserFrame<ndebug>(
-                                FrontendContextVariant<ndebug>{
-                                    ParserFrameContextWithEqualSignTagInfo{
-                                        pltext.template subview<ndebug>(current_index),
-                                        ::std::move(opt_object_id).template value<ndebug>()},
-                                    ::pltxt2htm::NodeKind::pl_experiment},
-                                ::pltxt2htm::Ast<ndebug>{}));
-                            goto entry;
-                        }
+                        current_index += tag_len + 2;
+                        call_stack.push_frame(ParserFrame<ndebug>(
+                            FrontendContextVariant<ndebug>{
+                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
+                                                                       ::std::move(id)},
+                                ::pltxt2htm::NodeKind::pl_experiment},
+                            ::pltxt2htm::Ast<ndebug>{}));
+                        goto entry;
                     }
                     if (auto external_tag = ::pltxt2htm::details::try_parse_external_tag<ndebug>(
                             pltext.template subview<ndebug>(current_index + 2), call_stack);
@@ -853,25 +843,19 @@ entry:
                 case u8'u':
                     [[fallthrough]];
                 case u8'U': {
-                    // parsing pl <user=$1>$2</user> tag
-                    if (auto opt_user_tag = ::pltxt2htm::details::try_parse_equal_sign_tag<
-                            ndebug, u8"ser", ::pltxt2htm::details::is_ascii_hexdigit>(
+                    // parsing pl <user=$1>$2</user> tag; the payload must be an ObjectId
+                    if (auto opt_user_tag = ::pltxt2htm::details::try_parse_object_id_tag<ndebug, u8"ser">(
                             pltext.template subview<ndebug>(current_index + 2));
                         opt_user_tag.has_value()) {
                         auto&& [tag_len, id] = opt_user_tag.template value<ndebug>();
-                        // A payload that is not an ObjectId leaves the whole tag as literal text.
-                        if (auto opt_object_id = ::pltxt2htm::PlObjectId<ndebug>::try_normalize(id);
-                            opt_object_id.has_value()) {
-                            current_index += tag_len + 2;
-                            call_stack.push_frame(ParserFrame<ndebug>(
-                                FrontendContextVariant<ndebug>{
-                                    ParserFrameContextWithEqualSignTagInfo{
-                                        pltext.template subview<ndebug>(current_index),
-                                        ::std::move(opt_object_id).template value<ndebug>()},
-                                    ::pltxt2htm::NodeKind::pl_user},
-                                ::pltxt2htm::Ast<ndebug>{}));
-                            goto entry;
-                        }
+                        current_index += tag_len + 2;
+                        call_stack.push_frame(ParserFrame<ndebug>(
+                            FrontendContextVariant<ndebug>{
+                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
+                                                                       ::std::move(id)},
+                                ::pltxt2htm::NodeKind::pl_user},
+                            ::pltxt2htm::Ast<ndebug>{}));
+                        goto entry;
                     }
                     // <ul> is a block-level list; inline occurrences are plain literal text
                     // (except <u> underline below).

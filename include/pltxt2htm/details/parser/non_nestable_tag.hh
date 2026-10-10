@@ -65,6 +65,44 @@ constexpr auto try_parse_non_nestable_equal_sign_tag(
 }
 
 /**
+ * @brief Parse an ObjectId-bearing equals-sign tag and reject it when nested inside non-nestable
+ *        link/reference tags.
+ * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * @tparam prefix_str Tag-name prefix used by `try_parse_object_id_tag`.
+ * @param[in] pltext The input text to parse at current position.
+ * @param[in] call_stack Active parser stack used to detect forbidden nesting.
+ * @return Parsed tag result on success, otherwise nullopt.
+ */
+template<::pltxt2htm::Contracts ndebug, U8LiteralString prefix_str>
+[[nodiscard]]
+constexpr auto try_parse_non_nestable_object_id_tag(
+    ::pltxt2htm::container::U8StringView pltext,
+    ::pltxt2htm::details::CallStack<ndebug, ParserFrame<ndebug>> const& call_stack) noexcept
+    -> ::pltxt2htm::container::Optional<TryParseObjectIdTagResult> {
+    auto result = ::pltxt2htm::details::try_parse_object_id_tag<ndebug, prefix_str>(pltext);
+    if (result.has_value() == false) {
+        return ::pltxt2htm::container::nullopt;
+    }
+    // skip
+    // e.g. <experiment><experiment>test</experiment>text</experiment>
+    // e.g. <experiment><a><experiment>test</experiment>text</a>text</experiment>
+    if (call_stack.contains_frame_if([](ParserFrame<ndebug> const& frame) noexcept {
+            auto const nested_tag_type = frame.get_nested_tag_type();
+            return nested_tag_type == ::pltxt2htm::NodeKind::pl_experiment ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_discussion ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_experiments ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_discussions ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_external ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::unity_link ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_trigger ||
+                   nested_tag_type == ::pltxt2htm::NodeKind::pl_internal;
+        })) {
+        return ::pltxt2htm::container::nullopt;
+    }
+    return result;
+}
+
+/**
  * @brief Result of parsing a URL-bearing opening tag.
  * @details The three return states are encoded by the payload members `tag_len` and `url`:
  *          - `valid` - `url` is engaged (`tag_len` is the opening-tag length the caller
