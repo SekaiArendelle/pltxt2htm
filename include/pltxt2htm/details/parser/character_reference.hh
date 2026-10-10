@@ -234,7 +234,7 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_character_reference_code_point(::pltxt2htm::container::U8String& result,
                                                      char32_t code_point) noexcept {
-    if (code_point <= char32_t{0x1F} || code_point == char32_t{0x7F}) {
+    if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
         code_point = char32_t{0xFFFD};
     }
     ::pltxt2htm::details::append_utf8_code_point<ndebug>(result, code_point);

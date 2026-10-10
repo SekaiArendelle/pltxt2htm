@@ -63,16 +63,6 @@ template<::pltxt2htm::Contracts ndebug>
 }
 
 /**
- * @brief Test whether a code point is an ASCII control character.
- * @param code_point Code point to test.
- * @return `true` for U+0000 through U+001F and U+007F.
- */
-[[nodiscard]]
-constexpr auto is_ascii_control_code_point(char32_t code_point) noexcept -> bool {
-    return code_point <= char32_t{0x1F} || code_point == char32_t{0x7F};
-}
-
-/**
  * @brief Parse one UTF-8 code point and append its original code units to an AST.
  * @details Parser-disallowed ASCII control characters and invalid UTF-8 prefixes append one
  *          InvalidUtf8 node. The returned size preserves the existing invalid-prefix recovery.
@@ -103,71 +93,6 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text,
 }
 
 /**
- * @brief Append one semantic Unicode code point to an AST.
- * @details Characters with dedicated semantic nodes use those nodes. Other scalar values are
- *          encoded as UTF-8 and appended to Text nodes. ASCII controls and invalid scalar
- *          values append one InvalidUtf8 node.
- * @tparam ndebug Contract checking mode used for AST operations.
- * @param code_point Semantic code point to append.
- * @param[out] result AST receiving the corresponding node or nodes.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<ndebug>& result) noexcept {
-    switch (code_point) {
-    case U'\n': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LineBreak>());
-        return;
-    }
-    case U' ':
-    case char32_t{0xA0}: {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Space>());
-        return;
-    }
-    case U'&': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Ampersand>());
-        return;
-    }
-    case U'\'': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::SingleQuote>());
-        return;
-    }
-    case U'"': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::DoubleQuote>());
-        return;
-    }
-    case U'<': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
-        return;
-    }
-    case U'>': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::GreaterThan>());
-        return;
-    }
-    case U'\t': {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Tab>());
-        return;
-    }
-    default: {
-        break;
-    }
-    }
-
-    if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::InvalidUtf8>());
-        return;
-    }
-
-    auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
-    if (encoded.size == 0) {
-        result.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::InvalidUtf8>());
-        return;
-    }
-    for (::std::size_t index{}; index < encoded.size; ++index) {
-        result.append_text(encoded.code_units[index]);
-    }
-}
-
-/**
  * @brief Append a decoded character reference to an AST.
  * @tparam ndebug Contract checking mode used for AST operations.
  * @param reference Previously decoded one- or two-code-point reference.
@@ -176,9 +101,9 @@ constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<nd
 template<::pltxt2htm::Contracts ndebug>
 constexpr void append_character_reference_to_ast(TryDecodeCharacterReferenceResult const& reference,
                                                  ::pltxt2htm::Ast<ndebug>& result) noexcept {
-    ::pltxt2htm::details::append_code_point_to_ast<ndebug>(reference.first_code_point, result);
+    result.append_code_point(reference.first_code_point);
     if (reference.has_second_code_point()) {
-        ::pltxt2htm::details::append_code_point_to_ast<ndebug>(reference.second_code_point, result);
+        result.append_code_point(reference.second_code_point);
     }
 }
 

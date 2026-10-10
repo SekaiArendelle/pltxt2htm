@@ -212,7 +212,7 @@ int main() {
     for (auto const code_point :
          ::pltxt2htm::container::Array{char32_t{0x01}, char32_t{0x0D}, char32_t{0x7F}}) {
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
-        ::pltxt2htm::details::append_code_point_to_ast<::pltxt2htm::Contracts::quick_enforce>(code_point, ast);
+        ast.append_code_point(code_point);
         pltxt2htm_test_assert_true(ast.size() == 1);
         pltxt2htm_test_assert_true(ast.index(0).get_node_kind() ==
                                    ::pltxt2htm::NodeKind::invalid_utf8);

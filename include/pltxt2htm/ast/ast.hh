@@ -11,6 +11,7 @@
 #include <memory>
 
 #include "../contracts.hh"
+#include "../details/utf8.hh"
 #include "node_kind.hh"
 #include "plain_text.hh"
 
@@ -2238,6 +2239,62 @@ public:
         return self.node_kind;
     }
 };
+
+template<::pltxt2htm::Contracts ndebug>
+constexpr void Ast<ndebug>::append_code_point(this Ast& self, char32_t code_point) noexcept {
+    switch (code_point) {
+    case U'\n': {
+        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LineBreak>());
+        return;
+    }
+    case U' ':
+    case char32_t{0xA0}: {
+        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Space>());
+        return;
+    }
+    case U'&': {
+        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Ampersand>());
+        return;
+    }
+    case U'\'': {
+        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::SingleQuote>());
+        return;
+    }
+    case U'"': {
+        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::DoubleQuote>());
+        return;
+    }
+    case U'<': {
+        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
+        return;
+    }
+    case U'>': {
+        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::GreaterThan>());
+        return;
+    }
+    case U'\t': {
+        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Tab>());
+        return;
+    }
+    default: {
+        break;
+    }
+    }
+
+    if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
+        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::InvalidUtf8>());
+        return;
+    }
+
+    auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
+    if (encoded.size == 0) {
+        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::InvalidUtf8>());
+        return;
+    }
+    for (::std::size_t index{}; index < encoded.size; ++index) {
+        self.append_text(encoded.code_units[index]);
+    }
+}
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr void Ast<ndebug>::append_text(this Ast& self, char8_t code_unit) noexcept {

@@ -115,6 +115,30 @@ int main() {
         pltxt2htm_test_assert_true(ast.index(2).as_text().index(0) == u8'd');
     }
 
+    // Semantic code points become dedicated nodes or coalesced UTF-8 text.
+    {
+        Ast ast{};
+        ast.append_code_point(U'A');
+        ast.append_code_point(char32_t{0x20AC});
+        ast.append_code_point(U' ');
+        ast.append_code_point(char32_t{0xA0});
+        ast.append_code_point(U'\n');
+        ast.append_code_point(U'&');
+        ast.append_code_point(char32_t{0x7F});
+        ast.append_code_point(char32_t{0xD800});
+
+        pltxt2htm_test_assert_true(ast.size() == 7);
+        pltxt2htm_test_assert_true(ast.index(0).as_text().size() == 4);
+        pltxt2htm_test_assert_true(ast.index(0).as_text().index(0) == u8'A');
+        pltxt2htm_test_assert_true(ast.index(0).as_text().index(1) == char8_t{0xE2});
+        pltxt2htm_test_assert_true(ast.index(1).get_node_kind() == ::pltxt2htm::NodeKind::space);
+        pltxt2htm_test_assert_true(ast.index(2).get_node_kind() == ::pltxt2htm::NodeKind::space);
+        pltxt2htm_test_assert_true(ast.index(3).get_node_kind() == ::pltxt2htm::NodeKind::line_break);
+        pltxt2htm_test_assert_true(ast.index(4).get_node_kind() == ::pltxt2htm::NodeKind::ampersand);
+        pltxt2htm_test_assert_true(ast.index(5).get_node_kind() == ::pltxt2htm::NodeKind::invalid_utf8);
+        pltxt2htm_test_assert_true(ast.index(6).get_node_kind() == ::pltxt2htm::NodeKind::invalid_utf8);
+    }
+
     // Iteration, reverse iteration and range-based for
     {
         Ast ast{text_node(u8'a'), text_node(u8'b'), text_node(u8'c')};
