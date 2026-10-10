@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include "definitions.hh"
 
 #if !defined(_WIN32)
@@ -35,7 +34,7 @@
 #endif
 
 namespace pltxt2htm::details::symbols::win32 {
-using Procedure = ::std::intptr_t(PLTXT2HTM_DETAIL_WIN32_CALL*)();
+using Procedure = IntPtr(PLTXT2HTM_DETAIL_WIN32_CALL*)();
 
 #if defined(__GNUC__) || defined(__clang__)
     #if defined(_M_HYBRID)

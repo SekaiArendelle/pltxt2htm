@@ -1,7 +1,6 @@
 #pragma once
 
 #include "dbghelp_definitions.hh"
-#include "definitions.hh"
 
 #if !defined(_WIN32)
     #error "DbgHelp is only available on Windows"
