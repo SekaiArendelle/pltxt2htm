@@ -1,0 +1,142 @@
+#if defined(_WIN32)
+    #include <windows.h>
+    #include <dbghelp.h>
+    #include <winternl.h>
+    #include <cstddef>
+    #include <type_traits>
+
+    #define PLTXT2HTM_DETAIL_NT_DLLIMPORT 11
+    #define PLTXT2HTM_DETAIL_STDCALL 12
+    #define PLTXT2HTM_DETAIL_NT_ASM_NAME 13
+    #define PLTXT2HTM_DETAIL_WIN32_DLLIMPORT 21
+    #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME 23
+
+    #include <pltxt2htm/details/symbols/nt/ntdll.hh>
+    #include <pltxt2htm/details/symbols/win32/dbghelp.hh>
+    #include <pltxt2htm/details/symbols/win32/kernel32.hh>
+
+    #if PLTXT2HTM_DETAIL_NT_DLLIMPORT != 11
+        #error "NT import macro was not restored"
+    #endif
+    #if PLTXT2HTM_DETAIL_STDCALL != 12
+        #error "stdcall macro was not restored"
+    #endif
+    #if PLTXT2HTM_DETAIL_NT_ASM_NAME != 13
+        #error "NT asm-name macro was not restored"
+    #endif
+    #if PLTXT2HTM_DETAIL_WIN32_DLLIMPORT != 21
+        #error "Win32 import macro was not restored"
+    #endif
+    #if PLTXT2HTM_DETAIL_WIN32_ASM_NAME != 23
+        #error "Win32 asm-name macro was not restored"
+    #endif
+
+    #undef PLTXT2HTM_DETAIL_NT_DLLIMPORT
+    #undef PLTXT2HTM_DETAIL_STDCALL
+    #undef PLTXT2HTM_DETAIL_NT_ASM_NAME
+    #undef PLTXT2HTM_DETAIL_WIN32_DLLIMPORT
+    #undef PLTXT2HTM_DETAIL_WIN32_ASM_NAME
+
+namespace nt = ::pltxt2htm::details::symbols::nt;
+namespace win32 = ::pltxt2htm::details::symbols::win32;
+
+using ExpectedCaptureStackBackTrace = nt::Ushort(NTAPI*)(nt::Ulong, nt::Ulong, void**, nt::Ulong*) noexcept;
+using ExpectedTryAcquireSrwLockExclusive = nt::Boolean(NTAPI*)(nt::SrwLock*) noexcept;
+using ExpectedAcquireSrwLockExclusive = void(NTAPI*)(nt::SrwLock*) noexcept;
+using ExpectedReleaseSrwLockExclusive = void(NTAPI*)(nt::SrwLock*) noexcept;
+using ExpectedDuplicateObject = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, nt::Handle, nt::Handle*, nt::Ulong,
+                                                     nt::Ulong, nt::Ulong) noexcept;
+using ExpectedClose = nt::NtStatus(NTAPI*)(nt::Handle) noexcept;
+using ExpectedLoadLibraryExW = win32::ModuleHandle(WINAPI*)(win32::WideChar const*, win32::Handle,
+                                                            win32::Dword) noexcept;
+using ExpectedGetProcAddress = win32::Procedure(WINAPI*)(win32::ModuleHandle, win32::Char const*) noexcept;
+using ExpectedFreeLibrary = win32::Bool(WINAPI*)(win32::ModuleHandle) noexcept;
+using ExpectedSymInitialize = win32::Bool(WINAPI*)(win32::Handle, win32::Char const*, win32::Bool) noexcept;
+using ExpectedSymRefreshModuleList = win32::Bool(WINAPI*)(win32::Handle) noexcept;
+using ExpectedSymCleanup = win32::Bool(WINAPI*)(win32::Handle) noexcept;
+using ExpectedSymFromAddr = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64, win32::Dword64*,
+                                                 win32::SymbolInfo*) noexcept;
+using ExpectedSymGetLineFromAddr64 = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64, win32::Dword*,
+                                                          win32::ImageHlpLine64*) noexcept;
+
+static_assert(::std::is_same_v<decltype(&nt::RtlCaptureStackBackTrace), ExpectedCaptureStackBackTrace>);
+static_assert(::std::is_same_v<decltype(&nt::RtlTryAcquireSRWLockExclusive), ExpectedTryAcquireSrwLockExclusive>);
+static_assert(::std::is_same_v<decltype(&nt::RtlAcquireSRWLockExclusive), ExpectedAcquireSrwLockExclusive>);
+static_assert(::std::is_same_v<decltype(&nt::RtlReleaseSRWLockExclusive), ExpectedReleaseSrwLockExclusive>);
+static_assert(::std::is_same_v<decltype(&nt::NtDuplicateObject), ExpectedDuplicateObject>);
+static_assert(::std::is_same_v<decltype(&nt::NtClose), ExpectedClose>);
+static_assert(::std::is_same_v<decltype(&win32::LoadLibraryExW), ExpectedLoadLibraryExW>);
+static_assert(::std::is_same_v<decltype(&win32::GetProcAddress), ExpectedGetProcAddress>);
+static_assert(::std::is_same_v<decltype(&win32::FreeLibrary), ExpectedFreeLibrary>);
+static_assert(::std::is_same_v<decltype(&win32::SymInitialize), ExpectedSymInitialize>);
+static_assert(::std::is_same_v<decltype(&win32::SymRefreshModuleList), ExpectedSymRefreshModuleList>);
+static_assert(::std::is_same_v<decltype(&win32::SymCleanup), ExpectedSymCleanup>);
+static_assert(::std::is_same_v<decltype(&win32::SymFromAddr), ExpectedSymFromAddr>);
+static_assert(::std::is_same_v<decltype(&win32::SymGetLineFromAddr64), ExpectedSymGetLineFromAddr64>);
+
+static_assert(::std::is_same_v<nt::Boolean, BOOLEAN>);
+static_assert(::std::is_same_v<nt::Handle, HANDLE>);
+static_assert(::std::is_same_v<nt::NtStatus, NTSTATUS>);
+static_assert(::std::is_same_v<nt::Ulong, ULONG>);
+static_assert(::std::is_same_v<nt::Ushort, USHORT>);
+static_assert(sizeof(nt::SrwLock) == sizeof(SRWLOCK));
+static_assert(alignof(nt::SrwLock) == alignof(SRWLOCK));
+
+static_assert(::std::is_same_v<win32::Bool, BOOL>);
+static_assert(::std::is_same_v<win32::Char, CHAR>);
+static_assert(::std::is_same_v<win32::Dword, DWORD>);
+static_assert(::std::is_same_v<win32::Dword64, DWORD64>);
+static_assert(::std::is_same_v<win32::Handle, HANDLE>);
+static_assert(::std::is_same_v<win32::IntPtr, INT_PTR>);
+static_assert(::std::is_same_v<win32::Procedure, FARPROC>);
+static_assert(::std::is_same_v<win32::Ulong, ULONG>);
+static_assert(::std::is_same_v<win32::Ulong64, ULONG64>);
+static_assert(::std::is_same_v<win32::WideChar, WCHAR>);
+static_assert(sizeof(win32::SymbolInfo) == sizeof(SYMBOL_INFO));
+static_assert(alignof(win32::SymbolInfo) == alignof(SYMBOL_INFO));
+static_assert(offsetof(win32::SymbolInfo, size_of_struct) == offsetof(SYMBOL_INFO, SizeOfStruct));
+static_assert(offsetof(win32::SymbolInfo, type_index) == offsetof(SYMBOL_INFO, TypeIndex));
+static_assert(offsetof(win32::SymbolInfo, reserved) == offsetof(SYMBOL_INFO, Reserved));
+    #if defined(__MINGW32__)
+static_assert(offsetof(win32::SymbolInfo, index) == offsetof(SYMBOL_INFO, info));
+    #else
+static_assert(offsetof(win32::SymbolInfo, index) == offsetof(SYMBOL_INFO, Index));
+    #endif
+static_assert(offsetof(win32::SymbolInfo, size) == offsetof(SYMBOL_INFO, Size));
+static_assert(offsetof(win32::SymbolInfo, name) == offsetof(SYMBOL_INFO, Name));
+static_assert(offsetof(win32::SymbolInfo, flags) == offsetof(SYMBOL_INFO, Flags));
+static_assert(offsetof(win32::SymbolInfo, value) == offsetof(SYMBOL_INFO, Value));
+static_assert(offsetof(win32::SymbolInfo, mod_base) == offsetof(SYMBOL_INFO, ModBase));
+static_assert(offsetof(win32::SymbolInfo, address) == offsetof(SYMBOL_INFO, Address));
+static_assert(offsetof(win32::SymbolInfo, register_number) == offsetof(SYMBOL_INFO, Register));
+static_assert(offsetof(win32::SymbolInfo, scope) == offsetof(SYMBOL_INFO, Scope));
+static_assert(offsetof(win32::SymbolInfo, tag) == offsetof(SYMBOL_INFO, Tag));
+static_assert(offsetof(win32::SymbolInfo, name_len) == offsetof(SYMBOL_INFO, NameLen));
+static_assert(offsetof(win32::SymbolInfo, max_name_len) == offsetof(SYMBOL_INFO, MaxNameLen));
+
+static_assert(sizeof(win32::ImageHlpLine64) == sizeof(IMAGEHLP_LINE64));
+static_assert(alignof(win32::ImageHlpLine64) == alignof(IMAGEHLP_LINE64));
+static_assert(offsetof(win32::ImageHlpLine64, size_of_struct) == offsetof(IMAGEHLP_LINE64, SizeOfStruct));
+static_assert(offsetof(win32::ImageHlpLine64, key) == offsetof(IMAGEHLP_LINE64, Key));
+static_assert(offsetof(win32::ImageHlpLine64, line_number) == offsetof(IMAGEHLP_LINE64, LineNumber));
+static_assert(offsetof(win32::ImageHlpLine64, file_name) == offsetof(IMAGEHLP_LINE64, FileName));
+static_assert(offsetof(win32::ImageHlpLine64, address) == offsetof(IMAGEHLP_LINE64, Address));
+
+auto* volatile nt_close_reference = &nt::NtClose;
+auto* volatile capture_reference = &nt::RtlCaptureStackBackTrace;
+auto* volatile try_acquire_srw_lock_reference = &nt::RtlTryAcquireSRWLockExclusive;
+auto* volatile acquire_srw_lock_reference = &nt::RtlAcquireSRWLockExclusive;
+auto* volatile release_srw_lock_reference = &nt::RtlReleaseSRWLockExclusive;
+auto* volatile duplicate_object_reference = &nt::NtDuplicateObject;
+auto* volatile load_library_reference = &win32::LoadLibraryExW;
+auto* volatile get_proc_address_reference = &win32::GetProcAddress;
+auto* volatile free_library_reference = &win32::FreeLibrary;
+auto* volatile sym_initialize_reference = &win32::SymInitialize;
+auto* volatile sym_refresh_module_list_reference = &win32::SymRefreshModuleList;
+auto* volatile sym_cleanup_reference = &win32::SymCleanup;
+auto* volatile sym_from_addr_reference = &win32::SymFromAddr;
+auto* volatile sym_get_line_from_addr_64_reference = &win32::SymGetLineFromAddr64;
+#endif
+
+int main() {
+}

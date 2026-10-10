@@ -30,6 +30,10 @@ jobs:
         run: |
           clang -v
 
+      - name: Verify generated Windows symbols
+        shell: powershell
+        run: python scripts/gen_windows_symbols.py --check
+
       - name: Configure and build
         shell: powershell
         run: |

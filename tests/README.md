@@ -12,6 +12,14 @@ ctest --test-dir tests/build --interactive-debug-mode 0
 
 You can also pass compiler via `-DCMAKE_CXX_COMPILER=clang++` or `-DCMAKE_CXX_COMPILER=g++`.
 
+Windows symbol declarations and MSVC linker aliases are generated with Clang's
+MSVC targets. After changing their manifest, regenerate and verify them with:
+
+```sh
+python ../scripts/gen_windows_symbols.py
+python ../scripts/gen_windows_symbols.py --check
+```
+
 The C++ standard defaults to `AUTO`: GCC 16 or newer uses C++26 so the tests
 exercise supported C++26 code paths, while other compilers use C++23. Override
 it with `-DCMAKE_CXX_STANDARD=23` or `-DCMAKE_CXX_STANDARD=26`. When
