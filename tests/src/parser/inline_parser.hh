@@ -74,9 +74,9 @@ TEST_SUITE("inline_parser") {
     }
 
     TEST_CASE("closed-experiment-tag") {
-        auto const& pltext = u8"<experiment=42>x</experiment>";
+        auto const& pltext = u8"<experiment=642cf37a494746375aae306a>x</experiment>";
         auto html = ::pltxt2htm_test::inline_pltxt4unittest(pltext);
-        auto const& answer = u8"<a href=\"localhost:5173/p/Experiment/42\" internal>x</a>";
+        auto const& answer = u8"<a href=\"localhost:5173/p/Experiment/642cf37a494746375aae306a\" internal>x</a>";
         CHECK(html == answer);
     }
 
@@ -186,9 +186,9 @@ TEST_SUITE("inline_parser") {
     }
 
     TEST_CASE("closed-user-tag") {
-        auto const& pltext = u8"<user=123>x</user>";
+        auto const& pltext = u8"<user=642cf37a494746375aae306a>x</user>";
         auto html = ::pltxt2htm_test::inline_pltxt4unittest(pltext);
-        auto const& answer = u8"<span class='RUser' data-user='123'>x</span>";
+        auto const& answer = u8"<span class='RUser' data-user='642cf37a494746375aae306a'>x</span>";
         CHECK(html == answer);
     }
 
@@ -265,9 +265,9 @@ TEST_SUITE("inline_parser") {
     }
 
     TEST_CASE("unclosed-experiment-tag") {
-        auto const& pltext = u8"<experiment=42>x";
+        auto const& pltext = u8"<experiment=642cf37a494746375aae306a>x";
         auto html = ::pltxt2htm_test::inline_pltxt4unittest(pltext);
-        auto const& answer = u8"<a href=\"localhost:5173/p/Experiment/42\" internal>x</a>";
+        auto const& answer = u8"<a href=\"localhost:5173/p/Experiment/642cf37a494746375aae306a\" internal>x</a>";
         CHECK(html == answer);
     }
 
@@ -377,9 +377,9 @@ TEST_SUITE("inline_parser") {
     }
 
     TEST_CASE("unclosed-user-tag") {
-        auto const& pltext = u8"<user=123>x";
+        auto const& pltext = u8"<user=642cf37a494746375aae306a>x";
         auto html = ::pltxt2htm_test::inline_pltxt4unittest(pltext);
-        auto const& answer = u8"<span class='RUser' data-user='123'>x</span>";
+        auto const& answer = u8"<span class='RUser' data-user='642cf37a494746375aae306a'>x</span>";
         CHECK(html == answer);
     }
 
@@ -458,9 +458,9 @@ TEST_SUITE("inline_parser") {
     }
 
     TEST_CASE("mismatched-experiment-tag") {
-        auto const& pltext = u8"<experiment=42>x</q>";
+        auto const& pltext = u8"<experiment=642cf37a494746375aae306a>x</q>";
         auto html = ::pltxt2htm_test::inline_pltxt4unittest(pltext);
-        auto const& answer = u8"<a href=\"localhost:5173/p/Experiment/42\" internal>x&lt;/q&gt;</a>";
+        auto const& answer = u8"<a href=\"localhost:5173/p/Experiment/642cf37a494746375aae306a\" internal>x&lt;/q&gt;</a>";
         CHECK(html == answer);
     }
 
@@ -570,9 +570,9 @@ TEST_SUITE("inline_parser") {
     }
 
     TEST_CASE("mismatched-user-tag") {
-        auto const& pltext = u8"<user=123>x</q>";
+        auto const& pltext = u8"<user=642cf37a494746375aae306a>x</q>";
         auto html = ::pltxt2htm_test::inline_pltxt4unittest(pltext);
-        auto const& answer = u8"<span class='RUser' data-user='123'>x&lt;/q&gt;</span>";
+        auto const& answer = u8"<span class='RUser' data-user='642cf37a494746375aae306a'>x&lt;/q&gt;</span>";
         CHECK(html == answer);
     }
 

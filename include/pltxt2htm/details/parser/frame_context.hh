@@ -50,12 +50,26 @@ public:
 };
 
 /**
- * @brief Context for frames with an equals-sign attribute (color=, experiment=, etc.).
+ * @brief Context for frames with an equals-sign attribute (color=, experiments=, ...).
  */
 class ParserFrameContextWithEqualSignTagInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::container::U8String id;
+};
+
+/**
+ * @brief Context for frames whose equals-sign attribute is a Physics-Lab ObjectId
+ *        (experiment=, discussion=, user=).
+ * @details The payload holds the parsed identifier instead of its text, so the node built when
+ *          the frame pops receives the validated value directly and no trust-based constructor
+ *          is needed anywhere in the parser.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class ParserFrameContextWithObjectIdInfo {
+public:
+    ::pltxt2htm::container::U8StringView pltext;
+    ::pltxt2htm::PlObjectId<ndebug> id;
 };
 
 /**
@@ -227,6 +241,7 @@ class FrontendContextVariant {
 #ifdef PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK
     enum class ContextBranch : unsigned {
         equal_sign_tag,
+        object_id_info,
         html_a_tag,
         url_info,
         unity_size_tag,
@@ -247,6 +262,7 @@ class FrontendContextVariant {
     union {
         ParserFrameContextWithPltextInfo pltext;
         ParserFrameContextWithEqualSignTagInfo equal_sign_tag;
+        ParserFrameContextWithObjectIdInfo<ndebug> object_id_info;
         ParserFrameContextWithHtmlSpanInfo<ndebug> html_span_info;
         ParserFrameContextWithMarginsInfo margins_info;
         ParserFrameContextWithBackgroundColorInfo background_color_info;
@@ -282,6 +298,14 @@ public:
         : equal_sign_tag{::std::move(equal_sign_tag_context)},
 #ifdef PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK
           context_branch{ContextBranch::equal_sign_tag},
+#endif
+          kind{node_kind_} {
+    }
+    constexpr FrontendContextVariant(ParserFrameContextWithObjectIdInfo<ndebug>&& object_id_info_context,
+                                     ::pltxt2htm::NodeKind node_kind_) noexcept
+        : object_id_info{::std::move(object_id_info_context)},
+#ifdef PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK
+          context_branch{ContextBranch::object_id_info},
 #endif
           kind{node_kind_} {
     }
@@ -413,21 +437,24 @@ public:
         switch (this->kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::unity_color:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_experiment:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiments:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_discussion:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_discussions:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_trigger:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_internal:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_user: {
+        case ::pltxt2htm::NodeKind::pl_internal: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::equal_sign_tag);
             ::std::construct_at(::std::addressof(this->equal_sign_tag), ::std::move(other.equal_sign_tag));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::pl_experiment:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_discussion:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_user: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::object_id_info);
+            ::std::construct_at(::std::addressof(this->object_id_info), ::std::move(other.object_id_info));
             return;
         }
         case ::pltxt2htm::NodeKind::html_a: {
@@ -671,9 +698,18 @@ public:
 
     [[nodiscard]]
     constexpr auto as_equal_sign_tag(this auto&& self) noexcept -> decltype(auto) {
-        pltxt2htm_assert(::pltxt2htm::details::is_equal_sign_tag_type(self.kind), u8"context kind mismatch");
+        // ObjectId-bearing tags are equal-sign tags syntactically but carry a different payload.
+        pltxt2htm_assert(::pltxt2htm::details::is_equal_sign_tag_type(self.kind) &&
+                             ::pltxt2htm::details::is_object_id_tag_type(self.kind) == false,
+                         u8"context kind mismatch");
         pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::equal_sign_tag);
         return ::std::forward_like<decltype(self)>(self.equal_sign_tag);
+    }
+    [[nodiscard]]
+    constexpr auto as_object_id_info(this auto&& self) noexcept -> decltype(auto) {
+        pltxt2htm_assert(::pltxt2htm::details::is_object_id_tag_type(self.kind), u8"context kind mismatch");
+        pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::object_id_info);
+        return ::std::forward_like<decltype(self)>(self.object_id_info);
     }
 
     [[nodiscard]]
@@ -781,21 +817,24 @@ public:
         switch (this->kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::unity_color:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_experiment:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiments:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_discussion:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_discussions:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_trigger:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_internal:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_user: {
+        case ::pltxt2htm::NodeKind::pl_internal: {
             pltxt2htm_assert_context_branch(*this, ContextBranch::equal_sign_tag);
             ::std::destroy_at(::std::addressof(this->equal_sign_tag));
+            return;
+        }
+        case ::pltxt2htm::NodeKind::pl_experiment:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_discussion:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_user: {
+            pltxt2htm_assert_context_branch(*this, ContextBranch::object_id_info);
+            ::std::destroy_at(::std::addressof(this->object_id_info));
             return;
         }
         case ::pltxt2htm::NodeKind::html_a: {
@@ -1196,20 +1235,22 @@ public:
         }
         case ::pltxt2htm::NodeKind::unity_color:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_experiment:
-            [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_experiments:
-            [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_discussion:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_discussions:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_trigger:
             [[fallthrough]];
-        case ::pltxt2htm::NodeKind::pl_internal:
+        case ::pltxt2htm::NodeKind::pl_internal: {
+            auto&& active_context_data = context_data_ref.as_equal_sign_tag();
+            return active_context_data.pltext;
+        }
+        case ::pltxt2htm::NodeKind::pl_experiment:
+            [[fallthrough]];
+        case ::pltxt2htm::NodeKind::pl_discussion:
             [[fallthrough]];
         case ::pltxt2htm::NodeKind::pl_user: {
-            auto&& active_context_data = context_data_ref.as_equal_sign_tag();
+            auto&& active_context_data = context_data_ref.as_object_id_info();
             return active_context_data.pltext;
         }
         case ::pltxt2htm::NodeKind::pl_external:
@@ -1298,6 +1339,10 @@ public:
     [[nodiscard]]
     constexpr auto as_equal_sign_tag(this auto&& self) noexcept -> decltype(auto) {
         return ::std::forward_like<decltype(self)>(self.context_data).as_equal_sign_tag();
+    }
+    [[nodiscard]]
+    constexpr auto as_object_id_info(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.context_data).as_object_id_info();
     }
 
     [[nodiscard]]

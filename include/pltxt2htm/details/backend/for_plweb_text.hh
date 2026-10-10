@@ -149,21 +149,8 @@ entry:
                 result.template append<ndebug>(u8"<a href=\"");
                 ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(result, host);
                 result.template append<ndebug>(u8"/p/Experiment/");
-                auto const& experiment_id = active_node.get_id();
-                // Under normal circumstances, `experiment_id` should never contain characters that could enable XSS in
-                // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
-                // assert this in debug mode. Do not try to hide such errors by routing output through
-                // `append_html_escaped_attribute_value`.
-                if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                    ::pltxt2htm::container::U8String purified_experiment_id{};
-                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
-                        purified_experiment_id, ::pltxt2htm::container::U8StringView{experiment_id});
-                    pltxt2htm_assert(purified_experiment_id == experiment_id,
-                                     u8"Experiment ID contains characters that cannot be directly used in HTML "
-                                     u8"attributes. Please check "
-                                     u8"the experiment ID or use a different backend that supports escaping.");
-                }
-                result.template append<ndebug>(experiment_id);
+                // A PlObjectId holds exactly 24 hexadecimal digits, so it never needs attribute escaping.
+                result.template append<ndebug>(active_node.get_id().as_string());
                 result.template append<ndebug>(u8"\" internal>");
                 goto entry;
             }
@@ -174,21 +161,8 @@ entry:
                 result.template append<ndebug>(u8"<a href=\"");
                 ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(result, host);
                 result.template append<ndebug>(u8"/p/Discussion/");
-                auto const& discussion_id = active_node.get_id();
-                // Under normal circumstances, `discussion_id` should never contain characters that could enable XSS in
-                // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
-                // assert this in debug mode. Do not try to hide such errors by routing output through
-                // `append_html_escaped_attribute_value`.
-                if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                    ::pltxt2htm::container::U8String purified_discussion_id{};
-                    ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
-                        purified_discussion_id, ::pltxt2htm::container::U8StringView{discussion_id});
-                    pltxt2htm_assert(purified_discussion_id == discussion_id,
-                                     u8"Discussion ID contains characters that cannot be directly used in HTML "
-                                     u8"attributes. Please check "
-                                     u8"the discussion ID or use a different backend that supports escaping.");
-                }
-                result.template append<ndebug>(discussion_id);
+                // A PlObjectId holds exactly 24 hexadecimal digits, so it never needs attribute escaping.
+                result.template append<ndebug>(active_node.get_id().as_string());
                 result.template append<ndebug>(u8"\" internal>");
                 goto entry;
             }
@@ -246,23 +220,8 @@ entry:
                     call_stack.push_frame(
                         BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_user));
                     result.template append<ndebug>(u8"<span class='RUser' data-user='");
-                    auto const& user_id = active_node.get_id();
-                    // Under normal circumstances, `user_id` should never contain characters that could enable XSS in
-                    // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
-                    // assert this in debug mode. Do not try to hide such errors by routing output through
-                    // `append_html_escaped_attribute_value`.
-                    if constexpr (ndebug == ::pltxt2htm::Contracts::quick_enforce) {
-                        ::pltxt2htm::container::U8String purified_user_id{};
-                        ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
-                            purified_user_id, ::pltxt2htm::container::U8StringView{user_id});
-                        bool const is_valid_user_id{purified_user_id == user_id};
-                        pltxt2htm_assert(
-                            is_valid_user_id,
-                            u8"User ID contains characters that cannot be directly used in HTML attributes. Please "
-                            u8"check the "
-                            u8"user ID or use a different backend that supports escaping.");
-                    }
-                    result.template append<ndebug>(user_id);
+                    // A PlObjectId holds exactly 24 hexadecimal digits, so it never needs attribute escaping.
+                    result.template append<ndebug>(active_node.get_id().as_string());
                     result.template append<ndebug>(u8"'>");
                     goto entry;
                 }

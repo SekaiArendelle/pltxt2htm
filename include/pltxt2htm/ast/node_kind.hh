@@ -178,6 +178,19 @@ constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeKind const node_type) noe
            node_type == ::pltxt2htm::NodeKind::pl_trigger || node_type == ::pltxt2htm::NodeKind::pl_internal;
 }
 
+/**
+ * @brief Whether the node kind is an equals-sign tag whose value is a Physics-Lab ObjectId.
+ * @details These tags are equal-sign tags syntactically, but the parser stores a parsed
+ *          ::pltxt2htm::PlObjectId for them instead of text, so they use their own context
+ *          payload. Callers that only care about the tag syntax should keep using
+ *          `is_equal_sign_tag_type` and exclude these kinds when they need the text payload.
+ */
+[[nodiscard]]
+constexpr auto is_object_id_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::pl_experiment || node_type == ::pltxt2htm::NodeKind::pl_discussion ||
+           node_type == ::pltxt2htm::NodeKind::pl_user;
+}
+
 [[nodiscard]]
 constexpr auto is_em_like(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
     return node_type == ::pltxt2htm::NodeKind::html_em || node_type == ::pltxt2htm::NodeKind::unity_i ||
