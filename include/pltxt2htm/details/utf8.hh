@@ -14,6 +14,16 @@
 namespace pltxt2htm::details {
 
 /**
+ * @brief Test whether a code point is an ASCII control character.
+ * @param code_point Code point to test.
+ * @return `true` for U+0000 through U+001F and U+007F.
+ */
+[[nodiscard]]
+constexpr auto is_ascii_control_code_point(char32_t code_point) noexcept -> bool {
+    return code_point <= char32_t{0x1F} || code_point == char32_t{0x7F};
+}
+
+/**
  * @brief Test whether a code point is a Unicode scalar value.
  * @details Unicode scalar values range from U+0000 through U+10FFFF, excluding
  *          the UTF-16 surrogate range U+D800 through U+DFFF.

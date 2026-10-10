@@ -281,6 +281,13 @@ public:
     constexpr void append_text(this Ast& self, ::pltxt2htm::container::U8StringView text) noexcept;
 
     /**
+     * @brief Append one semantic Unicode code point as AST nodes.
+     * @details Characters with dedicated nodes use those nodes. Other scalar values become
+     *          UTF-8 Text; ASCII controls and invalid scalar values become InvalidUtf8.
+     */
+    constexpr void append_code_point(this Ast& self, char32_t code_point) noexcept;
+
+    /**
      * @pre A single-pass input range must not reference elements in this Ast.
      */
     template<::std::ranges::input_range R>
