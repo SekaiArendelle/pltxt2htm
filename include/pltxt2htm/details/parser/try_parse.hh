@@ -17,7 +17,7 @@
 #include "../../ast/ast.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
-#include "character_processing.hh"
+#include "text_parsing.hh"
 #include "url_parsing.hh"
 #include "../push_macro.hh"
 

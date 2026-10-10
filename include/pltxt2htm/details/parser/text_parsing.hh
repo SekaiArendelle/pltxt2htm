@@ -1,6 +1,6 @@
 /**
- * @file character_processing.hh
- * @brief Process UTF-8 code points and AST characters.
+ * @file text_parsing.hh
+ * @brief Parse plain text and character references into AST nodes.
  */
 
 #pragma once
@@ -93,21 +93,6 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text,
 }
 
 /**
- * @brief Append a decoded character reference to an AST.
- * @tparam ndebug Contract checking mode used for AST operations.
- * @param reference Previously decoded one- or two-code-point reference.
- * @param[out] result AST receiving the semantic character nodes.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_character_reference_to_ast(TryDecodeCharacterReferenceResult const& reference,
-                                                 ::pltxt2htm::Ast<ndebug>& result) noexcept {
-    result.append_code_point(reference.first_code_point);
-    if (reference.has_second_code_point()) {
-        result.append_code_point(reference.second_code_point);
-    }
-}
-
-/**
  * @brief Decode and append the character reference at the start of a view.
  * @tparam ndebug Contract checking mode used for parsing and AST operations.
  * @param text Input view expected to begin with a character reference.
@@ -124,7 +109,10 @@ constexpr auto try_append_character_reference(::pltxt2htm::container::U8StringVi
         return ::pltxt2htm::container::nullopt;
     }
     auto const& decoded = reference.template value<ndebug>();
-    ::pltxt2htm::details::append_character_reference_to_ast<ndebug>(decoded, result);
+    result.append_code_point(decoded.first_code_point);
+    if (decoded.has_second_code_point()) {
+        result.append_code_point(decoded.second_code_point);
+    }
     return decoded.consumed_size;
 }
 
