@@ -3980,21 +3980,6 @@ constexpr auto try_parse_html_a_tag(::pltxt2htm::container::U8StringView pltext)
     if (pos >= pltext_size || pltext.template index<ndebug>(pos) != u8'>') {
         return {};
     }
-    auto const opt_scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(attr_val);
-    auto const scheme_end =
-        opt_scheme_end.has_value() ? opt_scheme_end.template value<ndebug>().template get<ndebug>() : ::std::size_t{};
-    auto opt_auth_end =
-        ::pltxt2htm::details::try_parse_url_authority<ndebug>(attr_val.template subview<ndebug>(scheme_end));
-    if (opt_auth_end.has_value() == false) {
-        return TryParseHtmlATagResult{pos + 1};
-    }
-    auto const auth_end = opt_auth_end.template value<ndebug>().template get<ndebug>() + scheme_end;
-    auto const path_end =
-        ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(attr_val.template subview<ndebug>(auth_end)) +
-        auth_end;
-    if (path_end != attr_val.size()) {
-        return TryParseHtmlATagResult{pos + 1};
-    }
     auto opt_url = ::pltxt2htm::Url::try_make<ndebug>(attr_val);
     if (opt_url.has_value() == false) {
         return TryParseHtmlATagResult{pos + 1};
