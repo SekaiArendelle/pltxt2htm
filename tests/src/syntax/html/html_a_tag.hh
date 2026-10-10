@@ -88,7 +88,7 @@ TEST_SUITE("html_a_tag") {
         CHECK(html == answer);
     }
 
-    // scheme-less URLs are accepted (validated by try_parse_url)
+    // scheme-less URLs are accepted (validated by Url::try_make)
     TEST_CASE("schemeless-url-accepted") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<a href=\"example.com\">text</a>");
         auto const& answer = u8"<a href=\"example.com\">text</a>";
@@ -139,6 +139,13 @@ TEST_SUITE("html_a_tag") {
         auto const& pltext = u8"<a href=\"https://example.com/pa'th\">text</a>";
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(pltext);
         auto const& answer = u8"<a href=\"https://example.com/pa%27th\">text</a>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("url-with-unicode-and-character-reference") {
+        auto const& pltext = u8"<a href=\"https://example.com/\u4E2D&#39;x\">text</a>";
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
+        auto const& answer = u8"<a href=\"https://example.com/%E4%B8%AD%27x\">text</a>";
         CHECK(html == answer);
     }
 
