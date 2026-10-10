@@ -7,29 +7,29 @@
 #endif
 
 #pragma push_macro("PLTXT2HTM_DETAIL_NT_DLLIMPORT")
-#pragma push_macro("PLTXT2HTM_DETAIL_NT_CALL")
+#pragma push_macro("PLTXT2HTM_DETAIL_STDCALL")
 #pragma push_macro("PLTXT2HTM_DETAIL_NT_ASM_NAME")
 
 #undef PLTXT2HTM_DETAIL_NT_DLLIMPORT
-#undef PLTXT2HTM_DETAIL_NT_CALL
+#undef PLTXT2HTM_DETAIL_STDCALL
 #undef PLTXT2HTM_DETAIL_NT_ASM_NAME
 
 namespace pltxt2htm::details::symbols::nt {
 
 #if defined(_MSC_VER) && !defined(__clang__)
     #define PLTXT2HTM_DETAIL_NT_DLLIMPORT __declspec(dllimport)
-    #define PLTXT2HTM_DETAIL_NT_CALL __stdcall
+    #define PLTXT2HTM_DETAIL_STDCALL __stdcall
     #define PLTXT2HTM_DETAIL_NT_ASM_NAME(name, count)
 #elif defined(__clang__) || defined(__GNUC__)
     #if defined(_MSC_VER)
         #define PLTXT2HTM_DETAIL_NT_DLLIMPORT __declspec(dllimport)
-        #define PLTXT2HTM_DETAIL_NT_CALL __stdcall
+        #define PLTXT2HTM_DETAIL_STDCALL __stdcall
     #elif defined(__i386__)
         #define PLTXT2HTM_DETAIL_NT_DLLIMPORT __attribute__((dllimport))
-        #define PLTXT2HTM_DETAIL_NT_CALL __attribute__((stdcall))
+        #define PLTXT2HTM_DETAIL_STDCALL __attribute__((stdcall))
     #else
         #define PLTXT2HTM_DETAIL_NT_DLLIMPORT __attribute__((dllimport))
-        #define PLTXT2HTM_DETAIL_NT_CALL
+        #define PLTXT2HTM_DETAIL_STDCALL
     #endif
 
     #if defined(_M_HYBRID)
@@ -70,5 +70,5 @@ namespace pltxt2htm::details::symbols::nt {
 #endif
 
 #pragma pop_macro("PLTXT2HTM_DETAIL_NT_ASM_NAME")
-#pragma pop_macro("PLTXT2HTM_DETAIL_NT_CALL")
+#pragma pop_macro("PLTXT2HTM_DETAIL_STDCALL")
 #pragma pop_macro("PLTXT2HTM_DETAIL_NT_DLLIMPORT")

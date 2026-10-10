@@ -6,10 +6,9 @@
     #include <type_traits>
 
     #define PLTXT2HTM_DETAIL_NT_DLLIMPORT 11
-    #define PLTXT2HTM_DETAIL_NT_CALL 12
+    #define PLTXT2HTM_DETAIL_STDCALL 12
     #define PLTXT2HTM_DETAIL_NT_ASM_NAME 13
     #define PLTXT2HTM_DETAIL_WIN32_DLLIMPORT 21
-    #define PLTXT2HTM_DETAIL_WIN32_CALL 22
     #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME 23
 
     #include <pltxt2htm/details/symbols/nt/ntdll.hh>
@@ -19,8 +18,8 @@
     #if PLTXT2HTM_DETAIL_NT_DLLIMPORT != 11
         #error "NT import macro was not restored"
     #endif
-    #if PLTXT2HTM_DETAIL_NT_CALL != 12
-        #error "NT calling-convention macro was not restored"
+    #if PLTXT2HTM_DETAIL_STDCALL != 12
+        #error "stdcall macro was not restored"
     #endif
     #if PLTXT2HTM_DETAIL_NT_ASM_NAME != 13
         #error "NT asm-name macro was not restored"
@@ -28,18 +27,14 @@
     #if PLTXT2HTM_DETAIL_WIN32_DLLIMPORT != 21
         #error "Win32 import macro was not restored"
     #endif
-    #if PLTXT2HTM_DETAIL_WIN32_CALL != 22
-        #error "Win32 calling-convention macro was not restored"
-    #endif
     #if PLTXT2HTM_DETAIL_WIN32_ASM_NAME != 23
         #error "Win32 asm-name macro was not restored"
     #endif
 
     #undef PLTXT2HTM_DETAIL_NT_DLLIMPORT
-    #undef PLTXT2HTM_DETAIL_NT_CALL
+    #undef PLTXT2HTM_DETAIL_STDCALL
     #undef PLTXT2HTM_DETAIL_NT_ASM_NAME
     #undef PLTXT2HTM_DETAIL_WIN32_DLLIMPORT
-    #undef PLTXT2HTM_DETAIL_WIN32_CALL
     #undef PLTXT2HTM_DETAIL_WIN32_ASM_NAME
 
 namespace nt = ::pltxt2htm::details::symbols::nt;

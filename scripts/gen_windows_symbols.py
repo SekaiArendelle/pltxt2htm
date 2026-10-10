@@ -216,7 +216,7 @@ def declaration(symbol: Symbol, library: Library, x86_stack_bytes: int) -> str:
     attribute = "[[nodiscard]]\n" if symbol.nodiscard else ""
     suffix = f" {prefix}_ASM_NAME({symbol.export_name}, {x86_stack_bytes})"
     return (
-        f"{attribute}{prefix}_DLLIMPORT {symbol.return_type} {prefix}_CALL {symbol.export_name}"
+        f"{attribute}{prefix}_DLLIMPORT {symbol.return_type} PLTXT2HTM_DETAIL_STDCALL {symbol.export_name}"
         f"({format_parameters(symbol.parameters)}) noexcept{suffix};\n"
     )
 
