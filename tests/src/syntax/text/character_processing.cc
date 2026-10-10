@@ -1,7 +1,7 @@
 #include <pltxt2htm/container/array.hh>
 #include <pltxt2htm/details/backend/for_plweb_text.hh>
 #include <pltxt2htm/details/parser/character_processing.hh>
-#include <pltxt2htm/details/parser/url_scheme.hh>
+#include <pltxt2htm/details/parser/url_parsing.hh>
 #include <pltxt2htm/details/utf8.hh>
 #include <pltxt2htm/inline_parser.hh>
 #include <pltxt2htm/parser.hh>

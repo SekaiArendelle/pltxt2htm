@@ -13,7 +13,7 @@
 #include "../utf8.hh"
 #include "character_reference.hh"
 #include "html_named_character_references.hh"
-#include "url_scheme.hh"
+#include "url_parsing.hh"
 
 namespace pltxt2htm::details {
 

@@ -19,7 +19,6 @@
 #include "../../ast/vertical_align_value.hh"
 #include "character_processing.hh"
 #include "url_parsing.hh"
-#include "url_scheme.hh"
 #include "../push_macro.hh"
 
 /**
