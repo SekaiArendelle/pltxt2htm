@@ -7,7 +7,6 @@
 
 #include <cstddef>
 #include <type_traits>
-#include <utility>
 #include <pltxt2htm/ast/ast.hh>
 
 namespace {
@@ -24,7 +23,6 @@ constexpr auto other = U8StringView{u8"642cf37a494746375aae306b"};
 
 int main() {
     static_assert(ObjectId::hex_digits == 24);
-    static_assert(::std::is_nothrow_constructible_v<ObjectId, U8String&&>);
     static_assert(::std::is_nothrow_move_constructible_v<ObjectId>);
     static_assert(::std::is_nothrow_copy_constructible_v<ObjectId>);
 
@@ -61,11 +59,10 @@ int main() {
         pltxt2htm_test_assert_true(ObjectId::try_make(U8StringView{u8"000000000000000000000000"}).has_value());
     }
     {
-        // take_string moves the spelling out without copying, which is how the parser hands
-        // the text to a frame context; the identifier is left empty.
-        auto id = ObjectId::try_make(U8StringView{u8"642CF37A494746375AAE306A"}).template value<ndebug>();
-        auto text = ::std::move(id).take_string();
-        pltxt2htm_test_assert_true(text == canonical);
+        // The constructor is private, so try_make is the only way to produce a value and the
+        // identifier grammar cannot be bypassed.
+        static_assert(::std::is_constructible_v<ObjectId, U8String&&> == false);
+        static_assert(::std::is_convertible_v<U8String, ObjectId> == false);
     }
 
     return 0;

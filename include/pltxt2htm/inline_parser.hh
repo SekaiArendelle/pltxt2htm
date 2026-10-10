@@ -526,8 +526,8 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::std::move(id).take_string()},
+                                ParserFrameContextWithObjectIdInfo<ndebug>{pltext.template subview<ndebug>(current_index),
+                                                                       ::std::move(id)},
                                 ::pltxt2htm::NodeKind::pl_discussion},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -565,8 +565,8 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::std::move(id).take_string()},
+                                ParserFrameContextWithObjectIdInfo<ndebug>{pltext.template subview<ndebug>(current_index),
+                                                                       ::std::move(id)},
                                 ::pltxt2htm::NodeKind::pl_experiment},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -851,8 +851,8 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame<ndebug>(
                             FrontendContextVariant<ndebug>{
-                                ParserFrameContextWithEqualSignTagInfo{pltext.template subview<ndebug>(current_index),
-                                                                       ::std::move(id).take_string()},
+                                ParserFrameContextWithObjectIdInfo<ndebug>{pltext.template subview<ndebug>(current_index),
+                                                                       ::std::move(id)},
                                 ::pltxt2htm::NodeKind::pl_user},
                             ::pltxt2htm::Ast<ndebug>{}));
                         goto entry;
@@ -1023,7 +1023,7 @@ entry:
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::pl_experiment: {
-                        auto&& active_frame_data = frame.as_equal_sign_tag();
+                        auto&& active_frame_data = frame.as_object_id_info();
                         // parsing </experiment>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"experiment">(
                                 pltext.template subview<ndebug>(current_index + 2));
@@ -1032,7 +1032,7 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlExperiment staged_node(
                                 ::std::move(result),
-                                ::pltxt2htm::PlObjectId<ndebug>{::std::move(active_frame_data.id)});
+                                ::std::move(active_frame_data.id));
                             call_stack.discard_current_frame();
                             auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
@@ -1068,7 +1068,7 @@ entry:
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::pl_discussion: {
-                        auto&& active_frame_data = frame.as_equal_sign_tag();
+                        auto&& active_frame_data = frame.as_object_id_info();
                         // parsing </discussion>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"discussion">(
                                 pltext.template subview<ndebug>(current_index + 2));
@@ -1077,7 +1077,7 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlDiscussion staged_node(
                                 ::std::move(result),
-                                ::pltxt2htm::PlObjectId<ndebug>{::std::move(active_frame_data.id)});
+                                ::std::move(active_frame_data.id));
                             call_stack.discard_current_frame();
                             auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
@@ -1195,7 +1195,7 @@ entry:
                         continue;
                     }
                     case ::pltxt2htm::NodeKind::pl_user: {
-                        auto&& active_frame_data = frame.as_equal_sign_tag();
+                        auto&& active_frame_data = frame.as_object_id_info();
                         // parsing </user>
                         if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"user">(
                                 pltext.template subview<ndebug>(current_index + 2));
@@ -1203,7 +1203,7 @@ entry:
                             ::std::size_t const staged_index{current_index};
                             ::pltxt2htm::PlUser staged_node(
                                 ::std::move(result),
-                                ::pltxt2htm::PlObjectId<ndebug>{::std::move(active_frame_data.id)});
+                                ::std::move(active_frame_data.id));
                             call_stack.discard_current_frame();
                             auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
@@ -1686,11 +1686,11 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_experiment: {
-                auto&& active_frame_data = frame.as_equal_sign_tag();
+                auto&& active_frame_data = frame.as_object_id_info();
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlExperiment<ndebug>>(
                         ::std::move(subast),
-                        ::pltxt2htm::PlObjectId<ndebug>{::std::move(active_frame_data.id)}));
+                        ::std::move(active_frame_data.id)));
                 parent_index += staged_index;
                 goto entry;
             }
@@ -1704,11 +1704,11 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_discussion: {
-                auto&& active_frame_data = frame.as_equal_sign_tag();
+                auto&& active_frame_data = frame.as_object_id_info();
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlDiscussion<ndebug>>(
                         ::std::move(subast),
-                        ::pltxt2htm::PlObjectId<ndebug>{::std::move(active_frame_data.id)}));
+                        ::std::move(active_frame_data.id)));
                 parent_index += staged_index;
                 goto entry;
             }
@@ -1722,10 +1722,10 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_user: {
-                auto&& active_frame_data = frame.as_equal_sign_tag();
+                auto&& active_frame_data = frame.as_object_id_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::PlUser<ndebug>>(
                     ::std::move(subast),
-                    ::pltxt2htm::PlObjectId<ndebug>{::std::move(active_frame_data.id)}));
+                    ::std::move(active_frame_data.id)));
                 parent_index += staged_index;
                 goto entry;
             }

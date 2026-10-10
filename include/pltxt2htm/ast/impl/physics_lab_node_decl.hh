@@ -33,21 +33,20 @@ template<::pltxt2htm::Contracts ndebug>
 class PlObjectId {
     ::pltxt2htm::container::U8String text;
 
-public:
-    /// Number of hexadecimal digits in the canonical ObjectId spelling.
-    static constexpr ::std::size_t hex_digits{24};
-
     /**
      * @brief Constructs an identifier from an already-canonical spelling.
-     * @details Mirrors ::pltxt2htm::Url: the constructor trusts its caller, so callers outside
-     *          the library must use try_make first. It exists for callers that validated a
-     *          payload and then moved the text on before the node was built (the parser keeps
-     *          the canonical text in a frame context until then).
+     * @details Private and trust-based. Unlike ::pltxt2htm::Url, whose spelling has no checkable
+     *          grammar, an ObjectId payload can be validated, so try_make stays the only way to
+     *          produce a value outside the class and the invariant needs no second guarantee.
      * @param text_ Exactly 24 lowercase hexadecimal digits.
      */
     constexpr explicit PlObjectId(::pltxt2htm::container::U8String&& text_) noexcept
         : text(::std::move(text_)) {
     }
+
+public:
+    /// Number of hexadecimal digits in the canonical ObjectId spelling.
+    static constexpr ::std::size_t hex_digits{24};
 
     constexpr PlObjectId(PlObjectId const&) noexcept = default;
     constexpr PlObjectId(PlObjectId&&) noexcept = default;
@@ -58,7 +57,6 @@ public:
     [[nodiscard]]
     constexpr auto operator==(this PlObjectId const&, PlObjectId const&) noexcept -> bool = default;
 
-    /**
     /**
      * @brief Builds an identifier from a source payload, or fails when it is not one.
      * @details Uppercase digits are folded to the lowercase spelling BSON emits.
@@ -87,17 +85,6 @@ public:
     [[nodiscard]]
     constexpr auto as_string(this PlObjectId const& self) noexcept -> ::pltxt2htm::container::U8String const& {
         return self.text;
-    }
-    /**
-     * @brief Moves the canonical spelling out of the identifier.
-     * @details The parser validates a payload with try_make and then hands the text on to a frame
-     *          context, which stores plain text rather than the identifier type. Moving it keeps
-     *          that hand-off allocation-free. The identifier is left empty.
-     * @return The canonical spelling.
-     */
-    [[nodiscard]]
-    constexpr auto take_string(this PlObjectId&& self) noexcept -> ::pltxt2htm::container::U8String {
-        return ::std::move(self.text);
     }
 };
 

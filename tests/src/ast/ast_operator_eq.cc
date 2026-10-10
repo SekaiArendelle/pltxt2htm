@@ -2,6 +2,18 @@
 
 #include <pltxt2htm/ast/ast.hh>
 
+namespace {
+
+// PlObjectId can only be produced through try_make, so the equality cases spell the identifier
+// out once here instead of repeating the factory call.
+auto make_object_id(::pltxt2htm::container::U8StringView const text)
+    -> ::pltxt2htm::PlObjectId<::pltxt2htm::Contracts::quick_enforce> {
+    return ::pltxt2htm::PlObjectId<::pltxt2htm::Contracts::quick_enforce>::try_make(text)
+        .template value<::pltxt2htm::Contracts::quick_enforce>();
+}
+
+} // namespace
+
 int main() {
     using nd = ::pltxt2htm::Contracts;
 
@@ -604,10 +616,10 @@ int main() {
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::PlExperiment<nd::quick_enforce>>(
-                ::std::move(ast_a), ::pltxt2htm::PlObjectId<nd::quick_enforce>{::pltxt2htm::container::U8String{u8"642cf37a494746375aae306a"}});
+                ::std::move(ast_a), make_object_id(u8"642cf37a494746375aae306a"));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::PlExperiment<nd::quick_enforce>>(
-                ::std::move(ast_b), ::pltxt2htm::PlObjectId<nd::quick_enforce>{::pltxt2htm::container::U8String{u8"642cf37a494746375aae306a"}});
+                ::std::move(ast_b), make_object_id(u8"642cf37a494746375aae306a"));
         pltxt2htm_test_assert_true(a == b);
     }
     {
@@ -616,10 +628,10 @@ int main() {
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::PlExperiment<nd::quick_enforce>>(
-                ::std::move(ast_a), ::pltxt2htm::PlObjectId<nd::quick_enforce>{::pltxt2htm::container::U8String{u8"642cf37a494746375aae306a"}});
+                ::std::move(ast_a), make_object_id(u8"642cf37a494746375aae306a"));
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::PlExperiment<nd::quick_enforce>>(
-                ::std::move(ast_b), ::pltxt2htm::PlObjectId<nd::quick_enforce>{::pltxt2htm::container::U8String{u8"642cf37a494746375aae306b"}});
+                ::std::move(ast_b), make_object_id(u8"642cf37a494746375aae306b"));
         pltxt2htm_test_assert_false(a == b);
     }
 
