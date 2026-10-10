@@ -44,15 +44,15 @@ TEST_SUITE("pl_discussion_tag") {
 
     TEST_CASE("outer-id-wins") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
-            u8"<Discussion=123><discussion=642cf37a494746375aae306a>physicsLab</discussion></Discussion>");
+            u8"<Discussion=642cf37a494746375aae306b><discussion=642cf37a494746375aae306a>physicsLab</discussion></Discussion>");
         auto const& answer =
-            u8"<a href=\"localhost:5173/p/Discussion/123\" "
+            u8"<a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306b\" "
             u8"internal>&lt;discussion=642cf37a494746375aae306a&gt;physicsLab</a>&lt;/Discussion&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("unclosed-no-content") {
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"test<DIScussion=123>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"test<DIScussion=642cf37a494746375aae306a>");
         auto const& answer = u8"test";
         CHECK(html == answer);
     }
@@ -76,10 +76,10 @@ TEST_SUITE("pl_discussion_tag") {
 
     TEST_CASE("nested-other-id-literal") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
-            u8"<discussion=642cf37a494746375aae306a>physics<discussion=123>L</Discussion>ab</discussion>");
+            u8"<discussion=642cf37a494746375aae306a>physics<discussion=642cf37a494746375aae306b>L</Discussion>ab</discussion>");
         auto const& answer =
             u8"<a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306a\" "
-            u8"internal>physics&lt;discussion=123&gt;L</a>ab&lt;/discussion&gt;";
+            u8"internal>physics&lt;discussion=642cf37a494746375aae306b&gt;L</a>ab&lt;/discussion&gt;";
         CHECK(html == answer);
     }
 
@@ -96,26 +96,26 @@ TEST_SUITE("pl_discussion_tag") {
     }
 
     TEST_CASE("unterminated-close-literal") {
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussion=123></discussion");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussion=642cf37a494746375aae306b></discussion");
         auto const& answer =
-            u8"<a href=\"localhost:5173/p/Discussion/123\" internal>&lt;/discussion</a>";
+            u8"<a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306b\" internal>&lt;/discussion</a>";
         CHECK(html == answer);
     }
 
     TEST_CASE("plunity-verbatim") {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<discussion=id>text</discussion>");
-        auto const& answer = u8"<discussion=id>text</discussion>";
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<discussion=642cf37a494746375aae306a>text</discussion>");
+        auto const& answer = u8"<discussion=642cf37a494746375aae306a>text</discussion>";
         CHECK(html == answer);
     }
 
     TEST_CASE("host-with-injected-markup") {
         auto html =
-            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussion=discid>dis</discussion>",
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussion=642cf37a494746375aae306a>dis</discussion>",
                                                    u8"localhost:5173\" onclick=\"alert(1)<img src=x onerror=alert(2)>",
                                                    u8"project", u8"visitor", u8"author", u8"coauthors");
         auto const& answer =
             u8"<a href=\"localhost:5173&quot; onclick=&quot;alert(1)&lt;img src=x "
-            u8"onerror=alert(2)&gt;/p/Discussion/discid\" internal>dis</a>";
+            u8"onerror=alert(2)&gt;/p/Discussion/642cf37a494746375aae306a\" internal>dis</a>";
         CHECK(html == answer);
     }
 }

@@ -597,17 +597,17 @@ int main() {
         pltxt2htm_test_assert_false(a == b);
     }
 
-    // PlExperiment (sub-AST + id string)
+    // PlExperiment (sub-AST + ObjectId)
     {
         ::pltxt2htm::Ast<nd::quick_enforce> ast_a{};
         ::pltxt2htm::Ast<nd::quick_enforce> ast_b{};
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::PlExperiment<nd::quick_enforce>>(
-                ::std::move(ast_a), ::pltxt2htm::container::U8String{u8"exp1"});
+                ::std::move(ast_a), ::pltxt2htm::PlObjectId<nd::quick_enforce>{::pltxt2htm::container::U8String{u8"642cf37a494746375aae306a"}});
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::PlExperiment<nd::quick_enforce>>(
-                ::std::move(ast_b), ::pltxt2htm::container::U8String{u8"exp1"});
+                ::std::move(ast_b), ::pltxt2htm::PlObjectId<nd::quick_enforce>{::pltxt2htm::container::U8String{u8"642cf37a494746375aae306a"}});
         pltxt2htm_test_assert_true(a == b);
     }
     {
@@ -616,10 +616,10 @@ int main() {
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::PlExperiment<nd::quick_enforce>>(
-                ::std::move(ast_a), ::pltxt2htm::container::U8String{u8"exp1"});
+                ::std::move(ast_a), ::pltxt2htm::PlObjectId<nd::quick_enforce>{::pltxt2htm::container::U8String{u8"642cf37a494746375aae306a"}});
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::PlExperiment<nd::quick_enforce>>(
-                ::std::move(ast_b), ::pltxt2htm::container::U8String{u8"exp2"});
+                ::std::move(ast_b), ::pltxt2htm::PlObjectId<nd::quick_enforce>{::pltxt2htm::container::U8String{u8"642cf37a494746375aae306b"}});
         pltxt2htm_test_assert_false(a == b);
     }
 

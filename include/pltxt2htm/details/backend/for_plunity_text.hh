@@ -122,7 +122,7 @@ entry:
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_experiment));
                 result.template append<ndebug>(u8"<experiment=");
-                result.template append<ndebug>(active_node.get_id());
+                result.template append<ndebug>(active_node.get_id().as_string());
                 result.template push_back<ndebug>(u8'>');
                 goto entry;
             }
@@ -131,7 +131,7 @@ entry:
                 call_stack.push_frame(
                     BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_discussion));
                 result.template append<ndebug>(u8"<discussion=");
-                result.template append<ndebug>(active_node.get_id());
+                result.template append<ndebug>(active_node.get_id().as_string());
                 result.template push_back<ndebug>(u8'>');
                 goto entry;
             }
@@ -175,7 +175,7 @@ entry:
                 auto&& active_node = node.as_pl_user();
                 call_stack.push_frame(BackendFrame<ndebug>(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_user));
                 result.template append<ndebug>(u8"<user=");
-                result.template append<ndebug>(active_node.get_id());
+                result.template append<ndebug>(active_node.get_id().as_string());
                 result.template push_back<ndebug>(u8'>');
                 goto entry;
             }

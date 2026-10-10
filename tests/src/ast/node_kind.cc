@@ -92,10 +92,10 @@ int main() {
             ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"red"}));
     arr.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(
         TestNode::template emplace<::pltxt2htm::PlExperiment<::pltxt2htm::Contracts::quick_enforce>>(
-            ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}));
+            ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::PlObjectId<::pltxt2htm::Contracts::quick_enforce>{::pltxt2htm::container::U8String{u8"642cf37a494746375aae306a"}}));
     arr.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(
         TestNode::template emplace<::pltxt2htm::PlDiscussion<::pltxt2htm::Contracts::quick_enforce>>(
-            ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}));
+            ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::PlObjectId<::pltxt2htm::Contracts::quick_enforce>{::pltxt2htm::container::U8String{u8"642cf37a494746375aae306a"}}));
 
     auto invalid_utf8 = TestNode::emplace<::pltxt2htm::InvalidUtf8>();
     auto unity_color = TestNode::emplace<::pltxt2htm::UnityColor<test_contracts>>(

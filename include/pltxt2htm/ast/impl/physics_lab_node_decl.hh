@@ -5,16 +5,108 @@
  */
 
 #pragma once
-
 #include <utility>
+
 #include "../../container/string.hh"
+#include "../../container/optional.hh"
+#include "../../container/string_view.hh"
 #include "../../details/literal_string.hh"
+#include "../../details/utils.hh"
 #include "ast_decl.hh"
 #include "url_node_decl.hh"
 #include "../node_kind.hh"
 #include "../../contracts.hh"
 
 namespace pltxt2htm {
+
+/**
+ * @brief A Physics-Lab entity identifier: the canonical spelling of a BSON ObjectId.
+ * @details Physics-Lab keeps experiments, discussions, and users in MongoDB, so an
+ *          &lt;experiment=&gt;, &lt;discussion=&gt;, or &lt;user=&gt; payload is an ObjectId. The
+ *          12-byte value carries no check digits, which makes "exactly 24 hexadecimal
+ *          digits" the whole grammar: nothing else is a valid identifier, and every
+ *          24-digit string is one. Sources may spell the digits in uppercase; they are
+ *          folded to the lowercase form BSON emits, so equal identifiers compare equal
+ *          no matter which case the source used.
+ */
+template<::pltxt2htm::Contracts ndebug>
+class PlObjectId {
+    ::pltxt2htm::container::U8String text;
+
+public:
+    /// Number of hexadecimal digits in the canonical ObjectId spelling.
+    static constexpr ::std::size_t hex_digits{24};
+
+    /**
+     * @brief Constructs an identifier from an already-canonical spelling.
+     * @details Mirrors ::pltxt2htm::Url: the constructor trusts its caller, so construction
+     *          sites outside the parser must use try_make or try_normalize first. It exists
+     *          for callers that validated a payload before storing it somewhere else (the
+     *          parser keeps the canonical text in a frame context until the node is built).
+     * @param text_ Exactly 24 lowercase hexadecimal digits.
+     */
+    constexpr explicit PlObjectId(::pltxt2htm::container::U8String&& text_) noexcept
+        : text(::std::move(text_)) {
+    }
+
+    constexpr PlObjectId(PlObjectId const&) noexcept = default;
+    constexpr PlObjectId(PlObjectId&&) noexcept = default;
+    constexpr ~PlObjectId() noexcept = default;
+    constexpr auto operator=(this PlObjectId&, PlObjectId const&) noexcept -> PlObjectId& = default;
+    constexpr auto operator=(this PlObjectId&, PlObjectId&&) noexcept -> PlObjectId& = default;
+
+    [[nodiscard]]
+    constexpr auto operator==(this PlObjectId const&, PlObjectId const&) noexcept -> bool = default;
+
+    /**
+     * @brief Normalizes a source payload to the canonical ObjectId spelling.
+     * @details Uppercase digits are folded to lowercase. Callers that only need the
+     *          normalized text (for example the parser storing it in a frame context)
+     *          can use this directly instead of building an identifier.
+     * @param input Candidate payload.
+     * @return The canonical spelling, or nullopt when the length or a digit is wrong.
+     */
+    [[nodiscard]]
+    static constexpr auto try_normalize(::pltxt2htm::container::U8StringView input) noexcept
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> {
+        if (input.size() != hex_digits) {
+            return ::pltxt2htm::container::nullopt;
+        }
+        ::pltxt2htm::container::U8String canonical{};
+        canonical.template reserve<ndebug>(hex_digits);
+        for (::std::size_t index{}; index < hex_digits; ++index) {
+            char8_t const digit{input.template index<ndebug>(index)};
+            if (::pltxt2htm::details::is_ascii_hexdigit(digit) == false) {
+                return ::pltxt2htm::container::nullopt;
+            }
+            // ASCII case bit 0x20 is already set for '0'-'9', so OR-ing it folds 'A'-'F'
+            // to 'a'-'f' without changing the digits or an already-lowercase spelling.
+            canonical.template push_back<ndebug>(static_cast<char8_t>(digit | char8_t{0x20}));
+        }
+        return canonical;
+    }
+
+    /**
+     * @brief Builds an identifier from a source payload, or fails when it is not one.
+     * @param input Candidate payload.
+     * @return The canonical identifier, or nullopt when the length or a digit is wrong.
+     */
+    [[nodiscard]]
+    static constexpr auto try_make(::pltxt2htm::container::U8StringView input) noexcept
+        -> ::pltxt2htm::container::Optional<PlObjectId> {
+        auto opt_canonical = PlObjectId::try_normalize(input);
+        if (opt_canonical.has_value() == false) {
+            return ::pltxt2htm::container::nullopt;
+        }
+        auto canonical = ::std::move(opt_canonical).template value<ndebug>();
+        return PlObjectId{::std::move(canonical)};
+    }
+
+    [[nodiscard]]
+    constexpr auto as_string(this PlObjectId const& self) noexcept -> ::pltxt2htm::container::U8String const& {
+        return self.text;
+    }
+};
 
 /**
  * @brief Physics-Lab anchor tag node
@@ -49,15 +141,15 @@ public:
 
 /**
  * @brief Physics-Lab experiment reference tag node
- * @details Represents &lt;experiment=id&gt;...&lt;/experiment&gt; with an experiment ID.
+ * @details Represents &lt;experiment=id&gt;...&lt;/experiment&gt; with an experiment ObjectId.
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlExperiment {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::U8String id;
+    ::pltxt2htm::PlObjectId<ndebug> id;
 
 public:
-    constexpr PlExperiment(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::U8String&& id_) noexcept;
+    constexpr PlExperiment(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::PlObjectId<ndebug>&& id_) noexcept;
     constexpr PlExperiment(::pltxt2htm::PlExperiment<ndebug> const&) noexcept;
     constexpr PlExperiment(::pltxt2htm::PlExperiment<ndebug>&&) noexcept;
     constexpr ~PlExperiment() noexcept = default;
@@ -82,15 +174,15 @@ public:
 
 /**
  * @brief Physics-Lab discussion reference tag node
- * @details Represents &lt;discussion=id&gt;...&lt;/discussion&gt; with a discussion ID.
+ * @details Represents &lt;discussion=id&gt;...&lt;/discussion&gt; with a discussion ObjectId.
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlDiscussion {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::U8String id;
+    ::pltxt2htm::PlObjectId<ndebug> id;
 
 public:
-    constexpr PlDiscussion(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::U8String&& id_) noexcept;
+    constexpr PlDiscussion(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::PlObjectId<ndebug>&& id_) noexcept;
     constexpr PlDiscussion(::pltxt2htm::PlDiscussion<ndebug> const&) noexcept;
     constexpr PlDiscussion(::pltxt2htm::PlDiscussion<ndebug>&&) noexcept;
     constexpr ~PlDiscussion() noexcept = default;
@@ -183,15 +275,15 @@ public:
 
 /**
  * @brief Physics-Lab user reference tag node
- * @details Represents &lt;user=id&gt;...&lt;/user&gt; with a user ID.
+ * @details Represents &lt;user=id&gt;...&lt;/user&gt; with a user ObjectId.
  */
 template<::pltxt2htm::Contracts ndebug>
 class PlUser {
     ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::container::U8String id;
+    ::pltxt2htm::PlObjectId<ndebug> id;
 
 public:
-    constexpr PlUser(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::U8String&& id_) noexcept;
+    constexpr PlUser(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::PlObjectId<ndebug>&& id_) noexcept;
     constexpr PlUser(::pltxt2htm::PlUser<ndebug> const&) noexcept;
     constexpr PlUser(::pltxt2htm::PlUser<ndebug>&&) noexcept;
     constexpr ~PlUser() noexcept = default;

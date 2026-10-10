@@ -905,23 +905,23 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                auto const& equal_sign_tag_id = [&]() -> decltype(auto) {
+                auto const& equal_sign_tag_id = [&]() -> ::pltxt2htm::container::U8StringView {
                     switch (node.get_node_kind()) {
                     case ::pltxt2htm::NodeKind::pl_experiment: {
                         auto&& active_node = node.as_pl_experiment();
-                        return active_node.get_id();
+                        return ::pltxt2htm::container::U8StringView{active_node.get_id().as_string()};
                     }
                     case ::pltxt2htm::NodeKind::pl_experiments: {
                         auto&& active_node = node.as_pl_experiments();
-                        return active_node.get_value();
+                        return ::pltxt2htm::container::U8StringView{active_node.get_value()};
                     }
                     case ::pltxt2htm::NodeKind::pl_discussion: {
                         auto&& active_node = node.as_pl_discussion();
-                        return active_node.get_id();
+                        return ::pltxt2htm::container::U8StringView{active_node.get_id().as_string()};
                     }
                     case ::pltxt2htm::NodeKind::pl_discussions: {
                         auto&& active_node = node.as_pl_discussions();
-                        return active_node.get_value();
+                        return ::pltxt2htm::container::U8StringView{active_node.get_value()};
                     }
                     default:
                         [[unlikely]] {
@@ -961,7 +961,7 @@ entry:
                 }
                 auto&& nested_tag_type = call_stack.current_frame().get_nested_tag_type();
                 // Optimization: If the user is the same as the parent node, then ignore the nested tag.
-                auto const& equal_sign_tag_id = active_node.get_id();
+                ::pltxt2htm::container::U8StringView const equal_sign_tag_id{active_node.get_id().as_string()};
                 bool const is_different_tag =
                     nested_tag_type != ::pltxt2htm::NodeKind::pl_user ||
                     equal_sign_tag_id != call_stack.current_frame().get_equal_sign_tag_id();
