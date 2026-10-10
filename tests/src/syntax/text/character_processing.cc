@@ -1,3 +1,4 @@
+#include <pltxt2htm/details/parser/character_reference.hh>
 #include <pltxt2htm/container/array.hh>
 #include <pltxt2htm/details/backend/for_plweb_text.hh>
 #include <pltxt2htm/details/parser/character_processing.hh>
@@ -200,6 +201,12 @@ int main() {
     assert_decoded(u8"&#1;", 4, char32_t{0x01});
     assert_decoded(u8"&#13;", 5, char32_t{0x0D});
     assert_decoded(u8"&#127;", 6, char32_t{0x7F});
+
+    {
+        auto const decoded = ::pltxt2htm::details::decode_character_references<::pltxt2htm::Contracts::quick_enforce>(
+            u8"a&amp;&bogus;&#1;&#127;&NotEqualTilde;&amp");
+        pltxt2htm_test_assert_equal(decoded, u8"a&&bogus;\uFFFD\uFFFD\u2242\u0338&amp");
+    }
 
     // Parser-produced ASTs never store raw ASCII control bytes in Text nodes.
     for (auto const code_point :

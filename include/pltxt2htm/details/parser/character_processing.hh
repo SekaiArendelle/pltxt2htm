@@ -1,6 +1,6 @@
 /**
  * @file character_processing.hh
- * @brief Process UTF-8 code points, AST characters, and HTML character references.
+ * @brief Process UTF-8 code points and AST characters.
  */
 
 #pragma once
@@ -8,11 +8,9 @@
 #include <cstddef>
 #include "../../ast/ast.hh"
 #include "../../contracts.hh"
-#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../utf8.hh"
 #include "character_reference.hh"
-#include "html_named_character_references.hh"
 #include "url_parsing.hh"
 
 namespace pltxt2htm::details {
@@ -170,24 +168,6 @@ constexpr void append_code_point_to_ast(char32_t code_point, ::pltxt2htm::Ast<nd
 }
 
 /**
- * @brief Append a decoded character-reference code point to a UTF-8 string.
- * @details ASCII controls are normalized to U+FFFD before encoding. Character-reference
- *          decoding guarantees that every other input is a Unicode scalar value.
- * @tparam ndebug Contract checking mode.
- * @param[out] result Output string receiving the encoded code point.
- * @param code_point Decoded character-reference code point.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void append_character_reference_code_point(::pltxt2htm::container::U8String& result,
-                                                     char32_t code_point) noexcept {
-    if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
-        code_point = char32_t{0xFFFD};
-    }
-    ::pltxt2htm::details::append_utf8_code_point<ndebug>(result, code_point);
-}
-
-
-/**
  * @brief Append a decoded character reference to an AST.
  * @tparam ndebug Contract checking mode used for AST operations.
  * @param reference Previously decoded one- or two-code-point reference.
@@ -221,42 +201,6 @@ constexpr auto try_append_character_reference(::pltxt2htm::container::U8StringVi
     auto const& decoded = reference.template value<ndebug>();
     ::pltxt2htm::details::append_character_reference_to_ast<ndebug>(decoded, result);
     return decoded.consumed_size;
-}
-
-/**
- * @brief Decode every supported HTML character reference in a string.
- * @details Unknown, malformed, and unterminated references are copied literally. Decoded
- *          ASCII controls are emitted as U+FFFD to match parser output normalization.
- * @tparam ndebug Contract checking mode used for input and reference-table access.
- * @param text Input text that may contain character references.
- * @return UTF-8 text with all supported references decoded.
- */
-template<::pltxt2htm::Contracts ndebug>
-[[nodiscard]]
-constexpr auto decode_character_references(::pltxt2htm::container::U8StringView text) noexcept
-    -> ::pltxt2htm::container::U8String {
-    ::pltxt2htm::container::U8String result{};
-    ::std::size_t const text_size{text.size()};
-    result.template reserve<ndebug>(text_size);
-    for (::std::size_t index{}; index < text_size;) {
-        if (text.template index<ndebug>(index) == u8'&') {
-            auto const decoded =
-                ::pltxt2htm::details::try_decode_character_reference<ndebug>(text.template subview<ndebug>(index));
-            if (decoded.has_value()) {
-                auto const& reference = decoded.template value<ndebug>();
-                ::pltxt2htm::details::append_character_reference_code_point<ndebug>(result, reference.first_code_point);
-                if (reference.has_second_code_point()) {
-                    ::pltxt2htm::details::append_character_reference_code_point<ndebug>(result,
-                                                                                        reference.second_code_point);
-                }
-                index += reference.consumed_size;
-                continue;
-            }
-        }
-        result.push_back<ndebug>(text.template index<ndebug>(index));
-        ++index;
-    }
-    return result;
 }
 
 } // namespace pltxt2htm::details

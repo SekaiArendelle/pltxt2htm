@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include "../../container/optional.hh"
+#include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../../contracts.hh"
 #include "../utf8.hh"
@@ -220,6 +221,59 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
     return TryDecodeCharacterReferenceResult{.consumed_size = index + 1,
                                              .first_code_point = entity->first_code_point,
                                              .second_code_point = entity->second_code_point};
+}
+
+/**
+ * @brief Append a decoded character-reference code point to a UTF-8 string.
+ * @details ASCII controls are normalized to U+FFFD before encoding. Character-reference
+ *          decoding guarantees that every other input is a Unicode scalar value.
+ * @tparam ndebug Contract checking mode.
+ * @param[out] result Output string receiving the encoded code point.
+ * @param code_point Decoded character-reference code point.
+ */
+template<::pltxt2htm::Contracts ndebug>
+constexpr void append_character_reference_code_point(::pltxt2htm::container::U8String& result,
+                                                     char32_t code_point) noexcept {
+    if (code_point <= char32_t{0x1F} || code_point == char32_t{0x7F}) {
+        code_point = char32_t{0xFFFD};
+    }
+    ::pltxt2htm::details::append_utf8_code_point<ndebug>(result, code_point);
+}
+
+/**
+ * @brief Decode every supported HTML character reference in a string.
+ * @details Unknown, malformed, and unterminated references are copied literally. Decoded
+ *          ASCII controls are emitted as U+FFFD to match parser output normalization.
+ * @tparam ndebug Contract checking mode used for input and reference-table access.
+ * @param text Input text that may contain character references.
+ * @return UTF-8 text with all supported references decoded.
+ */
+template<::pltxt2htm::Contracts ndebug>
+[[nodiscard]]
+constexpr auto decode_character_references(::pltxt2htm::container::U8StringView text) noexcept
+    -> ::pltxt2htm::container::U8String {
+    ::pltxt2htm::container::U8String result{};
+    ::std::size_t const text_size{text.size()};
+    result.template reserve<ndebug>(text_size);
+    for (::std::size_t index{}; index < text_size;) {
+        if (text.template index<ndebug>(index) == u8'&') {
+            auto const decoded =
+                ::pltxt2htm::details::try_decode_character_reference<ndebug>(text.template subview<ndebug>(index));
+            if (decoded.has_value()) {
+                auto const& reference = decoded.template value<ndebug>();
+                ::pltxt2htm::details::append_character_reference_code_point<ndebug>(result, reference.first_code_point);
+                if (reference.has_second_code_point()) {
+                    ::pltxt2htm::details::append_character_reference_code_point<ndebug>(result,
+                                                                                        reference.second_code_point);
+                }
+                index += reference.consumed_size;
+                continue;
+            }
+        }
+        result.push_back<ndebug>(text.template index<ndebug>(index));
+        ++index;
+    }
+    return result;
 }
 
 } // namespace pltxt2htm::details
