@@ -1,19 +1,17 @@
 // Enum values adapted from include/fast_io/fast_io_hosted/platforms/nt/nt_definitions.h.
 #pragma once
 
-#include <cstdint>
-
 namespace pltxt2htm::details::symbols::nt {
 
-enum class alpc_message_information_class {
-    AlpcMessageSidInformation,
+enum class AlpcMessageInformationClass : int {
+    AlpcMessageSidInformation = 0,
     AlpcMessageTokenModifiedIdInformation,
     AlpcMessageDirectStatusInformation,
     AlpcMessageHandleInformation,
     MaxAlpcMessageInfoClass
 };
 
-enum class file_information_class {
+enum class FileInformationClass : int {
     FileDirectoryInformation = 1,
     FileFullDirectoryInformation = 2,
     FileBothDirectoryInformation = 3,
@@ -93,7 +91,7 @@ enum class file_information_class {
     FileCaseSensitiveInformationForceAccessCheck = 75,
 };
 
-enum class fs_information_class {
+enum class FsInformationClass : int {
     FileFsVolumeInformation = 1,
     FileFsLabelInformation,
     FileFsSizeInformation,
@@ -111,8 +109,8 @@ enum class fs_information_class {
     FileFsMaximumInformation
 };
 
-enum class object_information_class {
-    ObjectBasicInformation,
+enum class ObjectInformationClass : int {
+    ObjectBasicInformation = 0,
     ObjectNameInformation,
     ObjectTypeInformation,
     ObjectTypesInformation,
@@ -122,8 +120,8 @@ enum class object_information_class {
     MaxObjectInfoClass
 };
 
-enum class process_information_class {
-    ProcessBasicInformation,
+enum class ProcessInformationClass : int {
+    ProcessBasicInformation = 0,
     ProcessQuotaLimits,
     ProcessIoCounters,
     ProcessVmCounters,
@@ -228,8 +226,8 @@ enum class process_information_class {
     MaxProcessInfoClass
 };
 
-enum class rtl_path_type {
-    RtlPathTypeUnknown,
+enum class RtlPathType : int {
+    RtlPathTypeUnknown = 0,
     RtlPathTypeUncAbsolute,
     RtlPathTypeDriveAbsolute,
     RtlPathTypeDriveRelative,
@@ -239,15 +237,15 @@ enum class rtl_path_type {
     RtlPathTypeRootLocalDevice,
 };
 
-enum class section_information_class {
-    SectionBasicInformation,
+enum class SectionInformationClass : int {
+    SectionBasicInformation = 0,
     SectionImageInformation,
     SectionRelocationInformation,
     MaxSectionInfoClass
 };
 
-enum class system_information_class {
-    SystemBasicInformation,
+enum class SystemInformationClass : int {
+    SystemBasicInformation = 0,
     SystemProcessorInformation,
     SystemPerformanceInformation,
     SystemTimeOfDayInformation,
@@ -295,8 +293,8 @@ enum class system_information_class {
     SystemLookasideInformation
 };
 
-enum class thread_information_class : ::std::uint_least32_t {
-    ThreadBasicInformation,
+enum class ThreadInformationClass : unsigned long {
+    ThreadBasicInformation = 0,
     ThreadTimes,
     ThreadPriority,
     ThreadBasePriority,
@@ -327,7 +325,7 @@ enum class thread_information_class : ::std::uint_least32_t {
     MaxThreadInfoClass
 };
 
-enum class privileges : ::std::uint_least64_t {
+enum class Privileges : unsigned long long {
     SE_CREATE_TOKEN_PRIVILEGE = 2,
     SE_ASSIGNPRIMARYTOKEN_PRIVILEGE = 3,
     SE_LOCK_MEMORY_PRIVILEGE = 4,
@@ -363,6 +361,50 @@ enum class privileges : ::std::uint_least64_t {
     SE_TIME_ZONE_PRIVILEGE = 34,
     SE_CREATE_SYMBOLIC_LINK_PRIVILEGE = 35,
     SE_DELEGATE_SESSION_USER_IMPERSONATE_PRIVILEGE = 36,
+};
+
+enum class WaitType : int {
+    WaitAll = 0,
+    WaitAny
+};
+
+enum class EventType : int {
+    NotificationEvent = 0,
+    SynchronizationEvent
+};
+
+enum class TimerType : int {
+    NotificationTimer = 0,
+    SynchronizationTimer
+};
+
+enum class SectionInherit : int {
+    ViewShare = 1,
+    ViewUnmap = 2
+};
+
+enum class VirtualMemoryInformationClass : int {
+    VmPrefetchInformation = 0,
+    VmPagePriorityInformation,
+    VmCfgCallTargetInformation,
+};
+
+enum class SecurityImpersonationLevel : int {
+    SecurityAnonymous = 0,
+    SecurityIdentification,
+    SecurityImpersonation,
+    SecurityDelegation,
+};
+
+enum class PsCreateState : int {
+    PsCreateInitialState = 0,
+    PsCreateFailOnFileOpen,
+    PsCreateFailOnSectionCreate,
+    PsCreateFailExeFormat,
+    PsCreateFailMachineMismatch,
+    PsCreateFailExeName,
+    PsCreateSuccess,
+    PsCreateMaximumStates
 };
 
 } // namespace pltxt2htm::details::symbols::nt

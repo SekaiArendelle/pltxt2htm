@@ -47,10 +47,10 @@ using ExpectedReleaseSrwLockExclusive = void(NTAPI*)(nt::SrwLock*) noexcept;
 using ExpectedDuplicateObject = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, nt::Handle, nt::Handle*, nt::Ulong,
                                                      nt::Ulong, nt::Ulong) noexcept;
 using ExpectedClose = nt::NtStatus(NTAPI*)(nt::Handle) noexcept;
-using ExpectedCreateFile = nt::Ulong(NTAPI*)(void**, ::std::uint_least32_t, nt::object_attributes*,
-                                              nt::io_status_block*, ::std::int_least64_t*, ::std::uint_least32_t,
-                                              ::std::uint_least32_t, ::std::uint_least32_t, ::std::uint_least32_t,
-                                              void*, ::std::uint_least32_t) noexcept;
+using ExpectedCreateFile = nt::NtStatus(NTAPI*)(void**, nt::Ulong, nt::ObjectAttributes*,
+                                              nt::IoStatusBlock*, nt::Long64*, nt::Ulong,
+                                              nt::Ulong, nt::Ulong, nt::Ulong,
+                                              void*, nt::Ulong) noexcept;
 using ExpectedDbgPrint = nt::Ulong(__cdecl*)(char const*, ...) noexcept;
 using ExpectedLoadLibraryExW = win32::ModuleHandle(WINAPI*)(win32::WideChar const*, win32::Handle,
                                                             win32::Dword) noexcept;
@@ -85,22 +85,29 @@ static_assert(::std::is_same_v<decltype(&win32::SymGetLineFromAddr64), ExpectedS
 static_assert(::std::is_same_v<nt::Boolean, BOOLEAN>);
 static_assert(::std::is_same_v<nt::Handle, HANDLE>);
 static_assert(::std::is_same_v<nt::NtStatus, NTSTATUS>);
+static_assert(::std::is_same_v<nt::Long, LONG>);
+static_assert(::std::is_same_v<nt::Long64, LONGLONG>);
+static_assert(::std::is_same_v<nt::Uchar, UCHAR>);
 static_assert(::std::is_same_v<nt::Ulong, ULONG>);
+static_assert(::std::is_same_v<nt::Ulong64, ULONG64>);
 static_assert(::std::is_same_v<nt::Ushort, USHORT>);
 static_assert(sizeof(nt::SrwLock) == sizeof(SRWLOCK));
 static_assert(alignof(nt::SrwLock) == alignof(SRWLOCK));
-static_assert(sizeof(nt::unicode_string) == sizeof(UNICODE_STRING));
-static_assert(offsetof(nt::unicode_string, buffer) == offsetof(UNICODE_STRING, Buffer));
-static_assert(sizeof(nt::object_attributes) == sizeof(OBJECT_ATTRIBUTES));
-static_assert(offsetof(nt::object_attributes, security_descriptor) == offsetof(OBJECT_ATTRIBUTES, SecurityDescriptor));
-static_assert(sizeof(nt::io_status_block) == sizeof(IO_STATUS_BLOCK));
-static_assert(offsetof(nt::io_status_block, information) == offsetof(IO_STATUS_BLOCK, Information));
-static_assert(sizeof(nt::client_id) == sizeof(CLIENT_ID));
-static_assert(sizeof(nt::large_integer) == sizeof(LARGE_INTEGER));
-static_assert(nt::file_information_class::FileBasicInformation == static_cast<nt::file_information_class>(4));
-static_assert(sizeof(nt::ps_create_info) >= sizeof(::std::size_t));
-static_assert(offsetof(nt::rtl_user_process_parameters, CommandLine) >
-              offsetof(nt::rtl_user_process_parameters, ImagePathName));
+static_assert(sizeof(nt::UnicodeString) == sizeof(UNICODE_STRING));
+static_assert(offsetof(nt::UnicodeString, buffer) == offsetof(UNICODE_STRING, Buffer));
+static_assert(sizeof(nt::ObjectAttributes) == sizeof(OBJECT_ATTRIBUTES));
+static_assert(offsetof(nt::ObjectAttributes, security_descriptor) == offsetof(OBJECT_ATTRIBUTES, SecurityDescriptor));
+static_assert(offsetof(nt::ObjectAttributes, security_quality_of_service) ==
+              offsetof(OBJECT_ATTRIBUTES, SecurityQualityOfService));
+static_assert(sizeof(nt::IoStatusBlock) == sizeof(IO_STATUS_BLOCK));
+static_assert(offsetof(nt::IoStatusBlock, information) == offsetof(IO_STATUS_BLOCK, Information));
+static_assert(sizeof(nt::ClientId) == sizeof(CLIENT_ID));
+static_assert(sizeof(nt::LargeInteger) == sizeof(LARGE_INTEGER));
+static_assert(nt::FileInformationClass::FileBasicInformation == static_cast<nt::FileInformationClass>(4));
+static_assert(sizeof(nt::PsCreateInfo) >= sizeof(::std::size_t));
+static_assert(offsetof(nt::PsCreateInfo, state_union) > offsetof(nt::PsCreateInfo, state));
+static_assert(offsetof(nt::RtlUserProcessParameters, command_line) >
+              offsetof(nt::RtlUserProcessParameters, image_path_name));
 
 static_assert(::std::is_same_v<win32::Bool, BOOL>);
 static_assert(::std::is_same_v<win32::Char, CHAR>);

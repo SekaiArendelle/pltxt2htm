@@ -1,61 +1,41 @@
 #pragma once
 
 #include <cstddef>
-#include <cstdint>
-
 #include "enums.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details::symbols::nt {
 using Boolean = unsigned char;
 using Handle = void*;
+using Long = long;
+using Long64 = long long;
 using NtStatus = long;
+using Uchar = unsigned char;
 using Ulong = unsigned long;
+using Ulong64 = unsigned long long;
 using Ushort = unsigned short;
 
-enum class wait_type : unsigned int {
-    WaitAll,
-    WaitAny
-};
-enum class event_type : unsigned int {
-    NotificationEvent,
-    SynchronizationEvent
-};
-enum class timer_type : unsigned int {
-    NotificationTimer,
-    SynchronizationTimer
-};
-enum class section_inherit : unsigned int {
-    ViewShare = 1,
-    ViewUnmap = 2
-};
-enum class virtual_memory_information_class : unsigned int {
-    VmPrefetchInformation,
-    VmPagePriorityInformation,
-    VmCfgCallTargetInformation,
-};
-
-struct unicode_string {
+struct UnicodeString {
     Ushort length;
     Ushort maximum_length;
     char16_t* buffer;
 };
 
-struct client_id {
+struct ClientId {
     Handle unique_process;
     Handle unique_thread;
 };
 
-struct object_attributes {
+struct ObjectAttributes {
     Ulong length;
     Handle root_directory;
-    unicode_string* object_name;
+    UnicodeString* object_name;
     Ulong attributes;
     void* security_descriptor;
     void* security_quality_of_service;
 };
 
-struct io_status_block {
+struct IoStatusBlock {
     union {
         NtStatus status;
         void* pointer;
@@ -64,17 +44,17 @@ struct io_status_block {
     ::std::size_t information;
 };
 
-union large_integer {
+union LargeInteger {
     struct {
         Ulong low_part;
         long high_part;
     } parts;
 
-    ::std::int_least64_t quad_part;
+    Long64 quad_part;
 };
 
-struct rtl_relative_name_u {
-    unicode_string relative_name;
+struct RtlRelativeNameU {
+    UnicodeString relative_name;
     Handle containing_directory;
 
     struct {
@@ -83,7 +63,7 @@ struct rtl_relative_name_u {
     } cur_dir_ref;
 };
 
-struct rtl_buffer {
+struct RtlBuffer {
     unsigned char* buffer;
     unsigned char* static_buffer;
     ::std::size_t size;
@@ -92,47 +72,40 @@ struct rtl_buffer {
     void* reserved_for_imalloc;
 };
 
-struct rtl_unicode_string_buffer {
-    unicode_string string;
-    rtl_buffer byte_buffer;
+struct RtlUnicodeStringBuffer {
+    UnicodeString string;
+    RtlBuffer byte_buffer;
     char16_t minimum_static_buffer_for_terminal_nul;
 };
 
-enum class security_impersonation_level : unsigned int {
-    SecurityAnonymous,
-    SecurityIdentification,
-    SecurityImpersonation,
-    SecurityDelegation,
-};
-
-struct security_quality_of_service {
+struct SecurityQualityOfService {
     Ulong length;
-    security_impersonation_level impersonation_level;
+    SecurityImpersonationLevel impersonation_level;
     Boolean context_tracking_mode;
     Boolean effective_only;
 };
 
-struct alpc_port_attributes {
+struct AlpcPortAttributes {
     Ulong flags;
-    security_quality_of_service security_qos;
-    ::std::uint_least64_t max_message_length;
-    ::std::uint_least64_t memory_bandwidth;
-    ::std::uint_least64_t max_pool_usage;
-    ::std::uint_least64_t max_section_size;
-    ::std::uint_least64_t max_view_size;
-    ::std::uint_least64_t max_total_section_size;
+    SecurityQualityOfService security_qos;
+    Ulong64 max_message_length;
+    Ulong64 memory_bandwidth;
+    Ulong64 max_pool_usage;
+    Ulong64 max_section_size;
+    Ulong64 max_view_size;
+    Ulong64 max_total_section_size;
     Ulong dup_object_types;
 #if defined(_WIN64)
     Ulong reserved;
 #endif
 };
 
-struct alpc_message_attributes {
+struct AlpcMessageAttributes {
     Ulong allocated_attributes;
     Ulong valid_attributes;
 };
 
-struct port_message {
+struct PortMessage {
     union {
         struct {
             Ushort data_length;
@@ -152,7 +125,7 @@ struct port_message {
     } u2;
 
     union {
-        client_id client;
+        ClientId client;
         double reserved;
     };
 
@@ -164,20 +137,20 @@ struct port_message {
     };
 };
 
-struct alpc_data_view_attr {
+struct AlpcDataViewAttr {
     Ulong flags;
     Handle section_handle;
     void* view_base;
     ::std::size_t view_size;
 };
 
-struct alpc_security_attr {
+struct AlpcSecurityAttr {
     Ulong flags;
-    security_quality_of_service* qos;
+    SecurityQualityOfService* qos;
     Handle context_handle;
 };
 
-struct ps_attribute {
+struct PsAttribute {
     ::std::size_t attribute;
     ::std::size_t size;
 
@@ -189,150 +162,139 @@ struct ps_attribute {
     ::std::size_t* return_length;
 };
 
-struct ps_attribute_list {
+struct PsAttributeList {
     ::std::size_t total_length;
-    ps_attribute attributes[32];
+    PsAttribute attributes[32];
 };
 
-struct curdir {
-    unicode_string DosPath;
-    void* Handle;
+struct Curdir {
+    UnicodeString dos_path;
+    void* handle;
 };
 
-struct rtl_drive_letter_curdir {
-    ::std::uint_least16_t Flags;
-    ::std::uint_least16_t Length;
-    ::std::uint_least32_t TimeStamp;
-    unicode_string DosPath;
+struct RtlDriveLetterCurdir {
+    Ushort flags;
+    Ushort length;
+    Ulong time_stamp;
+    UnicodeString dos_path;
 };
 
 constexpr ::std::size_t rtl_max_drive_letters{32};
 
-struct rtl_user_process_parameters {
-    ::std::uint_least32_t MaximumLength;
-    ::std::uint_least32_t Length;
+struct RtlUserProcessParameters {
+    Ulong maximum_length;
+    Ulong length;
 
-    ::std::uint_least32_t Flags;
-    ::std::uint_least32_t DebugFlags;
+    Ulong flags;
+    Ulong debug_flags;
 
-    void* ConsoleHandle;
-    ::std::uint_least32_t ConsoleFlags;
-    void* StandardInput;
-    void* StandardOutput;
-    void* StandardError;
+    void* console_handle;
+    Ulong console_flags;
+    void* standard_input;
+    void* standard_output;
+    void* standard_error;
 
-    curdir CurrentDirectory;
-    unicode_string DllPath;
-    unicode_string ImagePathName;
-    unicode_string CommandLine;
-    char16_t* Environment;
+    Curdir current_directory;
+    UnicodeString dll_path;
+    UnicodeString image_path_name;
+    UnicodeString command_line;
+    char16_t* environment;
 
-    ::std::uint_least32_t StartingX;
-    ::std::uint_least32_t StartingY;
-    ::std::uint_least32_t CountX;
-    ::std::uint_least32_t CountY;
-    ::std::uint_least32_t CountCharsX;
-    ::std::uint_least32_t CountCharsY;
-    ::std::uint_least32_t FillAttribute;
+    Ulong starting_x;
+    Ulong starting_y;
+    Ulong count_x;
+    Ulong count_y;
+    Ulong count_chars_x;
+    Ulong count_chars_y;
+    Ulong fill_attribute;
 
-    ::std::uint_least32_t WindowFlags;
-    ::std::uint_least32_t ShowWindowFlags;
-    unicode_string WindowTitle;
-    unicode_string DesktopInfo;
-    unicode_string ShellInfo;
-    unicode_string RuntimeData;
-    rtl_drive_letter_curdir CurrentDirectories[rtl_max_drive_letters];
+    Ulong window_flags;
+    Ulong show_window_flags;
+    UnicodeString window_title;
+    UnicodeString desktop_info;
+    UnicodeString shell_info;
+    UnicodeString runtime_data;
+    RtlDriveLetterCurdir current_directories[rtl_max_drive_letters];
 
-    ::std::uint_least32_t EnvironmentSize;
-    ::std::uint_least32_t EnvironmentVersion;
-    void* PackageDependencyData;
-    ::std::uint_least32_t ProcessGroupId;
-    ::std::uint_least32_t LoaderThreads;
+    Ulong environment_size;
+    Ulong environment_version;
+    void* package_dependency_data;
+    Ulong process_group_id;
+    Ulong loader_threads;
 };
 
-enum class ps_create_state {
-    PsCreateInitialState,
-    PsCreateFailOnFileOpen,
-    PsCreateFailOnSectionCreate,
-    PsCreateFailExeFormat,
-    PsCreateFailMachineMismatch,
-    PsCreateFailExeName,
-    PsCreateSuccess,
-    PsCreateMaximumStates
-};
-
-struct ps_create_info {
-    ::std::size_t Size;
-    ps_create_state State;
+struct PsCreateInfo {
+    ::std::size_t size;
+    PsCreateState state;
 
     union {
         struct {
-            union u1union {
-                ::std::uint_least32_t InitFlags;
+            union {
+                Ulong init_flags;
 
                 struct {
-                    ::std::uint_least8_t WriteOutputOnExit : 1;
-                    ::std::uint_least8_t DetectManifest : 1;
-                    ::std::uint_least8_t IFEOSkipDebugger : 1;
-                    ::std::uint_least8_t IFEODoNotPropagateKeyState : 1;
-                    ::std::uint_least8_t SpareBits1 : 4;
-                    ::std::uint_least8_t SpareBits2 : 8;
-                    ::std::uint_least16_t ProhibitedImageCharacteristics : 16;
+                    Uchar write_output_on_exit : 1;
+                    Uchar detect_manifest : 1;
+                    Uchar ifeo_skip_debugger : 1;
+                    Uchar ifeo_do_not_propagate_key_state : 1;
+                    Uchar spare_bits1 : 4;
+                    Uchar spare_bits2 : 8;
+                    Ushort prohibited_image_characteristics : 16;
                 } s1;
             } u1;
 
-            ::std::uint_least32_t AdditionalFileAccess;
-        } InitState;
+            Ulong additional_file_access;
+        } init_state;
 
         struct {
-            void* FileHandle;
-        } FailSection;
+            void* file_handle;
+        } fail_section;
 
         struct {
-            ::std::uint_least16_t DllCharacteristics;
-        } ExeFormat;
+            Ushort dll_characteristics;
+        } exe_format;
 
         struct {
-            void* IFEOKey;
-        } ExeName;
+            void* ifeo_key;
+        } exe_name;
 
         struct {
-            union u2union {
-                ::std::uint_least32_t OutputFlags;
+            union {
+                Ulong output_flags;
 
                 struct {
-                    ::std::uint_least8_t ProtectedProcess : 1;
-                    ::std::uint_least8_t AddressSpaceOverride : 1;
-                    ::std::uint_least8_t DevOverrideEnabled : 1;
-                    ::std::uint_least8_t ManifestDetected : 1;
-                    ::std::uint_least8_t ProtectedProcessLight : 1;
-                    ::std::uint_least8_t SpareBits1 : 3;
-                    ::std::uint_least8_t SpareBits2 : 8;
-                    ::std::uint_least16_t SpareBits3 : 16;
+                    Uchar protected_process : 1;
+                    Uchar address_space_override : 1;
+                    Uchar dev_override_enabled : 1;
+                    Uchar manifest_detected : 1;
+                    Uchar protected_process_light : 1;
+                    Uchar spare_bits1 : 3;
+                    Uchar spare_bits2 : 8;
+                    Ushort spare_bits3 : 16;
                 } s2;
             } u2;
 
-            void* FileHandle;
-            void* SectionHandle;
-            ::std::uint_least64_t UserProcessParametersNative;
-            ::std::uint_least32_t UserProcessParametersWow64;
-            ::std::uint_least32_t CurrentParameterFlags;
-            ::std::uint_least64_t PebAddressNative;
-            ::std::uint_least32_t PebAddressWow64;
-            ::std::uint_least64_t ManifestAddress;
-            ::std::uint_least32_t ManifestSize;
-        } SuccessState;
-    } stateunion;
+            void* file_handle;
+            void* section_handle;
+            Ulong64 user_process_parameters_native;
+            Ulong user_process_parameters_wow64;
+            Ulong current_parameter_flags;
+            Ulong64 peb_address_native;
+            Ulong peb_address_wow64;
+            Ulong64 manifest_address;
+            Ulong manifest_size;
+        } success_state;
+    } state_union;
 };
 
-struct memory_range_entry {
+struct MemoryRangeEntry {
     void* virtual_address;
     ::std::size_t number_of_bytes;
 };
 
-using pio_apc_routine = void (*)(void*, io_status_block*, Ulong) noexcept;
-using ptimer_apc_routine = void (*)(void*, Ulong, long) noexcept;
-using user_thread_start_routine = Ulong(PLTXT2HTM_DETAIL_STDCALL*)(void*);
+using IoApcRoutine = void (*)(void*, IoStatusBlock*, Ulong) noexcept;
+using TimerApcRoutine = void (*)(void*, Ulong, Long) noexcept;
+using UserThreadStartRoutine = Ulong(PLTXT2HTM_DETAIL_STDCALL*)(void*);
 
 struct SrwLock {
     void* pointer;
