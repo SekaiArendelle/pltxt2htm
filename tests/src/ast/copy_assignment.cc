@@ -139,8 +139,8 @@ int main() {
     }
 
     {
-        auto const original = ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"https://example.com"});
-        auto assigned = ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"https://example.org"});
+        auto const original = ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.com").value<nd::quick_enforce>();
+        auto assigned = ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.org").value<nd::quick_enforce>();
         assigned = original;
         pltxt2htm_test_assert_true(assigned == original);
     }
