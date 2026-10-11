@@ -34,8 +34,6 @@
 #endif
 
 namespace pltxt2htm::details::symbols::win32 {
-using Procedure = IntPtr(PLTXT2HTM_DETAIL_STDCALL*)();
-
 #if defined(__GNUC__) || defined(__clang__)
     #if defined(_M_HYBRID)
         #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME(name, count) __asm__("#" #name "@" #count)

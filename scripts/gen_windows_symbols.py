@@ -30,7 +30,7 @@ class Library:
     name: str
     namespace: str
     macro_prefix: str
-    probe_definitions: str
+    definitions_header: str
     symbols: tuple[Symbol, ...]
 
 
@@ -40,14 +40,7 @@ LIBRARIES = (
         name="ntdll",
         namespace="pltxt2htm::details::symbols::nt",
         macro_prefix="PLTXT2HTM_DETAIL_NT",
-        probe_definitions="""using Boolean = unsigned char;
-using Handle = void*;
-using NtStatus = long;
-using Ulong = unsigned long;
-using Ushort = unsigned short;
-struct SrwLock {
-    void* pointer;
-};""",
+        definitions_header="nt/definitions.hh",
         symbols=(
             Symbol(
                 "RtlCaptureStackBackTrace",
@@ -90,15 +83,7 @@ struct SrwLock {
         name="kernel32",
         namespace="pltxt2htm::details::symbols::win32",
         macro_prefix="PLTXT2HTM_DETAIL_WIN32",
-        probe_definitions="""using Bool = int;
-using Char = char;
-using Dword = unsigned long;
-using Handle = void*;
-using IntPtr = __INTPTR_TYPE__;
-// Keep module handles opaque instead of importing the SDK's global HINSTANCE__ tag.
-using ModuleHandle = void*;
-using WideChar = wchar_t;
-using Procedure = IntPtr(__stdcall*)();""",
+        definitions_header="win32/definitions.hh",
         symbols=(
             Symbol(
                 "LoadLibraryExW",
@@ -125,13 +110,7 @@ using Procedure = IntPtr(__stdcall*)();""",
         name="dbghelp",
         namespace="pltxt2htm::details::symbols::win32",
         macro_prefix="PLTXT2HTM_DETAIL_WIN32",
-        probe_definitions="""using Bool = int;
-using Char = char;
-using Dword = unsigned long;
-using Dword64 = unsigned long long;
-using Handle = void*;
-struct SymbolInfo;
-struct ImageHlpLine64;""",
+        definitions_header="win32/dbghelp_definitions.hh",
         symbols=(
             Symbol(
                 "SymInitialize",
@@ -205,9 +184,9 @@ def generate_declarations(library: Library, x86_stack_bytes: dict[str, int]) -> 
 def local_probe_source(symbol: Symbol, library: Library) -> str:
     result = symbol.return_type
     parameters = format_parameters(symbol.parameters)
-    return f"""namespace {library.namespace} {{
-{library.probe_definitions}
+    return f"""#include "{library.definitions_header}"
 
+namespace {library.namespace} {{
 __declspec(dllimport) {result} __stdcall {symbol.export_name}({parameters}) noexcept;
 }}
 
@@ -218,9 +197,9 @@ auto* volatile pltxt2htm_probe = &::{library.namespace}::{symbol.export_name};
 def export_probe_source(symbol: Symbol, library: Library) -> str:
     result = symbol.return_type
     parameters = format_parameters(symbol.parameters)
-    return f"""namespace {library.namespace} {{
-{library.probe_definitions}
+    return f"""#include "{library.definitions_header}"
 
+namespace {library.namespace} {{
 extern \"C\" __declspec(dllimport) {result} __stdcall {symbol.export_name}({parameters}) noexcept;
 }}
 
@@ -234,14 +213,19 @@ def undefined_imports(
     target: str,
     clang: str,
     llvm_nm: str,
+    cxx_include_dir: pathlib.Path | None,
     temporary_directory: pathlib.Path,
     stem: str,
 ) -> tuple[str, ...]:
     source = temporary_directory / f"{stem}.cc"
     object_file = temporary_directory / f"{stem}.obj"
     source.write_text(source_text, encoding="ascii", newline="\n")
+    compile_command = [clang, f"--target={target}", "-std=c++23"]
+    if cxx_include_dir is not None:
+        compile_command.extend(("-nostdinc++", "-isystem", str(cxx_include_dir)))
+    compile_command.extend(("-I", str(SYMBOL_ROOT), "-c", str(source), "-o", str(object_file)))
     compile_result = subprocess.run(
-        [clang, f"--target={target}", "-std=c++23", "-c", str(source), "-o", str(object_file)],
+        compile_command,
         check=False,
         capture_output=True,
         text=True,
@@ -279,13 +263,28 @@ def undefined_symbols(
     target: str,
     clang: str,
     llvm_nm: str,
+    cxx_include_dir: pathlib.Path | None,
     temporary_directory: pathlib.Path,
 ) -> tuple[tuple[str, str], ...]:
     local = undefined_imports(
-        local_probe_source(symbol, library), symbol, target, clang, llvm_nm, temporary_directory, "local"
+        local_probe_source(symbol, library),
+        symbol,
+        target,
+        clang,
+        llvm_nm,
+        cxx_include_dir,
+        temporary_directory,
+        "local",
     )
     exported = undefined_imports(
-        export_probe_source(symbol, library), symbol, target, clang, llvm_nm, temporary_directory, "export"
+        export_probe_source(symbol, library),
+        symbol,
+        target,
+        clang,
+        llvm_nm,
+        cxx_include_dir,
+        temporary_directory,
+        "export",
     )
     exported_by_flavor = {import_flavor(name): name for name in exported}
     pairs = tuple((name, exported_by_flavor[import_flavor(name)]) for name in local)
@@ -298,14 +297,20 @@ def undefined_symbols(
 
 
 def generate_linker_aliases(
-    library: Library, target: str, clang: str, llvm_nm: str
+    library: Library,
+    target: str,
+    clang: str,
+    llvm_nm: str,
+    cxx_include_dir: pathlib.Path | None,
 ) -> tuple[str, dict[str, int]]:
     result = [GENERATED_NOTICE, "\n"]
     x86_stack_bytes: dict[str, int] = {}
     with tempfile.TemporaryDirectory(prefix="pltxt2htm-symbols-") as temporary:
         temporary_directory = pathlib.Path(temporary)
         for symbol in library.symbols:
-            pairs = undefined_symbols(symbol, library, target, clang, llvm_nm, temporary_directory)
+            pairs = undefined_symbols(
+                symbol, library, target, clang, llvm_nm, cxx_include_dir, temporary_directory
+            )
             for local, exported in pairs:
                 result.append(f'#pragma comment(linker, "/alternatename:{local}={exported}")\n')
             if target.startswith("i686-"):
@@ -316,14 +321,16 @@ def generate_linker_aliases(
     return "".join(result), x86_stack_bytes
 
 
-def generated_files(clang: str, llvm_nm: str) -> dict[pathlib.Path, str]:
+def generated_files(
+    clang: str, llvm_nm: str, cxx_include_dir: pathlib.Path | None
+) -> dict[pathlib.Path, str]:
     result: dict[pathlib.Path, str] = {}
     for library in LIBRARIES:
         directory = SYMBOL_ROOT / library.api
         i686_stack_bytes: dict[str, int] = {}
         for architecture, target in MSVC_TARGETS:
             aliases, target_stack_bytes = generate_linker_aliases(
-                library, target, clang, llvm_nm
+                library, target, clang, llvm_nm, cxx_include_dir
             )
             result[directory / f"{library.name}_msvc_linker_{architecture}.inc"] = aliases
             i686_stack_bytes.update(target_stack_bytes)
@@ -343,11 +350,16 @@ def main() -> int:
     parser.add_argument("--check", action="store_true", help="fail if generated files are stale")
     parser.add_argument("--clang", default="clang++", help="Clang C++ driver")
     parser.add_argument("--llvm-nm", default="llvm-nm", help="LLVM symbol table dumper")
+    parser.add_argument(
+        "--cxx-include-dir",
+        type=pathlib.Path,
+        help="C++ standard library header directory for cross-compiling",
+    )
     arguments = parser.parse_args()
 
     clang = resolve_tool(arguments.clang, "Clang C++ driver")
     llvm_nm = resolve_tool(arguments.llvm_nm, "llvm-nm")
-    files = generated_files(clang, llvm_nm)
+    files = generated_files(clang, llvm_nm, arguments.cxx_include_dir)
     stale: list[pathlib.Path] = []
     for path, content in files.items():
         if arguments.check:

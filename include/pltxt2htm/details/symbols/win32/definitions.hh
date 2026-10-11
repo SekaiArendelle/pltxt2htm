@@ -14,4 +14,11 @@ using ModuleHandle = void*;
 using Ulong = unsigned long;
 using Ulong64 = unsigned long long;
 using WideChar = wchar_t;
+#if defined(_MSC_VER)
+using Procedure = IntPtr(__stdcall*)();
+#elif defined(__i386__)
+using Procedure = IntPtr(__attribute__((stdcall)) *)();
+#else
+using Procedure = IntPtr (*)();
+#endif
 } // namespace pltxt2htm::details::symbols::win32
