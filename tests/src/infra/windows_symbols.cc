@@ -109,6 +109,8 @@ static_assert(::std::is_same_v<nt::Ulong, ULONG>);
 static_assert(::std::is_same_v<nt::Ulong64, ULONG64>);
 static_assert(::std::is_same_v<nt::Ushort, USHORT>);
 static_assert(sizeof(nt::Privileges) == sizeof(ULONG));
+static_assert(::std::is_same_v<::std::underlying_type_t<nt::Privileges>, nt::Ulong>);
+static_assert(::std::is_same_v<::std::underlying_type_t<nt::ThreadInformationClass>, nt::Ulong>);
 static_assert(sizeof(nt::AlpcPortAttributes) == (sizeof(void*) == 8 ? 72 : 44));
 static_assert(offsetof(nt::AlpcPortAttributes, memory_bandwidth) ==
               offsetof(nt::AlpcPortAttributes, max_message_length) + sizeof(::std::size_t));
