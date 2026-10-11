@@ -47,6 +47,8 @@ using ExpectedReleaseSrwLockExclusive = void(NTAPI*)(nt::SrwLock*) noexcept;
 using ExpectedDuplicateObject = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, nt::Handle, nt::Handle*, nt::Ulong,
                                                      nt::Ulong, nt::Ulong) noexcept;
 using ExpectedClose = nt::NtStatus(NTAPI*)(nt::Handle) noexcept;
+using ExpectedCriticalSection = nt::NtStatus(NTAPI*)(void*) noexcept;
+using ExpectedAcquirePrivilege = nt::NtStatus(NTAPI*)(nt::Ulong*, nt::Ulong, nt::Ulong, void**) noexcept;
 using ExpectedIoApcRoutine = void(NTAPI*)(void*, nt::IoStatusBlock*, nt::Ulong);
 using ExpectedTimerApcRoutine = void (*)(void*, nt::Ulong, nt::Long);
 using ExpectedControlFile = nt::NtStatus(NTAPI*)(void*, void*, nt::IoApcRoutine, void*, nt::IoStatusBlock*,
@@ -74,6 +76,11 @@ static_assert(::std::is_same_v<decltype(&nt::RtlAcquireSRWLockExclusive), Expect
 static_assert(::std::is_same_v<decltype(&nt::RtlReleaseSRWLockExclusive), ExpectedReleaseSrwLockExclusive>);
 static_assert(::std::is_same_v<decltype(&nt::NtDuplicateObject), ExpectedDuplicateObject>);
 static_assert(::std::is_same_v<decltype(&nt::NtClose), ExpectedClose>);
+static_assert(::std::is_same_v<decltype(&nt::RtlInitializeCriticalSection), ExpectedCriticalSection>);
+static_assert(::std::is_same_v<decltype(&nt::RtlEnterCriticalSection), ExpectedCriticalSection>);
+static_assert(::std::is_same_v<decltype(&nt::RtlLeaveCriticalSection), ExpectedCriticalSection>);
+static_assert(::std::is_same_v<decltype(&nt::RtlDeleteCriticalSection), ExpectedCriticalSection>);
+static_assert(::std::is_same_v<decltype(&nt::RtlAcquirePrivilege), ExpectedAcquirePrivilege>);
 static_assert(::std::is_same_v<nt::IoApcRoutine, ExpectedIoApcRoutine>);
 static_assert(::std::is_same_v<nt::TimerApcRoutine, ExpectedTimerApcRoutine>);
 static_assert(::std::is_same_v<decltype(&nt::NtFsControlFile), ExpectedControlFile>);
@@ -101,6 +108,14 @@ static_assert(::std::is_same_v<nt::Uchar, UCHAR>);
 static_assert(::std::is_same_v<nt::Ulong, ULONG>);
 static_assert(::std::is_same_v<nt::Ulong64, ULONG64>);
 static_assert(::std::is_same_v<nt::Ushort, USHORT>);
+static_assert(sizeof(nt::Privileges) == sizeof(ULONG));
+static_assert(sizeof(nt::AlpcPortAttributes) == (sizeof(void*) == 8 ? 72 : 44));
+static_assert(offsetof(nt::AlpcPortAttributes, memory_bandwidth) ==
+              offsetof(nt::AlpcPortAttributes, max_message_length) + sizeof(::std::size_t));
+static_assert(offsetof(nt::RtlUserProcessParameters, environment_version) ==
+              offsetof(nt::RtlUserProcessParameters, environment_size) + sizeof(::std::size_t));
+static_assert(offsetof(nt::RtlUserProcessParameters, package_dependency_data) ==
+              offsetof(nt::RtlUserProcessParameters, environment_size) + 2 * sizeof(::std::size_t));
 static_assert(sizeof(nt::SrwLock) == sizeof(SRWLOCK));
 static_assert(alignof(nt::SrwLock) == alignof(SRWLOCK));
 static_assert(sizeof(nt::UnicodeString) == sizeof(UNICODE_STRING));

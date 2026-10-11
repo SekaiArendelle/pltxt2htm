@@ -88,12 +88,12 @@ struct SecurityQualityOfService {
 struct AlpcPortAttributes {
     Ulong flags;
     SecurityQualityOfService security_qos;
-    Ulong64 max_message_length;
-    Ulong64 memory_bandwidth;
-    Ulong64 max_pool_usage;
-    Ulong64 max_section_size;
-    Ulong64 max_view_size;
-    Ulong64 max_total_section_size;
+    ::std::size_t max_message_length;
+    ::std::size_t memory_bandwidth;
+    ::std::size_t max_pool_usage;
+    ::std::size_t max_section_size;
+    ::std::size_t max_view_size;
+    ::std::size_t max_total_section_size;
     Ulong dup_object_types;
 #if defined(_WIN64)
     Ulong reserved;
@@ -216,8 +216,8 @@ struct RtlUserProcessParameters {
     UnicodeString runtime_data;
     RtlDriveLetterCurdir current_directories[rtl_max_drive_letters];
 
-    Ulong environment_size;
-    Ulong environment_version;
+    ::std::size_t environment_size;
+    ::std::size_t environment_version;
     void* package_dependency_data;
     Ulong process_group_id;
     Ulong loader_threads;

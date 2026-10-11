@@ -79,12 +79,16 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlDosPathNameToNtP
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlNtPathNameToDosPathName(Ulong, RtlUnicodeStringBuffer *, Ulong *, char16_t **) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlNtPathNameToDosPathName, 16);
 PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlFreeUnicodeString(UnicodeString *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlFreeUnicodeString, 4);
-PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlInitializeCriticalSection(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlInitializeCriticalSection, 4);
-PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlEnterCriticalSection(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlEnterCriticalSection, 4);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlInitializeCriticalSection(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlInitializeCriticalSection, 4);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlEnterCriticalSection(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlEnterCriticalSection, 4);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT int PLTXT2HTM_DETAIL_STDCALL RtlTryEnterCriticalSection(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlTryEnterCriticalSection, 4);
-PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlLeaveCriticalSection(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlLeaveCriticalSection, 4);
-PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlDeleteCriticalSection(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlDeleteCriticalSection, 4);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlLeaveCriticalSection(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlLeaveCriticalSection, 4);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlDeleteCriticalSection(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlDeleteCriticalSection, 4);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlCreateUserThread(void *, void *, int, Ulong, ::std::size_t, ::std::size_t, UserThreadStartRoutine, void *, void **, ClientId *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlCreateUserThread, 40);
 [[nodiscard]]
@@ -267,7 +271,7 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtDeviceIoControlFi
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwDeviceIoControlFile(void *, void *, IoApcRoutine, void *, IoStatusBlock *, Ulong, void *, Ulong, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwDeviceIoControlFile, 40);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlAcquirePrivilege(Privileges *, Ulong, Ulong, void **) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlAcquirePrivilege, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlAcquirePrivilege(Ulong *, Ulong, Ulong, void **) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlAcquirePrivilege, 16);
 PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlReleasePrivilege(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlReleasePrivilege, 4);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlQueryEnvironmentVariable_U(void *, UnicodeString *, UnicodeString *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlQueryEnvironmentVariable_U, 12);

@@ -325,7 +325,7 @@ enum class ThreadInformationClass : unsigned long {
     MaxThreadInfoClass
 };
 
-enum class Privileges : unsigned long long {
+enum class Privileges : unsigned long {
     SE_CREATE_TOKEN_PRIVILEGE = 2,
     SE_ASSIGNPRIMARYTOKEN_PRIVILEGE = 3,
     SE_LOCK_MEMORY_PRIVILEGE = 4,

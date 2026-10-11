@@ -285,13 +285,15 @@ LIBRARIES = (
             ),
             Symbol(
                 "RtlInitializeCriticalSection",
-                "void",
+                "NtStatus",
                 ('void *', ),
+                nodiscard=True,
             ),
             Symbol(
                 "RtlEnterCriticalSection",
-                "void",
+                "NtStatus",
                 ('void *', ),
+                nodiscard=True,
             ),
             Symbol(
                 "RtlTryEnterCriticalSection",
@@ -301,13 +303,15 @@ LIBRARIES = (
             ),
             Symbol(
                 "RtlLeaveCriticalSection",
-                "void",
+                "NtStatus",
                 ('void *', ),
+                nodiscard=True,
             ),
             Symbol(
                 "RtlDeleteCriticalSection",
-                "void",
+                "NtStatus",
                 ('void *', ),
+                nodiscard=True,
             ),
             Symbol(
                 "RtlCreateUserThread",
@@ -863,7 +867,7 @@ LIBRARIES = (
             Symbol(
                 "RtlAcquirePrivilege",
                 "NtStatus",
-                ('Privileges *', 'Ulong', 'Ulong', 'void **', ),
+                ('Ulong *', 'Ulong', 'Ulong', 'void **', ),
                 nodiscard=True,
             ),
             Symbol(
