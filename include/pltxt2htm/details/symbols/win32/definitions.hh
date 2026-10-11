@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include "../push_macro.hh"
+
 namespace pltxt2htm::details::symbols::win32 {
 using Bool = int;
 using Char = char;
@@ -14,11 +16,7 @@ using ModuleHandle = void*;
 using Ulong = unsigned long;
 using Ulong64 = unsigned long long;
 using WideChar = wchar_t;
-#if defined(_MSC_VER)
-using Procedure = IntPtr(__stdcall*)();
-#elif defined(__i386__)
-using Procedure = IntPtr(__attribute__((stdcall)) *)();
-#else
-using Procedure = IntPtr (*)();
-#endif
+using Procedure = IntPtr(PLTXT2HTM_DETAIL_STDCALL*)();
 } // namespace pltxt2htm::details::symbols::win32
+
+#include "../pop_macro.hh"
