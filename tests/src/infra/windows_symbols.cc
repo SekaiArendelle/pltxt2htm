@@ -7,7 +7,7 @@
 
     #define PLTXT2HTM_DETAIL_DLLIMPORT 11
     #define PLTXT2HTM_DETAIL_STDCALL 12
-    #define PLTXT2HTM_DETAIL_ASM_NAME 13
+    #define PLTXT2HTM_DETAIL_STDCALL_ASM_NAME 13
     #define PLTXT2HTM_DETAIL_CDECL 14
     #define PLTXT2HTM_DETAIL_CDECL_ASM_NAME 15
 
@@ -21,7 +21,7 @@
     #if PLTXT2HTM_DETAIL_STDCALL != 12
         #error "stdcall macro was not restored"
     #endif
-    #if PLTXT2HTM_DETAIL_ASM_NAME != 13
+    #if PLTXT2HTM_DETAIL_STDCALL_ASM_NAME != 13
         #error "asm-name macro was not restored"
     #endif
     #if PLTXT2HTM_DETAIL_CDECL != 14
@@ -33,7 +33,7 @@
 
     #undef PLTXT2HTM_DETAIL_DLLIMPORT
     #undef PLTXT2HTM_DETAIL_STDCALL
-    #undef PLTXT2HTM_DETAIL_ASM_NAME
+    #undef PLTXT2HTM_DETAIL_STDCALL_ASM_NAME
     #undef PLTXT2HTM_DETAIL_CDECL
     #undef PLTXT2HTM_DETAIL_CDECL_ASM_NAME
 

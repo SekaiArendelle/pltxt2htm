@@ -1049,7 +1049,7 @@ def declaration(symbol: Symbol, x86_stack_bytes: int) -> str:
     attribute = "[[nodiscard]]\n" if symbol.nodiscard else ""
     convention = "PLTXT2HTM_DETAIL_STDCALL" if symbol.calling_convention == "stdcall" else "PLTXT2HTM_DETAIL_CDECL"
     suffix = (
-        f" PLTXT2HTM_DETAIL_ASM_NAME({symbol.export_name}, {x86_stack_bytes})"
+        f" PLTXT2HTM_DETAIL_STDCALL_ASM_NAME({symbol.export_name}, {x86_stack_bytes})"
         if symbol.calling_convention == "stdcall"
         else f" PLTXT2HTM_DETAIL_CDECL_ASM_NAME({symbol.export_name})"
     )
