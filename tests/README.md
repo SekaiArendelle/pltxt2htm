@@ -20,6 +20,9 @@ python ../scripts/gen_windows_symbols.py
 python ../scripts/gen_windows_symbols.py --check
 ```
 
+For a consistent toolchain, use the dedicated
+[Windows symbol generator image](../scripts/docker/windows-symbols/README.md).
+
 The C++ standard defaults to `AUTO`: GCC 16 or newer uses C++26 so the tests
 exercise supported C++26 code paths, while other compilers use C++23. Override
 it with `-DCMAKE_CXX_STANDARD=23` or `-DCMAKE_CXX_STANDARD=26`. When
