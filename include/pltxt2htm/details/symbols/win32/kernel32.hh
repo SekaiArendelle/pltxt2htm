@@ -7,24 +7,13 @@
     #error "pltxt2htm Win32 symbols are only available on Windows"
 #endif
 
-#pragma push_macro("PLTXT2HTM_DETAIL_WIN32_DLLIMPORT")
 #pragma push_macro("PLTXT2HTM_DETAIL_WIN32_ASM_NAME")
 
-#undef PLTXT2HTM_DETAIL_WIN32_DLLIMPORT
 #undef PLTXT2HTM_DETAIL_WIN32_ASM_NAME
 
 #if defined(_MSC_VER) && !defined(__clang__)
-    #define PLTXT2HTM_DETAIL_WIN32_DLLIMPORT __declspec(dllimport)
     #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME(name, count)
-#elif defined(__clang__) || defined(__GNUC__)
-    #if defined(_MSC_VER)
-        #define PLTXT2HTM_DETAIL_WIN32_DLLIMPORT __declspec(dllimport)
-    #elif defined(__i386__)
-        #define PLTXT2HTM_DETAIL_WIN32_DLLIMPORT __attribute__((dllimport))
-    #else
-        #define PLTXT2HTM_DETAIL_WIN32_DLLIMPORT __attribute__((dllimport))
-    #endif
-#else
+#elif !defined(__clang__) && !defined(__GNUC__)
     #error "unsupported compiler for pltxt2htm Win32 symbols"
 #endif
 
@@ -66,6 +55,5 @@ namespace pltxt2htm::details::symbols::win32 {
 #endif
 
 #pragma pop_macro("PLTXT2HTM_DETAIL_WIN32_ASM_NAME")
-#pragma pop_macro("PLTXT2HTM_DETAIL_WIN32_DLLIMPORT")
 
 #include "../pop_macro.hh"
