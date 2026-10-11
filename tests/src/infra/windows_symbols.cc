@@ -7,8 +7,7 @@
 
     #define PLTXT2HTM_DETAIL_DLLIMPORT 11
     #define PLTXT2HTM_DETAIL_STDCALL 12
-    #define PLTXT2HTM_DETAIL_NT_ASM_NAME 13
-    #define PLTXT2HTM_DETAIL_WIN32_ASM_NAME 23
+    #define PLTXT2HTM_DETAIL_ASM_NAME 13
 
     #include <pltxt2htm/details/symbols/nt/ntdll.hh>
     #include <pltxt2htm/details/symbols/win32/dbghelp.hh>
@@ -20,17 +19,13 @@
     #if PLTXT2HTM_DETAIL_STDCALL != 12
         #error "stdcall macro was not restored"
     #endif
-    #if PLTXT2HTM_DETAIL_NT_ASM_NAME != 13
-        #error "NT asm-name macro was not restored"
-    #endif
-    #if PLTXT2HTM_DETAIL_WIN32_ASM_NAME != 23
-        #error "Win32 asm-name macro was not restored"
+    #if PLTXT2HTM_DETAIL_ASM_NAME != 13
+        #error "asm-name macro was not restored"
     #endif
 
     #undef PLTXT2HTM_DETAIL_DLLIMPORT
     #undef PLTXT2HTM_DETAIL_STDCALL
-    #undef PLTXT2HTM_DETAIL_NT_ASM_NAME
-    #undef PLTXT2HTM_DETAIL_WIN32_ASM_NAME
+    #undef PLTXT2HTM_DETAIL_ASM_NAME
 
 namespace nt = ::pltxt2htm::details::symbols::nt;
 namespace win32 = ::pltxt2htm::details::symbols::win32;

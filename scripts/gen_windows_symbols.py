@@ -29,7 +29,6 @@ class Library:
     api: str
     name: str
     namespace: str
-    macro_prefix: str
     definitions_header: str
     symbols: tuple[Symbol, ...]
 
@@ -39,7 +38,6 @@ LIBRARIES = (
         api="nt",
         name="ntdll",
         namespace="pltxt2htm::details::symbols::nt",
-        macro_prefix="PLTXT2HTM_DETAIL_NT",
         definitions_header="nt/definitions.hh",
         symbols=(
             Symbol(
@@ -82,7 +80,6 @@ LIBRARIES = (
         api="win32",
         name="kernel32",
         namespace="pltxt2htm::details::symbols::win32",
-        macro_prefix="PLTXT2HTM_DETAIL_WIN32",
         definitions_header="win32/definitions.hh",
         symbols=(
             Symbol(
@@ -109,7 +106,6 @@ LIBRARIES = (
         api="win32",
         name="dbghelp",
         namespace="pltxt2htm::details::symbols::win32",
-        macro_prefix="PLTXT2HTM_DETAIL_WIN32",
         definitions_header="win32/dbghelp_definitions.hh",
         symbols=(
             Symbol(
@@ -162,10 +158,9 @@ def format_parameters(parameters: tuple[str, ...]) -> str:
     return ", ".join(parameters)
 
 
-def declaration(symbol: Symbol, library: Library, x86_stack_bytes: int) -> str:
-    prefix = library.macro_prefix
+def declaration(symbol: Symbol, x86_stack_bytes: int) -> str:
     attribute = "[[nodiscard]]\n" if symbol.nodiscard else ""
-    suffix = f" {prefix}_ASM_NAME({symbol.export_name}, {x86_stack_bytes})"
+    suffix = f" PLTXT2HTM_DETAIL_ASM_NAME({symbol.export_name}, {x86_stack_bytes})"
     return (
         f"{attribute}PLTXT2HTM_DETAIL_DLLIMPORT {symbol.return_type} PLTXT2HTM_DETAIL_STDCALL {symbol.export_name}"
         f"({format_parameters(symbol.parameters)}) noexcept{suffix};\n"
@@ -175,7 +170,7 @@ def declaration(symbol: Symbol, library: Library, x86_stack_bytes: int) -> str:
 def generate_declarations(library: Library, x86_stack_bytes: dict[str, int]) -> str:
     result = [GENERATED_NOTICE, "\n"]
     result.extend(
-        declaration(symbol, library, x86_stack_bytes[symbol.export_name])
+        declaration(symbol, x86_stack_bytes[symbol.export_name])
         for symbol in library.symbols
     )
     return "".join(result)
