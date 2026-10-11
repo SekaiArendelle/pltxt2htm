@@ -11,4 +11,6 @@ ENV PATH="/usr/lib/llvm-21/bin:${PATH}"
 
 WORKDIR /pltxt2htm
 
+# The probes include real definitions.hh files; libc++ supplies <cstdint> for ARM32,
+# which the current MSVC STL headers reject even when Clang only compiles objects.
 CMD ["python3", "scripts/gen_windows_symbols.py", "--cxx-include-dir", "/usr/include/c++/v1", "--check"]

@@ -222,6 +222,8 @@ def undefined_imports(
     source.write_text(source_text, encoding="ascii", newline="\n")
     compile_command = [clang, f"--target={target}", "-std=c++23"]
     if cxx_include_dir is not None:
+        # MSVC's current STL headers reject the ARM32 target, but the probes still need <cstdint>.
+        # Use a compatible C++ header set without mixing it with Clang's default C++ headers.
         compile_command.extend(("-nostdinc++", "-isystem", str(cxx_include_dir)))
     compile_command.extend(("-I", str(SYMBOL_ROOT), "-c", str(source), "-o", str(object_file)))
     compile_result = subprocess.run(
