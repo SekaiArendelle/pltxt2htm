@@ -172,6 +172,9 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
     add_executable(${TEST_NAME} ${TEST_SOURCE})
     target_link_libraries(${TEST_NAME} PRIVATE precompile doctest::doctest)
+    if(WIN32 AND TEST_NAME MATCHES "^windows_symbols")
+        target_link_libraries(${TEST_NAME} PRIVATE dbghelp)
+    endif()
     # doctest_suites.cc consumes the generated include list.
     if(TEST_NAME STREQUAL "doctest_suites")
         target_include_directories(${TEST_NAME} PRIVATE
