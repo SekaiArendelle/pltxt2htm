@@ -1,11 +1,9 @@
 #pragma once
 
-#include <cstddef>
 #include "definitions.hh"
 
 namespace pltxt2htm::details::symbols::win32 {
-constexpr ::std::size_t max_symbol_name_length{2000};
-
+// Match DbgHelp's packing even when the including file uses a different setting.
 #pragma pack(push, 8)
 
 struct SymbolInfo {
