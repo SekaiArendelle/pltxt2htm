@@ -47,6 +47,10 @@ using ExpectedReleaseSrwLockExclusive = void(NTAPI*)(nt::SrwLock*) noexcept;
 using ExpectedDuplicateObject = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, nt::Handle, nt::Handle*, nt::Ulong,
                                                      nt::Ulong, nt::Ulong) noexcept;
 using ExpectedClose = nt::NtStatus(NTAPI*)(nt::Handle) noexcept;
+using ExpectedIoApcRoutine = void(NTAPI*)(void*, nt::IoStatusBlock*, nt::Ulong);
+using ExpectedTimerApcRoutine = void (*)(void*, nt::Ulong, nt::Long);
+using ExpectedControlFile = nt::NtStatus(NTAPI*)(void*, void*, nt::IoApcRoutine, void*, nt::IoStatusBlock*,
+                                                nt::Ulong, void*, nt::Ulong, void*, nt::Ulong) noexcept;
 using ExpectedCreateFile = nt::NtStatus(NTAPI*)(void**, nt::Ulong, nt::ObjectAttributes*,
                                               nt::IoStatusBlock*, nt::Long64*, nt::Ulong,
                                               nt::Ulong, nt::Ulong, nt::Ulong,
@@ -70,6 +74,12 @@ static_assert(::std::is_same_v<decltype(&nt::RtlAcquireSRWLockExclusive), Expect
 static_assert(::std::is_same_v<decltype(&nt::RtlReleaseSRWLockExclusive), ExpectedReleaseSrwLockExclusive>);
 static_assert(::std::is_same_v<decltype(&nt::NtDuplicateObject), ExpectedDuplicateObject>);
 static_assert(::std::is_same_v<decltype(&nt::NtClose), ExpectedClose>);
+static_assert(::std::is_same_v<nt::IoApcRoutine, ExpectedIoApcRoutine>);
+static_assert(::std::is_same_v<nt::TimerApcRoutine, ExpectedTimerApcRoutine>);
+static_assert(::std::is_same_v<decltype(&nt::NtFsControlFile), ExpectedControlFile>);
+static_assert(::std::is_same_v<decltype(&nt::ZwFsControlFile), ExpectedControlFile>);
+static_assert(::std::is_same_v<decltype(&nt::NtDeviceIoControlFile), ExpectedControlFile>);
+static_assert(::std::is_same_v<decltype(&nt::ZwDeviceIoControlFile), ExpectedControlFile>);
 static_assert(::std::is_same_v<decltype(&nt::NtCreateFile), ExpectedCreateFile>);
 static_assert(::std::is_same_v<decltype(&nt::ZwCreateFile), ExpectedCreateFile>);
 static_assert(::std::is_same_v<decltype(&nt::DbgPrint), ExpectedDbgPrint>);

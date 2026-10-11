@@ -159,9 +159,9 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtQueryVolumeInform
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwQueryVolumeInformationFile(void *, IoStatusBlock *, void *, Ulong, FsInformationClass) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwQueryVolumeInformationFile, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtFsControlFile(void *, void *, IoApcRoutine *, void *, IoStatusBlock *, Ulong, void *, Ulong, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtFsControlFile, 40);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtFsControlFile(void *, void *, IoApcRoutine, void *, IoStatusBlock *, Ulong, void *, Ulong, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtFsControlFile, 40);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwFsControlFile(void *, void *, IoApcRoutine *, void *, IoStatusBlock *, Ulong, void *, Ulong, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwFsControlFile, 40);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwFsControlFile(void *, void *, IoApcRoutine, void *, IoStatusBlock *, Ulong, void *, Ulong, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwFsControlFile, 40);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtCreateNamedPipeFile(void **, Ulong, ObjectAttributes *, IoStatusBlock *, Ulong, Ulong, Ulong, Ulong, Ulong, Ulong, Ulong, Ulong, Ulong, Long64 *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtCreateNamedPipeFile, 56);
 [[nodiscard]]
@@ -263,9 +263,9 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtTerminateProcess(
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwTerminateProcess(void *, Long) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwTerminateProcess, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtDeviceIoControlFile(void *, void *, IoApcRoutine *, void *, IoStatusBlock *, Ulong, void *, Ulong, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtDeviceIoControlFile, 40);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtDeviceIoControlFile(void *, void *, IoApcRoutine, void *, IoStatusBlock *, Ulong, void *, Ulong, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtDeviceIoControlFile, 40);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwDeviceIoControlFile(void *, void *, IoApcRoutine *, void *, IoStatusBlock *, Ulong, void *, Ulong, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwDeviceIoControlFile, 40);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwDeviceIoControlFile(void *, void *, IoApcRoutine, void *, IoStatusBlock *, Ulong, void *, Ulong, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwDeviceIoControlFile, 40);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlAcquirePrivilege(Privileges *, Ulong, Ulong, void **) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlAcquirePrivilege, 16);
 PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlReleasePrivilege(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlReleasePrivilege, 4);

@@ -539,13 +539,13 @@ LIBRARIES = (
             Symbol(
                 "NtFsControlFile",
                 "NtStatus",
-                ('void *', 'void *', 'IoApcRoutine *', 'void *', 'IoStatusBlock *', 'Ulong', 'void *', 'Ulong', 'void *', 'Ulong', ),
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'Ulong', 'void *', 'Ulong', 'void *', 'Ulong', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwFsControlFile",
                 "NtStatus",
-                ('void *', 'void *', 'IoApcRoutine *', 'void *', 'IoStatusBlock *', 'Ulong', 'void *', 'Ulong', 'void *', 'Ulong', ),
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'Ulong', 'void *', 'Ulong', 'void *', 'Ulong', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -851,13 +851,13 @@ LIBRARIES = (
             Symbol(
                 "NtDeviceIoControlFile",
                 "NtStatus",
-                ('void *', 'void *', 'IoApcRoutine *', 'void *', 'IoStatusBlock *', 'Ulong', 'void *', 'Ulong', 'void *', 'Ulong', ),
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'Ulong', 'void *', 'Ulong', 'void *', 'Ulong', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwDeviceIoControlFile",
                 "NtStatus",
-                ('void *', 'void *', 'IoApcRoutine *', 'void *', 'IoStatusBlock *', 'Ulong', 'void *', 'Ulong', 'void *', 'Ulong', ),
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'Ulong', 'void *', 'Ulong', 'void *', 'Ulong', ),
                 nodiscard=True,
             ),
             Symbol(

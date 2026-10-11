@@ -292,8 +292,8 @@ struct MemoryRangeEntry {
     ::std::size_t number_of_bytes;
 };
 
-using IoApcRoutine = void (*)(void*, IoStatusBlock*, Ulong) noexcept;
-using TimerApcRoutine = void (*)(void*, Ulong, Long) noexcept;
+using IoApcRoutine = void(PLTXT2HTM_DETAIL_STDCALL*)(void*, IoStatusBlock*, Ulong);
+using TimerApcRoutine = void (*)(void*, Ulong, Long);
 using UserThreadStartRoutine = Ulong(PLTXT2HTM_DETAIL_STDCALL*)(void*);
 
 struct SrwLock {
