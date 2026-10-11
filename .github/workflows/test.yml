@@ -30,16 +30,26 @@ jobs:
         run: |
           clang -v
 
-      - name: Verify generated Windows symbols
-        shell: powershell
-        run: python scripts/gen_windows_symbols.py --check
-
       - name: Configure and build
         shell: powershell
         run: |
           cmake -S tests -B tests/build -GNinja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
           cmake --build tests/build -v
           ctest --test-dir tests/build -V -j $env:NUMBER_OF_PROCESSORS
+
+  scripts-windows-symbols:
+    name: Verify generated Windows symbols
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build symbol generator image
+        run: docker build -t pltxt2htm-windows-symbols scripts/docker/windows-symbols
+
+      - name: Verify generated files
+        run: docker run --rm -v "${PWD}:/pltxt2htm:ro" pltxt2htm-windows-symbols
 
   aarch64-apple-darwin24-test-asan:
     name: aarch64-apple-darwin24 (tests/, asan)
