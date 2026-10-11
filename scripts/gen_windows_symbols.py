@@ -9,7 +9,6 @@ import pathlib
 import re
 import shutil
 import subprocess
-import tempfile
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -209,39 +208,36 @@ def undefined_imports(
     clang: str,
     llvm_nm: str,
     cxx_include_dir: pathlib.Path | None,
-    temporary_directory: pathlib.Path,
-    stem: str,
 ) -> tuple[str, ...]:
-    source = temporary_directory / f"{stem}.cc"
-    object_file = temporary_directory / f"{stem}.obj"
-    source.write_text(source_text, encoding="ascii", newline="\n")
     compile_command = [clang, f"--target={target}", "-std=c++23"]
     if cxx_include_dir is not None:
         # MSVC's current STL headers reject the ARM32 target, but the probes still need <cstdint>.
         # Use a compatible C++ header set without mixing it with Clang's default C++ headers.
         compile_command.extend(("-nostdinc++", "-isystem", str(cxx_include_dir)))
-    compile_command.extend(("-I", str(SYMBOL_ROOT), "-c", str(source), "-o", str(object_file)))
+    compile_command.extend(("-I", str(SYMBOL_ROOT), "-x", "c++", "-c", "-o", "-", "-"))
     compile_result = subprocess.run(
         compile_command,
+        input=source_text.encode("ascii"),
         check=False,
         capture_output=True,
-        text=True,
     )
     if compile_result.returncode != 0:
         raise RuntimeError(
-            f"clang failed for {symbol.export_name} ({target}):\n{compile_result.stderr.strip()}"
+            f"clang failed for {symbol.export_name} ({target}):\n"
+            f"{compile_result.stderr.decode(errors='replace').strip()}"
         )
     nm_result = subprocess.run(
-        [llvm_nm, "--undefined-only", "--format=posix", str(object_file)],
+        [llvm_nm, "--undefined-only", "--format=posix", "-"],
+        input=compile_result.stdout,
         check=False,
         capture_output=True,
-        text=True,
     )
     if nm_result.returncode != 0:
         raise RuntimeError(
-            f"llvm-nm failed for {symbol.export_name} ({target}):\n{nm_result.stderr.strip()}"
+            f"llvm-nm failed for {symbol.export_name} ({target}):\n"
+            f"{nm_result.stderr.decode(errors='replace').strip()}"
         )
-    names = [line.split()[0] for line in nm_result.stdout.splitlines() if line.strip()]
+    names = [line.split()[0] for line in nm_result.stdout.decode("ascii").splitlines() if line.strip()]
     imported = tuple(name for name in names if "__imp_" in name)
     if not imported:
         raise RuntimeError(
@@ -261,7 +257,6 @@ def undefined_symbols(
     clang: str,
     llvm_nm: str,
     cxx_include_dir: pathlib.Path | None,
-    temporary_directory: pathlib.Path,
 ) -> tuple[tuple[str, str], ...]:
     local = undefined_imports(
         local_probe_source(symbol, library),
@@ -270,8 +265,6 @@ def undefined_symbols(
         clang,
         llvm_nm,
         cxx_include_dir,
-        temporary_directory,
-        "local",
     )
     exported = undefined_imports(
         export_probe_source(symbol, library),
@@ -280,8 +273,6 @@ def undefined_symbols(
         clang,
         llvm_nm,
         cxx_include_dir,
-        temporary_directory,
-        "export",
     )
     exported_by_flavor = {import_flavor(name): name for name in exported}
     pairs = tuple((name, exported_by_flavor[import_flavor(name)]) for name in local)
@@ -302,19 +293,15 @@ def generate_linker_aliases(
 ) -> tuple[str, dict[str, int]]:
     result = [GENERATED_NOTICE, "\n"]
     x86_stack_bytes: dict[str, int] = {}
-    with tempfile.TemporaryDirectory(prefix="pltxt2htm-symbols-") as temporary:
-        temporary_directory = pathlib.Path(temporary)
-        for symbol in library.symbols:
-            pairs = undefined_symbols(
-                symbol, library, target, clang, llvm_nm, cxx_include_dir, temporary_directory
-            )
-            for local, exported in pairs:
-                result.append(f'#pragma comment(linker, "/alternatename:{local}={exported}")\n')
-            if target.startswith("i686-"):
-                match = re.search(r"@(\d+)$", pairs[0][1])
-                if match is None:
-                    raise RuntimeError(f"missing i686 stdcall decoration for {symbol.export_name}: {pairs[0][1]}")
-                x86_stack_bytes[symbol.export_name] = int(match.group(1))
+    for symbol in library.symbols:
+        pairs = undefined_symbols(symbol, library, target, clang, llvm_nm, cxx_include_dir)
+        for local, exported in pairs:
+            result.append(f'#pragma comment(linker, "/alternatename:{local}={exported}")\n')
+        if target.startswith("i686-"):
+            match = re.search(r"@(\d+)$", pairs[0][1])
+            if match is None:
+                raise RuntimeError(f"missing i686 stdcall decoration for {symbol.export_name}: {pairs[0][1]}")
+            x86_stack_bytes[symbol.export_name] = int(match.group(1))
     return "".join(result), x86_stack_bytes
 
 
