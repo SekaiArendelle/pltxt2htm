@@ -8,6 +8,8 @@
     #define PLTXT2HTM_DETAIL_DLLIMPORT 11
     #define PLTXT2HTM_DETAIL_STDCALL 12
     #define PLTXT2HTM_DETAIL_ASM_NAME 13
+    #define PLTXT2HTM_DETAIL_CDECL 14
+    #define PLTXT2HTM_DETAIL_CDECL_ASM_NAME 15
 
     #include <pltxt2htm/details/symbols/nt/ntdll.hh>
     #include <pltxt2htm/details/symbols/win32/dbghelp.hh>
@@ -22,10 +24,18 @@
     #if PLTXT2HTM_DETAIL_ASM_NAME != 13
         #error "asm-name macro was not restored"
     #endif
+    #if PLTXT2HTM_DETAIL_CDECL != 14
+        #error "cdecl macro was not restored"
+    #endif
+    #if PLTXT2HTM_DETAIL_CDECL_ASM_NAME != 15
+        #error "cdecl asm-name macro was not restored"
+    #endif
 
     #undef PLTXT2HTM_DETAIL_DLLIMPORT
     #undef PLTXT2HTM_DETAIL_STDCALL
     #undef PLTXT2HTM_DETAIL_ASM_NAME
+    #undef PLTXT2HTM_DETAIL_CDECL
+    #undef PLTXT2HTM_DETAIL_CDECL_ASM_NAME
 
 namespace nt = ::pltxt2htm::details::symbols::nt;
 namespace win32 = ::pltxt2htm::details::symbols::win32;
@@ -37,6 +47,11 @@ using ExpectedReleaseSrwLockExclusive = void(NTAPI*)(nt::SrwLock*) noexcept;
 using ExpectedDuplicateObject = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, nt::Handle, nt::Handle*, nt::Ulong,
                                                      nt::Ulong, nt::Ulong) noexcept;
 using ExpectedClose = nt::NtStatus(NTAPI*)(nt::Handle) noexcept;
+using ExpectedCreateFile = nt::Ulong(NTAPI*)(void**, ::std::uint_least32_t, nt::object_attributes*,
+                                              nt::io_status_block*, ::std::int_least64_t*, ::std::uint_least32_t,
+                                              ::std::uint_least32_t, ::std::uint_least32_t, ::std::uint_least32_t,
+                                              void*, ::std::uint_least32_t) noexcept;
+using ExpectedDbgPrint = nt::Ulong(__cdecl*)(char const*, ...) noexcept;
 using ExpectedLoadLibraryExW = win32::ModuleHandle(WINAPI*)(win32::WideChar const*, win32::Handle,
                                                             win32::Dword) noexcept;
 using ExpectedGetProcAddress = win32::Procedure(WINAPI*)(win32::ModuleHandle, win32::Char const*) noexcept;
@@ -55,6 +70,9 @@ static_assert(::std::is_same_v<decltype(&nt::RtlAcquireSRWLockExclusive), Expect
 static_assert(::std::is_same_v<decltype(&nt::RtlReleaseSRWLockExclusive), ExpectedReleaseSrwLockExclusive>);
 static_assert(::std::is_same_v<decltype(&nt::NtDuplicateObject), ExpectedDuplicateObject>);
 static_assert(::std::is_same_v<decltype(&nt::NtClose), ExpectedClose>);
+static_assert(::std::is_same_v<decltype(&nt::NtCreateFile), ExpectedCreateFile>);
+static_assert(::std::is_same_v<decltype(&nt::ZwCreateFile), ExpectedCreateFile>);
+static_assert(::std::is_same_v<decltype(&nt::DbgPrint), ExpectedDbgPrint>);
 static_assert(::std::is_same_v<decltype(&win32::LoadLibraryExW), ExpectedLoadLibraryExW>);
 static_assert(::std::is_same_v<decltype(&win32::GetProcAddress), ExpectedGetProcAddress>);
 static_assert(::std::is_same_v<decltype(&win32::FreeLibrary), ExpectedFreeLibrary>);
@@ -71,6 +89,18 @@ static_assert(::std::is_same_v<nt::Ulong, ULONG>);
 static_assert(::std::is_same_v<nt::Ushort, USHORT>);
 static_assert(sizeof(nt::SrwLock) == sizeof(SRWLOCK));
 static_assert(alignof(nt::SrwLock) == alignof(SRWLOCK));
+static_assert(sizeof(nt::unicode_string) == sizeof(UNICODE_STRING));
+static_assert(offsetof(nt::unicode_string, buffer) == offsetof(UNICODE_STRING, Buffer));
+static_assert(sizeof(nt::object_attributes) == sizeof(OBJECT_ATTRIBUTES));
+static_assert(offsetof(nt::object_attributes, security_descriptor) == offsetof(OBJECT_ATTRIBUTES, SecurityDescriptor));
+static_assert(sizeof(nt::io_status_block) == sizeof(IO_STATUS_BLOCK));
+static_assert(offsetof(nt::io_status_block, information) == offsetof(IO_STATUS_BLOCK, Information));
+static_assert(sizeof(nt::client_id) == sizeof(CLIENT_ID));
+static_assert(sizeof(nt::large_integer) == sizeof(LARGE_INTEGER));
+static_assert(nt::file_information_class::FileBasicInformation == static_cast<nt::file_information_class>(4));
+static_assert(sizeof(nt::ps_create_info) >= sizeof(::std::size_t));
+static_assert(offsetof(nt::rtl_user_process_parameters, CommandLine) >
+              offsetof(nt::rtl_user_process_parameters, ImagePathName));
 
 static_assert(::std::is_same_v<win32::Bool, BOOL>);
 static_assert(::std::is_same_v<win32::Char, CHAR>);
@@ -113,6 +143,9 @@ static_assert(offsetof(win32::ImageHlpLine64, file_name) == offsetof(IMAGEHLP_LI
 static_assert(offsetof(win32::ImageHlpLine64, address) == offsetof(IMAGEHLP_LINE64, Address));
 
 auto* volatile nt_close_reference = &nt::NtClose;
+auto* volatile nt_create_file_reference = &nt::NtCreateFile;
+auto* volatile zw_create_file_reference = &nt::ZwCreateFile;
+auto* volatile dbg_print_reference = &nt::DbgPrint;
 auto* volatile capture_reference = &nt::RtlCaptureStackBackTrace;
 auto* volatile try_acquire_srw_lock_reference = &nt::RtlTryAcquireSRWLockExclusive;
 auto* volatile acquire_srw_lock_reference = &nt::RtlAcquireSRWLockExclusive;
