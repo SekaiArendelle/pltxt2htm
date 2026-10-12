@@ -227,7 +227,7 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtAlpcAcceptConnect
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwAlpcAcceptConnectPort(Handle *, void *, Ulong, ObjectAttributes *, AlpcPortAttributes *, void *, PortMessage *, AlpcMessageAttributes *, Boolean) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwAlpcAcceptConnectPort, 36);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT ::std::size_t PLTXT2HTM_DETAIL_STDCALL AlpcGetHeaderSize(Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(AlpcGetHeaderSize, 4);
+PLTXT2HTM_DETAIL_DLLIMPORT Ulong PLTXT2HTM_DETAIL_STDCALL AlpcGetHeaderSize(Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(AlpcGetHeaderSize, 4);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtAlpcImpersonateClientOfPort(void *, PortMessage *, void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtAlpcImpersonateClientOfPort, 12);
 [[nodiscard]]
@@ -251,9 +251,9 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwAlpcCreateSection
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Ulong PLTXT2HTM_DETAIL_STDCALL AlpcMaxAllowedMessageLength() noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(AlpcMaxAllowedMessageLength, 0);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtAlpcQueryInformationMessage(void *, PortMessage *, AlpcMessageInformationClass, void *, ::std::size_t, ::std::size_t *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtAlpcQueryInformationMessage, 24);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtAlpcQueryInformationMessage(void *, PortMessage *, AlpcMessageInformationClass, void *, Ulong, Ulong *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtAlpcQueryInformationMessage, 24);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwAlpcQueryInformationMessage(void *, PortMessage *, AlpcMessageInformationClass, void *, ::std::size_t, ::std::size_t *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwAlpcQueryInformationMessage, 24);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwAlpcQueryInformationMessage(void *, PortMessage *, AlpcMessageInformationClass, void *, Ulong, Ulong *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwAlpcQueryInformationMessage, 24);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtAlpcCreateSecurityContext(void *, Ulong, AlpcSecurityAttr *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtAlpcCreateSecurityContext, 12);
 [[nodiscard]]

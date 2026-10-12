@@ -735,7 +735,7 @@ LIBRARIES = (
             ),
             Symbol(
                 "AlpcGetHeaderSize",
-                "::std::size_t",
+                "Ulong",
                 ('Ulong', ),
                 nodiscard=True,
             ),
@@ -808,13 +808,13 @@ LIBRARIES = (
             Symbol(
                 "NtAlpcQueryInformationMessage",
                 "NtStatus",
-                ('void *', 'PortMessage *', 'AlpcMessageInformationClass', 'void *', '::std::size_t', '::std::size_t *', ),
+                ('void *', 'PortMessage *', 'AlpcMessageInformationClass', 'void *', 'Ulong', 'Ulong *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwAlpcQueryInformationMessage",
                 "NtStatus",
-                ('void *', 'PortMessage *', 'AlpcMessageInformationClass', 'void *', '::std::size_t', '::std::size_t *', ),
+                ('void *', 'PortMessage *', 'AlpcMessageInformationClass', 'void *', 'Ulong', 'Ulong *', ),
                 nodiscard=True,
             ),
             Symbol(

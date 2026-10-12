@@ -419,6 +419,12 @@ enum class PsCreateState : int {
     PsCreateMaximumStates
 };
 
+struct AnsiString {
+    Ushort length;
+    Ushort maximum_length;
+    char* buffer;
+};
+
 struct UnicodeString {
     Ushort length;
     Ushort maximum_length;
@@ -573,7 +579,7 @@ struct RtlDriveLetterCurdir {
     Ushort flags;
     Ushort length;
     Ulong time_stamp;
-    UnicodeString dos_path;
+    AnsiString dos_path;
 };
 
 constexpr ::std::size_t rtl_max_drive_letters{32};
@@ -618,6 +624,13 @@ struct RtlUserProcessParameters {
     void* package_dependency_data;
     Ulong process_group_id;
     Ulong loader_threads;
+    UnicodeString redirection_dll_name;
+    UnicodeString heap_partition_name;
+    Ulong64* default_threadpool_cpu_set_masks;
+    Ulong default_threadpool_cpu_set_mask_count;
+    Ulong default_threadpool_thread_maximum;
+    Ulong heap_memory_type_mask;
+    void* attribute_list;
 };
 
 struct PsCreateInfo {

@@ -78,6 +78,10 @@ using ExpectedAlpcConnectPort = nt::NtStatus(NTAPI*)(nt::Handle*, nt::UnicodeStr
                                                      nt::AlpcPortAttributes*, nt::Ulong, void*, nt::PortMessage*,
                                                      ::std::size_t*, nt::AlpcMessageAttributes*,
                                                      nt::AlpcMessageAttributes*, nt::Long64*) noexcept;
+using ExpectedAlpcGetHeaderSize = nt::Ulong(NTAPI*)(nt::Ulong) noexcept;
+using ExpectedAlpcQueryInformationMessage = nt::NtStatus(NTAPI*)(void*, nt::PortMessage*,
+                                                                 nt::AlpcMessageInformationClass, void*, nt::Ulong,
+                                                                 nt::Ulong*) noexcept;
 using ExpectedControlFile = nt::NtStatus(NTAPI*)(void*, void*, nt::IoApcRoutine, void*, nt::IoStatusBlock*,
                                                 nt::Ulong, void*, nt::Ulong, void*, nt::Ulong) noexcept;
 using ExpectedCreateFile = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, nt::IoStatusBlock*,
@@ -134,6 +138,9 @@ static_assert(::std::is_same_v<decltype(&nt::NtResetEvent), ExpectedEventState>)
 static_assert(::std::is_same_v<decltype(&nt::ZwResetEvent), ExpectedEventState>);
 static_assert(::std::is_same_v<decltype(&nt::NtAlpcConnectPort), ExpectedAlpcConnectPort>);
 static_assert(::std::is_same_v<decltype(&nt::ZwAlpcConnectPort), ExpectedAlpcConnectPort>);
+static_assert(::std::is_same_v<decltype(&nt::AlpcGetHeaderSize), ExpectedAlpcGetHeaderSize>);
+static_assert(::std::is_same_v<decltype(&nt::NtAlpcQueryInformationMessage), ExpectedAlpcQueryInformationMessage>);
+static_assert(::std::is_same_v<decltype(&nt::ZwAlpcQueryInformationMessage), ExpectedAlpcQueryInformationMessage>);
 static_assert(::std::is_same_v<decltype(&nt::NtWaitForSingleObject), ExpectedWaitForSingleObject>);
 static_assert(::std::is_same_v<decltype(&nt::NtDelayExecution), ExpectedDelayExecution>);
 static_assert(::std::is_same_v<decltype(&nt::NtSetTimer), ExpectedSetTimer>);
@@ -170,10 +177,18 @@ static_assert(offsetof(nt::RtlUserProcessParameters, environment_version) ==
               offsetof(nt::RtlUserProcessParameters, environment_size) + sizeof(::std::size_t));
 static_assert(offsetof(nt::RtlUserProcessParameters, package_dependency_data) ==
               offsetof(nt::RtlUserProcessParameters, environment_size) + 2 * sizeof(::std::size_t));
+static_assert(offsetof(nt::RtlUserProcessParameters, redirection_dll_name) >
+              offsetof(nt::RtlUserProcessParameters, loader_threads));
+static_assert(::std::is_same_v<decltype(nt::RtlUserProcessParameters::default_threadpool_cpu_set_masks), nt::Ulong64*>);
+static_assert(sizeof(nt::RtlUserProcessParameters) ==
+              offsetof(nt::RtlUserProcessParameters, attribute_list) + sizeof(void*));
 static_assert(sizeof(nt::SrwLock) == sizeof(SRWLOCK));
 static_assert(alignof(nt::SrwLock) == alignof(SRWLOCK));
 static_assert(sizeof(nt::UnicodeString) == sizeof(UNICODE_STRING));
 static_assert(offsetof(nt::UnicodeString, buffer) == offsetof(UNICODE_STRING, Buffer));
+static_assert(sizeof(nt::AnsiString) == sizeof(nt::UnicodeString));
+static_assert(offsetof(nt::AnsiString, buffer) == offsetof(nt::UnicodeString, buffer));
+static_assert(::std::is_same_v<decltype(nt::RtlDriveLetterCurdir::dos_path), nt::AnsiString>);
 static_assert(sizeof(nt::ObjectAttributes) == sizeof(OBJECT_ATTRIBUTES));
 static_assert(offsetof(nt::ObjectAttributes, security_descriptor) == offsetof(OBJECT_ATTRIBUTES, SecurityDescriptor));
 static_assert(offsetof(nt::ObjectAttributes, security_quality_of_service) ==
