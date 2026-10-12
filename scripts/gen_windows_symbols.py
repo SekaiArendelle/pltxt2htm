@@ -167,13 +167,13 @@ LIBRARIES = (
             Symbol(
                 "NtQueryDirectoryFile",
                 "NtStatus",
-                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'void *', 'Ulong', 'FileInformationClass', 'int', 'UnicodeString *', 'int', ),
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'void *', 'Ulong', 'FileInformationClass', 'Boolean', 'UnicodeString *', 'Boolean', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwQueryDirectoryFile",
                 "NtStatus",
-                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'void *', 'Ulong', 'FileInformationClass', 'int', 'UnicodeString *', 'int', ),
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'void *', 'Ulong', 'FileInformationClass', 'Boolean', 'UnicodeString *', 'Boolean', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -215,25 +215,25 @@ LIBRARIES = (
             Symbol(
                 "NtWaitForSingleObject",
                 "NtStatus",
-                ('void *', 'int', 'Ulong64 *', ),
+                ('void *', 'Boolean', 'Ulong64 *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwWaitForSingleObject",
                 "NtStatus",
-                ('void *', 'int', 'Ulong64 *', ),
+                ('void *', 'Boolean', 'Ulong64 *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "NtWaitForMultipleObjects",
                 "NtStatus",
-                ('Ulong', 'void *const *', 'WaitType', 'int', 'Ulong64 *', ),
+                ('Ulong', 'void *const *', 'WaitType', 'Boolean', 'Ulong64 *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwWaitForMultipleObjects",
                 "NtStatus",
-                ('Ulong', 'void *const *', 'WaitType', 'int', 'Ulong64 *', ),
+                ('Ulong', 'void *const *', 'WaitType', 'Boolean', 'Ulong64 *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -297,7 +297,7 @@ LIBRARIES = (
             ),
             Symbol(
                 "RtlTryEnterCriticalSection",
-                "int",
+                "Ulong",
                 ('void *', ),
                 nodiscard=True,
             ),
@@ -316,7 +316,7 @@ LIBRARIES = (
             Symbol(
                 "RtlCreateUserThread",
                 "NtStatus",
-                ('void *', 'void *', 'int', 'Ulong', '::std::size_t', '::std::size_t', 'UserThreadStartRoutine', 'void *', 'void **', 'ClientId *', ),
+                ('void *', 'void *', 'Boolean', 'Ulong', '::std::size_t', '::std::size_t', 'UserThreadStartRoutine', 'void *', 'void **', 'ClientId *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -414,13 +414,13 @@ LIBRARIES = (
             Symbol(
                 "NtCreateUserProcess",
                 "NtStatus",
-                ('void *', 'void *', 'Ulong', 'Ulong', 'ObjectAttributes *', 'ObjectAttributes *', 'Ulong', 'Ulong', 'RtlUserProcessParameters *', 'PsCreateInfo *', 'PsAttributeList *', ),
+                ('void **', 'void **', 'Ulong', 'Ulong', 'ObjectAttributes *', 'ObjectAttributes *', 'Ulong', 'Ulong', 'RtlUserProcessParameters *', 'PsCreateInfo *', 'PsAttributeList *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwCreateUserProcess",
                 "NtStatus",
-                ('void *', 'void *', 'Ulong', 'Ulong', 'ObjectAttributes *', 'ObjectAttributes *', 'Ulong', 'Ulong', 'RtlUserProcessParameters *', 'PsCreateInfo *', 'PsAttributeList *', ),
+                ('void **', 'void **', 'Ulong', 'Ulong', 'ObjectAttributes *', 'ObjectAttributes *', 'Ulong', 'Ulong', 'RtlUserProcessParameters *', 'PsCreateInfo *', 'PsAttributeList *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -597,19 +597,19 @@ LIBRARIES = (
             Symbol(
                 "RtlAdjustPrivilege",
                 "NtStatus",
-                ('Ulong', 'Uchar', 'Uchar', 'Uchar *', ),
+                ('Ulong', 'Boolean', 'Boolean', 'Boolean *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "NtCreateEvent",
                 "NtStatus",
-                ('void **', 'Ulong', 'ObjectAttributes *', 'EventType', 'Uchar', ),
+                ('void **', 'Ulong', 'ObjectAttributes *', 'EventType', 'Boolean', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwCreateEvent",
                 "NtStatus",
-                ('void **', 'Ulong', 'ObjectAttributes *', 'EventType', 'Uchar', ),
+                ('void **', 'Ulong', 'ObjectAttributes *', 'EventType', 'Boolean', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -723,13 +723,13 @@ LIBRARIES = (
             Symbol(
                 "NtAlpcAcceptConnectPort",
                 "NtStatus",
-                ('void **', 'void *', 'Ulong', 'ObjectAttributes *', 'AlpcPortAttributes *', 'void *', 'PortMessage *', 'AlpcMessageAttributes *', 'Uchar', ),
+                ('void **', 'void *', 'Ulong', 'ObjectAttributes *', 'AlpcPortAttributes *', 'void *', 'PortMessage *', 'AlpcMessageAttributes *', 'Boolean', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwAlpcAcceptConnectPort",
                 "NtStatus",
-                ('void **', 'void *', 'Ulong', 'ObjectAttributes *', 'AlpcPortAttributes *', 'void *', 'PortMessage *', 'AlpcMessageAttributes *', 'Uchar', ),
+                ('void **', 'void *', 'Ulong', 'ObjectAttributes *', 'AlpcPortAttributes *', 'void *', 'PortMessage *', 'AlpcMessageAttributes *', 'Boolean', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -896,13 +896,13 @@ LIBRARIES = (
             Symbol(
                 "NtDelayExecution",
                 "NtStatus",
-                ('bool', 'Long64 *', ),
+                ('Boolean', 'Long64 *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwDelayExecution",
                 "NtStatus",
-                ('bool', 'Long64 *', ),
+                ('Boolean', 'Long64 *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -920,13 +920,13 @@ LIBRARIES = (
             Symbol(
                 "NtSetTimerResolution",
                 "NtStatus",
-                ('Ulong', 'bool', 'Ulong *', ),
+                ('Ulong', 'Boolean', 'Ulong *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwSetTimerResolution",
                 "NtStatus",
-                ('Ulong', 'bool', 'Ulong *', ),
+                ('Ulong', 'Boolean', 'Ulong *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -944,13 +944,13 @@ LIBRARIES = (
             Symbol(
                 "NtSetTimer",
                 "NtStatus",
-                ('void *', 'Ulong64 const *', 'TimerApcRoutine', 'void *', 'Uchar', 'Long', 'Uchar *', ),
+                ('void *', 'Ulong64 const *', 'TimerApcRoutine', 'void *', 'Boolean', 'Long', 'Boolean *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwSetTimer",
                 "NtStatus",
-                ('void *', 'Ulong64 const *', 'TimerApcRoutine', 'void *', 'Uchar', 'Long', 'Uchar *', ),
+                ('void *', 'Ulong64 const *', 'TimerApcRoutine', 'void *', 'Boolean', 'Long', 'Boolean *', ),
                 nodiscard=True,
             ),
             Symbol(

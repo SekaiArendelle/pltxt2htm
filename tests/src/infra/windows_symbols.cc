@@ -48,9 +48,16 @@ using ExpectedDuplicateObject = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, nt:
                                                      nt::Ulong, nt::Ulong) noexcept;
 using ExpectedClose = nt::NtStatus(NTAPI*)(nt::Handle) noexcept;
 using ExpectedCriticalSection = nt::NtStatus(NTAPI*)(void*) noexcept;
+using ExpectedTryEnterCriticalSection = nt::Ulong(NTAPI*)(void*) noexcept;
 using ExpectedAcquirePrivilege = nt::NtStatus(NTAPI*)(nt::Ulong*, nt::Ulong, nt::Ulong, void**) noexcept;
 using ExpectedIoApcRoutine = void(NTAPI*)(void*, nt::IoStatusBlock*, nt::Ulong);
-using ExpectedTimerApcRoutine = void (*)(void*, nt::Ulong, nt::Long);
+using ExpectedTimerApcRoutine = void(NTAPI*)(void*, nt::Ulong, nt::Long);
+using ExpectedCreateUserProcess = nt::NtStatus(NTAPI*)(void**, void**, nt::Ulong, nt::Ulong, nt::ObjectAttributes*,
+                                                       nt::ObjectAttributes*, nt::Ulong, nt::Ulong,
+                                                       nt::RtlUserProcessParameters*, nt::PsCreateInfo*,
+                                                       nt::PsAttributeList*) noexcept;
+using ExpectedWaitForSingleObject = nt::NtStatus(NTAPI*)(void*, nt::Boolean, nt::Ulong64*) noexcept;
+using ExpectedDelayExecution = nt::NtStatus(NTAPI*)(nt::Boolean, nt::Long64*) noexcept;
 using ExpectedControlFile = nt::NtStatus(NTAPI*)(void*, void*, nt::IoApcRoutine, void*, nt::IoStatusBlock*,
                                                 nt::Ulong, void*, nt::Ulong, void*, nt::Ulong) noexcept;
 using ExpectedCreateFile = nt::NtStatus(NTAPI*)(void**, nt::Ulong, nt::ObjectAttributes*,
@@ -78,6 +85,7 @@ static_assert(::std::is_same_v<decltype(&nt::NtDuplicateObject), ExpectedDuplica
 static_assert(::std::is_same_v<decltype(&nt::NtClose), ExpectedClose>);
 static_assert(::std::is_same_v<decltype(&nt::RtlInitializeCriticalSection), ExpectedCriticalSection>);
 static_assert(::std::is_same_v<decltype(&nt::RtlEnterCriticalSection), ExpectedCriticalSection>);
+static_assert(::std::is_same_v<decltype(&nt::RtlTryEnterCriticalSection), ExpectedTryEnterCriticalSection>);
 static_assert(::std::is_same_v<decltype(&nt::RtlLeaveCriticalSection), ExpectedCriticalSection>);
 static_assert(::std::is_same_v<decltype(&nt::RtlDeleteCriticalSection), ExpectedCriticalSection>);
 static_assert(::std::is_same_v<decltype(&nt::RtlAcquirePrivilege), ExpectedAcquirePrivilege>);
@@ -89,6 +97,10 @@ static_assert(::std::is_same_v<decltype(&nt::NtDeviceIoControlFile), ExpectedCon
 static_assert(::std::is_same_v<decltype(&nt::ZwDeviceIoControlFile), ExpectedControlFile>);
 static_assert(::std::is_same_v<decltype(&nt::NtCreateFile), ExpectedCreateFile>);
 static_assert(::std::is_same_v<decltype(&nt::ZwCreateFile), ExpectedCreateFile>);
+static_assert(::std::is_same_v<decltype(&nt::NtCreateUserProcess), ExpectedCreateUserProcess>);
+static_assert(::std::is_same_v<decltype(&nt::ZwCreateUserProcess), ExpectedCreateUserProcess>);
+static_assert(::std::is_same_v<decltype(&nt::NtWaitForSingleObject), ExpectedWaitForSingleObject>);
+static_assert(::std::is_same_v<decltype(&nt::NtDelayExecution), ExpectedDelayExecution>);
 static_assert(::std::is_same_v<decltype(&nt::DbgPrint), ExpectedDbgPrint>);
 static_assert(::std::is_same_v<decltype(&win32::LoadLibraryExW), ExpectedLoadLibraryExW>);
 static_assert(::std::is_same_v<decltype(&win32::GetProcAddress), ExpectedGetProcAddress>);
@@ -109,6 +121,9 @@ static_assert(::std::is_same_v<nt::Ulong, ULONG>);
 static_assert(::std::is_same_v<nt::Ulong64, ULONG64>);
 static_assert(::std::is_same_v<nt::Ushort, USHORT>);
 static_assert(sizeof(nt::Privileges) == sizeof(ULONG));
+static_assert(sizeof(nt::RtlpCurdirRef) == 2 * sizeof(void*));
+static_assert(sizeof(nt::RtlRelativeNameU) == 4 * sizeof(void*));
+static_assert(offsetof(nt::RtlRelativeNameU, cur_dir_ref) == 3 * sizeof(void*));
 static_assert(::std::is_same_v<::std::underlying_type_t<nt::Privileges>, nt::Ulong>);
 static_assert(::std::is_same_v<::std::underlying_type_t<nt::ThreadInformationClass>, nt::Ulong>);
 static_assert(sizeof(nt::AlpcPortAttributes) == (sizeof(void*) == 8 ? 72 : 44));

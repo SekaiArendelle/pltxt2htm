@@ -457,14 +457,15 @@ union LargeInteger {
     Long64 quad_part;
 };
 
+struct RtlpCurdirRef {
+    Long ref_count;
+    Handle handle;
+};
+
 struct RtlRelativeNameU {
     UnicodeString relative_name;
     Handle containing_directory;
-
-    struct {
-        long ref_count;
-        Handle handle;
-    } cur_dir_ref;
+    RtlpCurdirRef* cur_dir_ref;
 };
 
 struct RtlBuffer {
@@ -568,6 +569,7 @@ struct PsAttribute {
 
 struct PsAttributeList {
     ::std::size_t total_length;
+    // Capacity for the caller's attributes; total_length selects the active entries.
     PsAttribute attributes[32];
 };
 
@@ -697,7 +699,7 @@ struct MemoryRangeEntry {
 };
 
 using IoApcRoutine = void(PLTXT2HTM_DETAIL_STDCALL*)(void*, IoStatusBlock*, Ulong);
-using TimerApcRoutine = void (*)(void*, Ulong, Long);
+using TimerApcRoutine = void(PLTXT2HTM_DETAIL_STDCALL*)(void*, Ulong, Long);
 using UserThreadStartRoutine = Ulong(PLTXT2HTM_DETAIL_STDCALL*)(void*);
 
 struct SrwLock {
