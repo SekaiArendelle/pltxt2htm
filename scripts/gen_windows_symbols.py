@@ -956,13 +956,13 @@ LIBRARIES = (
             Symbol(
                 "NtCancelTimer",
                 "NtStatus",
-                ('void *', 'Uchar *', ),
+                ('void *', 'Boolean *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwCancelTimer",
                 "NtStatus",
-                ('void *', 'Uchar *', ),
+                ('void *', 'Boolean *', ),
                 nodiscard=True,
             ),
         ),
