@@ -9,6 +9,7 @@ import pathlib
 import re
 import shutil
 import subprocess
+from typing import Literal
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -21,7 +22,7 @@ class Symbol:
     return_type: str
     parameters: tuple[str, ...]
     nodiscard: bool = False
-    calling_convention: str = "stdcall"
+    calling_convention: Literal["stdcall", "cdecl"] = "stdcall"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -1049,24 +1050,29 @@ def format_parameters(parameters: tuple[str, ...]) -> str:
     return ", ".join(parameters)
 
 
-def declaration(symbol: Symbol, x86_stack_bytes: int) -> str:
+def declaration(symbol: Symbol, x86_stdcall_stack_bytes: dict[str, int]) -> str:
     attribute = "[[nodiscard]]\n" if symbol.nodiscard else ""
-    convention = "PLTXT2HTM_DETAIL_STDCALL" if symbol.calling_convention == "stdcall" else "PLTXT2HTM_DETAIL_CDECL"
-    suffix = (
-        f" PLTXT2HTM_DETAIL_STDCALL_ASM_NAME({symbol.export_name}, {x86_stack_bytes})"
-        if symbol.calling_convention == "stdcall"
-        else f" PLTXT2HTM_DETAIL_CDECL_ASM_NAME({symbol.export_name})"
-    )
+    if symbol.calling_convention == "stdcall":
+        convention = "PLTXT2HTM_DETAIL_STDCALL"
+        suffix = (
+            f" PLTXT2HTM_DETAIL_STDCALL_ASM_NAME({symbol.export_name}, "
+            f"{x86_stdcall_stack_bytes[symbol.export_name]})"
+        )
+    elif symbol.calling_convention == "cdecl":
+        convention = "PLTXT2HTM_DETAIL_CDECL"
+        suffix = f" PLTXT2HTM_DETAIL_CDECL_ASM_NAME({symbol.export_name})"
+    else:
+        raise ValueError(f"unsupported calling convention: {symbol.calling_convention}")
     return (
         f"{attribute}PLTXT2HTM_DETAIL_DLLIMPORT {symbol.return_type} {convention} {symbol.export_name}"
         f"({format_parameters(symbol.parameters)}) noexcept{suffix};\n"
     )
 
 
-def generate_declarations(library: Library, x86_stack_bytes: dict[str, int]) -> str:
+def generate_declarations(library: Library, x86_stdcall_stack_bytes: dict[str, int]) -> str:
     result = [GENERATED_NOTICE, "\n"]
     result.extend(
-        declaration(symbol, x86_stack_bytes[symbol.export_name])
+        declaration(symbol, x86_stdcall_stack_bytes)
         for symbol in library.symbols
     )
     return "".join(result)
@@ -1191,7 +1197,7 @@ def generate_linker_aliases(
     cxx_include_dir: pathlib.Path | None,
 ) -> tuple[str, dict[str, int]]:
     result = [GENERATED_NOTICE, "\n"]
-    x86_stack_bytes: dict[str, int] = {}
+    x86_stdcall_stack_bytes: dict[str, int] = {}
     for symbol in library.symbols:
         pairs = undefined_symbols(symbol, library, target, clang, llvm_nm, cxx_include_dir)
         for local, exported in pairs:
@@ -1200,10 +1206,8 @@ def generate_linker_aliases(
             match = re.search(r"@(\d+)$", pairs[0][1])
             if match is None:
                 raise RuntimeError(f"missing i686 stdcall decoration for {symbol.export_name}: {pairs[0][1]}")
-            x86_stack_bytes[symbol.export_name] = int(match.group(1))
-        elif target.startswith("i686-"):
-            x86_stack_bytes[symbol.export_name] = 0
-    return "".join(result), x86_stack_bytes
+            x86_stdcall_stack_bytes[symbol.export_name] = int(match.group(1))
+    return "".join(result), x86_stdcall_stack_bytes
 
 
 def generated_files(
@@ -1212,14 +1216,14 @@ def generated_files(
     result: dict[pathlib.Path, str] = {}
     for library in LIBRARIES:
         directory = SYMBOL_ROOT / library.api
-        i686_stack_bytes: dict[str, int] = {}
+        i686_stdcall_stack_bytes: dict[str, int] = {}
         for architecture, target in MSVC_TARGETS:
             aliases, target_stack_bytes = generate_linker_aliases(
                 library, target, clang, llvm_nm, cxx_include_dir
             )
             result[directory / f"{library.name}_msvc_linker_{architecture}.inc"] = aliases
-            i686_stack_bytes.update(target_stack_bytes)
-        result[directory / f"{library.name}.inc"] = generate_declarations(library, i686_stack_bytes)
+            i686_stdcall_stack_bytes.update(target_stack_bytes)
+        result[directory / f"{library.name}.inc"] = generate_declarations(library, i686_stdcall_stack_bytes)
     return result
 
 
