@@ -52,18 +52,17 @@ using ExpectedTryEnterCriticalSection = nt::Ulong(NTAPI*)(void*) noexcept;
 using ExpectedAcquirePrivilege = nt::NtStatus(NTAPI*)(nt::Ulong*, nt::Ulong, nt::Ulong, void**) noexcept;
 using ExpectedIoApcRoutine = void(NTAPI*)(void*, nt::IoStatusBlock*, nt::Ulong);
 using ExpectedTimerApcRoutine = void(NTAPI*)(void*, nt::Ulong, nt::Long);
-using ExpectedCreateUserProcess = nt::NtStatus(NTAPI*)(void**, void**, nt::Ulong, nt::Ulong, nt::ObjectAttributes*,
-                                                       nt::ObjectAttributes*, nt::Ulong, nt::Ulong,
-                                                       nt::RtlUserProcessParameters*, nt::PsCreateInfo*,
+using ExpectedCreateUserProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Handle*, nt::Ulong, nt::Ulong,
+                                                       nt::ObjectAttributes*, nt::ObjectAttributes*, nt::Ulong,
+                                                       nt::Ulong, nt::RtlUserProcessParameters*, nt::PsCreateInfo*,
                                                        nt::PsAttributeList*) noexcept;
 using ExpectedWaitForSingleObject = nt::NtStatus(NTAPI*)(void*, nt::Boolean, nt::Ulong64*) noexcept;
 using ExpectedDelayExecution = nt::NtStatus(NTAPI*)(nt::Boolean, nt::Long64*) noexcept;
 using ExpectedControlFile = nt::NtStatus(NTAPI*)(void*, void*, nt::IoApcRoutine, void*, nt::IoStatusBlock*,
                                                 nt::Ulong, void*, nt::Ulong, void*, nt::Ulong) noexcept;
-using ExpectedCreateFile = nt::NtStatus(NTAPI*)(void**, nt::Ulong, nt::ObjectAttributes*,
-                                              nt::IoStatusBlock*, nt::Long64*, nt::Ulong,
-                                              nt::Ulong, nt::Ulong, nt::Ulong,
-                                              void*, nt::Ulong) noexcept;
+using ExpectedCreateFile = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes*, nt::IoStatusBlock*,
+                                                nt::Long64*, nt::Ulong, nt::Ulong, nt::Ulong, nt::Ulong, void*,
+                                                nt::Ulong) noexcept;
 using ExpectedDbgPrint = nt::Ulong(__cdecl*)(char const*, ...) noexcept;
 using ExpectedLoadLibraryExW = win32::ModuleHandle(WINAPI*)(win32::WideChar const*, win32::Handle,
                                                             win32::Dword) noexcept;
