@@ -95,25 +95,25 @@ LIBRARIES = (
             Symbol(
                 "NtCreateFile",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'IoStatusBlock *', 'Long64 *', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'void *', 'Ulong', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'IoStatusBlock *', 'Long64 *', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'void *', 'Ulong', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwCreateFile",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'IoStatusBlock *', 'Long64 *', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'void *', 'Ulong', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'IoStatusBlock *', 'Long64 *', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'void *', 'Ulong', ),
                 nodiscard=True,
             ),
             Symbol(
                 "NtCreateSection",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'Long64 *', 'Ulong', 'Ulong', 'void *', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'Long64 *', 'Ulong', 'Ulong', 'void *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwCreateSection",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'Long64 *', 'Ulong', 'Ulong', 'void *', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'Long64 *', 'Ulong', 'Ulong', 'void *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -251,25 +251,25 @@ LIBRARIES = (
             Symbol(
                 "NtCreateProcess",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'void *', 'Ulong', 'void *', 'void *', 'void *', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'void *', 'Boolean', 'void *', 'void *', 'void *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwCreateProcess",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'void *', 'Ulong', 'void *', 'void *', 'void *', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'void *', 'Boolean', 'void *', 'void *', 'void *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "RtlDosPathNameToNtPathName_U",
                 "Boolean",
-                ('char16_t const *', 'UnicodeString *', 'char16_t const **', 'RtlRelativeNameU *', ),
+                ('char16_t const *', 'UnicodeString *', 'char16_t **', 'RtlRelativeNameU *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "RtlDosPathNameToNtPathName_U_WithStatus",
                 "NtStatus",
-                ('char16_t const *', 'UnicodeString *', 'char16_t const **', 'RtlRelativeNameU *', ),
+                ('char16_t const *', 'UnicodeString *', 'char16_t **', 'RtlRelativeNameU *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -414,25 +414,25 @@ LIBRARIES = (
             Symbol(
                 "NtCreateUserProcess",
                 "NtStatus",
-                ('Handle *', 'Handle *', 'Ulong', 'Ulong', 'ObjectAttributes *', 'ObjectAttributes *', 'Ulong', 'Ulong', 'RtlUserProcessParameters *', 'PsCreateInfo *', 'PsAttributeList *', ),
+                ('Handle *', 'Handle *', 'Ulong', 'Ulong', 'ObjectAttributes const *', 'ObjectAttributes const *', 'Ulong', 'Ulong', 'RtlUserProcessParameters *', 'PsCreateInfo *', 'PsAttributeList *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwCreateUserProcess",
                 "NtStatus",
-                ('Handle *', 'Handle *', 'Ulong', 'Ulong', 'ObjectAttributes *', 'ObjectAttributes *', 'Ulong', 'Ulong', 'RtlUserProcessParameters *', 'PsCreateInfo *', 'PsAttributeList *', ),
+                ('Handle *', 'Handle *', 'Ulong', 'Ulong', 'ObjectAttributes const *', 'ObjectAttributes const *', 'Ulong', 'Ulong', 'RtlUserProcessParameters *', 'PsCreateInfo *', 'PsAttributeList *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "NtMapViewOfSection",
                 "NtStatus",
-                ('void *', 'void *', 'void **', '::std::size_t', '::std::size_t', 'Long64 const *', '::std::size_t *', 'SectionInherit', 'Ulong', 'Ulong', ),
+                ('void *', 'void *', 'void **', '::std::size_t', '::std::size_t', 'Long64 *', '::std::size_t *', 'SectionInherit', 'Ulong', 'Ulong', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwMapViewOfSection",
                 "NtStatus",
-                ('void *', 'void *', 'void **', '::std::size_t', '::std::size_t', 'Long64 const *', '::std::size_t *', 'SectionInherit', 'Ulong', 'Ulong', ),
+                ('void *', 'void *', 'void **', '::std::size_t', '::std::size_t', 'Long64 *', '::std::size_t *', 'SectionInherit', 'Ulong', 'Ulong', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -555,13 +555,13 @@ LIBRARIES = (
             Symbol(
                 "NtCreateNamedPipeFile",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'IoStatusBlock *', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Long64 *', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'IoStatusBlock *', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Long64 *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwCreateNamedPipeFile",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'IoStatusBlock *', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Long64 *', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'IoStatusBlock *', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Long64 *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -603,37 +603,37 @@ LIBRARIES = (
             Symbol(
                 "NtCreateEvent",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'EventType', 'Boolean', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'EventType', 'Boolean', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwCreateEvent",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'EventType', 'Boolean', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'EventType', 'Boolean', ),
                 nodiscard=True,
             ),
             Symbol(
                 "NtSetEvent",
                 "NtStatus",
-                ('void *', 'Ulong *', ),
+                ('void *', 'Long *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwSetEvent",
                 "NtStatus",
-                ('void *', 'Ulong *', ),
+                ('void *', 'Long *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "NtResetEvent",
                 "NtStatus",
-                ('void *', 'Ulong *', ),
+                ('void *', 'Long *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwResetEvent",
                 "NtStatus",
-                ('void *', 'Ulong *', ),
+                ('void *', 'Long *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -699,13 +699,13 @@ LIBRARIES = (
             Symbol(
                 "NtAlpcConnectPort",
                 "NtStatus",
-                ('Handle *', 'UnicodeString *', 'ObjectAttributes *', 'AlpcPortAttributes *', 'Ulong', 'void *', 'PortMessage *', '::std::size_t *', 'AlpcMessageAttributes *', 'AlpcMessageAttributes *', 'Long64 *', ),
+                ('Handle *', 'UnicodeString const *', 'ObjectAttributes *', 'AlpcPortAttributes *', 'Ulong', 'void *', 'PortMessage *', '::std::size_t *', 'AlpcMessageAttributes *', 'AlpcMessageAttributes *', 'Long64 *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwAlpcConnectPort",
                 "NtStatus",
-                ('Handle *', 'UnicodeString *', 'ObjectAttributes *', 'AlpcPortAttributes *', 'Ulong', 'void *', 'PortMessage *', '::std::size_t *', 'AlpcMessageAttributes *', 'AlpcMessageAttributes *', 'Long64 *', ),
+                ('Handle *', 'UnicodeString const *', 'ObjectAttributes *', 'AlpcPortAttributes *', 'Ulong', 'void *', 'PortMessage *', '::std::size_t *', 'AlpcMessageAttributes *', 'AlpcMessageAttributes *', 'Long64 *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -932,13 +932,13 @@ LIBRARIES = (
             Symbol(
                 "NtCreateTimer",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'TimerType', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'TimerType', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwCreateTimer",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'TimerType', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'TimerType', ),
                 nodiscard=True,
             ),
             Symbol(

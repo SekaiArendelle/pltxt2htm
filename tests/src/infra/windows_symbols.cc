@@ -56,17 +56,31 @@ using ExpectedUserThreadStartRoutine = nt::NtStatus(NTAPI*)(void*);
 using ExpectedInitUnicodeString = void(NTAPI*)(nt::UnicodeString*, char16_t const*) noexcept;
 using ExpectedQueryEnvironmentVariable = nt::NtStatus(NTAPI*)(void*, nt::UnicodeString const*,
                                                               nt::UnicodeString*) noexcept;
+using ExpectedDosPathNameToNtPathName = nt::Boolean(NTAPI*)(char16_t const*, nt::UnicodeString*, char16_t**,
+                                                            nt::RtlRelativeNameU*) noexcept;
+using ExpectedDosPathNameToNtPathNameWithStatus = nt::NtStatus(NTAPI*)(char16_t const*, nt::UnicodeString*, char16_t**,
+                                                                       nt::RtlRelativeNameU*) noexcept;
 using ExpectedCreateUserProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Handle*, nt::Ulong, nt::Ulong,
-                                                       nt::ObjectAttributes*, nt::ObjectAttributes*, nt::Ulong,
-                                                       nt::Ulong, nt::RtlUserProcessParameters*, nt::PsCreateInfo*,
-                                                       nt::PsAttributeList*) noexcept;
+                                                       nt::ObjectAttributes const*, nt::ObjectAttributes const*,
+                                                       nt::Ulong, nt::Ulong, nt::RtlUserProcessParameters*,
+                                                       nt::PsCreateInfo*, nt::PsAttributeList*) noexcept;
+using ExpectedCreateProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, void*,
+                                                   nt::Boolean, void*, void*, void*) noexcept;
 using ExpectedWaitForSingleObject = nt::NtStatus(NTAPI*)(void*, nt::Boolean, nt::Long64*) noexcept;
 using ExpectedDelayExecution = nt::NtStatus(NTAPI*)(nt::Boolean, nt::Long64*) noexcept;
 using ExpectedSetTimer = nt::NtStatus(NTAPI*)(void*, nt::Long64*, nt::TimerApcRoutine, void*, nt::Boolean,
                                               nt::Long, nt::Boolean*) noexcept;
+using ExpectedMapViewOfSection = nt::NtStatus(NTAPI*)(void*, void*, void**, ::std::size_t, ::std::size_t, nt::Long64*,
+                                                      ::std::size_t*, nt::SectionInherit, nt::Ulong,
+                                                      nt::Ulong) noexcept;
+using ExpectedEventState = nt::NtStatus(NTAPI*)(void*, nt::Long*) noexcept;
+using ExpectedAlpcConnectPort = nt::NtStatus(NTAPI*)(nt::Handle*, nt::UnicodeString const*, nt::ObjectAttributes*,
+                                                     nt::AlpcPortAttributes*, nt::Ulong, void*, nt::PortMessage*,
+                                                     ::std::size_t*, nt::AlpcMessageAttributes*,
+                                                     nt::AlpcMessageAttributes*, nt::Long64*) noexcept;
 using ExpectedControlFile = nt::NtStatus(NTAPI*)(void*, void*, nt::IoApcRoutine, void*, nt::IoStatusBlock*,
                                                 nt::Ulong, void*, nt::Ulong, void*, nt::Ulong) noexcept;
-using ExpectedCreateFile = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes*, nt::IoStatusBlock*,
+using ExpectedCreateFile = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, nt::IoStatusBlock*,
                                                 nt::Long64*, nt::Ulong, nt::Ulong, nt::Ulong, nt::Ulong, void*,
                                                 nt::Ulong) noexcept;
 using ExpectedDbgPrint = nt::Ulong(__cdecl*)(char const*, ...) noexcept;
@@ -99,6 +113,9 @@ static_assert(::std::is_same_v<nt::TimerApcRoutine, ExpectedTimerApcRoutine>);
 static_assert(::std::is_same_v<nt::UserThreadStartRoutine, ExpectedUserThreadStartRoutine>);
 static_assert(::std::is_same_v<decltype(&nt::RtlInitUnicodeString), ExpectedInitUnicodeString>);
 static_assert(::std::is_same_v<decltype(&nt::RtlQueryEnvironmentVariable_U), ExpectedQueryEnvironmentVariable>);
+static_assert(::std::is_same_v<decltype(&nt::RtlDosPathNameToNtPathName_U), ExpectedDosPathNameToNtPathName>);
+static_assert(::std::is_same_v<decltype(&nt::RtlDosPathNameToNtPathName_U_WithStatus),
+                               ExpectedDosPathNameToNtPathNameWithStatus>);
 static_assert(::std::is_same_v<decltype(&nt::NtFsControlFile), ExpectedControlFile>);
 static_assert(::std::is_same_v<decltype(&nt::ZwFsControlFile), ExpectedControlFile>);
 static_assert(::std::is_same_v<decltype(&nt::NtDeviceIoControlFile), ExpectedControlFile>);
@@ -107,6 +124,16 @@ static_assert(::std::is_same_v<decltype(&nt::NtCreateFile), ExpectedCreateFile>)
 static_assert(::std::is_same_v<decltype(&nt::ZwCreateFile), ExpectedCreateFile>);
 static_assert(::std::is_same_v<decltype(&nt::NtCreateUserProcess), ExpectedCreateUserProcess>);
 static_assert(::std::is_same_v<decltype(&nt::ZwCreateUserProcess), ExpectedCreateUserProcess>);
+static_assert(::std::is_same_v<decltype(&nt::NtCreateProcess), ExpectedCreateProcess>);
+static_assert(::std::is_same_v<decltype(&nt::ZwCreateProcess), ExpectedCreateProcess>);
+static_assert(::std::is_same_v<decltype(&nt::NtMapViewOfSection), ExpectedMapViewOfSection>);
+static_assert(::std::is_same_v<decltype(&nt::ZwMapViewOfSection), ExpectedMapViewOfSection>);
+static_assert(::std::is_same_v<decltype(&nt::NtSetEvent), ExpectedEventState>);
+static_assert(::std::is_same_v<decltype(&nt::ZwSetEvent), ExpectedEventState>);
+static_assert(::std::is_same_v<decltype(&nt::NtResetEvent), ExpectedEventState>);
+static_assert(::std::is_same_v<decltype(&nt::ZwResetEvent), ExpectedEventState>);
+static_assert(::std::is_same_v<decltype(&nt::NtAlpcConnectPort), ExpectedAlpcConnectPort>);
+static_assert(::std::is_same_v<decltype(&nt::ZwAlpcConnectPort), ExpectedAlpcConnectPort>);
 static_assert(::std::is_same_v<decltype(&nt::NtWaitForSingleObject), ExpectedWaitForSingleObject>);
 static_assert(::std::is_same_v<decltype(&nt::NtDelayExecution), ExpectedDelayExecution>);
 static_assert(::std::is_same_v<decltype(&nt::NtSetTimer), ExpectedSetTimer>);
