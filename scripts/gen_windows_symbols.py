@@ -107,13 +107,13 @@ LIBRARIES = (
             Symbol(
                 "NtCreateSection",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'Ulong64 *', 'Ulong', 'Ulong', 'void *', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes *', 'Long64 *', 'Ulong', 'Ulong', 'void *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwCreateSection",
                 "NtStatus",
-                ('Handle *', 'Ulong', 'ObjectAttributes *', 'Ulong64 *', 'Ulong', 'Ulong', 'void *', ),
+                ('Handle *', 'Ulong', 'ObjectAttributes *', 'Long64 *', 'Ulong', 'Ulong', 'void *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -215,25 +215,25 @@ LIBRARIES = (
             Symbol(
                 "NtWaitForSingleObject",
                 "NtStatus",
-                ('void *', 'Boolean', 'Ulong64 *', ),
+                ('void *', 'Boolean', 'Long64 *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwWaitForSingleObject",
                 "NtStatus",
-                ('void *', 'Boolean', 'Ulong64 *', ),
+                ('void *', 'Boolean', 'Long64 *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "NtWaitForMultipleObjects",
                 "NtStatus",
-                ('Ulong', 'void *const *', 'WaitType', 'Boolean', 'Ulong64 *', ),
+                ('Ulong', 'void *const *', 'WaitType', 'Boolean', 'Long64 *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwWaitForMultipleObjects",
                 "NtStatus",
-                ('Ulong', 'void *const *', 'WaitType', 'Boolean', 'Ulong64 *', ),
+                ('Ulong', 'void *const *', 'WaitType', 'Boolean', 'Long64 *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -396,13 +396,13 @@ LIBRARIES = (
             Symbol(
                 "RtlCreateProcessParameters",
                 "NtStatus",
-                ('RtlUserProcessParameters **', 'UnicodeString *', 'UnicodeString *', 'UnicodeString *', 'UnicodeString *', 'void *', 'UnicodeString *', 'UnicodeString *', 'UnicodeString *', 'UnicodeString *', ),
+                ('RtlUserProcessParameters **', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'void *', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "RtlCreateProcessParametersEx",
                 "NtStatus",
-                ('RtlUserProcessParameters **', 'UnicodeString *', 'UnicodeString *', 'UnicodeString *', 'UnicodeString *', 'void *', 'UnicodeString *', 'UnicodeString *', 'UnicodeString *', 'UnicodeString *', 'Ulong', ),
+                ('RtlUserProcessParameters **', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'void *', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'Ulong', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -426,13 +426,13 @@ LIBRARIES = (
             Symbol(
                 "NtMapViewOfSection",
                 "NtStatus",
-                ('void *', 'void *', 'void **', '::std::size_t', '::std::size_t', 'LargeInteger const *', '::std::size_t *', 'SectionInherit', 'Ulong', 'Ulong', ),
+                ('void *', 'void *', 'void **', '::std::size_t', '::std::size_t', 'Long64 const *', '::std::size_t *', 'SectionInherit', 'Ulong', 'Ulong', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwMapViewOfSection",
                 "NtStatus",
-                ('void *', 'void *', 'void **', '::std::size_t', '::std::size_t', 'LargeInteger const *', '::std::size_t *', 'SectionInherit', 'Ulong', 'Ulong', ),
+                ('void *', 'void *', 'void **', '::std::size_t', '::std::size_t', 'Long64 const *', '::std::size_t *', 'SectionInherit', 'Ulong', 'Ulong', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -508,7 +508,7 @@ LIBRARIES = (
             Symbol(
                 "RtlInitUnicodeString",
                 "void",
-                ('UnicodeString *', 'char16_t *', ),
+                ('UnicodeString *', 'char16_t const *', ),
             ),
             Symbol(
                 "CsrClientCallServer",
@@ -878,7 +878,7 @@ LIBRARIES = (
             Symbol(
                 "RtlQueryEnvironmentVariable_U",
                 "NtStatus",
-                ('void *', 'UnicodeString *', 'UnicodeString *', ),
+                ('void *', 'UnicodeString const *', 'UnicodeString *', ),
                 nodiscard=True,
             ),
             Symbol(
@@ -944,13 +944,13 @@ LIBRARIES = (
             Symbol(
                 "NtSetTimer",
                 "NtStatus",
-                ('void *', 'Ulong64 const *', 'TimerApcRoutine', 'void *', 'Boolean', 'Long', 'Boolean *', ),
+                ('void *', 'Long64 *', 'TimerApcRoutine', 'void *', 'Boolean', 'Long', 'Boolean *', ),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwSetTimer",
                 "NtStatus",
-                ('void *', 'Ulong64 const *', 'TimerApcRoutine', 'void *', 'Boolean', 'Long', 'Boolean *', ),
+                ('void *', 'Long64 *', 'TimerApcRoutine', 'void *', 'Boolean', 'Long', 'Boolean *', ),
                 nodiscard=True,
             ),
             Symbol(

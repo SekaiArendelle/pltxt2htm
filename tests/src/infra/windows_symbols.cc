@@ -52,12 +52,18 @@ using ExpectedTryEnterCriticalSection = nt::Ulong(NTAPI*)(void*) noexcept;
 using ExpectedAcquirePrivilege = nt::NtStatus(NTAPI*)(nt::Ulong*, nt::Ulong, nt::Ulong, void**) noexcept;
 using ExpectedIoApcRoutine = void(NTAPI*)(void*, nt::IoStatusBlock*, nt::Ulong);
 using ExpectedTimerApcRoutine = void(NTAPI*)(void*, nt::Ulong, nt::Long);
+using ExpectedUserThreadStartRoutine = nt::NtStatus(NTAPI*)(void*);
+using ExpectedInitUnicodeString = void(NTAPI*)(nt::UnicodeString*, char16_t const*) noexcept;
+using ExpectedQueryEnvironmentVariable = nt::NtStatus(NTAPI*)(void*, nt::UnicodeString const*,
+                                                              nt::UnicodeString*) noexcept;
 using ExpectedCreateUserProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Handle*, nt::Ulong, nt::Ulong,
                                                        nt::ObjectAttributes*, nt::ObjectAttributes*, nt::Ulong,
                                                        nt::Ulong, nt::RtlUserProcessParameters*, nt::PsCreateInfo*,
                                                        nt::PsAttributeList*) noexcept;
-using ExpectedWaitForSingleObject = nt::NtStatus(NTAPI*)(void*, nt::Boolean, nt::Ulong64*) noexcept;
+using ExpectedWaitForSingleObject = nt::NtStatus(NTAPI*)(void*, nt::Boolean, nt::Long64*) noexcept;
 using ExpectedDelayExecution = nt::NtStatus(NTAPI*)(nt::Boolean, nt::Long64*) noexcept;
+using ExpectedSetTimer = nt::NtStatus(NTAPI*)(void*, nt::Long64*, nt::TimerApcRoutine, void*, nt::Boolean,
+                                              nt::Long, nt::Boolean*) noexcept;
 using ExpectedControlFile = nt::NtStatus(NTAPI*)(void*, void*, nt::IoApcRoutine, void*, nt::IoStatusBlock*,
                                                 nt::Ulong, void*, nt::Ulong, void*, nt::Ulong) noexcept;
 using ExpectedCreateFile = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes*, nt::IoStatusBlock*,
@@ -90,6 +96,9 @@ static_assert(::std::is_same_v<decltype(&nt::RtlDeleteCriticalSection), Expected
 static_assert(::std::is_same_v<decltype(&nt::RtlAcquirePrivilege), ExpectedAcquirePrivilege>);
 static_assert(::std::is_same_v<nt::IoApcRoutine, ExpectedIoApcRoutine>);
 static_assert(::std::is_same_v<nt::TimerApcRoutine, ExpectedTimerApcRoutine>);
+static_assert(::std::is_same_v<nt::UserThreadStartRoutine, ExpectedUserThreadStartRoutine>);
+static_assert(::std::is_same_v<decltype(&nt::RtlInitUnicodeString), ExpectedInitUnicodeString>);
+static_assert(::std::is_same_v<decltype(&nt::RtlQueryEnvironmentVariable_U), ExpectedQueryEnvironmentVariable>);
 static_assert(::std::is_same_v<decltype(&nt::NtFsControlFile), ExpectedControlFile>);
 static_assert(::std::is_same_v<decltype(&nt::ZwFsControlFile), ExpectedControlFile>);
 static_assert(::std::is_same_v<decltype(&nt::NtDeviceIoControlFile), ExpectedControlFile>);
@@ -100,6 +109,8 @@ static_assert(::std::is_same_v<decltype(&nt::NtCreateUserProcess), ExpectedCreat
 static_assert(::std::is_same_v<decltype(&nt::ZwCreateUserProcess), ExpectedCreateUserProcess>);
 static_assert(::std::is_same_v<decltype(&nt::NtWaitForSingleObject), ExpectedWaitForSingleObject>);
 static_assert(::std::is_same_v<decltype(&nt::NtDelayExecution), ExpectedDelayExecution>);
+static_assert(::std::is_same_v<decltype(&nt::NtSetTimer), ExpectedSetTimer>);
+static_assert(::std::is_same_v<decltype(&nt::ZwSetTimer), ExpectedSetTimer>);
 static_assert(::std::is_same_v<decltype(&nt::DbgPrint), ExpectedDbgPrint>);
 static_assert(::std::is_same_v<decltype(&win32::LoadLibraryExW), ExpectedLoadLibraryExW>);
 static_assert(::std::is_same_v<decltype(&win32::GetProcAddress), ExpectedGetProcAddress>);
@@ -143,7 +154,7 @@ static_assert(offsetof(nt::ObjectAttributes, security_quality_of_service) ==
 static_assert(sizeof(nt::IoStatusBlock) == sizeof(IO_STATUS_BLOCK));
 static_assert(offsetof(nt::IoStatusBlock, information) == offsetof(IO_STATUS_BLOCK, Information));
 static_assert(sizeof(nt::ClientId) == sizeof(CLIENT_ID));
-static_assert(sizeof(nt::LargeInteger) == sizeof(LARGE_INTEGER));
+static_assert(sizeof(nt::Long64) == sizeof(LARGE_INTEGER));
 static_assert(nt::FileInformationClass::FileBasicInformation == static_cast<nt::FileInformationClass>(4));
 static_assert(sizeof(nt::PsCreateInfo) >= sizeof(::std::size_t));
 static_assert(offsetof(nt::PsCreateInfo, state_union) > offsetof(nt::PsCreateInfo, state));

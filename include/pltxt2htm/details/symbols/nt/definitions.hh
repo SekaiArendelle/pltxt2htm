@@ -448,15 +448,6 @@ struct IoStatusBlock {
     ::std::size_t information;
 };
 
-union LargeInteger {
-    struct {
-        Ulong low_part;
-        long high_part;
-    } parts;
-
-    Long64 quad_part;
-};
-
 struct RtlpCurdirRef {
     Long ref_count;
     Handle handle;
@@ -700,7 +691,7 @@ struct MemoryRangeEntry {
 
 using IoApcRoutine = void(PLTXT2HTM_DETAIL_STDCALL*)(void*, IoStatusBlock*, Ulong);
 using TimerApcRoutine = void(PLTXT2HTM_DETAIL_STDCALL*)(void*, Ulong, Long);
-using UserThreadStartRoutine = Ulong(PLTXT2HTM_DETAIL_STDCALL*)(void*);
+using UserThreadStartRoutine = NtStatus(PLTXT2HTM_DETAIL_STDCALL*)(void*);
 
 struct SrwLock {
     void* pointer;

@@ -21,9 +21,9 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtCreateFile(Handle
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwCreateFile(Handle *, Ulong, ObjectAttributes *, IoStatusBlock *, Long64 *, Ulong, Ulong, Ulong, Ulong, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwCreateFile, 44);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtCreateSection(Handle *, Ulong, ObjectAttributes *, Ulong64 *, Ulong, Ulong, void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtCreateSection, 28);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtCreateSection(Handle *, Ulong, ObjectAttributes *, Long64 *, Ulong, Ulong, void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtCreateSection, 28);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwCreateSection(Handle *, Ulong, ObjectAttributes *, Ulong64 *, Ulong, Ulong, void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwCreateSection, 28);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwCreateSection(Handle *, Ulong, ObjectAttributes *, Long64 *, Ulong, Ulong, void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwCreateSection, 28);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtQueryInformationProcess(void *, ProcessInformationClass, void *, Ulong, Ulong *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtQueryInformationProcess, 20);
 [[nodiscard]]
@@ -57,13 +57,13 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtSetInformationFil
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwSetInformationFile(void *, IoStatusBlock *, void *, Ulong, FileInformationClass) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwSetInformationFile, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtWaitForSingleObject(void *, Boolean, Ulong64 *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtWaitForSingleObject, 12);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtWaitForSingleObject(void *, Boolean, Long64 *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtWaitForSingleObject, 12);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwWaitForSingleObject(void *, Boolean, Ulong64 *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwWaitForSingleObject, 12);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwWaitForSingleObject(void *, Boolean, Long64 *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwWaitForSingleObject, 12);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtWaitForMultipleObjects(Ulong, void *const *, WaitType, Boolean, Ulong64 *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtWaitForMultipleObjects, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtWaitForMultipleObjects(Ulong, void *const *, WaitType, Boolean, Long64 *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtWaitForMultipleObjects, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwWaitForMultipleObjects(Ulong, void *const *, WaitType, Boolean, Ulong64 *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwWaitForMultipleObjects, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwWaitForMultipleObjects(Ulong, void *const *, WaitType, Boolean, Long64 *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwWaitForMultipleObjects, 20);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtSetSystemTime(Long64 *, Long64 *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtSetSystemTime, 8);
 [[nodiscard]]
@@ -116,9 +116,9 @@ PLTXT2HTM_DETAIL_DLLIMPORT Ulong PLTXT2HTM_DETAIL_CDECL DbgPrint(char const *, .
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Ulong PLTXT2HTM_DETAIL_CDECL DbgPrintEx(Ulong, Ulong, char const *, ...) noexcept PLTXT2HTM_DETAIL_CDECL_ASM_NAME(DbgPrintEx);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlCreateProcessParameters(RtlUserProcessParameters **, UnicodeString *, UnicodeString *, UnicodeString *, UnicodeString *, void *, UnicodeString *, UnicodeString *, UnicodeString *, UnicodeString *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlCreateProcessParameters, 40);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlCreateProcessParameters(RtlUserProcessParameters **, UnicodeString const *, UnicodeString const *, UnicodeString const *, UnicodeString const *, void *, UnicodeString const *, UnicodeString const *, UnicodeString const *, UnicodeString const *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlCreateProcessParameters, 40);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlCreateProcessParametersEx(RtlUserProcessParameters **, UnicodeString *, UnicodeString *, UnicodeString *, UnicodeString *, void *, UnicodeString *, UnicodeString *, UnicodeString *, UnicodeString *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlCreateProcessParametersEx, 44);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlCreateProcessParametersEx(RtlUserProcessParameters **, UnicodeString const *, UnicodeString const *, UnicodeString const *, UnicodeString const *, void *, UnicodeString const *, UnicodeString const *, UnicodeString const *, UnicodeString const *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlCreateProcessParametersEx, 44);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlDestroyProcessParameters(RtlUserProcessParameters *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlDestroyProcessParameters, 4);
 [[nodiscard]]
@@ -126,9 +126,9 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtCreateUserProcess
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwCreateUserProcess(Handle *, Handle *, Ulong, Ulong, ObjectAttributes *, ObjectAttributes *, Ulong, Ulong, RtlUserProcessParameters *, PsCreateInfo *, PsAttributeList *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwCreateUserProcess, 44);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtMapViewOfSection(void *, void *, void **, ::std::size_t, ::std::size_t, LargeInteger const *, ::std::size_t *, SectionInherit, Ulong, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtMapViewOfSection, 40);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtMapViewOfSection(void *, void *, void **, ::std::size_t, ::std::size_t, Long64 const *, ::std::size_t *, SectionInherit, Ulong, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtMapViewOfSection, 40);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwMapViewOfSection(void *, void *, void **, ::std::size_t, ::std::size_t, LargeInteger const *, ::std::size_t *, SectionInherit, Ulong, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwMapViewOfSection, 40);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwMapViewOfSection(void *, void *, void **, ::std::size_t, ::std::size_t, Long64 const *, ::std::size_t *, SectionInherit, Ulong, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwMapViewOfSection, 40);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtUnmapViewOfSection(void *, void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtUnmapViewOfSection, 8);
 [[nodiscard]]
@@ -151,7 +151,7 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwAllocateVirtualMe
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtFreeVirtualMemory(void *, void **, ::std::size_t *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtFreeVirtualMemory, 16);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwFreeVirtualMemory(void *, void **, ::std::size_t *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwFreeVirtualMemory, 16);
-PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlInitUnicodeString(UnicodeString *, char16_t *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlInitUnicodeString, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlInitUnicodeString(UnicodeString *, char16_t const *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlInitUnicodeString, 8);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL CsrClientCallServer(void *, void *, Ulong, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CsrClientCallServer, 16);
 [[nodiscard]]
@@ -274,7 +274,7 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwDeviceIoControlFi
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlAcquirePrivilege(Ulong *, Ulong, Ulong, void **) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlAcquirePrivilege, 16);
 PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlReleasePrivilege(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlReleasePrivilege, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlQueryEnvironmentVariable_U(void *, UnicodeString *, UnicodeString *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlQueryEnvironmentVariable_U, 12);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlQueryEnvironmentVariable_U(void *, UnicodeString const *, UnicodeString *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlQueryEnvironmentVariable_U, 12);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtSetInformationVirtualMemory(void *, VirtualMemoryInformationClass, ::std::size_t, MemoryRangeEntry *, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtSetInformationVirtualMemory, 24);
 [[nodiscard]]
@@ -296,9 +296,9 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtCreateTimer(Handl
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwCreateTimer(Handle *, Ulong, ObjectAttributes *, TimerType) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwCreateTimer, 16);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtSetTimer(void *, Ulong64 const *, TimerApcRoutine, void *, Boolean, Long, Boolean *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtSetTimer, 28);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtSetTimer(void *, Long64 *, TimerApcRoutine, void *, Boolean, Long, Boolean *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtSetTimer, 28);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwSetTimer(void *, Ulong64 const *, TimerApcRoutine, void *, Boolean, Long, Boolean *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwSetTimer, 28);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwSetTimer(void *, Long64 *, TimerApcRoutine, void *, Boolean, Long, Boolean *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwSetTimer, 28);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtCancelTimer(void *, Uchar *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtCancelTimer, 8);
 [[nodiscard]]
