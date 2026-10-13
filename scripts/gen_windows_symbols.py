@@ -21,6 +21,7 @@ class Symbol:
     return_type: str
     parameters: tuple[str, ...]
     nodiscard: bool = False
+    noreturn: bool = False
     calling_convention: Literal["stdcall", "cdecl"] = "stdcall"
 
 
@@ -1601,7 +1602,7 @@ LIBRARIES = (
             Symbol(
                 "DuplicateHandle",
                 "Bool",
-                ("Handle", "Handle", "Handle", "Handle*", "Dword", "int", "Dword"),
+                ("Handle", "Handle", "Handle", "Handle*", "Dword", "Bool", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1803,7 +1804,7 @@ LIBRARIES = (
                     "WideChar*",
                     "SecurityAttributes*",
                     "SecurityAttributes*",
-                    "int",
+                    "Bool",
                     "Dword",
                     "void*",
                     "WideChar const*",
@@ -1820,7 +1821,7 @@ LIBRARIES = (
                     "Char*",
                     "SecurityAttributes*",
                     "SecurityAttributes*",
-                    "int",
+                    "Bool",
                     "Dword",
                     "void*",
                     "Char const*",
@@ -1891,13 +1892,13 @@ LIBRARIES = (
             Symbol(
                 "CopyFileW",
                 "Bool",
-                ("WideChar const*", "WideChar const*", "int"),
+                ("WideChar const*", "WideChar const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
                 "CopyFileA",
                 "Bool",
-                ("Char const*", "Char const*", "int"),
+                ("Char const*", "Char const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1928,7 +1929,7 @@ LIBRARIES = (
             Symbol(
                 "SetWaitableTimer",
                 "Bool",
-                ("Handle", "Long64 const*", "Long", "TimerApcRoutine", "void*", "int"),
+                ("Handle", "Long64 const*", "Long", "TimerApcRoutine", "void*", "Bool"),
                 nodiscard=True,
             ),
             Symbol("CancelWaitableTimer", "Bool", ("Handle",), nodiscard=True),
@@ -2116,7 +2117,7 @@ LIBRARIES = (
                 ("Dword", "Dword", "Dword", "::std::size_t const*"),
                 nodiscard=False,
             ),
-            Symbol("ExitProcess", "void", ("Dword",), nodiscard=False),
+            Symbol("ExitProcess", "void", ("Uint",), noreturn=True),
         ),
     ),
     Library(
@@ -2177,7 +2178,11 @@ def format_parameters(parameters: tuple[str, ...]) -> str:
 
 
 def declaration(symbol: Symbol, x86_stdcall_stack_bytes: dict[str, int]) -> str:
-    attribute = "[[nodiscard]]\n" if symbol.nodiscard else ""
+    attribute = ""
+    if symbol.nodiscard:
+        attribute += "[[nodiscard]]\n"
+    if symbol.noreturn:
+        attribute += "[[noreturn]]\n"
     if symbol.calling_convention == "stdcall":
         convention = "PLTXT2HTM_DETAIL_STDCALL"
         suffix = (

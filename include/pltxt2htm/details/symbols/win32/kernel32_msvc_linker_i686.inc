@@ -136,4 +136,4 @@
 #pragma comment(linker, "/alternatename:__imp_?LocalFree@win32@symbols@details@pltxt2htm@@YGPAXPAX@Z=__imp__LocalFree@4")
 #pragma comment(linker, "/alternatename:__imp_?AddVectoredExceptionHandler@win32@symbols@details@pltxt2htm@@YGPAXKP6GJPAUExceptionPointers@1234@@Z@Z=__imp__AddVectoredExceptionHandler@8")
 #pragma comment(linker, "/alternatename:__imp_?RaiseException@win32@symbols@details@pltxt2htm@@YGXKKKPBI@Z=__imp__RaiseException@16")
-#pragma comment(linker, "/alternatename:__imp_?ExitProcess@win32@symbols@details@pltxt2htm@@YGXK@Z=__imp__ExitProcess@4")
+#pragma comment(linker, "/alternatename:__imp_?ExitProcess@win32@symbols@details@pltxt2htm@@YGXI@Z=__imp__ExitProcess@4")

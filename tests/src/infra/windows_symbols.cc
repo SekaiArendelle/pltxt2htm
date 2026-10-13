@@ -103,6 +103,7 @@ using ExpectedCreateFileW = win32::Handle(WINAPI*)(win32::WideChar const*, win32
 using ExpectedReadFile = win32::Bool(WINAPI*)(win32::Handle, void*, win32::Dword, win32::Dword*,
                                               win32::Overlapped*) noexcept;
 using ExpectedTerminateProcess = win32::Bool(WINAPI*)(win32::Handle, UINT) noexcept;
+using ExpectedExitProcess = void(WINAPI*)(UINT) noexcept;
 using ExpectedCreateThread = win32::Handle(WINAPI*)(win32::SecurityAttributes*, ::std::size_t,
                                                     win32::ThreadStartRoutine, void*, win32::Dword,
                                                     win32::Dword*) noexcept;
@@ -171,6 +172,7 @@ static_assert(::std::is_same_v<decltype(&win32::TryAcquireSRWLockExclusive), Exp
 static_assert(::std::is_same_v<decltype(&win32::CreateFileW), ExpectedCreateFileW>);
 static_assert(::std::is_same_v<decltype(&win32::ReadFile), ExpectedReadFile>);
 static_assert(::std::is_same_v<decltype(&win32::TerminateProcess), ExpectedTerminateProcess>);
+static_assert(::std::is_same_v<decltype(&win32::ExitProcess), ExpectedExitProcess>);
 static_assert(::std::is_same_v<decltype(&win32::CreateThread), ExpectedCreateThread>);
 static_assert(::std::is_same_v<decltype(&win32::SymInitialize), ExpectedSymInitialize>);
 static_assert(::std::is_same_v<decltype(&win32::SymRefreshModuleList), ExpectedSymRefreshModuleList>);
@@ -252,15 +254,28 @@ static_assert(sizeof(win32::ConsoleScreenBufferInfo) == sizeof(CONSOLE_SCREEN_BU
 static_assert(sizeof(win32::FileTime) == sizeof(FILETIME));
 static_assert(sizeof(win32::SecurityAttributes) == sizeof(SECURITY_ATTRIBUTES));
 static_assert(sizeof(win32::Overlapped) == sizeof(OVERLAPPED));
+static_assert(offsetof(win32::Overlapped, internal) == offsetof(OVERLAPPED, Internal));
+static_assert(offsetof(win32::Overlapped, offset) == offsetof(OVERLAPPED, Offset));
+static_assert(offsetof(win32::Overlapped, pointer) == offsetof(OVERLAPPED, Pointer));
+static_assert(offsetof(win32::Overlapped, event) == offsetof(OVERLAPPED, hEvent));
 static_assert(sizeof(win32::ByHandleFileInformation) == sizeof(BY_HANDLE_FILE_INFORMATION));
 static_assert(sizeof(win32::ProcessInformation) == sizeof(PROCESS_INFORMATION));
 static_assert(sizeof(win32::StartupInfoA) == sizeof(STARTUPINFOA));
 static_assert(sizeof(win32::StartupInfoW) == sizeof(STARTUPINFOW));
+static_assert(offsetof(win32::StartupInfoA, reserved2) == offsetof(STARTUPINFOA, lpReserved2));
+static_assert(offsetof(win32::StartupInfoA, standard_input) == offsetof(STARTUPINFOA, hStdInput));
+static_assert(offsetof(win32::StartupInfoW, reserved2) == offsetof(STARTUPINFOW, lpReserved2));
+static_assert(offsetof(win32::StartupInfoW, standard_input) == offsetof(STARTUPINFOW, hStdInput));
 static_assert(sizeof(win32::SystemTime) == sizeof(SYSTEMTIME));
 static_assert(sizeof(win32::TimeZoneInformation) == sizeof(TIME_ZONE_INFORMATION));
 static_assert(sizeof(win32::SystemInfo) == sizeof(SYSTEM_INFO));
+static_assert(offsetof(win32::SystemInfo, oem_id) == offsetof(SYSTEM_INFO, dwOemId));
+static_assert(offsetof(win32::SystemInfo, processor_architecture) == offsetof(SYSTEM_INFO, wProcessorArchitecture));
+static_assert(offsetof(win32::SystemInfo, page_size) == offsetof(SYSTEM_INFO, dwPageSize));
 static_assert(sizeof(win32::Win32FindDataA) == sizeof(WIN32_FIND_DATAA));
 static_assert(sizeof(win32::Win32FindDataW) == sizeof(WIN32_FIND_DATAW));
+static_assert(offsetof(win32::Win32FindDataW, file_name) == offsetof(WIN32_FIND_DATAW, cFileName));
+static_assert(offsetof(win32::Win32FindDataW, alternate_file_name) == offsetof(WIN32_FIND_DATAW, cAlternateFileName));
 static_assert(sizeof(win32::MemoryRangeEntry) == sizeof(WIN32_MEMORY_RANGE_ENTRY));
 static_assert(sizeof(win32::FileInfoByHandleClass) == sizeof(FILE_INFO_BY_HANDLE_CLASS));
 static_assert(sizeof(win32::SymbolInfo) == sizeof(SYMBOL_INFO));
