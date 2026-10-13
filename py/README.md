@@ -5,20 +5,11 @@
 Requires [pixi](https://pixi.sh) to be installed.
 
 ```sh
-# install environment & build (default: Python 3.12)
-pixi run build
+# from the repository root, build with Python 3.12
+pixi run -e py312 build-py
 ```
 
-Specify Python version via environment:
-
-```sh
-pixi run -e py310 build
-pixi run -e py311 build
-pixi run -e py312 build   # default
-pixi run -e py313 build
-```
-
-The built `.so`/`.pyd` will be placed under `build/`.
+Each environment uses its own build directory: `py/build-pixi-pyXY/`.
 
 ## Usage
 ```py
