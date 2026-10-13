@@ -1,7 +1,15 @@
 # Use `pltxt2htm` in CSharp
-You should manually build a shared library in c/ and copy it to csharp/pltxt2htm.dll or csharp/libpltxt2htm.so
+From the repository root, Pixi builds the C shared library and the C# project. The run task adds the native library directory to the platform's library search path:
 
-## Run example
+```sh
+pixi run build-csharp
+pixi run run-csharp
+```
+
+## Run example without Pixi
+
+Build the C shared library manually and add its directory to `PATH` (Windows), `LD_LIBRARY_PATH` (Linux), or `DYLD_LIBRARY_PATH` (macOS) before running. Copying the library beside the .NET executable also works:
+
 ```sh
 dotnet run
 ```

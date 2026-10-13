@@ -45,6 +45,16 @@ build-rust = { cmd = "cargo build --manifest-path rust/Cargo.toml --workspace", 
 test-rust = { cmd = "cargo test --manifest-path rust/Cargo.toml --workspace", env = { CXX = "clang++" } }
 run-rust-example = { cmd = "cargo run --manifest-path rust/Cargo.toml -p {{ package }} --example {{ example }}", args = ["package", "example"], env = { CXX = "clang++" } }
 
+[feature.csharp.dependencies]
+dotnet-sdk = ">=9,<10"
+
+[feature.csharp.tasks]
+build-csharp = { cmd = "dotnet build csharp/csharp.csproj --configuration Debug", depends-on = ["build-c-shared"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch" } }
+run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration Debug --no-build", depends-on = ["build-csharp"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch", LD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared:$LD_LIBRARY_PATH", DYLD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared:$DYLD_LIBRARY_PATH" } }
+
+[feature.csharp.target.win-64.tasks]
+run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration Debug --no-build", depends-on = ["build-csharp"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch", PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared;$PATH" } }
+
 [feature.py.tasks]
 configure-py = { cmd = "cmake -S py -B py/build-pixi-{{ pixi.environment.name }} -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++", args = [] }
 build-py = { cmd = "cmake --build py/build-pixi-{{ pixi.environment.name }}", args = [], depends-on = ["configure-py"] }
@@ -71,6 +81,7 @@ python = ">=3.14,<3.15"
 default = ["clang"]
 gcc = ["gcc"]
 rust = ["clang", "rust"]
+csharp = ["clang", "csharp"]
 py39 = ["clang", "py", "py39"]
 py310 = ["clang", "py", "py310"]
 py311 = ["clang", "py", "py311"]
