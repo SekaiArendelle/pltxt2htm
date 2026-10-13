@@ -18,6 +18,9 @@ run-example = { cmd = "examples/build-pixi-clang/{{ example }}", args = ["exampl
 configure-cxxmodule-examples = "cmake -S cxxmodule/examples -B cxxmodule/examples/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++"
 build-cxxmodule-examples = { cmd = "cmake --build cxxmodule/examples/build-pixi-clang", depends-on = ["configure-cxxmodule-examples"] }
 run-cxxmodule-example = { cmd = "cxxmodule/examples/build-pixi-clang/example", depends-on = ["build-cxxmodule-examples"] }
+configure-cmd = { cmd = "cmake -S cmd -B cmd/build-pixi-clang-{{ mode | lower }} -G Ninja -DCMAKE_BUILD_TYPE={{ mode | capitalize }} -DCMAKE_CXX_COMPILER=clang++", args = [{ arg = "mode", default = "debug" }] }
+build-cmd = { cmd = "cmake --build cmd/build-pixi-clang-{{ mode | lower }}", args = [{ arg = "mode", default = "debug" }], depends-on = [{ task = "configure-cmd", args = ["{{ mode }}"] }] }
+run-cmd = { cmd = "cmd/build-pixi-clang-{{ mode | lower }}/pltxt2htm {{ cli_args }}", args = [{ arg = "mode", default = "debug" }, { arg = "cli_args", default = "" }], depends-on = [{ task = "build-cmd", args = ["{{ mode }}"] }] }
 configure-tests = "cmake -S tests -B tests/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++"
 build-tests = { cmd = "cmake --build tests/build-pixi-clang", depends-on = ["configure-tests"] }
 test = { cmd = "ctest --test-dir tests/build-pixi-clang --interactive-debug-mode 0 --output-on-failure", depends-on = ["build-tests"] }
