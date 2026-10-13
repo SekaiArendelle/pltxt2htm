@@ -10,7 +10,7 @@
 namespace pltxt2htm::details::stacktrace {
 /** Resolve an already captured address without unwinding or printing.
  * PLTXT2HTM_ENABLE_STACKTRACE enables all available native resolution. Windows
- * loads DbgHelp from System32 and benefits from matching PDBs; Linux optionally
+ * uses DbgHelp and benefits from matching PDBs; Linux optionally
  * uses a build-time detected libdwfl backend to resolve DWARF source locations
  * and local symbols. Without libdwfl or debug information, Linux retains libc
  * symbols and the module path.

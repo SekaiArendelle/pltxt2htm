@@ -1,6 +1,9 @@
 #include <pltxt2htm/details/stacktrace/stacktrace.hh>
 #include <pltxt2htm/details/stacktrace/resolve.hh>
 #include <pltxt2htm/details/stacktrace/format.hh>
+#if defined(_WIN32) && defined(PLTXT2HTM_ENABLE_STACKTRACE)
+    #include <pltxt2htm/details/symbols/win32/kernel32.hh>
+#endif
 #include <fast_io/fast_io_dsal/string.h>
 #include <cstring>
 #include "precompile.hh"
@@ -189,16 +192,17 @@ int main() {
     auto const resolved = trace::resolve(captured.size != 0 ? storage[0] : nullptr);
 #if defined(_WIN32) && defined(PLTXT2HTM_ENABLE_STACKTRACE)
     namespace nt = ::pltxt2htm::details::symbols::nt;
+    namespace win32 = ::pltxt2htm::details::symbols::win32;
     auto& session = trace::get_symbol_session();
     pltxt2htm_test_assert_true(session.ready);
     // Resolve a module loaded after DbgHelp initialized its module list.
-    auto* late_module = nt::pltxt2htm_nt_load_library_ex_w(L"winmm.dll", nullptr, 0x00000800);
+    auto* late_module = win32::LoadLibraryExW(L"winmm.dll", nullptr, 0x00000800);
     pltxt2htm_test_assert_true(late_module != nullptr);
-    auto const late_function = nt::pltxt2htm_nt_get_proc_address(late_module, "PlaySoundW");
+    auto const late_function = win32::GetProcAddress(late_module, "PlaySoundW");
     pltxt2htm_test_assert_true(late_function != nullptr);
     auto const late_frame = trace::resolve(reinterpret_cast<void*>(late_function));
     pltxt2htm_test_assert_true(!late_frame.description.is_empty());
-    (void)nt::pltxt2htm_nt_free_library(late_module);
+    (void)win32::FreeLibrary(late_module);
     // Exercise contention fallback without depending on another thread's timing.
     nt::RtlAcquireSRWLockExclusive(::std::addressof(session.lock));
     auto const busy = trace::resolve(storage[0]);
@@ -208,7 +212,7 @@ int main() {
     auto const invalid = trace::resolve(nullptr);
     pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.is_empty());
     pltxt2htm_test_assert_true(trace::shutdown_symbols());
-    pltxt2htm_test_assert_true(!session.ready && session.process == nullptr && session.library == nullptr);
+    pltxt2htm_test_assert_true(!session.ready && session.process == nullptr);
     // Saved data survives resolver teardown; printing must not reinitialize it.
     auto const saved_text = ::fast_io::concat_fast_io(resolved);
     auto const repeated = ::fast_io::concat_fast_io(resolved);

@@ -3,6 +3,11 @@ include_guard(GLOBAL)
 function(pltxt2htm_enable_stacktrace target visibility)
     target_compile_definitions(${target} ${visibility} PLTXT2HTM_ENABLE_STACKTRACE)
 
+    if(WIN32)
+        target_link_libraries(${target} ${visibility} dbghelp)
+        return()
+    endif()
+
     if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
         return()
     endif()

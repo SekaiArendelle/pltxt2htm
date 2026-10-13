@@ -51,7 +51,7 @@ if(NOT PLTXT2HTM_ENABLE_STACKTRACE STREQUAL "OFF")
     set(CMAKE_REQUIRED_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/../include")
     set(CMAKE_REQUIRED_DEFINITIONS -DPLTXT2HTM_ENABLE_STACKTRACE)
     if(WIN32)
-        set(CMAKE_REQUIRED_LIBRARIES ntdll)
+        set(CMAKE_REQUIRED_LIBRARIES ntdll dbghelp)
         set(_pltxt2htm_native_available TRUE)
     elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         check_cxx_source_compiles("#include <execinfo.h>
