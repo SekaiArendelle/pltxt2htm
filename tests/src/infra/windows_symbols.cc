@@ -123,6 +123,7 @@ using ExpectedSymGetModuleInfoW64 = win32::Bool(WINAPI*)(win32::Handle, win32::D
                                                          win32::ImageHlpModuleW64*) noexcept;
 using ExpectedSymEnumSymbolsW = win32::Bool(WINAPI*)(win32::Handle, win32::Ulong64, win32::WideChar const*,
                                                      win32::SymEnumSymbolsCallbackW, void*) noexcept;
+using ExpectedSymEnumSymbolsCallbackW = BOOL(WINAPI*)(win32::SymbolInfoW*, ULONG, PVOID);
 using ExpectedSymGetLineFromAddrW64 = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64, win32::Dword*,
                                                            win32::ImageHlpLineW64*) noexcept;
 using ExpectedUnDecorateSymbolNameW = win32::Dword(WINAPI*)(win32::WideChar const*, win32::WideChar*, win32::Dword,
@@ -197,6 +198,7 @@ static_assert(::std::is_same_v<decltype(&win32::SymInitializeW), ExpectedSymInit
 static_assert(::std::is_same_v<decltype(&win32::SymLoadModuleExW), ExpectedSymLoadModuleExW>);
 static_assert(::std::is_same_v<decltype(&win32::SymGetModuleInfoW64), ExpectedSymGetModuleInfoW64>);
 static_assert(::std::is_same_v<decltype(&win32::SymEnumSymbolsW), ExpectedSymEnumSymbolsW>);
+static_assert(::std::is_same_v<win32::SymEnumSymbolsCallbackW, ExpectedSymEnumSymbolsCallbackW>);
 static_assert(::std::is_same_v<decltype(&win32::SymGetLineFromAddrW64), ExpectedSymGetLineFromAddrW64>);
 static_assert(::std::is_same_v<decltype(&win32::UnDecorateSymbolNameW), ExpectedUnDecorateSymbolNameW>);
 
@@ -329,10 +331,21 @@ static_assert(offsetof(win32::ImageHlpLine64, file_name) == offsetof(IMAGEHLP_LI
 static_assert(offsetof(win32::ImageHlpLine64, address) == offsetof(IMAGEHLP_LINE64, Address));
 static_assert(sizeof(win32::Guid) == sizeof(GUID));
 static_assert(sizeof(win32::ModLoadData) == sizeof(MODLOAD_DATA));
+static_assert(::std::is_layout_compatible_v<win32::ModLoadData, MODLOAD_DATA>);
+static_assert(alignof(win32::ModLoadData) == alignof(MODLOAD_DATA));
+static_assert(offsetof(win32::ModLoadData, size_of_struct) == offsetof(MODLOAD_DATA, ssize));
+static_assert(offsetof(win32::ModLoadData, signature) == offsetof(MODLOAD_DATA, ssig));
 static_assert(offsetof(win32::ModLoadData, data) == offsetof(MODLOAD_DATA, data));
+static_assert(offsetof(win32::ModLoadData, size) == offsetof(MODLOAD_DATA, size));
+static_assert(offsetof(win32::ModLoadData, flags) == offsetof(MODLOAD_DATA, flags));
+static_assert(::std::is_same_v<decltype(win32::ModLoadData::data), decltype(MODLOAD_DATA::data)>);
 static_assert(sizeof(win32::SymType) == sizeof(SYM_TYPE));
 static_assert(sizeof(win32::SymbolInfoW) == sizeof(SYMBOL_INFOW));
+static_assert(::std::is_layout_compatible_v<win32::SymbolInfoW, SYMBOL_INFOW>);
 static_assert(alignof(win32::SymbolInfoW) == alignof(SYMBOL_INFOW));
+static_assert(offsetof(win32::SymbolInfoW, reserved) == offsetof(SYMBOL_INFOW, Reserved));
+static_assert(offsetof(win32::SymbolInfoW, flags) == offsetof(SYMBOL_INFOW, Flags));
+static_assert(offsetof(win32::SymbolInfoW, address) == offsetof(SYMBOL_INFOW, Address));
 static_assert(offsetof(win32::SymbolInfoW, name) == offsetof(SYMBOL_INFOW, Name));
 static_assert(sizeof(win32::ImageHlpLineW64) == sizeof(IMAGEHLP_LINEW64));
 static_assert(offsetof(win32::ImageHlpLineW64, file_name) == offsetof(IMAGEHLP_LINEW64, FileName));
