@@ -102,6 +102,7 @@ using ExpectedCreateFileW = win32::Handle(WINAPI*)(win32::WideChar const*, win32
                                                    win32::Handle) noexcept;
 using ExpectedReadFile = win32::Bool(WINAPI*)(win32::Handle, void*, win32::Dword, win32::Dword*,
                                               win32::Overlapped*) noexcept;
+using ExpectedTerminateProcess = win32::Bool(WINAPI*)(win32::Handle, UINT) noexcept;
 using ExpectedCreateThread = win32::Handle(WINAPI*)(win32::SecurityAttributes*, ::std::size_t,
                                                     win32::ThreadStartRoutine, void*, win32::Dword,
                                                     win32::Dword*) noexcept;
@@ -169,6 +170,7 @@ static_assert(::std::is_same_v<decltype(&win32::FormatMessageW), ExpectedFormatM
 static_assert(::std::is_same_v<decltype(&win32::TryAcquireSRWLockExclusive), ExpectedTryAcquireSrwLock>);
 static_assert(::std::is_same_v<decltype(&win32::CreateFileW), ExpectedCreateFileW>);
 static_assert(::std::is_same_v<decltype(&win32::ReadFile), ExpectedReadFile>);
+static_assert(::std::is_same_v<decltype(&win32::TerminateProcess), ExpectedTerminateProcess>);
 static_assert(::std::is_same_v<decltype(&win32::CreateThread), ExpectedCreateThread>);
 static_assert(::std::is_same_v<decltype(&win32::SymInitialize), ExpectedSymInitialize>);
 static_assert(::std::is_same_v<decltype(&win32::SymRefreshModuleList), ExpectedSymRefreshModuleList>);

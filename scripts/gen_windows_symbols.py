@@ -1572,50 +1572,50 @@ LIBRARIES = (
                 ),
                 nodiscard=True,
             ),
-            Symbol("SetEndOfFile", "Bool", ("void*",), nodiscard=True),
+            Symbol("SetEndOfFile", "Bool", ("Handle",), nodiscard=True),
             Symbol("UnmapViewOfFile", "Bool", ("void const*",), nodiscard=True),
             Symbol(
                 "WriteFile",
                 "Bool",
-                ("void*", "void const*", "Dword", "Dword*", "Overlapped*"),
+                ("Handle", "void const*", "Dword", "Dword*", "Overlapped*"),
                 nodiscard=True,
             ),
             Symbol(
                 "ReadFile",
                 "Bool",
-                ("void*", "void*", "Dword", "Dword*", "Overlapped*"),
+                ("Handle", "void*", "Dword", "Dword*", "Overlapped*"),
                 nodiscard=True,
             ),
             Symbol(
                 "SetFilePointer",
                 "Dword",
-                ("void*", "Long", "Long*", "Dword"),
+                ("Handle", "Long", "Long*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "SetFilePointerEx",
                 "Bool",
-                ("void*", "Long64", "Long64*", "Dword"),
+                ("Handle", "Long64", "Long64*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "DuplicateHandle",
                 "Bool",
-                ("void*", "void*", "void*", "void**", "Dword", "int", "Dword"),
+                ("Handle", "Handle", "Handle", "Handle*", "Dword", "int", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "CreatePipe",
                 "Bool",
-                ("void**", "void**", "SecurityAttributes*", "Dword"),
+                ("Handle*", "Handle*", "SecurityAttributes*", "Dword"),
                 nodiscard=True,
             ),
-            Symbol("WaitForSingleObject", "Dword", ("void*", "Dword"), nodiscard=True),
-            Symbol("CancelIo", "Bool", ("void*",), nodiscard=True),
+            Symbol("WaitForSingleObject", "Dword", ("Handle", "Dword"), nodiscard=True),
+            Symbol("CancelIo", "Bool", ("Handle",), nodiscard=True),
             Symbol(
                 "GetFileInformationByHandle",
                 "Bool",
-                ("void*", "ByHandleFileInformation*"),
+                ("Handle", "ByHandleFileInformation*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1635,42 +1635,44 @@ LIBRARIES = (
             Symbol(
                 "GetProcessTimes",
                 "Bool",
-                ("void*", "FileTime*", "FileTime*", "FileTime*", "FileTime*"),
+                ("Handle", "FileTime*", "FileTime*", "FileTime*", "FileTime*"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetThreadTimes",
                 "Bool",
-                ("void*", "FileTime*", "FileTime*", "FileTime*", "FileTime*"),
+                ("Handle", "FileTime*", "FileTime*", "FileTime*", "FileTime*"),
                 nodiscard=True,
             ),
-            Symbol("GetHandleInformation", "Bool", ("void*", "Dword*"), nodiscard=True),
+            Symbol(
+                "GetHandleInformation", "Bool", ("Handle", "Dword*"), nodiscard=True
+            ),
             Symbol(
                 "SetHandleInformation",
                 "Bool",
-                ("void*", "Dword", "Dword"),
+                ("Handle", "Dword", "Dword"),
                 nodiscard=True,
             ),
             Symbol("GetTempPathA", "Dword", ("Dword", "Char*"), nodiscard=True),
             Symbol("GetTempPathW", "Dword", ("Dword", "WideChar*"), nodiscard=True),
-            Symbol("CloseHandle", "Bool", ("void*",), nodiscard=True),
+            Symbol("CloseHandle", "Bool", ("Handle",), nodiscard=True),
             Symbol(
                 "LockFileEx",
                 "Bool",
-                ("void*", "Dword", "Dword", "Dword", "Dword", "Overlapped*"),
+                ("Handle", "Dword", "Dword", "Dword", "Dword", "Overlapped*"),
                 nodiscard=True,
             ),
             Symbol(
                 "UnlockFileEx",
                 "Bool",
-                ("void*", "Dword", "Dword", "Dword", "Overlapped*"),
+                ("Handle", "Dword", "Dword", "Dword", "Overlapped*"),
                 nodiscard=True,
             ),
             Symbol(
                 "DeviceIoControl",
                 "Bool",
                 (
-                    "void*",
+                    "Handle",
                     "Dword",
                     "void*",
                     "Dword",
@@ -1681,7 +1683,7 @@ LIBRARIES = (
                 ),
                 nodiscard=True,
             ),
-            Symbol("GetFileType", "Dword", ("void*",), nodiscard=True),
+            Symbol("GetFileType", "Dword", ("Handle",), nodiscard=True),
             Symbol("GetACP", "Uint", (), nodiscard=True),
             Symbol(
                 "GetEnvironmentVariableA",
@@ -1695,43 +1697,43 @@ LIBRARIES = (
                 ("WideChar const*", "WideChar*", "Dword"),
                 nodiscard=True,
             ),
-            Symbol("GetConsoleMode", "Bool", ("void*", "Dword*"), nodiscard=True),
-            Symbol("SetConsoleMode", "Bool", ("void*", "Dword"), nodiscard=True),
+            Symbol("GetConsoleMode", "Bool", ("Handle", "Dword*"), nodiscard=True),
+            Symbol("SetConsoleMode", "Bool", ("Handle", "Dword"), nodiscard=True),
             Symbol(
                 "ReadConsoleA",
                 "Bool",
-                ("void*", "void*", "Dword", "Dword*", "void*"),
+                ("Handle", "void*", "Dword", "Dword*", "void*"),
                 nodiscard=True,
             ),
             Symbol(
                 "ReadConsoleW",
                 "Bool",
-                ("void*", "void*", "Dword", "Dword*", "void*"),
+                ("Handle", "void*", "Dword", "Dword*", "void*"),
                 nodiscard=True,
             ),
             Symbol(
                 "WriteConsoleA",
                 "Bool",
-                ("void*", "void const*", "Dword", "Dword*", "void*"),
+                ("Handle", "void const*", "Dword", "Dword*", "void*"),
                 nodiscard=True,
             ),
             Symbol(
                 "WriteConsoleW",
                 "Bool",
-                ("void*", "void const*", "Dword", "Dword*", "void*"),
+                ("Handle", "void const*", "Dword", "Dword*", "void*"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetConsoleScreenBufferInfo",
                 "Bool",
-                ("void*", "ConsoleScreenBufferInfo*"),
+                ("Handle", "ConsoleScreenBufferInfo*"),
                 nodiscard=True,
             ),
             Symbol(
                 "ScrollConsoleScreenBufferA",
                 "Bool",
                 (
-                    "void*",
+                    "Handle",
                     "SmallRect const*",
                     "SmallRect const*",
                     "Coord",
@@ -1743,7 +1745,7 @@ LIBRARIES = (
                 "ScrollConsoleScreenBufferW",
                 "Bool",
                 (
-                    "void*",
+                    "Handle",
                     "SmallRect const*",
                     "SmallRect const*",
                     "Coord",
@@ -1752,7 +1754,7 @@ LIBRARIES = (
                 nodiscard=True,
             ),
             Symbol(
-                "SetConsoleCursorPosition", "Bool", ("void*", "Coord"), nodiscard=True
+                "SetConsoleCursorPosition", "Bool", ("Handle", "Coord"), nodiscard=True
             ),
             Symbol("InitializeCriticalSection", "void", ("void*",), nodiscard=False),
             Symbol("EnterCriticalSection", "void", ("void*",), nodiscard=False),
@@ -1760,11 +1762,11 @@ LIBRARIES = (
             Symbol("LeaveCriticalSection", "void", ("void*",), nodiscard=False),
             Symbol("DeleteCriticalSection", "void", ("void*",), nodiscard=False),
             Symbol("GetCurrentProcessId", "Dword", (), nodiscard=True),
-            Symbol("FlushFileBuffers", "Bool", ("void*",), nodiscard=True),
+            Symbol("FlushFileBuffers", "Bool", ("Handle",), nodiscard=True),
             Symbol(
                 "GetQueuedCompletionStatus",
                 "Bool",
-                ("void*", "Dword*", "::std::size_t*", "Overlapped**", "Dword"),
+                ("Handle", "Dword*", "::std::size_t*", "Overlapped**", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1781,13 +1783,13 @@ LIBRARIES = (
             Symbol(
                 "SetFileInformationByHandle",
                 "Bool",
-                ("void*", "FileInfoByHandleClass", "void*", "Dword"),
+                ("Handle", "FileInfoByHandleClass", "void*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "SetFileTime",
                 "Bool",
-                ("void*", "FileTime const*", "FileTime const*", "FileTime const*"),
+                ("Handle", "FileTime const*", "FileTime const*", "FileTime const*"),
                 nodiscard=True,
             ),
             Symbol("AcquireSRWLockExclusive", "void", ("void*",), nodiscard=False),
@@ -1830,16 +1832,16 @@ LIBRARIES = (
             Symbol(
                 "K32GetMappedFileNameW",
                 "Dword",
-                ("void*", "void*", "WideChar*", "Dword"),
+                ("Handle", "void*", "WideChar*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "K32GetMappedFileNameA",
                 "Dword",
-                ("void*", "void*", "Char*", "Dword"),
+                ("Handle", "void*", "Char*", "Dword"),
                 nodiscard=True,
             ),
-            Symbol("GetExitCodeProcess", "Bool", ("void*", "Dword*"), nodiscard=True),
+            Symbol("GetExitCodeProcess", "Bool", ("Handle", "Dword*"), nodiscard=True),
             Symbol(
                 "QueryDosDeviceW",
                 "Dword",
@@ -1853,12 +1855,12 @@ LIBRARIES = (
                 nodiscard=True,
             ),
             Symbol(
-                "FindNextFileW", "Bool", ("void*", "Win32FindDataW*"), nodiscard=True
+                "FindNextFileW", "Bool", ("Handle", "Win32FindDataW*"), nodiscard=True
             ),
             Symbol(
-                "FindNextFileA", "Bool", ("void*", "Win32FindDataA*"), nodiscard=True
+                "FindNextFileA", "Bool", ("Handle", "Win32FindDataA*"), nodiscard=True
             ),
-            Symbol("FindClose", "Bool", ("void*",), nodiscard=True),
+            Symbol("FindClose", "Bool", ("Handle",), nodiscard=True),
             Symbol("DeleteFileW", "Bool", ("WideChar const*",), nodiscard=True),
             Symbol("DeleteFileA", "Bool", ("Char const*",), nodiscard=True),
             Symbol("RemoveDirectoryW", "Bool", ("WideChar const*",), nodiscard=True),
@@ -1905,39 +1907,39 @@ LIBRARIES = (
                 nodiscard=True,
             ),
             Symbol("MoveFileA", "Bool", ("Char const*", "Char const*"), nodiscard=True),
-            Symbol("TerminateProcess", "Bool", ("void*", "Dword"), nodiscard=True),
+            Symbol("TerminateProcess", "Bool", ("Handle", "Uint"), nodiscard=True),
             Symbol(
                 "GetFinalPathNameByHandleW",
                 "Dword",
-                ("void*", "WideChar*", "Dword", "Dword"),
+                ("Handle", "WideChar*", "Dword", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetFinalPathNameByHandleA",
                 "Dword",
-                ("void*", "Char*", "Dword", "Dword"),
+                ("Handle", "Char*", "Dword", "Dword"),
                 nodiscard=True,
             ),
-            Symbol("GetProcessId", "Dword", ("void*",), nodiscard=True),
+            Symbol("GetProcessId", "Dword", ("Handle",), nodiscard=True),
             Symbol(
-                "ConnectNamedPipe", "Bool", ("void*", "Overlapped*"), nodiscard=True
+                "ConnectNamedPipe", "Bool", ("Handle", "Overlapped*"), nodiscard=True
             ),
-            Symbol("DisconnectNamedPipe", "Bool", ("void*",), nodiscard=True),
+            Symbol("DisconnectNamedPipe", "Bool", ("Handle",), nodiscard=True),
             Symbol(
                 "SetWaitableTimer",
                 "Bool",
-                ("void*", "Long64 const*", "Long", "TimerApcRoutine", "void*", "int"),
+                ("Handle", "Long64 const*", "Long", "TimerApcRoutine", "void*", "int"),
                 nodiscard=True,
             ),
-            Symbol("CancelWaitableTimer", "Bool", ("void*",), nodiscard=True),
+            Symbol("CancelWaitableTimer", "Bool", ("Handle",), nodiscard=True),
             Symbol(
                 "PrefetchVirtualMemory",
                 "Bool",
-                ("void*", "::std::size_t", "MemoryRangeEntry*", "Dword"),
+                ("Handle", "::std::size_t", "MemoryRangeEntry*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
-                "SetConsoleTextAttribute", "Bool", ("void*", "Word"), nodiscard=True
+                "SetConsoleTextAttribute", "Bool", ("Handle", "Word"), nodiscard=True
             ),
             Symbol("GetCurrentThreadId", "Dword", (), nodiscard=True),
             Symbol("Sleep", "void", ("Dword",), nodiscard=False),

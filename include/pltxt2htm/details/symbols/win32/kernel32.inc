@@ -31,27 +31,27 @@ PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL FormatMessageA(Dword, 
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL FormatMessageW(Dword, void const*, Dword, Dword, WideChar*, Dword, Char**) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(FormatMessageW, 28);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetEndOfFile(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetEndOfFile, 4);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetEndOfFile(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetEndOfFile, 4);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL UnmapViewOfFile(void const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(UnmapViewOfFile, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL WriteFile(void*, void const*, Dword, Dword*, Overlapped*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(WriteFile, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL WriteFile(Handle, void const*, Dword, Dword*, Overlapped*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(WriteFile, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ReadFile(void*, void*, Dword, Dword*, Overlapped*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ReadFile, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ReadFile(Handle, void*, Dword, Dword*, Overlapped*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ReadFile, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL SetFilePointer(void*, Long, Long*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetFilePointer, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL SetFilePointer(Handle, Long, Long*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetFilePointer, 16);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetFilePointerEx(void*, Long64, Long64*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetFilePointerEx, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetFilePointerEx(Handle, Long64, Long64*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetFilePointerEx, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL DuplicateHandle(void*, void*, void*, void**, Dword, int, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(DuplicateHandle, 28);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL DuplicateHandle(Handle, Handle, Handle, Handle*, Dword, int, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(DuplicateHandle, 28);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CreatePipe(void**, void**, SecurityAttributes*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CreatePipe, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CreatePipe(Handle*, Handle*, SecurityAttributes*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CreatePipe, 16);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL WaitForSingleObject(void*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(WaitForSingleObject, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL WaitForSingleObject(Handle, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(WaitForSingleObject, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CancelIo(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CancelIo, 4);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CancelIo(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CancelIo, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetFileInformationByHandle(void*, ByHandleFileInformation*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetFileInformationByHandle, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetFileInformationByHandle(Handle, ByHandleFileInformation*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetFileInformationByHandle, 8);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT int PLTXT2HTM_DETAIL_STDCALL GetUserDefaultLocaleName(WideChar*, int) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetUserDefaultLocaleName, 8);
 [[nodiscard]]
@@ -65,27 +65,27 @@ PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL QueryPerformanceCounter
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL QueryPerformanceFrequency(Long64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(QueryPerformanceFrequency, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetProcessTimes(void*, FileTime*, FileTime*, FileTime*, FileTime*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetProcessTimes, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetProcessTimes(Handle, FileTime*, FileTime*, FileTime*, FileTime*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetProcessTimes, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetThreadTimes(void*, FileTime*, FileTime*, FileTime*, FileTime*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetThreadTimes, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetThreadTimes(Handle, FileTime*, FileTime*, FileTime*, FileTime*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetThreadTimes, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetHandleInformation(void*, Dword*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetHandleInformation, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetHandleInformation(Handle, Dword*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetHandleInformation, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetHandleInformation(void*, Dword, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetHandleInformation, 12);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetHandleInformation(Handle, Dword, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetHandleInformation, 12);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetTempPathA(Dword, Char*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetTempPathA, 8);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetTempPathW(Dword, WideChar*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetTempPathW, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CloseHandle(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CloseHandle, 4);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CloseHandle(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CloseHandle, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL LockFileEx(void*, Dword, Dword, Dword, Dword, Overlapped*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(LockFileEx, 24);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL LockFileEx(Handle, Dword, Dword, Dword, Dword, Overlapped*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(LockFileEx, 24);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL UnlockFileEx(void*, Dword, Dword, Dword, Overlapped*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(UnlockFileEx, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL UnlockFileEx(Handle, Dword, Dword, Dword, Overlapped*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(UnlockFileEx, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL DeviceIoControl(void*, Dword, void*, Dword, void*, Dword, Dword*, Overlapped*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(DeviceIoControl, 32);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL DeviceIoControl(Handle, Dword, void*, Dword, void*, Dword, Dword*, Overlapped*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(DeviceIoControl, 32);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetFileType(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetFileType, 4);
+PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetFileType(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetFileType, 4);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Uint PLTXT2HTM_DETAIL_STDCALL GetACP() noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetACP, 0);
 [[nodiscard]]
@@ -93,25 +93,25 @@ PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetEnvironmentVariable
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetEnvironmentVariableW(WideChar const*, WideChar*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetEnvironmentVariableW, 12);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetConsoleMode(void*, Dword*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetConsoleMode, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetConsoleMode(Handle, Dword*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetConsoleMode, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetConsoleMode(void*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetConsoleMode, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetConsoleMode(Handle, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetConsoleMode, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ReadConsoleA(void*, void*, Dword, Dword*, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ReadConsoleA, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ReadConsoleA(Handle, void*, Dword, Dword*, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ReadConsoleA, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ReadConsoleW(void*, void*, Dword, Dword*, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ReadConsoleW, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ReadConsoleW(Handle, void*, Dword, Dword*, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ReadConsoleW, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL WriteConsoleA(void*, void const*, Dword, Dword*, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(WriteConsoleA, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL WriteConsoleA(Handle, void const*, Dword, Dword*, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(WriteConsoleA, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL WriteConsoleW(void*, void const*, Dword, Dword*, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(WriteConsoleW, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL WriteConsoleW(Handle, void const*, Dword, Dword*, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(WriteConsoleW, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetConsoleScreenBufferInfo(void*, ConsoleScreenBufferInfo*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetConsoleScreenBufferInfo, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetConsoleScreenBufferInfo(Handle, ConsoleScreenBufferInfo*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetConsoleScreenBufferInfo, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ScrollConsoleScreenBufferA(void*, SmallRect const*, SmallRect const*, Coord, CharInfo const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ScrollConsoleScreenBufferA, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ScrollConsoleScreenBufferA(Handle, SmallRect const*, SmallRect const*, Coord, CharInfo const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ScrollConsoleScreenBufferA, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ScrollConsoleScreenBufferW(void*, SmallRect const*, SmallRect const*, Coord, CharInfo const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ScrollConsoleScreenBufferW, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ScrollConsoleScreenBufferW(Handle, SmallRect const*, SmallRect const*, Coord, CharInfo const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ScrollConsoleScreenBufferW, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetConsoleCursorPosition(void*, Coord) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetConsoleCursorPosition, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetConsoleCursorPosition(Handle, Coord) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetConsoleCursorPosition, 8);
 PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL InitializeCriticalSection(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(InitializeCriticalSection, 4);
 PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL EnterCriticalSection(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(EnterCriticalSection, 4);
 [[nodiscard]]
@@ -121,9 +121,9 @@ PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL DeleteCriticalSection(v
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetCurrentProcessId() noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetCurrentProcessId, 0);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL FlushFileBuffers(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(FlushFileBuffers, 4);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL FlushFileBuffers(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(FlushFileBuffers, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetQueuedCompletionStatus(void*, Dword*, ::std::size_t*, Overlapped**, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetQueuedCompletionStatus, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetQueuedCompletionStatus(Handle, Dword*, ::std::size_t*, Overlapped**, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetQueuedCompletionStatus, 20);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetTimeZoneInformation(TimeZoneInformation*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetTimeZoneInformation, 4);
 [[nodiscard]]
@@ -136,9 +136,9 @@ PLTXT2HTM_DETAIL_DLLIMPORT Uint PLTXT2HTM_DETAIL_STDCALL GetConsoleCP() noexcept
 PLTXT2HTM_DETAIL_DLLIMPORT Uint PLTXT2HTM_DETAIL_STDCALL GetConsoleOutputCP() noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetConsoleOutputCP, 0);
 PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL GetSystemInfo(SystemInfo*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetSystemInfo, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetFileInformationByHandle(void*, FileInfoByHandleClass, void*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetFileInformationByHandle, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetFileInformationByHandle(Handle, FileInfoByHandleClass, void*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetFileInformationByHandle, 16);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetFileTime(void*, FileTime const*, FileTime const*, FileTime const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetFileTime, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetFileTime(Handle, FileTime const*, FileTime const*, FileTime const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetFileTime, 16);
 PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL AcquireSRWLockExclusive(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(AcquireSRWLockExclusive, 4);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Boolean PLTXT2HTM_DETAIL_STDCALL TryAcquireSRWLockExclusive(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(TryAcquireSRWLockExclusive, 4);
@@ -148,21 +148,21 @@ PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CreateProcessW(WideChar
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CreateProcessA(Char const*, Char*, SecurityAttributes*, SecurityAttributes*, int, Dword, void*, Char const*, StartupInfoA*, ProcessInformation*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CreateProcessA, 40);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL K32GetMappedFileNameW(void*, void*, WideChar*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(K32GetMappedFileNameW, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL K32GetMappedFileNameW(Handle, void*, WideChar*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(K32GetMappedFileNameW, 16);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL K32GetMappedFileNameA(void*, void*, Char*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(K32GetMappedFileNameA, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL K32GetMappedFileNameA(Handle, void*, Char*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(K32GetMappedFileNameA, 16);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetExitCodeProcess(void*, Dword*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetExitCodeProcess, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetExitCodeProcess(Handle, Dword*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetExitCodeProcess, 8);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL QueryDosDeviceW(WideChar const*, WideChar*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(QueryDosDeviceW, 12);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL QueryDosDeviceA(Char const*, Char*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(QueryDosDeviceA, 12);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL FindNextFileW(void*, Win32FindDataW*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(FindNextFileW, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL FindNextFileW(Handle, Win32FindDataW*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(FindNextFileW, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL FindNextFileA(void*, Win32FindDataA*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(FindNextFileA, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL FindNextFileA(Handle, Win32FindDataA*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(FindNextFileA, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL FindClose(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(FindClose, 4);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL FindClose(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(FindClose, 4);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL DeleteFileW(WideChar const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(DeleteFileW, 4);
 [[nodiscard]]
@@ -192,25 +192,25 @@ PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL MoveFileW(WideChar cons
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL MoveFileA(Char const*, Char const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(MoveFileA, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL TerminateProcess(void*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(TerminateProcess, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL TerminateProcess(Handle, Uint) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(TerminateProcess, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetFinalPathNameByHandleW(void*, WideChar*, Dword, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetFinalPathNameByHandleW, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetFinalPathNameByHandleW(Handle, WideChar*, Dword, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetFinalPathNameByHandleW, 16);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetFinalPathNameByHandleA(void*, Char*, Dword, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetFinalPathNameByHandleA, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetFinalPathNameByHandleA(Handle, Char*, Dword, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetFinalPathNameByHandleA, 16);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetProcessId(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetProcessId, 4);
+PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetProcessId(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetProcessId, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ConnectNamedPipe(void*, Overlapped*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ConnectNamedPipe, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ConnectNamedPipe(Handle, Overlapped*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ConnectNamedPipe, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL DisconnectNamedPipe(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(DisconnectNamedPipe, 4);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL DisconnectNamedPipe(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(DisconnectNamedPipe, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetWaitableTimer(void*, Long64 const*, Long, TimerApcRoutine, void*, int) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetWaitableTimer, 24);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetWaitableTimer(Handle, Long64 const*, Long, TimerApcRoutine, void*, int) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetWaitableTimer, 24);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CancelWaitableTimer(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CancelWaitableTimer, 4);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CancelWaitableTimer(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CancelWaitableTimer, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL PrefetchVirtualMemory(void*, ::std::size_t, MemoryRangeEntry*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(PrefetchVirtualMemory, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL PrefetchVirtualMemory(Handle, ::std::size_t, MemoryRangeEntry*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(PrefetchVirtualMemory, 16);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetConsoleTextAttribute(void*, Word) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetConsoleTextAttribute, 8);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetConsoleTextAttribute(Handle, Word) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetConsoleTextAttribute, 8);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetCurrentThreadId() noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetCurrentThreadId, 0);
 PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL Sleep(Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(Sleep, 4);

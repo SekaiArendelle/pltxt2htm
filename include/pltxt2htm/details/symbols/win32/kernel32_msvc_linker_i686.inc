@@ -100,7 +100,7 @@
 #pragma comment(linker, "/alternatename:__imp_?CopyFileA@win32@symbols@details@pltxt2htm@@YGHPBD0H@Z=__imp__CopyFileA@12")
 #pragma comment(linker, "/alternatename:__imp_?MoveFileW@win32@symbols@details@pltxt2htm@@YGHPB_W0@Z=__imp__MoveFileW@8")
 #pragma comment(linker, "/alternatename:__imp_?MoveFileA@win32@symbols@details@pltxt2htm@@YGHPBD0@Z=__imp__MoveFileA@8")
-#pragma comment(linker, "/alternatename:__imp_?TerminateProcess@win32@symbols@details@pltxt2htm@@YGHPAXK@Z=__imp__TerminateProcess@8")
+#pragma comment(linker, "/alternatename:__imp_?TerminateProcess@win32@symbols@details@pltxt2htm@@YGHPAXI@Z=__imp__TerminateProcess@8")
 #pragma comment(linker, "/alternatename:__imp_?GetFinalPathNameByHandleW@win32@symbols@details@pltxt2htm@@YGKPAXPA_WKK@Z=__imp__GetFinalPathNameByHandleW@16")
 #pragma comment(linker, "/alternatename:__imp_?GetFinalPathNameByHandleA@win32@symbols@details@pltxt2htm@@YGKPAXPADKK@Z=__imp__GetFinalPathNameByHandleA@16")
 #pragma comment(linker, "/alternatename:__imp_?GetProcessId@win32@symbols@details@pltxt2htm@@YGKPAX@Z=__imp__GetProcessId@4")

@@ -16,7 +16,7 @@ using IntPtr = ::std::intptr_t;
 using Long = long;
 using Long64 = long long;
 // Keep module handles opaque instead of importing the SDK's global HINSTANCE__ tag.
-using ModuleHandle = void*;
+using ModuleHandle = Handle;
 using Ulong = unsigned long;
 using Ulong64 = unsigned long long;
 using Uint = unsigned int;
