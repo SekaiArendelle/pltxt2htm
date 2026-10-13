@@ -35,6 +35,53 @@ enum class SymType : int {
     NumberOfTypes
 };
 
+enum class AddressMode : int {
+    Mode1616,
+    Mode1632,
+    Real,
+    Flat
+};
+
+struct Address64 {
+    Dword64 offset;
+    Word segment;
+    AddressMode mode;
+};
+
+struct KdHelp64 {
+    Dword64 thread;
+    Dword thread_callback_stack;
+    Dword thread_callback_backing_store;
+    Dword next_callback;
+    Dword frame_pointer;
+    Dword64 call_user_mode;
+    Dword64 user_callback_dispatcher;
+    Dword64 system_range_start;
+    Dword64 user_exception_dispatcher;
+    Dword64 stack_base;
+    Dword64 stack_limit;
+    Dword build_version;
+    Dword retpoline_stub_function_table_size;
+    Dword64 retpoline_stub_function_table;
+    Dword retpoline_stub_offset;
+    Dword retpoline_stub_size;
+    Dword64 reserved[2];
+};
+
+struct StackFrame64 {
+    Address64 pc;
+    Address64 return_address;
+    Address64 frame;
+    Address64 stack;
+    Address64 backing_store;
+    void* function_table_entry;
+    Dword64 parameters[4];
+    Bool far_call;
+    Bool virtual_frame;
+    Dword64 reserved[3];
+    KdHelp64 kd_help;
+};
+
 struct SymbolInfo {
     Ulong size_of_struct;
     Ulong type_index;
@@ -150,6 +197,10 @@ using SymEnumModulesCallbackW64 = Bool(PLTXT2HTM_DETAIL_STDCALL*)(WideChar const
 using SymEnumSymbolsCallback = Bool(PLTXT2HTM_DETAIL_STDCALL*)(SymbolInfo*, Ulong, void*);
 using SymEnumSymbolsCallbackW = Bool(PLTXT2HTM_DETAIL_STDCALL*)(SymbolInfoW*, Ulong, void*);
 using SymbolRegisteredCallback64 = Bool(PLTXT2HTM_DETAIL_STDCALL*)(Handle, Ulong, Ulong64, Ulong64);
+using ReadProcessMemoryRoutine64 = Bool(PLTXT2HTM_DETAIL_STDCALL*)(Handle, Dword64, void*, Dword, Dword*);
+using FunctionTableAccessRoutine64 = void*(PLTXT2HTM_DETAIL_STDCALL*)(Handle, Dword64);
+using GetModuleBaseRoutine64 = Dword64(PLTXT2HTM_DETAIL_STDCALL*)(Handle, Dword64);
+using TranslateAddressRoutine64 = Dword64(PLTXT2HTM_DETAIL_STDCALL*)(Handle, Handle, Address64*);
 } // namespace pltxt2htm::details::symbols::win32
 
 #include "../pop_macro.hh"

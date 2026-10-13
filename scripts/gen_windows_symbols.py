@@ -2247,6 +2247,22 @@ LIBRARIES = (
                 nodiscard=True,
             ),
             Symbol(
+                "StackWalk64",
+                "Bool",
+                (
+                    "Dword",
+                    "Handle",
+                    "Handle",
+                    "StackFrame64*",
+                    "void*",
+                    "ReadProcessMemoryRoutine64",
+                    "FunctionTableAccessRoutine64",
+                    "GetModuleBaseRoutine64",
+                    "TranslateAddressRoutine64",
+                ),
+                nodiscard=True,
+            ),
+            Symbol(
                 "SymRegisterCallback64",
                 "Bool",
                 ("Handle", "SymbolRegisteredCallback64", "Ulong64"),

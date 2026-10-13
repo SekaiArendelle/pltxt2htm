@@ -128,6 +128,10 @@ using ExpectedSymGetLineFromAddrW64 = win32::Bool(WINAPI*)(win32::Handle, win32:
                                                            win32::ImageHlpLineW64*) noexcept;
 using ExpectedUnDecorateSymbolNameW = win32::Dword(WINAPI*)(win32::WideChar const*, win32::WideChar*, win32::Dword,
                                                             win32::Dword) noexcept;
+using ExpectedTranslateAddressRoutine64 = DWORD64(WINAPI*)(HANDLE, HANDLE, win32::Address64*);
+using ExpectedStackWalk64 = BOOL(WINAPI*)(DWORD, HANDLE, HANDLE, win32::StackFrame64*, PVOID,
+                                          win32::ReadProcessMemoryRoutine64, win32::FunctionTableAccessRoutine64,
+                                          win32::GetModuleBaseRoutine64, win32::TranslateAddressRoutine64) noexcept;
 
 static_assert(::std::is_same_v<decltype(&nt::RtlCaptureStackBackTrace), ExpectedCaptureStackBackTrace>);
 static_assert(::std::is_same_v<decltype(&nt::RtlTryAcquireSRWLockExclusive), ExpectedTryAcquireSrwLockExclusive>);
@@ -201,6 +205,11 @@ static_assert(::std::is_same_v<decltype(&win32::SymEnumSymbolsW), ExpectedSymEnu
 static_assert(::std::is_same_v<win32::SymEnumSymbolsCallbackW, ExpectedSymEnumSymbolsCallbackW>);
 static_assert(::std::is_same_v<decltype(&win32::SymGetLineFromAddrW64), ExpectedSymGetLineFromAddrW64>);
 static_assert(::std::is_same_v<decltype(&win32::UnDecorateSymbolNameW), ExpectedUnDecorateSymbolNameW>);
+static_assert(::std::is_same_v<win32::ReadProcessMemoryRoutine64, PREAD_PROCESS_MEMORY_ROUTINE64>);
+static_assert(::std::is_same_v<win32::FunctionTableAccessRoutine64, PFUNCTION_TABLE_ACCESS_ROUTINE64>);
+static_assert(::std::is_same_v<win32::GetModuleBaseRoutine64, PGET_MODULE_BASE_ROUTINE64>);
+static_assert(::std::is_same_v<win32::TranslateAddressRoutine64, ExpectedTranslateAddressRoutine64>);
+static_assert(::std::is_same_v<decltype(&win32::StackWalk64), ExpectedStackWalk64>);
 
 static_assert(::std::is_same_v<nt::Boolean, BOOLEAN>);
 static_assert(::std::is_same_v<nt::Handle, HANDLE>);
@@ -340,6 +349,20 @@ static_assert(offsetof(win32::ModLoadData, size) == offsetof(MODLOAD_DATA, size)
 static_assert(offsetof(win32::ModLoadData, flags) == offsetof(MODLOAD_DATA, flags));
 static_assert(::std::is_same_v<decltype(win32::ModLoadData::data), decltype(MODLOAD_DATA::data)>);
 static_assert(sizeof(win32::SymType) == sizeof(SYM_TYPE));
+static_assert(sizeof(win32::AddressMode) == sizeof(ADDRESS_MODE));
+static_assert(static_cast<int>(win32::AddressMode::Flat) == AddrModeFlat);
+static_assert(sizeof(win32::Address64) == sizeof(ADDRESS64));
+static_assert(alignof(win32::Address64) == alignof(ADDRESS64));
+static_assert(offsetof(win32::Address64, mode) == offsetof(ADDRESS64, Mode));
+static_assert(sizeof(win32::KdHelp64) == sizeof(KDHELP64));
+static_assert(::std::is_layout_compatible_v<win32::KdHelp64, KDHELP64>);
+static_assert(offsetof(win32::KdHelp64, retpoline_stub_function_table) ==
+              offsetof(KDHELP64, RetpolineStubFunctionTable));
+static_assert(sizeof(win32::StackFrame64) == sizeof(STACKFRAME64));
+static_assert(alignof(win32::StackFrame64) == alignof(STACKFRAME64));
+static_assert(offsetof(win32::StackFrame64, backing_store) == offsetof(STACKFRAME64, AddrBStore));
+static_assert(offsetof(win32::StackFrame64, parameters) == offsetof(STACKFRAME64, Params));
+static_assert(offsetof(win32::StackFrame64, kd_help) == offsetof(STACKFRAME64, KdHelp));
 static_assert(sizeof(win32::SymbolInfoW) == sizeof(SYMBOL_INFOW));
 static_assert(::std::is_layout_compatible_v<win32::SymbolInfoW, SYMBOL_INFOW>);
 static_assert(alignof(win32::SymbolInfoW) == alignof(SYMBOL_INFOW));
@@ -375,6 +398,7 @@ auto* volatile sym_refresh_module_list_reference = &win32::SymRefreshModuleList;
 auto* volatile sym_cleanup_reference = &win32::SymCleanup;
 auto* volatile sym_from_addr_reference = &win32::SymFromAddr;
 auto* volatile sym_get_line_from_addr_64_reference = &win32::SymGetLineFromAddr64;
+auto* volatile stack_walk_64_reference = &win32::StackWalk64;
 #endif
 
 int main() {

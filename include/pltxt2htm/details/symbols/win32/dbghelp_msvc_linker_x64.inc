@@ -21,6 +21,7 @@
 #pragma comment(linker, "/alternatename:__imp_?SymEnumerateModules64@win32@symbols@details@pltxt2htm@@YAHPEAXP6AHPEBD_K0@Z0@Z=__imp_SymEnumerateModules64")
 #pragma comment(linker, "/alternatename:__imp_?SymEnumerateModulesW64@win32@symbols@details@pltxt2htm@@YAHPEAXP6AHPEB_W_K0@Z0@Z=__imp_SymEnumerateModulesW64")
 #pragma comment(linker, "/alternatename:__imp_?SymFunctionTableAccess64@win32@symbols@details@pltxt2htm@@YAPEAXPEAX_K@Z=__imp_SymFunctionTableAccess64")
+#pragma comment(linker, "/alternatename:__imp_?StackWalk64@win32@symbols@details@pltxt2htm@@YAHKPEAX0PEAUStackFrame64@1234@0P6AH0_K0KPEAK@ZP6APEAX02@ZP6A_K02@ZP6A_K00PEAUAddress64@1234@@Z@Z=__imp_StackWalk64")
 #pragma comment(linker, "/alternatename:__imp_?SymRegisterCallback64@win32@symbols@details@pltxt2htm@@YAHPEAXP6AH0K_K1@Z1@Z=__imp_SymRegisterCallback64")
 #pragma comment(linker, "/alternatename:__imp_?SymFromAddrW@win32@symbols@details@pltxt2htm@@YAHPEAX_KPEA_KPEAUSymbolInfoW@1234@@Z=__imp_SymFromAddrW")
 #pragma comment(linker, "/alternatename:__imp_?SymFromName@win32@symbols@details@pltxt2htm@@YAHPEAXPEBDPEAUSymbolInfo@1234@@Z=__imp_SymFromName")

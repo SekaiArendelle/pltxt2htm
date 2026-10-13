@@ -43,6 +43,8 @@ PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymEnumerateModulesW64(
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT void* PLTXT2HTM_DETAIL_STDCALL SymFunctionTableAccess64(Handle, Dword64) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymFunctionTableAccess64, 12);
 [[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL StackWalk64(Dword, Handle, Handle, StackFrame64*, void*, ReadProcessMemoryRoutine64, FunctionTableAccessRoutine64, GetModuleBaseRoutine64, TranslateAddressRoutine64) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(StackWalk64, 36);
+[[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymRegisterCallback64(Handle, SymbolRegisteredCallback64, Ulong64) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymRegisterCallback64, 16);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymFromAddrW(Handle, Dword64, Dword64*, SymbolInfoW*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymFromAddrW, 20);
