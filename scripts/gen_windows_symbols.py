@@ -1213,10 +1213,12 @@ def generate_linker_aliases(
 
 
 def generated_files(
-    clang: str, llvm_nm: str, cxx_include_dir: pathlib.Path | None
+    clang: str, llvm_nm: str, cxx_include_dir: pathlib.Path | None, library_name: str | None = None
 ) -> dict[pathlib.Path, str]:
     result: dict[pathlib.Path, str] = {}
     for library in LIBRARIES:
+        if library_name is not None and library.name != library_name:
+            continue
         directory = SYMBOL_ROOT / library.api
         i686_stdcall_stack_bytes: dict[str, int] = {}
         for architecture, target in MSVC_TARGETS:
@@ -1239,6 +1241,7 @@ def resolve_tool(value: str, description: str) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="fail if generated files are stale")
+    parser.add_argument("--library", choices=[library.name for library in LIBRARIES], help="generate one library")
     parser.add_argument("--clang", default="clang++", help="Clang C++ driver")
     parser.add_argument("--llvm-nm", default="llvm-nm", help="LLVM symbol table dumper")
     parser.add_argument(
@@ -1250,7 +1253,7 @@ def main() -> int:
 
     clang = resolve_tool(arguments.clang, "Clang C++ driver")
     llvm_nm = resolve_tool(arguments.llvm_nm, "llvm-nm")
-    files = generated_files(clang, llvm_nm, arguments.cxx_include_dir)
+    files = generated_files(clang, llvm_nm, arguments.cxx_include_dir, arguments.library)
     stale: list[pathlib.Path] = []
     for path, content in files.items():
         if arguments.check:
