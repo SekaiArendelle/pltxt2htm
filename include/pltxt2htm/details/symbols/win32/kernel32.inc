@@ -17,7 +17,7 @@ PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL CreateFileMappingA(Ha
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL CreateFileMappingW(Handle, SecurityAttributes*, Dword, Dword, Dword, WideChar const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CreateFileMappingW, 24);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT void* PLTXT2HTM_DETAIL_STDCALL MapViewOfFile(Handle, Dword, Dword, Dword, Size) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(MapViewOfFile, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT void* PLTXT2HTM_DETAIL_STDCALL MapViewOfFile(Handle, Dword, Dword, Dword, ::std::size_t) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(MapViewOfFile, 20);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL GetStdHandle(Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetStdHandle, 4);
 [[nodiscard]]
@@ -123,7 +123,7 @@ PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetCurrentProcessId() 
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL FlushFileBuffers(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(FlushFileBuffers, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetQueuedCompletionStatus(void*, Dword*, Size*, Overlapped**, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetQueuedCompletionStatus, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetQueuedCompletionStatus(void*, Dword*, ::std::size_t*, Overlapped**, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetQueuedCompletionStatus, 20);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL GetTimeZoneInformation(TimeZoneInformation*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetTimeZoneInformation, 4);
 [[nodiscard]]
@@ -208,7 +208,7 @@ PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetWaitableTimer(void*,
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CancelWaitableTimer(void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CancelWaitableTimer, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL PrefetchVirtualMemory(void*, Size, MemoryRangeEntry*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(PrefetchVirtualMemory, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL PrefetchVirtualMemory(void*, ::std::size_t, MemoryRangeEntry*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(PrefetchVirtualMemory, 16);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SetConsoleTextAttribute(void*, Word) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SetConsoleTextAttribute, 8);
 [[nodiscard]]
@@ -237,7 +237,7 @@ PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL CreateFileA(Char cons
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL CreateFileW(WideChar const*, Dword, Dword, SecurityAttributes*, Dword, Dword, Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CreateFileW, 28);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL CreateIoCompletionPort(Handle, Handle, Size, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CreateIoCompletionPort, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL CreateIoCompletionPort(Handle, Handle, ::std::size_t, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CreateIoCompletionPort, 16);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL FindFirstFileA(Char const*, Win32FindDataA*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(FindFirstFileA, 8);
 [[nodiscard]]
@@ -251,7 +251,7 @@ PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL CreateWaitableTimerA(
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL CreateWaitableTimerW(SecurityAttributes*, Bool, WideChar const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CreateWaitableTimerW, 12);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL CreateThread(SecurityAttributes*, Size, ThreadStartRoutine, void*, Dword, Dword*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CreateThread, 24);
+PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL CreateThread(SecurityAttributes*, ::std::size_t, ThreadStartRoutine, void*, Dword, Dword*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CreateThread, 24);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Char* PLTXT2HTM_DETAIL_STDCALL GetEnvironmentStringsA() noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetEnvironmentStringsA, 0);
 [[nodiscard]]
@@ -260,5 +260,5 @@ PLTXT2HTM_DETAIL_DLLIMPORT WideChar* PLTXT2HTM_DETAIL_STDCALL GetEnvironmentStri
 PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL LocalFree(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(LocalFree, 4);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL AddVectoredExceptionHandler(Dword, VectoredExceptionHandler) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(AddVectoredExceptionHandler, 8);
-PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RaiseException(Dword, Dword, Dword, Size const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RaiseException, 16);
+PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RaiseException(Dword, Dword, Dword, ::std::size_t const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RaiseException, 16);
 PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL ExitProcess(Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ExitProcess, 4);

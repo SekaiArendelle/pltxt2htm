@@ -1541,7 +1541,7 @@ LIBRARIES = (
             Symbol(
                 "MapViewOfFile",
                 "void*",
-                ("Handle", "Dword", "Dword", "Dword", "Size"),
+                ("Handle", "Dword", "Dword", "Dword", "::std::size_t"),
                 nodiscard=True,
             ),
             Symbol("GetStdHandle", "Handle", ("Dword",), nodiscard=True),
@@ -1764,7 +1764,7 @@ LIBRARIES = (
             Symbol(
                 "GetQueuedCompletionStatus",
                 "Bool",
-                ("void*", "Dword*", "Size*", "Overlapped**", "Dword"),
+                ("void*", "Dword*", "::std::size_t*", "Overlapped**", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1933,7 +1933,7 @@ LIBRARIES = (
             Symbol(
                 "PrefetchVirtualMemory",
                 "Bool",
-                ("void*", "Size", "MemoryRangeEntry*", "Dword"),
+                ("void*", "::std::size_t", "MemoryRangeEntry*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2029,7 +2029,7 @@ LIBRARIES = (
             Symbol(
                 "CreateIoCompletionPort",
                 "Handle",
-                ("Handle", "Handle", "Size", "Dword"),
+                ("Handle", "Handle", "::std::size_t", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2091,7 +2091,7 @@ LIBRARIES = (
                 "Handle",
                 (
                     "SecurityAttributes*",
-                    "Size",
+                    "::std::size_t",
                     "ThreadStartRoutine",
                     "void*",
                     "Dword",
@@ -2111,7 +2111,7 @@ LIBRARIES = (
             Symbol(
                 "RaiseException",
                 "void",
-                ("Dword", "Dword", "Dword", "Size const*"),
+                ("Dword", "Dword", "Dword", "::std::size_t const*"),
                 nodiscard=False,
             ),
             Symbol("ExitProcess", "void", ("Dword",), nodiscard=False),

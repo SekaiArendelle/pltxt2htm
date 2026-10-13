@@ -22,13 +22,11 @@ using Ulong64 = unsigned long long;
 using Uint = unsigned int;
 using WideChar = wchar_t;
 using Word = unsigned short;
-using Size = ::std::size_t;
-using Procedure = IntPtr(PLTXT2HTM_DETAIL_STDCALL*)();
 
 // CONTEXT has a different layout for each Windows architecture.
 struct Context;
 
-constexpr Size exception_maximum_parameters{15};
+constexpr ::std::size_t exception_maximum_parameters{15};
 
 struct ExceptionRecord {
     Dword code;
@@ -36,7 +34,7 @@ struct ExceptionRecord {
     ExceptionRecord* exception_record;
     void* address;
     Dword number_parameters;
-    Size information[exception_maximum_parameters];
+    ::std::size_t information[exception_maximum_parameters];
 };
 
 struct ExceptionPointers {
@@ -85,8 +83,8 @@ struct SecurityAttributes {
 };
 
 struct Overlapped {
-    Size internal;
-    Size internal_high;
+    ::std::size_t internal;
+    ::std::size_t internal_high;
 
     union {
         struct {
@@ -225,7 +223,7 @@ struct SystemInfo {
     Dword page_size;
     void* minimum_application_address;
     void* maximum_application_address;
-    Size active_processor_mask;
+    ::std::size_t active_processor_mask;
     Dword number_of_processors;
     Dword processor_type;
     Dword allocation_granularity;
@@ -261,9 +259,10 @@ struct Win32FindDataW {
 
 struct MemoryRangeEntry {
     void* virtual_address;
-    Size number_of_bytes;
+    ::std::size_t number_of_bytes;
 };
 
+using Procedure = IntPtr(PLTXT2HTM_DETAIL_STDCALL*)();
 using ThreadStartRoutine = Dword(PLTXT2HTM_DETAIL_STDCALL*)(void*);
 using TimerApcRoutine = void(PLTXT2HTM_DETAIL_STDCALL*)(void*, Dword, Dword);
 using VectoredExceptionHandler = Long(PLTXT2HTM_DETAIL_STDCALL*)(ExceptionPointers*);

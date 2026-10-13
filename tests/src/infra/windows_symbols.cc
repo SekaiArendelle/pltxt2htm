@@ -102,8 +102,9 @@ using ExpectedCreateFileW = win32::Handle(WINAPI*)(win32::WideChar const*, win32
                                                    win32::Handle) noexcept;
 using ExpectedReadFile = win32::Bool(WINAPI*)(win32::Handle, void*, win32::Dword, win32::Dword*,
                                               win32::Overlapped*) noexcept;
-using ExpectedCreateThread = win32::Handle(WINAPI*)(win32::SecurityAttributes*, win32::Size, win32::ThreadStartRoutine,
-                                                    void*, win32::Dword, win32::Dword*) noexcept;
+using ExpectedCreateThread = win32::Handle(WINAPI*)(win32::SecurityAttributes*, ::std::size_t,
+                                                    win32::ThreadStartRoutine, void*, win32::Dword,
+                                                    win32::Dword*) noexcept;
 using ExpectedSymInitialize = win32::Bool(WINAPI*)(win32::Handle, win32::Char const*, win32::Bool) noexcept;
 using ExpectedSymRefreshModuleList = win32::Bool(WINAPI*)(win32::Handle) noexcept;
 using ExpectedSymCleanup = win32::Bool(WINAPI*)(win32::Handle) noexcept;
