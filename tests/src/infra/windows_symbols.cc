@@ -7,7 +7,9 @@
 
     #define PLTXT2HTM_DETAIL_DLLIMPORT 11
     #define PLTXT2HTM_DETAIL_STDCALL 12
-    #define PLTXT2HTM_DETAIL_ASM_NAME 13
+    #define PLTXT2HTM_DETAIL_STDCALL_ASM_NAME 13
+    #define PLTXT2HTM_DETAIL_CDECL 14
+    #define PLTXT2HTM_DETAIL_CDECL_ASM_NAME 15
 
     #include <pltxt2htm/details/symbols/nt/ntdll.hh>
     #include <pltxt2htm/details/symbols/win32/dbghelp.hh>
@@ -19,13 +21,21 @@
     #if PLTXT2HTM_DETAIL_STDCALL != 12
         #error "stdcall macro was not restored"
     #endif
-    #if PLTXT2HTM_DETAIL_ASM_NAME != 13
+    #if PLTXT2HTM_DETAIL_STDCALL_ASM_NAME != 13
         #error "asm-name macro was not restored"
+    #endif
+    #if PLTXT2HTM_DETAIL_CDECL != 14
+        #error "cdecl macro was not restored"
+    #endif
+    #if PLTXT2HTM_DETAIL_CDECL_ASM_NAME != 15
+        #error "cdecl asm-name macro was not restored"
     #endif
 
     #undef PLTXT2HTM_DETAIL_DLLIMPORT
     #undef PLTXT2HTM_DETAIL_STDCALL
-    #undef PLTXT2HTM_DETAIL_ASM_NAME
+    #undef PLTXT2HTM_DETAIL_STDCALL_ASM_NAME
+    #undef PLTXT2HTM_DETAIL_CDECL
+    #undef PLTXT2HTM_DETAIL_CDECL_ASM_NAME
 
 namespace nt = ::pltxt2htm::details::symbols::nt;
 namespace win32 = ::pltxt2htm::details::symbols::win32;
@@ -37,6 +47,48 @@ using ExpectedReleaseSrwLockExclusive = void(NTAPI*)(nt::SrwLock*) noexcept;
 using ExpectedDuplicateObject = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, nt::Handle, nt::Handle*, nt::Ulong,
                                                      nt::Ulong, nt::Ulong) noexcept;
 using ExpectedClose = nt::NtStatus(NTAPI*)(nt::Handle) noexcept;
+using ExpectedCriticalSection = nt::NtStatus(NTAPI*)(void*) noexcept;
+using ExpectedTryEnterCriticalSection = nt::Ulong(NTAPI*)(void*) noexcept;
+using ExpectedPebLock = nt::NtStatus(NTAPI*)() noexcept;
+using ExpectedAcquirePrivilege = nt::NtStatus(NTAPI*)(nt::Ulong*, nt::Ulong, nt::Ulong, void**) noexcept;
+using ExpectedIoApcRoutine = void(NTAPI*)(void*, nt::IoStatusBlock*, nt::Ulong);
+using ExpectedTimerApcRoutine = void(NTAPI*)(void*, nt::Ulong, nt::Long);
+using ExpectedUserThreadStartRoutine = nt::NtStatus(NTAPI*)(void*);
+using ExpectedInitUnicodeString = void(NTAPI*)(nt::UnicodeString*, char16_t const*) noexcept;
+using ExpectedQueryEnvironmentVariable = nt::NtStatus(NTAPI*)(void*, nt::UnicodeString const*,
+                                                              nt::UnicodeString*) noexcept;
+using ExpectedDosPathNameToNtPathName = nt::Boolean(NTAPI*)(char16_t const*, nt::UnicodeString*, char16_t**,
+                                                            nt::RtlRelativeNameU*) noexcept;
+using ExpectedDosPathNameToNtPathNameWithStatus = nt::NtStatus(NTAPI*)(char16_t const*, nt::UnicodeString*, char16_t**,
+                                                                       nt::RtlRelativeNameU*) noexcept;
+using ExpectedCreateUserProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Handle*, nt::Ulong, nt::Ulong,
+                                                       nt::ObjectAttributes const*, nt::ObjectAttributes const*,
+                                                       nt::Ulong, nt::Ulong, nt::RtlUserProcessParameters*,
+                                                       nt::PsCreateInfo*, nt::PsAttributeList*) noexcept;
+using ExpectedCreateProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, void*,
+                                                   nt::Boolean, void*, void*, void*) noexcept;
+using ExpectedWaitForSingleObject = nt::NtStatus(NTAPI*)(void*, nt::Boolean, nt::Long64*) noexcept;
+using ExpectedDelayExecution = nt::NtStatus(NTAPI*)(nt::Boolean, nt::Long64*) noexcept;
+using ExpectedSetTimer = nt::NtStatus(NTAPI*)(void*, nt::Long64*, nt::TimerApcRoutine, void*, nt::Boolean,
+                                              nt::Long, nt::Boolean*) noexcept;
+using ExpectedMapViewOfSection = nt::NtStatus(NTAPI*)(void*, void*, void**, ::std::size_t, ::std::size_t, nt::Long64*,
+                                                      ::std::size_t*, nt::SectionInherit, nt::Ulong,
+                                                      nt::Ulong) noexcept;
+using ExpectedEventState = nt::NtStatus(NTAPI*)(void*, nt::Long*) noexcept;
+using ExpectedAlpcConnectPort = nt::NtStatus(NTAPI*)(nt::Handle*, nt::UnicodeString const*, nt::ObjectAttributes*,
+                                                     nt::AlpcPortAttributes*, nt::Ulong, void*, nt::PortMessage*,
+                                                     ::std::size_t*, nt::AlpcMessageAttributes*,
+                                                     nt::AlpcMessageAttributes*, nt::Long64*) noexcept;
+using ExpectedAlpcGetHeaderSize = nt::Ulong(NTAPI*)(nt::Ulong) noexcept;
+using ExpectedAlpcQueryInformationMessage = nt::NtStatus(NTAPI*)(void*, nt::PortMessage*,
+                                                                 nt::AlpcMessageInformationClass, void*, nt::Ulong,
+                                                                 nt::Ulong*) noexcept;
+using ExpectedControlFile = nt::NtStatus(NTAPI*)(void*, void*, nt::IoApcRoutine, void*, nt::IoStatusBlock*,
+                                                nt::Ulong, void*, nt::Ulong, void*, nt::Ulong) noexcept;
+using ExpectedCreateFile = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, nt::IoStatusBlock*,
+                                                nt::Long64*, nt::Ulong, nt::Ulong, nt::Ulong, nt::Ulong, void*,
+                                                nt::Ulong) noexcept;
+using ExpectedDbgPrint = nt::Ulong(__cdecl*)(char const*, ...) noexcept;
 using ExpectedLoadLibraryExW = win32::ModuleHandle(WINAPI*)(win32::WideChar const*, win32::Handle,
                                                             win32::Dword) noexcept;
 using ExpectedGetProcAddress = win32::Procedure(WINAPI*)(win32::ModuleHandle, win32::Char const*) noexcept;
@@ -55,6 +107,48 @@ static_assert(::std::is_same_v<decltype(&nt::RtlAcquireSRWLockExclusive), Expect
 static_assert(::std::is_same_v<decltype(&nt::RtlReleaseSRWLockExclusive), ExpectedReleaseSrwLockExclusive>);
 static_assert(::std::is_same_v<decltype(&nt::NtDuplicateObject), ExpectedDuplicateObject>);
 static_assert(::std::is_same_v<decltype(&nt::NtClose), ExpectedClose>);
+static_assert(::std::is_same_v<decltype(&nt::RtlInitializeCriticalSection), ExpectedCriticalSection>);
+static_assert(::std::is_same_v<decltype(&nt::RtlEnterCriticalSection), ExpectedCriticalSection>);
+static_assert(::std::is_same_v<decltype(&nt::RtlTryEnterCriticalSection), ExpectedTryEnterCriticalSection>);
+static_assert(::std::is_same_v<decltype(&nt::RtlLeaveCriticalSection), ExpectedCriticalSection>);
+static_assert(::std::is_same_v<decltype(&nt::RtlDeleteCriticalSection), ExpectedCriticalSection>);
+static_assert(::std::is_same_v<decltype(&nt::RtlAcquirePebLock), ExpectedPebLock>);
+static_assert(::std::is_same_v<decltype(&nt::RtlReleasePebLock), ExpectedPebLock>);
+static_assert(::std::is_same_v<decltype(&nt::RtlAcquirePrivilege), ExpectedAcquirePrivilege>);
+static_assert(::std::is_same_v<nt::IoApcRoutine, ExpectedIoApcRoutine>);
+static_assert(::std::is_same_v<nt::TimerApcRoutine, ExpectedTimerApcRoutine>);
+static_assert(::std::is_same_v<nt::UserThreadStartRoutine, ExpectedUserThreadStartRoutine>);
+static_assert(::std::is_same_v<decltype(&nt::RtlInitUnicodeString), ExpectedInitUnicodeString>);
+static_assert(::std::is_same_v<decltype(&nt::RtlQueryEnvironmentVariable_U), ExpectedQueryEnvironmentVariable>);
+static_assert(::std::is_same_v<decltype(&nt::RtlDosPathNameToNtPathName_U), ExpectedDosPathNameToNtPathName>);
+static_assert(::std::is_same_v<decltype(&nt::RtlDosPathNameToNtPathName_U_WithStatus),
+                               ExpectedDosPathNameToNtPathNameWithStatus>);
+static_assert(::std::is_same_v<decltype(&nt::NtFsControlFile), ExpectedControlFile>);
+static_assert(::std::is_same_v<decltype(&nt::ZwFsControlFile), ExpectedControlFile>);
+static_assert(::std::is_same_v<decltype(&nt::NtDeviceIoControlFile), ExpectedControlFile>);
+static_assert(::std::is_same_v<decltype(&nt::ZwDeviceIoControlFile), ExpectedControlFile>);
+static_assert(::std::is_same_v<decltype(&nt::NtCreateFile), ExpectedCreateFile>);
+static_assert(::std::is_same_v<decltype(&nt::ZwCreateFile), ExpectedCreateFile>);
+static_assert(::std::is_same_v<decltype(&nt::NtCreateUserProcess), ExpectedCreateUserProcess>);
+static_assert(::std::is_same_v<decltype(&nt::ZwCreateUserProcess), ExpectedCreateUserProcess>);
+static_assert(::std::is_same_v<decltype(&nt::NtCreateProcess), ExpectedCreateProcess>);
+static_assert(::std::is_same_v<decltype(&nt::ZwCreateProcess), ExpectedCreateProcess>);
+static_assert(::std::is_same_v<decltype(&nt::NtMapViewOfSection), ExpectedMapViewOfSection>);
+static_assert(::std::is_same_v<decltype(&nt::ZwMapViewOfSection), ExpectedMapViewOfSection>);
+static_assert(::std::is_same_v<decltype(&nt::NtSetEvent), ExpectedEventState>);
+static_assert(::std::is_same_v<decltype(&nt::ZwSetEvent), ExpectedEventState>);
+static_assert(::std::is_same_v<decltype(&nt::NtResetEvent), ExpectedEventState>);
+static_assert(::std::is_same_v<decltype(&nt::ZwResetEvent), ExpectedEventState>);
+static_assert(::std::is_same_v<decltype(&nt::NtAlpcConnectPort), ExpectedAlpcConnectPort>);
+static_assert(::std::is_same_v<decltype(&nt::ZwAlpcConnectPort), ExpectedAlpcConnectPort>);
+static_assert(::std::is_same_v<decltype(&nt::AlpcGetHeaderSize), ExpectedAlpcGetHeaderSize>);
+static_assert(::std::is_same_v<decltype(&nt::NtAlpcQueryInformationMessage), ExpectedAlpcQueryInformationMessage>);
+static_assert(::std::is_same_v<decltype(&nt::ZwAlpcQueryInformationMessage), ExpectedAlpcQueryInformationMessage>);
+static_assert(::std::is_same_v<decltype(&nt::NtWaitForSingleObject), ExpectedWaitForSingleObject>);
+static_assert(::std::is_same_v<decltype(&nt::NtDelayExecution), ExpectedDelayExecution>);
+static_assert(::std::is_same_v<decltype(&nt::NtSetTimer), ExpectedSetTimer>);
+static_assert(::std::is_same_v<decltype(&nt::ZwSetTimer), ExpectedSetTimer>);
+static_assert(::std::is_same_v<decltype(&nt::DbgPrint), ExpectedDbgPrint>);
 static_assert(::std::is_same_v<decltype(&win32::LoadLibraryExW), ExpectedLoadLibraryExW>);
 static_assert(::std::is_same_v<decltype(&win32::GetProcAddress), ExpectedGetProcAddress>);
 static_assert(::std::is_same_v<decltype(&win32::FreeLibrary), ExpectedFreeLibrary>);
@@ -67,10 +161,50 @@ static_assert(::std::is_same_v<decltype(&win32::SymGetLineFromAddr64), ExpectedS
 static_assert(::std::is_same_v<nt::Boolean, BOOLEAN>);
 static_assert(::std::is_same_v<nt::Handle, HANDLE>);
 static_assert(::std::is_same_v<nt::NtStatus, NTSTATUS>);
+static_assert(::std::is_same_v<nt::Long, LONG>);
+static_assert(::std::is_same_v<nt::Long64, LONGLONG>);
+static_assert(::std::is_same_v<nt::Uchar, UCHAR>);
 static_assert(::std::is_same_v<nt::Ulong, ULONG>);
+static_assert(::std::is_same_v<nt::Ulong64, ULONG64>);
 static_assert(::std::is_same_v<nt::Ushort, USHORT>);
+static_assert(sizeof(nt::Privileges) == sizeof(ULONG));
+static_assert(sizeof(nt::RtlpCurdirRef) == 2 * sizeof(void*));
+static_assert(sizeof(nt::RtlRelativeNameU) == 4 * sizeof(void*));
+static_assert(offsetof(nt::RtlRelativeNameU, cur_dir_ref) == 3 * sizeof(void*));
+static_assert(::std::is_same_v<::std::underlying_type_t<nt::Privileges>, nt::Ulong>);
+static_assert(::std::is_same_v<::std::underlying_type_t<nt::ThreadInformationClass>, nt::Ulong>);
+static_assert(sizeof(nt::AlpcPortAttributes) == (sizeof(void*) == 8 ? 72 : 44));
+static_assert(offsetof(nt::AlpcPortAttributes, memory_bandwidth) ==
+              offsetof(nt::AlpcPortAttributes, max_message_length) + sizeof(::std::size_t));
+static_assert(offsetof(nt::RtlUserProcessParameters, environment_version) ==
+              offsetof(nt::RtlUserProcessParameters, environment_size) + sizeof(::std::size_t));
+static_assert(offsetof(nt::RtlUserProcessParameters, package_dependency_data) ==
+              offsetof(nt::RtlUserProcessParameters, environment_size) + 2 * sizeof(::std::size_t));
+static_assert(offsetof(nt::RtlUserProcessParameters, redirection_dll_name) >
+              offsetof(nt::RtlUserProcessParameters, loader_threads));
+static_assert(::std::is_same_v<decltype(nt::RtlUserProcessParameters::default_threadpool_cpu_set_masks), nt::Ulong64*>);
+static_assert(sizeof(nt::RtlUserProcessParameters) ==
+              offsetof(nt::RtlUserProcessParameters, attribute_list) + sizeof(void*));
 static_assert(sizeof(nt::SrwLock) == sizeof(SRWLOCK));
 static_assert(alignof(nt::SrwLock) == alignof(SRWLOCK));
+static_assert(sizeof(nt::UnicodeString) == sizeof(UNICODE_STRING));
+static_assert(offsetof(nt::UnicodeString, buffer) == offsetof(UNICODE_STRING, Buffer));
+static_assert(sizeof(nt::AnsiString) == sizeof(STRING));
+static_assert(offsetof(nt::AnsiString, buffer) == offsetof(STRING, Buffer));
+static_assert(::std::is_same_v<decltype(nt::RtlDriveLetterCurdir::dos_path), nt::AnsiString>);
+static_assert(sizeof(nt::ObjectAttributes) == sizeof(OBJECT_ATTRIBUTES));
+static_assert(offsetof(nt::ObjectAttributes, security_descriptor) == offsetof(OBJECT_ATTRIBUTES, SecurityDescriptor));
+static_assert(offsetof(nt::ObjectAttributes, security_quality_of_service) ==
+              offsetof(OBJECT_ATTRIBUTES, SecurityQualityOfService));
+static_assert(sizeof(nt::IoStatusBlock) == sizeof(IO_STATUS_BLOCK));
+static_assert(offsetof(nt::IoStatusBlock, information) == offsetof(IO_STATUS_BLOCK, Information));
+static_assert(sizeof(nt::ClientId) == sizeof(CLIENT_ID));
+static_assert(sizeof(nt::Long64) == sizeof(LARGE_INTEGER));
+static_assert(nt::FileInformationClass::FileBasicInformation == static_cast<nt::FileInformationClass>(4));
+static_assert(sizeof(nt::PsCreateInfo) >= sizeof(::std::size_t));
+static_assert(offsetof(nt::PsCreateInfo, state_union) > offsetof(nt::PsCreateInfo, state));
+static_assert(offsetof(nt::RtlUserProcessParameters, command_line) >
+              offsetof(nt::RtlUserProcessParameters, image_path_name));
 
 static_assert(::std::is_same_v<win32::Bool, BOOL>);
 static_assert(::std::is_same_v<win32::Char, CHAR>);
@@ -113,6 +247,9 @@ static_assert(offsetof(win32::ImageHlpLine64, file_name) == offsetof(IMAGEHLP_LI
 static_assert(offsetof(win32::ImageHlpLine64, address) == offsetof(IMAGEHLP_LINE64, Address));
 
 auto* volatile nt_close_reference = &nt::NtClose;
+auto* volatile nt_create_file_reference = &nt::NtCreateFile;
+auto* volatile zw_create_file_reference = &nt::ZwCreateFile;
+auto* volatile dbg_print_reference = &nt::DbgPrint;
 auto* volatile capture_reference = &nt::RtlCaptureStackBackTrace;
 auto* volatile try_acquire_srw_lock_reference = &nt::RtlTryAcquireSRWLockExclusive;
 auto* volatile acquire_srw_lock_reference = &nt::RtlAcquireSRWLockExclusive;

@@ -9,6 +9,7 @@ import pathlib
 import re
 import shutil
 import subprocess
+from typing import Literal
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -21,6 +22,7 @@ class Symbol:
     return_type: str
     parameters: tuple[str, ...]
     nodiscard: bool = False
+    calling_convention: Literal["stdcall", "cdecl"] = "stdcall"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -68,9 +70,902 @@ LIBRARIES = (
                 nodiscard=True,
             ),
             Symbol(
+                "ZwDuplicateObject",
+                "NtStatus",
+                ('void *', 'void *', 'void *', 'Handle *', 'Ulong', 'Ulong', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
                 "NtClose",
                 "NtStatus",
                 ("Handle",),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwClose",
+                "NtStatus",
+                ('void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlNtStatusToDosError",
+                "Ulong",
+                ('Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtCreateFile",
+                "NtStatus",
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'IoStatusBlock *', 'Long64 *', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'void *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwCreateFile",
+                "NtStatus",
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'IoStatusBlock *', 'Long64 *', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'void *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtCreateSection",
+                "NtStatus",
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'Long64 *', 'Ulong', 'Ulong', 'void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwCreateSection",
+                "NtStatus",
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'Long64 *', 'Ulong', 'Ulong', 'void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtQueryInformationProcess",
+                "NtStatus",
+                ('void *', 'ProcessInformationClass', 'void *', 'Ulong', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwQueryInformationProcess",
+                "NtStatus",
+                ('void *', 'ProcessInformationClass', 'void *', 'Ulong', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtWriteFile",
+                "NtStatus",
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'void const *', 'Ulong', 'Long64 *', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwWriteFile",
+                "NtStatus",
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'void const *', 'Ulong', 'Long64 *', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtReadFile",
+                "NtStatus",
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'void *', 'Ulong', 'Long64 *', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwReadFile",
+                "NtStatus",
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'void *', 'Ulong', 'Long64 *', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtQueryObject",
+                "NtStatus",
+                ('void *', 'ObjectInformationClass', 'void *', 'Ulong', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwQueryObject",
+                "NtStatus",
+                ('void *', 'ObjectInformationClass', 'void *', 'Ulong', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtQueryDirectoryFile",
+                "NtStatus",
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'void *', 'Ulong', 'FileInformationClass', 'Boolean', 'UnicodeString *', 'Boolean', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwQueryDirectoryFile",
+                "NtStatus",
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'void *', 'Ulong', 'FileInformationClass', 'Boolean', 'UnicodeString *', 'Boolean', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtQuerySection",
+                "NtStatus",
+                ('void *', 'SectionInformationClass', 'void *', '::std::size_t', '::std::size_t *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwQuerySection",
+                "NtStatus",
+                ('void *', 'SectionInformationClass', 'void *', '::std::size_t', '::std::size_t *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtQueryInformationFile",
+                "NtStatus",
+                ('void *', 'IoStatusBlock *', 'void *', 'Ulong', 'FileInformationClass', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwQueryInformationFile",
+                "NtStatus",
+                ('void *', 'IoStatusBlock *', 'void *', 'Ulong', 'FileInformationClass', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtSetInformationFile",
+                "NtStatus",
+                ('void *', 'IoStatusBlock *', 'void *', 'Ulong', 'FileInformationClass', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwSetInformationFile",
+                "NtStatus",
+                ('void *', 'IoStatusBlock *', 'void *', 'Ulong', 'FileInformationClass', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtWaitForSingleObject",
+                "NtStatus",
+                ('void *', 'Boolean', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwWaitForSingleObject",
+                "NtStatus",
+                ('void *', 'Boolean', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtWaitForMultipleObjects",
+                "NtStatus",
+                ('Ulong', 'void *const *', 'WaitType', 'Boolean', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwWaitForMultipleObjects",
+                "NtStatus",
+                ('Ulong', 'void *const *', 'WaitType', 'Boolean', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtSetSystemTime",
+                "NtStatus",
+                ('Long64 *', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwSetSystemTime",
+                "NtStatus",
+                ('Long64 *', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtCreateProcess",
+                "NtStatus",
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'void *', 'Boolean', 'void *', 'void *', 'void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwCreateProcess",
+                "NtStatus",
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'void *', 'Boolean', 'void *', 'void *', 'void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlDosPathNameToNtPathName_U",
+                "Boolean",
+                ('char16_t const *', 'UnicodeString *', 'char16_t **', 'RtlRelativeNameU *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlDosPathNameToNtPathName_U_WithStatus",
+                "NtStatus",
+                ('char16_t const *', 'UnicodeString *', 'char16_t **', 'RtlRelativeNameU *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlNtPathNameToDosPathName",
+                "NtStatus",
+                ('Ulong', 'RtlUnicodeStringBuffer *', 'Ulong *', 'char16_t **', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlFreeUnicodeString",
+                "void",
+                ('UnicodeString *', ),
+            ),
+            Symbol(
+                "RtlInitializeCriticalSection",
+                "NtStatus",
+                ('void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlEnterCriticalSection",
+                "NtStatus",
+                ('void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlTryEnterCriticalSection",
+                "Ulong",
+                ('void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlLeaveCriticalSection",
+                "NtStatus",
+                ('void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlDeleteCriticalSection",
+                "NtStatus",
+                ('void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlCreateUserThread",
+                "NtStatus",
+                ('void *', 'void *', 'Boolean', 'Ulong', '::std::size_t', '::std::size_t', 'UserThreadStartRoutine', 'void *', 'Handle *', 'ClientId *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtResumeThread",
+                "NtStatus",
+                ('void *', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwResumeThread",
+                "NtStatus",
+                ('void *', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtLockFile",
+                "NtStatus",
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'Long64 *', 'Long64 *', 'Ulong', 'Boolean', 'Boolean', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwLockFile",
+                "NtStatus",
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'Long64 *', 'Long64 *', 'Ulong', 'Boolean', 'Boolean', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtUnlockFile",
+                "NtStatus",
+                ('void *', 'IoStatusBlock *', 'Long64 *', 'Long64 *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwUnlockFile",
+                "NtStatus",
+                ('void *', 'IoStatusBlock *', 'Long64 *', 'Long64 *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtFlushBuffersFile",
+                "NtStatus",
+                ('void *', 'IoStatusBlock *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwFlushBuffersFile",
+                "NtStatus",
+                ('void *', 'IoStatusBlock *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtFlushBuffersFileEx",
+                "NtStatus",
+                ('void *', 'Ulong', 'void *', 'Ulong', 'IoStatusBlock *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwFlushBuffersFileEx",
+                "NtStatus",
+                ('void *', 'Ulong', 'void *', 'Ulong', 'IoStatusBlock *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "DbgPrint",
+                "Ulong",
+                ('char const *', '...', ),
+                nodiscard=True,
+                calling_convention="cdecl",
+            ),
+            Symbol(
+                "DbgPrintEx",
+                "Ulong",
+                ('Ulong', 'Ulong', 'char const *', '...', ),
+                nodiscard=True,
+                calling_convention="cdecl",
+            ),
+            Symbol(
+                "RtlCreateProcessParameters",
+                "NtStatus",
+                ('RtlUserProcessParameters **', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'void *', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlCreateProcessParametersEx",
+                "NtStatus",
+                ('RtlUserProcessParameters **', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'void *', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'UnicodeString const *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlDestroyProcessParameters",
+                "NtStatus",
+                ('RtlUserProcessParameters *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtCreateUserProcess",
+                "NtStatus",
+                ('Handle *', 'Handle *', 'Ulong', 'Ulong', 'ObjectAttributes const *', 'ObjectAttributes const *', 'Ulong', 'Ulong', 'RtlUserProcessParameters *', 'PsCreateInfo *', 'PsAttributeList *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwCreateUserProcess",
+                "NtStatus",
+                ('Handle *', 'Handle *', 'Ulong', 'Ulong', 'ObjectAttributes const *', 'ObjectAttributes const *', 'Ulong', 'Ulong', 'RtlUserProcessParameters *', 'PsCreateInfo *', 'PsAttributeList *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtMapViewOfSection",
+                "NtStatus",
+                ('void *', 'void *', 'void **', '::std::size_t', '::std::size_t', 'Long64 *', '::std::size_t *', 'SectionInherit', 'Ulong', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwMapViewOfSection",
+                "NtStatus",
+                ('void *', 'void *', 'void **', '::std::size_t', '::std::size_t', 'Long64 *', '::std::size_t *', 'SectionInherit', 'Ulong', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtUnmapViewOfSection",
+                "NtStatus",
+                ('void *', 'void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwUnmapViewOfSection",
+                "NtStatus",
+                ('void *', 'void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtReadVirtualMemory",
+                "NtStatus",
+                ('void *', 'void *', 'void *', '::std::size_t', '::std::size_t *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwReadVirtualMemory",
+                "NtStatus",
+                ('void *', 'void *', 'void *', '::std::size_t', '::std::size_t *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtWriteVirtualMemory",
+                "NtStatus",
+                ('void *', 'void *', 'void *', '::std::size_t', '::std::size_t *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwWriteVirtualMemory",
+                "NtStatus",
+                ('void *', 'void *', 'void *', '::std::size_t', '::std::size_t *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlAcquirePebLock",
+                "NtStatus",
+                (),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlReleasePebLock",
+                "NtStatus",
+                (),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAllocateVirtualMemory",
+                "NtStatus",
+                ('void *', 'void **', '::std::size_t', '::std::size_t *', 'Ulong', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAllocateVirtualMemory",
+                "NtStatus",
+                ('void *', 'void **', '::std::size_t', '::std::size_t *', 'Ulong', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtFreeVirtualMemory",
+                "NtStatus",
+                ('void *', 'void **', '::std::size_t *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwFreeVirtualMemory",
+                "NtStatus",
+                ('void *', 'void **', '::std::size_t *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlInitUnicodeString",
+                "void",
+                ('UnicodeString *', 'char16_t const *', ),
+            ),
+            Symbol(
+                "CsrClientCallServer",
+                "NtStatus",
+                ('void *', 'void *', 'Ulong', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtQuerySystemInformation",
+                "NtStatus",
+                ('SystemInformationClass', 'void *', 'Ulong', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwQuerySystemInformation",
+                "NtStatus",
+                ('SystemInformationClass', 'void *', 'Ulong', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtQueryVolumeInformationFile",
+                "NtStatus",
+                ('void *', 'IoStatusBlock *', 'void *', 'Ulong', 'FsInformationClass', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwQueryVolumeInformationFile",
+                "NtStatus",
+                ('void *', 'IoStatusBlock *', 'void *', 'Ulong', 'FsInformationClass', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtFsControlFile",
+                "NtStatus",
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'Ulong', 'void *', 'Ulong', 'void *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwFsControlFile",
+                "NtStatus",
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'Ulong', 'void *', 'Ulong', 'void *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtCreateNamedPipeFile",
+                "NtStatus",
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'IoStatusBlock *', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwCreateNamedPipeFile",
+                "NtStatus",
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'IoStatusBlock *', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Ulong', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtQueryPerformanceCounter",
+                "NtStatus",
+                ('Long64 *', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwQueryPerformanceCounter",
+                "NtStatus",
+                ('Long64 *', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlGetSystemTimePrecise",
+                "Ulong64",
+                (),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtQueryInformationThread",
+                "NtStatus",
+                ('void *', 'ThreadInformationClass', 'void *', 'Ulong', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwQueryInformationThread",
+                "NtStatus",
+                ('void *', 'ThreadInformationClass', 'void *', 'Ulong', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlAdjustPrivilege",
+                "NtStatus",
+                ('Ulong', 'Boolean', 'Boolean', 'Boolean *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtCreateEvent",
+                "NtStatus",
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'EventType', 'Boolean', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwCreateEvent",
+                "NtStatus",
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'EventType', 'Boolean', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtSetEvent",
+                "NtStatus",
+                ('void *', 'Long *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwSetEvent",
+                "NtStatus",
+                ('void *', 'Long *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtResetEvent",
+                "NtStatus",
+                ('void *', 'Long *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwResetEvent",
+                "NtStatus",
+                ('void *', 'Long *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtSetInformationObject",
+                "NtStatus",
+                ('void *', 'ObjectInformationClass', 'void *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwSetInformationObject",
+                "NtStatus",
+                ('void *', 'ObjectInformationClass', 'void *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtQueryAuxiliaryCounterFrequency",
+                "NtStatus",
+                ('Ulong64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwQueryAuxiliaryCounterFrequency",
+                "NtStatus",
+                ('Ulong64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlDetermineDosPathNameType_U",
+                "RtlPathType",
+                ('char16_t const *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlGetFullPathName_U",
+                "Ulong",
+                ('char16_t const *', 'Ulong', 'char16_t *', 'char16_t **', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "AlpcInitializeMessageAttribute",
+                "NtStatus",
+                ('Ulong', 'AlpcMessageAttributes *', '::std::size_t', '::std::size_t *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "AlpcGetMessageAttribute",
+                "void*",
+                ("AlpcMessageAttributes*", "Ulong"),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAlpcCreatePort",
+                "NtStatus",
+                ('Handle *', 'ObjectAttributes *', 'AlpcPortAttributes *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAlpcCreatePort",
+                "NtStatus",
+                ('Handle *', 'ObjectAttributes *', 'AlpcPortAttributes *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAlpcConnectPort",
+                "NtStatus",
+                ('Handle *', 'UnicodeString const *', 'ObjectAttributes *', 'AlpcPortAttributes *', 'Ulong', 'void *', 'PortMessage *', '::std::size_t *', 'AlpcMessageAttributes *', 'AlpcMessageAttributes *', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAlpcConnectPort",
+                "NtStatus",
+                ('Handle *', 'UnicodeString const *', 'ObjectAttributes *', 'AlpcPortAttributes *', 'Ulong', 'void *', 'PortMessage *', '::std::size_t *', 'AlpcMessageAttributes *', 'AlpcMessageAttributes *', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAlpcSendWaitReceivePort",
+                "NtStatus",
+                ('void *', 'Ulong', 'PortMessage *', 'AlpcMessageAttributes *', 'PortMessage *', '::std::size_t *', 'AlpcMessageAttributes *', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAlpcSendWaitReceivePort",
+                "NtStatus",
+                ('void *', 'Ulong', 'PortMessage *', 'AlpcMessageAttributes *', 'PortMessage *', '::std::size_t *', 'AlpcMessageAttributes *', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAlpcAcceptConnectPort",
+                "NtStatus",
+                ('Handle *', 'void *', 'Ulong', 'ObjectAttributes *', 'AlpcPortAttributes *', 'void *', 'PortMessage *', 'AlpcMessageAttributes *', 'Boolean', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAlpcAcceptConnectPort",
+                "NtStatus",
+                ('Handle *', 'void *', 'Ulong', 'ObjectAttributes *', 'AlpcPortAttributes *', 'void *', 'PortMessage *', 'AlpcMessageAttributes *', 'Boolean', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "AlpcGetHeaderSize",
+                "Ulong",
+                ('Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAlpcImpersonateClientOfPort",
+                "NtStatus",
+                ('void *', 'PortMessage *', 'void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAlpcImpersonateClientOfPort",
+                "NtStatus",
+                ('void *', 'PortMessage *', 'void *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAlpcImpersonateClientContainerOfPort",
+                "NtStatus",
+                ('void *', 'PortMessage *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAlpcImpersonateClientContainerOfPort",
+                "NtStatus",
+                ('void *', 'PortMessage *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAlpcDisconnectPort",
+                "NtStatus",
+                ('void *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAlpcDisconnectPort",
+                "NtStatus",
+                ('void *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAlpcCreatePortSection",
+                "NtStatus",
+                ('void *', 'Ulong', 'void *', '::std::size_t', 'Handle *', '::std::size_t *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAlpcCreatePortSection",
+                "NtStatus",
+                ('void *', 'Ulong', 'void *', '::std::size_t', 'Handle *', '::std::size_t *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAlpcCreateSectionView",
+                "NtStatus",
+                ('void *', 'Ulong', 'AlpcDataViewAttr *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAlpcCreateSectionView",
+                "NtStatus",
+                ('void *', 'Ulong', 'AlpcDataViewAttr *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "AlpcMaxAllowedMessageLength",
+                "Ulong",
+                (),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAlpcQueryInformationMessage",
+                "NtStatus",
+                ('void *', 'PortMessage *', 'AlpcMessageInformationClass', 'void *', 'Ulong', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAlpcQueryInformationMessage",
+                "NtStatus",
+                ('void *', 'PortMessage *', 'AlpcMessageInformationClass', 'void *', 'Ulong', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAlpcCreateSecurityContext",
+                "NtStatus",
+                ('void *', 'Ulong', 'AlpcSecurityAttr *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAlpcCreateSecurityContext",
+                "NtStatus",
+                ('void *', 'Ulong', 'AlpcSecurityAttr *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtAlpcOpenSenderThread",
+                "NtStatus",
+                ('Handle *', 'void *', 'PortMessage *', 'Ulong', 'Ulong', 'ObjectAttributes *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwAlpcOpenSenderThread",
+                "NtStatus",
+                ('Handle *', 'void *', 'PortMessage *', 'Ulong', 'Ulong', 'ObjectAttributes *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtTerminateProcess",
+                "NtStatus",
+                ('void *', 'Long', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwTerminateProcess",
+                "NtStatus",
+                ('void *', 'Long', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtDeviceIoControlFile",
+                "NtStatus",
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'Ulong', 'void *', 'Ulong', 'void *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwDeviceIoControlFile",
+                "NtStatus",
+                ('void *', 'void *', 'IoApcRoutine', 'void *', 'IoStatusBlock *', 'Ulong', 'void *', 'Ulong', 'void *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlAcquirePrivilege",
+                "NtStatus",
+                ('Ulong *', 'Ulong', 'Ulong', 'void **', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlReleasePrivilege",
+                "void",
+                ('void *', ),
+            ),
+            Symbol(
+                "RtlQueryEnvironmentVariable_U",
+                "NtStatus",
+                ('void *', 'UnicodeString const *', 'UnicodeString *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtSetInformationVirtualMemory",
+                "NtStatus",
+                ('void *', 'VirtualMemoryInformationClass', '::std::size_t', 'MemoryRangeEntry *', 'void *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwSetInformationVirtualMemory",
+                "NtStatus",
+                ('void *', 'VirtualMemoryInformationClass', '::std::size_t', 'MemoryRangeEntry *', 'void *', 'Ulong', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtDelayExecution",
+                "NtStatus",
+                ('Boolean', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwDelayExecution",
+                "NtStatus",
+                ('Boolean', 'Long64 *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtYieldExecution",
+                "NtStatus",
+                (),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwYieldExecution",
+                "NtStatus",
+                (),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtSetTimerResolution",
+                "NtStatus",
+                ('Ulong', 'Boolean', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwSetTimerResolution",
+                "NtStatus",
+                ('Ulong', 'Boolean', 'Ulong *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtCreateTimer",
+                "NtStatus",
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'TimerType', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwCreateTimer",
+                "NtStatus",
+                ('Handle *', 'Ulong', 'ObjectAttributes const *', 'TimerType', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtSetTimer",
+                "NtStatus",
+                ('void *', 'Long64 *', 'TimerApcRoutine', 'void *', 'Boolean', 'Long', 'Boolean *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwSetTimer",
+                "NtStatus",
+                ('void *', 'Long64 *', 'TimerApcRoutine', 'void *', 'Boolean', 'Long', 'Boolean *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtCancelTimer",
+                "NtStatus",
+                ('void *', 'Boolean *', ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwCancelTimer",
+                "NtStatus",
+                ('void *', 'Boolean *', ),
                 nodiscard=True,
             ),
         ),
@@ -157,19 +1052,29 @@ def format_parameters(parameters: tuple[str, ...]) -> str:
     return ", ".join(parameters)
 
 
-def declaration(symbol: Symbol, x86_stack_bytes: int) -> str:
+def declaration(symbol: Symbol, x86_stdcall_stack_bytes: dict[str, int]) -> str:
     attribute = "[[nodiscard]]\n" if symbol.nodiscard else ""
-    suffix = f" PLTXT2HTM_DETAIL_ASM_NAME({symbol.export_name}, {x86_stack_bytes})"
+    if symbol.calling_convention == "stdcall":
+        convention = "PLTXT2HTM_DETAIL_STDCALL"
+        suffix = (
+            f" PLTXT2HTM_DETAIL_STDCALL_ASM_NAME({symbol.export_name}, "
+            f"{x86_stdcall_stack_bytes[symbol.export_name]})"
+        )
+    elif symbol.calling_convention == "cdecl":
+        convention = "PLTXT2HTM_DETAIL_CDECL"
+        suffix = f" PLTXT2HTM_DETAIL_CDECL_ASM_NAME({symbol.export_name})"
+    else:
+        raise ValueError(f"unsupported calling convention: {symbol.calling_convention}")
     return (
-        f"{attribute}PLTXT2HTM_DETAIL_DLLIMPORT {symbol.return_type} PLTXT2HTM_DETAIL_STDCALL {symbol.export_name}"
+        f"{attribute}PLTXT2HTM_DETAIL_DLLIMPORT {symbol.return_type} {convention} {symbol.export_name}"
         f"({format_parameters(symbol.parameters)}) noexcept{suffix};\n"
     )
 
 
-def generate_declarations(library: Library, x86_stack_bytes: dict[str, int]) -> str:
+def generate_declarations(library: Library, x86_stdcall_stack_bytes: dict[str, int]) -> str:
     result = [GENERATED_NOTICE, "\n"]
     result.extend(
-        declaration(symbol, x86_stack_bytes[symbol.export_name])
+        declaration(symbol, x86_stdcall_stack_bytes)
         for symbol in library.symbols
     )
     return "".join(result)
@@ -178,10 +1083,11 @@ def generate_declarations(library: Library, x86_stack_bytes: dict[str, int]) -> 
 def local_probe_source(symbol: Symbol, library: Library) -> str:
     result = symbol.return_type
     parameters = format_parameters(symbol.parameters)
+    convention = "__stdcall" if symbol.calling_convention == "stdcall" else "__cdecl"
     return f"""#include "{library.definitions_header}"
 
 namespace {library.namespace} {{
-__declspec(dllimport) {result} __stdcall {symbol.export_name}({parameters}) noexcept;
+__declspec(dllimport) {result} {convention} {symbol.export_name}({parameters}) noexcept;
 }}
 
 auto* volatile pltxt2htm_probe = &::{library.namespace}::{symbol.export_name};
@@ -191,10 +1097,11 @@ auto* volatile pltxt2htm_probe = &::{library.namespace}::{symbol.export_name};
 def export_probe_source(symbol: Symbol, library: Library) -> str:
     result = symbol.return_type
     parameters = format_parameters(symbol.parameters)
+    convention = "__stdcall" if symbol.calling_convention == "stdcall" else "__cdecl"
     return f"""#include "{library.definitions_header}"
 
 namespace {library.namespace} {{
-extern \"C\" __declspec(dllimport) {result} __stdcall {symbol.export_name}({parameters}) noexcept;
+extern \"C\" __declspec(dllimport) {result} {convention} {symbol.export_name}({parameters}) noexcept;
 }}
 
 auto* volatile pltxt2htm_probe = &::{library.namespace}::{symbol.export_name};
@@ -292,17 +1199,17 @@ def generate_linker_aliases(
     cxx_include_dir: pathlib.Path | None,
 ) -> tuple[str, dict[str, int]]:
     result = [GENERATED_NOTICE, "\n"]
-    x86_stack_bytes: dict[str, int] = {}
+    x86_stdcall_stack_bytes: dict[str, int] = {}
     for symbol in library.symbols:
         pairs = undefined_symbols(symbol, library, target, clang, llvm_nm, cxx_include_dir)
         for local, exported in pairs:
             result.append(f'#pragma comment(linker, "/alternatename:{local}={exported}")\n')
-        if target.startswith("i686-"):
+        if target.startswith("i686-") and symbol.calling_convention == "stdcall":
             match = re.search(r"@(\d+)$", pairs[0][1])
             if match is None:
                 raise RuntimeError(f"missing i686 stdcall decoration for {symbol.export_name}: {pairs[0][1]}")
-            x86_stack_bytes[symbol.export_name] = int(match.group(1))
-    return "".join(result), x86_stack_bytes
+            x86_stdcall_stack_bytes[symbol.export_name] = int(match.group(1))
+    return "".join(result), x86_stdcall_stack_bytes
 
 
 def generated_files(
@@ -311,14 +1218,14 @@ def generated_files(
     result: dict[pathlib.Path, str] = {}
     for library in LIBRARIES:
         directory = SYMBOL_ROOT / library.api
-        i686_stack_bytes: dict[str, int] = {}
+        i686_stdcall_stack_bytes: dict[str, int] = {}
         for architecture, target in MSVC_TARGETS:
             aliases, target_stack_bytes = generate_linker_aliases(
                 library, target, clang, llvm_nm, cxx_include_dir
             )
             result[directory / f"{library.name}_msvc_linker_{architecture}.inc"] = aliases
-            i686_stack_bytes.update(target_stack_bytes)
-        result[directory / f"{library.name}.inc"] = generate_declarations(library, i686_stack_bytes)
+            i686_stdcall_stack_bytes.update(target_stack_bytes)
+        result[directory / f"{library.name}.inc"] = generate_declarations(library, i686_stdcall_stack_bytes)
     return result
 
 

@@ -1,3 +1,5 @@
-#pragma pop_macro("PLTXT2HTM_DETAIL_ASM_NAME")
+#pragma pop_macro("PLTXT2HTM_DETAIL_CDECL_ASM_NAME")
+#pragma pop_macro("PLTXT2HTM_DETAIL_STDCALL_ASM_NAME")
+#pragma pop_macro("PLTXT2HTM_DETAIL_CDECL")
 #pragma pop_macro("PLTXT2HTM_DETAIL_STDCALL")
 #pragma pop_macro("PLTXT2HTM_DETAIL_DLLIMPORT")
