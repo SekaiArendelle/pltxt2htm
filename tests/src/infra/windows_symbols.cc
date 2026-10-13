@@ -69,8 +69,8 @@ using ExpectedCreateProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::O
                                                    nt::Boolean, void*, void*, void*) noexcept;
 using ExpectedWaitForSingleObject = nt::NtStatus(NTAPI*)(void*, nt::Boolean, nt::Long64*) noexcept;
 using ExpectedDelayExecution = nt::NtStatus(NTAPI*)(nt::Boolean, nt::Long64*) noexcept;
-using ExpectedSetTimer = nt::NtStatus(NTAPI*)(void*, nt::Long64*, nt::TimerApcRoutine, void*, nt::Boolean,
-                                              nt::Long, nt::Boolean*) noexcept;
+using ExpectedSetTimer = nt::NtStatus(NTAPI*)(void*, nt::Long64*, nt::TimerApcRoutine, void*, nt::Boolean, nt::Long,
+                                              nt::Boolean*) noexcept;
 using ExpectedMapViewOfSection = nt::NtStatus(NTAPI*)(void*, void*, void**, ::std::size_t, ::std::size_t, nt::Long64*,
                                                       ::std::size_t*, nt::SectionInherit, nt::Ulong,
                                                       nt::Ulong) noexcept;
@@ -83,8 +83,8 @@ using ExpectedAlpcGetHeaderSize = nt::Ulong(NTAPI*)(nt::Ulong) noexcept;
 using ExpectedAlpcQueryInformationMessage = nt::NtStatus(NTAPI*)(void*, nt::PortMessage*,
                                                                  nt::AlpcMessageInformationClass, void*, nt::Ulong,
                                                                  nt::Ulong*) noexcept;
-using ExpectedControlFile = nt::NtStatus(NTAPI*)(void*, void*, nt::IoApcRoutine, void*, nt::IoStatusBlock*,
-                                                nt::Ulong, void*, nt::Ulong, void*, nt::Ulong) noexcept;
+using ExpectedControlFile = nt::NtStatus(NTAPI*)(void*, void*, nt::IoApcRoutine, void*, nt::IoStatusBlock*, nt::Ulong,
+                                                 void*, nt::Ulong, void*, nt::Ulong) noexcept;
 using ExpectedCreateFile = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, nt::IoStatusBlock*,
                                                 nt::Long64*, nt::Ulong, nt::Ulong, nt::Ulong, nt::Ulong, void*,
                                                 nt::Ulong) noexcept;
@@ -93,6 +93,20 @@ using ExpectedLoadLibraryExW = win32::ModuleHandle(WINAPI*)(win32::WideChar cons
                                                             win32::Dword) noexcept;
 using ExpectedGetProcAddress = win32::Procedure(WINAPI*)(win32::ModuleHandle, win32::Char const*) noexcept;
 using ExpectedFreeLibrary = win32::Bool(WINAPI*)(win32::ModuleHandle) noexcept;
+using ExpectedGetLastError = win32::Dword(WINAPI*)() noexcept;
+using ExpectedFormatMessageW = win32::Dword(WINAPI*)(win32::Dword, void const*, win32::Dword, win32::Dword,
+                                                     win32::WideChar*, win32::Dword, win32::Char**) noexcept;
+using ExpectedTryAcquireSrwLock = win32::Boolean(WINAPI*)(void*) noexcept;
+using ExpectedCreateFileW = win32::Handle(WINAPI*)(win32::WideChar const*, win32::Dword, win32::Dword,
+                                                   win32::SecurityAttributes*, win32::Dword, win32::Dword,
+                                                   win32::Handle) noexcept;
+using ExpectedReadFile = win32::Bool(WINAPI*)(win32::Handle, void*, win32::Dword, win32::Dword*,
+                                              win32::Overlapped*) noexcept;
+using ExpectedTerminateProcess = win32::Bool(WINAPI*)(win32::Handle, UINT) noexcept;
+using ExpectedExitProcess = void(WINAPI*)(UINT) noexcept;
+using ExpectedCreateThread = win32::Handle(WINAPI*)(win32::SecurityAttributes*, ::std::size_t,
+                                                    win32::ThreadStartRoutine, void*, win32::Dword,
+                                                    win32::Dword*) noexcept;
 using ExpectedSymInitialize = win32::Bool(WINAPI*)(win32::Handle, win32::Char const*, win32::Bool) noexcept;
 using ExpectedSymRefreshModuleList = win32::Bool(WINAPI*)(win32::Handle) noexcept;
 using ExpectedSymCleanup = win32::Bool(WINAPI*)(win32::Handle) noexcept;
@@ -152,6 +166,14 @@ static_assert(::std::is_same_v<decltype(&nt::DbgPrint), ExpectedDbgPrint>);
 static_assert(::std::is_same_v<decltype(&win32::LoadLibraryExW), ExpectedLoadLibraryExW>);
 static_assert(::std::is_same_v<decltype(&win32::GetProcAddress), ExpectedGetProcAddress>);
 static_assert(::std::is_same_v<decltype(&win32::FreeLibrary), ExpectedFreeLibrary>);
+static_assert(::std::is_same_v<decltype(&win32::GetLastError), ExpectedGetLastError>);
+static_assert(::std::is_same_v<decltype(&win32::FormatMessageW), ExpectedFormatMessageW>);
+static_assert(::std::is_same_v<decltype(&win32::TryAcquireSRWLockExclusive), ExpectedTryAcquireSrwLock>);
+static_assert(::std::is_same_v<decltype(&win32::CreateFileW), ExpectedCreateFileW>);
+static_assert(::std::is_same_v<decltype(&win32::ReadFile), ExpectedReadFile>);
+static_assert(::std::is_same_v<decltype(&win32::TerminateProcess), ExpectedTerminateProcess>);
+static_assert(::std::is_same_v<decltype(&win32::ExitProcess), ExpectedExitProcess>);
+static_assert(::std::is_same_v<decltype(&win32::CreateThread), ExpectedCreateThread>);
 static_assert(::std::is_same_v<decltype(&win32::SymInitialize), ExpectedSymInitialize>);
 static_assert(::std::is_same_v<decltype(&win32::SymRefreshModuleList), ExpectedSymRefreshModuleList>);
 static_assert(::std::is_same_v<decltype(&win32::SymCleanup), ExpectedSymCleanup>);
@@ -207,6 +229,7 @@ static_assert(offsetof(nt::RtlUserProcessParameters, command_line) >
               offsetof(nt::RtlUserProcessParameters, image_path_name));
 
 static_assert(::std::is_same_v<win32::Bool, BOOL>);
+static_assert(::std::is_same_v<win32::Boolean, BOOLEAN>);
 static_assert(::std::is_same_v<win32::Char, CHAR>);
 static_assert(::std::is_same_v<win32::Dword, DWORD>);
 static_assert(::std::is_same_v<win32::Dword64, DWORD64>);
@@ -215,7 +238,46 @@ static_assert(::std::is_same_v<win32::IntPtr, INT_PTR>);
 static_assert(::std::is_same_v<win32::Procedure, FARPROC>);
 static_assert(::std::is_same_v<win32::Ulong, ULONG>);
 static_assert(::std::is_same_v<win32::Ulong64, ULONG64>);
+static_assert(::std::is_same_v<win32::Uint, UINT>);
 static_assert(::std::is_same_v<win32::WideChar, WCHAR>);
+static_assert(sizeof(win32::ExceptionRecord) == sizeof(EXCEPTION_RECORD));
+static_assert(alignof(win32::ExceptionRecord) == alignof(EXCEPTION_RECORD));
+static_assert(offsetof(win32::ExceptionRecord, information) == offsetof(EXCEPTION_RECORD, ExceptionInformation));
+static_assert(sizeof(win32::ExceptionPointers) == sizeof(EXCEPTION_POINTERS));
+static_assert(alignof(win32::ExceptionPointers) == alignof(EXCEPTION_POINTERS));
+static_assert(offsetof(win32::ExceptionPointers, exception_record) == offsetof(EXCEPTION_POINTERS, ExceptionRecord));
+static_assert(offsetof(win32::ExceptionPointers, context_record) == offsetof(EXCEPTION_POINTERS, ContextRecord));
+static_assert(sizeof(win32::Coord) == sizeof(COORD));
+static_assert(sizeof(win32::SmallRect) == sizeof(SMALL_RECT));
+static_assert(sizeof(win32::CharInfo) == sizeof(CHAR_INFO));
+static_assert(sizeof(win32::ConsoleScreenBufferInfo) == sizeof(CONSOLE_SCREEN_BUFFER_INFO));
+static_assert(sizeof(win32::FileTime) == sizeof(FILETIME));
+static_assert(sizeof(win32::SecurityAttributes) == sizeof(SECURITY_ATTRIBUTES));
+static_assert(sizeof(win32::Overlapped) == sizeof(OVERLAPPED));
+static_assert(offsetof(win32::Overlapped, internal) == offsetof(OVERLAPPED, Internal));
+static_assert(offsetof(win32::Overlapped, offset) == offsetof(OVERLAPPED, Offset));
+static_assert(offsetof(win32::Overlapped, pointer) == offsetof(OVERLAPPED, Pointer));
+static_assert(offsetof(win32::Overlapped, event) == offsetof(OVERLAPPED, hEvent));
+static_assert(sizeof(win32::ByHandleFileInformation) == sizeof(BY_HANDLE_FILE_INFORMATION));
+static_assert(sizeof(win32::ProcessInformation) == sizeof(PROCESS_INFORMATION));
+static_assert(sizeof(win32::StartupInfoA) == sizeof(STARTUPINFOA));
+static_assert(sizeof(win32::StartupInfoW) == sizeof(STARTUPINFOW));
+static_assert(offsetof(win32::StartupInfoA, reserved2) == offsetof(STARTUPINFOA, lpReserved2));
+static_assert(offsetof(win32::StartupInfoA, standard_input) == offsetof(STARTUPINFOA, hStdInput));
+static_assert(offsetof(win32::StartupInfoW, reserved2) == offsetof(STARTUPINFOW, lpReserved2));
+static_assert(offsetof(win32::StartupInfoW, standard_input) == offsetof(STARTUPINFOW, hStdInput));
+static_assert(sizeof(win32::SystemTime) == sizeof(SYSTEMTIME));
+static_assert(sizeof(win32::TimeZoneInformation) == sizeof(TIME_ZONE_INFORMATION));
+static_assert(sizeof(win32::SystemInfo) == sizeof(SYSTEM_INFO));
+static_assert(offsetof(win32::SystemInfo, oem_id) == offsetof(SYSTEM_INFO, dwOemId));
+static_assert(offsetof(win32::SystemInfo, processor_architecture) == offsetof(SYSTEM_INFO, wProcessorArchitecture));
+static_assert(offsetof(win32::SystemInfo, page_size) == offsetof(SYSTEM_INFO, dwPageSize));
+static_assert(sizeof(win32::Win32FindDataA) == sizeof(WIN32_FIND_DATAA));
+static_assert(sizeof(win32::Win32FindDataW) == sizeof(WIN32_FIND_DATAW));
+static_assert(offsetof(win32::Win32FindDataW, file_name) == offsetof(WIN32_FIND_DATAW, cFileName));
+static_assert(offsetof(win32::Win32FindDataW, alternate_file_name) == offsetof(WIN32_FIND_DATAW, cAlternateFileName));
+static_assert(sizeof(win32::MemoryRangeEntry) == sizeof(WIN32_MEMORY_RANGE_ENTRY));
+static_assert(sizeof(win32::FileInfoByHandleClass) == sizeof(FILE_INFO_BY_HANDLE_CLASS));
 static_assert(sizeof(win32::SymbolInfo) == sizeof(SYMBOL_INFO));
 static_assert(alignof(win32::SymbolInfo) == alignof(SYMBOL_INFO));
 static_assert(offsetof(win32::SymbolInfo, size_of_struct) == offsetof(SYMBOL_INFO, SizeOfStruct));
