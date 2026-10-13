@@ -10,3 +10,109 @@ PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymCleanup(Handle) noex
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymFromAddr(Handle, Dword64, Dword64*, SymbolInfo*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymFromAddr, 20);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetLineFromAddr64(Handle, Dword64, Dword*, ImageHlpLine64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetLineFromAddr64, 20);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL SymSetOptions(Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymSetOptions, 4);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL SymGetOptions() noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetOptions, 0);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymInitializeW(Handle, WideChar const*, Bool) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymInitializeW, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetSearchPath(Handle, Char*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetSearchPath, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetSearchPathW(Handle, WideChar*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetSearchPathW, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymSetSearchPath(Handle, Char const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymSetSearchPath, 8);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymSetSearchPathW(Handle, WideChar const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymSetSearchPathW, 8);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Dword64 PLTXT2HTM_DETAIL_STDCALL SymLoadModuleEx(Handle, Handle, Char const*, Char const*, Dword64, Dword, ModLoadData*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymLoadModuleEx, 36);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Dword64 PLTXT2HTM_DETAIL_STDCALL SymLoadModuleExW(Handle, Handle, WideChar const*, WideChar const*, Dword64, Dword, ModLoadData*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymLoadModuleExW, 36);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymUnloadModule64(Handle, Dword64) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymUnloadModule64, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Dword64 PLTXT2HTM_DETAIL_STDCALL SymGetModuleBase64(Handle, Dword64) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetModuleBase64, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetModuleInfo64(Handle, Dword64, ImageHlpModule64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetModuleInfo64, 16);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetModuleInfoW64(Handle, Dword64, ImageHlpModuleW64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetModuleInfoW64, 16);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymEnumerateModules64(Handle, SymEnumModulesCallback64, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymEnumerateModules64, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymEnumerateModulesW64(Handle, SymEnumModulesCallbackW64, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymEnumerateModulesW64, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT void* PLTXT2HTM_DETAIL_STDCALL SymFunctionTableAccess64(Handle, Dword64) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymFunctionTableAccess64, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymRegisterCallback64(Handle, SymbolRegisteredCallback64, Ulong64) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymRegisterCallback64, 16);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymFromAddrW(Handle, Dword64, Dword64*, SymbolInfoW*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymFromAddrW, 20);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymFromName(Handle, Char const*, SymbolInfo*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymFromName, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymFromNameW(Handle, WideChar const*, SymbolInfoW*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymFromNameW, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymFromInlineContext(Handle, Dword64, Ulong, Dword64*, SymbolInfo*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymFromInlineContext, 24);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymFromInlineContextW(Handle, Dword64, Ulong, Dword64*, SymbolInfoW*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymFromInlineContextW, 24);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymNext(Handle, SymbolInfo*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymNext, 8);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymNextW(Handle, SymbolInfoW*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymNextW, 8);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymPrev(Handle, SymbolInfo*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymPrev, 8);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymPrevW(Handle, SymbolInfoW*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymPrevW, 8);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymEnumSymbols(Handle, Ulong64, Char const*, SymEnumSymbolsCallback, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymEnumSymbols, 24);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymEnumSymbolsW(Handle, Ulong64, WideChar const*, SymEnumSymbolsCallbackW, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymEnumSymbolsW, 24);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymEnumSymbolsEx(Handle, Ulong64, Char const*, SymEnumSymbolsCallback, void*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymEnumSymbolsEx, 28);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymEnumSymbolsExW(Handle, Ulong64, WideChar const*, SymEnumSymbolsCallbackW, void*, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymEnumSymbolsExW, 28);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymEnumSymbolsForAddr(Handle, Dword64, SymEnumSymbolsCallback, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymEnumSymbolsForAddr, 20);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymEnumSymbolsForAddrW(Handle, Dword64, SymEnumSymbolsCallbackW, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymEnumSymbolsForAddrW, 20);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetLineFromAddrW64(Handle, Dword64, Dword*, ImageHlpLineW64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetLineFromAddrW64, 20);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetLineFromInlineContext(Handle, Dword64, Ulong, Dword64, Dword*, ImageHlpLine64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetLineFromInlineContext, 32);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetLineFromInlineContextW(Handle, Dword64, Ulong, Dword64, Dword*, ImageHlpLineW64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetLineFromInlineContextW, 32);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetLineFromName64(Handle, Char const*, Char const*, Dword, Long*, ImageHlpLine64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetLineFromName64, 24);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetLineFromNameW64(Handle, WideChar const*, WideChar const*, Dword, Long*, ImageHlpLineW64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetLineFromNameW64, 24);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetLineNext64(Handle, ImageHlpLine64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetLineNext64, 8);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetLineNextW64(Handle, ImageHlpLineW64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetLineNextW64, 8);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetLinePrev64(Handle, ImageHlpLine64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetLinePrev64, 8);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetLinePrevW64(Handle, ImageHlpLineW64*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetLinePrevW64, 8);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetTypeFromName(Handle, Ulong64, Char const*, SymbolInfo*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetTypeFromName, 20);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymGetTypeFromNameW(Handle, Ulong64, WideChar const*, SymbolInfoW*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymGetTypeFromNameW, 20);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymEnumTypesByName(Handle, Ulong64, Char const*, SymEnumSymbolsCallback, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymEnumTypesByName, 24);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymEnumTypesByNameW(Handle, Ulong64, WideChar const*, SymEnumSymbolsCallbackW, void*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymEnumTypesByNameW, 24);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymAddSymbol(Handle, Ulong64, Char const*, Dword64, Dword, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymAddSymbol, 32);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymAddSymbolW(Handle, Ulong64, WideChar const*, Dword64, Dword, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymAddSymbolW, 32);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymDeleteSymbol(Handle, Ulong64, Char const*, Dword64, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymDeleteSymbol, 28);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymDeleteSymbolW(Handle, Ulong64, WideChar const*, Dword64, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymDeleteSymbolW, 28);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymMatchStringA(Char const*, Char const*, Bool) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymMatchStringA, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL SymMatchStringW(WideChar const*, WideChar const*, Bool) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(SymMatchStringW, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL UnDecorateSymbolName(Char const*, Char*, Dword, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(UnDecorateSymbolName, 16);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL UnDecorateSymbolNameW(WideChar const*, WideChar*, Dword, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(UnDecorateSymbolNameW, 16);

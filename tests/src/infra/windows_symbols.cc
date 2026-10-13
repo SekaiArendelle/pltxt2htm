@@ -114,6 +114,19 @@ using ExpectedSymFromAddr = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64, 
                                                  win32::SymbolInfo*) noexcept;
 using ExpectedSymGetLineFromAddr64 = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64, win32::Dword*,
                                                           win32::ImageHlpLine64*) noexcept;
+using ExpectedSymSetOptions = win32::Dword(WINAPI*)(win32::Dword) noexcept;
+using ExpectedSymInitializeW = win32::Bool(WINAPI*)(win32::Handle, win32::WideChar const*, win32::Bool) noexcept;
+using ExpectedSymLoadModuleExW = win32::Dword64(WINAPI*)(win32::Handle, win32::Handle, win32::WideChar const*,
+                                                         win32::WideChar const*, win32::Dword64, win32::Dword,
+                                                         win32::ModLoadData*, win32::Dword) noexcept;
+using ExpectedSymGetModuleInfoW64 = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64,
+                                                         win32::ImageHlpModuleW64*) noexcept;
+using ExpectedSymEnumSymbolsW = win32::Bool(WINAPI*)(win32::Handle, win32::Ulong64, win32::WideChar const*,
+                                                     win32::SymEnumSymbolsCallbackW, void*) noexcept;
+using ExpectedSymGetLineFromAddrW64 = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64, win32::Dword*,
+                                                           win32::ImageHlpLineW64*) noexcept;
+using ExpectedUnDecorateSymbolNameW = win32::Dword(WINAPI*)(win32::WideChar const*, win32::WideChar*, win32::Dword,
+                                                            win32::Dword) noexcept;
 
 static_assert(::std::is_same_v<decltype(&nt::RtlCaptureStackBackTrace), ExpectedCaptureStackBackTrace>);
 static_assert(::std::is_same_v<decltype(&nt::RtlTryAcquireSRWLockExclusive), ExpectedTryAcquireSrwLockExclusive>);
@@ -179,6 +192,13 @@ static_assert(::std::is_same_v<decltype(&win32::SymRefreshModuleList), ExpectedS
 static_assert(::std::is_same_v<decltype(&win32::SymCleanup), ExpectedSymCleanup>);
 static_assert(::std::is_same_v<decltype(&win32::SymFromAddr), ExpectedSymFromAddr>);
 static_assert(::std::is_same_v<decltype(&win32::SymGetLineFromAddr64), ExpectedSymGetLineFromAddr64>);
+static_assert(::std::is_same_v<decltype(&win32::SymSetOptions), ExpectedSymSetOptions>);
+static_assert(::std::is_same_v<decltype(&win32::SymInitializeW), ExpectedSymInitializeW>);
+static_assert(::std::is_same_v<decltype(&win32::SymLoadModuleExW), ExpectedSymLoadModuleExW>);
+static_assert(::std::is_same_v<decltype(&win32::SymGetModuleInfoW64), ExpectedSymGetModuleInfoW64>);
+static_assert(::std::is_same_v<decltype(&win32::SymEnumSymbolsW), ExpectedSymEnumSymbolsW>);
+static_assert(::std::is_same_v<decltype(&win32::SymGetLineFromAddrW64), ExpectedSymGetLineFromAddrW64>);
+static_assert(::std::is_same_v<decltype(&win32::UnDecorateSymbolNameW), ExpectedUnDecorateSymbolNameW>);
 
 static_assert(::std::is_same_v<nt::Boolean, BOOLEAN>);
 static_assert(::std::is_same_v<nt::Handle, HANDLE>);
@@ -307,6 +327,23 @@ static_assert(offsetof(win32::ImageHlpLine64, key) == offsetof(IMAGEHLP_LINE64, 
 static_assert(offsetof(win32::ImageHlpLine64, line_number) == offsetof(IMAGEHLP_LINE64, LineNumber));
 static_assert(offsetof(win32::ImageHlpLine64, file_name) == offsetof(IMAGEHLP_LINE64, FileName));
 static_assert(offsetof(win32::ImageHlpLine64, address) == offsetof(IMAGEHLP_LINE64, Address));
+static_assert(sizeof(win32::Guid) == sizeof(GUID));
+static_assert(sizeof(win32::ModLoadData) == sizeof(MODLOAD_DATA));
+static_assert(offsetof(win32::ModLoadData, data) == offsetof(MODLOAD_DATA, data));
+static_assert(sizeof(win32::SymType) == sizeof(SYM_TYPE));
+static_assert(sizeof(win32::SymbolInfoW) == sizeof(SYMBOL_INFOW));
+static_assert(alignof(win32::SymbolInfoW) == alignof(SYMBOL_INFOW));
+static_assert(offsetof(win32::SymbolInfoW, name) == offsetof(SYMBOL_INFOW, Name));
+static_assert(sizeof(win32::ImageHlpLineW64) == sizeof(IMAGEHLP_LINEW64));
+static_assert(offsetof(win32::ImageHlpLineW64, file_name) == offsetof(IMAGEHLP_LINEW64, FileName));
+static_assert(sizeof(win32::ImageHlpModule64) == sizeof(IMAGEHLP_MODULE64));
+static_assert(alignof(win32::ImageHlpModule64) == alignof(IMAGEHLP_MODULE64));
+static_assert(offsetof(win32::ImageHlpModule64, pdb_signature70) == offsetof(IMAGEHLP_MODULE64, PdbSig70));
+static_assert(offsetof(win32::ImageHlpModule64, reserved) == offsetof(IMAGEHLP_MODULE64, Reserved));
+static_assert(sizeof(win32::ImageHlpModuleW64) == sizeof(IMAGEHLP_MODULEW64));
+static_assert(alignof(win32::ImageHlpModuleW64) == alignof(IMAGEHLP_MODULEW64));
+static_assert(offsetof(win32::ImageHlpModuleW64, pdb_signature70) == offsetof(IMAGEHLP_MODULEW64, PdbSig70));
+static_assert(offsetof(win32::ImageHlpModuleW64, reserved) == offsetof(IMAGEHLP_MODULEW64, Reserved));
 
 auto* volatile nt_close_reference = &nt::NtClose;
 auto* volatile nt_create_file_reference = &nt::NtCreateFile;
