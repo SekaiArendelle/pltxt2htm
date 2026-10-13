@@ -34,7 +34,7 @@ inline CaptureResult capture(::std::span<void*> frames, ::std::size_t skip = 0) 
         return {};
     }
     auto const capacity = frames.size() < 65535 ? frames.size() : 65535;
-    auto const count = ::pltxt2htm::details::symbols::nt::pltxt2htm_nt_capture_stack_back_trace(
+    auto const count = ::pltxt2htm::details::symbols::nt::RtlCaptureStackBackTrace(
         static_cast<unsigned long>(skip), static_cast<unsigned long>(capacity), frames.data(), nullptr);
     return {.size = count, .possibly_truncated = count == capacity};
 #elif defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(__linux__) && __has_include(<execinfo.h>)

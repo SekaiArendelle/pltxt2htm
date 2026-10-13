@@ -200,11 +200,11 @@ int main() {
     pltxt2htm_test_assert_true(!late_frame.description.is_empty());
     (void)nt::pltxt2htm_nt_free_library(late_module);
     // Exercise contention fallback without depending on another thread's timing.
-    nt::pltxt2htm_nt_acquire_srw_lock_exclusive(::std::addressof(session.lock));
+    nt::RtlAcquireSRWLockExclusive(::std::addressof(session.lock));
     auto const busy = trace::resolve(storage[0]);
     pltxt2htm_test_assert_true(busy.address == storage[0] && busy.description.is_empty());
     pltxt2htm_test_assert_true(!trace::shutdown_symbols());
-    nt::pltxt2htm_nt_release_srw_lock_exclusive(::std::addressof(session.lock));
+    nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
     auto const invalid = trace::resolve(nullptr);
     pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.is_empty());
     pltxt2htm_test_assert_true(trace::shutdown_symbols());

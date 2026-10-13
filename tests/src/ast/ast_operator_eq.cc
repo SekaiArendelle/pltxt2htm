@@ -380,10 +380,10 @@ int main() {
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdLink<nd::quick_enforce>>(
-                ::std::move(text_a), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"}));
+                ::std::move(text_a), ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.com").value<nd::quick_enforce>());
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdLink<nd::quick_enforce>>(
-                ::std::move(text_b), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"}));
+                ::std::move(text_b), ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.com").value<nd::quick_enforce>());
         pltxt2htm_test_assert_true(a == b);
     }
 
@@ -399,10 +399,10 @@ int main() {
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdLink<nd::quick_enforce>>(
-                ::std::move(text_a), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"}));
+                ::std::move(text_a), ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.com").value<nd::quick_enforce>());
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdLink<nd::quick_enforce>>(
-                ::std::move(text_b), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"y"}));
+                ::std::move(text_b), ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.org").value<nd::quick_enforce>());
         pltxt2htm_test_assert_false(a == b);
     }
 
@@ -479,10 +479,10 @@ int main() {
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdImage<nd::quick_enforce>>(
-                ::std::move(alt_a), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"}));
+                ::std::move(alt_a), ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.com").value<nd::quick_enforce>());
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdImage<nd::quick_enforce>>(
-                ::std::move(alt_b), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"}));
+                ::std::move(alt_b), ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.com").value<nd::quick_enforce>());
         pltxt2htm_test_assert_true(a == b);
     }
 
@@ -670,10 +670,10 @@ int main() {
 
         auto const a =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::PlExternal<nd::quick_enforce>>(
-                ::std::move(ast_a), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"}));
+                ::std::move(ast_a), ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.com").value<nd::quick_enforce>());
         auto const b =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::PlExternal<nd::quick_enforce>>(
-                ::std::move(ast_b), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"}));
+                ::std::move(ast_b), ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.com").value<nd::quick_enforce>());
         pltxt2htm_test_assert_true(a == b);
     }
 

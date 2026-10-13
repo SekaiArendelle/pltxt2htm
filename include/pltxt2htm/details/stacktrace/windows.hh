@@ -15,7 +15,7 @@ namespace pltxt2htm::details::stacktrace {
 // DbgHelp calls safe. No process-wide symbol options are changed; source lines
 // depend on debug information and the existing DbgHelp options.
 struct alignas(void*) DbgHelpSession {
-    void* lock{};
+    ::pltxt2htm::details::symbols::nt::SrwLock lock{};
     void* library{};
     void* process{};
     ::pltxt2htm::details::symbols::nt::SymInitialize initialize{};
@@ -51,7 +51,7 @@ struct alignas(void*) DbgHelpSession {
         auto const current_process = reinterpret_cast<void*>(static_cast<::std::intptr_t>(-1));
         // A distinct real handle lets DbgHelp enumerate this process without
         // sharing the GetCurrentProcess() pseudo-handle session with the host.
-        if (nt::pltxt2htm_nt_duplicate_object(current_process, current_process, current_process,
+        if (nt::NtDuplicateObject(current_process, current_process, current_process,
                                               ::std::addressof(self.process), 0, 0, 2) < 0) {
             return false;
         }
@@ -67,7 +67,7 @@ struct alignas(void*) DbgHelpSession {
             (void)self.cleanup(self.process);
         }
         if (self.process != nullptr) {
-            (void)nt::pltxt2htm_nt_close(self.process);
+            (void)nt::NtClose(self.process);
         }
         if (self.library != nullptr) {
             (void)nt::pltxt2htm_nt_free_library(self.library);
@@ -99,11 +99,11 @@ inline DbgHelpSession& get_symbol_session() noexcept {
 inline bool shutdown_symbols() noexcept {
     namespace nt = ::pltxt2htm::details::symbols::nt;
     auto& session = ::pltxt2htm::details::stacktrace::get_symbol_session();
-    if (!nt::pltxt2htm_nt_try_acquire_srw_lock_exclusive(::std::addressof(session.lock))) {
+    if (!nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {
         return false;
     }
     session.reset();
-    nt::pltxt2htm_nt_release_srw_lock_exclusive(::std::addressof(session.lock));
+    nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
     return true;
 }
 
@@ -165,7 +165,7 @@ inline NativeResolvedFrame resolve_native(void* address) noexcept {
     namespace nt = ::pltxt2htm::details::symbols::nt;
     NativeResolvedFrame result{.address = address};
     auto& session = ::pltxt2htm::details::stacktrace::get_symbol_session();
-    if (!nt::pltxt2htm_nt_try_acquire_srw_lock_exclusive(::std::addressof(session.lock))) {
+    if (!nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {
         return result;
     }
     if (session.try_initialize()) {
@@ -184,7 +184,7 @@ inline NativeResolvedFrame resolve_native(void* address) noexcept {
             result.source_line = line.line_number;
         }
     }
-    nt::pltxt2htm_nt_release_srw_lock_exclusive(::std::addressof(session.lock));
+    nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
     return result;
 }
 } // namespace pltxt2htm::details::stacktrace
