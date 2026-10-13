@@ -49,6 +49,7 @@ using ExpectedDuplicateObject = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, nt:
 using ExpectedClose = nt::NtStatus(NTAPI*)(nt::Handle) noexcept;
 using ExpectedCriticalSection = nt::NtStatus(NTAPI*)(void*) noexcept;
 using ExpectedTryEnterCriticalSection = nt::Ulong(NTAPI*)(void*) noexcept;
+using ExpectedPebLock = nt::NtStatus(NTAPI*)() noexcept;
 using ExpectedAcquirePrivilege = nt::NtStatus(NTAPI*)(nt::Ulong*, nt::Ulong, nt::Ulong, void**) noexcept;
 using ExpectedIoApcRoutine = void(NTAPI*)(void*, nt::IoStatusBlock*, nt::Ulong);
 using ExpectedTimerApcRoutine = void(NTAPI*)(void*, nt::Ulong, nt::Long);
@@ -111,6 +112,8 @@ static_assert(::std::is_same_v<decltype(&nt::RtlEnterCriticalSection), ExpectedC
 static_assert(::std::is_same_v<decltype(&nt::RtlTryEnterCriticalSection), ExpectedTryEnterCriticalSection>);
 static_assert(::std::is_same_v<decltype(&nt::RtlLeaveCriticalSection), ExpectedCriticalSection>);
 static_assert(::std::is_same_v<decltype(&nt::RtlDeleteCriticalSection), ExpectedCriticalSection>);
+static_assert(::std::is_same_v<decltype(&nt::RtlAcquirePebLock), ExpectedPebLock>);
+static_assert(::std::is_same_v<decltype(&nt::RtlReleasePebLock), ExpectedPebLock>);
 static_assert(::std::is_same_v<decltype(&nt::RtlAcquirePrivilege), ExpectedAcquirePrivilege>);
 static_assert(::std::is_same_v<nt::IoApcRoutine, ExpectedIoApcRoutine>);
 static_assert(::std::is_same_v<nt::TimerApcRoutine, ExpectedTimerApcRoutine>);
@@ -186,8 +189,8 @@ static_assert(sizeof(nt::SrwLock) == sizeof(SRWLOCK));
 static_assert(alignof(nt::SrwLock) == alignof(SRWLOCK));
 static_assert(sizeof(nt::UnicodeString) == sizeof(UNICODE_STRING));
 static_assert(offsetof(nt::UnicodeString, buffer) == offsetof(UNICODE_STRING, Buffer));
-static_assert(sizeof(nt::AnsiString) == sizeof(nt::UnicodeString));
-static_assert(offsetof(nt::AnsiString, buffer) == offsetof(nt::UnicodeString, buffer));
+static_assert(sizeof(nt::AnsiString) == sizeof(STRING));
+static_assert(offsetof(nt::AnsiString, buffer) == offsetof(STRING, Buffer));
 static_assert(::std::is_same_v<decltype(nt::RtlDriveLetterCurdir::dos_path), nt::AnsiString>);
 static_assert(sizeof(nt::ObjectAttributes) == sizeof(OBJECT_ATTRIBUTES));
 static_assert(offsetof(nt::ObjectAttributes, security_descriptor) == offsetof(OBJECT_ATTRIBUTES, SecurityDescriptor));

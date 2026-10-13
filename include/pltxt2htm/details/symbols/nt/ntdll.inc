@@ -141,8 +141,10 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwReadVirtualMemory
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtWriteVirtualMemory(void *, void *, void *, ::std::size_t, ::std::size_t *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtWriteVirtualMemory, 20);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwWriteVirtualMemory(void *, void *, void *, ::std::size_t, ::std::size_t *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwWriteVirtualMemory, 20);
-PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlAcquirePebLock() noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlAcquirePebLock, 0);
-PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlReleasePebLock() noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlReleasePebLock, 0);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlAcquirePebLock() noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlAcquirePebLock, 0);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL RtlReleasePebLock() noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlReleasePebLock, 0);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtAllocateVirtualMemory(void *, void **, ::std::size_t, ::std::size_t *, Ulong, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtAllocateVirtualMemory, 24);
 [[nodiscard]]

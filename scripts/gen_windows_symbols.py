@@ -474,13 +474,15 @@ LIBRARIES = (
             ),
             Symbol(
                 "RtlAcquirePebLock",
-                "void",
+                "NtStatus",
                 (),
+                nodiscard=True,
             ),
             Symbol(
                 "RtlReleasePebLock",
-                "void",
+                "NtStatus",
                 (),
+                nodiscard=True,
             ),
             Symbol(
                 "NtAllocateVirtualMemory",
