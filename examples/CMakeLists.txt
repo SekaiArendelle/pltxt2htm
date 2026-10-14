@@ -24,13 +24,6 @@ foreach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
         target_link_libraries(${EXAMPLE_NAME} PRIVATE ntdll)
     endif()
 
-    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
-        find_program(HAVE_LD_LLD NAMES ld.lld)
-        if(HAVE_LD_LLD)
-            target_link_options(${EXAMPLE_NAME} PRIVATE -fuse-ld=lld)
-        endif()
-    endif()
-
     if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         target_compile_options(${EXAMPLE_NAME} PRIVATE /Zc:u8EscapeEncoding)
     endif()
