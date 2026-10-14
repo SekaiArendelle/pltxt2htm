@@ -14,6 +14,9 @@ ninja = "*"
 [feature.clang.dependencies]
 clangxx = ">=23"
 
+[feature.clang.target.linux.activation.env]
+CXXFLAGS = "$CXXFLAGS --gcc-toolchain=$CONDA_PREFIX"
+
 [feature.clang.tasks]
 configure-examples = "cmake -S examples -B examples/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++"
 build-examples = { cmd = "cmake --build examples/build-pixi-clang", depends-on = ["configure-examples"] }
