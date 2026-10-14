@@ -698,10 +698,7 @@ public:
 
     [[nodiscard]]
     constexpr auto as_equal_sign_tag(this auto&& self) noexcept -> decltype(auto) {
-        // ObjectId-bearing tags are equal-sign tags syntactically but carry a different payload.
-        pltxt2htm_assert(::pltxt2htm::details::is_equal_sign_tag_type(self.kind) &&
-                             ::pltxt2htm::details::is_object_id_tag_type(self.kind) == false,
-                         u8"context kind mismatch");
+        pltxt2htm_assert(::pltxt2htm::details::is_equal_sign_tag_text_type(self.kind), u8"context kind mismatch");
         pltxt2htm_assert_context_branch(self, FrontendContextVariant<ndebug>::ContextBranch::equal_sign_tag);
         return ::std::forward_like<decltype(self)>(self.equal_sign_tag);
     }
