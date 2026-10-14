@@ -128,8 +128,6 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(pltxt2htm_base INTERFACE -finput-charset=utf-8 -fexec-charset=utf-8 -fexceptions)
 endif()
 
-find_program(HAVE_LD_LLD NAMES ld.lld)
-
 add_library(precompile STATIC precompile.cpp)
 target_link_libraries(precompile PUBLIC pltxt2htm_base)
 if(WIN32)
@@ -196,9 +194,6 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     if(TEST_NAME STREQUAL "node_layout" AND CMAKE_CXX_STANDARD STREQUAL "26"
        AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
         target_compile_options(${TEST_NAME} PRIVATE -freflection)
-    endif()
-    if(HAVE_LD_LLD AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        target_link_options(${TEST_NAME} PRIVATE -fuse-ld=lld)
     endif()
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endforeach()
