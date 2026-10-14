@@ -125,18 +125,17 @@ CXXFLAGS=-stdlib=libc++ python scripts/run_clang_tidy.py
 
 ### Running tests
 
-Full suite:
+Run the Clang or GCC test suite with Pixi:
+
+```sh
+pixi run test-clang
+pixi run -e gcc test-gcc
+```
+
+For compiler selection and custom CMake options outside these tasks, use:
 
 ```sh
 python ./tests/run_all_tests.py
-```
-
-Or with CMake:
-
-```sh
-cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug
-cmake --build tests/build
-ctest --test-dir tests/build --interactive-debug-mode 0
 ```
 
 Sanitizer examples:
@@ -155,7 +154,7 @@ ctest --test-dir tests/build --interactive-debug-mode 0
 
 Coverage — see [tests/docker/codecov/README.md](./tests/docker/codecov/README.md) for the container image that builds an lcov + genhtml report with GCC. For a local run, configure a GCC build with `-DPLTXT2HTM_ENABLE_COVERAGE=ON` and capture it with the same tools.
 
-**Command cost note:** `run_all_tests.py` and the coverage image are the full, slowest checks. For quick iteration, build and test only the module you changed via its CMake config or README. The expected local check before submitting is the test suite (CMake + `ctest`, above); clang-tidy does not need to be run locally.
+**Command cost note:** `run_all_tests.py` and the coverage image are the full, slowest checks. For quick iteration, use the relevant Pixi task or test only the module you changed. The expected local check before submitting is the test suite; clang-tidy does not need to be run locally.
 
 ### Ignore files
 
