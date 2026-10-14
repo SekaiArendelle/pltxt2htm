@@ -12,6 +12,8 @@ ctest --test-dir tests/build --interactive-debug-mode 0
 
 You can also pass compiler via `-DCMAKE_CXX_COMPILER=clang++` or `-DCMAKE_CXX_COMPILER=g++`.
 
+With Pixi, use `pixi run test-clang` or `pixi run -e gcc test-gcc`.
+
 Windows symbol declarations and MSVC linker aliases are generated with Clang's
 MSVC targets. After changing their manifest, regenerate and verify them with the
 [Windows symbol generator image](../scripts/docker/windows-symbols/README.md).
