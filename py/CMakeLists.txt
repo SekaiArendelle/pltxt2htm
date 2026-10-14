@@ -89,12 +89,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
         -fvisibility-inlines-hidden
     )
 
-    # -fuse-ld=lld if available
-    find_program(LLD_LD ld.lld)
-    if(LLD_LD)
-        target_link_options(pltxt2htm PRIVATE -fuse-ld=lld)
-    endif()
-
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         target_compile_options(pltxt2htm PRIVATE -fno-ident)
     endif()

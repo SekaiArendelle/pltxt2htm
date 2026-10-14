@@ -37,7 +37,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 target_link_options(pltxt2htm PRIVATE
-    -fuse-ld=lld
     "-sEXPORTED_FUNCTIONS=['_common_parser','_fixedadv_parser','_free','_ver_major','_ver_minor','_ver_patch']"
     "-sEXPORTED_RUNTIME_METHODS=['cwrap','UTF8ToString']"
     -sMODULARIZE=1
