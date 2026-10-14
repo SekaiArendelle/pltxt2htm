@@ -10,6 +10,7 @@ LD_LIBRARY_PATH = "$CONDA_PREFIX/lib"
 [dependencies]
 cmake = "*"
 ninja = "*"
+git = "*"
 
 [feature.clang.dependencies]
 clangxx = ">=23"
