@@ -82,6 +82,12 @@ run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration 
 configure-py = { cmd = "cmake -S py -B py/build-pixi-{{ pixi.environment.name }} -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++", args = [] }
 build-py = { cmd = "cmake --build py/build-pixi-{{ pixi.environment.name }}", args = [], depends-on = ["configure-py"] }
 
+[feature.py37.dependencies]
+python = ">=3.7,<3.8"
+
+[feature.py38.dependencies]
+python = ">=3.8,<3.9"
+
 [feature.py39.dependencies]
 python = ">=3.9,<3.10"
 
@@ -100,15 +106,21 @@ python = ">=3.13,<3.14"
 [feature.py314.dependencies]
 python = ">=3.14,<3.15"
 
+[feature.py315.dependencies]
+python = ">=3.15,<3.16"
+
 [environments]
 default = ["clang"]
 gcc = ["gcc"]
 rust = ["clang", "rust"]
 wasm = { features = ["wasm"], platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"] }
 csharp = ["clang", "csharp"]
+py37 = { features = ["clang", "py", "py37"], platforms = ["linux-64", "linux-aarch64", "osx-64", "win-64"] }
+py38 = ["clang", "py", "py38"]
 py39 = ["clang", "py", "py39"]
 py310 = ["clang", "py", "py310"]
 py311 = ["clang", "py", "py311"]
 py312 = ["clang", "py", "py312"]
 py313 = ["clang", "py", "py313"]
 py314 = ["clang", "py", "py314"]
+py315 = ["clang", "py", "py315"]

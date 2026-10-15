@@ -9,6 +9,7 @@ Requires [pixi](https://pixi.sh) to be installed.
 pixi run -e py312 build-py
 ```
 
+The same task supports `py37` through `py315` environments. Python 3.7 is unavailable on macOS ARM64.
 Each environment uses its own build directory: `py/build-pixi-pyXY/`.
 
 ## Usage
