@@ -55,6 +55,19 @@ build-rust = { cmd = "cargo build --manifest-path rust/Cargo.toml --workspace", 
 test-rust = { cmd = "cargo test --manifest-path rust/Cargo.toml --workspace", env = { CXX = "clang++" } }
 run-rust-example = { cmd = "cargo run --manifest-path rust/Cargo.toml -p {{ package }} --example {{ example }}", args = ["package", "example"], env = { CXX = "clang++" } }
 
+[feature.wasm.dependencies]
+emscripten = ">=4,<5"
+nodejs = ">=22,<25"
+
+[feature.wasm.target.win-64.activation.env]
+EM_NODE_JS = "%CONDA_PREFIX%\\node.exe"
+
+[feature.wasm.tasks]
+# Emscripten 4.0.9 on conda-forge needs Binaryen 117, which cannot run its -O2+ wasm-opt flags.
+configure-wasm = { cmd = "emcmake cmake -S wasm -B wasm/build-pixi-{{ mode | lower }} -G Ninja -DCMAKE_BUILD_TYPE={{ mode | capitalize }} -DCMAKE_EXE_LINKER_FLAGS_RELEASE=-O1", args = [{ arg = "mode", default = "debug" }] }
+build-wasm = { cmd = "cmake --build wasm/build-pixi-{{ mode | lower }}", args = [{ arg = "mode", default = "debug" }], depends-on = [{ task = "configure-wasm", args = ["{{ mode }}"] }] }
+test-wasm = { cmd = "node wasm/examples/basic.mjs wasm/build-pixi-{{ mode | lower }}/pltxt2htm.js", args = [{ arg = "mode", default = "debug" }], depends-on = [{ task = "build-wasm", args = ["{{ mode }}"] }] }
+
 [feature.csharp.dependencies]
 dotnet-sdk = ">=9,<10"
 
@@ -91,6 +104,7 @@ python = ">=3.14,<3.15"
 default = ["clang"]
 gcc = ["gcc"]
 rust = ["clang", "rust"]
+wasm = { features = ["wasm"], platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"] }
 csharp = ["clang", "csharp"]
 py39 = ["clang", "py", "py39"]
 py310 = ["clang", "py", "py310"]
