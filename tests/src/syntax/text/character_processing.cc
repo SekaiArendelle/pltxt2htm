@@ -1,7 +1,8 @@
+#include <pltxt2htm/details/parser/character_reference.hh>
 #include <pltxt2htm/container/array.hh>
 #include <pltxt2htm/details/backend/for_plweb_text.hh>
-#include <pltxt2htm/details/parser/character_processing.hh>
-#include <pltxt2htm/details/parser/url_scheme.hh>
+#include <pltxt2htm/details/parser/text_parsing.hh>
+#include <pltxt2htm/details/parser/url_parsing.hh>
 #include <pltxt2htm/details/utf8.hh>
 #include <pltxt2htm/inline_parser.hh>
 #include <pltxt2htm/parser.hh>
@@ -201,11 +202,17 @@ int main() {
     assert_decoded(u8"&#13;", 5, char32_t{0x0D});
     assert_decoded(u8"&#127;", 6, char32_t{0x7F});
 
+    {
+        auto const decoded = ::pltxt2htm::details::decode_character_references<::pltxt2htm::Contracts::quick_enforce>(
+            u8"a&amp;&bogus;&#1;&#127;&NotEqualTilde;&amp");
+        pltxt2htm_test_assert_equal(decoded, u8"a&&bogus;\uFFFD\uFFFD\u2242\u0338&amp");
+    }
+
     // Parser-produced ASTs never store raw ASCII control bytes in Text nodes.
     for (auto const code_point :
          ::pltxt2htm::container::Array{char32_t{0x01}, char32_t{0x0D}, char32_t{0x7F}}) {
         ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce> ast{};
-        ::pltxt2htm::details::append_code_point_to_ast<::pltxt2htm::Contracts::quick_enforce>(code_point, ast);
+        ast.append_code_point(code_point);
         pltxt2htm_test_assert_true(ast.size() == 1);
         pltxt2htm_test_assert_true(ast.index(0).get_node_kind() ==
                                    ::pltxt2htm::NodeKind::invalid_utf8);

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(pltxt2htm-wasm LANGUAGES CXX VERSION 0.26.0)
+project(pltxt2htm-wasm LANGUAGES CXX VERSION 0.27.0)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -37,7 +37,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif()
 
 target_link_options(pltxt2htm PRIVATE
-    -fuse-ld=lld
     "-sEXPORTED_FUNCTIONS=['_common_parser','_fixedadv_parser','_free','_ver_major','_ver_minor','_ver_patch']"
     "-sEXPORTED_RUNTIME_METHODS=['cwrap','UTF8ToString']"
     -sMODULARIZE=1

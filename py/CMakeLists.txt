@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(pltxt2htm LANGUAGES CXX VERSION 0.26.0)
+project(pltxt2htm LANGUAGES CXX VERSION 0.27.0)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -88,12 +88,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
         -fvisibility=hidden
         -fvisibility-inlines-hidden
     )
-
-    # -fuse-ld=lld if available
-    find_program(LLD_LD ld.lld)
-    if(LLD_LD)
-        target_link_options(pltxt2htm PRIVATE -fuse-ld=lld)
-    endif()
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         target_compile_options(pltxt2htm PRIVATE -fno-ident)

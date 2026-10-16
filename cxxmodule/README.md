@@ -2,9 +2,10 @@
 
 Requires: clang++ >= 22, g++ >= 16
 
-## Build example.cc
+## Build and run example.cc
+
+From the repository root:
+
 ```sh
-cmake -S examples -B examples/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++
-cmake --build examples/build
-./examples/build/example
+pixi run -e clang run-cxxmodule-example
 ```

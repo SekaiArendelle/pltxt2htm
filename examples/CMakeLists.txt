@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(pltxt2htm-examples LANGUAGES CXX VERSION 0.26.0)
+project(pltxt2htm-examples LANGUAGES CXX VERSION 0.27.0)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,13 +22,6 @@ foreach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
 
     if(WIN32 OR MINGW)
         target_link_libraries(${EXAMPLE_NAME} PRIVATE ntdll)
-    endif()
-
-    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
-        find_program(HAVE_LD_LLD NAMES ld.lld)
-        if(HAVE_LD_LLD)
-            target_link_options(${EXAMPLE_NAME} PRIVATE -fuse-ld=lld)
-        endif()
     endif()
 
     if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")

@@ -62,17 +62,6 @@ constexpr bool is_ascii_hexdigit(char8_t const chr) noexcept {
 }
 
 /**
- * @brief Check if a character is an ASCII lowercase letter or digit.
- */
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr bool is_ascii_lowercase_alphanumeric(char8_t const chr) noexcept {
-    return (u8'a' <= chr && chr <= u8'z') || ::pltxt2htm::details::is_ascii_digit(chr);
-}
-
-/**
  * @brief Check if a character is printable ASCII excluding space.
  */
 [[nodiscard]]
@@ -99,7 +88,7 @@ constexpr bool is_ascii_punctuation(char8_t const chr) noexcept {
 /**
  * @brief Check if a character is allowed in a URL-valued tag attribute.
  * @details Printable ASCII plus any non-ASCII byte (e.g. UTF-8 CJK); non-ASCII bytes are
- *          percent-encoded later by make_try_parse_url_result.
+ *          percent-encoded later by Url::try_make.
  */
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)

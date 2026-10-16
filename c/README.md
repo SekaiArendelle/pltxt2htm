@@ -2,15 +2,19 @@
 
 This folder supply C's header-source style interface. (build source code to library and include [pltxt2htm.h](./pltxt2htm.h) in a C project)
 
-## build
+## Build
 
 > Note: building library still requires C++ toolchains
 
+From the repository root, build either library variant with Pixi:
+
 ```sh
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-cmake --install build --prefix $PREFIX
+pixi run -e clang build-c-static
+pixi run -e clang build-c-shared
 ```
+
+These tasks build the library only. To install it, configure the desired
+target and installation prefix with CMake.
 
 ## Usage
 view [example.c](examples/example.c)

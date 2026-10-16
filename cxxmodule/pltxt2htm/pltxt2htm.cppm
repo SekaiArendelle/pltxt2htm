@@ -178,6 +178,7 @@ using ::pltxt2htm::MdLatexBlock;
 
 // physics_lab_node
 using ::pltxt2htm::PlA;
+using ::pltxt2htm::PlObjectId;
 using ::pltxt2htm::PlExperiment;
 using ::pltxt2htm::PlExperiments;
 using ::pltxt2htm::PlDiscussion;

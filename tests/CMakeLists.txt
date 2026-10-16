@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(pltxt2htm-tests LANGUAGES CXX VERSION 0.26.0)
+project(pltxt2htm-tests LANGUAGES CXX VERSION 0.27.0)
 
 enable_testing()
 
@@ -128,8 +128,6 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(pltxt2htm_base INTERFACE -finput-charset=utf-8 -fexec-charset=utf-8 -fexceptions)
 endif()
 
-find_program(HAVE_LD_LLD NAMES ld.lld)
-
 add_library(precompile STATIC precompile.cpp)
 target_link_libraries(precompile PUBLIC pltxt2htm_base)
 if(WIN32)
@@ -172,6 +170,9 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
     add_executable(${TEST_NAME} ${TEST_SOURCE})
     target_link_libraries(${TEST_NAME} PRIVATE precompile doctest::doctest)
+    if(WIN32 AND TEST_NAME MATCHES "^windows_symbols")
+        target_link_libraries(${TEST_NAME} PRIVATE dbghelp)
+    endif()
     # doctest_suites.cc consumes the generated include list.
     if(TEST_NAME STREQUAL "doctest_suites")
         target_include_directories(${TEST_NAME} PRIVATE
@@ -193,9 +194,6 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     if(TEST_NAME STREQUAL "node_layout" AND CMAKE_CXX_STANDARD STREQUAL "26"
        AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
         target_compile_options(${TEST_NAME} PRIVATE -freflection)
-    endif()
-    if(HAVE_LD_LLD AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        target_link_options(${TEST_NAME} PRIVATE -fuse-ld=lld)
     endif()
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endforeach()
