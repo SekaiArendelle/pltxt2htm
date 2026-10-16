@@ -19,7 +19,7 @@
 #include <cstring>
 #include <fast_io/fast_io.h>
 #include <pltxt2htm/pltxt2htm.hh>
-#include <pltxt2htm/experimental/html_parser.hh>
+#include <pltxt2htm/details/parser/html_parser.hh>
 
 extern "C" int LLVMFuzzerTestOneInput(::std::uint8_t const* const data, ::std::size_t const size) noexcept {
     ::pltxt2htm::container::U8String str(size + 1);
@@ -32,7 +32,7 @@ extern "C" int LLVMFuzzerTestOneInput(::std::uint8_t const* const data, ::std::s
                                                                 ::pltxt2htm::details::PlWebTextBackendMode::roundtrip>(
         html1_ast, u8"https://plweb.turtlesim.com", u8"_", u8"_", u8"_", u8"_");
 
-    auto const html2_ast = ::pltxt2htm::experimental::parse_pltxt_html<::pltxt2htm::Contracts::quick_enforce>(
+    auto const html2_ast = ::pltxt2htm::details::parse_pltxt_html<::pltxt2htm::Contracts::quick_enforce>(
         ::pltxt2htm::container::U8StringView{html1});
     auto const html2 =
         ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,

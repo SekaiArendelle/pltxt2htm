@@ -20,70 +20,6 @@
 
 namespace pltxt2htm::details {
 
-/**
- * @brief Convert a simple (leaf-only) AST to HTML text with proper escaping.
- * @tparam ndebug Contract checking mode.
- * @param ast The AST to convert (should only contain leaf/character-like nodes).
- * @param[out] out Output buffer receiving the escaped HTML text.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast<ndebug> const& ast,
-                                                      ::pltxt2htm::container::U8String& out) noexcept {
-    out.template reserve<ndebug>(out.size() + ast.size() * 6);
-    ::std::size_t const ast_size{ast.size()};
-    for (::std::size_t index{}; index < ast_size; ++index) {
-        auto const& node = ast.index(index);
-        switch (node.get_node_kind()) {
-        case ::pltxt2htm::NodeKind::text: {
-            auto&& active_node = node.as_text();
-            out.template append<ndebug>(active_node.begin(), active_node.end());
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::invalid_utf8: {
-            out.template append<ndebug>(u8"\uFFFD");
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::space: {
-            out.template append<ndebug>(u8"&nbsp;");
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::ampersand: {
-            out.template append<ndebug>(u8"&amp;");
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::single_quote: {
-            out.template append<ndebug>(u8"&apos;");
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::double_quote: {
-            out.template append<ndebug>(u8"&quot;");
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::less_than: {
-            out.template append<ndebug>(u8"&lt;");
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::greater_than: {
-            out.template append<ndebug>(u8"&gt;");
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::tab: {
-            out.template append<ndebug>(u8"&nbsp;&nbsp;&nbsp;&nbsp;");
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape: {
-            auto&& active_node = node.as_md_escape();
-            ::pltxt2htm::details::append_html_escaped_character<ndebug>(out, active_node.get_character());
-            continue;
-        }
-        default:
-            [[unlikely]] {
-                pltxt2htm_unreachable(u8"Unexpected node kind in HTML escaping");
-            }
-        }
-    }
-}
-
 enum class PlWebTextBackendMode : unsigned {
     fixedadv_html = 0,
     roundtrip,
@@ -1092,8 +1028,7 @@ entry:
                     result, ::pltxt2htm::container::U8StringView{src});
                 result.template append<ndebug>(u8"\" alt=\"");
                 auto const& alt = active_node.get_alt();
-                ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
-                    result, ::pltxt2htm::container::U8StringView{alt});
+                ::pltxt2htm::details::append_plain_text_as_html_attribute<ndebug>(result, alt);
                 result.template append<ndebug>(u8"\">");
                 continue;
             }
@@ -1163,7 +1098,7 @@ entry:
                 ::pltxt2htm::details::append_html_escaped_attribute_value<ndebug>(
                     result, ::pltxt2htm::container::U8StringView{img_url});
                 result.template append<ndebug>(u8"\" alt=\"");
-                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plweb_text<ndebug>(active_node.get_subast(), result);
+                ::pltxt2htm::details::append_plain_text_as_html_attribute<ndebug>(result, active_node.get_alt());
                 result.template append<ndebug>(u8"\">");
                 continue;
             }

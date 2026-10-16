@@ -76,8 +76,8 @@ __version__ = "{version_str}"
 """)
 
 
-# --- Update py/pixi.toml ---
-PIXI_TOML_PATH = os.path.join(SCRIPT_DIR, "py", "pixi.toml")
+# --- Update pixi.toml ---
+PIXI_TOML_PATH = os.path.join(SCRIPT_DIR, "pixi.toml")
 
 with open(PIXI_TOML_PATH, "r+", newline="") as f:
     orig = f.read()

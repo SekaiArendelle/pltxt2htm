@@ -123,7 +123,7 @@ int main() {
 
         auto const original =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdLink<nd::quick_enforce>>(
-                ::std::move(text_ast), ::pltxt2htm::Url(::pltxt2htm::container::U8String{u8"x"}));
+                ::std::move(text_ast), ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.com").value<nd::quick_enforce>());
 
         auto const copy = original;
         pltxt2htm_test_assert_true(original == copy);

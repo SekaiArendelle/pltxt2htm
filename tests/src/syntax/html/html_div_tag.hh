@@ -175,7 +175,7 @@ TEST_SUITE("html_div_tag") {
 
     // regression: roundtrip fuzzer crash (fixedadv_roundtrip, crash-6250118fd3e7f955112700997404af6e9d791b89).
     // The web backend emits a unity_margin block as <div style="margin-left:...;margin-right:...">, but the
-    // experimental HTML parser (parse_pltxt_html) used by the second roundtrip pass does not understand <div>,
+    // HTML parser (parse_pltxt_html) used by the second roundtrip pass does not understand <div>,
     // so on the second pass the emitted <div> is re-parsed as literal text and escaped. The two passes diverge:
     //     first pass : x<br><div style="margin-left:2px;margin-right:2px;"></div>
     //     second pass: x<br>&lt;div&nbsp;style=&quot;margin-left:2px;margin-right:2px;&quot;&gt;&lt;/div&gt;
@@ -195,7 +195,7 @@ TEST_SUITE("html_div_tag") {
         CHECK(twice == once);
     }
 
-    // the experimental HTML parser (parse_pltxt_html) understands <div style="margin-..."> too,
+    // the HTML parser (parse_pltxt_html) understands <div style="margin-..."> too,
     // matching the main parser's behaviour (block-level only, margin-left/right only)
     TEST_CASE("html-parser-margin-block") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"<div style=\"margin-left:2em\">text</div>");
@@ -222,7 +222,7 @@ TEST_SUITE("html_div_tag") {
         CHECK(html == answer);
     }
 
-    // mid-line and unknown-style <div> stay literal text in the experimental parser
+    // mid-line and unknown-style <div> stay literal text in the HTML parser
     TEST_CASE("html-parser-midline-div") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(u8"t<div style=\"margin-left:2em\">x</div>t");
         auto const& answer = u8"t&lt;div&nbsp;style=&quot;margin-left:2em&quot;&gt;x&lt;/div&gt;t";
@@ -243,7 +243,7 @@ TEST_SUITE("html_div_tag") {
         CHECK(html == answer);
     }
 
-    // nested divs map to nested margin scopes in the experimental parser
+    // nested divs map to nested margin scopes in the HTML parser
     TEST_CASE("nested-div-experimental") {
         auto html = ::pltxt2htm_test::pltxt4htmlunittest(
             u8"<div style=\"margin-left:2em\"><div style=\"margin-right:1em\">x</div></div>");

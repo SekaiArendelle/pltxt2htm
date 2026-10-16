@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(pltxt2htm-fuzzing LANGUAGES CXX VERSION 0.26.0)
+project(pltxt2htm-fuzzing LANGUAGES CXX VERSION 0.27.0)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -47,7 +47,6 @@ foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roun
     )
     target_link_options(${FUZZER_SRC} PRIVATE
         -fsanitize=fuzzer
-        -fuse-ld=lld
     )
 
     if(PLTXT2HTM_SANITIZER STREQUAL "asan")

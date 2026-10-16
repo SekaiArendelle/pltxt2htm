@@ -12,6 +12,7 @@
 #include "../../container/string.hh"
 #include "ast_decl.hh"
 #include "url_node_decl.hh"
+#include "../plain_text.hh"
 #include "../node_kind.hh"
 
 namespace pltxt2htm {
@@ -511,16 +512,16 @@ public:
  */
 template<::pltxt2htm::Contracts ndebug>
 class MdImage {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::PlainText<ndebug> alt;
     ::pltxt2htm::Url url;
 
 public:
     /**
      * @brief Construct an image.
-     * @param subast The alt text/content AST.
+     * @param alt The parsed alt text.
      * @param url The image source URL.
      */
-    constexpr explicit MdImage(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_) noexcept;
+    constexpr explicit MdImage(::pltxt2htm::PlainText<ndebug>&& alt_, ::pltxt2htm::Url&& url_) noexcept;
     constexpr MdImage(::pltxt2htm::MdImage<ndebug> const&) noexcept;
     constexpr MdImage(::pltxt2htm::MdImage<ndebug>&&) noexcept;
     constexpr ~MdImage() noexcept = default;
@@ -532,8 +533,8 @@ public:
     constexpr auto operator==(this MdImage const&, MdImage const&) noexcept -> bool;
 
     [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
+    constexpr auto get_alt(this auto&& self) noexcept -> decltype(auto) {
+        return ::std::forward_like<decltype(self)>(self.alt);
     }
 
     [[nodiscard]]

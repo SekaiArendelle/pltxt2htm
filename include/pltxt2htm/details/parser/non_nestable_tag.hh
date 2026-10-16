@@ -131,26 +131,12 @@ constexpr auto try_parse_external_tag(::pltxt2htm::container::U8StringView pltex
 
     auto&& [_, url_str] = result.template value<ndebug>();
     auto const url_vw = ::pltxt2htm::container::U8StringView{url_str};
-    auto const opt_scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw);
-    auto const scheme_end =
-        opt_scheme_end.has_value() ? opt_scheme_end.template value<ndebug>().template get<ndebug>() : ::std::size_t{};
-    auto opt_auth_end =
-        ::pltxt2htm::details::try_parse_url_authority<ndebug>(url_vw.template subview<ndebug>(scheme_end));
-    if (opt_auth_end.has_value() == false) {
-        return TryParseExternalTagResult{tag_len};
-    }
-    auto const auth_end = opt_auth_end.template value<ndebug>().template get<ndebug>() + scheme_end;
-    auto const path_end =
-        ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(url_vw.template subview<ndebug>(auth_end)) + auth_end;
-    if (path_end != url_vw.size()) {
-        return TryParseExternalTagResult{tag_len};
-    }
-    auto opt_url = ::pltxt2htm::details::make_try_parse_url_result<ndebug>(url_vw, url_vw.size());
+    auto opt_url = ::pltxt2htm::Url::try_make<ndebug>(url_vw);
     if (opt_url.has_value() == false) {
         return TryParseExternalTagResult{tag_len};
     }
 
-    return TryParseExternalTagResult{tag_len, ::std::move(opt_url.template value<ndebug>().url)};
+    return TryParseExternalTagResult{tag_len, ::std::move(opt_url.template value<ndebug>())};
 }
 
 /**
@@ -227,26 +213,12 @@ constexpr auto try_parse_link_tag(::pltxt2htm::container::U8StringView pltext,
         return {};
     }
     auto const url_vw = raw_value.template subview<ndebug>(1, raw_value.size() - 2);
-    auto const opt_scheme_end = ::pltxt2htm::details::try_parse_url_scheme<ndebug>(url_vw);
-    auto const scheme_end =
-        opt_scheme_end.has_value() ? opt_scheme_end.template value<ndebug>().template get<ndebug>() : ::std::size_t{};
-    auto opt_auth_end =
-        ::pltxt2htm::details::try_parse_url_authority<ndebug>(url_vw.template subview<ndebug>(scheme_end));
-    if (opt_auth_end.has_value() == false) {
-        return TryParseLinkTagResult{tag_len};
-    }
-    auto const auth_end = opt_auth_end.template value<ndebug>().template get<ndebug>() + scheme_end;
-    auto const path_end =
-        ::pltxt2htm::details::try_parse_url_path_unicode<ndebug>(url_vw.template subview<ndebug>(auth_end)) + auth_end;
-    if (path_end != url_vw.size()) {
-        return TryParseLinkTagResult{tag_len};
-    }
-    auto opt_url = ::pltxt2htm::details::make_try_parse_url_result<ndebug>(url_vw, url_vw.size());
+    auto opt_url = ::pltxt2htm::Url::try_make<ndebug>(url_vw);
     if (opt_url.has_value() == false) {
         return TryParseLinkTagResult{tag_len};
     }
 
-    return TryParseLinkTagResult{tag_len, ::std::move(opt_url.template value<ndebug>().url)};
+    return TryParseLinkTagResult{tag_len, ::std::move(opt_url.template value<ndebug>())};
 }
 
 } // namespace pltxt2htm::details

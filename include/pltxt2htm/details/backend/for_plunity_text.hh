@@ -22,68 +22,6 @@
 namespace pltxt2htm::details {
 
 /**
- * @brief Convert a simple (leaf-only) AST to Unity Rich Text with unescaping.
- * @tparam ndebug Contract checking mode.
- * @param ast The AST to convert (should only contain leaf/character-like nodes).
- * @param[out] out Output buffer receiving the Unity Rich Text string.
- */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast<ndebug> const& ast,
-                                                            ::pltxt2htm::container::U8String& out) noexcept {
-    out.template reserve<ndebug>(out.size() + ast.size() * 6);
-    for (auto&& node : ast) {
-        switch (node.get_node_kind()) {
-        case ::pltxt2htm::NodeKind::text: {
-            auto&& active_node = node.as_text();
-            out.template append<ndebug>(active_node.begin(), active_node.end());
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::invalid_utf8: {
-            out.template append<ndebug>(u8"\uFFFD");
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::space: {
-            out.template append<ndebug>(u8"\u00A0");
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::ampersand: {
-            out.template push_back<ndebug>(u8'&');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::single_quote: {
-            out.template push_back<ndebug>(u8'\'');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::double_quote: {
-            out.template push_back<ndebug>(u8'\"');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::less_than: {
-            out.template push_back<ndebug>(u8'<');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::greater_than: {
-            out.template push_back<ndebug>(u8'>');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::tab: {
-            out.template push_back<ndebug>(u8'\t');
-            continue;
-        }
-        case ::pltxt2htm::NodeKind::md_escape: {
-            auto&& active_node = node.as_md_escape();
-            out.template push_back<ndebug>(active_node.get_character());
-            continue;
-        }
-        default:
-            [[unlikely]] {
-                pltxt2htm_unreachable(u8"Unexpected node kind in Unity text escaping");
-            }
-        }
-    }
-}
-
-/**
  * @brief Convert AST nodes to Unity Rich Text format.
  * @details Generates Unity Rich Text with support for Physics-Lab tags,
  *          Markdown syntax, and HTML-like elements mapped to Unity-compatible tags.
@@ -1065,7 +1003,7 @@ entry:
                 result.template append<ndebug>(u8"<size=20>\uff1c</size>img src=\"");
                 result.template append<ndebug>(active_node.get_src());
                 result.template append<ndebug>(u8"\" alt=\"");
-                result.template append<ndebug>(active_node.get_alt());
+                result.template append<ndebug>(active_node.get_alt().as_string());
                 result.template append<ndebug>(u8"\"<size=20>\uff1e</size>");
                 continue;
             }
@@ -1104,8 +1042,7 @@ entry:
             case ::pltxt2htm::NodeKind::md_image: {
                 auto&& active_node = node.as_md_image();
                 result.template append<ndebug>(u8"![");
-                ::pltxt2htm::details::convert_simple_pltxt_ast_to_plunity_richtext<ndebug>(active_node.get_subast(),
-                                                                                           result);
+                result.template append<ndebug>(active_node.get_alt().as_string());
                 result.template append<ndebug>(u8"](");
                 result.template append<ndebug>(active_node.get_url().as_string());
                 result.template push_back<ndebug>(u8')');

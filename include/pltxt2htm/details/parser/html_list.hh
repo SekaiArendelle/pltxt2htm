@@ -52,7 +52,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
     ::std::size_t current_index{};
     if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<ul">(pltext); opt_len.has_value()) {
         item_kind = ::pltxt2htm::NodeKind::list_ul;
-        current_index = opt_len.template value<ndebug>() + 1;
+        current_index = opt_len.template value<ndebug>();
     }
     else if (auto opt_ol_tag = ::pltxt2htm::details::try_parse_ol_tag<ndebug>(pltext); opt_ol_tag.has_value()) {
         item_kind = ::pltxt2htm::NodeKind::list_ol;
@@ -91,7 +91,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
                 return ::pltxt2htm::container::nullopt;
             }
             return ToHtmlListAstResult<ndebug>{.top_node = ListBaseNode<ndebug>{ListUlNode<ndebug>(::std::move(ast))},
-                                               .advance_count = current_index + opt_len.template value<ndebug>() + 1};
+                                               .advance_count = current_index + opt_len.template value<ndebug>()};
         }
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</ol">(
                 pltext.template subview<ndebug>(current_index));
@@ -101,13 +101,13 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
             }
             return ToHtmlListAstResult<ndebug>{
                 .top_node = ListBaseNode<ndebug>{ListOlNode<ndebug>(::std::move(ast), start)},
-                .advance_count = current_index + opt_len.template value<ndebug>() + 1};
+                .advance_count = current_index + opt_len.template value<ndebug>()};
         }
         // Only <li> elements are allowed inside <ul>/<ol>.
         if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<li">(
                 pltext.template subview<ndebug>(current_index));
             opt_len.has_value()) {
-            current_index += opt_len.template value<ndebug>() + 1;
+            current_index += opt_len.template value<ndebug>();
         }
         else {
             return ::pltxt2htm::container::nullopt;
@@ -157,7 +157,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
             if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</li">(
                     pltext.template subview<ndebug>(current_index));
                 opt_len.has_value()) {
-                current_index += opt_len.template value<ndebug>() + 1;
+                current_index += opt_len.template value<ndebug>();
                 break;
             }
             ::pltxt2htm::NodeKind nested_list_kind{};

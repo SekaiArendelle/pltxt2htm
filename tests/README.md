@@ -1,16 +1,18 @@
-## run all tests:
+## Run tests
+
+From the repository root:
+
 ```sh
-python ./run_all_tests.py
+pixi run test-clang
+pixi run -e gcc test-gcc
 ```
 
-or (with cmake + ninja):
-```sh
-cmake -S tests -B tests/build -GNinja
-cmake --build tests/build
-ctest --test-dir tests/build --interactive-debug-mode 0
-```
+For other compilers or custom CMake options, use `run_all_tests.py` or configure
+the test project directly.
 
-You can also pass compiler via `-DCMAKE_CXX_COMPILER=clang++` or `-DCMAKE_CXX_COMPILER=g++`.
+Windows symbol declarations and MSVC linker aliases are generated with Clang's
+MSVC targets. After changing their manifest, regenerate and verify them with the
+[Windows symbol generator image](../scripts/docker/windows-symbols/README.md).
 
 The C++ standard defaults to `AUTO`: GCC 16 or newer uses C++26 so the tests
 exercise supported C++26 code paths, while other compilers use C++23. Override

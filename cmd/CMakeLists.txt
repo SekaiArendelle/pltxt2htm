@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(pltxt2htm-cmd LANGUAGES CXX VERSION 0.26.0)
+project(pltxt2htm-cmd LANGUAGES CXX VERSION 0.27.0)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -24,16 +24,7 @@ if(WIN32 OR MINGW OR CMAKE_CXX_COMPILER_TARGET MATCHES "windows-msvc$")
     target_link_libraries(pltxt2htm PRIVATE ntdll)
 endif()
 
-find_program(HAVE_LD_LLD NAMES ld.lld)
-
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
-    if(HAVE_LD_LLD)
-        target_link_options(pltxt2htm PRIVATE -fuse-ld=lld)
-        if(CMAKE_BUILD_TYPE STREQUAL "Release")
-            target_link_options(pltxt2htm PRIVATE -flto)
-        endif()
-    endif()
-
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         target_compile_options(pltxt2htm PRIVATE
             -fno-rtti
@@ -42,6 +33,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
             -fno-ident
             -fno-exceptions
         )
+        include(CheckIPOSupported)
+        check_ipo_supported(RESULT _pltxt2htm_ipo_supported LANGUAGES CXX)
+        if(_pltxt2htm_ipo_supported)
+            set_property(TARGET pltxt2htm PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+        endif()
     elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_compile_options(pltxt2htm PRIVATE -Wall -Wextra -fexceptions)
     endif()
