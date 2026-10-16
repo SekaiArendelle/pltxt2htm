@@ -182,6 +182,32 @@ jobs:
             --build-arg compiler=${{ matrix.compiler }} \
             -t x86_64-linux-gnu-install-${{ matrix.name }} .
 
+  x86_64-windows-install:
+    name: x86_64-windows (installed CMake consumer)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Clang
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: latest
+          platform: x64
+
+      - name: Install and consume the CMake package
+        shell: pwsh
+        run: |
+          cmake -S . -B build-install -G Ninja
+          cmake --install build-install --prefix "$env:GITHUB_WORKSPACE/install-prefix"
+          cmake -S tests/install/platform_options -B tests/install/build-platform-options -G Ninja "-DCMAKE_PREFIX_PATH=$env:GITHUB_WORKSPACE/install-prefix"
+          $versionArg = "-DPLTXT2HTM_FIND_VERSION=$((Get-Content VERSION).Trim())"
+          cmake -S tests/install/find_package -B tests/install/build-find-package -G Ninja -DCMAKE_CXX_COMPILER=clang++ "-DCMAKE_PREFIX_PATH=$env:GITHUB_WORKSPACE/install-prefix" $versionArg
+          cmake --build tests/install/build-find-package
+          & tests/install/build-find-package/install_find_package.exe | Out-Null
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
   x86_64-windows-msvc-cmd:
     strategy:
       fail-fast: false

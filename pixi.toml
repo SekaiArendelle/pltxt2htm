@@ -114,7 +114,8 @@ python = ">=3.14,<3.15"
 python = ">=3.15,<3.16"
 
 [environments]
-default = ["clang"]
+default = []
+clang = ["clang"]
 gcc = ["gcc"]
 rust = ["clang", "rust"]
 wasm = { features = ["wasm"], platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"] }

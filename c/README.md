@@ -9,8 +9,8 @@ This folder supply C's header-source style interface. (build source code to libr
 From the repository root, build either library variant with Pixi:
 
 ```sh
-pixi run build-c-static
-pixi run build-c-shared
+pixi run -e clang build-c-static
+pixi run -e clang build-c-shared
 ```
 
 These tasks build the library only. To install it, configure the desired

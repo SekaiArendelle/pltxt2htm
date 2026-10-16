@@ -3,7 +3,7 @@
 From the repository root:
 
 ```sh
-pixi run test-clang
+pixi run -e clang test-clang
 pixi run -e gcc test-gcc
 ```
 

@@ -13,8 +13,8 @@ pltxt2htm will write output html to $your_output_file
 
 ## Build
 
-From the repository root, use `pixi run build-cmd` for a Debug build or
-`pixi run build-cmd release` for a Release build. Use `pixi run run-cmd` to
+From the repository root, use `pixi run -e clang build-cmd` for a Debug build or
+`pixi run -e clang build-cmd release` for a Release build. Use `pixi run -e clang run-cmd` to
 build and run the CLI.
 
 ### x86_64-windows-gnu (aka. x86_64-w64-mingw32)

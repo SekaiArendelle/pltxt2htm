@@ -9,7 +9,13 @@
 
 cmake_minimum_required(VERSION 3.25)
 
-project(pltxt2htm LANGUAGES CXX VERSION 0.26.0)
+project(pltxt2htm LANGUAGES NONE VERSION 0.27.0)
+
+# GNUInstallDirs cannot infer a multiarch libdir without a compiler. This
+# package is architecture-independent, so use lib unless the caller chose one.
+if(PROJECT_IS_TOP_LEVEL AND NOT DEFINED CMAKE_INSTALL_LIBDIR)
+    set(CMAKE_INSTALL_LIBDIR "lib" CACHE PATH "Library installation directory")
+endif()
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -30,18 +36,10 @@ target_include_directories(pltxt2htm INTERFACE
     "$<BUILD_INTERFACE:${PLTXT2HTM_HEADER_DIR}>"
     "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
-# The headers are compiled as part of every consumer translation unit, so the
-# platform flags they rely on have to travel with the target.
-if(MSVC)
-    # Universal character names inside u8 literals must keep their UTF-8 encoding.
-    # /EHsc is deliberately not propagated here: the exception model is the
-    # consumer's choice, and the library itself is exception-free.
-    target_compile_options(pltxt2htm INTERFACE /utf-8 /Zc:u8EscapeEncoding)
-endif()
-
-if(WIN32 OR MINGW)
-    target_link_libraries(pltxt2htm INTERFACE ntdll)
-endif()
+# These options are selected by the consumer's toolchain. Build-tree options are
+# excluded from the export; the installed config applies them when imported.
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/pltxt2htmTargetOptions.cmake")
+pltxt2htm_apply_platform_options(pltxt2htm)
 
 if(PLTXT2HTM_INSTALL)
     install(DIRECTORY "${PLTXT2HTM_HEADER_DIR}/pltxt2htm" "${PLTXT2HTM_HEADER_DIR}/fast_io"
@@ -77,5 +75,6 @@ if(PLTXT2HTM_INSTALL)
     install(FILES
         "${CMAKE_CURRENT_BINARY_DIR}/pltxt2htmConfig.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/pltxt2htmConfigVersion.cmake"
+        "${CMAKE_CURRENT_SOURCE_DIR}/cmake/pltxt2htmTargetOptions.cmake"
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/pltxt2htm")
 endif()

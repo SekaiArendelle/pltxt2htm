@@ -25,10 +25,13 @@ target_link_libraries(your_target PRIVATE pltxt2htm::pltxt2htm)
 
 Install the library and point a consumer at it:
 
+The install step does not require a C++ compiler; the consumer needs one to
+compile the headers.
+
 ```sh
 cmake -S . -B build
 cmake --install build --prefix <prefix>
-cmake -S <consumer> -B build -DCMAKE_PREFIX_PATH=<prefix>
+cmake -S <consumer> -B build-consumer -DCMAKE_PREFIX_PATH=<prefix>
 ```
 
 With Pixi, run `pixi run install-headers <prefix>` to configure and install the
