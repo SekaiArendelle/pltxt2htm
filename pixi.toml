@@ -12,6 +12,10 @@ cmake = "*"
 ninja = "*"
 git = "*"
 
+[tasks]
+configure-install = "cmake -S . -B build-pixi-install -G Ninja"
+install-headers = { cmd = "cmake --install build-pixi-install --prefix \"{{ prefix }}\"", args = ["prefix"], depends-on = ["configure-install"] }
+
 [feature.clang.dependencies]
 clangxx = ">=23"
 

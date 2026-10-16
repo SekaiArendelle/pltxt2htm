@@ -31,6 +31,9 @@ cmake --install build --prefix <prefix>
 cmake -S <consumer> -B build -DCMAKE_PREFIX_PATH=<prefix>
 ```
 
+With Pixi, run `pixi run install-headers <prefix>` to configure and install the
+headers, the vendored `fast_io` headers, and the CMake package files.
+
 `add_subdirectory()` and `FetchContent` provide the same `pltxt2htm::pltxt2htm` target from the source tree. The target carries the C++23 requirement and the platform flags the headers need, so consumers do not have to configure them. `-DPLTXT2HTM_INSTALL=OFF` skips the install rules, which is what happens automatically when the project is not built standalone.
 
 Compile-time switches such as `PLTXT2HTM_ENABLE_STACKTRACE` and `PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK` are deliberately not part of the target: they change the definition of inline functions, so every translation unit of a program that links the library has to agree on them.
