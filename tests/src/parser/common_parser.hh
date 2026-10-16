@@ -170,17 +170,17 @@ TEST_SUITE("common_parser") {
         CHECK(html == answer);
     }
     TEST_CASE("experiment-tag-unwrapped") {
-        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<experiment=id>text</experiment>");
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<experiment=642cf37a494746375aae306a>text</experiment>");
         auto const& answer = u8"text";
         CHECK(html == answer);
     }
     TEST_CASE("discussion-tag-unwrapped") {
-        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<discussion=id>text</discussion>");
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<discussion=642cf37a494746375aae306a>text</discussion>");
         auto const& answer = u8"text";
         CHECK(html == answer);
     }
     TEST_CASE("user-tag-unwrapped") {
-        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<user=id>text</user>");
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<user=642cf37a494746375aae306a>text</user>");
         auto const& answer = u8"text";
         CHECK(html == answer);
     }
