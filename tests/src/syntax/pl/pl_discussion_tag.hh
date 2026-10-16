@@ -3,6 +3,18 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("pl_discussion_tag") {
+    TEST_CASE("uppercase-payload-is-folded") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussion=642CF37A494746375AAE306A>x</discussion>");
+        auto const& answer = u8"<a href=\"localhost:5173/p/Discussion/642cf37a494746375aae306a\" internal>x</a>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("short-payload-stays-literal") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussion=abc>x</discussion>");
+        auto const& answer = u8"&lt;discussion=abc&gt;x&lt;/discussion&gt;";
+        CHECK(html == answer);
+    }
+
     TEST_CASE("basic-discussion-link") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussion=642cf37a494746375aae306a>physicsLab</discussion>");
         auto const& answer =

@@ -3,6 +3,43 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("pl_experiment_tag") {
+    TEST_CASE("uppercase-payload-is-folded") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<experiment=642CF37A494746375AAE306A>x</experiment>");
+        auto const& answer = u8"<a href=\"localhost:5173/p/Experiment/642cf37a494746375aae306a\" internal>x</a>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("mixed-case-tag-with-uppercase-payload") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<eXpEriMent=642CF37A494746375AAE306A>x</expERIMENT>");
+        auto const& answer = u8"<a href=\"localhost:5173/p/Experiment/642cf37a494746375aae306a\" internal>x</a>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("all-digit-payload-parses") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<experiment=000000000000000000000000>x</experiment>");
+        auto const& answer = u8"<a href=\"localhost:5173/p/Experiment/000000000000000000000000\" internal>x</a>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("short-payload-stays-literal") {
+        // ObjectId carries no check digits, so a payload that is not 24 digits is not an id at all.
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<experiment=expid>x</experiment>");
+        auto const& answer = u8"&lt;experiment=expid&gt;x&lt;/experiment&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("over-long-payload-stays-literal") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<experiment=642cf37a494746375aae306a0>x</experiment>");
+        auto const& answer = u8"&lt;experiment=642cf37a494746375aae306a0&gt;x&lt;/experiment&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("non-hex-payload-stays-literal") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<experiment=642cf37a494746375aae306g>x</experiment>");
+        auto const& answer = u8"&lt;experiment=642cf37a494746375aae306g&gt;x&lt;/experiment&gt;";
+        CHECK(html == answer);
+    }
+
     TEST_CASE("basic-experiment-link") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<experiment=642cf37a494746375aae306a>physicsLab</experiment>");
         auto const& answer =

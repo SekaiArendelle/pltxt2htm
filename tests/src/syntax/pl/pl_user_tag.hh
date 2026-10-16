@@ -3,6 +3,18 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("pl_user_tag") {
+    TEST_CASE("uppercase-payload-is-folded") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<user=642CF37A494746375AAE306A>x</user>");
+        auto const& answer = u8"<span class='RUser' data-user='642cf37a494746375aae306a'>x</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("short-payload-stays-literal") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<user=abc>x</user>");
+        auto const& answer = u8"&lt;user=abc&gt;x&lt;/user&gt;";
+        CHECK(html == answer);
+    }
+
     TEST_CASE("basic-user-span") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<user=642cf37a494746375aae306a>physicsLab</user>");
         auto const& answer = u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>";
