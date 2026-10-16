@@ -15,8 +15,10 @@ RUN wget https://dl.google.com/android/repository/android-ndk-r30-beta2-linux.zi
 ENV PATH=/llvm/android-ndk-r30-beta2/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
 WORKDIR /pltxt2htm
-COPY ../../../include /pltxt2htm/include/
-COPY ../../../c /pltxt2htm/c/
+COPY CMakeLists.txt LICENSE VERSION /pltxt2htm/
+COPY cmake/ /pltxt2htm/cmake/
+COPY include/ /pltxt2htm/include/
+COPY c/ /pltxt2htm/c/
 
 WORKDIR /pltxt2htm/c
 RUN cmake -S . -B build-shared -G Ninja \

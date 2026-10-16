@@ -29,6 +29,8 @@ ENV SYSROOT=/sysroots/aarch64-apple-darwin24
 ENV TARGET=aarch64-apple-darwin24
 
 WORKDIR /pltxt2htm
+COPY CMakeLists.txt LICENSE VERSION /pltxt2htm/
+COPY cmake/ /pltxt2htm/cmake/
 COPY include/ /pltxt2htm/include/
 COPY py/ /pltxt2htm/py/
 

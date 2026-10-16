@@ -37,6 +37,22 @@ cmake -S <consumer> -B build-consumer -DCMAKE_PREFIX_PATH=<prefix>
 With Pixi, run `pixi run install-headers <prefix>` to configure and install the
 headers, the vendored `fast_io` headers, and the CMake package files.
 
+For development, configure the repository root and select the components needed
+in that build tree. All enabled components link the same in-tree target:
+
+```sh
+cmake -S . -B build-dev -DPLTXT2HTM_BUILD_TESTS=ON -DPLTXT2HTM_BUILD_EXAMPLES=ON -DPLTXT2HTM_BUILD_CMD=ON
+cmake --build build-dev
+ctest --test-dir build-dev --output-on-failure
+```
+
+The available options are `PLTXT2HTM_BUILD_TESTS`, `PLTXT2HTM_BUILD_EXAMPLES`,
+`PLTXT2HTM_BUILD_CMD`, `PLTXT2HTM_BUILD_C`, `PLTXT2HTM_BUILD_PY`,
+`PLTXT2HTM_BUILD_BENCHES`, and `PLTXT2HTM_BUILD_FUZZING`. All default to `OFF`,
+so the install-only configuration still needs no compiler. WASM and C++ modules
+use separate CMake entry points because they need different toolchains or CMake
+features. Existing standalone sub-project builds remain supported.
+
 `add_subdirectory()` and `FetchContent` provide the same `pltxt2htm::pltxt2htm` target from the source tree. The target carries the C++23 requirement and the platform flags the headers need, so consumers do not have to configure them. `-DPLTXT2HTM_INSTALL=OFF` skips the install rules, which is what happens automatically when the project is not built standalone.
 
 Compile-time switches such as `PLTXT2HTM_ENABLE_STACKTRACE` and `PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK` are deliberately not part of the target: they change the definition of inline functions, so every translation unit of a program that links the library has to agree on them.

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm-fuzzing LANGUAGES CXX VERSION 0.27.0)
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}/pltxt2htm-core")
+if(NOT TARGET pltxt2htm::pltxt2htm)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htmSourceTarget.cmake")
+endif()
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

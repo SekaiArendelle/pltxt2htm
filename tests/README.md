@@ -29,7 +29,7 @@ not as part of the suite below.
 
 ## enable sanitizer:
 ```sh
-cmake -S tests -B tests/build -GNinja -DPLTXT2HTM_SANITIZER=address
+cmake -S . -B tests/build -GNinja -DPLTXT2HTM_BUILD_TESTS=ON -DPLTXT2HTM_SANITIZER=address
 cmake --build tests/build
 ctest --test-dir tests/build --interactive-debug-mode 0
 ```

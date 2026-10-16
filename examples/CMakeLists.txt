@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm-examples LANGUAGES CXX VERSION 0.27.0)
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}/pltxt2htm-core")
+if(NOT TARGET pltxt2htm::pltxt2htm)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htmSourceTarget.cmake")
+endif()
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -18,5 +20,6 @@ file(GLOB EXAMPLE_SOURCES LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_SOURCE_DIR}/*.
 foreach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
     get_filename_component(EXAMPLE_NAME ${EXAMPLE_SOURCE} NAME_WE)
     add_executable(${EXAMPLE_NAME} ${EXAMPLE_SOURCE})
+    set_target_properties(${EXAMPLE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
     target_link_libraries(${EXAMPLE_NAME} PRIVATE pltxt2htm::pltxt2htm)
 endforeach()
