@@ -7,5 +7,5 @@ Requires: clang++ >= 22, g++ >= 16
 From the repository root:
 
 ```sh
-pixi run run-cxxmodule-example
+pixi run -e clang run-cxxmodule-example
 ```

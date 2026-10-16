@@ -128,7 +128,7 @@ CXXFLAGS=-stdlib=libc++ python scripts/run_clang_tidy.py
 Run the Clang or GCC test suite with Pixi:
 
 ```sh
-pixi run test-clang
+pixi run -e clang test-clang
 pixi run -e gcc test-gcc
 ```
 
