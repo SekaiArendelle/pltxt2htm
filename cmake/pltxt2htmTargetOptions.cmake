@@ -15,7 +15,7 @@ function(pltxt2htm_apply_platform_options target)
         endif()
     endif()
 
-    if(WIN32 OR MINGW)
+    if(WIN32 OR MINGW OR CMAKE_CXX_COMPILER_TARGET MATCHES "windows-msvc$")
         if(is_imported)
             target_link_libraries("${target}" INTERFACE ntdll)
         else()

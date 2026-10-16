@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm LANGUAGES CXX VERSION 0.27.0)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}/pltxt2htm-core")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -70,10 +71,9 @@ set_target_properties(pltxt2htm PROPERTIES
 
 target_include_directories(pltxt2htm PRIVATE
     "${PYTHON_INCLUDE_DIR}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
 )
 
-target_compile_features(pltxt2htm PRIVATE cxx_std_23)
+target_link_libraries(pltxt2htm PRIVATE pltxt2htm::pltxt2htm)
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
     target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
@@ -105,8 +105,6 @@ if(WIN32)
         target_link_directories(pltxt2htm PRIVATE "${PYTHON_PREFIX}/libs")
     endif()
     if(PYTHON_LIB)
-        target_link_libraries(pltxt2htm PRIVATE ntdll "${PYTHON_LIB}")
-    else()
-        target_link_libraries(pltxt2htm PRIVATE ntdll)
+        target_link_libraries(pltxt2htm PRIVATE "${PYTHON_LIB}")
     endif()
 endif()

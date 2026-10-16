@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm-fuzzing LANGUAGES CXX VERSION 0.27.0)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}/pltxt2htm-core")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -28,8 +29,7 @@ endif()
 
 foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roundtrip)
     add_executable(${FUZZER_SRC} src/${FUZZER_SRC}.cc)
-    target_include_directories(${FUZZER_SRC} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
-    target_compile_features(${FUZZER_SRC} PRIVATE cxx_std_23)
+    target_link_libraries(${FUZZER_SRC} PRIVATE pltxt2htm::pltxt2htm)
 
     if(PLTXT2HTM_ENABLE_STACKTRACE)
         target_compile_definitions(${FUZZER_SRC} PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)

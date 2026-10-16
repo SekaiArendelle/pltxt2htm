@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm-benches LANGUAGES CXX VERSION 0.22.0)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}/pltxt2htm-core")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -19,13 +20,10 @@ FetchContent_MakeAvailable(googlebenchmark)
 
 add_library(pltxt2htm_bench_base INTERFACE)
 target_include_directories(pltxt2htm_bench_base INTERFACE
-    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
-target_link_libraries(pltxt2htm_bench_base INTERFACE benchmark::benchmark benchmark::benchmark_main)
-if(WIN32)
-    target_link_libraries(pltxt2htm_bench_base INTERFACE ntdll)
-endif()
+target_link_libraries(pltxt2htm_bench_base INTERFACE
+    pltxt2htm::pltxt2htm benchmark::benchmark benchmark::benchmark_main)
 
 target_compile_options(pltxt2htm_bench_base INTERFACE
     $<$<CXX_COMPILER_ID:MSVC>:/utf-8 /O2 /GL>

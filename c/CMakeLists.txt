@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm LANGUAGES CXX VERSION 0.27.0)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}/pltxt2htm-core")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,24 +13,19 @@ option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
 
 add_library(pltxt2htm src/pltxt2htm.cc)
 
-target_include_directories(pltxt2htm PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+target_include_directories(pltxt2htm INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(pltxt2htm PUBLIC cxx_std_23)
+target_link_libraries(pltxt2htm PRIVATE pltxt2htm::pltxt2htm)
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
     target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
 endif()
 
-if(WIN32)
-    target_link_libraries(pltxt2htm PRIVATE ntdll)
-endif()
-
 if(MINGW)
     set_target_properties(pltxt2htm PROPERTIES PREFIX "")
-    target_link_libraries(pltxt2htm PRIVATE ntdll)
 endif()
 
 if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")

@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm-tests LANGUAGES CXX VERSION 0.27.0)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/.." "${CMAKE_CURRENT_BINARY_DIR}/pltxt2htm-core")
 
 enable_testing()
 
@@ -89,9 +90,9 @@ endif()
 set(CMAKE_REQUIRED_LIBRARIES "${_pltxt2htm_saved_required_libs}")
 
 add_library(pltxt2htm_base INTERFACE)
+target_link_libraries(pltxt2htm_base INTERFACE pltxt2htm::pltxt2htm)
 # Include tests/ so nested tests can use "precompile.hh" directly.
 target_include_directories(pltxt2htm_base INTERFACE
-    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
     "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if(PLTXT2HTM_USE_STACKTRACE)
@@ -130,9 +131,6 @@ endif()
 
 add_library(precompile STATIC precompile.cpp)
 target_link_libraries(precompile PUBLIC pltxt2htm_base)
-if(WIN32)
-    target_link_libraries(precompile PUBLIC ntdll)
-endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(precompile PRIVATE
         -g -Wall -Wextra -Wshadow
