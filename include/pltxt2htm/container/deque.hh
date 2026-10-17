@@ -72,6 +72,8 @@ public:
 
 private:
     static constexpr size_type initial_map_capacity{8};
+    // Bound both map_capacity * elements_per_block (element offsets) and
+    // map_capacity * sizeof(pointer) (map allocation bytes) to size_type.
     static constexpr size_type max_map_capacity{::std::min(::std::numeric_limits<size_type>::max() / elements_per_block,
                                                            ::std::numeric_limits<size_type>::max() / sizeof(pointer))};
 
@@ -137,9 +139,8 @@ private:
             new_blocks[new_first_block + index] = self.blocks[first_block + index];
         }
 
-        if (self.blocks != nullptr) {
-            map_allocator::deallocate_n(self.blocks, self.map_capacity);
-        }
+        map_allocator::deallocate_n(self.blocks, self.map_capacity);
+
         self.blocks = new_blocks;
         self.map_capacity = new_capacity;
         self.start_offset = new_first_block * elements_per_block + self.start_offset % elements_per_block;
@@ -174,14 +175,12 @@ private:
 
         size_type const first_block{self.start_offset / elements_per_block};
         if (new_first_block < first_block) {
-            for (size_type index{}; index != used_blocks; ++index) {
-                self.blocks[new_first_block + index] = self.blocks[first_block + index];
-            }
+            ::std::copy(self.blocks + first_block, self.blocks + first_block + used_blocks,
+                        self.blocks + new_first_block);
         }
-        else {
-            for (size_type index{used_blocks}; index != 0; --index) {
-                self.blocks[new_first_block + index - 1] = self.blocks[first_block + index - 1];
-            }
+        else if (new_first_block > first_block) {
+            ::std::copy_backward(self.blocks + first_block, self.blocks + first_block + used_blocks,
+                                 self.blocks + new_first_block + used_blocks);
         }
         for (size_type index{}; index != self.map_capacity; ++index) {
             if (index < new_first_block || index >= new_first_block + used_blocks) {
@@ -195,11 +194,6 @@ private:
         if (self.blocks == nullptr) {
             self.allocate_map(initial_map_capacity);
         }
-    }
-
-    template<::pltxt2htm::Contracts ndebug>
-    constexpr void ensure_can_grow(this Deque const& self) noexcept {
-        pltxt2htm_assert(self.element_count < self.max_size(), u8"Deque size exceeds max_size");
     }
 
     template<::pltxt2htm::Contracts ndebug>
@@ -700,10 +694,10 @@ public:
         return *self.pointer_at(self.element_count - 1);
     }
 
-    template<::pltxt2htm::Contracts ndebug, typename... Arguments>
-        requires ::std::is_nothrow_constructible_v<value_type, Arguments...>
-    constexpr auto emplace_back(this Deque& self, Arguments&&... arguments) noexcept -> reference {
-        self.template ensure_can_grow<ndebug>();
+    template<::pltxt2htm::Contracts ndebug, typename... Args>
+        requires ::std::is_nothrow_constructible_v<value_type, Args...>
+    constexpr auto emplace_back(this Deque& self, Args&&... args) noexcept -> reference {
+        pltxt2htm_assert(self.element_count < self.max_size(), u8"Deque size exceeds max_size");
         size_type const insertion_offset{self.start_offset + self.element_count};
         size_type const block_offset{insertion_offset % elements_per_block};
         bool const needs_block{self.element_count == 0 || block_offset == 0};
@@ -712,30 +706,30 @@ public:
             self.template ensure_back_slot<ndebug>();
             size_type const map_index{self.start_offset / elements_per_block + self.allocated_block_count()};
             pointer const new_block{element_allocator::allocate(elements_per_block)};
-            pointer const result{::std::construct_at(new_block, ::std::forward<Arguments>(arguments)...)};
+            pointer const result{::std::construct_at(new_block, ::std::forward<Args>(args)...)};
             self.blocks[map_index] = new_block;
             ++self.element_count;
             return *result;
         }
 
         pointer const result{
-            ::std::construct_at(self.pointer_at(self.element_count), ::std::forward<Arguments>(arguments)...)};
+            ::std::construct_at(self.pointer_at(self.element_count), ::std::forward<Args>(args)...)};
         ++self.element_count;
         return *result;
     }
 
-    template<::pltxt2htm::Contracts ndebug, typename... Arguments>
-        requires ::std::is_nothrow_constructible_v<value_type, Arguments...>
-    constexpr auto emplace_front(this Deque& self, Arguments&&... arguments) noexcept -> reference {
-        self.template ensure_can_grow<ndebug>();
+    template<::pltxt2htm::Contracts ndebug, typename... Args>
+        requires ::std::is_nothrow_constructible_v<value_type, Args...>
+    constexpr auto emplace_front(this Deque& self, Args&&... args) noexcept -> reference {
+        pltxt2htm_assert(self.element_count < self.max_size(), u8"Deque size exceeds max_size");
         if (self.is_empty()) {
-            return self.template emplace_back<ndebug>(::std::forward<Arguments>(arguments)...);
+            return self.template emplace_back<ndebug>(::std::forward<Args>(args)...);
         }
 
         if (self.start_offset % elements_per_block != 0) {
             pointer const result{::std::construct_at(
                 self.blocks[self.start_offset / elements_per_block] + self.start_offset % elements_per_block - 1,
-                ::std::forward<Arguments>(arguments)...)};
+                ::std::forward<Args>(args)...)};
             --self.start_offset;
             ++self.element_count;
             return *result;
@@ -744,7 +738,7 @@ public:
         self.template ensure_front_slot<ndebug>();
         pointer const new_block{element_allocator::allocate(elements_per_block)};
         pointer const result{
-            ::std::construct_at(new_block + elements_per_block - 1, ::std::forward<Arguments>(arguments)...)};
+            ::std::construct_at(new_block + elements_per_block - 1, ::std::forward<Args>(args)...)};
         --self.start_offset;
         self.blocks[self.start_offset / elements_per_block] = new_block;
         ++self.element_count;
@@ -861,22 +855,22 @@ public:
         }
     }
 
-    template<::pltxt2htm::Contracts ndebug, typename... Arguments>
-        requires (::std::is_nothrow_constructible_v<value_type, Arguments...> &&
+    template<::pltxt2htm::Contracts ndebug, typename... Args>
+        requires (::std::is_nothrow_constructible_v<value_type, Args...> &&
                   ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
-    constexpr auto emplace(this Deque& self, const_iterator position, Arguments&&... arguments) noexcept -> iterator {
+    constexpr auto emplace(this Deque& self, const_iterator position, Args&&... args) noexcept -> iterator {
         size_type const index{static_cast<size_type>(position - self.cbegin())};
         pltxt2htm_assert(index <= self.element_count, u8"Insertion position of Deque out of bound");
         if (index == 0) {
-            self.template emplace_front<ndebug>(::std::forward<Arguments>(arguments)...);
+            self.template emplace_front<ndebug>(::std::forward<Args>(args)...);
             return self.begin();
         }
         if (index == self.element_count) {
-            self.template emplace_back<ndebug>(::std::forward<Arguments>(arguments)...);
+            self.template emplace_back<ndebug>(::std::forward<Args>(args)...);
             return self.begin() + static_cast<difference_type>(index);
         }
 
-        value_type value{::std::forward<Arguments>(arguments)...};
+        value_type value{::std::forward<Args>(args)...};
         size_type const old_size{self.element_count};
         if (index < old_size / 2) {
             self.template emplace_front<ndebug>(::std::move(self.template front<ndebug>()));
