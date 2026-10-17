@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
-option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
+option(PLTXT2HTM_ENABLE_STACKTRACE "Enable native stacktrace" OFF)
+include("${CMAKE_CURRENT_LIST_DIR}/../../cmake/pltxt2htm_stacktrace.cmake")
 
 add_executable(example example.cc)
 
@@ -19,7 +20,7 @@ target_include_directories(example PRIVATE
 target_compile_features(example PRIVATE cxx_std_23)
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
-    target_compile_definitions(example PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
+    pltxt2htm_enable_stacktrace(example PRIVATE)
 endif()
 
 # Register C++20 module sources
