@@ -1,36 +1,34 @@
-#include "precompile.hh"
+#pragma once
+
+#include "doctest_config.hh"
 
 #include <array>
 #include <pltxt2htm/ast/ast.hh>
 
-namespace {
+TEST_SUITE("html_span_storage") {
+    constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
+    using FontSize = ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>;
+    using VerticalAlign = ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>;
 
-constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-using FontSize = ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>;
-using VerticalAlign = ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>;
-
-[[nodiscard]]
-constexpr auto make_html_span(FontSize font_size, VerticalAlign vertical_align) noexcept
-    -> ::pltxt2htm::HtmlSpan<ndebug> {
-    return ::pltxt2htm::HtmlSpan<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::pltxt2htm::container::U8String{},
-                                         ::std::move(font_size), ::std::move(vertical_align)};
-}
-
-static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlSpan<::pltxt2htm::Contracts::ignore>) == 72);
-static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlSpan<ndebug>) == 72);
-static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::ignore>) == 80);
-static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode<ndebug>) == 80);
-
-} // namespace
-
-int main() {
-    {
-        auto const span = make_html_span(::pltxt2htm::container::nullopt, ::pltxt2htm::container::nullopt);
-        pltxt2htm_test_assert_false(span.get_font_size().has_value());
-        pltxt2htm_test_assert_false(span.get_vertical_align().has_value());
+    [[nodiscard]]
+    constexpr auto make_html_span(FontSize font_size, VerticalAlign vertical_align) noexcept
+        -> ::pltxt2htm::HtmlSpan<ndebug> {
+        return ::pltxt2htm::HtmlSpan<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::pltxt2htm::container::U8String{},
+                                             ::std::move(font_size), ::std::move(vertical_align)};
     }
 
-    {
+    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlSpan<::pltxt2htm::Contracts::ignore>) == 72);
+    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlSpan<ndebug>) == 72);
+    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::ignore>) == 80);
+    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode<ndebug>) == 80);
+
+    TEST_CASE("absent font size and vertical alignment") {
+        auto const span = make_html_span(::pltxt2htm::container::nullopt, ::pltxt2htm::container::nullopt);
+        CHECK_FALSE(span.get_font_size().has_value());
+        CHECK_FALSE(span.get_vertical_align().has_value());
+    }
+
+    TEST_CASE("font sizes") {
         static constexpr auto font_sizes = ::std::array{
             ::pltxt2htm::ValueWithUnit<double>{12.5, ::pltxt2htm::Unit::px},
             ::pltxt2htm::ValueWithUnit<double>{80.0, ::pltxt2htm::Unit::percent},
@@ -39,13 +37,13 @@ int main() {
         for (auto const font_size : font_sizes) {
             auto const span = make_html_span(FontSize{font_size}, ::pltxt2htm::container::nullopt);
             auto const stored_font_size = span.get_font_size();
-            pltxt2htm_test_assert_true(stored_font_size.has_value());
-            pltxt2htm_test_assert_true(stored_font_size.template value<ndebug>() == font_size);
-            pltxt2htm_test_assert_false(span.get_vertical_align().has_value());
+            REQUIRE(stored_font_size.has_value());
+            CHECK(stored_font_size.template value<ndebug>() == font_size);
+            CHECK_FALSE(span.get_vertical_align().has_value());
         }
     }
 
-    {
+    TEST_CASE("vertical alignment keywords") {
         static constexpr auto keywords = ::std::array{
             ::pltxt2htm::VerticalAlignKeyword::baseline,    ::pltxt2htm::VerticalAlignKeyword::sub,
             ::pltxt2htm::VerticalAlignKeyword::super,       ::pltxt2htm::VerticalAlignKeyword::text_top,
@@ -56,13 +54,13 @@ int main() {
             auto const expected = ::pltxt2htm::VerticalAlignValue<ndebug>{keyword};
             auto const span = make_html_span(::pltxt2htm::container::nullopt, VerticalAlign{expected});
             auto const stored_vertical_align = span.get_vertical_align();
-            pltxt2htm_test_assert_true(stored_vertical_align.has_value());
-            pltxt2htm_test_assert_true(stored_vertical_align.template value<ndebug>() == expected);
-            pltxt2htm_test_assert_false(span.get_font_size().has_value());
+            REQUIRE(stored_vertical_align.has_value());
+            CHECK(stored_vertical_align.template value<ndebug>() == expected);
+            CHECK_FALSE(span.get_font_size().has_value());
         }
     }
 
-    {
+    TEST_CASE("vertical alignment lengths") {
         static constexpr auto lengths = ::std::array{
             ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{-5, ::pltxt2htm::Unit::px},
             ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{20, ::pltxt2htm::Unit::percent},
@@ -72,12 +70,12 @@ int main() {
             auto const expected = ::pltxt2htm::VerticalAlignValue<ndebug>{length};
             auto const span = make_html_span(::pltxt2htm::container::nullopt, VerticalAlign{expected});
             auto const stored_vertical_align = span.get_vertical_align();
-            pltxt2htm_test_assert_true(stored_vertical_align.has_value());
-            pltxt2htm_test_assert_true(stored_vertical_align.template value<ndebug>() == expected);
+            REQUIRE(stored_vertical_align.has_value());
+            CHECK(stored_vertical_align.template value<ndebug>() == expected);
         }
     }
 
-    {
+    TEST_CASE("span equality") {
         auto const font_size = FontSize{::pltxt2htm::ValueWithUnit<double>{12.5, ::pltxt2htm::Unit::px}};
         auto const vertical_align =
             VerticalAlign{::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::super}};
@@ -89,8 +87,8 @@ int main() {
         auto const different_keyword = make_html_span(
             font_size, VerticalAlign{::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::sub}});
 
-        pltxt2htm_test_assert_true(same_left == same_right);
-        pltxt2htm_test_assert_false(no_font_size == zero_font_size);
-        pltxt2htm_test_assert_false(same_left == different_keyword);
+        CHECK(same_left == same_right);
+        CHECK_FALSE(no_font_size == zero_font_size);
+        CHECK_FALSE(same_left == different_keyword);
     }
 }
