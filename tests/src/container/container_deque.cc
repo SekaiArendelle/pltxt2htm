@@ -204,11 +204,16 @@ struct BlockValue {
 
 struct CountingAllocator {
     static inline ::std::size_t map_allocations{};
+    static inline ::std::size_t block_allocations{};
+    static inline ::std::size_t block_deallocations{};
     static inline ::std::size_t largest_allocation{};
 
     [[nodiscard]]
     static auto allocate(::std::size_t bytes) noexcept -> void* {
-        if (bytes != sizeof(BlockValue)) {
+        if (bytes == sizeof(BlockValue)) {
+            ++block_allocations;
+        }
+        else {
             ++map_allocations;
         }
         largest_allocation = ::std::max(largest_allocation, bytes);
@@ -217,6 +222,13 @@ struct CountingAllocator {
 
     static void deallocate(void* storage) noexcept {
         ::fast_io::native_global_allocator::deallocate(storage);
+    }
+
+    static void deallocate_n(void* storage, ::std::size_t bytes) noexcept {
+        if (bytes == sizeof(BlockValue)) {
+            ++block_deallocations;
+        }
+        ::fast_io::native_global_allocator::deallocate_n(storage, bytes);
     }
 };
 
@@ -249,6 +261,118 @@ void test_rolling_queue(bool front_to_back) {
     }
     pltxt2htm_test_assert_true(CountingAllocator::map_allocations == 1);
     pltxt2htm_test_assert_true(CountingAllocator::largest_allocation == sizeof(BlockValue));
+}
+
+void test_spare_blocks() {
+    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
+    CountingAllocator::block_allocations = 0;
+    CountingAllocator::block_deallocations = 0;
+    {
+        Queue queue{};
+        queue.emplace_back<Contracts::quick_enforce>(BlockValue{1});
+        for (int index{}; index != 100; ++index) {
+            queue.pop_back<Contracts::quick_enforce>();
+            queue.emplace_back<Contracts::quick_enforce>(BlockValue{index});
+        }
+        pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 1);
+
+        queue.emplace_back<Contracts::quick_enforce>(BlockValue{2});
+        for (int index{}; index != 100; ++index) {
+            queue.pop_back<Contracts::quick_enforce>();
+            queue.emplace_back<Contracts::quick_enforce>(BlockValue{index});
+        }
+        pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 2);
+
+        queue.pop_back<Contracts::quick_enforce>();
+        queue.emplace_front<Contracts::quick_enforce>(BlockValue{3});
+        pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 2);
+        queue.pop_front<Contracts::quick_enforce>();
+        queue.emplace_back<Contracts::quick_enforce>(BlockValue{4});
+        pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 2);
+
+        for (int index{}; index != 100; ++index) {
+            queue.pop_front<Contracts::quick_enforce>();
+            queue.emplace_front<Contracts::quick_enforce>(BlockValue{index});
+        }
+        pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 2);
+
+        for (int index{}; index != 5; ++index) {
+            queue.emplace_back<Contracts::quick_enforce>(BlockValue{index});
+        }
+        ::std::size_t const allocated_before_clear{CountingAllocator::block_allocations};
+        queue.clear();
+        pltxt2htm_test_assert_true(CountingAllocator::block_deallocations == allocated_before_clear - 2);
+        queue.emplace_back<Contracts::quick_enforce>(BlockValue{5});
+        queue.emplace_front<Contracts::quick_enforce>(BlockValue{6});
+        pltxt2htm_test_assert_true(CountingAllocator::block_allocations == allocated_before_clear);
+        queue.clear();
+        queue.shrink_to_fit();
+        pltxt2htm_test_assert_true(CountingAllocator::block_deallocations == CountingAllocator::block_allocations);
+    }
+    pltxt2htm_test_assert_true(CountingAllocator::block_deallocations == CountingAllocator::block_allocations);
+}
+
+void test_spare_transfer_at_map_edge() {
+    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
+    CountingAllocator::map_allocations = 0;
+    CountingAllocator::block_allocations = 0;
+    {
+        Queue queue{};
+        for (int index{}; index != 4; ++index) {
+            queue.emplace_back<Contracts::quick_enforce>(BlockValue{index});
+        }
+        queue.pop_front<Contracts::quick_enforce>();
+        queue.emplace_back<Contracts::quick_enforce>(BlockValue{4});
+        pltxt2htm_test_assert_true(CountingAllocator::map_allocations == 1);
+        pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 4);
+        for (int index{}; index != 4; ++index) {
+            pltxt2htm_test_assert_true(queue.index<Contracts::quick_enforce>(index).value == index + 1);
+        }
+    }
+
+    CountingAllocator::map_allocations = 0;
+    CountingAllocator::block_allocations = 0;
+    {
+        Queue queue{};
+        for (int index{}; index != 5; ++index) {
+            queue.emplace_front<Contracts::quick_enforce>(BlockValue{index});
+        }
+        queue.pop_back<Contracts::quick_enforce>();
+        queue.emplace_front<Contracts::quick_enforce>(BlockValue{5});
+        pltxt2htm_test_assert_true(CountingAllocator::map_allocations == 1);
+        pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 5);
+        for (int index{}; index != 5; ++index) {
+            pltxt2htm_test_assert_true(queue.index<Contracts::quick_enforce>(index).value == 5 - index);
+        }
+    }
+}
+
+void test_spare_blocks_follow_storage() {
+    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
+    CountingAllocator::block_allocations = 0;
+    CountingAllocator::block_deallocations = 0;
+    {
+        Queue first{};
+        first.emplace_back<Contracts::quick_enforce>(BlockValue{1});
+        first.emplace_back<Contracts::quick_enforce>(BlockValue{2});
+        first.pop_front<Contracts::quick_enforce>();
+
+        Queue second{};
+        second.emplace_back<Contracts::quick_enforce>(BlockValue{3});
+        second.emplace_back<Contracts::quick_enforce>(BlockValue{4});
+        second.pop_back<Contracts::quick_enforce>();
+
+        first.swap(second);
+        Queue moved{::std::move(first)};
+        moved.emplace_back<Contracts::quick_enforce>(BlockValue{5});
+        second.emplace_front<Contracts::quick_enforce>(BlockValue{0});
+        pltxt2htm_test_assert_true(moved.front<Contracts::quick_enforce>().value == 3);
+        pltxt2htm_test_assert_true(moved.back<Contracts::quick_enforce>().value == 5);
+        pltxt2htm_test_assert_true(second.front<Contracts::quick_enforce>().value == 0);
+        pltxt2htm_test_assert_true(second.back<Contracts::quick_enforce>().value == 2);
+        pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 4);
+    }
+    pltxt2htm_test_assert_true(CountingAllocator::block_deallocations == CountingAllocator::block_allocations);
 }
 
 void test_iterator_storage() {
@@ -344,6 +468,9 @@ int main() {
     pltxt2htm_test_assert_true(test_contract_operations<Contracts::ignore>());
     ::pltxt2htm_test::test_rolling_queue(true);
     ::pltxt2htm_test::test_rolling_queue(false);
+    ::pltxt2htm_test::test_spare_blocks();
+    ::pltxt2htm_test::test_spare_transfer_at_map_edge();
+    ::pltxt2htm_test::test_spare_blocks_follow_storage();
     ::pltxt2htm_test::test_iterator_storage();
     IntDeque differential{};
     ::std::deque<int> reference{};

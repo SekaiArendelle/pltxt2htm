@@ -106,6 +106,20 @@ private:
         return (self.start_offset % elements_per_block + self.element_count - 1) / elements_per_block + 1;
     }
 
+    // Live blocks are contiguous in the map. At most one empty allocated block may sit
+    // immediately before or after them; an empty Deque uses the same two positions.
+    [[nodiscard]]
+    constexpr auto has_front_spare(this Deque const& self) noexcept -> bool {
+        size_type const first_block{self.start_offset / elements_per_block};
+        return first_block != 0 && self.blocks[first_block - 1] != nullptr;
+    }
+
+    [[nodiscard]]
+    constexpr auto has_back_spare(this Deque const& self) noexcept -> bool {
+        size_type const back_block{self.start_offset / elements_per_block + self.allocated_block_count()};
+        return back_block < self.map_capacity && self.blocks[back_block] != nullptr;
+    }
+
     [[nodiscard]]
     constexpr auto pointer_at(this Deque& self, size_type index) noexcept -> pointer {
         size_type const offset{self.start_offset + index};
@@ -135,8 +149,11 @@ private:
 
         size_type const used_blocks{self.allocated_block_count()};
         size_type const first_block{self.start_offset / elements_per_block};
-        for (size_type index{}; index != used_blocks; ++index) {
-            new_blocks[new_first_block + index] = self.blocks[first_block + index];
+        size_type const front_spare{self.has_front_spare() ? 1u : 0u};
+        size_type const back_spare{self.has_back_spare() ? 1u : 0u};
+        size_type const occupied_blocks{used_blocks + front_spare + back_spare};
+        for (size_type index{}; index != occupied_blocks; ++index) {
+            new_blocks[new_first_block - front_spare + index] = self.blocks[first_block - front_spare + index];
         }
 
         map_allocator::deallocate_n(self.blocks, self.map_capacity);
@@ -149,11 +166,14 @@ private:
     template<::pltxt2htm::Contracts ndebug>
     constexpr void grow_map(this Deque& self, size_type required_front, size_type required_back) noexcept {
         size_type const used_blocks{self.allocated_block_count()};
-        size_type const required_capacity{used_blocks + required_front + required_back};
+        size_type const front_spare{self.has_front_spare() ? 1u : 0u};
+        size_type const back_spare{self.has_back_spare() ? 1u : 0u};
+        size_type const occupied_blocks{used_blocks + front_spare + back_spare};
+        size_type const required_capacity{occupied_blocks + required_front + required_back};
         pltxt2htm_assert(required_capacity <= max_map_capacity, u8"Deque map capacity exceeds max_map_capacity");
         size_type new_capacity{self.map_capacity == 0 ? initial_map_capacity : self.map_capacity};
         // Leave enough slack to amortize map movement when the queue is nearly full.
-        while (new_capacity < required_capacity || used_blocks > new_capacity / 2) {
+        while (new_capacity < required_capacity || occupied_blocks > new_capacity / 2) {
             if (new_capacity > max_map_capacity / 2) {
                 new_capacity = required_capacity;
                 break;
@@ -161,29 +181,31 @@ private:
             new_capacity *= 2;
         }
 
-        size_type new_first_block{(new_capacity - used_blocks) / 2};
-        if (new_first_block < required_front) {
-            new_first_block = required_front;
+        size_type new_first_occupied{(new_capacity - occupied_blocks) / 2};
+        if (new_first_occupied < required_front) {
+            new_first_occupied = required_front;
         }
-        if (new_capacity - new_first_block - used_blocks < required_back) {
-            new_first_block = new_capacity - used_blocks - required_back;
+        if (new_capacity - new_first_occupied - occupied_blocks < required_back) {
+            new_first_occupied = new_capacity - occupied_blocks - required_back;
         }
+        size_type const new_first_block{new_first_occupied + front_spare};
         if (new_capacity != self.map_capacity) {
             self.relocate_map(new_capacity, new_first_block);
             return;
         }
 
         size_type const first_block{self.start_offset / elements_per_block};
-        if (new_first_block < first_block) {
-            ::std::copy(self.blocks + first_block, self.blocks + first_block + used_blocks,
-                        self.blocks + new_first_block);
+        size_type const first_occupied{first_block - front_spare};
+        if (new_first_occupied < first_occupied) {
+            ::std::copy(self.blocks + first_occupied, self.blocks + first_occupied + occupied_blocks,
+                        self.blocks + new_first_occupied);
         }
-        else if (new_first_block > first_block) {
-            ::std::copy_backward(self.blocks + first_block, self.blocks + first_block + used_blocks,
-                                 self.blocks + new_first_block + used_blocks);
+        else if (new_first_occupied > first_occupied) {
+            ::std::copy_backward(self.blocks + first_occupied, self.blocks + first_occupied + occupied_blocks,
+                                 self.blocks + new_first_occupied + occupied_blocks);
         }
         for (size_type index{}; index != self.map_capacity; ++index) {
-            if (index < new_first_block || index >= new_first_block + used_blocks) {
+            if (index < new_first_occupied || index >= new_first_occupied + occupied_blocks) {
                 self.blocks[index] = nullptr;
             }
         }
@@ -200,6 +222,14 @@ private:
     constexpr void ensure_front_slot(this Deque& self) noexcept {
         self.ensure_map();
         if (self.start_offset / elements_per_block == 0) {
+            if (self.has_back_spare()) {
+                size_type const used_blocks{self.allocated_block_count()};
+                pointer const spare{self.blocks[used_blocks]};
+                ::std::copy_backward(self.blocks, self.blocks + used_blocks, self.blocks + used_blocks + 1);
+                self.blocks[0] = spare;
+                self.start_offset += elements_per_block;
+                return;
+            }
             self.template grow_map<ndebug>(1, 0);
         }
     }
@@ -208,33 +238,42 @@ private:
     constexpr void ensure_back_slot(this Deque& self) noexcept {
         self.ensure_map();
         size_type const used_blocks{self.allocated_block_count()};
-        if (self.start_offset / elements_per_block + used_blocks == self.map_capacity) {
+        size_type const first_block{self.start_offset / elements_per_block};
+        if (first_block + used_blocks == self.map_capacity) {
+            if (self.has_front_spare()) {
+                pointer const spare{self.blocks[first_block - 1]};
+                ::std::copy(self.blocks + first_block, self.blocks + self.map_capacity, self.blocks + first_block - 1);
+                self.blocks[self.map_capacity - 1] = spare;
+                self.start_offset -= elements_per_block;
+                return;
+            }
             self.template grow_map<ndebug>(0, 1);
         }
     }
 
     constexpr void reset_empty_position(this Deque& self) noexcept {
-        self.start_offset = self.map_capacity / 2 * elements_per_block;
-    }
-
-    constexpr void release_blocks(this Deque& self) noexcept {
-        size_type const used_blocks{self.allocated_block_count()};
         size_type const first_block{self.start_offset / elements_per_block};
-        for (size_type index{}; index != used_blocks; ++index) {
-            size_type const map_index{first_block + index};
-            element_allocator::deallocate_n(self.blocks[map_index], elements_per_block);
-            self.blocks[map_index] = nullptr;
+        pointer const front_spare{self.has_front_spare() ? self.blocks[first_block - 1] : nullptr};
+        pointer const back_spare{self.has_back_spare() ? self.blocks[first_block] : nullptr};
+        if (front_spare != nullptr) {
+            self.blocks[first_block - 1] = nullptr;
         }
+        if (back_spare != nullptr) {
+            self.blocks[first_block] = nullptr;
+        }
+        size_type const new_first_block{self.map_capacity / 2};
+        if (front_spare != nullptr) {
+            self.blocks[new_first_block - 1] = front_spare;
+        }
+        if (back_spare != nullptr) {
+            self.blocks[new_first_block] = back_spare;
+        }
+        self.start_offset = new_first_block * elements_per_block;
     }
 
     constexpr void destroy_storage(this Deque& self) noexcept {
         self.clear();
-        if (self.blocks != nullptr) {
-            map_allocator::deallocate_n(self.blocks, self.map_capacity);
-        }
-        self.blocks = nullptr;
-        self.map_capacity = 0;
-        self.start_offset = 0;
+        self.shrink_to_fit();
     }
 
 public:
@@ -705,15 +744,24 @@ public:
         if (needs_block) {
             self.template ensure_back_slot<ndebug>();
             size_type const map_index{self.start_offset / elements_per_block + self.allocated_block_count()};
-            pointer const new_block{element_allocator::allocate(elements_per_block)};
+            pointer new_block{self.blocks[map_index]};
+            if (new_block == nullptr) {
+                size_type const first_block{self.start_offset / elements_per_block};
+                if (self.has_front_spare()) {
+                    new_block = self.blocks[first_block - 1];
+                    self.blocks[first_block - 1] = nullptr;
+                }
+                else {
+                    new_block = element_allocator::allocate(elements_per_block);
+                }
+            }
             pointer const result{::std::construct_at(new_block, ::std::forward<Args>(args)...)};
             self.blocks[map_index] = new_block;
             ++self.element_count;
             return *result;
         }
 
-        pointer const result{
-            ::std::construct_at(self.pointer_at(self.element_count), ::std::forward<Args>(args)...)};
+        pointer const result{::std::construct_at(self.pointer_at(self.element_count), ::std::forward<Args>(args)...)};
         ++self.element_count;
         return *result;
     }
@@ -736,9 +784,19 @@ public:
         }
 
         self.template ensure_front_slot<ndebug>();
-        pointer const new_block{element_allocator::allocate(elements_per_block)};
-        pointer const result{
-            ::std::construct_at(new_block + elements_per_block - 1, ::std::forward<Args>(args)...)};
+        size_type const first_block{self.start_offset / elements_per_block};
+        pointer new_block{self.blocks[first_block - 1]};
+        if (new_block == nullptr) {
+            size_type const back_block{first_block + self.allocated_block_count()};
+            if (self.has_back_spare()) {
+                new_block = self.blocks[back_block];
+                self.blocks[back_block] = nullptr;
+            }
+            else {
+                new_block = element_allocator::allocate(elements_per_block);
+            }
+        }
+        pointer const result{::std::construct_at(new_block + elements_per_block - 1, ::std::forward<Args>(args)...)};
         --self.start_offset;
         self.blocks[self.start_offset / elements_per_block] = new_block;
         ++self.element_count;
@@ -782,14 +840,14 @@ public:
         ::std::destroy_at(self.pointer_at(erased_index));
         --self.element_count;
 
-        if (self.element_count == 0) {
-            element_allocator::deallocate_n(self.blocks[erased_block], elements_per_block);
-            self.blocks[erased_block] = nullptr;
-            self.reset_empty_position();
-        }
-        else if ((self.start_offset + self.element_count) % elements_per_block == 0) {
-            element_allocator::deallocate_n(self.blocks[erased_block], elements_per_block);
-            self.blocks[erased_block] = nullptr;
+        if (self.element_count == 0 || (self.start_offset + self.element_count) % elements_per_block == 0) {
+            if (erased_block + 1 < self.map_capacity && self.blocks[erased_block + 1] != nullptr) {
+                element_allocator::deallocate_n(self.blocks[erased_block + 1], elements_per_block);
+                self.blocks[erased_block + 1] = nullptr;
+            }
+            if (self.element_count == 0) {
+                self.reset_empty_position();
+            }
         }
     }
 
@@ -801,16 +859,21 @@ public:
         --self.element_count;
 
         if (self.element_count == 0) {
-            element_allocator::deallocate_n(self.blocks[erased_block], elements_per_block);
-            self.blocks[erased_block] = nullptr;
+            if (erased_block != 0 && self.blocks[erased_block - 1] != nullptr) {
+                element_allocator::deallocate_n(self.blocks[erased_block - 1], elements_per_block);
+                self.blocks[erased_block - 1] = nullptr;
+            }
+            self.start_offset = (erased_block + 1) * elements_per_block;
             self.reset_empty_position();
             return;
         }
 
         ++self.start_offset;
         if (self.start_offset % elements_per_block == 0) {
-            element_allocator::deallocate_n(self.blocks[erased_block], elements_per_block);
-            self.blocks[erased_block] = nullptr;
+            if (erased_block != 0 && self.blocks[erased_block - 1] != nullptr) {
+                element_allocator::deallocate_n(self.blocks[erased_block - 1], elements_per_block);
+                self.blocks[erased_block - 1] = nullptr;
+            }
         }
     }
 
@@ -819,13 +882,43 @@ public:
         for (size_type index{}; index != old_size; ++index) {
             ::std::destroy_at(self.pointer_at(index));
         }
-        self.release_blocks();
+        size_type const used_blocks{self.allocated_block_count()};
+        size_type const first_block{self.start_offset / elements_per_block};
+        size_type const front_spare{self.has_front_spare() ? 1u : 0u};
+        size_type const back_spare{self.has_back_spare() ? 1u : 0u};
+        size_type const first_occupied{first_block - front_spare};
+        size_type const occupied_blocks{used_blocks + front_spare + back_spare};
+        pointer const first_retained{occupied_blocks > 1 ? self.blocks[first_occupied] : nullptr};
+        pointer const last_retained{occupied_blocks != 0 ? self.blocks[first_occupied + occupied_blocks - 1] : nullptr};
+        for (size_type index{}; index != occupied_blocks; ++index) {
+            size_type const map_index{first_occupied + index};
+            if (index != 0 && index + 1 != occupied_blocks) {
+                element_allocator::deallocate_n(self.blocks[map_index], elements_per_block);
+            }
+            self.blocks[map_index] = nullptr;
+        }
         self.element_count = 0;
-        self.reset_empty_position();
+        size_type const center{self.map_capacity / 2};
+        if (first_retained != nullptr) {
+            self.blocks[center - 1] = first_retained;
+        }
+        if (last_retained != nullptr) {
+            self.blocks[center] = last_retained;
+        }
+        self.start_offset = center * elements_per_block;
     }
 
     constexpr void shrink_to_fit(this Deque& self) noexcept {
         size_type const used_blocks{self.allocated_block_count()};
+        size_type const first_block{self.start_offset / elements_per_block};
+        if (self.has_front_spare()) {
+            element_allocator::deallocate_n(self.blocks[first_block - 1], elements_per_block);
+            self.blocks[first_block - 1] = nullptr;
+        }
+        if (self.has_back_spare()) {
+            element_allocator::deallocate_n(self.blocks[first_block + used_blocks], elements_per_block);
+            self.blocks[first_block + used_blocks] = nullptr;
+        }
         if (used_blocks == 0) {
             if (self.blocks != nullptr) {
                 map_allocator::deallocate_n(self.blocks, self.map_capacity);
