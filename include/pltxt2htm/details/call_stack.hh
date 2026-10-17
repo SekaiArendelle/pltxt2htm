@@ -9,8 +9,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <fast_io/fast_io_dsal/deque.h>
-
+#include "../container/deque.hh"
 #include "../contracts.hh"
 #include "push_macro.hh"
 
@@ -26,12 +25,12 @@ template<::pltxt2htm::Contracts ndebug, typename Frame>
 class CallStack {
 public:
     using frame_type = Frame;
-    using size_type = typename ::fast_io::deque<frame_type>::size_type;
+    using size_type = typename ::pltxt2htm::container::Deque<frame_type>::size_type;
     using reference = frame_type&;
     using const_reference = frame_type const&;
 
 private:
-    ::fast_io::deque<frame_type> frames{};
+    ::pltxt2htm::container::Deque<frame_type> frames{};
 
 public:
     constexpr CallStack() noexcept = default;
@@ -39,13 +38,13 @@ public:
     [[nodiscard]]
     constexpr auto current_frame(this CallStack& self) noexcept -> reference {
         pltxt2htm_assert(self.empty() == false, u8"Accessing current frame but CallStack is empty");
-        return self.frames.back_unchecked();
+        return self.frames.template back<ndebug>();
     }
 
     [[nodiscard]]
     constexpr auto current_frame(this CallStack const& self) noexcept -> const_reference {
         pltxt2htm_assert(self.empty() == false, u8"Accessing current frame but CallStack is empty");
-        return self.frames.back_unchecked();
+        return self.frames.template back<ndebug>();
     }
 
     [[nodiscard]]
@@ -69,19 +68,19 @@ public:
     }
 
     constexpr void push_frame(this CallStack& self, frame_type&& frame) noexcept {
-        self.frames.push_back(::std::move(frame));
+        self.frames.template push_back<ndebug>(::std::move(frame));
     }
 
     constexpr void discard_current_frame(this CallStack& self) noexcept {
         pltxt2htm_assert(self.empty() == false, u8"Popping current frame but CallStack is empty");
-        self.frames.pop_back_unchecked();
+        self.frames.template pop_back<ndebug>();
     }
 
     [[nodiscard]]
     constexpr auto pop_frame(this CallStack& self) noexcept -> frame_type {
         pltxt2htm_assert(self.empty() == false, u8"Popping current frame but CallStack is empty");
-        frame_type frame{::std::move(self.frames.back_unchecked())};
-        self.frames.pop_back_unchecked();
+        frame_type frame{::std::move(self.frames.template back<ndebug>())};
+        self.frames.template pop_back<ndebug>();
         return frame;
     }
 
