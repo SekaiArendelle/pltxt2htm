@@ -16,6 +16,49 @@ You can also use `pltxt2htm` in console (cmd/README.md), browser (wasm/README.md
 
 C++20 module example is in [cxxmodule/examples/example.cc](cxxmodule/examples/example.cc)
 
+### CMake
+
+```cmake
+find_package(pltxt2htm CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE pltxt2htm::pltxt2htm)
+```
+
+Install the library and point a consumer at it:
+
+The install step does not require a C++ compiler; the consumer needs one to
+compile the headers.
+
+```sh
+cmake -S . -B build
+cmake --install build --prefix <prefix>
+cmake -S <consumer> -B build-consumer -DCMAKE_PREFIX_PATH=<prefix>
+```
+
+With Pixi, run `pixi run install-headers <prefix>` to configure and install the
+headers, the vendored `fast_io` headers, and the CMake package files.
+
+For development, configure the repository root and select the components needed
+in that build tree. All enabled components link the same in-tree target:
+
+```sh
+cmake -S . -B build-dev -DPLTXT2HTM_BUILD_TESTS=ON -DPLTXT2HTM_BUILD_EXAMPLES=ON -DPLTXT2HTM_BUILD_CMD=ON
+cmake --build build-dev
+ctest --test-dir build-dev --output-on-failure
+```
+
+The available options are `PLTXT2HTM_BUILD_TESTS`, `PLTXT2HTM_BUILD_EXAMPLES`,
+`PLTXT2HTM_BUILD_CMD`, `PLTXT2HTM_BUILD_C`, `PLTXT2HTM_BUILD_PY`,
+`PLTXT2HTM_BUILD_BENCHES`, and `PLTXT2HTM_BUILD_FUZZING`. All default to `OFF`,
+so the install-only configuration still needs no compiler. WASM and C++ modules
+use separate CMake entry points because they need different toolchains or CMake
+features. Existing standalone sub-project builds remain supported.
+
+`add_subdirectory()` and `FetchContent` provide the same `pltxt2htm::pltxt2htm` target from the source tree. The target carries the C++23 requirement and the platform flags the headers need, so consumers do not have to configure them. `-DPLTXT2HTM_INSTALL=OFF` skips the install rules, which is what happens automatically when the project is not built standalone.
+
+Compile-time switches such as `PLTXT2HTM_ENABLE_STACKTRACE` and `PLTXT2HTM_ENABLE_CONTEXT_BRANCH_CHECK` are deliberately not part of the target: they change the definition of inline functions, so every translation unit of a program that links the library has to agree on them.
+
+The package installs the `fast_io` snapshot the headers include as `<fast_io/...>` as well: it is not a CMake package, so do not put another `fast_io` on the include path of a target that links `pltxt2htm::pltxt2htm`. Versions follow the Compatibility section below: a `0.x` minor release is not compatible with the next one, a patch release is.
+
 ## Documentation
 See [docsgen](./docsgen/README.md).
 

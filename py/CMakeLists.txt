@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm LANGUAGES CXX VERSION 0.27.0)
+if(NOT TARGET pltxt2htm::pltxt2htm)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htmSourceTarget.cmake")
+endif()
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -61,27 +64,28 @@ else()
     message(STATUS "Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX} PREFIX=${PYTHON_PREFIX} LIB=${PYTHON_LIB}")
 endif()
 
-add_library(pltxt2htm MODULE pltxt2htm.cc)
+add_library(pltxt2htm_py MODULE pltxt2htm.cc)
 
-set_target_properties(pltxt2htm PROPERTIES
+set_target_properties(pltxt2htm_py PROPERTIES
     PREFIX ""
+    OUTPUT_NAME pltxt2htm
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     SUFFIX "${PYTHON_EXT_SUFFIX}"
 )
 
-target_include_directories(pltxt2htm PRIVATE
+target_include_directories(pltxt2htm_py PRIVATE
     "${PYTHON_INCLUDE_DIR}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
 )
 
-target_compile_features(pltxt2htm PRIVATE cxx_std_23)
+target_link_libraries(pltxt2htm_py PRIVATE pltxt2htm::pltxt2htm)
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
-    target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
+    target_compile_definitions(pltxt2htm_py PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
 endif()
 
 # Compile/link flags for GCC/Clang-style toolchains
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
-    target_compile_options(pltxt2htm PRIVATE
+    target_compile_options(pltxt2htm_py PRIVATE
         -fno-rtti
         -fno-unwind-tables
         -fno-asynchronous-unwind-tables
@@ -90,23 +94,21 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     )
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        target_compile_options(pltxt2htm PRIVATE -fno-ident)
+        target_compile_options(pltxt2htm_py PRIVATE -fno-ident)
     endif()
 endif()
 
 # macOS: allow undefined symbols (Python symbols resolved at runtime)
 if(APPLE)
-    target_link_options(pltxt2htm PRIVATE -undefined dynamic_lookup)
+    target_link_options(pltxt2htm_py PRIVATE -undefined dynamic_lookup)
 endif()
 
 # Windows / MinGW
 if(WIN32)
     if(PYTHON_PREFIX)
-        target_link_directories(pltxt2htm PRIVATE "${PYTHON_PREFIX}/libs")
+        target_link_directories(pltxt2htm_py PRIVATE "${PYTHON_PREFIX}/libs")
     endif()
     if(PYTHON_LIB)
-        target_link_libraries(pltxt2htm PRIVATE ntdll "${PYTHON_LIB}")
-    else()
-        target_link_libraries(pltxt2htm PRIVATE ntdll)
+        target_link_libraries(pltxt2htm_py PRIVATE "${PYTHON_LIB}")
     endif()
 endif()

@@ -1,6 +1,8 @@
 FROM emscripten/emsdk:4.0.22
 
 WORKDIR /pltxt2htm
+COPY CMakeLists.txt LICENSE VERSION /pltxt2htm/
+COPY cmake/ /pltxt2htm/cmake/
 COPY include/ /pltxt2htm/include/
 COPY wasm/ /pltxt2htm/wasm/
 

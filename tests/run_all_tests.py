@@ -7,6 +7,7 @@ import argparse
 import subprocess
 
 TEST_DIR: str = os.path.dirname(os.path.abspath(__file__))
+PROJECT_DIR: str = os.path.dirname(TEST_DIR)
 BUILD_DIR: str = os.path.join(TEST_DIR, "build")
 
 parser = argparse.ArgumentParser()
@@ -39,7 +40,10 @@ if args.compiler is None:
 
 print(f"-- using compiler \"{args.compiler}\"")
 
-cmake_cmd: list[str] = ["cmake", "-S", TEST_DIR, "-B", BUILD_DIR]
+cmake_cmd: list[str] = [
+    "cmake", "-S", PROJECT_DIR, "-B", BUILD_DIR,
+    "-DPLTXT2HTM_BUILD_TESTS=ON",
+]
 if args.cxx_standard != "auto":
     cmake_cmd += [f"-DCMAKE_CXX_STANDARD={args.cxx_standard}"]
 

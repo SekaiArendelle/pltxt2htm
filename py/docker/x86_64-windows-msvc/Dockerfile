@@ -41,6 +41,8 @@ RUN MSVC_DIR=$(ls -d /opt/msvc/VC/Tools/MSVC/*/ 2>/dev/null | head -1) \
 ENV TARGET=x86_64-windows-msvc
 
 WORKDIR /pltxt2htm
+COPY CMakeLists.txt LICENSE VERSION /pltxt2htm/
+COPY cmake/ /pltxt2htm/cmake/
 COPY include/ /pltxt2htm/include/
 COPY py/ /pltxt2htm/py/
 

@@ -15,6 +15,7 @@ Header-only C++23 library converting Physics-Lab text to HTML, with bindings and
 
 | Path | Purpose |
 |------|---------|
+| `CMakeLists.txt` | Header-only interface target and the install/export rules behind `find_package(pltxt2htm CONFIG)` |
 | `include/pltxt2htm/` | Core headers (the library) |
 | `cmd/` | CLI — see [cmd/README.md](./cmd/README.md) |
 | `tests/` | Test suites — see [tests/README.md](./tests/README.md) |
@@ -49,7 +50,12 @@ docker exec -it pltxt2htm-dev bash
 
 The source directory is mounted into the container, so edits are shared both ways.
 
-Each sub-project is independently built with CMake — see the respective `README.md`.
+The repository root defines the header-only target and its install/export rules.
+Enable regular development components there with `PLTXT2HTM_BUILD_TESTS`,
+`PLTXT2HTM_BUILD_CMD`, `PLTXT2HTM_BUILD_C`, and the other build options listed
+in [README.md](./README.md#cmake). Sub-projects also retain standalone CMake
+builds for existing distribution workflows. WASM and C++ modules use separate
+toolchain-specific entry points.
 
 ## Workflow
 
@@ -142,12 +148,12 @@ Sanitizer examples:
 
 ```sh
 # ASan
-cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=address
+cmake -S . -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_BUILD_TESTS=ON -DPLTXT2HTM_SANITIZER=address
 cmake --build tests/build
 ctest --test-dir tests/build --interactive-debug-mode 0
 
 # MSan
-cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=memory
+cmake -S . -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_BUILD_TESTS=ON -DPLTXT2HTM_SANITIZER=memory
 cmake --build tests/build
 ctest --test-dir tests/build --interactive-debug-mode 0
 ```

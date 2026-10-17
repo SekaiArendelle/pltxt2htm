@@ -12,8 +12,10 @@ RUN set -eux; \
 RUN xwin --accept-license --arch x86 --include-debug-runtime splat --include-debug-libs --output /opt/xwin
 
 WORKDIR /pltxt2htm
-COPY ../../../include /pltxt2htm/include/
-COPY ../../../c /pltxt2htm/c/
+COPY CMakeLists.txt LICENSE VERSION /pltxt2htm/
+COPY cmake/ /pltxt2htm/cmake/
+COPY include/ /pltxt2htm/include/
+COPY c/ /pltxt2htm/c/
 
 WORKDIR /pltxt2htm/c
 ARG mode=debug

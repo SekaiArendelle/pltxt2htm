@@ -146,6 +146,7 @@ for cargo_file in ["libpltxt2htm-sys/Cargo.toml", "pltxt2htm/Cargo.toml"]:
 
 # --- Update CMakeLists.txt files ---
 CMAKE_FILES = [
+    "CMakeLists.txt",
     "c/CMakeLists.txt",
     "cmd/CMakeLists.txt",
     "py/CMakeLists.txt",

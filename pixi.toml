@@ -12,6 +12,10 @@ cmake = "*"
 ninja = "*"
 git = "*"
 
+[tasks]
+configure-install = "cmake -S . -B build-pixi-install -G Ninja"
+install-headers = { cmd = "cmake --install build-pixi-install --prefix \"{{ prefix }}\"", args = ["prefix"], depends-on = ["configure-install"] }
+
 [feature.clang.dependencies]
 clangxx = ">=23"
 
@@ -19,30 +23,30 @@ clangxx = ">=23"
 CXXFLAGS = "$CXXFLAGS --gcc-toolchain=$CONDA_PREFIX"
 
 [feature.clang.tasks]
-configure-examples = "cmake -S examples -B examples/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++"
-build-examples = { cmd = "cmake --build examples/build-pixi-clang", depends-on = ["configure-examples"] }
-run-example = { cmd = "examples/build-pixi-clang/{{ example }}", args = ["example"], depends-on = ["build-examples"] }
+configure-examples = "cmake -S . -B examples/build-pixi-root-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DPLTXT2HTM_BUILD_EXAMPLES=ON"
+build-examples = { cmd = "cmake --build examples/build-pixi-root-clang", depends-on = ["configure-examples"] }
+run-example = { cmd = "examples/build-pixi-root-clang/{{ example }}", args = ["example"], depends-on = ["build-examples"] }
 configure-cxxmodule-examples = "cmake -S cxxmodule/examples -B cxxmodule/examples/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++"
 build-cxxmodule-examples = { cmd = "cmake --build cxxmodule/examples/build-pixi-clang", depends-on = ["configure-cxxmodule-examples"] }
 run-cxxmodule-example = { cmd = "cxxmodule/examples/build-pixi-clang/example", depends-on = ["build-cxxmodule-examples"] }
-configure-cmd = { cmd = "cmake -S cmd -B cmd/build-pixi-clang-{{ mode | lower }} -G Ninja -DCMAKE_BUILD_TYPE={{ mode | capitalize }} -DCMAKE_CXX_COMPILER=clang++", args = [{ arg = "mode", default = "debug" }] }
-build-cmd = { cmd = "cmake --build cmd/build-pixi-clang-{{ mode | lower }}", args = [{ arg = "mode", default = "debug" }], depends-on = [{ task = "configure-cmd", args = ["{{ mode }}"] }] }
-run-cmd = { cmd = "cmd/build-pixi-clang-{{ mode | lower }}/pltxt2htm {{ cli_args }}", args = [{ arg = "mode", default = "debug" }, { arg = "cli_args", default = "" }], depends-on = [{ task = "build-cmd", args = ["{{ mode }}"] }] }
-configure-tests-clang = "cmake -S tests -B tests/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++"
-build-tests-clang = { cmd = "cmake --build tests/build-pixi-clang", depends-on = ["configure-tests-clang"] }
-test-clang = { cmd = "ctest --test-dir tests/build-pixi-clang --interactive-debug-mode 0 --output-on-failure", depends-on = ["build-tests-clang"] }
-configure-c-static = "cmake -S c -B c/build-pixi-clang-static -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=OFF"
-build-c-static = { cmd = "cmake --build c/build-pixi-clang-static", depends-on = ["configure-c-static"] }
-configure-c-shared = "cmake -S c -B c/build-pixi-clang-shared -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=ON"
-build-c-shared = { cmd = "cmake --build c/build-pixi-clang-shared", depends-on = ["configure-c-shared"] }
+configure-cmd = { cmd = "cmake -S . -B cmd/build-pixi-root-clang-{{ mode | lower }} -G Ninja -DCMAKE_BUILD_TYPE={{ mode | capitalize }} -DCMAKE_CXX_COMPILER=clang++ -DPLTXT2HTM_BUILD_CMD=ON", args = [{ arg = "mode", default = "debug" }] }
+build-cmd = { cmd = "cmake --build cmd/build-pixi-root-clang-{{ mode | lower }}", args = [{ arg = "mode", default = "debug" }], depends-on = [{ task = "configure-cmd", args = ["{{ mode }}"] }] }
+run-cmd = { cmd = "cmd/build-pixi-root-clang-{{ mode | lower }}/pltxt2htm {{ cli_args }}", args = [{ arg = "mode", default = "debug" }, { arg = "cli_args", default = "" }], depends-on = [{ task = "build-cmd", args = ["{{ mode }}"] }] }
+configure-tests-clang = "cmake -S . -B tests/build-pixi-root-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DPLTXT2HTM_BUILD_TESTS=ON"
+build-tests-clang = { cmd = "cmake --build tests/build-pixi-root-clang", depends-on = ["configure-tests-clang"] }
+test-clang = { cmd = "ctest --test-dir tests/build-pixi-root-clang --interactive-debug-mode 0 --output-on-failure", depends-on = ["build-tests-clang"] }
+configure-c-static = "cmake -S . -B c/build-pixi-root-clang-static -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=OFF -DPLTXT2HTM_BUILD_C=ON"
+build-c-static = { cmd = "cmake --build c/build-pixi-root-clang-static", depends-on = ["configure-c-static"] }
+configure-c-shared = "cmake -S . -B c/build-pixi-root-clang-shared -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=ON -DPLTXT2HTM_BUILD_C=ON"
+build-c-shared = { cmd = "cmake --build c/build-pixi-root-clang-shared", depends-on = ["configure-c-shared"] }
 
 [feature.gcc.dependencies]
 gxx = ">=16"
 
 [feature.gcc.tasks]
-configure-tests-gcc = "cmake -S tests -B tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++"
-build-tests-gcc = { cmd = "cmake --build tests/build-pixi-gcc", depends-on = ["configure-tests-gcc"] }
-test-gcc = { cmd = "ctest --test-dir tests/build-pixi-gcc --interactive-debug-mode 0 --output-on-failure", depends-on = ["build-tests-gcc"] }
+configure-tests-gcc = "cmake -S . -B tests/build-pixi-root-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++ -DPLTXT2HTM_BUILD_TESTS=ON"
+build-tests-gcc = { cmd = "cmake --build tests/build-pixi-root-gcc", depends-on = ["configure-tests-gcc"] }
+test-gcc = { cmd = "ctest --test-dir tests/build-pixi-root-gcc --interactive-debug-mode 0 --output-on-failure", depends-on = ["build-tests-gcc"] }
 configure-cxxmodule-tests = "cmake -S cxxmodule/tests -B cxxmodule/tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++"
 build-cxxmodule-tests = { cmd = "cmake --build cxxmodule/tests/build-pixi-gcc", depends-on = ["configure-cxxmodule-tests"] }
 test-cxxmodule = { cmd = "cxxmodule/tests/build-pixi-gcc/check_public_symbols", depends-on = ["build-cxxmodule-tests"] }
@@ -73,14 +77,14 @@ dotnet-sdk = ">=9,<10"
 
 [feature.csharp.tasks]
 build-csharp = { cmd = "dotnet build csharp/csharp.csproj --configuration Debug", depends-on = ["build-c-shared"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch" } }
-run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration Debug --no-build", depends-on = ["build-csharp"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch", LD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared:$LD_LIBRARY_PATH", DYLD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared:$DYLD_LIBRARY_PATH" } }
+run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration Debug --no-build", depends-on = ["build-csharp"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch", LD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-root-clang-shared:$LD_LIBRARY_PATH", DYLD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-root-clang-shared:$DYLD_LIBRARY_PATH" } }
 
 [feature.csharp.target.win-64.tasks]
-run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration Debug --no-build", depends-on = ["build-csharp"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch", PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared;$PATH" } }
+run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration Debug --no-build", depends-on = ["build-csharp"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch", PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-root-clang-shared;$PATH" } }
 
 [feature.py.tasks]
-configure-py = { cmd = "cmake -S py -B py/build-pixi-{{ pixi.environment.name }} -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++", args = [] }
-build-py = { cmd = "cmake --build py/build-pixi-{{ pixi.environment.name }}", args = [], depends-on = ["configure-py"] }
+configure-py = { cmd = "cmake -S . -B py/build-pixi-root-{{ pixi.environment.name }} -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DPLTXT2HTM_BUILD_PY=ON", args = [] }
+build-py = { cmd = "cmake --build py/build-pixi-root-{{ pixi.environment.name }}", args = [], depends-on = ["configure-py"] }
 
 [feature.py37.dependencies]
 python = ">=3.7,<3.8"

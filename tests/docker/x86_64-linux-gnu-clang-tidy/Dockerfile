@@ -2,6 +2,8 @@ FROM ubuntu:26.04
 RUN apt update && apt install -y --no-install-recommends clang clang-tidy cmake ninja-build python3
 WORKDIR /pltxt2htm
 COPY .clang-tidy /pltxt2htm/.clang-tidy
+COPY CMakeLists.txt LICENSE VERSION /pltxt2htm/
+COPY cmake/ /pltxt2htm/cmake/
 COPY include/ /pltxt2htm/include/
 COPY scripts/ /pltxt2htm/scripts/
 COPY examples/ /pltxt2htm/examples/

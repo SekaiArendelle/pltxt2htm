@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 project(pltxt2htm-cxxmodule-tests LANGUAGES CXX)
+add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../.." "${CMAKE_CURRENT_BINARY_DIR}/pltxt2htm-core")
 
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -13,11 +14,11 @@ add_executable(check_public_symbols
 )
 
 target_include_directories(check_public_symbols PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../include"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../include/fast_io"
     "${CMAKE_CURRENT_SOURCE_DIR}/../fast_io"
 )
 
+target_link_libraries(check_public_symbols PRIVATE pltxt2htm::pltxt2htm)
 target_compile_features(check_public_symbols PRIVATE cxx_std_26)
 
 target_sources(check_public_symbols PRIVATE
@@ -27,10 +28,6 @@ target_sources(check_public_symbols PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/../pltxt2htm/pltxt2htm.cppm
         ${CMAKE_CURRENT_SOURCE_DIR}/../fast_io/fast_io.cppm
 )
-
-if(WIN32 OR MINGW)
-    target_link_libraries(check_public_symbols PRIVATE ntdll)
-endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(check_public_symbols PRIVATE -freflection)

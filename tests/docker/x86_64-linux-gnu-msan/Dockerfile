@@ -11,10 +11,12 @@ RUN apt-get update \
 ENV CXXFLAGS="-O1 -fno-omit-frame-pointer -stdlib=libc++ -nostdinc++ -isystem /usr/msan/include/c++/v1 -L/usr/msan/lib"
 
 WORKDIR /pltxt2htm
+COPY CMakeLists.txt LICENSE VERSION /pltxt2htm/
+COPY cmake/ /pltxt2htm/cmake/
 COPY include/ /pltxt2htm/include/
 COPY tests/ /pltxt2htm/tests/
 
-RUN cmake -S tests -B build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=memory -DCMAKE_CXX_COMPILER=clang++ \
+RUN cmake -S . -B build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_BUILD_TESTS=ON -DPLTXT2HTM_SANITIZER=memory -DCMAKE_CXX_COMPILER=clang++ \
     && cmake --build build -v
 
 # Tests run via `docker run --security-opt seccomp=unconfined` because MSan needs
