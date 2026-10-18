@@ -68,6 +68,22 @@ int main() noexcept {
             ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"TE_1") == false);
     }
     {
+        constexpr auto str = pltxt2htm::details::U8LiteralString{u8"abcd-efgh"};
+        static_assert(
+            ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"ABCD-EFGH!"));
+        static_assert(!::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"ABCD-EFG"));
+        pltxt2htm_test_assert_true(
+            ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"ABCD-EFGH!"));
+        pltxt2htm_test_assert_true(
+            ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"aBcD-EfGh!"));
+        pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(
+            ::pltxt2htm::container::U8StringView{u8"zABCD-EFGH"}.subview<::pltxt2htm::Contracts::quick_enforce>(1)));
+        pltxt2htm_test_assert_true(
+            !::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"ABCD_EFGH"));
+        pltxt2htm_test_assert_true(
+            !::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"ABCD-EFGX"));
+    }
+    {
         constexpr auto str = pltxt2htm::details::U8LiteralString{u8"a"};
         pltxt2htm_test_assert_true(
             ::pltxt2htm::details::is_prefix_match<::pltxt2htm::Contracts::quick_enforce, str>(u8"b") == false);
