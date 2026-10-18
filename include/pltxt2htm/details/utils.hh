@@ -14,6 +14,7 @@
 #include <limits>
 #include <memory>
 #include <cstddef>
+#include <ranges>
 #include <type_traits>
 #include <utility>
 #include "../container/array.hh"
@@ -123,6 +124,28 @@ consteval auto prefix_match_words() noexcept {
     return words;
 }
 
+template<::pltxt2htm::Contracts ndebug, U8LiteralString prefix_str, ::std::size_t index>
+[[nodiscard]]
+constexpr bool prefix_match_char(::pltxt2htm::container::U8StringView str) noexcept {
+    constexpr auto expected = prefix_str[index];
+    if constexpr (u8'a' <= expected && expected <= u8'z') {
+        return expected == (str.template index<ndebug>(index) | 32);
+    }
+    else {
+        return expected == str.template index<ndebug>(index);
+    }
+}
+
+template<::pltxt2htm::Contracts ndebug, U8LiteralString prefix_str, ::std::size_t block>
+[[nodiscard]]
+constexpr bool prefix_match_word(::pltxt2htm::container::U8StringView str) noexcept {
+    constexpr auto words = ::pltxt2htm::details::prefix_match_words<ndebug, prefix_str>();
+    constexpr auto word = words.template index<ndebug>(block);
+    auto actual = ::std::uint32_t{};
+    ::std::memcpy(::std::addressof(actual), str.data() + block * sizeof(actual), sizeof(actual));
+    return (actual & word.second) == word.first;
+}
+
 /**
  * @brief Check if a string is a case-insensitive prefix match
  * @details This function matches a compile-time prefix case-insensitively. At runtime,
@@ -152,30 +175,45 @@ constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcep
         return false;
     }
 
-    auto offset = ::std::size_t{};
     if constexpr (prefix_str.size() >= 4 && CHAR_BIT == 8 &&
                   (::std::endian::native == ::std::endian::little || ::std::endian::native == ::std::endian::big)) {
         if (!::std::is_constant_evaluated()) {
-            constexpr auto words = ::pltxt2htm::details::prefix_match_words<ndebug, prefix_str>();
-            auto const* data = str.data();
-            for (auto const& [expected, comparison_mask] : words) {
-                auto actual = ::std::uint32_t{};
-                ::std::memcpy(::std::addressof(actual), data + offset, sizeof(actual));
-                if ((actual & comparison_mask) != expected) {
+#if __cpp_expansion_statements >= 202506L
+            template for (constexpr ::std::size_t Block : ::std::views::iota(::std::size_t{}, prefix_str.size() / 4)) {
+                if (!::pltxt2htm::details::prefix_match_word<ndebug, prefix_str, Block>(str)) {
                     return false;
                 }
-                offset += sizeof(actual);
             }
+            template for (constexpr ::std::size_t Tail : ::std::views::iota(::std::size_t{}, prefix_str.size() % 4)) {
+                if (!::pltxt2htm::details::prefix_match_char<ndebug, prefix_str, prefix_str.size() / 4 * 4 + Tail>(
+                        str)) {
+                    return false;
+                }
+            }
+            return true;
+#else
+            return [str]<::std::size_t... Blocks, ::std::size_t... Tail>(
+                       ::std::index_sequence<Blocks...>, ::std::index_sequence<Tail...>) constexpr noexcept {
+                return (::pltxt2htm::details::prefix_match_word<ndebug, prefix_str, Blocks>(str) && ...) &&
+                       (::pltxt2htm::details::prefix_match_char<ndebug, prefix_str, prefix_str.size() / 4 * 4 + Tail>(
+                            str) &&
+                        ...);
+            }(::std::make_index_sequence<prefix_str.size() / 4>{}, ::std::make_index_sequence<prefix_str.size() % 4>{});
+#endif
         }
     }
-    for (; offset < prefix_str.size(); ++offset) {
-        auto const chr = prefix_str[offset];
-        auto const actual = str.template index<ndebug>(offset);
-        if ((u8'a' <= chr && chr <= u8'z' ? (actual | 32) : actual) != chr) {
+#if __cpp_expansion_statements >= 202506L
+    template for (constexpr ::std::size_t I : ::std::views::iota(::std::size_t{}, prefix_str.size())) {
+        if (!::pltxt2htm::details::prefix_match_char<ndebug, prefix_str, I>(str)) {
             return false;
         }
     }
     return true;
+#else
+    return [str]<::std::size_t... Is>(::std::index_sequence<Is...>) constexpr noexcept {
+        return (::pltxt2htm::details::prefix_match_char<ndebug, prefix_str, Is>(str) && ...);
+    }(::std::make_index_sequence<prefix_str.size()>{});
+#endif
 }
 
 /**
