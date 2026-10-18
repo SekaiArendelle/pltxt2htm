@@ -2,8 +2,8 @@
 
 #include "doctest_config.hh"
 
-#include <array>
 #include <pltxt2htm/ast/ast.hh>
+#include <pltxt2htm/container/array.hh>
 
 TEST_SUITE("unity_margin_storage") {
     constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
@@ -24,7 +24,7 @@ TEST_SUITE("unity_margin_storage") {
     }
 
     TEST_CASE("stored margins") {
-        static constexpr auto margins = ::std::array{
+        static constexpr auto margins = ::pltxt2htm::container::Array{
             ::pltxt2htm::ValueWithUnit<::std::size_t>{0, ::pltxt2htm::Unit::px},
             ::pltxt2htm::ValueWithUnit<::std::size_t>{20, ::pltxt2htm::Unit::percent},
             ::pltxt2htm::ValueWithUnit<::std::size_t>{10, ::pltxt2htm::Unit::em},

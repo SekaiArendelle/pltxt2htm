@@ -2,8 +2,8 @@
 
 #include "doctest_config.hh"
 
-#include <array>
 #include <pltxt2htm/ast/ast.hh>
+#include <pltxt2htm/container/array.hh>
 
 TEST_SUITE("html_span_storage") {
     constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
@@ -29,7 +29,7 @@ TEST_SUITE("html_span_storage") {
     }
 
     TEST_CASE("font sizes") {
-        static constexpr auto font_sizes = ::std::array{
+        static constexpr auto font_sizes = ::pltxt2htm::container::Array{
             ::pltxt2htm::ValueWithUnit<double>{12.5, ::pltxt2htm::Unit::px},
             ::pltxt2htm::ValueWithUnit<double>{80.0, ::pltxt2htm::Unit::percent},
             ::pltxt2htm::ValueWithUnit<double>{1.25, ::pltxt2htm::Unit::em},
@@ -44,7 +44,7 @@ TEST_SUITE("html_span_storage") {
     }
 
     TEST_CASE("vertical alignment keywords") {
-        static constexpr auto keywords = ::std::array{
+        static constexpr auto keywords = ::pltxt2htm::container::Array{
             ::pltxt2htm::VerticalAlignKeyword::baseline,    ::pltxt2htm::VerticalAlignKeyword::sub,
             ::pltxt2htm::VerticalAlignKeyword::super,       ::pltxt2htm::VerticalAlignKeyword::text_top,
             ::pltxt2htm::VerticalAlignKeyword::text_bottom, ::pltxt2htm::VerticalAlignKeyword::middle,
@@ -61,7 +61,7 @@ TEST_SUITE("html_span_storage") {
     }
 
     TEST_CASE("vertical alignment lengths") {
-        static constexpr auto lengths = ::std::array{
+        static constexpr auto lengths = ::pltxt2htm::container::Array{
             ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{-5, ::pltxt2htm::Unit::px},
             ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{20, ::pltxt2htm::Unit::percent},
             ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{10, ::pltxt2htm::Unit::em},
