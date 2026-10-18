@@ -2,7 +2,7 @@
 
 #include <compare>
 #include <functional>
-#include "resolve.hh"
+#include "resolved_frame.hh"
 
 namespace pltxt2htm::details::stacktrace {
 template<typename Allocator>

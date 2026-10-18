@@ -1,7 +1,7 @@
 #pragma once
 
 #include <fast_io/fast_io.h>
-#include "entry.hh"
+#include "resolved_frame.hh"
 #include "stacktrace_entry.hh"
 
 namespace pltxt2htm::details::stacktrace {

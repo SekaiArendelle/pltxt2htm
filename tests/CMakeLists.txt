@@ -57,7 +57,7 @@ if(NOT PLTXT2HTM_ENABLE_STACKTRACE STREQUAL "OFF")
     endif()
     if(_pltxt2htm_native_available)
         check_cxx_source_compiles("#include <pltxt2htm/details/stacktrace/capture.hh>
-            #include <pltxt2htm/details/stacktrace/resolve.hh>
+            #include <pltxt2htm/details/stacktrace/resolved_frame.hh>
             int main() { void* frames[1];
                 (void)pltxt2htm::details::stacktrace::resolve(nullptr);
                 return pltxt2htm::details::stacktrace::capture(frames).size == 0; }"

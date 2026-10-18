@@ -1,5 +1,5 @@
 #include <pltxt2htm/details/stacktrace/stacktrace.hh>
-#include <pltxt2htm/details/stacktrace/resolve.hh>
+#include <pltxt2htm/details/stacktrace/resolved_frame.hh>
 #include <pltxt2htm/details/stacktrace/format.hh>
 #if defined(_WIN32) && defined(PLTXT2HTM_ENABLE_STACKTRACE)
     #include <pltxt2htm/details/symbols/win32/kernel32.hh>
