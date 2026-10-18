@@ -105,10 +105,15 @@ constexpr bool is_url_value_char(char8_t const chr) noexcept {
     return ::pltxt2htm::details::is_ascii_graphic(chr) || chr >= char8_t(0x80);
 }
 
+struct PrefixMatchWord {
+    ::std::uint32_t expected;
+    ::std::uint32_t comparison_mask;
+};
+
 template<::pltxt2htm::Contracts ndebug, U8LiteralString prefix_str>
 [[nodiscard]]
 consteval auto prefix_match_words() noexcept {
-    auto words = ::pltxt2htm::container::Array<::std::pair<::std::uint32_t, ::std::uint32_t>, prefix_str.size() / 4>{};
+    auto words = ::pltxt2htm::container::Array<PrefixMatchWord, prefix_str.size() / 4>{};
     for (::std::size_t block{}; block < words.size(); ++block) {
         auto expected = ::std::uint32_t{};
         auto comparison_mask = ::std::uint32_t{};
@@ -143,7 +148,7 @@ constexpr bool prefix_match_word(::pltxt2htm::container::U8StringView str) noexc
     constexpr auto word = words.template index<ndebug>(block);
     auto actual = ::std::uint32_t{};
     ::std::memcpy(::std::addressof(actual), str.data() + block * sizeof(actual), sizeof(actual));
-    return (actual & word.second) == word.first;
+    return (actual & word.comparison_mask) == word.expected;
 }
 
 /**
