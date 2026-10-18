@@ -1101,10 +1101,18 @@ public:
     }
 
     constexpr void swap(this Deque& self, Deque& other) noexcept {
-        ::std::swap(self.blocks, other.blocks);
-        ::std::swap(self.map_capacity, other.map_capacity);
-        ::std::swap(self.start_offset, other.start_offset);
-        ::std::swap(self.element_count, other.element_count);
+        auto tmp_blocks = self.blocks;
+        auto tmp_map_capacity = self.map_capacity;
+        auto tmp_start_offset = self.start_offset;
+        auto tmp_element_count = self.element_count;
+        self.blocks = other.blocks;
+        self.map_capacity = other.map_capacity;
+        self.start_offset = other.start_offset;
+        self.element_count = other.element_count;
+        other.blocks = tmp_blocks;
+        other.map_capacity = tmp_map_capacity;
+        other.start_offset = tmp_start_offset;
+        other.element_count = tmp_element_count;
     }
 };
 
