@@ -26,9 +26,6 @@ constexpr void print_define(::fast_io::io_reserve_type_t<char, ResolvedFrame>, O
             ::fast_io::io::print(output, ":", frame.source_line);
         }
     }
-    else if (!frame.module_file.is_empty()) {
-        ::fast_io::io::print(output, " in ", frame.module_file);
-    }
     if (frame.text_truncated) {
         ::fast_io::io::print(output, " <text truncated>");
     }

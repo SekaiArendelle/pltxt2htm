@@ -16,7 +16,7 @@ namespace pltxt2htm::details::stacktrace {
  * expose immutable entries. Capturing is explicit; queries never unwind again.
  * Uses a stateless fast_io allocator. Allocation failure terminates, as with
  * fast_io containers; at() traps on invalid indices. Native capture
- * may allocate, and exact caller identity depends on inlining and tail calls.
+ * depends on inlining and tail calls.
  * Unlike std::stacktrace, skip counts native frames including implementation
  * helpers. Forwarding current() overloads can add frames in unoptimized builds.
  */
@@ -88,19 +88,11 @@ public:
     [[nodiscard]] static BasicStacktrace current(size_type skip, size_type max_depth,
                                                  allocator_type const& alloc = {}) noexcept {
         BasicStacktrace result{alloc};
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && (defined(_WIN32) || (defined(__linux__) && __has_include(<execinfo.h>)))
-    #if defined(_WIN32)
+#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
         constexpr size_type native_limit = 65535;
         if (skip > (::std::numeric_limits<unsigned long>::max)()) {
             return result;
         }
-    #else
-        constexpr auto int_limit = static_cast<size_type>((::std::numeric_limits<int>::max)());
-        if (skip >= int_limit) {
-            return result;
-        }
-        auto const native_limit = int_limit - skip;
-    #endif
         auto const limit = max_depth < native_limit ? max_depth : native_limit;
         if (limit == 0) {
             return result;

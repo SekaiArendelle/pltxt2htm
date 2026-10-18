@@ -32,7 +32,7 @@ or `-DPLTXT2HTM_SANITIZER=undefined` or `-DPLTXT2HTM_SANITIZER=memory`.
 | Option | Description |
 |---|---|
 | `CMAKE_CXX_STANDARD` | C++ standard: `23` or `26`; when unset, GCC 16+ uses C++26 and other compilers use C++23 |
-| `PLTXT2HTM_ENABLE_STACKTRACE` | Enable native stack capture: `AUTO` (default, compile/link detection), `ON` (require a backend), `OFF` (disable). Windows links ntdll and dbghelp; Linux requires execinfo/backtrace. No standard-library stacktrace dependency. |
+| `PLTXT2HTM_ENABLE_STACKTRACE` | Enable native stack capture: `AUTO` (default, Windows compile/link detection), `ON` (require Windows support), `OFF` (disable). Windows links ntdll and dbghelp. Other platforms return empty traces with `AUTO`; `ON` fails configuration. |
 | `PLTXT2HTM_SANITIZER` | Sanitizer: `address`, `undefined`, `memory` |
 | `PLTXT2HTM_ENABLE_COVERAGE` | Enable code coverage |
 
@@ -66,13 +66,9 @@ The low-level `capture`, `resolve` and `ResolvedFrame` APIs remain available for
 caller-bounded capture and one-time resolution. Resolved symbol and path text is
 dynamically sized rather than stored in fixed-capacity character arrays.
 
-Linux CMake builds detect the optional elfutils libdwfl development package and
-link it when available. With matching DWARF information (`-g` for your executable),
-frames include `at source_file:line`. Module relocation is handled by libdwfl for
-PIE executables and shared libraries. Without libdwfl, missing debug data, or lookup
-failures, libc symbols and the module path remain available through the execinfo
-fallback. Relative source paths are joined with the compilation directory.
-Resolved frames own their text after the per-lookup session is released.
+Windows source locations require matching debug information. The resolver enables
+DbgHelp's process-wide `SYMOPT_LOAD_LINES` option. Hosts that also call DbgHelp
+must coordinate those calls and option changes with the resolver.
 
 ## Generate code coverage
 Requires GCC plus `lcov` and `genhtml`. Use the container image in [`docker/codecov/`](./docker/codecov/README.md), or configure a local build with `-DPLTXT2HTM_ENABLE_COVERAGE=ON` and run `lcov` + `genhtml` over it.

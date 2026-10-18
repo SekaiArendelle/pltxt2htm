@@ -11,8 +11,8 @@ namespace pltxt2htm::details::stacktrace {
 // One session per linked image. This lock only coordinates our own calls;
 // Hosts using DbgHelp elsewhere must coordinate those users when enabling
 // PLTXT2HTM_ENABLE_STACKTRACE. A distinct session handle does not make concurrent
-// DbgHelp calls safe. No process-wide symbol options are changed; source lines
-// depend on debug information and the existing DbgHelp options.
+// DbgHelp calls safe. Source lookup enables the process-wide LOAD_LINES option;
+// hosts must coordinate option changes and all other DbgHelp calls.
 struct alignas(void*) DbgHelpSession {
     ::pltxt2htm::details::symbols::nt::SrwLock lock{};
     void* process{};
@@ -33,6 +33,8 @@ struct alignas(void*) DbgHelpSession {
                                               ::std::addressof(self.process), 0, 0, 2) < 0) {
             return false;
         }
+        constexpr unsigned long symopt_load_lines = 0x00000010;
+        (void)win32::SymSetOptions(win32::SymGetOptions() | symopt_load_lines);
         self.ready = win32::SymInitialize(self.process, nullptr, 1) != 0;
         return self.ready;
     }

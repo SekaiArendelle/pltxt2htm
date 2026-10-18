@@ -9,8 +9,6 @@
 #include "native_frame.hh"
 #if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
     #include "windows.hh"
-#elif defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(__linux__) && __has_include(<execinfo.h>)
-    #include "linux.hh"
 #endif
 
 namespace pltxt2htm::details::stacktrace {
@@ -34,11 +32,6 @@ constexpr void print_native_frame(Output output, NativeResolvedFrame const& fram
             ::fast_io::io::print(output, ":", frame.source_line);
         }
     }
-    else if (!frame.module_file.empty()) {
-        ::fast_io::io::print(
-            output, " in ",
-            ::fast_io::basic_io_scatter_t<char>{.base = frame.module_file.data(), .len = frame.module_file.size()});
-    }
     if (frame.text_truncated) {
         ::fast_io::io::print(output, " <text truncated>");
     }
@@ -46,7 +39,7 @@ constexpr void print_native_frame(Output output, NativeResolvedFrame const& fram
 
 /** Capture, resolve, and print the current trace without using pltxt2htm containers. */
 inline void dump_current_stacktrace() noexcept {
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && (defined(_WIN32) || (defined(__linux__) && __has_include(<execinfo.h>)))
+#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
     ::std::size_t depth{64};
     void** addresses{};
     CaptureResult captured{};

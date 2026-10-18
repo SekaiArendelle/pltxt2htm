@@ -47,10 +47,6 @@ docker buildx imagetools inspect gcr.io/oss-fuzz-base/base-clang:latest
 
 Replace the digest in the Dockerfile, then rebuild and run the image locally.
 
-Native stacktrace support uses glibc's `backtrace`, independently of libc++'s
-`<stacktrace>` support. Configure `-DPLTXT2HTM_ENABLE_STACKTRACE=OFF` when a
-sanitizer setup cannot safely unwind through its runtime.
-
 ## Seccomp issue
 
 MSan calls `personality(ADDR_NO_RANDOMIZE)` at startup to disable ASLR. Docker's
