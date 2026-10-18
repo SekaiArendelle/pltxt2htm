@@ -218,39 +218,6 @@ private:
         }
     }
 
-    template<::pltxt2htm::Contracts ndebug>
-    constexpr void ensure_front_slot(this Deque& self) noexcept {
-        self.ensure_map();
-        if (self.start_offset / elements_per_block == 0) {
-            if (self.has_back_spare()) {
-                size_type const used_blocks{self.allocated_block_count()};
-                pointer const spare{self.blocks[used_blocks]};
-                ::std::copy_backward(self.blocks, self.blocks + used_blocks, self.blocks + used_blocks + 1);
-                self.blocks[0] = spare;
-                self.start_offset += elements_per_block;
-                return;
-            }
-            self.template grow_map<ndebug>(1, 0);
-        }
-    }
-
-    template<::pltxt2htm::Contracts ndebug>
-    constexpr void ensure_back_slot(this Deque& self) noexcept {
-        self.ensure_map();
-        size_type const used_blocks{self.allocated_block_count()};
-        size_type const first_block{self.start_offset / elements_per_block};
-        if (first_block + used_blocks == self.map_capacity) {
-            if (self.has_front_spare()) {
-                pointer const spare{self.blocks[first_block - 1]};
-                ::std::copy(self.blocks + first_block, self.blocks + self.map_capacity, self.blocks + first_block - 1);
-                self.blocks[self.map_capacity - 1] = spare;
-                self.start_offset -= elements_per_block;
-                return;
-            }
-            self.template grow_map<ndebug>(0, 1);
-        }
-    }
-
     constexpr void reset_empty_position(this Deque& self) noexcept {
         size_type const first_block{self.start_offset / elements_per_block};
         pointer const front_spare{self.has_front_spare() ? self.blocks[first_block - 1] : nullptr};
@@ -739,21 +706,32 @@ public:
         pltxt2htm_assert(self.element_count < self.max_size(), u8"Deque size exceeds max_size");
         size_type const insertion_offset{self.start_offset + self.element_count};
         size_type const block_offset{insertion_offset % elements_per_block};
-        bool const needs_block{self.element_count == 0 || block_offset == 0};
+        bool const needs_block{self.is_empty() || block_offset == 0};
 
         if (needs_block) {
-            self.template ensure_back_slot<ndebug>();
-            size_type const map_index{self.start_offset / elements_per_block + self.allocated_block_count()};
-            pointer new_block{self.blocks[map_index]};
-            if (new_block == nullptr) {
-                size_type const first_block{self.start_offset / elements_per_block};
-                if (self.has_front_spare()) {
-                    new_block = self.blocks[first_block - 1];
-                    self.blocks[first_block - 1] = nullptr;
+            self.ensure_map();
+            size_type const used_blocks{self.allocated_block_count()};
+            size_type const first_block{self.start_offset / elements_per_block};
+            size_type map_index{first_block + used_blocks};
+            pointer new_block{map_index < self.map_capacity ? self.blocks[map_index] : nullptr};
+            if (new_block == nullptr && self.has_front_spare()) {
+                new_block = self.blocks[first_block - 1];
+                self.blocks[first_block - 1] = nullptr;
+            }
+            if (map_index == self.map_capacity) {
+                if (new_block != nullptr) {
+                    ::std::copy(self.blocks + first_block, self.blocks + self.map_capacity,
+                                self.blocks + first_block - 1);
+                    self.start_offset -= elements_per_block;
+                    --map_index;
                 }
                 else {
-                    new_block = element_allocator::allocate(elements_per_block);
+                    self.template grow_map<ndebug>(0, 1);
+                    map_index = self.start_offset / elements_per_block + used_blocks;
                 }
+            }
+            if (new_block == nullptr) {
+                new_block = element_allocator::allocate(elements_per_block);
             }
             pointer const result{::std::construct_at(new_block, ::std::forward<Args>(args)...)};
             self.blocks[map_index] = new_block;
@@ -770,10 +748,6 @@ public:
         requires ::std::is_nothrow_constructible_v<value_type, Args...>
     constexpr auto emplace_front(this Deque& self, Args&&... args) noexcept -> reference {
         pltxt2htm_assert(self.element_count < self.max_size(), u8"Deque size exceeds max_size");
-        if (self.is_empty()) {
-            return self.template emplace_back<ndebug>(::std::forward<Args>(args)...);
-        }
-
         if (self.start_offset % elements_per_block != 0) {
             pointer const result{::std::construct_at(
                 self.blocks[self.start_offset / elements_per_block] + self.start_offset % elements_per_block - 1,
@@ -783,18 +757,26 @@ public:
             return *result;
         }
 
-        self.template ensure_front_slot<ndebug>();
+        self.ensure_map();
+        size_type const used_blocks{self.allocated_block_count()};
         size_type const first_block{self.start_offset / elements_per_block};
-        pointer new_block{self.blocks[first_block - 1]};
-        if (new_block == nullptr) {
-            size_type const back_block{first_block + self.allocated_block_count()};
-            if (self.has_back_spare()) {
-                new_block = self.blocks[back_block];
-                self.blocks[back_block] = nullptr;
+        pointer new_block{first_block != 0 ? self.blocks[first_block - 1] : nullptr};
+        if (new_block == nullptr && self.has_back_spare()) {
+            size_type const back_block{first_block + used_blocks};
+            new_block = self.blocks[back_block];
+            self.blocks[back_block] = nullptr;
+        }
+        if (first_block == 0) {
+            if (new_block != nullptr) {
+                ::std::copy_backward(self.blocks, self.blocks + used_blocks, self.blocks + used_blocks + 1);
+                self.start_offset += elements_per_block;
             }
             else {
-                new_block = element_allocator::allocate(elements_per_block);
+                self.template grow_map<ndebug>(1, 0);
             }
+        }
+        if (new_block == nullptr) {
+            new_block = element_allocator::allocate(elements_per_block);
         }
         pointer const result{::std::construct_at(new_block + elements_per_block - 1, ::std::forward<Args>(args)...)};
         --self.start_offset;

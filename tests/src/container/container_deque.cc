@@ -302,8 +302,8 @@ void test_spare_blocks() {
         ::std::size_t const allocated_before_clear{CountingAllocator::block_allocations};
         queue.clear();
         pltxt2htm_test_assert_true(CountingAllocator::block_deallocations == allocated_before_clear - 2);
-        queue.emplace_back<Contracts::quick_enforce>(BlockValue{5});
         queue.emplace_front<Contracts::quick_enforce>(BlockValue{6});
+        queue.emplace_back<Contracts::quick_enforce>(BlockValue{5});
         pltxt2htm_test_assert_true(CountingAllocator::block_allocations == allocated_before_clear);
         queue.clear();
         queue.shrink_to_fit();
