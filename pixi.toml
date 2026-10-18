@@ -40,11 +40,11 @@ build-c-shared = { cmd = "cmake --build c/build-pixi-clang-shared", depends-on =
 gxx = ">=16"
 
 [feature.gcc.tasks]
-configure-tests-gcc = "cmake -S tests -B tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++"
-build-tests-gcc = { cmd = "cmake --build tests/build-pixi-gcc", depends-on = ["configure-tests-gcc"] }
+configure-tests-gcc = { cmd = "cmake -S tests -B tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++", env = { TEMP = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc", TMP = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc", TMPDIR = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc" } }
+build-tests-gcc = { cmd = "cmake --build tests/build-pixi-gcc", depends-on = ["configure-tests-gcc"], env = { TEMP = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc", TMP = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc", TMPDIR = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc" } }
 test-gcc = { cmd = "ctest --test-dir tests/build-pixi-gcc --interactive-debug-mode 0 --output-on-failure", depends-on = ["build-tests-gcc"] }
-configure-cxxmodule-tests = "cmake -S cxxmodule/tests -B cxxmodule/tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++"
-build-cxxmodule-tests = { cmd = "cmake --build cxxmodule/tests/build-pixi-gcc", depends-on = ["configure-cxxmodule-tests"] }
+configure-cxxmodule-tests = { cmd = "cmake -S cxxmodule/tests -B cxxmodule/tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++", env = { TEMP = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc", TMP = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc", TMPDIR = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc" } }
+build-cxxmodule-tests = { cmd = "cmake --build cxxmodule/tests/build-pixi-gcc", depends-on = ["configure-cxxmodule-tests"], env = { TEMP = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc", TMP = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc", TMPDIR = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc" } }
 test-cxxmodule = { cmd = "cxxmodule/tests/build-pixi-gcc/check_public_symbols", depends-on = ["build-cxxmodule-tests"] }
 
 [feature.rust.dependencies]
