@@ -182,15 +182,15 @@ constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcep
 
     if constexpr (prefix_str.size() >= 4 && CHAR_BIT == 8 &&
                   (::std::endian::native == ::std::endian::little || ::std::endian::native == ::std::endian::big)) {
-        if (!::std::is_constant_evaluated()) {
+        if !consteval {
 #if __cpp_expansion_statements >= 202506L
-            template for (constexpr ::std::size_t Block : ::std::views::iota(::std::size_t{}, prefix_str.size() / 4)) {
-                if (!::pltxt2htm::details::prefix_match_word<ndebug, prefix_str, Block>(str)) {
+            template for (constexpr ::std::size_t block : ::std::views::iota(::std::size_t{}, prefix_str.size() / 4)) {
+                if (!::pltxt2htm::details::prefix_match_word<ndebug, prefix_str, block>(str)) {
                     return false;
                 }
             }
-            template for (constexpr ::std::size_t Tail : ::std::views::iota(::std::size_t{}, prefix_str.size() % 4)) {
-                if (!::pltxt2htm::details::prefix_match_char<ndebug, prefix_str, prefix_str.size() / 4 * 4 + Tail>(
+            template for (constexpr ::std::size_t tail : ::std::views::iota(::std::size_t{}, prefix_str.size() % 4)) {
+                if (!::pltxt2htm::details::prefix_match_char<ndebug, prefix_str, prefix_str.size() / 4 * 4 + tail>(
                         str)) {
                     return false;
                 }
@@ -208,8 +208,8 @@ constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcep
         }
     }
 #if __cpp_expansion_statements >= 202506L
-    template for (constexpr ::std::size_t I : ::std::views::iota(::std::size_t{}, prefix_str.size())) {
-        if (!::pltxt2htm::details::prefix_match_char<ndebug, prefix_str, I>(str)) {
+    template for (constexpr ::std::size_t i : ::std::views::iota(::std::size_t{}, prefix_str.size())) {
+        if (!::pltxt2htm::details::prefix_match_char<ndebug, prefix_str, i>(str)) {
             return false;
         }
     }
