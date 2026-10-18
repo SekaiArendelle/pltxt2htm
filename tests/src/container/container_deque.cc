@@ -423,6 +423,7 @@ constexpr auto next_random(::std::uint_least32_t& state) noexcept -> ::std::uint
 
 struct TrackedValue {
     static inline ::std::size_t alive{};
+    static inline ::std::size_t moves{};
 
     int value{};
 
@@ -440,6 +441,7 @@ struct TrackedValue {
         : value{other.value} {
         other.value = -1;
         ++alive;
+        ++moves;
     }
 
     auto operator=(this TrackedValue& self, TrackedValue const& other) noexcept -> TrackedValue& {
@@ -450,6 +452,7 @@ struct TrackedValue {
     auto operator=(this TrackedValue& self, TrackedValue&& other) noexcept -> TrackedValue& {
         self.value = other.value;
         other.value = -1;
+        ++moves;
         return self;
     }
 
@@ -458,7 +461,60 @@ struct TrackedValue {
     }
 
     auto operator==(this TrackedValue const&, TrackedValue const&) noexcept -> bool = default;
+    friend void swap(TrackedValue&, TrackedValue&) = delete;
 };
+
+void test_range_insertion() {
+    using Queue = ::pltxt2htm::container::Deque<TrackedValue>;
+    for (int scenario{}; scenario != 2; ++scenario) {
+        Queue queue{};
+        for (int index{}; index != 700; ++index) {
+            queue.emplace_back<Contracts::quick_enforce>(index);
+        }
+        Queue inserted{};
+        for (int index{}; index != 200; ++index) {
+            inserted.emplace_back<Contracts::quick_enforce>(1000 + index);
+        }
+        int const insertion_index{scenario == 0 ? 100 : 600};
+        TrackedValue::moves = 0;
+        auto const result = queue.insert<Contracts::quick_enforce>(queue.cbegin() + insertion_index, inserted.cbegin(),
+                                                                   inserted.cend());
+        pltxt2htm_test_assert_true(result == queue.begin() + insertion_index);
+        pltxt2htm_test_assert_true(TrackedValue::moves < 4500);
+        for (int index{}; index != 900; ++index) {
+            int const expected{index < insertion_index         ? index
+                               : index < insertion_index + 200 ? 1000 + index - insertion_index
+                                                               : index - 200};
+            pltxt2htm_test_assert_true(queue.index<Contracts::quick_enforce>(index).value == expected);
+        }
+    }
+
+    Queue endpoints{};
+    endpoints.emplace_back<Contracts::quick_enforce>(1);
+    Queue source{};
+    source.emplace_back<Contracts::quick_enforce>(2);
+    source.emplace_back<Contracts::quick_enforce>(3);
+    TrackedValue::moves = 0;
+    auto const empty_result =
+        endpoints.insert<Contracts::quick_enforce>(endpoints.cbegin(), source.cbegin(), source.cbegin());
+    pltxt2htm_test_assert_true(empty_result == endpoints.begin() && TrackedValue::moves == 0);
+    endpoints.insert<Contracts::quick_enforce>(endpoints.cbegin(), source.cbegin(), source.cend());
+    pltxt2htm_test_assert_true(TrackedValue::moves == source.size());
+    TrackedValue::moves = 0;
+    endpoints.insert<Contracts::quick_enforce>(endpoints.cend(), source.cbegin(), source.cend());
+    pltxt2htm_test_assert_true(TrackedValue::moves == source.size());
+
+    IntDeque self{1, 2, 3, 4};
+    auto const result = self.insert<Contracts::quick_enforce>(self.cbegin() + 2, self.cbegin(), self.cbegin() + 3);
+    pltxt2htm_test_assert_true(result == self.begin() + 2);
+    pltxt2htm_test_assert_true((self == IntDeque{1, 2, 1, 2, 3, 3, 4}));
+
+    IntDeque front_self{0, 1, 2, 3, 4, 5};
+    auto const front_result = front_self.insert<Contracts::quick_enforce>(
+        front_self.cbegin() + 1, front_self.cbegin() + 2, front_self.cbegin() + 5);
+    pltxt2htm_test_assert_true(front_result == front_self.begin() + 1);
+    pltxt2htm_test_assert_true((front_self == IntDeque{0, 2, 3, 4, 1, 2, 3, 4, 5}));
+}
 
 } // namespace pltxt2htm_test
 
@@ -472,6 +528,7 @@ int main() {
     ::pltxt2htm_test::test_spare_transfer_at_map_edge();
     ::pltxt2htm_test::test_spare_blocks_follow_storage();
     ::pltxt2htm_test::test_iterator_storage();
+    ::pltxt2htm_test::test_range_insertion();
     IntDeque differential{};
     ::std::deque<int> reference{};
     ::std::uint_least32_t random_state{0xC0FFEEu};

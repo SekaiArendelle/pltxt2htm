@@ -132,6 +132,33 @@ private:
         return self.blocks[offset / elements_per_block] + offset % elements_per_block;
     }
 
+    constexpr void reverse_elements(this Deque& self, size_type first, size_type last) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
+    {
+        while (first < last) {
+            --last;
+            if (first == last) {
+                break;
+            }
+            value_type displaced{::std::move(*self.pointer_at(first))};
+            *self.pointer_at(first) = ::std::move(*self.pointer_at(last));
+            *self.pointer_at(last) = ::std::move(displaced);
+            ++first;
+        }
+    }
+
+    constexpr void rotate_elements(this Deque& self, size_type first, size_type middle, size_type last) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
+    {
+        if (first == middle || middle == last) {
+            return;
+        }
+        // Keep rotation within the noexcept move requirements; iter_swap may call a throwing ADL swap.
+        self.reverse_elements(first, middle);
+        self.reverse_elements(middle, last);
+        self.reverse_elements(first, last);
+    }
+
     constexpr void allocate_map(this Deque& self, size_type capacity) noexcept {
         self.blocks = map_allocator::allocate(capacity);
         self.map_capacity = capacity;
@@ -987,11 +1014,23 @@ public:
         size_type const index{static_cast<size_type>(position - self.cbegin())};
         pltxt2htm_assert(index <= self.element_count, u8"Insertion position of Deque out of bound");
         Deque values{first, last};
-        size_type inserted{};
-        for (reference value : values) {
-            self.template emplace<ndebug>(self.cbegin() + static_cast<difference_type>(index + inserted),
-                                          ::std::move(value));
-            ++inserted;
+        size_type const inserted{values.size()};
+        size_type const old_size{self.element_count};
+        pltxt2htm_assert(inserted <= self.max_size() - old_size, u8"Deque size exceeds max_size");
+        if (inserted == 0) {
+            return self.begin() + static_cast<difference_type>(index);
+        }
+        if (index < old_size - index) {
+            for (size_type remaining{inserted}; remaining != 0; --remaining) {
+                self.template emplace_front<ndebug>(::std::move(values.template index<ndebug>(remaining - 1)));
+            }
+            self.rotate_elements(0, inserted, inserted + index);
+        }
+        else {
+            for (reference value : values) {
+                self.template emplace_back<ndebug>(::std::move(value));
+            }
+            self.rotate_elements(index, old_size, old_size + inserted);
         }
         return self.begin() + static_cast<difference_type>(index);
     }
