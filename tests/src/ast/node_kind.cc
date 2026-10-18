@@ -11,9 +11,15 @@
 #include <pltxt2htm/details/parser/try_parse.hh>
 
 namespace {
-
 constexpr auto test_contracts = ::pltxt2htm::Contracts::quick_enforce;
 using TestNode = ::pltxt2htm::PlTxtNode<test_contracts>;
+
+// PlObjectId has no public constructor, so the node-building cases go through the factory.
+constexpr auto make_object_id(::pltxt2htm::container::U8StringView const text)
+    -> ::pltxt2htm::PlObjectId<test_contracts> {
+    return ::pltxt2htm::PlObjectId<test_contracts>::try_make(text).template value<test_contracts>();
+}
+
 
 consteval auto test_md_escape_result() -> bool {
     auto const trailing = ::pltxt2htm::details::try_parse_md_escape<test_contracts>(u8"\\");
@@ -92,10 +98,10 @@ int main() {
             ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"red"}));
     arr.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(
         TestNode::template emplace<::pltxt2htm::PlExperiment<::pltxt2htm::Contracts::quick_enforce>>(
-            ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}));
+            ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, make_object_id(u8"642cf37a494746375aae306a")));
     arr.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(
         TestNode::template emplace<::pltxt2htm::PlDiscussion<::pltxt2htm::Contracts::quick_enforce>>(
-            ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, ::pltxt2htm::container::U8String{u8"123"}));
+            ::pltxt2htm::Ast<::pltxt2htm::Contracts::quick_enforce>{}, make_object_id(u8"642cf37a494746375aae306a")));
 
     auto invalid_utf8 = TestNode::emplace<::pltxt2htm::InvalidUtf8>();
     auto unity_color = TestNode::emplace<::pltxt2htm::UnityColor<test_contracts>>(

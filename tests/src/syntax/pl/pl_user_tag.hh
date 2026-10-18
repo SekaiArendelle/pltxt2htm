@@ -3,6 +3,18 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("pl_user_tag") {
+    TEST_CASE("uppercase-payload-is-folded") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<user=642CF37A494746375AAE306A>x</user>");
+        auto const& answer = u8"<span class='RUser' data-user='642cf37a494746375aae306a'>x</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("short-payload-stays-literal") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<user=abc>x</user>");
+        auto const& answer = u8"&lt;user=abc&gt;x&lt;/user&gt;";
+        CHECK(html == answer);
+    }
+
     TEST_CASE("basic-user-span") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<user=642cf37a494746375aae306a>physicsLab</user>");
         auto const& answer = u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>";
@@ -36,13 +48,13 @@ TEST_SUITE("pl_user_tag") {
 
     TEST_CASE("inner-id-wins") {
         auto html =
-            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<User=123><user=642cf37a494746375aae306a>physicsLab</user></User>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<User=642cf37a494746375aae306b><user=642cf37a494746375aae306a>physicsLab</user></User>");
         auto const& answer = u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physicsLab</span>";
         CHECK(html == answer);
     }
 
     TEST_CASE("unclosed-no-content") {
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"test<User=123>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"test<User=642cf37a494746375aae306b>");
         auto const& answer = u8"test";
         CHECK(html == answer);
     }
@@ -63,10 +75,10 @@ TEST_SUITE("pl_user_tag") {
 
     TEST_CASE("nested-different-id-kept") {
         auto html =
-            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<user=642cf37a494746375aae306a>physics<user=123>L</user>ab</user>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<user=642cf37a494746375aae306a>physics<user=642cf37a494746375aae306b>L</user>ab</user>");
         auto const& answer =
             u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'>physics<span class=\'RUser\' "
-            u8"data-user=\'123\'>L</span>ab</span>";
+            u8"data-user=\'642cf37a494746375aae306b\'>L</span>ab</span>";
         CHECK(html == answer);
     }
 
@@ -90,20 +102,20 @@ TEST_SUITE("pl_user_tag") {
     }
 
     TEST_CASE("nested-italic") {
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<user=xxx><i>test</i></user>");
-        auto const& answer = u8"<span class=\'RUser\' data-user=\'xxx\'><em>test</em></span>";
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<user=642cf37a494746375aae306a><i>test</i></user>");
+        auto const& answer = u8"<span class=\'RUser\' data-user=\'642cf37a494746375aae306a\'><em>test</em></span>";
         CHECK(html == answer);
     }
 
     TEST_CASE("roundtrip-italic-only") {
-        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<user=xxx><i>test</i></user>");
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<user=642cf37a494746375aae306a><i>test</i></user>");
         auto const& answer = u8"<em>test</em>";
         CHECK(html == answer);
     }
 
     TEST_CASE("plunity-verbatim") {
-        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<user=id>text</user>");
-        auto const& answer = u8"<user=id>text</user>";
+        auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<user=642cf37a494746375aae306a>text</user>");
+        auto const& answer = u8"<user=642cf37a494746375aae306a>text</user>";
         CHECK(html == answer);
     }
 }

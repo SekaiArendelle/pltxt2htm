@@ -48,7 +48,6 @@ foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roun
     )
     target_link_options(${FUZZER_SRC} PRIVATE
         -fsanitize=fuzzer
-        -fuse-ld=lld
     )
 
     if(PLTXT2HTM_SANITIZER STREQUAL "asan")

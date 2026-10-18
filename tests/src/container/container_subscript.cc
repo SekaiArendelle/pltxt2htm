@@ -1,4 +1,4 @@
-// External-only API coverage for BasicString, BasicStringView, Array, Vector and BasicInplaceString.
+// External-only API coverage for BasicString, BasicStringView, Array, Vector, Deque and BasicInplaceString.
 //
 // Every other test is built as pltxt2htm itself, with PLTXT2HTM_INTERNAL_USE
 // defined, where these APIs stay deleted. This TU is excluded
@@ -10,6 +10,7 @@
 #include <utility>
 
 #include <pltxt2htm/container/array.hh>
+#include <pltxt2htm/container/deque.hh>
 #include <pltxt2htm/container/string.hh>
 #include <pltxt2htm/container/string_view.hh>
 #include <pltxt2htm/container/vector.hh>
@@ -22,6 +23,7 @@ using U8String = ::pltxt2htm::container::U8String;
 using U8StringView = ::pltxt2htm::container::U8StringView;
 using U8Array = ::pltxt2htm::container::Array<char8_t, 4>;
 using IntVector = ::pltxt2htm::container::Vector<int>;
+using IntDeque = ::pltxt2htm::container::Deque<int>;
 using U8InplaceString = ::pltxt2htm::details::U8InplaceString<4, ::pltxt2htm::Contracts::quick_enforce>;
 
 static_assert(requires(U8String& string, U8String const& const_string, ::std::size_t position) {
@@ -39,6 +41,13 @@ static_assert(requires(U8InplaceString& string, U8InplaceString const& const_str
     string[position];
     string[position] = u8'a';
     const_string[position];
+});
+static_assert(requires(IntDeque& deque, IntDeque const& const_deque, ::std::size_t position) {
+    { deque[position] } -> ::std::same_as<int&>;
+    deque[position] = 1;
+    { const_deque[position] } -> ::std::same_as<int const&>;
+    { deque.empty() } -> ::std::same_as<bool>;
+    { const_deque.empty() } -> ::std::same_as<bool>;
 });
 static_assert(requires(IntVector& vector, IntVector const& const_vector, ::std::size_t position) {
     { vector[position] } noexcept -> ::std::same_as<int&>;
@@ -113,6 +122,22 @@ static_assert(test_constexpr_string_subscript());
 static_assert(test_constexpr_container_subscript());
 static_assert(test_constexpr_empty());
 
+constexpr auto test_deque_external_access() noexcept -> bool {
+    IntDeque values{};
+    if (!values.empty()) {
+        return false;
+    }
+    for (int value{}; value != 300; ++value) {
+        values.push_back<::pltxt2htm::Contracts::quick_enforce>(value);
+    }
+    values[129] = 42;
+    auto const& const_values = values;
+    return !values.empty() && !const_values.empty() && values[129] == 42 && const_values[129] == 42 &&
+           const_values[299] == 299;
+}
+
+static_assert(test_deque_external_access());
+
 constexpr auto test_vector_subscript() noexcept -> bool {
     IntVector values{1, 2, 3};
     if (values[0] != 1 || values[2] != 3) {
@@ -129,6 +154,36 @@ constexpr auto test_vector_subscript() noexcept -> bool {
 }
 
 static_assert(test_vector_subscript());
+
+[[nodiscard]]
+constexpr auto test_deque_external_self_assignment() noexcept -> bool {
+    IntDeque empty{};
+    auto& empty_alias = empty;
+    empty = empty_alias;
+    empty = ::std::move(empty_alias);
+    if (!empty.empty()) {
+        return false;
+    }
+    IntDeque values{};
+    for (int value{}; value != 300; ++value) {
+        values.push_back<::pltxt2htm::Contracts::quick_enforce>(value);
+    }
+    auto& alias = values;
+    auto const first_element = ::std::addressof(values[0]);
+    values = alias;
+    values = ::std::move(alias);
+    if (values.size() != 300 || ::std::addressof(values[0]) != first_element) {
+        return false;
+    }
+    for (int value{}; value != 300; ++value) {
+        if (values[static_cast<::std::size_t>(value)] != value) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static_assert(test_deque_external_self_assignment());
 
 [[nodiscard]]
 constexpr auto test_external_self_assignment() noexcept -> bool {
@@ -165,6 +220,8 @@ static_assert(test_external_self_assignment());
 
 int main() {
     pltxt2htm_test_assert_true(test_external_self_assignment());
+    pltxt2htm_test_assert_true(test_deque_external_self_assignment());
+    pltxt2htm_test_assert_true(test_deque_external_access());
     pltxt2htm_test_assert_true(test_vector_subscript());
     U8String string{u8"abcd"};
     pltxt2htm_test_assert_true(string[0] == u8'a');

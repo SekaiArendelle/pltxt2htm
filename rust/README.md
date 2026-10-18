@@ -3,16 +3,22 @@ Note that this is experimental.
 
 `libpltxt2htm-sys` now compiles the C bridge automatically at build time, so no manual static-library build/copy step is needed.
 
-It requires a C++23 toolchain on your machine because the C bridge (`c/src/pltxt2htm.cc`) is compiled during `cargo build`/`cargo run`.
+The C bridge (`c/src/pltxt2htm.cc`) is compiled during Rust builds. Use the
+Pixi Rust environment from the repository root:
+
+```sh
+pixi run -e rust build-rust
+pixi run -e rust test-rust
+```
 
 ## examples
 
 example for libpltxt2htm-sys, which is not recommended:
 ```sh
-cargo run --example bare
+pixi run -e rust run-rust-example libpltxt2htm-sys bare
 ```
 
 example for pltxt2htm:
 ```sh
-cargo run --example recommend
+pixi run -e rust run-rust-example pltxt2htm recommend
 ```

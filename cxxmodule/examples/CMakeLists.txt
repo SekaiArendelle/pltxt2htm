@@ -35,10 +35,3 @@ target_sources(example PRIVATE
 if(WIN32 OR MINGW)
     target_link_libraries(example PRIVATE ntdll)
 endif()
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang")
-    find_program(HAVE_LD_LLD NAMES ld.lld)
-    if(HAVE_LD_LLD)
-        target_link_options(example PRIVATE -fuse-ld=lld)
-    endif()
-endif()

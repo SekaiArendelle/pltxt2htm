@@ -19,7 +19,7 @@ constexpr auto ::pltxt2htm::PlA<ndebug>::operator==(this PlA<ndebug> const&, ::p
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlExperiment<ndebug>::PlExperiment(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                          ::pltxt2htm::container::U8String&& id_) noexcept
+                                                          ::pltxt2htm::PlObjectId<ndebug>&& id_) noexcept
     : subast(::std::move(subast_)),
       id(::std::move(id_)) {
 }
@@ -40,7 +40,7 @@ constexpr auto ::pltxt2htm::PlExperiment<ndebug>::operator==(this PlExperiment<n
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlDiscussion<ndebug>::PlDiscussion(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                          ::pltxt2htm::container::U8String&& id_) noexcept
+                                                          ::pltxt2htm::PlObjectId<ndebug>&& id_) noexcept
     : subast(::std::move(subast_)),
       id(::std::move(id_)) {
 }
@@ -105,7 +105,7 @@ constexpr auto ::pltxt2htm::PlDiscussions<ndebug>::operator==(this PlDiscussions
 
 template<::pltxt2htm::Contracts ndebug>
 constexpr ::pltxt2htm::PlUser<ndebug>::PlUser(::pltxt2htm::Ast<ndebug>&& subast_,
-                                              ::pltxt2htm::container::U8String&& id_) noexcept
+                                              ::pltxt2htm::PlObjectId<ndebug>&& id_) noexcept
     : subast(::std::move(subast_)),
       id(::std::move(id_)) {
 }
