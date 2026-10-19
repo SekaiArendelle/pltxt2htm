@@ -1,30 +1,29 @@
-// This test stands in for a downstream user: it is deliberately built without
-// PLTXT2HTM_INTERNAL_USE (see the exclusion in tests/CMakeLists.txt), so that the copy
-// operations pltxt2htm exposes to external users stay covered.
-#include "precompile.hh"
+#pragma once
+
+#include "doctest_config.hh"
 
 #include <pltxt2htm/ast/ast.hh>
 
-int main() {
+TEST_SUITE("deep_copy") {
     using nd = ::pltxt2htm::Contracts;
 
     // Copy a single stateless node
-    {
+    TEST_CASE("copy-stateless-node") {
         auto const original = ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::LineBreak>();
         auto const copy = original;
-        pltxt2htm_test_assert_true(original == copy);
+        CHECK(original == copy);
     }
 
     // Copy a Text node
-    {
+    TEST_CASE("copy-text-node") {
         auto const original =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'X');
         auto const copy = original;
-        pltxt2htm_test_assert_true(original == copy);
+        CHECK(original == copy);
     }
 
     // Deep copy a simple Group node with children
-    {
+    TEST_CASE("deep-copy-group-children") {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
         ast.emplace_back(
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'H'));
@@ -36,11 +35,11 @@ int main() {
                 ::std::move(ast));
 
         auto const copy = original;
-        pltxt2htm_test_assert_true(original == copy);
+        CHECK(original == copy);
     }
 
     // Deep copy with nested sub-AST (HtmlBlockquote > HtmlH1 > Text)
-    {
+    TEST_CASE("deep-copy-nested-sub-ast") {
         ::pltxt2htm::Ast<nd::quick_enforce> inner{};
         inner.emplace_back(
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'a'));
@@ -55,11 +54,11 @@ int main() {
                 ::std::move(outer));
 
         auto const copy = original;
-        pltxt2htm_test_assert_true(original == copy);
+        CHECK(original == copy);
     }
 
     // Copy independence: modifying original must not affect copy
-    {
+    TEST_CASE("copy-independence-for-nested-ast") {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
         ast.emplace_back(
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
@@ -82,12 +81,12 @@ int main() {
         auto const expected =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Group<nd::quick_enforce>>(
                 ::std::move(expected_ast));
-        pltxt2htm_test_assert_true(copy == expected);
-        pltxt2htm_test_assert_false(copy == original);
+        CHECK(copy == expected);
+        CHECK_FALSE(copy == original);
     }
 
     // Copy of a node with extra data (TableTh with align)
-    {
+    TEST_CASE("copy-table-header-with-alignment") {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
         ast.emplace_back(
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'c'));
@@ -97,11 +96,11 @@ int main() {
                 ::std::move(ast), ::pltxt2htm::TableAlign::center);
 
         auto const copy = original;
-        pltxt2htm_test_assert_true(original == copy);
+        CHECK(original == copy);
     }
 
     // Copy of a node with optional language (CodeFence)
-    {
+    TEST_CASE("copy-code-fence-with-optional-language") {
         ::pltxt2htm::Ast<nd::quick_enforce> ast{};
         ast.emplace_back(
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'x'));
@@ -112,35 +111,36 @@ int main() {
                                       ::pltxt2htm::container::U8String{u8"cpp"}));
 
         auto const copy = original;
-        pltxt2htm_test_assert_true(original == copy);
+        CHECK(original == copy);
     }
 
     // Copy of a node with Url (MdLink)
-    {
+    TEST_CASE("copy-markdown-link-with-url") {
         ::pltxt2htm::Ast<nd::quick_enforce> text_ast{};
         text_ast.emplace_back(
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8't'));
 
         auto const original =
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::MdLink<nd::quick_enforce>>(
-                ::std::move(text_ast), ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.com").value<nd::quick_enforce>());
+                ::std::move(text_ast),
+                ::pltxt2htm::Url::try_make<nd::quick_enforce>(u8"https://example.com").value<nd::quick_enforce>());
 
         auto const copy = original;
-        pltxt2htm_test_assert_true(original == copy);
+        CHECK(original == copy);
     }
 
     // Copy an Ast (vector of PlTxtNode)
-    {
+    TEST_CASE("copy-ast") {
         ::pltxt2htm::Ast<nd::quick_enforce> const original{
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'),
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'B')};
 
         auto const copy = original;
-        pltxt2htm_test_assert_true(original == copy);
+        CHECK(original == copy);
     }
 
     // Ast copy independence
-    {
+    TEST_CASE("ast-copy-independence") {
         ::pltxt2htm::Ast<nd::quick_enforce> original{};
         original.emplace_back(
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
@@ -155,9 +155,7 @@ int main() {
         expected.emplace_back(
             ::pltxt2htm::PlTxtNode<nd::quick_enforce>::template emplace<::pltxt2htm::Text<nd::quick_enforce>>(u8'A'));
 
-        pltxt2htm_test_assert_true(copy == expected);
-        pltxt2htm_test_assert_false(copy == original);
+        CHECK(copy == expected);
+        CHECK_FALSE(copy == original);
     }
-
-    return 0;
 }

@@ -127,6 +127,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(pltxt2htm_base INTERFACE -finput-charset=utf-8 -fexec-charset=utf-8 -fexceptions)
 endif()
+if(CMAKE_CXX_STANDARD STREQUAL "26"
+   AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
+    target_compile_options(pltxt2htm_base INTERFACE -freflection)
+endif()
 
 add_library(precompile STATIC precompile.cpp)
 target_link_libraries(precompile PUBLIC pltxt2htm_base)
@@ -169,6 +173,9 @@ pltxt2htm_generate_cases(doctest_precompile_suites
     "${CMAKE_CURRENT_SOURCE_DIR}/src/parser/*.hh")
 pltxt2htm_generate_cases(doctest_ast
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ast/*.hh")
+pltxt2htm_generate_cases(doctest_external_use
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ast/external/*.hh"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/container/external/*.hh")
 
 foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
@@ -178,26 +185,19 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
         target_link_libraries(${TEST_NAME} PRIVATE dbghelp)
     endif()
     # The doctest runners consume their generated include lists.
-    if(TEST_NAME STREQUAL "doctest_precompile_suites" OR TEST_NAME STREQUAL "doctest_ast")
+    if(TEST_NAME STREQUAL "doctest_precompile_suites" OR TEST_NAME STREQUAL "doctest_ast"
+       OR TEST_NAME STREQUAL "doctest_external_use")
         target_include_directories(${TEST_NAME} PRIVATE
             "${CMAKE_CURRENT_BINARY_DIR}/generated"
             "${CMAKE_CURRENT_SOURCE_DIR}/src")
     endif()
     # Tests are built as pltxt2htm itself, so external-only APIs must stay unavailable to them.
-    # The deep-copy, copy-assignment, ast-interface and container-subscript tests are the
-    # exception: they stand in for a downstream user and cover the copy operations and
-    # external-only container APIs that are part of the public API.
-    if(NOT TEST_NAME STREQUAL "deep_copy" AND NOT TEST_NAME STREQUAL "copy_assignment"
-       AND NOT TEST_NAME STREQUAL "ast_interface" AND NOT TEST_NAME STREQUAL "container_subscript")
+    # This runner stands in for downstream users and covers APIs unavailable to internal library code.
+    if(NOT TEST_NAME STREQUAL "doctest_external_use")
         target_compile_definitions(${TEST_NAME} PRIVATE PLTXT2HTM_INTERNAL_USE)
     endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_compile_options(${TEST_NAME} PRIVATE -g -Werror=switch)
-    endif()
-    # The node layout test uses the reflection implementation shipped by GCC 16.
-    if(TEST_NAME STREQUAL "node_layout" AND CMAKE_CXX_STANDARD STREQUAL "26"
-       AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
-        target_compile_options(${TEST_NAME} PRIVATE -freflection)
     endif()
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endforeach()
