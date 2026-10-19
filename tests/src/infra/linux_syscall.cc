@@ -59,14 +59,14 @@ void test_two_and_three_argument_syscalls() noexcept {
     pltxt2htm_test_assert_true(linux_sys::system_call<__NR_close, long>(pipe_fds[1]) == 0);
 }
 
-void test_six_argument_and_inline_syscalls() noexcept {
-    // mmap() exists only in the kernel tables of the inline-assembly architectures above.
+void test_six_argument_syscalls() noexcept {
+    // mmap()/munmap() exist only in the kernel tables of the inline-assembly architectures above.
     #if defined(__x86_64__) || defined(__aarch64__) || (defined(__riscv) && (__SIZEOF_SIZE_T__ == 8)) || \
         (defined(__loongarch__) && (__SIZEOF_SIZE_T__ == 8))
     auto mapping =
         linux_sys::system_call<__NR_mmap, long>(nullptr, 4096, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     pltxt2htm_test_assert_true(linux_sys::system_call_fails(mapping) == false);
-    pltxt2htm_test_assert_true(linux_sys::inline_syscall<__NR_munmap, long>(mapping, 4096) == 0);
+    pltxt2htm_test_assert_true(linux_sys::system_call<__NR_munmap, long>(mapping, 4096) == 0);
     #endif
 }
 
@@ -114,7 +114,7 @@ void test_must_succeed_success_path_and_fast_exit() noexcept {
 int main() noexcept {
     test_zero_and_one_argument_syscalls();
     test_two_and_three_argument_syscalls();
-    test_six_argument_and_inline_syscalls();
+    test_six_argument_syscalls();
     test_must_succeed_traps_on_failure();
     test_must_succeed_success_path_and_fast_exit();
     return 0;
