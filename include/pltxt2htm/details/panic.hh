@@ -6,12 +6,8 @@
 
 #pragma once
 
-// Currently, only STL supports <stacktrace>
-// libstdc++ do supports <stacktrace>, but it's experimental
-// libc++ does not supports <stacktrace> currently
-#if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_ENABLE_STACKTRACE)
-    #include <stacktrace>
-    #include <fast_io/fast_io.h>
+#if defined(PLTXT2HTM_ENABLE_STACKTRACE)
+    #include "stacktrace/dump.hh"
 #endif
 #include <cstdio>
 #include "literal_string.hh"
@@ -50,37 +46,14 @@ inline void panic() noexcept {
         ::pltxt2htm::details::uint_to_literal_string<column>(),
         U8LiteralString{u8"\n"
                         "* with message: \""},
-        msg, U8LiteralString{u8"\"\n\0"});
+        msg, U8LiteralString{u8"\"\n"});
 
     ::std::fwrite(to_be_printed.cdata(), sizeof(typename decltype(to_be_printed)::value_type), to_be_printed.size(),
                   stderr);
 
-#if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_ENABLE_STACKTRACE)
-    ::std::fputs("* stack trace:\n", stderr);
-    auto stacktrace = ::std::stacktrace::current();
-    auto const stacktrace_size = stacktrace.size();
-    for (::std::size_t i = 0; i < stacktrace_size; ++i) {
-        auto const& entry = stacktrace[i];
-
-        // Print frame number and function description
-        if (entry.description().size() > 0) {
-            ::fast_io::io::perr("[", i, "] ", ::fast_io::mnp::os_c_str(entry.description().c_str()));
-        }
-        else {
-            ::fast_io::io::perr("[", i, "] <unknown function>");
-        }
-
-        // Print source file and line if available
-        if (entry.source_file().size() > 0) {
-            ::fast_io::io::perr(" at ", ::fast_io::mnp::os_c_str(entry.source_file().c_str()));
-
-            if (entry.source_line() > 0) {
-                ::fast_io::io::perr(":", entry.source_line());
-            }
-        }
-
-        ::fast_io::io::perr("\n");
-    }
+#if defined(PLTXT2HTM_ENABLE_STACKTRACE)
+    ::std::fflush(stderr);
+    ::pltxt2htm::details::stacktrace::dump_current_stacktrace();
 #endif
     ::std::fflush(stderr);
 

@@ -4,7 +4,7 @@ project(pltxt2htm LANGUAGES CXX VERSION 0.27.0)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(PLTXT2HTM_ENABLE_STACKTRACE OFF CACHE BOOL "Enable C++23 <stacktrace>")
+set(PLTXT2HTM_ENABLE_STACKTRACE OFF CACHE BOOL "Enable native stacktrace")
 
 # Python include dir and extension suffix — can be passed externally (e.g. cross-compile in docker),
 # or auto-detected from the python on PATH
@@ -61,6 +61,7 @@ else()
     message(STATUS "Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX} PREFIX=${PYTHON_PREFIX} LIB=${PYTHON_LIB}")
 endif()
 
+
 add_library(pltxt2htm MODULE pltxt2htm.cc)
 
 set_target_properties(pltxt2htm PROPERTIES
@@ -76,15 +77,19 @@ target_include_directories(pltxt2htm PRIVATE
 target_compile_features(pltxt2htm PRIVATE cxx_std_23)
 
 if(PLTXT2HTM_ENABLE_STACKTRACE)
+    if(NOT WIN32)
+        message(FATAL_ERROR "Native stacktrace currently supports Windows only")
+    endif()
     target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
+    target_link_libraries(pltxt2htm PRIVATE ntdll dbghelp)
 endif()
 
 # Compile/link flags for GCC/Clang-style toolchains
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     target_compile_options(pltxt2htm PRIVATE
         -fno-rtti
-        -fno-unwind-tables
-        -fno-asynchronous-unwind-tables
+        $<$<NOT:$<BOOL:${PLTXT2HTM_ENABLE_STACKTRACE}>>:-fno-unwind-tables>
+        $<$<NOT:$<BOOL:${PLTXT2HTM_ENABLE_STACKTRACE}>>:-fno-asynchronous-unwind-tables>
         -fvisibility=hidden
         -fvisibility-inlines-hidden
     )
