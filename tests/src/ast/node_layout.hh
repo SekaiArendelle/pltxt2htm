@@ -32,9 +32,7 @@ TEST_SUITE("node_layout") {
         return result;
     }
 
-    TEST_CASE("text-matches-largest-node-storage") {
-        static_assert(sizeof(Text) == largest_other_node_size());
-    }
+    static_assert(sizeof(Text) == largest_other_node_size());
 #else
     #warning "node_layout reflection test skipped: requires GCC 16 or newer with C++26"
 #endif

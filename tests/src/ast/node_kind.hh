@@ -84,10 +84,9 @@ TEST_SUITE("node_kind") {
     static_assert(test_md_escape_result());
     static_assert(::std::is_trivially_copyable_v<::pltxt2htm::details::TryParseMdEscapeResult>);
     static_assert(sizeof(::pltxt2htm::details::TryParseMdEscapeResult) <= sizeof(::std::size_t) * 2);
+    static_assert(::std::movable<::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::quick_enforce>>);
 
     TEST_CASE("node-kinds-and-storage-indexing") {
-        static_assert(::std::movable<::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::quick_enforce>>);
-
         ::pltxt2htm::container::Vector<::pltxt2htm::PlTxtNode<::pltxt2htm::Contracts::quick_enforce>> arr{};
         arr.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(
             TestNode::template emplace<::pltxt2htm::Text<test_contracts>>(u8'a'));
