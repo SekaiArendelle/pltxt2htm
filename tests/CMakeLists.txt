@@ -169,6 +169,8 @@ pltxt2htm_generate_cases(doctest_precompile_suites
     "${CMAKE_CURRENT_SOURCE_DIR}/src/parser/*.hh")
 pltxt2htm_generate_cases(doctest_ast
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ast/*.hh")
+pltxt2htm_generate_cases(doctest_ast_external
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ast/external/*.hh")
 
 foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
@@ -178,17 +180,16 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
         target_link_libraries(${TEST_NAME} PRIVATE dbghelp)
     endif()
     # The doctest runners consume their generated include lists.
-    if(TEST_NAME STREQUAL "doctest_precompile_suites" OR TEST_NAME STREQUAL "doctest_ast")
+    if(TEST_NAME STREQUAL "doctest_precompile_suites" OR TEST_NAME STREQUAL "doctest_ast"
+       OR TEST_NAME STREQUAL "doctest_ast_external")
         target_include_directories(${TEST_NAME} PRIVATE
             "${CMAKE_CURRENT_BINARY_DIR}/generated"
             "${CMAKE_CURRENT_SOURCE_DIR}/src")
     endif()
     # Tests are built as pltxt2htm itself, so external-only APIs must stay unavailable to them.
-    # The deep-copy, copy-assignment, ast-interface and container-subscript tests are the
-    # exception: they stand in for a downstream user and cover the copy operations and
-    # external-only container APIs that are part of the public API.
-    if(NOT TEST_NAME STREQUAL "deep_copy" AND NOT TEST_NAME STREQUAL "copy_assignment"
-       AND NOT TEST_NAME STREQUAL "ast_interface" AND NOT TEST_NAME STREQUAL "container_subscript")
+    # The external AST runner and container subscript test stand in for downstream users
+    # and cover APIs that are unavailable to internal library code.
+    if(NOT TEST_NAME STREQUAL "doctest_ast_external" AND NOT TEST_NAME STREQUAL "container_subscript")
         target_compile_definitions(${TEST_NAME} PRIVATE PLTXT2HTM_INTERNAL_USE)
     endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
