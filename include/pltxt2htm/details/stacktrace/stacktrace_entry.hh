@@ -33,15 +33,18 @@ public:
         return self;
     }
 
-    [[nodiscard]] constexpr native_handle_type native_handle(this StacktraceEntry const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto native_handle(this StacktraceEntry const& self) noexcept -> native_handle_type {
         return self.address_;
     }
 
-    [[nodiscard]] constexpr explicit operator bool(this StacktraceEntry const& self) noexcept {
+    [[nodiscard]]
+    constexpr explicit operator bool(this StacktraceEntry const& self) noexcept {
         return self.address_ != nullptr;
     }
 
-    [[nodiscard]] ::pltxt2htm::container::String description(this StacktraceEntry const& self) noexcept {
+    [[nodiscard]]
+    auto description(this StacktraceEntry const& self) noexcept -> ::pltxt2htm::container::String {
         if (!self) {
             return {};
         }
@@ -49,7 +52,8 @@ public:
         return frame.description;
     }
 
-    [[nodiscard]] ::pltxt2htm::container::String source_file(this StacktraceEntry const& self) noexcept {
+    [[nodiscard]]
+    auto source_file(this StacktraceEntry const& self) noexcept -> ::pltxt2htm::container::String {
         if (!self) {
             return {};
         }
@@ -57,19 +61,22 @@ public:
         return frame.source_file;
     }
 
-    [[nodiscard]] ::std::uint_least32_t source_line(this StacktraceEntry const& self) noexcept {
+    [[nodiscard]]
+    auto source_line(this StacktraceEntry const& self) noexcept -> ::std::uint_least32_t {
         if (!self) {
             return 0;
         }
         return ::pltxt2htm::details::stacktrace::resolve(self.address_).source_line;
     }
 
-    [[nodiscard]] friend constexpr bool operator==(StacktraceEntry const& left, StacktraceEntry const& right) noexcept {
+    [[nodiscard]]
+    friend constexpr auto operator==(StacktraceEntry const& left, StacktraceEntry const& right) noexcept -> bool {
         return left.address_ == right.address_;
     }
 
-    [[nodiscard]] friend constexpr ::std::strong_ordering operator<=>(StacktraceEntry const& left,
-                                                                      StacktraceEntry const& right) noexcept {
+    [[nodiscard]]
+    friend constexpr auto operator<=>(StacktraceEntry const& left,
+                                      StacktraceEntry const& right) noexcept -> ::std::strong_ordering {
         return ::std::compare_three_way{}(left.address_, right.address_);
     }
 };

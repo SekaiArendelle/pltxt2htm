@@ -59,7 +59,7 @@ public:
         : BasicStacktrace{::std::move(other)} {
     }
 
-    constexpr BasicStacktrace& operator=(this BasicStacktrace& self, BasicStacktrace const& other) noexcept {
+    constexpr auto operator=(this BasicStacktrace& self, BasicStacktrace const& other) noexcept -> BasicStacktrace& {
         if (::std::addressof(self) == ::std::addressof(other)) {
             return self;
         }
@@ -68,7 +68,7 @@ public:
         return self;
     }
 
-    constexpr BasicStacktrace& operator=(this BasicStacktrace& self, BasicStacktrace&& other) noexcept {
+    constexpr auto operator=(this BasicStacktrace& self, BasicStacktrace&& other) noexcept -> BasicStacktrace& {
         if (::std::addressof(self) == ::std::addressof(other)) {
             return self;
         }
@@ -77,16 +77,19 @@ public:
         return self;
     }
 
-    [[nodiscard]] static BasicStacktrace current(allocator_type const& alloc = {}) noexcept {
+    [[nodiscard]]
+    static auto current(allocator_type const& alloc = {}) noexcept -> BasicStacktrace {
         return BasicStacktrace::current(0, (::std::numeric_limits<size_type>::max)(), alloc);
     }
 
-    [[nodiscard]] static BasicStacktrace current(size_type skip, allocator_type const& alloc = {}) noexcept {
+    [[nodiscard]]
+    static auto current(size_type skip, allocator_type const& alloc = {}) noexcept -> BasicStacktrace {
         return BasicStacktrace::current(skip, (::std::numeric_limits<size_type>::max)(), alloc);
     }
 
-    [[nodiscard]] static BasicStacktrace current(size_type skip, size_type max_depth,
-                                                 allocator_type const& alloc = {}) noexcept {
+    [[nodiscard]]
+    static auto current(size_type skip, size_type max_depth,
+                        allocator_type const& alloc = {}) noexcept -> BasicStacktrace {
         BasicStacktrace result{alloc};
 #if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
         constexpr size_type native_limit = 65535;
@@ -123,62 +126,76 @@ public:
         return result;
     }
 
-    [[nodiscard]] constexpr allocator_type get_allocator(this BasicStacktrace const&) noexcept {
+    [[nodiscard]]
+    constexpr auto get_allocator(this BasicStacktrace const&) noexcept -> allocator_type {
         return {};
     }
 
-    [[nodiscard]] constexpr const_iterator begin(this BasicStacktrace const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto begin(this BasicStacktrace const& self) noexcept -> const_iterator {
         return self.entries_.data();
     }
 
-    [[nodiscard]] constexpr const_iterator end(this BasicStacktrace const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto end(this BasicStacktrace const& self) noexcept -> const_iterator {
         if (self.captured_.size == 0) {
             return self.entries_.data();
         }
         return self.entries_.data() + self.captured_.size;
     }
 
-    [[nodiscard]] constexpr const_iterator cbegin(this BasicStacktrace const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto cbegin(this BasicStacktrace const& self) noexcept -> const_iterator {
         return self.begin();
     }
 
-    [[nodiscard]] constexpr const_iterator cend(this BasicStacktrace const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto cend(this BasicStacktrace const& self) noexcept -> const_iterator {
         return self.end();
     }
 
-    [[nodiscard]] constexpr const_reverse_iterator rbegin(this BasicStacktrace const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto rbegin(this BasicStacktrace const& self) noexcept -> const_reverse_iterator {
         return const_reverse_iterator{self.end()};
     }
 
-    [[nodiscard]] constexpr const_reverse_iterator rend(this BasicStacktrace const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto rend(this BasicStacktrace const& self) noexcept -> const_reverse_iterator {
         return const_reverse_iterator{self.begin()};
     }
 
-    [[nodiscard]] constexpr const_reverse_iterator crbegin(this BasicStacktrace const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto crbegin(this BasicStacktrace const& self) noexcept -> const_reverse_iterator {
         return self.rbegin();
     }
 
-    [[nodiscard]] constexpr const_reverse_iterator crend(this BasicStacktrace const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto crend(this BasicStacktrace const& self) noexcept -> const_reverse_iterator {
         return self.rend();
     }
 
-    [[nodiscard]] constexpr size_type size(this BasicStacktrace const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto size(this BasicStacktrace const& self) noexcept -> size_type {
         return self.captured_.size;
     }
 
-    [[nodiscard]] constexpr size_type max_size(this BasicStacktrace const&) noexcept {
+    [[nodiscard]]
+    constexpr auto max_size(this BasicStacktrace const&) noexcept -> size_type {
         return ::pltxt2htm::container::Vector<StacktraceEntry, storage_allocator>::max_size();
     }
 
-    [[nodiscard]] constexpr bool empty(this BasicStacktrace const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto empty(this BasicStacktrace const& self) noexcept -> bool {
         return self.size() == 0;
     }
 
-    [[nodiscard]] constexpr const_reference operator[](this BasicStacktrace const& self, size_type index) noexcept {
+    [[nodiscard]]
+    constexpr auto operator[](this BasicStacktrace const& self, size_type index) noexcept -> const_reference {
         return self.entries_.template index<::pltxt2htm::Contracts::ignore>(index);
     }
 
-    [[nodiscard]] constexpr const_reference at(this BasicStacktrace const& self, size_type index) noexcept {
+    [[nodiscard]]
+    constexpr auto at(this BasicStacktrace const& self, size_type index) noexcept -> const_reference {
         if (index >= self.size()) [[unlikely]] {
             ::pltxt2htm::details::trap();
         }
@@ -190,14 +207,16 @@ public:
         ::std::swap(self.captured_, other.captured_);
     }
 
-    [[nodiscard]] constexpr bool possibly_truncated(this BasicStacktrace const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto possibly_truncated(this BasicStacktrace const& self) noexcept -> bool {
         return self.captured_.possibly_truncated;
     }
 };
 
 template<typename Left, typename Right>
-[[nodiscard]] constexpr bool operator==(BasicStacktrace<Left> const& left,
-                                        BasicStacktrace<Right> const& right) noexcept {
+[[nodiscard]]
+constexpr auto operator==(BasicStacktrace<Left> const& left,
+                          BasicStacktrace<Right> const& right) noexcept -> bool {
     if (left.size() != right.size()) {
         return false;
     }
@@ -211,8 +230,9 @@ template<typename Left, typename Right>
 }
 
 template<typename Left, typename Right>
-[[nodiscard]] constexpr ::std::strong_ordering operator<=>(BasicStacktrace<Left> const& left,
-                                                           BasicStacktrace<Right> const& right) noexcept {
+[[nodiscard]]
+constexpr auto operator<=>(BasicStacktrace<Left> const& left,
+                           BasicStacktrace<Right> const& right) noexcept -> ::std::strong_ordering {
     auto const size_order = left.size() <=> right.size();
     if (size_order != 0) {
         return size_order;

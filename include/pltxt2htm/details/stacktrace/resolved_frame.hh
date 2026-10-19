@@ -37,7 +37,7 @@ constexpr auto own_frame(NativeResolvedFrame const& frame) noexcept -> ResolvedF
  * diagnostics after heap corruption. Failure retains the address.
  */
 [[nodiscard]]
-inline ResolvedFrame resolve(void* address) noexcept {
+inline auto resolve(void* address) noexcept -> ResolvedFrame {
 #if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
     return ::pltxt2htm::details::stacktrace::own_frame(::pltxt2htm::details::stacktrace::resolve_native(address));
 #else

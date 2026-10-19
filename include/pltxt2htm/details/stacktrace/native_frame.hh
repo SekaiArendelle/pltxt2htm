@@ -40,15 +40,18 @@ public:
         ::std::free(data_);
     }
 
-    [[nodiscard]] constexpr auto data(this NativeTextBuffer const& self) noexcept -> char const* {
+    [[nodiscard]]
+    constexpr auto data(this NativeTextBuffer const& self) noexcept -> char const* {
         return self.data_ == nullptr ? "" : self.data_;
     }
 
-    [[nodiscard]] constexpr auto size(this NativeTextBuffer const& self) noexcept -> ::std::size_t {
+    [[nodiscard]]
+    constexpr auto size(this NativeTextBuffer const& self) noexcept -> ::std::size_t {
         return self.size_;
     }
 
-    [[nodiscard]] constexpr bool empty(this NativeTextBuffer const& self) noexcept {
+    [[nodiscard]]
+    constexpr auto empty(this NativeTextBuffer const& self) noexcept -> bool {
         return self.size_ == 0;
     }
 
@@ -59,7 +62,8 @@ public:
         }
     }
 
-    [[nodiscard]] bool assign(this NativeTextBuffer& self, char const* source, ::std::size_t size) noexcept {
+    [[nodiscard]]
+    auto assign(this NativeTextBuffer& self, char const* source, ::std::size_t size) noexcept -> bool {
         if (size == (::std::numeric_limits<::std::size_t>::max)()) {
             return false;
         }
@@ -86,7 +90,7 @@ struct NativeResolvedFrame {
     bool text_truncated{};
 };
 
-inline bool assign_text(NativeTextBuffer& destination, char const* source) noexcept {
+inline auto assign_text(NativeTextBuffer& destination, char const* source) noexcept -> bool {
     if (source == nullptr) {
         destination.clear();
         return true;

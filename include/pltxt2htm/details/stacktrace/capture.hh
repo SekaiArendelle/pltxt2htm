@@ -21,7 +21,7 @@ struct CaptureResult {
  * Not async-signal-safe.
  */
 [[nodiscard]]
-inline CaptureResult capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept {
+inline auto capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept -> CaptureResult {
     if (frames.empty()) {
         return {};
     }

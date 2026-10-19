@@ -19,7 +19,8 @@ struct alignas(void*) DbgHelpSession {
     bool attempted{};
     bool ready{};
 
-    [[nodiscard]] bool try_initialize(this DbgHelpSession& self) noexcept {
+    [[nodiscard]]
+    auto try_initialize(this DbgHelpSession& self) noexcept -> bool {
         namespace nt = ::pltxt2htm::details::symbols::nt;
         namespace win32 = ::pltxt2htm::details::symbols::win32;
         if (self.attempted) {
@@ -59,7 +60,7 @@ struct alignas(void*) DbgHelpSession {
 // Trivial destruction: retain the resolver until explicit shutdown or process
 // exit, so panic during static destruction remains usable.
 [[nodiscard]]
-inline DbgHelpSession& get_symbol_session() noexcept {
+inline auto get_symbol_session() noexcept -> DbgHelpSession& {
     static constinit DbgHelpSession session{};
     return session;
 }
@@ -68,7 +69,7 @@ inline DbgHelpSession& get_symbol_session() noexcept {
  * must also coordinate external DbgHelp users. False means a lookup is active.
  */
 [[nodiscard]]
-inline bool shutdown_symbols() noexcept {
+inline auto shutdown_symbols() noexcept -> bool {
     namespace nt = ::pltxt2htm::details::symbols::nt;
     auto& session = ::pltxt2htm::details::stacktrace::get_symbol_session();
     if (!nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {
@@ -133,7 +134,7 @@ inline void resolve_description(NativeResolvedFrame& result, DbgHelpSession& ses
 }
 
 [[nodiscard]]
-inline NativeResolvedFrame resolve_native(void* address) noexcept {
+inline auto resolve_native(void* address) noexcept -> NativeResolvedFrame {
     namespace nt = ::pltxt2htm::details::symbols::nt;
     NativeResolvedFrame result{.address = address};
     auto& session = ::pltxt2htm::details::stacktrace::get_symbol_session();
