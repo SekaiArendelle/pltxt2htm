@@ -18,7 +18,7 @@ TEST_SUITE("xss") {
                     break;
                 }
             }
-            if (match) [[unlikely]] {
+            if (match) {
                 return true;
             }
         }
@@ -45,7 +45,7 @@ TEST_SUITE("xss") {
                     break;
                 }
             }
-            if (match) [[unlikely]] {
+            if (match) {
                 return true;
             }
         }
