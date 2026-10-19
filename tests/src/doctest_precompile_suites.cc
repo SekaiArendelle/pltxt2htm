@@ -3,7 +3,7 @@
 
 // Syntax and parser case headers share this translation unit. CMake generates the include
 // list from their directory layout, so adding or removing a case needs no edit here.
-#include "doctest_suites_cases.inc"
+#include "doctest_precompile_suites_cases.inc"
 
 int main(int argc, char** argv) {
     doctest::Context context;

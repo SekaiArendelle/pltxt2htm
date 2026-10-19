@@ -164,7 +164,7 @@ function(pltxt2htm_generate_cases runner)
     endif()
 endfunction()
 
-pltxt2htm_generate_cases(doctest_suites
+pltxt2htm_generate_cases(doctest_precompile_suites
     "${CMAKE_CURRENT_SOURCE_DIR}/src/syntax/*/*.hh"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/parser/*.hh")
 pltxt2htm_generate_cases(doctest_ast
@@ -178,7 +178,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
         target_link_libraries(${TEST_NAME} PRIVATE dbghelp)
     endif()
     # The doctest runners consume their generated include lists.
-    if(TEST_NAME STREQUAL "doctest_suites" OR TEST_NAME STREQUAL "doctest_ast")
+    if(TEST_NAME STREQUAL "doctest_precompile_suites" OR TEST_NAME STREQUAL "doctest_ast")
         target_include_directories(${TEST_NAME} PRIVATE
             "${CMAKE_CURRENT_BINARY_DIR}/generated"
             "${CMAKE_CURRENT_SOURCE_DIR}/src")
