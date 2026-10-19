@@ -7,11 +7,11 @@
     #error "DbgHelp is only available on Windows"
 #endif
 
-namespace pltxt2htm::sys::win32 {
+namespace pltxt2htm::sys_win32 {
 
 #include "dbghelp.inc"
 
-} // namespace pltxt2htm::sys::win32
+} // namespace pltxt2htm::sys_win32
 
 #if defined(_MSC_VER) && !defined(__clang__)
     #if defined(_M_ARM64EC)

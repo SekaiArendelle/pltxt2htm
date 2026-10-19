@@ -38,7 +38,7 @@ LIBRARIES = (
     Library(
         api="nt",
         name="ntdll",
-        namespace="pltxt2htm::sys::nt",
+        namespace="pltxt2htm::sys_nt",
         definitions_header="nt/definitions.hh",
         symbols=(
             Symbol(
@@ -1482,7 +1482,7 @@ LIBRARIES = (
     Library(
         api="win32",
         name="kernel32",
-        namespace="pltxt2htm::sys::win32",
+        namespace="pltxt2htm::sys_win32",
         definitions_header="win32/definitions.hh",
         symbols=(
             Symbol(
@@ -2123,7 +2123,7 @@ LIBRARIES = (
     Library(
         api="win32",
         name="dbghelp",
-        namespace="pltxt2htm::sys::win32",
+        namespace="pltxt2htm::sys_win32",
         definitions_header="win32/dbghelp_definitions.hh",
         symbols=(
             Symbol(
