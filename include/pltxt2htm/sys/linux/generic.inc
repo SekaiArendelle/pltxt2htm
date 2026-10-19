@@ -3,7 +3,7 @@
 
 template<::std::size_t syscall_number, ::std::signed_integral return_value_type, typename... Args>
     requires (::std::is_trivially_copyable_v<Args> && ...)
-inline return_value_type system_call(Args... arguments) noexcept {
+inline auto system_call(Args... arguments) noexcept -> return_value_type {
     long ret{::syscall(syscall_number, arguments...)};
     return static_cast<return_value_type>(ret);
 }

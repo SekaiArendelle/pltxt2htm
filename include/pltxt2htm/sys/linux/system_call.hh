@@ -32,15 +32,15 @@ namespace details {
  */
 template<typename T>
 [[nodiscard]]
-constexpr ::std::uint_least64_t syscall_argument(T v) noexcept {
+constexpr auto syscall_argument(T v) noexcept -> ::std::uint64_t {
     if constexpr (::std::is_null_pointer_v<T>) {
-        return static_cast<::std::uint_least64_t>(0);
+        return static_cast<::std::uint64_t>(0);
     }
     else if constexpr (::std::is_pointer_v<T>) {
-        return reinterpret_cast<::std::uint_least64_t>(v);
+        return reinterpret_cast<::std::uint64_t>(v);
     }
     else {
-        return static_cast<::std::uint_least64_t>(v);
+        return static_cast<::std::uint64_t>(v);
     }
 }
 
@@ -67,7 +67,7 @@ constexpr ::std::uint_least64_t syscall_argument(T v) noexcept {
  */
 template<::std::integral int_type>
 [[nodiscard]]
-constexpr bool system_call_fails(int_type v) noexcept {
+constexpr auto system_call_fails(int_type v) noexcept -> bool {
     using unsigned_type = ::std::make_unsigned_t<int_type>;
     return static_cast<unsigned_type>(static_cast<unsigned_type>(v) + static_cast<unsigned_type>(4095)) <
            static_cast<unsigned_type>(4095);
