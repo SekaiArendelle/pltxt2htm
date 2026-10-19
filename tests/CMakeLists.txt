@@ -145,7 +145,7 @@ file(GLOB_RECURSE TEST_SOURCES CONFIGURE_DEPENDS LIST_DIRECTORIES FALSE
      "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc")
 
 # Generate one include list per doctest runner; rewrite only when its cases change.
-# Keep helper headers outside these globs (for example, under syntax/detail/ or ast/detail/).
+# Keep helper headers outside these globs (for example, under syntax/details/ or ast/details/).
 function(pltxt2htm_generate_cases runner)
     file(GLOB _pltxt2htm_case_headers CONFIGURE_DEPENDS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/src"
          ${ARGN})
