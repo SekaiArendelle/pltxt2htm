@@ -7,11 +7,11 @@
     #error "pltxt2htm Win32 symbols are only available on Windows"
 #endif
 
-namespace pltxt2htm::details::symbols::win32 {
+namespace pltxt2htm::sys::win32 {
 
 #include "kernel32.inc"
 
-} // namespace pltxt2htm::details::symbols::win32
+} // namespace pltxt2htm::sys::win32
 
 #if defined(_MSC_VER) && !defined(__clang__)
     #if defined(_M_ARM64EC)

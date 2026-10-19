@@ -12,7 +12,7 @@ import subprocess
 from typing import Literal
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-SYMBOL_ROOT = ROOT / "include" / "pltxt2htm" / "details" / "symbols"
+SYS_ROOT = ROOT / "include" / "pltxt2htm" / "sys"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -38,7 +38,7 @@ LIBRARIES = (
     Library(
         api="nt",
         name="ntdll",
-        namespace="pltxt2htm::details::symbols::nt",
+        namespace="pltxt2htm::sys::nt",
         definitions_header="nt/definitions.hh",
         symbols=(
             Symbol(
@@ -1482,7 +1482,7 @@ LIBRARIES = (
     Library(
         api="win32",
         name="kernel32",
-        namespace="pltxt2htm::details::symbols::win32",
+        namespace="pltxt2htm::sys::win32",
         definitions_header="win32/definitions.hh",
         symbols=(
             Symbol(
@@ -2123,7 +2123,7 @@ LIBRARIES = (
     Library(
         api="win32",
         name="dbghelp",
-        namespace="pltxt2htm::details::symbols::win32",
+        namespace="pltxt2htm::sys::win32",
         definitions_header="win32/dbghelp_definitions.hh",
         symbols=(
             Symbol(
@@ -2599,7 +2599,7 @@ def undefined_imports(
         # MSVC's current STL headers reject the ARM32 target, but the probes still need <cstdint>.
         # Use a compatible C++ header set without mixing it with Clang's default C++ headers.
         compile_command.extend(("-nostdinc++", "-isystem", str(cxx_include_dir)))
-    compile_command.extend(("-I", str(SYMBOL_ROOT), "-x", "c++", "-c", "-o", "-", "-"))
+    compile_command.extend(("-I", str(SYS_ROOT), "-x", "c++", "-c", "-o", "-", "-"))
     compile_result = subprocess.run(
         compile_command,
         input=source_text.encode("ascii"),
@@ -2710,7 +2710,7 @@ def generated_files(
     for library in LIBRARIES:
         if library_name is not None and library.name != library_name:
             continue
-        directory = SYMBOL_ROOT / library.api
+        directory = SYS_ROOT / library.api
         i686_stdcall_stack_bytes: dict[str, int] = {}
         for architecture, target in MSVC_TARGETS:
             aliases, target_stack_bytes = generate_linker_aliases(
