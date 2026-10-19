@@ -1,0 +1,99 @@
+// Adapted from fast_io_hosted/platforms/linux/amd64.h.
+// https://github.com/bminor/glibc/master/sysdeps/unix/sysv/linux/x86_64/sysdep.h
+
+template<::std::uint_least64_t syscall_number>
+[[noreturn]]
+inline void system_call_no_return(auto p1) noexcept {
+    ::std::uint_least64_t ret;
+    __asm__ __volatile__("syscall" : "=a"(ret) : "0"(syscall_number), "D"(p1) : "memory", "cc", "r11", "cx");
+    __builtin_unreachable();
+}
+
+template<::std::uint_least64_t syscall_number, ::std::signed_integral return_value_type>
+    requires (1 < sizeof(return_value_type))
+inline return_value_type system_call() noexcept {
+    return_value_type ret;
+    __asm__ __volatile__("syscall" : "=a"(ret) : "0"(syscall_number) : "memory", "cc", "r11", "cx");
+    return ret;
+}
+
+template<::std::uint_least64_t syscall_number, ::std::signed_integral return_value_type>
+    requires (1 < sizeof(return_value_type))
+inline return_value_type system_call(auto p1) noexcept {
+    return_value_type ret;
+    __asm__ __volatile__("syscall" : "=a"(ret) : "0"(syscall_number), "D"(p1) : "memory", "cc", "r11", "cx");
+    return ret;
+}
+
+template<::std::uint_least64_t syscall_number, ::std::signed_integral return_value_type>
+    requires (1 < sizeof(return_value_type))
+inline return_value_type system_call(auto p1, auto p2) noexcept {
+    return_value_type ret;
+    __asm__ __volatile__("syscall" : "=a"(ret) : "0"(syscall_number), "D"(p1), "S"(p2) : "memory", "cc", "r11", "cx");
+    return ret;
+}
+
+template<::std::uint_least64_t syscall_number, ::std::signed_integral return_value_type>
+    requires (1 < sizeof(return_value_type))
+[[__gnu__::__always_inline__]]
+inline return_value_type inline_syscall(auto p1, auto p2) noexcept {
+    return_value_type ret;
+    __asm__ __volatile__("syscall" : "=a"(ret) : "0"(syscall_number), "D"(p1), "S"(p2) : "memory", "cc", "r11", "cx");
+    return ret;
+}
+
+template<::std::uint_least64_t syscall_number, ::std::signed_integral return_value_type>
+    requires (1 < sizeof(return_value_type))
+inline return_value_type system_call(auto p1, auto p2, auto p3) noexcept {
+    return_value_type ret;
+    __asm__ __volatile__("syscall"
+                         : "=a"(ret)
+                         : "0"(syscall_number), "D"(p1), "S"(p2), "d"(p3)
+                         : "memory", "cc", "r11", "cx");
+    return ret;
+}
+
+template<::std::uint_least64_t syscall_number, ::std::signed_integral return_value_type>
+    requires (1 < sizeof(return_value_type))
+inline return_value_type system_call(auto p1, auto p2, auto p3, auto p4) noexcept {
+    return_value_type ret;
+    register ::std::uint_least64_t r10 __asm__("r10") = details::syscall_argument(p4);
+    __asm__ __volatile__("syscall"
+                         : "=a"(ret)
+                         : "0"(syscall_number), "D"(p1), "S"(p2), "d"(p3), "r"(r10)
+                         : "memory", "cc", "r11", "cx");
+    return ret;
+}
+
+template<::std::uint_least64_t syscall_number, ::std::signed_integral return_value_type>
+    requires (1 < sizeof(return_value_type))
+inline return_value_type system_call(auto p1, auto p2, auto p3, auto p4, auto p5) noexcept {
+    return_value_type ret;
+    register ::std::uint_least64_t r10 __asm__("r10") = details::syscall_argument(p4);
+    register ::std::uint_least64_t r8 __asm__("r8") = details::syscall_argument(p5);
+    __asm__ __volatile__("syscall"
+                         : "=a"(ret)
+                         : "0"(syscall_number), "D"(p1), "S"(p2), "d"(p3), "r"(r10), "r"(r8)
+                         : "memory", "cc", "r11", "cx");
+    return ret;
+}
+
+template<::std::uint_least64_t syscall_number, ::std::signed_integral return_value_type>
+    requires (1 < sizeof(return_value_type))
+inline return_value_type system_call(auto p1, auto p2, auto p3, auto p4, auto p5, auto p6) noexcept {
+    return_value_type ret;
+    register ::std::uint_least64_t r10 __asm__("r10") = details::syscall_argument(p4);
+    register ::std::uint_least64_t r8 __asm__("r8") = details::syscall_argument(p5);
+    register ::std::uint_least64_t r9 __asm__("r9") = details::syscall_argument(p6);
+    __asm__ __volatile__("syscall"
+                         : "=a"(ret)
+                         : "0"(syscall_number), "D"(p1), "S"(p2), "d"(p3), "r"(r10), "r"(r8), "r"(r9)
+                         : "memory", "cc", "r11", "cx");
+    return ret;
+}
+
+template<::std::integral I>
+[[noreturn]]
+inline void fast_exit(I ret) noexcept {
+    system_call_no_return<__NR_exit>(ret);
+}
