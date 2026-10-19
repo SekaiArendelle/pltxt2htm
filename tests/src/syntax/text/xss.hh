@@ -1,3 +1,5 @@
+#pragma once
+
 #include "doctest_config.hh"
 
 TEST_SUITE("xss") {
@@ -88,72 +90,72 @@ TEST_SUITE("xss") {
     // Raw HTML tags in plain text
     TEST_CASE("basic-script-tag") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<script>alert(1)</script>");
-        CHECK((html) == (u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
+        CHECK(html == u8"&lt;script&gt;alert(1)&lt;/script&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("script-source-attribute") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<script src=\"http://evil/xss.js\"></script>");
-        CHECK((html) == (u8"&lt;script&nbsp;src=&quot;http://evil/xss.js&quot;&gt;&lt;/script&gt;"));
+        CHECK(html == u8"&lt;script&nbsp;src=&quot;http://evil/xss.js&quot;&gt;&lt;/script&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("iframe-source-attribute") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<iframe src=\"http://evil\"></iframe>");
-        CHECK((html) == (u8"&lt;iframe&nbsp;src=&quot;http://evil&quot;&gt;&lt;/iframe&gt;"));
+        CHECK(html == u8"&lt;iframe&nbsp;src=&quot;http://evil&quot;&gt;&lt;/iframe&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("object-data-attribute") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<object data=\"http://evil\"></object>");
-        CHECK((html) == (u8"&lt;object&nbsp;data=&quot;http://evil&quot;&gt;&lt;/object&gt;"));
+        CHECK(html == u8"&lt;object&nbsp;data=&quot;http://evil&quot;&gt;&lt;/object&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("embed-source-attribute") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<embed src=\"http://evil\">");
-        CHECK((html) == (u8"&lt;embed&nbsp;src=&quot;http://evil&quot;&gt;"));
+        CHECK(html == u8"&lt;embed&nbsp;src=&quot;http://evil&quot;&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("svg-onload-attribute") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<svg onload=\"alert(1)\"></svg>");
-        CHECK((html) == (u8"&lt;svg&nbsp;onload=&quot;alert(1)&quot;&gt;&lt;/svg&gt;"));
+        CHECK(html == u8"&lt;svg&nbsp;onload=&quot;alert(1)&quot;&gt;&lt;/svg&gt;");
         assert_no_raw_xss_tags(to_view(html));
         assert_no_raw_event_handlers(to_view(html));
     }
     TEST_CASE("marquee-onstart-attribute") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<marquee onstart=\"alert(1)\">text</marquee>");
-        CHECK((html) == (u8"&lt;marquee&nbsp;onstart=&quot;alert(1)&quot;&gt;text&lt;/marquee&gt;"));
+        CHECK(html == u8"&lt;marquee&nbsp;onstart=&quot;alert(1)&quot;&gt;text&lt;/marquee&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
 
     // Case variation bypasses
     TEST_CASE("uppercase-script-tag") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<SCRIPT>alert(1)</SCRIPT>");
-        CHECK((html) == (u8"&lt;SCRIPT&gt;alert(1)&lt;/SCRIPT&gt;"));
+        CHECK(html == u8"&lt;SCRIPT&gt;alert(1)&lt;/SCRIPT&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("mixed-case-script-tag") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<ScRiPt>alert(1)</ScRiPt>");
-        CHECK((html) == (u8"&lt;ScRiPt&gt;alert(1)&lt;/ScRiPt&gt;"));
+        CHECK(html == u8"&lt;ScRiPt&gt;alert(1)&lt;/ScRiPt&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("mixed-case-script-source") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<sCrIpT src=x>");
-        CHECK((html) == (u8"&lt;sCrIpT&nbsp;src=x&gt;"));
+        CHECK(html == u8"&lt;sCrIpT&nbsp;src=x&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
 
     // Scripts inside recognized HTML tags
     TEST_CASE("script-inside-paragraph") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<p><script>alert(1)</script></p>");
-        CHECK((html) == (u8"<p style=\"text-align:left\">&lt;script&gt;alert(1)&lt;/script&gt;</p>"));
+        CHECK(html == u8"<p style=\"text-align:left\">&lt;script&gt;alert(1)&lt;/script&gt;</p>");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("script-inside-strong-tag") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<strong><script>alert(1)</script></strong>");
-        CHECK((html) == (u8"<strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong>"));
+        CHECK(html == u8"<strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong>");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("script-inside-markdown-bold") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"**<script>alert(1)</script>**");
-        CHECK((html) == (u8"<strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong>"));
+        CHECK(html == u8"<strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong>");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("script-inside-table-cell") {
@@ -165,36 +167,36 @@ TEST_SUITE("xss") {
     // Scripts inside Physics-Lab tags
     TEST_CASE("script-inside-color-tag") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<color=red><script>alert(1)</script></color>");
-        CHECK((html) == (u8"<span style=\"color:red;\">&lt;script&gt;alert(1)&lt;/script&gt;</span>"));
+        CHECK(html == u8"<span style=\"color:red;\">&lt;script&gt;alert(1)&lt;/script&gt;</span>");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("script-inside-bold-tag") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<b><script>alert(1)</script></b>");
-        CHECK((html) == (u8"<strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong>"));
+        CHECK(html == u8"<strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong>");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("script-inside-italic-tag") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<i><script>alert(1)</script></i>");
-        CHECK((html) == (u8"<em>&lt;script&gt;alert(1)&lt;/script&gt;</em>"));
+        CHECK(html == u8"<em>&lt;script&gt;alert(1)&lt;/script&gt;</em>");
         assert_no_raw_xss_tags(to_view(html));
     }
 
     // Scripts inside Markdown code spans
     TEST_CASE("script-inside-single-backtick-code") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"`<script>alert(1)</script>`");
-        CHECK((html) == (u8"<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>"));
+        CHECK(html == u8"<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("script-inside-double-backtick-code") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"``<script>alert(1)</script>``");
-        CHECK((html) == (u8"<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>"));
+        CHECK(html == u8"<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>");
         assert_no_raw_xss_tags(to_view(html));
     }
 
     // Injection inside Markdown headings
     TEST_CASE("script-inside-level-one-heading") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"# <script>alert(1)</script>");
-        CHECK((html) == (u8"<h1>&lt;script&gt;alert(1)&lt;/script&gt;</h1>"));
+        CHECK(html == u8"<h1>&lt;script&gt;alert(1)&lt;/script&gt;</h1>");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("event-handler-inside-level-two-heading") {
@@ -206,7 +208,7 @@ TEST_SUITE("xss") {
     // Unsafe Markdown link URLs
     TEST_CASE("javascript-link-scheme") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"[click](javascript:alert(1))");
-        CHECK((html) == (u8"[click](javascript:alert(1))"));
+        CHECK(html == u8"[click](javascript:alert(1))");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("data-html-link-scheme") {
@@ -231,28 +233,28 @@ TEST_SUITE("xss") {
     // Event-handler injection
     TEST_CASE("image-onerror-handler") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<img src=x onerror=alert(1)>");
-        CHECK((html) == (u8"&lt;img&nbsp;src=x&nbsp;onerror=alert(1)&gt;"));
+        CHECK(html == u8"&lt;img&nbsp;src=x&nbsp;onerror=alert(1)&gt;");
         assert_no_raw_xss_tags(to_view(html));
         assert_no_raw_event_handlers(to_view(html));
     }
     TEST_CASE("body-onload-handler") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<body onload=alert(1)>");
-        CHECK((html) == (u8"&lt;body&nbsp;onload=alert(1)&gt;"));
+        CHECK(html == u8"&lt;body&nbsp;onload=alert(1)&gt;");
         assert_no_raw_event_handlers(to_view(html));
     }
     TEST_CASE("body-onpageshow-handler") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<body onpageshow=alert(1)>");
-        CHECK((html) == (u8"&lt;body&nbsp;onpageshow=alert(1)&gt;"));
+        CHECK(html == u8"&lt;body&nbsp;onpageshow=alert(1)&gt;");
         assert_no_raw_event_handlers(to_view(html));
     }
     TEST_CASE("anchor-onmouseover-handler") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<a onmouseover=\"alert(1)\">hover</a>");
-        CHECK((html) == (u8"&lt;a&nbsp;onmouseover=&quot;alert(1)&quot;&gt;hover&lt;/a&gt;"));
+        CHECK(html == u8"&lt;a&nbsp;onmouseover=&quot;alert(1)&quot;&gt;hover&lt;/a&gt;");
         assert_no_raw_event_handlers(to_view(html));
     }
     TEST_CASE("anchor-onclick-handler") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<a onclick=\"alert(1)\">click</a>");
-        CHECK((html) == (u8"&lt;a&nbsp;onclick=&quot;alert(1)&quot;&gt;click&lt;/a&gt;"));
+        CHECK(html == u8"&lt;a&nbsp;onclick=&quot;alert(1)&quot;&gt;click&lt;/a&gt;");
         assert_no_raw_event_handlers(to_view(html));
     }
 
@@ -269,12 +271,12 @@ TEST_SUITE("xss") {
     // Unsafe external-tag URLs
     TEST_CASE("javascript-external-tag-url") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<external=javascript:alert(1)>x</external>");
-        CHECK((html) == (u8"&lt;external=javascript:alert(1)&gt;x&lt;/external&gt;"));
+        CHECK(html == u8"&lt;external=javascript:alert(1)&gt;x&lt;/external&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("quoted-javascript-external-tag-url") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<external=javascript:alert('XSS')>clickme</external>");
-        CHECK((html) == (u8"&lt;external=javascript:alert(&apos;XSS&apos;)&gt;clickme&lt;/external&gt;"));
+        CHECK(html == u8"&lt;external=javascript:alert(&apos;XSS&apos;)&gt;clickme&lt;/external&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("event-handler-in-external-url") {
@@ -287,8 +289,7 @@ TEST_SUITE("xss") {
     // Combined and nested injection vectors
     TEST_CASE("script-inside-colored-bold-text") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<color=blue>**<script>alert(1)</script>**</color>");
-        CHECK((html) ==
-              (u8"<span style=\"color:blue;\"><strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong></span>"));
+        CHECK(html == u8"<span style=\"color:blue;\"><strong>&lt;script&gt;alert(1)&lt;/script&gt;</strong></span>");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("javascript-link-inside-color-tag") {
@@ -389,7 +390,7 @@ TEST_SUITE("xss") {
     // Injection in mixed Markdown contexts
     TEST_CASE("strikethrough-script-escaping") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"~~<script>alert(1)</script>~~");
-        CHECK((html) == (u8"<del>&lt;script&gt;alert(1)&lt;/script&gt;</del>"));
+        CHECK(html == u8"<del>&lt;script&gt;alert(1)&lt;/script&gt;</del>");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("unordered-list-script-escaping") {
@@ -421,28 +422,6 @@ TEST_SUITE("xss") {
         CHECK(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
     }
     TEST_CASE("uppercase-checked-checkbox-script") {
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- [X] <script>alert(1)</script>");
-        auto v = to_view(html);
-        CHECK(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
-        CHECK(!has_unescaped_tag(v, u8"script"));
-        CHECK(!has_unescaped_tag(v, u8"iframe"));
-        CHECK(!has_unescaped_tag(v, u8"object"));
-        CHECK(!has_unescaped_tag(v, u8"svg"));
-        // Uppercase X also checked
-        CHECK(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
-    }
-    TEST_CASE("lowercase-checked-checkbox-script-repeat") {
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- [x] <script>alert(1)</script>");
-        auto v = to_view(html);
-        CHECK(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
-        CHECK(!has_unescaped_tag(v, u8"script"));
-        CHECK(!has_unescaped_tag(v, u8"iframe"));
-        CHECK(!has_unescaped_tag(v, u8"object"));
-        CHECK(!has_unescaped_tag(v, u8"svg"));
-        // Checked variant
-        CHECK(contains_u8(v, u8"<input type=\"checkbox\" disabled checked>"));
-    }
-    TEST_CASE("uppercase-checked-checkbox-script-repeat") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"- [X] <script>alert(1)</script>");
         auto v = to_view(html);
         CHECK(contains_u8(v, u8"&lt;script&gt;alert(1)&lt;/script&gt;"));
@@ -497,7 +476,7 @@ TEST_SUITE("xss") {
     TEST_CASE("inline-checkbox-literal") {
         // inline <input> is literal; checkbox inputs only render inside list items
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<input type=\"checkbox\" disabled>");
-        CHECK((html) == (u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&gt;"));
+        CHECK(html == u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&gt;");
         // still no dangerous tags
         CHECK(!has_unescaped_tag(to_view(html), u8"script"));
         CHECK(!has_unescaped_tag(to_view(html), u8"iframe"));
@@ -506,30 +485,30 @@ TEST_SUITE("xss") {
     TEST_CASE("checked-checkbox-literal") {
         // checked checkbox inline is still literal
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<input type=\"checkbox\" disabled checked>");
-        CHECK((html) == (u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&nbsp;checked&gt;"));
+        CHECK(html == u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;disabled&nbsp;checked&gt;");
     }
     TEST_CASE("reversed-checkbox-attributes-literal") {
         // reversed attribute order inline is still literal
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<input disabled checked type=\"checkbox\">");
-        CHECK((html) == (u8"&lt;input&nbsp;disabled&nbsp;checked&nbsp;type=&quot;checkbox&quot;&gt;"));
+        CHECK(html == u8"&lt;input&nbsp;disabled&nbsp;checked&nbsp;type=&quot;checkbox&quot;&gt;");
     }
     TEST_CASE("text-input-literal") {
         // <input type="text"> should be escaped (not a checkbox)
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<input type=\"text\">");
-        CHECK((html) == (u8"&lt;input&nbsp;type=&quot;text&quot;&gt;"));
+        CHECK(html == u8"&lt;input&nbsp;type=&quot;text&quot;&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
     TEST_CASE("checkbox-event-handler-literal") {
         // <input with event handler should be escaped
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<input type=\"checkbox\" onfocus=\"alert(1)\">");
-        CHECK((html) == (u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;onfocus=&quot;alert(1)&quot;&gt;"));
+        CHECK(html == u8"&lt;input&nbsp;type=&quot;checkbox&quot;&nbsp;onfocus=&quot;alert(1)&quot;&gt;");
         assert_no_raw_xss_tags(to_view(html));
         assert_no_raw_event_handlers(to_view(html));
     }
     TEST_CASE("unchecked-checkbox-literal") {
         // <input> without disabled should be escaped
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<input type=\"checkbox\">");
-        CHECK((html) == (u8"&lt;input&nbsp;type=&quot;checkbox&quot;&gt;"));
+        CHECK(html == u8"&lt;input&nbsp;type=&quot;checkbox&quot;&gt;");
         assert_no_raw_xss_tags(to_view(html));
     }
 } // TEST_SUITE("xss")
