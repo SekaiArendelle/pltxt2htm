@@ -7,11 +7,11 @@
     #error "pltxt2htm NT symbols are only available on Windows"
 #endif
 
-namespace pltxt2htm::sys::nt {
+namespace pltxt2htm::sys_nt {
 
 #include "ntdll.inc"
 
-} // namespace pltxt2htm::sys::nt
+} // namespace pltxt2htm::sys_nt
 
 #if defined(_MSC_VER) && !defined(__clang__)
     #if defined(_M_ARM64EC)

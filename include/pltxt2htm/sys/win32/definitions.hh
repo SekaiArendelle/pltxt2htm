@@ -5,7 +5,7 @@
 
 #include "../push_macro.hh"
 
-namespace pltxt2htm::sys::win32 {
+namespace pltxt2htm::sys_win32 {
 using Bool = int;
 using Boolean = unsigned char;
 using Char = char;
@@ -266,6 +266,6 @@ using Procedure = IntPtr(PLTXT2HTM_DETAIL_STDCALL*)();
 using ThreadStartRoutine = Dword(PLTXT2HTM_DETAIL_STDCALL*)(void*);
 using TimerApcRoutine = void(PLTXT2HTM_DETAIL_STDCALL*)(void*, Dword, Dword);
 using VectoredExceptionHandler = Long(PLTXT2HTM_DETAIL_STDCALL*)(ExceptionPointers*);
-} // namespace pltxt2htm::sys::win32
+} // namespace pltxt2htm::sys_win32
 
 #include "../pop_macro.hh"
