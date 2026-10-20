@@ -57,6 +57,11 @@ void test_two_and_three_argument_syscalls() noexcept {
     pltxt2htm_test_assert_true(linux_sys::system_call_fails(second_close));
     pltxt2htm_test_assert_true(second_close == -EBADF);
     pltxt2htm_test_assert_true(linux_sys::system_call<__NR_close, long>(pipe_fds[1]) == 0);
+
+    // Negative arguments must reach the kernel as proper 64-bit two's complement, so an invalid
+    // descriptor is still rejected with -EBADF and never satisfies a matching positive small fd.
+    pltxt2htm_test_assert_true(linux_sys::system_call<__NR_close, long>(-1) == -EBADF);
+    pltxt2htm_test_assert_true(linux_sys::system_call<__NR_read, long>(-2, drained, sizeof(drained)) == -EBADF);
 }
 
 void test_six_argument_syscalls() noexcept {
