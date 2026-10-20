@@ -4,13 +4,15 @@
 
 #include <pltxt2htm/pltxt2htm.hh>
 
+#include "excluded_namespaces.hh"
+
 template<::std::meta::info ns>
 consteval auto collect_header_info() -> ::std::vector<::std::meta::info> {
     ::std::vector<::std::meta::info> symbols{};
     template for (constexpr auto m : ::std::define_static_array(
                       ::std::meta::members_of(ns, ::std::meta::access_context::unprivileged()))) {
         if constexpr (::std::meta::is_namespace(m)) {
-            if constexpr (!::std::meta::has_identifier(m) || ::std::meta::identifier_of(m) == "details") {
+            if constexpr (!::std::meta::has_identifier(m) || ::is_excluded_namespace(::std::meta::identifier_of(m))) {
                 continue;
             }
             else {

@@ -4,16 +4,23 @@
 
 import pltxt2htm;
 
+#include "excluded_namespaces.hh"
+
 template<::std::meta::info ns>
 consteval auto collect_module_info() -> ::std::vector<::std::meta::info> {
     ::std::vector<::std::meta::info> symbols{};
     template for (constexpr auto m : ::std::define_static_array(
                       ::std::meta::members_of(ns, ::std::meta::access_context::unprivileged()))) {
         if constexpr (::std::meta::is_namespace(m)) {
-            if constexpr (!::std::meta::has_identifier(m)) {
+            if constexpr (!::std::meta::has_identifier(m) || ::is_excluded_namespace(::std::meta::identifier_of(m))) {
                 continue;
             }
-            symbols.append_range(collect_module_info<m>());
+            else {
+                symbols.append_range(collect_module_info<m>());
+            }
+        }
+        else if constexpr (::std::meta::has_identifier(m) && ::std::meta::identifier_of(m).starts_with("__dguide_")) {
+            continue;
         }
         else {
             symbols.push_back(m);
