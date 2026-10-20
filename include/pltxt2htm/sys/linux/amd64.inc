@@ -11,7 +11,7 @@
 template<::std::uint64_t syscall_number>
 [[noreturn]]
 inline void system_call_no_return(auto p1) noexcept {
-    ::std::uint64_t arg1 = details::syscall_argument(p1);
+    ::std::uint64_t arg1{details::syscall_argument(p1)};
     register ::std::uint64_t di __asm__("rdi") = arg1;
     ::std::uint64_t ret;
     __asm__ __volatile__("syscall" : "=a"(ret) : "0"(syscall_number), "r"(di) : "memory", "cc", "r11", "cx");
@@ -29,7 +29,7 @@ inline auto system_call() noexcept -> return_value_type {
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
 inline auto system_call(auto p1) noexcept -> return_value_type {
-    ::std::uint64_t arg1 = details::syscall_argument(p1);
+    ::std::uint64_t arg1{details::syscall_argument(p1)};
     register ::std::uint64_t di __asm__("rdi") = arg1;
     return_value_type ret;
     __asm__ __volatile__("syscall" : "=a"(ret) : "0"(syscall_number), "r"(di) : "memory", "cc", "r11", "cx");
@@ -39,8 +39,8 @@ inline auto system_call(auto p1) noexcept -> return_value_type {
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
 inline auto system_call(auto p1, auto p2) noexcept -> return_value_type {
-    ::std::uint64_t arg1 = details::syscall_argument(p1);
-    ::std::uint64_t arg2 = details::syscall_argument(p2);
+    ::std::uint64_t arg1{details::syscall_argument(p1)};
+    ::std::uint64_t arg2{details::syscall_argument(p2)};
     register ::std::uint64_t di __asm__("rdi") = arg1;
     register ::std::uint64_t si __asm__("rsi") = arg2;
     return_value_type ret;
@@ -51,9 +51,9 @@ inline auto system_call(auto p1, auto p2) noexcept -> return_value_type {
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
 inline auto system_call(auto p1, auto p2, auto p3) noexcept -> return_value_type {
-    ::std::uint64_t arg1 = details::syscall_argument(p1);
-    ::std::uint64_t arg2 = details::syscall_argument(p2);
-    ::std::uint64_t arg3 = details::syscall_argument(p3);
+    ::std::uint64_t arg1{details::syscall_argument(p1)};
+    ::std::uint64_t arg2{details::syscall_argument(p2)};
+    ::std::uint64_t arg3{details::syscall_argument(p3)};
     register ::std::uint64_t di __asm__("rdi") = arg1;
     register ::std::uint64_t si __asm__("rsi") = arg2;
     register ::std::uint64_t dx __asm__("rdx") = arg3;
@@ -68,10 +68,10 @@ inline auto system_call(auto p1, auto p2, auto p3) noexcept -> return_value_type
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
 inline auto system_call(auto p1, auto p2, auto p3, auto p4) noexcept -> return_value_type {
-    ::std::uint64_t arg1 = details::syscall_argument(p1);
-    ::std::uint64_t arg2 = details::syscall_argument(p2);
-    ::std::uint64_t arg3 = details::syscall_argument(p3);
-    ::std::uint64_t arg4 = details::syscall_argument(p4);
+    ::std::uint64_t arg1{details::syscall_argument(p1)};
+    ::std::uint64_t arg2{details::syscall_argument(p2)};
+    ::std::uint64_t arg3{details::syscall_argument(p3)};
+    ::std::uint64_t arg4{details::syscall_argument(p4)};
     register ::std::uint64_t r10 __asm__("r10") = arg4;
     return_value_type ret;
     __asm__ __volatile__("syscall"
@@ -84,11 +84,11 @@ inline auto system_call(auto p1, auto p2, auto p3, auto p4) noexcept -> return_v
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
 inline auto system_call(auto p1, auto p2, auto p3, auto p4, auto p5) noexcept -> return_value_type {
-    ::std::uint64_t arg1 = details::syscall_argument(p1);
-    ::std::uint64_t arg2 = details::syscall_argument(p2);
-    ::std::uint64_t arg3 = details::syscall_argument(p3);
-    ::std::uint64_t arg4 = details::syscall_argument(p4);
-    ::std::uint64_t arg5 = details::syscall_argument(p5);
+    ::std::uint64_t arg1{details::syscall_argument(p1)};
+    ::std::uint64_t arg2{details::syscall_argument(p2)};
+    ::std::uint64_t arg3{details::syscall_argument(p3)};
+    ::std::uint64_t arg4{details::syscall_argument(p4)};
+    ::std::uint64_t arg5{details::syscall_argument(p5)};
     register ::std::uint64_t r10 __asm__("r10") = arg4;
     register ::std::uint64_t r8 __asm__("r8") = arg5;
     return_value_type ret;
@@ -102,12 +102,12 @@ inline auto system_call(auto p1, auto p2, auto p3, auto p4, auto p5) noexcept ->
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
 inline auto system_call(auto p1, auto p2, auto p3, auto p4, auto p5, auto p6) noexcept -> return_value_type {
-    ::std::uint64_t arg1 = details::syscall_argument(p1);
-    ::std::uint64_t arg2 = details::syscall_argument(p2);
-    ::std::uint64_t arg3 = details::syscall_argument(p3);
-    ::std::uint64_t arg4 = details::syscall_argument(p4);
-    ::std::uint64_t arg5 = details::syscall_argument(p5);
-    ::std::uint64_t arg6 = details::syscall_argument(p6);
+    ::std::uint64_t arg1{details::syscall_argument(p1)};
+    ::std::uint64_t arg2{details::syscall_argument(p2)};
+    ::std::uint64_t arg3{details::syscall_argument(p3)};
+    ::std::uint64_t arg4{details::syscall_argument(p4)};
+    ::std::uint64_t arg5{details::syscall_argument(p5)};
+    ::std::uint64_t arg6{details::syscall_argument(p6)};
     register ::std::uint64_t r10 __asm__("r10") = arg4;
     register ::std::uint64_t r8 __asm__("r8") = arg5;
     register ::std::uint64_t r9 __asm__("r9") = arg6;
