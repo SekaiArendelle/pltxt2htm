@@ -61,6 +61,19 @@ constexpr auto syscall_argument(T v) noexcept -> ::std::uint64_t {
 #endif
 
 /**
+ * @brief Exits the process immediately with the given exit code.
+ * @details A thin wrapper over the exit syscall, defined here rather than per architecture because
+ *          it is only a concrete use of system_call and its shape is identical everywhere.
+ * @param ret The process exit code.
+ */
+template<::std::integral I>
+[[noreturn]]
+inline void fast_exit(I ret) noexcept {
+    [[maybe_unused]] auto const exit_code = system_call<__NR_exit, ::std::int64_t>(ret);
+    __builtin_unreachable();
+}
+
+/**
  * @brief Checks a raw Linux syscall return value for failure.
  * @details Successful syscalls return a non-negative value; failures return the negated errno in
  *          the range [-4095, -1].

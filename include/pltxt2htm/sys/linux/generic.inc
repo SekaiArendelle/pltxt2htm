@@ -11,10 +11,3 @@ inline auto system_call(Args... arguments) noexcept -> return_value_type {
     long ret{::syscall(syscall_number, details::syscall_argument(arguments)...)};
     return static_cast<return_value_type>(ret);
 }
-
-template<::std::integral I>
-[[noreturn]]
-inline void fast_exit(I ret) noexcept {
-    [[maybe_unused]] auto const exit_code = system_call<__NR_exit, ::std::int64_t>(ret);
-    __builtin_unreachable();
-}

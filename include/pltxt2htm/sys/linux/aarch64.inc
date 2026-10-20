@@ -112,10 +112,3 @@ inline auto system_call(auto p1, auto p2, auto p3, auto p4, auto p5, auto p6) no
                          : "memory", "cc");
     return static_cast<return_value_type>(x0);
 }
-
-template<::std::integral I>
-[[noreturn]]
-inline void fast_exit(I ret) noexcept {
-    [[maybe_unused]] auto const exit_code = system_call<__NR_exit, ::std::int64_t>(ret);
-    __builtin_unreachable();
-}
