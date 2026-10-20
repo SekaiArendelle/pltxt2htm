@@ -3,7 +3,7 @@
 #include "definitions.hh"
 #include "../push_macro.hh"
 
-namespace pltxt2htm::sys::win32 {
+namespace pltxt2htm::sys_win32 {
 // Match DbgHelp's packing even when the including file uses a different setting.
 #pragma pack(push, 8)
 
@@ -201,6 +201,6 @@ using ReadProcessMemoryRoutine64 = Bool(PLTXT2HTM_DETAIL_STDCALL*)(Handle, Dword
 using FunctionTableAccessRoutine64 = void*(PLTXT2HTM_DETAIL_STDCALL*)(Handle, Dword64);
 using GetModuleBaseRoutine64 = Dword64(PLTXT2HTM_DETAIL_STDCALL*)(Handle, Dword64);
 using TranslateAddressRoutine64 = Dword64(PLTXT2HTM_DETAIL_STDCALL*)(Handle, Handle, Address64*);
-} // namespace pltxt2htm::sys::win32
+} // namespace pltxt2htm::sys_win32
 
 #include "../pop_macro.hh"

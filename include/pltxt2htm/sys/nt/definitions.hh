@@ -3,7 +3,7 @@
 #include <cstddef>
 #include "../push_macro.hh"
 
-namespace pltxt2htm::sys::nt {
+namespace pltxt2htm::sys_nt {
 using Boolean = unsigned char;
 using Handle = void*;
 using Long = long;
@@ -709,6 +709,6 @@ using UserThreadStartRoutine = NtStatus(PLTXT2HTM_DETAIL_STDCALL*)(void*);
 struct SrwLock {
     void* pointer;
 };
-} // namespace pltxt2htm::sys::nt
+} // namespace pltxt2htm::sys_nt
 
 #include "../pop_macro.hh"

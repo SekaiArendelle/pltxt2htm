@@ -37,8 +37,8 @@
     #undef PLTXT2HTM_DETAIL_CDECL
     #undef PLTXT2HTM_DETAIL_CDECL_ASM_NAME
 
-namespace nt = ::pltxt2htm::sys::nt;
-namespace win32 = ::pltxt2htm::sys::win32;
+namespace nt = ::pltxt2htm::sys_nt;
+namespace win32 = ::pltxt2htm::sys_win32;
 
 using ExpectedCaptureStackBackTrace = nt::Ushort(NTAPI*)(nt::Ulong, nt::Ulong, void**, nt::Ulong*) noexcept;
 using ExpectedTryAcquireSrwLockExclusive = nt::Boolean(NTAPI*)(nt::SrwLock*) noexcept;
