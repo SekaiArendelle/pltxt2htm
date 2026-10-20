@@ -1,5 +1,3 @@
-// Adapted from fast_io_hosted/platforms/linux/aarch64.h.
-//
 // Argument values are normalized through details::syscall_argument into ordinary locals first: a
 // narrow 32-bit value written into the low half of a register would zero-extend, so an argument
 // must never reach a register in its original static type.

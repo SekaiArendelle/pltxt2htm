@@ -1,5 +1,4 @@
 // LoongArch syscall resembles riscv but issues the syscall instruction like x86_64.
-// Adapted from fast_io_hosted/platforms/linux/loongarch64.h.
 //
 // Argument values are normalized through details::syscall_argument into ordinary locals first: a
 // narrow 32-bit value written into the low half of a register would zero-extend, so an argument
