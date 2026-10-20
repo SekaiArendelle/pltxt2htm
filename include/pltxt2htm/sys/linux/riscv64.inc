@@ -7,8 +7,7 @@ narrow 32-bit value written into the low half of a register would zero-extend, s
 must never reach a register in its original static type.
 */
 
-template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
-    requires (1 < sizeof(return_value_type))
+template<::std::uint64_t syscall_number, details::syscall_return return_value_type>
 [[__gnu__::__always_inline__]]
 inline auto system_call() noexcept -> return_value_type {
     register ::std::uint64_t a7 __asm__("a7") = syscall_number;
@@ -17,8 +16,7 @@ inline auto system_call() noexcept -> return_value_type {
     return static_cast<return_value_type>(a0);
 }
 
-template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
-    requires (1 < sizeof(return_value_type))
+template<::std::uint64_t syscall_number, details::syscall_return return_value_type>
 [[__gnu__::__always_inline__]]
 inline auto system_call(auto p1) noexcept -> return_value_type {
     ::std::uint64_t arg0{details::syscall_argument(p1)};
@@ -28,8 +26,7 @@ inline auto system_call(auto p1) noexcept -> return_value_type {
     return static_cast<return_value_type>(a0);
 }
 
-template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
-    requires (1 < sizeof(return_value_type))
+template<::std::uint64_t syscall_number, details::syscall_return return_value_type>
 [[__gnu__::__always_inline__]]
 inline auto system_call(auto p1, auto p2) noexcept -> return_value_type {
     ::std::uint64_t arg0{details::syscall_argument(p1)};
@@ -41,8 +38,7 @@ inline auto system_call(auto p1, auto p2) noexcept -> return_value_type {
     return static_cast<return_value_type>(a0);
 }
 
-template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
-    requires (1 < sizeof(return_value_type))
+template<::std::uint64_t syscall_number, details::syscall_return return_value_type>
 [[__gnu__::__always_inline__]]
 inline auto system_call(auto p1, auto p2, auto p3) noexcept -> return_value_type {
     ::std::uint64_t arg0{details::syscall_argument(p1)};
@@ -56,8 +52,7 @@ inline auto system_call(auto p1, auto p2, auto p3) noexcept -> return_value_type
     return static_cast<return_value_type>(a0);
 }
 
-template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
-    requires (1 < sizeof(return_value_type))
+template<::std::uint64_t syscall_number, details::syscall_return return_value_type>
 [[__gnu__::__always_inline__]]
 inline auto system_call(auto p1, auto p2, auto p3, auto p4) noexcept -> return_value_type {
     ::std::uint64_t arg0{details::syscall_argument(p1)};
@@ -73,8 +68,7 @@ inline auto system_call(auto p1, auto p2, auto p3, auto p4) noexcept -> return_v
     return static_cast<return_value_type>(a0);
 }
 
-template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
-    requires (1 < sizeof(return_value_type))
+template<::std::uint64_t syscall_number, details::syscall_return return_value_type>
 [[__gnu__::__always_inline__]]
 inline auto system_call(auto p1, auto p2, auto p3, auto p4, auto p5) noexcept -> return_value_type {
     ::std::uint64_t arg0{details::syscall_argument(p1)};
@@ -92,8 +86,7 @@ inline auto system_call(auto p1, auto p2, auto p3, auto p4, auto p5) noexcept ->
     return static_cast<return_value_type>(a0);
 }
 
-template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
-    requires (1 < sizeof(return_value_type))
+template<::std::uint64_t syscall_number, details::syscall_return return_value_type>
 [[__gnu__::__always_inline__]]
 inline auto system_call(auto p1, auto p2, auto p3, auto p4, auto p5, auto p6) noexcept -> return_value_type {
     ::std::uint64_t arg0{details::syscall_argument(p1)};

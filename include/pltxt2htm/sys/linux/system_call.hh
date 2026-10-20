@@ -46,6 +46,17 @@ constexpr auto syscall_argument(T v) noexcept -> ::std::uint64_t {
     }
 }
 
+/**
+ * @brief Constrains the return slot of system_call.
+ * @details Every syscall writes exactly one register-width result, so the ABI itself has no void
+ *          shape. void is the meaningful spelling for "the caller never consumes the result",
+ *          typically because the syscall never returns here (exit), and other returns may be
+ *          signed integrals wider than a byte, interpreted by two's-complement errno convention.
+ * @param T The requested return slot of a system_call invocation.
+ */
+template<typename T>
+concept syscall_return = ::std::is_void_v<T> || (::std::signed_integral<T> && (1 < sizeof(T)));
+
 } // namespace details
 
 #if defined(__x86_64__)
@@ -63,13 +74,15 @@ constexpr auto syscall_argument(T v) noexcept -> ::std::uint64_t {
 /**
  * @brief Exits the process immediately with the given exit code.
  * @details A thin wrapper over the exit syscall, defined here rather than per architecture because
- *          it is only a concrete use of system_call and its shape is identical everywhere.
+ *          it is only a concrete use of system_call and its shape is identical everywhere. The
+ *          discarded syscall result is spelled as a void instantiation instead of a
+ *          [[maybe_unused]] local: void is simply the honest reading of the ABI return slot here.
  * @param ret The process exit code.
  */
 template<::std::integral I>
 [[noreturn]]
 inline void fast_exit(I ret) noexcept {
-    [[maybe_unused]] auto const exit_code = system_call<__NR_exit, ::std::int64_t>(ret);
+    system_call<__NR_exit, void>(ret);
     __builtin_unreachable();
 }
 
