@@ -78,7 +78,7 @@ void test_six_argument_syscalls() noexcept {
 }
 
 void test_fast_exit_leaves_with_code() noexcept {
-    // fast_exit() is a [[noreturn]] raw __NR_exit; the child must leave with the given code.
+    // fast_exit() is a [[noreturn]] raw __NR_exit_group; the child must leave with the given code.
     auto child_pid = ::fork();
     pltxt2htm_test_assert_true(child_pid != -1);
     if (child_pid == 0) {

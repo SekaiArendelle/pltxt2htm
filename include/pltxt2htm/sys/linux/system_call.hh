@@ -73,16 +73,19 @@ concept syscall_return = ::std::is_void_v<T> || (::std::signed_integral<T> && (1
 
 /**
  * @brief Exits the process immediately with the given exit code.
- * @details A thin wrapper over the exit syscall, defined here rather than per architecture because
- *          it is only a concrete use of system_call and its shape is identical everywhere. The
- *          discarded syscall result is spelled as a void instantiation instead of a
+ * @details A thin wrapper over the exit-group syscall, defined here rather than per architecture
+ *          because it is only a concrete use of system_call and its shape is identical everywhere.
+ *          exit_group terminates the whole thread group, matching libc _exit semantics and the
+ *          plain meaning of "exit the process"; the does-not-respect-thread-group __NR_exit stays
+ *          reserved for a future dedicated thread-exit symbol alongside other thread syscalls.
+ *          The discarded syscall result is spelled as a void instantiation instead of a
  *          [[maybe_unused]] local: void is simply the honest reading of the ABI return slot here.
  * @param ret The process exit code.
  */
 template<::std::integral I>
 [[noreturn]]
 inline void fast_exit(I ret) noexcept {
-    system_call<__NR_exit, void>(ret);
+    system_call<__NR_exit_group, void>(ret);
     __builtin_unreachable();
 }
 
