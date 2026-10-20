@@ -12,7 +12,7 @@
 #include <cerrno>
 #include <unistd.h>
 
-template<::std::size_t syscall_number, details::syscall_return return_value_type, typename... Args>
+template<::std::uint64_t syscall_number, details::syscall_return return_value_type, typename... Args>
     requires (::std::is_trivially_copyable_v<Args> && ...)
 [[__gnu__::__always_inline__]]
 inline auto system_call(Args... arguments) noexcept -> return_value_type {

@@ -25,11 +25,14 @@ namespace details {
  * @brief Normalizes a syscall argument into an unsigned 64-bit integer.
  * @details Kernel syscall arguments are passed in registers; pointers are reinterpreted to
  *          integers, integral arguments are converted with the same value semantics as the
- *          C-style casts used by the original fast_io implementation.
+ *          C-style casts used by the original fast_io implementation. Only integers, pointers and
+ *          nullptr participate: a floating-point argument would reach the kernel truncated, and
+ *          the constraint rejects it up front rather than silently bit-cutting.
  * @param v The argument in its original form.
  * @return The value to load into a syscall argument register or forward to ::syscall.
  */
 template<typename T>
+    requires (::std::integral<T> || ::std::is_pointer_v<T> || ::std::is_null_pointer_v<T>)
 [[nodiscard]]
 constexpr auto syscall_argument(T v) noexcept -> ::std::uint64_t {
     if constexpr (::std::is_null_pointer_v<T>) {

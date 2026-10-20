@@ -65,7 +65,9 @@ void test_two_and_three_argument_syscalls() noexcept {
 }
 
 void test_six_argument_syscalls() noexcept {
-    // mmap()/munmap() exist only in the kernel tables of the inline-assembly architectures above.
+    // Only the inline-assembly architectures above expose __NR_mmap with the modern six-register
+    // signature: the 32-bit tables carry the old page-offset mmap/mmap2 forms instead, so the raw
+    // shape stays pinned to those targets.
     #if defined(__x86_64__) || defined(__aarch64__) || (defined(__riscv) && (__SIZEOF_SIZE_T__ == 8)) || \
         (defined(__loongarch__) && (__SIZEOF_SIZE_T__ == 8))
     auto mapping =
