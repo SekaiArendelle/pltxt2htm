@@ -3,23 +3,11 @@
 //
 // Argument values are normalized through details::syscall_argument into ordinary locals first: a
 // narrow 32-bit value written into the low half of a register would zero-extend, so an argument
-// must never reach a register in its original static type. rdi/rsi/rdx have constraint letters and
-// are bound that way, which loads the normalized values straight into place when the asm statement
-// is prepared; r10/r8/r9 have no constraint letters and rely on the GCC/Clang
-// local-register-variable extension, pinned consecutively with no intervening statements because
-// low optimization levels would otherwise reuse those registers and clobber an earlier pin.
-
-template<::std::uint64_t syscall_number>
-[[noreturn]]
-inline void system_call_no_return(auto p1) noexcept {
-    ::std::uint64_t arg1{details::syscall_argument(p1)};
-    ::std::uint64_t ret;
-    __asm__ __volatile__("syscall" : "=a"(ret) : "0"(syscall_number), "D"(arg1) : "memory", "cc", "r11", "cx");
-    __builtin_unreachable();
-}
+// must never reach a register in its original static type.
 
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
+[[__gnu__::__always_inline__]]
 inline auto system_call() noexcept -> return_value_type {
     return_value_type ret;
     __asm__ __volatile__("syscall" : "=a"(ret) : "0"(syscall_number) : "memory", "cc", "r11", "cx");
@@ -28,6 +16,7 @@ inline auto system_call() noexcept -> return_value_type {
 
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
+[[__gnu__::__always_inline__]]
 inline auto system_call(auto p1) noexcept -> return_value_type {
     ::std::uint64_t arg1{details::syscall_argument(p1)};
     return_value_type ret;
@@ -37,6 +26,7 @@ inline auto system_call(auto p1) noexcept -> return_value_type {
 
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
+[[__gnu__::__always_inline__]]
 inline auto system_call(auto p1, auto p2) noexcept -> return_value_type {
     ::std::uint64_t arg1{details::syscall_argument(p1)};
     ::std::uint64_t arg2{details::syscall_argument(p2)};
@@ -50,6 +40,7 @@ inline auto system_call(auto p1, auto p2) noexcept -> return_value_type {
 
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
+[[__gnu__::__always_inline__]]
 inline auto system_call(auto p1, auto p2, auto p3) noexcept -> return_value_type {
     ::std::uint64_t arg1{details::syscall_argument(p1)};
     ::std::uint64_t arg2{details::syscall_argument(p2)};
@@ -64,6 +55,7 @@ inline auto system_call(auto p1, auto p2, auto p3) noexcept -> return_value_type
 
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
+[[__gnu__::__always_inline__]]
 inline auto system_call(auto p1, auto p2, auto p3, auto p4) noexcept -> return_value_type {
     ::std::uint64_t arg1{details::syscall_argument(p1)};
     ::std::uint64_t arg2{details::syscall_argument(p2)};
@@ -80,6 +72,7 @@ inline auto system_call(auto p1, auto p2, auto p3, auto p4) noexcept -> return_v
 
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
+[[__gnu__::__always_inline__]]
 inline auto system_call(auto p1, auto p2, auto p3, auto p4, auto p5) noexcept -> return_value_type {
     ::std::uint64_t arg1{details::syscall_argument(p1)};
     ::std::uint64_t arg2{details::syscall_argument(p2)};
@@ -98,6 +91,7 @@ inline auto system_call(auto p1, auto p2, auto p3, auto p4, auto p5) noexcept ->
 
 template<::std::uint64_t syscall_number, ::std::signed_integral return_value_type>
     requires (1 < sizeof(return_value_type))
+[[__gnu__::__always_inline__]]
 inline auto system_call(auto p1, auto p2, auto p3, auto p4, auto p5, auto p6) noexcept -> return_value_type {
     ::std::uint64_t arg1{details::syscall_argument(p1)};
     ::std::uint64_t arg2{details::syscall_argument(p2)};
@@ -119,5 +113,6 @@ inline auto system_call(auto p1, auto p2, auto p3, auto p4, auto p5, auto p6) no
 template<::std::integral I>
 [[noreturn]]
 inline void fast_exit(I ret) noexcept {
-    system_call_no_return<__NR_exit>(ret);
+    [[maybe_unused]] auto const exit_code = system_call<__NR_exit, ::std::int64_t>(ret);
+    __builtin_unreachable();
 }
