@@ -19,7 +19,7 @@ inline auto system_call(Args... arguments) noexcept -> return_value_type {
     ::std::uint64_t ret{
         static_cast<::std::uint64_t>(::syscall(syscall_number, details::syscall_argument(arguments)...))};
     if (static_cast<::std::int64_t>(ret) == -1) {
-        ret = static_cast<::std::uint64_t>(0) - static_cast<::std::uint64_t>(errno);
+        ret = static_cast<::std::uint64_t>(-errno);
     }
     return static_cast<return_value_type>(ret);
 }
