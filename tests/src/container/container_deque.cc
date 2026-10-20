@@ -40,7 +40,7 @@ struct ThrowingCopy {
     ~ThrowingCopy() noexcept = default;
 };
 
-static_assert(::std::same_as<IntDeque::allocator_type, ::fast_io::native_global_allocator>);
+static_assert(::std::same_as<IntDeque::allocator_type, ::pltxt2htm::memory::native_global_allocator>);
 static_assert(::std::random_access_iterator<IntDeque::iterator>);
 static_assert(::std::random_access_iterator<IntDeque::const_iterator>);
 static_assert(::std::same_as<::std::iter_reference_t<IntDeque::iterator>, int&>);
@@ -217,23 +217,23 @@ struct CountingAllocator {
             ++map_allocations;
         }
         largest_allocation = ::std::max(largest_allocation, bytes);
-        return ::fast_io::native_global_allocator::allocate(bytes);
+        return ::pltxt2htm::memory::native_global_allocator::allocate(bytes);
     }
 
     static void deallocate(void* storage) noexcept {
-        ::fast_io::native_global_allocator::deallocate(storage);
+        ::pltxt2htm::memory::native_global_allocator::deallocate(storage);
     }
 
     static void deallocate_n(void* storage, ::std::size_t bytes) noexcept {
         if (bytes == sizeof(BlockValue)) {
             ++block_deallocations;
         }
-        ::fast_io::native_global_allocator::deallocate_n(storage, bytes);
+        ::pltxt2htm::memory::native_global_allocator::deallocate_n(storage, bytes);
     }
 };
 
 void test_rolling_queue(bool front_to_back) {
-    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
+    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::pltxt2htm::memory::generic_allocator_adapter<CountingAllocator>>;
     static_assert(Queue::elements_per_block == 1);
     CountingAllocator::map_allocations = 0;
     CountingAllocator::largest_allocation = 0;
@@ -264,7 +264,7 @@ void test_rolling_queue(bool front_to_back) {
 }
 
 void test_spare_blocks() {
-    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
+    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::pltxt2htm::memory::generic_allocator_adapter<CountingAllocator>>;
     CountingAllocator::block_allocations = 0;
     CountingAllocator::block_deallocations = 0;
     {
@@ -313,7 +313,7 @@ void test_spare_blocks() {
 }
 
 void test_spare_transfer_at_map_edge() {
-    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
+    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::pltxt2htm::memory::generic_allocator_adapter<CountingAllocator>>;
     CountingAllocator::map_allocations = 0;
     CountingAllocator::block_allocations = 0;
     {
@@ -348,7 +348,7 @@ void test_spare_transfer_at_map_edge() {
 }
 
 void test_spare_blocks_follow_storage() {
-    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
+    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::pltxt2htm::memory::generic_allocator_adapter<CountingAllocator>>;
     CountingAllocator::block_allocations = 0;
     CountingAllocator::block_deallocations = 0;
     {

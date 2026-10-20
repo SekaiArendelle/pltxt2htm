@@ -4,5 +4,5 @@
 
 [[nodiscard]]
 constexpr auto is_excluded_namespace(::std::string_view const name) noexcept -> bool {
-    return name == "details" || name.starts_with("sys_");
+    return name == "asan" || name == "details" || name == "win32" || name.starts_with("sys_");
 }

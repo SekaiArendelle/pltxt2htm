@@ -19,6 +19,7 @@
 #include <fast_io/fast_io_core.h>
 
 #include "../contracts.hh"
+#include "../memory/allocator.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::container {
@@ -35,7 +36,7 @@ namespace pltxt2htm::container {
  * and middle erasure invalidate iterators; erasure at an end invalidates only erased elements
  * and the past-the-end iterator.
  */
-template<typename T, typename Allocator = ::fast_io::native_global_allocator>
+template<typename T, typename Allocator = ::pltxt2htm::memory::native_global_allocator>
 class Deque {
 public:
     using value_type = T;
@@ -48,8 +49,8 @@ public:
     using const_pointer = value_type const*;
 
 private:
-    using element_allocator = ::fast_io::typed_generic_allocator_adapter<allocator_type, value_type>;
-    using map_allocator = ::fast_io::typed_generic_allocator_adapter<allocator_type, pointer>;
+    using element_allocator = ::pltxt2htm::memory::typed_generic_allocator_adapter<allocator_type, value_type>;
+    using map_allocator = ::pltxt2htm::memory::typed_generic_allocator_adapter<allocator_type, pointer>;
 
     static_assert(!element_allocator::has_status,
                   "Deque requires a stateless fast_io allocator; stateful allocators need an external handle");
