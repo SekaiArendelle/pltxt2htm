@@ -102,6 +102,8 @@ int main() noexcept {
 
 #else
 
+    #warning "the Linux syscall suite is skipped because this target is not __linux__"
+
 int main() noexcept {
     return 0;
 }
