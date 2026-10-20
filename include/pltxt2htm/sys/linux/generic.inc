@@ -16,10 +16,9 @@ template<::std::uint64_t syscall_number, details::syscall_return return_value_ty
     requires (::std::is_trivially_copyable_v<Args> && ...)
 [[__gnu__::__always_inline__]]
 inline auto system_call(Args... arguments) noexcept -> return_value_type {
-    ::std::uint64_t ret{
-        static_cast<::std::uint64_t>(::syscall(syscall_number, details::syscall_argument(arguments)...))};
-    if (static_cast<::std::int64_t>(ret) == -1) {
-        ret = static_cast<::std::uint64_t>(-errno);
+    ::std::size_t ret{static_cast<::std::size_t>(::syscall(syscall_number, details::syscall_argument(arguments)...))};
+    if (static_cast<::std::make_signed_t<::std::size_t>>(ret) == -1) {
+        ret = static_cast<::std::size_t>(0) - static_cast<::std::size_t>(errno);
     }
     return static_cast<return_value_type>(ret);
 }

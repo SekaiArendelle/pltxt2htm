@@ -23,26 +23,32 @@ namespace details {
 
 /**
  * @brief Normalizes a syscall argument into an unsigned 64-bit integer.
- * @details Kernel syscall arguments are passed in registers; pointers are reinterpreted to
- *          integers, integral arguments are converted with the same value semantics as the
- *          C-style casts used by the original fast_io implementation. Only integers, pointers and
- *          nullptr participate: a floating-point argument would reach the kernel truncated, and
- *          the constraint rejects it up front rather than silently bit-cutting.
+ * @details Kernel syscall arguments live in registers of the architecture word size, so the
+ *          result is exactly one native "::std::size_t" slot: register-wide on the LP64 asm
+ *          architectures where the asm bodies expect it, and one vararg word for the libc
+ *          ::syscall() wrapper where every argument must consume exactly one slot. Pointers are
+ *          reinterpreted to integers and integral arguments are converted with the same value
+ *          semantics as the C-style casts used by the original fast_io implementation. Only
+ *          integers, pointers and nullptr participate: a floating-point argument would reach the
+ *          kernel truncated, and the constraint rejects it up front rather than silently
+ *          bit-cutting. Split 64-bit pseudo-arguments of the old 32-bit large-file syscalls
+ *          (mmap2-style page offsets, pread64-style offset pairs) cannot be spelled with one
+ *          argument slot and deliberately remain with the libc large-file wrappers.
  * @param v The argument in its original form.
  * @return The value to load into a syscall argument register or forward to ::syscall.
  */
 template<typename T>
     requires (::std::integral<T> || ::std::is_pointer_v<T> || ::std::is_null_pointer_v<T>)
 [[nodiscard]]
-constexpr auto syscall_argument(T v) noexcept -> ::std::uint64_t {
+constexpr auto syscall_argument(T v) noexcept -> ::std::size_t {
     if constexpr (::std::is_null_pointer_v<T>) {
-        return static_cast<::std::uint64_t>(0);
+        return static_cast<::std::size_t>(0);
     }
     else if constexpr (::std::is_pointer_v<T>) {
-        return reinterpret_cast<::std::uint64_t>(v);
+        return reinterpret_cast<::std::size_t>(v);
     }
     else {
-        return static_cast<::std::uint64_t>(v);
+        return static_cast<::std::size_t>(v);
     }
 }
 
