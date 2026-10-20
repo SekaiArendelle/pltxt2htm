@@ -1,3 +1,5 @@
+#pragma once
+
 // https://github.com/bminor/glibc/master/sysdeps/unix/sysv/linux/x86_64/sysdep.h
 //
 // Argument values are normalized through details::syscall_argument into ordinary locals first: a

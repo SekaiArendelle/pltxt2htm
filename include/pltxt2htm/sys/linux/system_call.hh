@@ -9,16 +9,13 @@
 #include <cstdint>
 #include <type_traits>
 
-#include <unistd.h>
 #include <asm/unistd.h>
-#include <sys/syscall.h>
 
 // The arch .inc files use `register` with asm labels, the GCC/Clang local-register-variable
 // extension required to bind syscall arguments to their ABI registers. This layer is the lowest
-// substrate of pltxt2htm and deliberately depends on nothing above raw compiler builtins, so both
-// system_call_must_succeed below and the [[noreturn]] paths use __builtin_trap and
-// __builtin_unreachable directly instead of the pltxt2htm details::trap() / details::unreachable()
-// wrappers.
+// substrate of pltxt2htm and deliberately depends on nothing above raw compiler builtins, so the
+// [[noreturn]] paths use __builtin_unreachable directly instead of the pltxt2htm
+// details::unreachable() wrapper.
 
 namespace pltxt2htm::sys_linux {
 
@@ -99,21 +96,6 @@ constexpr auto system_call_fails(int_type v) noexcept -> bool {
     using unsigned_type = ::std::make_unsigned_t<int_type>;
     return static_cast<unsigned_type>(static_cast<unsigned_type>(v) + static_cast<unsigned_type>(4095)) <
            static_cast<unsigned_type>(4095);
-}
-
-/**
- * @brief Terminates the program when a raw Linux syscall return value reports failure.
- * @details pltxt2htm core code never throws exceptions, so unlike the fast_io counterpart this
- *          calls __builtin_trap() directly instead of throwing a posix error. The pltxt2htm
- *          details::trap() wrapper is deliberately avoided here: this layer sits below the rest of
- *          pltxt2htm's own core utilities and only touches raw compiler builtins.
- * @param v The raw syscall return value.
- */
-template<::std::integral int_type>
-inline void system_call_must_succeed(int_type v) noexcept {
-    if (system_call_fails(v)) [[unlikely]] {
-        __builtin_trap();
-    }
 }
 
 } // namespace pltxt2htm::sys_linux

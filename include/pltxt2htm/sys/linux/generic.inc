@@ -1,8 +1,12 @@
+#pragma once
+
 // Generic fallback without inline assembly: the libc ::syscall() wrapper is used instead.
 //
 // ::syscall() is a C variadic, so every argument is first normalized into a register-width value
 // by details::syscall_argument; integers narrower than long would otherwise reach the callee with
 // undefined upper bits, and pointers must be reinterpreted before they can cross a variadic call.
+
+#include <unistd.h>
 
 template<::std::size_t syscall_number, details::syscall_return return_value_type, typename... Args>
     requires (::std::is_trivially_copyable_v<Args> && ...)

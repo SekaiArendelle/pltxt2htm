@@ -75,41 +75,15 @@ void test_six_argument_syscalls() noexcept {
     #endif
 }
 
-void test_must_succeed_traps_on_failure() noexcept {
-    auto child_pid = ::fork();
-    pltxt2htm_test_assert_true(child_pid != -1);
-    if (child_pid == 0) {
-        // The child must terminate inside system_call_must_succeed and never reach ::_exit().
-        linux_sys::system_call_must_succeed(static_cast<long>(-1));
-        ::_exit(0);
-    }
-
-    int wait_status{};
-    ::waitpid(child_pid, ::std::addressof(wait_status), 0);
-    pltxt2htm_test_assert_true(WIFSIGNALED(wait_status));
-}
-
-void test_must_succeed_success_path_and_fast_exit() noexcept {
-    // A non-failing value must not terminate: the child reaches its ::_exit() below.
-    auto child_pid = ::fork();
-    pltxt2htm_test_assert_true(child_pid != -1);
-    if (child_pid == 0) {
-        linux_sys::system_call_must_succeed(0l);
-        ::_exit(7);
-    }
-
-    int wait_status{};
-    ::waitpid(child_pid, ::std::addressof(wait_status), 0);
-    pltxt2htm_test_assert_true(WIFEXITED(wait_status) && WEXITSTATUS(wait_status) == 7);
-
+void test_fast_exit_leaves_with_code() noexcept {
     // fast_exit() is a [[noreturn]] raw __NR_exit; the child must leave with the given code.
-    child_pid = ::fork();
+    auto child_pid = ::fork();
     pltxt2htm_test_assert_true(child_pid != -1);
     if (child_pid == 0) {
         linux_sys::fast_exit(42);
     }
 
-    wait_status = 0;
+    int wait_status{};
     ::waitpid(child_pid, ::std::addressof(wait_status), 0);
     pltxt2htm_test_assert_true(WIFEXITED(wait_status) && WEXITSTATUS(wait_status) == 42);
 }
@@ -120,8 +94,7 @@ int main() noexcept {
     test_zero_and_one_argument_syscalls();
     test_two_and_three_argument_syscalls();
     test_six_argument_syscalls();
-    test_must_succeed_traps_on_failure();
-    test_must_succeed_success_path_and_fast_exit();
+    test_fast_exit_leaves_with_code();
     return 0;
 }
 

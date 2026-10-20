@@ -1,3 +1,5 @@
+#pragma once
+
 /*
 https://github.com/riscvarchive/riscv-musl/blob/develop/arch/riscv64/syscall_arch.h
 Argument values are normalized through details::syscall_argument into ordinary locals first: a

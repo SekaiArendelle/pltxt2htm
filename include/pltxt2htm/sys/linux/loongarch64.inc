@@ -1,3 +1,5 @@
+#pragma once
+
 // LoongArch syscall resembles riscv but issues the syscall instruction like x86_64.
 //
 // Argument values are normalized through details::syscall_argument into ordinary locals first: a
