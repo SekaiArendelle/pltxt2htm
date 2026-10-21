@@ -1477,6 +1477,34 @@ LIBRARIES = (
                 ("void *", "Boolean *"),
                 nodiscard=True,
             ),
+            Symbol(
+                "RtlAllocateHeap",
+                "void *",
+                ("Handle", "Ulong", "::std::size_t"),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlReAllocateHeap",
+                "void *",
+                ("Handle", "Ulong", "void *", "::std::size_t"),
+            ),
+            Symbol(
+                "RtlFreeHeap",
+                "Boolean",
+                ("Handle", "Ulong", "void *"),
+            ),
+            Symbol(
+                "RtlGetCurrentPeb",
+                "Peb *",
+                (),
+                nodiscard=True,
+            ),
+            Symbol(
+                "RtlSizeHeap",
+                "::std::size_t",
+                ("Handle", "Ulong", "void const *"),
+                nodiscard=True,
+            ),
         ),
     ),
     Library(
@@ -2118,6 +2146,34 @@ LIBRARIES = (
                 nodiscard=False,
             ),
             Symbol("ExitProcess", "void", ("Uint",), noreturn=True),
+            Symbol(
+                "GetProcessHeap",
+                "Handle",
+                (),
+                nodiscard=True,
+            ),
+            Symbol(
+                "HeapAlloc",
+                "void*",
+                ("Handle", "Dword", "::std::size_t"),
+                nodiscard=True,
+            ),
+            Symbol(
+                "HeapReAlloc",
+                "void*",
+                ("Handle", "Dword", "void*", "::std::size_t"),
+            ),
+            Symbol(
+                "HeapFree",
+                "Bool",
+                ("Handle", "Dword", "void*"),
+            ),
+            Symbol(
+                "HeapSize",
+                "::std::size_t",
+                ("Handle", "Dword", "void const*"),
+                nodiscard=True,
+            ),
         ),
     ),
     Library(
