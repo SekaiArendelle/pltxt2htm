@@ -2571,6 +2571,28 @@ LIBRARIES = (
 )
 
 
+def validate_libraries() -> None:
+    seen: dict[str, str] = {}
+    for library in LIBRARIES:
+        found: list[str] = []
+        for symbol in library.symbols:
+            name = symbol.export_name
+            owner = seen.get(name)
+            if owner is not None:
+                if owner == library.name:
+                    found.append(name)
+                else:
+                    raise RuntimeError(
+                        f"symbol {name} is declared in both {owner} and {library.name}"
+                    )
+            seen.setdefault(name, library.name)
+        if found:
+            raise RuntimeError(
+                f"library {library.name} declares duplicate symbols: "
+                + ", ".join(found)
+            )
+
+
 MSVC_TARGETS = (
     ("i686", "i686-pc-windows-msvc"),
     ("x64", "x86_64-pc-windows-msvc"),
@@ -2827,6 +2849,8 @@ def main() -> int:
 
     clang = resolve_tool(arguments.clang, "Clang C++ driver")
     llvm_nm = resolve_tool(arguments.llvm_nm, "llvm-nm")
+    if arguments.check:
+        validate_libraries()
     files = generated_files(
         clang, llvm_nm, arguments.cxx_include_dir, arguments.library
     )
