@@ -633,6 +633,22 @@ struct RtlUserProcessParameters {
     void* attribute_list;
 };
 
+struct PebLdrData;
+
+// Fields beyond ProcessHeap are not needed by current users.
+struct Peb {
+    Uchar inherited_address_space;
+    Uchar read_image_file_exec_options;
+    Uchar being_debugged;
+    Uchar spare_bool;
+    void* mutant;
+    void* image_base_address;
+    PebLdrData* ldr;
+    RtlUserProcessParameters* process_parameters;
+    void* sub_system_data;
+    void* process_heap;
+};
+
 struct PsCreateInfo {
     ::std::size_t size;
     PsCreateState state;

@@ -155,3 +155,8 @@
 #pragma comment(linker, "/alternatename:__imp_?ZwSetTimer@sys_nt@pltxt2htm@@YGJPAXPA_JP6GX0KJ@Z0EJPAE@Z=__imp__ZwSetTimer@28")
 #pragma comment(linker, "/alternatename:__imp_?NtCancelTimer@sys_nt@pltxt2htm@@YGJPAXPAE@Z=__imp__NtCancelTimer@8")
 #pragma comment(linker, "/alternatename:__imp_?ZwCancelTimer@sys_nt@pltxt2htm@@YGJPAXPAE@Z=__imp__ZwCancelTimer@8")
+#pragma comment(linker, "/alternatename:__imp_?RtlAllocateHeap@sys_nt@pltxt2htm@@YGPAXPAXKI@Z=__imp__RtlAllocateHeap@12")
+#pragma comment(linker, "/alternatename:__imp_?RtlReAllocateHeap@sys_nt@pltxt2htm@@YGPAXPAXK0I@Z=__imp__RtlReAllocateHeap@16")
+#pragma comment(linker, "/alternatename:__imp_?RtlFreeHeap@sys_nt@pltxt2htm@@YGEPAXK0@Z=__imp__RtlFreeHeap@12")
+#pragma comment(linker, "/alternatename:__imp_?RtlGetCurrentPeb@sys_nt@pltxt2htm@@YGPAUPeb@12@XZ=__imp__RtlGetCurrentPeb@0")
+#pragma comment(linker, "/alternatename:__imp_?RtlSizeHeap@sys_nt@pltxt2htm@@YGIPAXKPBX@Z=__imp__RtlSizeHeap@12")
