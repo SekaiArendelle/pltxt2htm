@@ -2654,13 +2654,18 @@ def undefined_imports(
     target: str,
     clang: str,
     llvm_nm: str,
-    cxx_include_dir: pathlib.Path | None,
+    cxx_include_dirs: tuple[pathlib.Path, ...],
 ) -> tuple[str, ...]:
     compile_command = [clang, f"--target={target}", "-std=c++23"]
-    if cxx_include_dir is not None:
+    if cxx_include_dirs:
         # MSVC's current STL headers reject the ARM32 target, but the probes still need <cstdint>.
         # Use a compatible C++ header set without mixing it with Clang's default C++ headers.
-        compile_command.extend(("-nostdinc++", "-isystem", str(cxx_include_dir)))
+        # -nostdlibinc keeps the Clang resource headers (stdint-gcc.h and
+        # friends) while discarding the host SDK headers, mirroring the
+        # behavior of compiling without a host SDK available.
+        compile_command.extend(("-nostdinc++", "-nostdlibinc"))
+        for cxx_include_dir in cxx_include_dirs:
+            compile_command.extend(("-isystem", str(cxx_include_dir)))
     compile_command.extend(("-I", str(SYS_ROOT), "-x", "c++", "-c", "-o", "-", "-"))
     compile_result = subprocess.run(
         compile_command,
@@ -2707,7 +2712,7 @@ def undefined_symbols(
     target: str,
     clang: str,
     llvm_nm: str,
-    cxx_include_dir: pathlib.Path | None,
+    cxx_include_dirs: tuple[pathlib.Path, ...],
 ) -> tuple[tuple[str, str], ...]:
     local = undefined_imports(
         local_probe_source(symbol, library),
@@ -2715,7 +2720,7 @@ def undefined_symbols(
         target,
         clang,
         llvm_nm,
-        cxx_include_dir,
+        cxx_include_dirs,
     )
     exported = undefined_imports(
         export_probe_source(symbol, library),
@@ -2723,7 +2728,7 @@ def undefined_symbols(
         target,
         clang,
         llvm_nm,
-        cxx_include_dir,
+        cxx_include_dirs,
     )
     exported_by_flavor = {import_flavor(name): name for name in exported}
     pairs = tuple((name, exported_by_flavor[import_flavor(name)]) for name in local)
@@ -2740,14 +2745,14 @@ def generate_linker_aliases(
     target: str,
     clang: str,
     llvm_nm: str,
-    cxx_include_dir: pathlib.Path | None,
+    cxx_include_dirs: tuple[pathlib.Path, ...],
 ) -> tuple[str, dict[str, int]]:
     result = [GENERATED_NOTICE, "\n"]
     x86_stdcall_stack_bytes: dict[str, int] = {}
 
     def probe(symbol: Symbol) -> tuple[Symbol, tuple[tuple[str, str], ...]]:
         return symbol, undefined_symbols(
-            symbol, library, target, clang, llvm_nm, cxx_include_dir
+            symbol, library, target, clang, llvm_nm, cxx_include_dirs
         )
 
     with concurrent.futures.ThreadPoolExecutor(
@@ -2776,7 +2781,7 @@ def generate_linker_aliases(
 def generated_files(
     clang: str,
     llvm_nm: str,
-    cxx_include_dir: pathlib.Path | None,
+    cxx_include_dirs: tuple[pathlib.Path, ...],
     library_name: str | None = None,
 ) -> dict[pathlib.Path, str]:
     result: dict[pathlib.Path, str] = {}
@@ -2787,7 +2792,7 @@ def generated_files(
         i686_stdcall_stack_bytes: dict[str, int] = {}
         for architecture, target in MSVC_TARGETS:
             aliases, target_stack_bytes = generate_linker_aliases(
-                library, target, clang, llvm_nm, cxx_include_dir
+                library, target, clang, llvm_nm, cxx_include_dirs
             )
             result[directory / f"{library.name}_msvc_linker_{architecture}.inc"] = (
                 aliases
@@ -2806,6 +2811,53 @@ def resolve_tool(value: str, description: str) -> str:
     return resolved
 
 
+def gnu_cxx_include_dirs(gxx: str) -> tuple[pathlib.Path, ...]:
+    # The linker-support probes only need <cstddef> and <cstdint>, so the
+    # resolved libstdc++ header directories are sufficient; no GNU runtime
+    # library must be linked and, importantly, no GCC C header directory may
+    # be added: their stddef.h is not portable across Clang targets. The
+    # compiler resource headers (stdint-gcc.h and friends under -nostdlibinc)
+    # supply the C side. -H reports the exact include directories the GNU
+    # compiler applies, regardless of how the libstdc++ installation is laid
+    # out (GCC tree, distro, or sysroot packaging); only the directories of
+    # the C++ standard library itself are kept.
+    probe_result = subprocess.run(
+        [gxx, "-xc++", "-E", "-H", "-"],
+        input=b"#include <cstddef>\n#include <cstdint>\n",
+        check=False,
+        capture_output=True,
+    )
+    if probe_result.returncode != 0:
+        raise RuntimeError(
+            f"gxx failed:\n{probe_result.stderr.decode(errors='replace').strip()}"
+        )
+    wanted = ("cstddef", "cstdint", "c++config.h")
+    directories: list[pathlib.Path] = []
+    for line in probe_result.stderr.decode("ascii", errors="replace").splitlines():
+        tokens = line.split()
+        if len(tokens) < 2:
+            continue
+        header_path = pathlib.Path(tokens[-1])
+        matched = next((name for name in wanted if header_path.name == name), None)
+        if matched is None:
+            continue
+        directory = header_path.parent
+        if directory.name == "bits":
+            directory = directory.parent
+        if directory not in directories:
+            directories.append(directory)
+    if (
+        len(directories) < 2
+        or not directories[0].is_dir()
+        or directories[0] == directories[1]
+    ):
+        raise RuntimeError(
+            f"gxx {gxx} did not provide usable libstdc++ headers; "
+            f"probe output:\n{probe_result.stderr.decode(errors='replace').strip()}"
+        )
+    return tuple(directories)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -2820,16 +2872,34 @@ def main() -> int:
     parser.add_argument("--llvm-nm", default="llvm-nm", help="LLVM symbol table dumper")
     parser.add_argument(
         "--cxx-include-dir",
-        type=pathlib.Path,
-        help="C++ standard library header directory for cross-compiling",
+        metavar="DIR",
+        action="append",
+        help=(
+            "C++ standard library header directory to cross-compile with; "
+            "repeatable, supports environment variable references, bypasses "
+            "the compiler's default C++ headers"
+        ),
+    )
+    parser.add_argument(
+        "--gxx",
+        help=(
+            "GNU C++ driver whose libstdc++ install provides the probe "
+            "headers; adds the directories it reports"
+        ),
     )
     arguments = parser.parse_args()
 
     clang = resolve_tool(arguments.clang, "Clang C++ driver")
     llvm_nm = resolve_tool(arguments.llvm_nm, "llvm-nm")
-    files = generated_files(
-        clang, llvm_nm, arguments.cxx_include_dir, arguments.library
+    cxx_include_dirs = tuple(
+        pathlib.Path(os.path.expandvars(directory))
+        for directory in arguments.cxx_include_dir or ()
     )
+    if arguments.gxx is not None:
+        cxx_include_dirs += gnu_cxx_include_dirs(
+            resolve_tool(arguments.gxx, "GNU C++ driver")
+        )
+    files = generated_files(clang, llvm_nm, cxx_include_dirs, arguments.library)
     stale: list[pathlib.Path] = []
     for path, content in files.items():
         if arguments.check:
