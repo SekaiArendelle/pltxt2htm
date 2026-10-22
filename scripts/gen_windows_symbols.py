@@ -1487,11 +1487,13 @@ LIBRARIES = (
                 "RtlReAllocateHeap",
                 "void *",
                 ("Handle", "Ulong", "void *", "::std::size_t"),
+                nodiscard=True,
             ),
             Symbol(
                 "RtlFreeHeap",
                 "Boolean",
                 ("Handle", "Ulong", "void *"),
+                nodiscard=True,
             ),
             Symbol(
                 "RtlGetCurrentPeb",
@@ -2162,11 +2164,13 @@ LIBRARIES = (
                 "HeapReAlloc",
                 "void*",
                 ("Handle", "Dword", "void*", "::std::size_t"),
+                nodiscard=True,
             ),
             Symbol(
                 "HeapFree",
                 "Bool",
                 ("Handle", "Dword", "void*"),
+                nodiscard=True,
             ),
             Symbol(
                 "HeapSize",
