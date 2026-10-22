@@ -12,6 +12,13 @@ cmake = "*"
 ninja = "*"
 git = "*"
 
+[tasks]
+# Compilers write intermediates to TEMP/TMP on Windows and TMPDIR on POSIX.
+# Keep them inside the workspace: the system temp directory may reject writes.
+# Every task that sets these variables must run after prepare-tmp.
+prepare-tmp = "cmake -E make_directory \"$PIXI_PROJECT_ROOT/.tmp\""
+clean-tmp = "cmake -E rm -rf \"$PIXI_PROJECT_ROOT/.tmp\""
+
 [feature.clang.dependencies]
 clangxx = ">=23"
 
@@ -19,33 +26,33 @@ clangxx = ">=23"
 CXXFLAGS = "$CXXFLAGS --gcc-toolchain=$CONDA_PREFIX"
 
 [feature.clang.tasks]
-configure-examples = "cmake -S examples -B examples/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++"
-build-examples = { cmd = "cmake --build examples/build-pixi-clang", depends-on = ["configure-examples"] }
+configure-examples = { cmd = "cmake -S examples -B examples/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++", depends-on = ["prepare-tmp"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+build-examples = { cmd = "cmake --build examples/build-pixi-clang", depends-on = ["configure-examples"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
 run-example = { cmd = "examples/build-pixi-clang/{{ example }}", args = ["example"], depends-on = ["build-examples"] }
-configure-cxxmodule-examples = "cmake -S cxxmodule/examples -B cxxmodule/examples/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++"
-build-cxxmodule-examples = { cmd = "cmake --build cxxmodule/examples/build-pixi-clang", depends-on = ["configure-cxxmodule-examples"] }
+configure-cxxmodule-examples = { cmd = "cmake -S cxxmodule/examples -B cxxmodule/examples/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++", depends-on = ["prepare-tmp"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+build-cxxmodule-examples = { cmd = "cmake --build cxxmodule/examples/build-pixi-clang", depends-on = ["configure-cxxmodule-examples"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
 run-cxxmodule-example = { cmd = "cxxmodule/examples/build-pixi-clang/example", depends-on = ["build-cxxmodule-examples"] }
-configure-cmd = { cmd = "cmake -S cmd -B cmd/build-pixi-clang-{{ mode | lower }} -G Ninja -DCMAKE_BUILD_TYPE={{ mode | capitalize }} -DCMAKE_CXX_COMPILER=clang++", args = [{ arg = "mode", default = "debug" }] }
-build-cmd = { cmd = "cmake --build cmd/build-pixi-clang-{{ mode | lower }}", args = [{ arg = "mode", default = "debug" }], depends-on = [{ task = "configure-cmd", args = ["{{ mode }}"] }] }
+configure-cmd = { cmd = "cmake -S cmd -B cmd/build-pixi-clang-{{ mode | lower }} -G Ninja -DCMAKE_BUILD_TYPE={{ mode | capitalize }} -DCMAKE_CXX_COMPILER=clang++", args = [{ arg = "mode", default = "debug" }], depends-on = ["prepare-tmp"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+build-cmd = { cmd = "cmake --build cmd/build-pixi-clang-{{ mode | lower }}", args = [{ arg = "mode", default = "debug" }], depends-on = [{ task = "configure-cmd", args = ["{{ mode }}"] }], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
 run-cmd = { cmd = "cmd/build-pixi-clang-{{ mode | lower }}/pltxt2htm {{ cli_args }}", args = [{ arg = "mode", default = "debug" }, { arg = "cli_args", default = "" }], depends-on = [{ task = "build-cmd", args = ["{{ mode }}"] }] }
-configure-tests-clang = "cmake -S tests -B tests/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++"
-build-tests-clang = { cmd = "cmake --build tests/build-pixi-clang", depends-on = ["configure-tests-clang"] }
-test-clang = { cmd = "ctest --test-dir tests/build-pixi-clang --interactive-debug-mode 0 --output-on-failure", depends-on = ["build-tests-clang"] }
-configure-c-static = "cmake -S c -B c/build-pixi-clang-static -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=OFF"
-build-c-static = { cmd = "cmake --build c/build-pixi-clang-static", depends-on = ["configure-c-static"] }
-configure-c-shared = "cmake -S c -B c/build-pixi-clang-shared -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=ON"
-build-c-shared = { cmd = "cmake --build c/build-pixi-clang-shared", depends-on = ["configure-c-shared"] }
+configure-tests-clang = { cmd = "cmake -S tests -B tests/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++", depends-on = ["prepare-tmp"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+build-tests-clang = { cmd = "cmake --build tests/build-pixi-clang", depends-on = ["configure-tests-clang"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+test-clang = { cmd = "ctest --test-dir tests/build-pixi-clang --interactive-debug-mode 0 --output-on-failure", depends-on = ["build-tests-clang"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+configure-c-static = { cmd = "cmake -S c -B c/build-pixi-clang-static -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=OFF", depends-on = ["prepare-tmp"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+build-c-static = { cmd = "cmake --build c/build-pixi-clang-static", depends-on = ["configure-c-static"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+configure-c-shared = { cmd = "cmake -S c -B c/build-pixi-clang-shared -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=ON", depends-on = ["prepare-tmp"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+build-c-shared = { cmd = "cmake --build c/build-pixi-clang-shared", depends-on = ["configure-c-shared"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
 
 [feature.gcc.dependencies]
 gxx = ">=16"
 
 [feature.gcc.tasks]
-configure-tests-gcc = { cmd = "cmake -S tests -B tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++", env = { TEMP = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc", TMP = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc", TMPDIR = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc" } }
-build-tests-gcc = { cmd = "cmake --build tests/build-pixi-gcc", depends-on = ["configure-tests-gcc"], env = { TEMP = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc", TMP = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc", TMPDIR = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc" } }
-test-gcc = { cmd = "ctest --test-dir tests/build-pixi-gcc --interactive-debug-mode 0 --output-on-failure", depends-on = ["build-tests-gcc"] }
-configure-cxxmodule-tests = { cmd = "cmake -S cxxmodule/tests -B cxxmodule/tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++", env = { TEMP = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc", TMP = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc", TMPDIR = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc" } }
-build-cxxmodule-tests = { cmd = "cmake --build cxxmodule/tests/build-pixi-gcc", depends-on = ["configure-cxxmodule-tests"], env = { TEMP = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc", TMP = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc", TMPDIR = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc" } }
-test-cxxmodule = { cmd = "cxxmodule/tests/build-pixi-gcc/check_public_symbols", depends-on = ["build-cxxmodule-tests"] }
+configure-tests-gcc = { cmd = "cmake -S tests -B tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++", depends-on = ["prepare-tmp"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+build-tests-gcc = { cmd = "cmake --build tests/build-pixi-gcc", depends-on = ["configure-tests-gcc"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+test-gcc = { cmd = "ctest --test-dir tests/build-pixi-gcc --interactive-debug-mode 0 --output-on-failure", depends-on = ["build-tests-gcc"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+configure-cxxmodule-tests = { cmd = "cmake -S cxxmodule/tests -B cxxmodule/tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++", depends-on = ["prepare-tmp"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+build-cxxmodule-tests = { cmd = "cmake --build cxxmodule/tests/build-pixi-gcc", depends-on = ["configure-cxxmodule-tests"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+test-cxxmodule = { cmd = "cxxmodule/tests/build-pixi-gcc/check_public_symbols", depends-on = ["build-cxxmodule-tests"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
 
 [feature.rust.dependencies]
 rust = "*"
@@ -79,8 +86,8 @@ run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration 
 run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration Debug --no-build", depends-on = ["build-csharp"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch", PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared;$PATH" } }
 
 [feature.py.tasks]
-configure-py = { cmd = "cmake -S py -B py/build-pixi-{{ pixi.environment.name }} -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++", args = [] }
-build-py = { cmd = "cmake --build py/build-pixi-{{ pixi.environment.name }}", args = [], depends-on = ["configure-py"] }
+configure-py = { cmd = "cmake -S py -B py/build-pixi-{{ pixi.environment.name }} -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++", args = [], depends-on = ["prepare-tmp"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
+build-py = { cmd = "cmake --build py/build-pixi-{{ pixi.environment.name }}", args = [], depends-on = ["configure-py"], env = { TEMP = "$PIXI_PROJECT_ROOT/.tmp", TMP = "$PIXI_PROJECT_ROOT/.tmp", TMPDIR = "$PIXI_PROJECT_ROOT/.tmp" } }
 
 [feature.py37.dependencies]
 python = ">=3.7,<3.8"
