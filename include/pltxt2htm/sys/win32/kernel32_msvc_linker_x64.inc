@@ -137,3 +137,8 @@
 #pragma comment(linker, "/alternatename:__imp_?AddVectoredExceptionHandler@sys_win32@pltxt2htm@@YAPEAXKP6AJPEAUExceptionPointers@12@@Z@Z=__imp_AddVectoredExceptionHandler")
 #pragma comment(linker, "/alternatename:__imp_?RaiseException@sys_win32@pltxt2htm@@YAXKKKPEB_K@Z=__imp_RaiseException")
 #pragma comment(linker, "/alternatename:__imp_?ExitProcess@sys_win32@pltxt2htm@@YAXI@Z=__imp_ExitProcess")
+#pragma comment(linker, "/alternatename:__imp_?GetProcessHeap@sys_win32@pltxt2htm@@YAPEAXXZ=__imp_GetProcessHeap")
+#pragma comment(linker, "/alternatename:__imp_?HeapAlloc@sys_win32@pltxt2htm@@YAPEAXPEAXK_K@Z=__imp_HeapAlloc")
+#pragma comment(linker, "/alternatename:__imp_?HeapReAlloc@sys_win32@pltxt2htm@@YAPEAXPEAXK0_K@Z=__imp_HeapReAlloc")
+#pragma comment(linker, "/alternatename:__imp_?HeapFree@sys_win32@pltxt2htm@@YAHPEAXK0@Z=__imp_HeapFree")
+#pragma comment(linker, "/alternatename:__imp_?HeapSize@sys_win32@pltxt2htm@@YA_KPEAXKPEBX@Z=__imp_HeapSize")

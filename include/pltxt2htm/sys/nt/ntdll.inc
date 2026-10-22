@@ -305,3 +305,13 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwSetTimer(void *, 
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtCancelTimer(void *, Boolean *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtCancelTimer, 8);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwCancelTimer(void *, Boolean *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwCancelTimer, 8);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT void * PLTXT2HTM_DETAIL_STDCALL RtlAllocateHeap(Handle, Ulong, ::std::size_t) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlAllocateHeap, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT void * PLTXT2HTM_DETAIL_STDCALL RtlReAllocateHeap(Handle, Ulong, void *, ::std::size_t) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlReAllocateHeap, 16);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Boolean PLTXT2HTM_DETAIL_STDCALL RtlFreeHeap(Handle, Ulong, void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlFreeHeap, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Peb * PLTXT2HTM_DETAIL_STDCALL RtlGetCurrentPeb() noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlGetCurrentPeb, 0);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT ::std::size_t PLTXT2HTM_DETAIL_STDCALL RtlSizeHeap(Handle, Ulong, void const *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlSizeHeap, 12);
