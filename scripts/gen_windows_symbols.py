@@ -2834,10 +2834,8 @@ def gnu_cxx_include_dirs(gxx: str) -> tuple[pathlib.Path, ...]:
     wanted = ("cstddef", "cstdint", "c++config.h")
     directories: list[pathlib.Path] = []
     for line in probe_result.stderr.decode("ascii", errors="replace").splitlines():
-        tokens = line.split()
-        if len(tokens) < 2:
-            continue
-        header_path = pathlib.Path(tokens[-1])
+        header_str = line.lstrip(". ")
+        header_path = pathlib.Path(header_str)
         matched = next((name for name in wanted if header_path.name == name), None)
         if matched is None:
             continue

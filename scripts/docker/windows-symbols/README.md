@@ -19,6 +19,14 @@ docker run --rm -v "${PWD}:/pltxt2htm" pltxt2htm-windows-symbols python3 scripts
 docker run --rm -v "${PWD}:/pltxt2htm:ro" pltxt2htm-windows-symbols
 ```
 
+Alternatively, install the `symbols` pixi environment (see the tasks in
+`pixi.toml`) and run the generator directly:
+
+```sh
+pixi install -e symbols
+pixi run -e symbols windows-symbols-check
+```
+
 For a quick check of one DLL during development, pass `--library kernel32` (or
 `ntdll` / `dbghelp`) to `gen_windows_symbols.py` with either command above.
 The default still checks every library.
