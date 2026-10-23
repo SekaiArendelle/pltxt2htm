@@ -110,6 +110,28 @@ if(PLTXT2HTM_SANITIZER)
     if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         message(FATAL_ERROR "PLTXT2HTM_SANITIZER is not supported on MSVC (use clang or gcc instead)")
     endif()
+    # Sanitizers and the MSVC debug CRT cannot share a process: the debug heap and the _DEBUG-only
+    # allocator paths (fast_io routes allocations through _malloc_dbg) are not tracked by the
+    # sanitizer runtime, so most tests abort with a bogus "attempting free on address which was not
+    # malloc()-ed". CMAKE_BUILD_TYPE=Debug selects that CRT (MultiThreadedDebugDLL), so request the
+    # release one instead while keeping the Debug optimization level and contract checks.
+    # CMAKE_CXX_SIMULATE_ID covers clang targeting the MSVC ABI, where `MSVC` itself is not set.
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
+        if(CMAKE_MSVC_RUNTIME_LIBRARY MATCHES "[Dd]ebug")
+            message(FATAL_ERROR
+                "PLTXT2HTM_SANITIZER requires a release MSVC runtime library on Windows, because the "
+                "debug CRT is incompatible with sanitizers. CMAKE_MSVC_RUNTIME_LIBRARY is currently "
+                "\"${CMAKE_MSVC_RUNTIME_LIBRARY}\". Use a plain release value such as MultiThreadedDLL, "
+                "or drop the cached value with `cmake -UCMAKE_MSVC_RUNTIME_LIBRARY` so that this "
+                "project selects MultiThreadedDLL itself. Per-config generator expressions are "
+                "rejected because their configuration-specific value cannot be checked here.")
+        endif()
+        if(NOT CMAKE_MSVC_RUNTIME_LIBRARY)
+            set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+        endif()
+        message(STATUS
+            "PLTXT2HTM_SANITIZER: MSVC runtime library ${CMAKE_MSVC_RUNTIME_LIBRARY} (the debug CRT is incompatible with sanitizers)")
+    endif()
     target_compile_options(pltxt2htm_base INTERFACE -fsanitize=${PLTXT2HTM_SANITIZER})
     target_link_options(pltxt2htm_base INTERFACE -fsanitize=${PLTXT2HTM_SANITIZER})
 endif()
