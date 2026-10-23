@@ -38,6 +38,17 @@ ctest --test-dir tests/build --interactive-debug-mode 0
 
 or `-DPLTXT2HTM_SANITIZER=undefined` or `-DPLTXT2HTM_SANITIZER=memory`.
 
+On Windows targets using the MSVC ABI (including clang), sanitizer builds link the release
+dynamic CRT (`MultiThreadedDLL`) even when `CMAKE_BUILD_TYPE` is `Debug`. The debug CRT
+selected by Debug, together with the `_DEBUG`-only allocator paths, is not tracked by the
+sanitizer runtime, so most tests abort with a bogus "attempting free on address which was
+not malloc()-ed" report. The Debug optimization level and the library's contract checks are
+kept, but `_DEBUG` is not defined, so `_ITERATOR_DEBUG_LEVEL` falls back to `0`. A plain
+release `CMAKE_MSVC_RUNTIME_LIBRARY` (for example `MultiThreaded` for a static CRT) is
+respected; debug and per-config generator-expression values are rejected at configure time.
+Add sanitizer flags through `PLTXT2HTM_SANITIZER` only - `-fsanitize=address` in
+`CMAKE_CXX_FLAGS` or `CXXFLAGS` bypasses this check and brings the failure back.
+
 ## available cmake options:
 | Option | Description |
 |---|---|
