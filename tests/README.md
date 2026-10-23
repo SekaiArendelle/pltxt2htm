@@ -20,6 +20,16 @@ it with `-DCMAKE_CXX_STANDARD=23` or `-DCMAKE_CXX_STANDARD=26`. When
 using `run_all_tests.py`, pass `--cxx-standard 23` or `--cxx-standard 26`.
 
 ## enable sanitizer:
+
+With pixi (pass the sanitizer name as a positional task argument):
+
+```sh
+pixi run -e clang test-clang address
+pixi run -e gcc test-gcc address
+```
+
+Or configure the test project directly:
+
 ```sh
 cmake -S tests -B tests/build -GNinja -DPLTXT2HTM_SANITIZER=address
 cmake --build tests/build
