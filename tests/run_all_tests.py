@@ -8,6 +8,8 @@ import subprocess
 
 TEST_DIR: str = os.path.dirname(os.path.abspath(__file__))
 BUILD_DIR: str = os.path.join(TEST_DIR, "build")
+REPO_ROOT: str = os.path.dirname(TEST_DIR)
+TMP_DIR: str = os.path.join(REPO_ROOT, ".tmp")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--compiler", choices=("clang", "gcc", "msvc"), help="compiler to use")
@@ -39,6 +41,13 @@ if args.compiler is None:
 
 print(f"-- using compiler \"{args.compiler}\"")
 
+print(f"-- temp dir: {TMP_DIR}")
+subprocess.run(["cmake", "-E", "make_directory", TMP_DIR], check=True)
+env = os.environ.copy()
+env["TEMP"] = TMP_DIR
+env["TMP"] = TMP_DIR
+env["TMPDIR"] = TMP_DIR
+
 cmake_cmd: list[str] = ["cmake", "-S", TEST_DIR, "-B", BUILD_DIR]
 if args.cxx_standard != "auto":
     cmake_cmd += [f"-DCMAKE_CXX_STANDARD={args.cxx_standard}"]
@@ -62,7 +71,7 @@ if args.sanitizer is not None:
     cmake_cmd += [f"-DPLTXT2HTM_SANITIZER={args.sanitizer}"]
 
 print("-- configuring ...", " ".join(cmake_cmd))
-ret = subprocess.run(cmake_cmd)
+ret = subprocess.run(cmake_cmd, env=env)
 if ret.returncode != 0:
     raise Exception("CMake configure fail")
 
@@ -70,7 +79,7 @@ print("-- building ...")
 build_cmd: list[str] = ["cmake", "--build", BUILD_DIR, "-j", str(os.cpu_count() or 1)]
 if args.compiler != "msvc":
     build_cmd += ["--", "-v"]
-ret = subprocess.run(build_cmd)
+ret = subprocess.run(build_cmd, env=env)
 if ret.returncode != 0:
     raise Exception("CMake build fail")
 
@@ -87,6 +96,6 @@ ctest_cmd: list[str] = [
 ]
 if args.compiler == "msvc":
     ctest_cmd += ["-C", "Debug"]
-ret = subprocess.run(ctest_cmd)
+ret = subprocess.run(ctest_cmd, env=env)
 if ret.returncode != 0:
     raise Exception("CTest test fail")

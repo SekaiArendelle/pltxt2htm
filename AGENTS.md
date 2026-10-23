@@ -1,13 +1,13 @@
-# AGENTS.md — Developer Guide for `pltxt2htm`
+# AGENTS.md - Developer Guide for `pltxt2htm`
 
 This file is the entry point for AI coding agents. It contains the development workflow, build/format/lint/test commands, and coding conventions. Human-facing contribution policy (pull requests, issues, license) lives in [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Mandatory rules
 
 - **Do NOT run git write operations without explicit human instruction.** An agent must not run `git add`, `git commit`, `git push`, open a **Pull Request**, open an **Issue**, or perform any other write operation to the repository or remote unless the human explicitly asks for it.
-- **Treat the git index as human-owned shared state.** The human may stage files by hand at any time, and often does while reviewing your work. Unexpected staged changes are not your mistake — never undo them, leave the index alone, and mention them in your summary instead of stopping or asking.
+- **Treat the git index as human-owned shared state.** The human may stage files by hand at any time, and often does while reviewing your work. Unexpected staged changes are not your mistake - never undo them, leave the index alone, and mention them in your summary instead of stopping or asking.
 - After changing code, run the affected tests (commands below). If `git-clang-format` is available, format your changes with it so the diff stays limited to the lines you touched; if it is not installed, skip formatting (see [Code formatting](#code-formatting)). Static analysis (`clang-tidy`) is run in full by CI and does **not** need to be run locally for every change.
-- **Stop and report when the request appears misguided.** If the agent believes the user's prompt is based on a false premise, points in the wrong direction, or would lead to an incorrect or harmful change, the agent must stop, explain the problem with concrete evidence (file paths, code excerpts, test results), and propose the corrected direction — rather than silently complying or silently "fixing" the intent. Do not use this rule to avoid difficult tasks: when the direction is sound and only the approach is unclear, proceed or ask a focused question instead.
+- **Stop and report when the request appears misguided.** If the agent believes the user's prompt is based on a false premise, points in the wrong direction, or would lead to an incorrect or harmful change, the agent must stop, explain the problem with concrete evidence (file paths, code excerpts, test results), and propose the corrected direction - rather than silently complying or silently "fixing" the intent. Do not use this rule to avoid difficult tasks: when the direction is sound and only the approach is unclear, proceed or ask a focused question instead.
 
 ## Project layout
 
@@ -16,15 +16,15 @@ Header-only C++23 library converting Physics-Lab text to HTML, with bindings and
 | Path | Purpose |
 |------|---------|
 | `include/pltxt2htm/` | Core headers (the library) |
-| `cmd/` | CLI — see [cmd/README.md](./cmd/README.md) |
-| `tests/` | Test suites — see [tests/README.md](./tests/README.md) |
-| `py/` | Python binding — see [py/README.md](./py/README.md) |
-| `c/` | C API — see [c/README.md](./c/README.md) |
-| `rust/` | Rust binding — see [rust/README.md](./rust/README.md) |
-| `csharp/` | C# binding — see [csharp/README.md](./csharp/README.md) |
-| `wasm/` | WASM — see [wasm/README.md](./wasm/README.md) |
-| `benches/` | Benchmarks — see [benches/README.md](./benches/README.md) |
-| `fuzzing/` | Fuzzing — see [fuzzing/README.md](./fuzzing/README.md) |
+| `cmd/` | CLI - see [cmd/README.md](./cmd/README.md) |
+| `tests/` | Test suites - see [tests/README.md](./tests/README.md) |
+| `py/` | Python binding - see [py/README.md](./py/README.md) |
+| `c/` | C API - see [c/README.md](./c/README.md) |
+| `rust/` | Rust binding - see [rust/README.md](./rust/README.md) |
+| `csharp/` | C# binding - see [csharp/README.md](./csharp/README.md) |
+| `wasm/` | WASM - see [wasm/README.md](./wasm/README.md) |
+| `benches/` | Benchmarks - see [benches/README.md](./benches/README.md) |
+| `fuzzing/` | Fuzzing - see [fuzzing/README.md](./fuzzing/README.md) |
 | `scripts/` | Dev tooling scripts |
 | `Dockerfile` | Dev container |
 
@@ -37,7 +37,7 @@ Local tools:
 - C++23 compiler (clang / gcc / MSVC)
 - CMake
 - Python 3
-- clang-format / git-clang-format (used for formatting when available — see [Code formatting](#code-formatting)). clang-tidy is optional locally — CI runs the full pass.
+- clang-format / git-clang-format (used for formatting when available - see [Code formatting](#code-formatting)). clang-tidy is optional locally - CI runs the full pass.
 
 Docker alternative:
 
@@ -49,7 +49,7 @@ docker exec -it pltxt2htm-dev bash
 
 The source directory is mounted into the container, so edits are shared both ways.
 
-Each sub-project is independently built with CMake — see the respective `README.md`.
+Each sub-project is independently built with CMake - see the respective `README.md`.
 
 ## Workflow
 
@@ -62,7 +62,7 @@ Each sub-project is independently built with CMake — see the respective `READM
 
 ## Commit messages
 
-Commits follow the shape `<type>(<scope>): <subject>`, with an optional body explaining *why* and optional footers. The full rules — the accepted `type` list, `scope` values, and limits — are in [CONTRIBUTING.md](./CONTRIBUTING.md#commit-messages). A concise reference template is in [`.gitmessage`](./.gitmessage).
+Commits follow the shape `<type>(<scope>): <subject>`, with an optional body explaining *why* and optional footers. The full rules - the accepted `type` list, `scope` values, and limits - are in [CONTRIBUTING.md](./CONTRIBUTING.md#commit-messages). A concise reference template is in [`.gitmessage`](./.gitmessage).
 
 When a commit contains material produced by a model, follow the [attribution policy](./CONTRIBUTING.md#attribution) and add the applicable attribution trailer. Omit model-attribution trailers when the committed material was written entirely by humans. This does not relax the rule above: never run a git write operation without explicit human instruction.
 
@@ -83,7 +83,7 @@ The implementing agent remains responsible for the final result. It must validat
 
 ### Code formatting
 
-Formatting is **not enforced by CI**. When `git-clang-format` is available, use it instead of formatting the whole tree — it reformats only the lines your change touches, which keeps diffs and merges small. When it is not installed, skip formatting rather than installing it.
+Formatting is **not enforced by CI**. When `git-clang-format` is available, use it instead of formatting the whole tree - it reformats only the lines your change touches, which keeps diffs and merges small. When it is not installed, skip formatting rather than installing it.
 
 `.clang-format` at the project root is the single source of truth for style.
 
@@ -94,7 +94,7 @@ git-clang-format --diff    # preview the result without writing anything
 
 Notes:
 
-- Untracked (brand-new) files are ignored by `git-clang-format`. Format them directly instead — every line in them is new anyway:
+- Untracked (brand-new) files are ignored by `git-clang-format`. Format them directly instead - every line in them is new anyway:
 ```sh
 clang-format -i path/to/new_file.cc
 ```
@@ -110,7 +110,7 @@ This writes a locally generated `format_cpp.ninja`, which is **not tracked by gi
 
 ### Static analysis
 
-Run in full by CI: the `x86_64-linux-gnu-clang-tidy` job in [`.github/workflows/test.yml`](./.github/workflows/test.yml) builds `tests/docker/x86_64-linux-gnu-clang-tidy/Dockerfile`, which invokes the script below. **Do not run clang-tidy locally as part of the normal edit loop** — it is slow, and CI covers every translation unit anyway.
+Run in full by CI: the `x86_64-linux-gnu-clang-tidy` job in [`.github/workflows/test.yml`](./.github/workflows/test.yml) builds `tests/docker/x86_64-linux-gnu-clang-tidy/Dockerfile`, which invokes the script below. **Do not run clang-tidy locally as part of the normal edit loop** - it is slow, and CI covers every translation unit anyway.
 
 If you do need it locally (for example, when CI keeps failing on a specific file):
 ```sh
@@ -152,13 +152,13 @@ cmake --build tests/build
 ctest --test-dir tests/build --interactive-debug-mode 0
 ```
 
-Coverage — see [tests/docker/codecov/README.md](./tests/docker/codecov/README.md) for the container image that builds an lcov + genhtml report with GCC. For a local run, configure a GCC build with `-DPLTXT2HTM_ENABLE_COVERAGE=ON` and capture it with the same tools.
+Coverage - see [tests/docker/codecov/README.md](./tests/docker/codecov/README.md) for the container image that builds an lcov + genhtml report with GCC. For a local run, configure a GCC build with `-DPLTXT2HTM_ENABLE_COVERAGE=ON` and capture it with the same tools.
 
 **Command cost note:** `run_all_tests.py` and the coverage image are the full, slowest checks. For quick iteration, use the relevant Pixi task or test only the module you changed. The expected local check before submitting is the test suite; clang-tidy does not need to be run locally.
 
 ### Ignore files
 
-`.gitignore` is the source of truth. `.dockerignore` is **generated** from it — never edit it by hand. Regenerate it after every `.gitignore` change:
+`.gitignore` is the source of truth. `.dockerignore` is **generated** from it - never edit it by hand. Regenerate it after every `.gitignore` change:
 
 ```sh
 python scripts/gen_dockerignore.py
@@ -188,7 +188,7 @@ Follow the existing low-runtime, cross-platform style used in core headers:
   - If a callable needs a name, extract it as a normal `constexpr` function.
   - Immediately invoked lambda expressions (`[]() { ... }()`) are acceptable only when necessary to compute a `constexpr` value in a context where `if constexpr` is not directly usable (e.g., inside a function with non-`constexpr` scope rules).
 - **Avoid the redundant `(string_view, offset)` parameter pair:**
-  - A `string_view` already carries both a pointer and a length, so a signature like `parse_value(::pltxt2htm::container::U8StringView s, ::std::size_t pos)` is redundant — the offset is implicit in the view.
+  - A `string_view` already carries both a pointer and a length, so a signature like `parse_value(::pltxt2htm::container::U8StringView s, ::std::size_t pos)` is redundant - the offset is implicit in the view.
   - This keeps each parser "parse the given view from the start", avoids offset arithmetic and empty-check (`pos == 0`) inside helpers, and keeps the call sites' intent explicit.
 - **Keep side effects separated from algorithms:**
   - Put pure algorithmic logic in headers under `include/` whenever practical.
