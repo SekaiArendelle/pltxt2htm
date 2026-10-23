@@ -51,14 +51,6 @@ The source directory is mounted into the container, so edits are shared both way
 
 Each sub-project is independently built with CMake — see the respective `README.md`.
 
-Pixi activates `TEMP`, `TMP`, and `TMPDIR` globally to `<repo>/.tmp` (with a
-`%PIXI_PROJECT_ROOT%` override for Windows), and `tests/run_all_tests.py` uses
-the same directory. `pixi run prepare-tmp` creates it, so compiler
-intermediates do not depend on a writable system temp directory. The directory
-is git-ignored; use `pixi run clean-tmp` to remove it when no build is running.
-Any new task that builds or links code must ensure `prepare-tmp` runs first
-(directly, or through its `depends-on` chain).
-
 ## Workflow
 
 1. **Locate** – Read the relevant sub-project README to understand which module to modify.
