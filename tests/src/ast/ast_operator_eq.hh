@@ -483,10 +483,14 @@ TEST_SUITE("ast_operator_eq") {
         CHECK(text.append_first_utf8_code_point(u8"\U0001F600x") == 4);
         CHECK(text.append_first_utf8_code_point(u8"\t") == 1);
         CHECK(text.append_first_utf8_code_point(u8"\n") == 1);
-        CHECK(text.append_first_utf8_code_point(u8"\xE2\x82"
-                                                "x") == 2);
-        CHECK(text.append_first_utf8_code_point(u8"\xC0\xAF") == 2);
-        CHECK(text.append_first_utf8_code_point(u8"\xFF") == 1);
+        // Use explicit code units for malformed UTF-8: MSVC encodes hex escapes in
+        // u8 literals as code points instead of preserving the raw bytes.
+        constexpr char8_t incomplete_sequence[]{0xE2, 0x82, char8_t{'x'}, char8_t{0}};
+        CHECK(text.append_first_utf8_code_point(incomplete_sequence) == 2);
+        constexpr char8_t overlong_sequence[]{0xC0, 0xAF, char8_t{0}};
+        CHECK(text.append_first_utf8_code_point(overlong_sequence) == 2);
+        constexpr char8_t invalid_lead_byte[]{0xFF, char8_t{0}};
+        CHECK(text.append_first_utf8_code_point(invalid_lead_byte) == 1);
         auto const expected = ::pltxt2htm::container::U8String{u8"A\u00A2\u20AC\U0001F600\t\n\uFFFD\uFFFD\uFFFD"};
         CHECK(text.as_string() == expected);
     }
