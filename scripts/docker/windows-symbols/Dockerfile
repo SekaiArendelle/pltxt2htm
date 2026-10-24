@@ -2,7 +2,6 @@ FROM ubuntu:26.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     clang-21 \
-    libc++-21-dev \
     llvm-21 \
     python3 \
     && rm -rf /var/lib/apt/lists/*
@@ -11,6 +10,6 @@ ENV PATH="/usr/lib/llvm-21/bin:${PATH}"
 
 WORKDIR /pltxt2htm
 
-# The probes include real definitions.hh files; libc++ supplies <cstdint> for ARM32,
-# which the current MSVC STL headers reject even when Clang only compiles objects.
-CMD ["python3", "scripts/gen_windows_symbols.py", "--cxx-include-dir", "/usr/include/c++/v1", "--check"]
+# The probes use the repository's freestanding <cstddef>/<cstdint> shims, so the
+# image does not need a C++ standard library for the MSVC target headers.
+CMD ["python3", "scripts/gen_windows_symbols.py", "--check"]
