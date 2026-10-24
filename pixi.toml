@@ -125,12 +125,12 @@ python = ">=3.14,<3.15"
 [feature.py315.dependencies]
 python = ">=3.15,<3.16"
 
-[feature.symbols.dependencies]
+[feature.scripts.dependencies]
 clangxx = ">=23"
 llvm-tools = ">=23"
-python = ">=3.15,<3.16"
+python = ">=3.10"
 
-[feature.symbols.tasks]
+[feature.scripts.tasks]
 windows-symbols = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm"
 windows-symbols-check = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm --check"
 
@@ -141,7 +141,7 @@ gcc = ["gcc"]
 rust = ["clang", "rust"]
 wasm = { features = ["wasm"], platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"] }
 csharp = ["clang", "csharp"]
-symbols = ["symbols"]
+scripts = ["scripts"]
 py37 = { features = ["clang", "py", "py37"], platforms = ["linux-64", "linux-aarch64", "osx-64", "win-64"] }
 py38 = ["clang", "py", "py38"]
 py39 = ["clang", "py", "py39"]
