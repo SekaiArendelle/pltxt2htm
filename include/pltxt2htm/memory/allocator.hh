@@ -36,8 +36,8 @@ namespace pltxt2htm::memory {
 
 using NativeGlobalAllocator = GenericAllocatorAdapter<
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WINE__) && !defined(PLTXT2HTM_MEMORY_USE_C_MALLOC)
-    ::std::conditional_t<::pltxt2htm::memory::details::asan::asan_status::current ==
-                             ::pltxt2htm::memory::details::asan::asan_status::none,
+    ::std::conditional_t<::pltxt2htm::memory::details::AsanStatus::current ==
+                             ::pltxt2htm::memory::details::AsanStatus::none,
     #ifdef _WIN32_WINDOWS
                          details::Win32HeapAllocAllocator
     #else

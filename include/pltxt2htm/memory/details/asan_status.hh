@@ -11,9 +11,9 @@
 
 #include <cstddef>
 
-namespace pltxt2htm::memory::details::asan {
+namespace pltxt2htm::memory::details {
 
-enum class asan_status {
+enum class AsanStatus {
     none,
     activate,
 #if defined(__SANITIZE_ADDRESS__)
@@ -29,4 +29,4 @@ enum class asan_status {
 #endif
 };
 
-} // namespace pltxt2htm::memory::details::asan
+} // namespace pltxt2htm::memory::details
