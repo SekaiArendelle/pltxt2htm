@@ -19,20 +19,9 @@ docker run --rm -v "${PWD}:/pltxt2htm" pltxt2htm-windows-symbols python3 scripts
 docker run --rm -v "${PWD}:/pltxt2htm:ro" pltxt2htm-windows-symbols
 ```
 
-Alternatively, install the `scripts` pixi environment (see the tasks in
-`pixi.toml`) and run the generator directly:
+repository to be mounted at `/pltxt2htm`. The generator cross-compiles temporary
+objects for its MSVC targets and does not need a Windows SDK or linker.
 
-```sh
-pixi install -e scripts
-pixi run -e scripts windows-symbols-check
-```
-
-For a quick check of one DLL during development, pass `--library kernel32` (or
-`ntdll` / `dbghelp`) to `gen_windows_symbols.py` with either command above.
-The default still checks every library.
-
-The generator cross-compiles temporary objects for its MSVC targets and does
-not need a Windows SDK or linker in the container.
 It compiles the same definitions headers used by the library. The probes only
 need `<cstddef>` and `<cstdint>`, which `scripts/probe_headers` supplies without
 depending on a host C++ standard library. Those shims intentionally provide only

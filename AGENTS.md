@@ -156,6 +156,23 @@ Coverage - see [tests/docker/codecov/README.md](./tests/docker/codecov/README.md
 
 **Command cost note:** `run_all_tests.py` and the coverage image are the full, slowest checks. For quick iteration, use the relevant Pixi task or test only the module you changed. The expected local check before submitting is the test suite; clang-tidy does not need to be run locally.
 
+### Windows symbol generation
+
+After editing the symbol manifest, regenerate the files and re-run the check:
+
+```sh
+pixi run -e scripts windows-symbols
+pixi run -e scripts windows-symbols-check
+```
+
+For a quick check of one DLL, pass `--library kernel32` (or `ntdll` / `dbghelp`); the default checks every library:
+
+```sh
+pixi run -e scripts python scripts/gen_windows_symbols.py --library kernel32 --check
+```
+
+The CI job uses a dedicated Docker image; see [scripts/docker/windows-symbols/README.md](./scripts/docker/windows-symbols/README.md) for the Docker commands and image details.
+
 ### Ignore files
 
 `.gitignore` is the source of truth. `.dockerignore` is **generated** from it - never edit it by hand. Regenerate it after every `.gitignore` change:
