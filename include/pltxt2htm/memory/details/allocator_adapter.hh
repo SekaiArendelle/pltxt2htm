@@ -1,7 +1,7 @@
 /**
  * @file allocator_adapter.hh
  * @brief Generic and typed allocator adapters, synced from fast_io
- *        `fast_io_core_impl/allocation/adapters.h`.
+ *          `fast_io_core_impl/allocation/adapters.h`.
  * @details Class, method, and concept names are kept identical to upstream so
  *          fast_io-style allocators work unchanged; only the namespace differs
  *          (`pltxt2htm::memory` instead of `fast_io`). Dependencies were remapped:
@@ -9,6 +9,11 @@
  *          byte/string helpers -> local `details` equivalents, and the consteval
  *          allocator path now uses a local `consteval_allocator` mirroring
  *          `fast_io::freestanding::allocator`.
+ *          Deviating from upstream, some `*_at_least` dispatchers gained a final
+ *          else fallback (e.g. `reallocate_zero_at_least` synthesizes zeroing by
+ *          delegating to `reallocate_at_least` and clearing the whole block);
+ *          upstream leaves the template chain dangling there and emits a trap
+ *          for allocators that reallocate but implement no zero variant.
  *
  * To make a constexpr allocator, we need ::std::allocator. Because only new expression and
  * ::std::allocator<T>::allocate are allowed in constexpr functions. See https://github.com/microsoft/STL/issues/1532
@@ -351,7 +356,9 @@ public:
                     return allocator_type::reallocate_aligned_zero_at_least(p, default_alignment, n).ptr;
                 }
                 else {
-                    ::pltxt2htm::details::trap();
+                    auto newptr{generic_allocator_adapter::reallocate(p, n)};
+                    ::pltxt2htm::memory::details::bytes_clear_n(reinterpret_cast<::std::byte*>(newptr), n);
+                    return newptr;
                 }
             }
             else {
@@ -1389,7 +1396,14 @@ public:
             return {allocator_type::reallocate_zero(p, n), n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_impl<alloc>) {
-            return {allocator_type::reallocate_aligned(p, default_alignment, n), n};
+            auto newptr{allocator_type::reallocate_aligned(p, default_alignment, n)};
+            ::pltxt2htm::memory::details::bytes_clear_n(reinterpret_cast<::std::byte*>(newptr), n);
+            return {newptr, n};
+        }
+        else {
+            auto newres{generic_allocator_adapter::reallocate_at_least(p, n)};
+            ::pltxt2htm::memory::details::bytes_clear_n(reinterpret_cast<::std::byte*>(newres.ptr), newres.count);
+            return newres;
         }
     }
 
