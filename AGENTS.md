@@ -103,10 +103,9 @@ clang-format -i path/to/new_file.cc
 - Do not reformat code you did not touch. Unrelated reformatting makes review harder and causes merge conflicts.
 - A one-off sweep over the whole tree is still possible when it is actually wanted:
 ```sh
-python scripts/gen_format_ninja.py
-ninja -f format_cpp.ninja
+pixi run -e scripts format-cpp
 ```
-This writes a locally generated `format_cpp.ninja`, which is **not tracked by git** (see `.gitignore`); the script above exists only to produce it.
+`format-cpp` regenerates the untracked `format_cpp.ninja` and runs it with Ninja. The file is **not tracked by git** (see `.gitignore`).
 
 ### Static analysis
 
@@ -114,13 +113,13 @@ Run in full by CI: the `x86_64-linux-gnu-clang-tidy` job in [`.github/workflows/
 
 If you do need it locally (for example, when CI keeps failing on a specific file):
 ```sh
-python scripts/run_clang_tidy.py
+pixi run -e scripts run-clang-tidy
 ```
 
 Configuration is in `.clang-tidy` at the project root. The script configures each sub-project (`examples`, `cmd`, `c`, or as given) into `<sub>/build-tidy` with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON` and runs clang-tidy on every translation unit in the resulting compile database, so the flags match the real build. Re-run after adding source files; pass `--refresh` to force a re-configure (e.g. after editing `CMakeLists.txt`). Machine-specific flags go through the standard `CXXFLAGS` environment variable, for example:
 
 ```sh
-CXXFLAGS=-stdlib=libc++ python scripts/run_clang_tidy.py
+CXXFLAGS=-stdlib=libc++ pixi run -e scripts run-clang-tidy
 ```
 
 ### Running tests
@@ -173,12 +172,21 @@ pixi run -e scripts python scripts/gen_windows_symbols.py --library kernel32 --c
 
 The CI job uses a dedicated Docker image; see [scripts/docker/windows-symbols/README.md](./scripts/docker/windows-symbols/README.md) for the Docker commands and image details.
 
+### Generated files
+
+Regenerate the version files and the HTML named-character-reference table:
+
+```sh
+pixi run -e scripts gen-version
+pixi run -e scripts gen-html-named-character-references
+```
+
 ### Ignore files
 
 `.gitignore` is the source of truth. `.dockerignore` is **generated** from it - never edit it by hand. Regenerate it after every `.gitignore` change:
 
 ```sh
-python scripts/gen_dockerignore.py
+pixi run -e scripts gen-dockerignore
 ```
 
 ## Coding conventions
