@@ -16,6 +16,7 @@
 #include <fast_io/fast_io_core.h>
 
 #include "../contracts.hh"
+#include "../memory/allocator.hh"
 #include "../details/concepts.hh"
 #include "../details/literal_string.hh"
 #include "string_view.hh"
@@ -46,7 +47,7 @@ namespace pltxt2htm::container {
  * Growth paths finish reading the old allocation before releasing it, while
  * in-place paths use overlap-safe copying where necessary.
  */
-template<::pltxt2htm::details::is_char_type CharType, typename Allocator = ::fast_io::native_global_allocator>
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator = ::pltxt2htm::memory::NativeGlobalAllocator>
 class BasicString {
 public:
     using allocator_type = Allocator; ///< Allocator used for owned storage.
@@ -66,10 +67,10 @@ public:
 
 private:
     using untyped_allocator_type =
-        ::fast_io::generic_allocator_adapter<allocator_type>; ///< Normalized fast_io allocator adapter.
+        ::pltxt2htm::memory::GenericAllocatorAdapter<allocator_type>; ///< Normalized fast_io allocator adapter.
     using typed_allocator_type =
-        ::fast_io::typed_generic_allocator_adapter<untyped_allocator_type,
-                                                   value_type>; ///< Character-counted allocator adapter.
+        ::pltxt2htm::memory::TypedGenericAllocatorAdapter<untyped_allocator_type,
+                                                          value_type>; ///< Character-counted allocator adapter.
 
     pointer begin_pointer; ///< First character, or the shared runtime empty character.
     pointer current_pointer; ///< Trailing null character and logical end iterator.

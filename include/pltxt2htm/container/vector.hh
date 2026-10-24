@@ -18,6 +18,7 @@
 #include <fast_io/fast_io_core.h>
 
 #include "../contracts.hh"
+#include "../memory/allocator.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::container {
@@ -31,7 +32,7 @@ namespace pltxt2htm::container {
  * allocation compatible with the allocator facilities already used by the project.
  * Element and range operations used by Vector must not throw.
  */
-template<typename T, typename Allocator = ::fast_io::native_global_allocator>
+template<typename T, typename Allocator = ::pltxt2htm::memory::NativeGlobalAllocator>
 class Vector {
 public:
     using allocator_type = Allocator;
@@ -48,7 +49,7 @@ public:
     using const_reverse_iterator = ::std::reverse_iterator<const_iterator>;
 
 private:
-    using typed_allocator_type = ::fast_io::typed_generic_allocator_adapter<allocator_type, value_type>;
+    using typed_allocator_type = ::pltxt2htm::memory::TypedGenericAllocatorAdapter<allocator_type, value_type>;
 
     // Keep size and capacity as element counts instead of past-the-end pointers.
     // This makes size() and capacity() direct loads; boundary pointers are computed
