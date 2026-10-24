@@ -28,6 +28,9 @@ dist/
 # my temporary file
 *.ignore*
 
+# project-wide compiler temp (created by `pixi run prepare-tmp`)
+.tmp/
+
 # Windows
 *.lnk
 

@@ -1,0 +1,11 @@
+#pragma once
+
+// Minimal freestanding <cstddef> for the Windows symbol probes.
+// The probes only need the ABI types used by the definitions headers, so they
+// must not depend on a host C++ standard library being installed. Only those
+// types are provided; extend this list when the headers need another one.
+
+namespace std {
+using size_t = decltype(sizeof(0));
+using ptrdiff_t = __PTRDIFF_TYPE__;
+} // namespace std
