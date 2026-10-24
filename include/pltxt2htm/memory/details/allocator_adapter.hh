@@ -41,7 +41,7 @@ template<typename alloc>
 concept has_default_alignment_impl = requires(::std::size_t n) { alloc::default_alignment; };
 
 template<typename alloc>
-inline constexpr ::std::size_t calculate_default_alignment() noexcept {
+constexpr ::std::size_t calculate_default_alignment() noexcept {
     if constexpr (has_default_alignment_impl<alloc>) {
         return alloc::default_alignment;
     }
@@ -50,8 +50,7 @@ inline constexpr ::std::size_t calculate_default_alignment() noexcept {
     }
 }
 
-inline constexpr ::std::size_t allocator_compute_aligned_total_size_impl(::std::size_t alignment,
-                                                                         ::std::size_t n) noexcept {
+constexpr ::std::size_t allocator_compute_aligned_total_size_impl(::std::size_t alignment, ::std::size_t n) noexcept {
     constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max()}, sizeofptr{sizeof(void*)},
         mxmptr{mxn - sizeofptr};
     if (alignment < sizeofptr) {
@@ -75,19 +74,19 @@ inline void* allocator_adjust_ptr_to_aligned_impl(void* p, ::std::size_t alignme
 }
 
 template<typename>
-inline constexpr void* allocator_pointer_aligned_impl(::std::size_t, ::std::size_t, bool) noexcept;
+constexpr void* allocator_pointer_aligned_impl(::std::size_t, ::std::size_t, bool) noexcept;
 
 template<typename>
-inline constexpr ::pltxt2htm::memory::AllocationLeastResult allocator_pointer_aligned_at_least_impl(::std::size_t,
-                                                                                                    ::std::size_t,
-                                                                                                    bool) noexcept;
+constexpr ::pltxt2htm::memory::AllocationLeastResult allocator_pointer_aligned_at_least_impl(::std::size_t,
+                                                                                             ::std::size_t,
+                                                                                             bool) noexcept;
 
 template<typename alloc>
-inline constexpr void* status_allocator_pointer_aligned_impl(typename alloc::handle_type, ::std::size_t, ::std::size_t,
-                                                             bool) noexcept;
+constexpr void* status_allocator_pointer_aligned_impl(typename alloc::handle_type, ::std::size_t, ::std::size_t,
+                                                      bool) noexcept;
 
 template<typename alloc>
-inline constexpr ::pltxt2htm::memory::AllocationLeastResult status_allocator_pointer_aligned_at_least_impl(
+constexpr ::pltxt2htm::memory::AllocationLeastResult status_allocator_pointer_aligned_at_least_impl(
     typename alloc::handle_type, ::std::size_t, ::std::size_t, bool) noexcept;
 } // namespace details
 
@@ -254,7 +253,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline constexpr void* allocate(::std::size_t n) noexcept
+    static constexpr void* allocate(::std::size_t n) noexcept
         requires (!has_status)
     {
 #if __cpp_constexpr_dynamic_alloc >= 201907L
@@ -589,7 +588,7 @@ public:
     static inline constexpr bool has_deallocate = (::pltxt2htm::memory::details::has_deallocate_impl<alloc> ||
                                                    ::pltxt2htm::memory::details::has_deallocate_aligned_impl<alloc>);
 
-    static inline constexpr void deallocate(void* p) noexcept
+    static constexpr void deallocate(void* p) noexcept
         requires (!has_status && has_deallocate)
     {
 #if __cpp_constexpr_dynamic_alloc >= 201907L
@@ -612,7 +611,7 @@ public:
         }
     }
 
-    static inline constexpr void deallocate_n(void* p, ::std::size_t n) noexcept
+    static constexpr void deallocate_n(void* p, ::std::size_t n) noexcept
         requires (!has_status)
     {
 #if __cpp_constexpr_dynamic_alloc >= 201907L
@@ -647,8 +646,8 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline constexpr void* allocate_aligned_conditional_zero(::std::size_t alignment, ::std::size_t n,
-                                                                    bool zero) noexcept
+    static constexpr void* allocate_aligned_conditional_zero(::std::size_t alignment, ::std::size_t n,
+                                                             bool zero) noexcept
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -734,7 +733,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline constexpr void* allocate_aligned(::std::size_t alignment, ::std::size_t n) noexcept
+    static constexpr void* allocate_aligned(::std::size_t alignment, ::std::size_t n) noexcept
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -764,7 +763,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline constexpr void* allocate_aligned_zero(::std::size_t alignment, ::std::size_t n) noexcept
+    static constexpr void* allocate_aligned_zero(::std::size_t alignment, ::std::size_t n) noexcept
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -797,7 +796,7 @@ public:
                         ::pltxt2htm::memory::details::has_allocate_zero_at_least_impl<alloc> ||
                         ::pltxt2htm::memory::details::has_allocate_aligned_zero_at_least_impl<alloc>)};
 
-    static inline constexpr AllocationLeastResult allocate_at_least(::std::size_t n) noexcept
+    static constexpr AllocationLeastResult allocate_at_least(::std::size_t n) noexcept
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -827,7 +826,7 @@ public:
         }
     }
 
-    static inline constexpr AllocationLeastResult allocate_zero_at_least(::std::size_t n) noexcept
+    static constexpr AllocationLeastResult allocate_zero_at_least(::std::size_t n) noexcept
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -857,8 +856,7 @@ public:
         }
     }
 
-    static inline constexpr AllocationLeastResult allocate_conditional_zero_at_least(::std::size_t n,
-                                                                                     bool zero) noexcept
+    static constexpr AllocationLeastResult allocate_conditional_zero_at_least(::std::size_t n, bool zero) noexcept
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -975,8 +973,7 @@ public:
         }
     }
 
-    static inline constexpr AllocationLeastResult allocate_aligned_at_least(::std::size_t alignment,
-                                                                            ::std::size_t n) noexcept
+    static constexpr AllocationLeastResult allocate_aligned_at_least(::std::size_t alignment, ::std::size_t n) noexcept
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -999,8 +996,8 @@ public:
         }
     }
 
-    static inline constexpr AllocationLeastResult allocate_aligned_zero_at_least(::std::size_t alignment,
-                                                                                 ::std::size_t n) noexcept
+    static constexpr AllocationLeastResult allocate_aligned_zero_at_least(::std::size_t alignment,
+                                                                          ::std::size_t n) noexcept
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -1023,9 +1020,9 @@ public:
         }
     }
 
-    static inline constexpr AllocationLeastResult allocate_aligned_conditional_zero_at_least(::std::size_t alignment,
-                                                                                             ::std::size_t n,
-                                                                                             bool zero) noexcept
+    static constexpr AllocationLeastResult allocate_aligned_conditional_zero_at_least(::std::size_t alignment,
+                                                                                      ::std::size_t n,
+                                                                                      bool zero) noexcept
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -2742,7 +2739,7 @@ public:
 namespace details {
 
 template<typename alloc>
-inline constexpr void* allocator_pointer_aligned_impl(::std::size_t alignment, ::std::size_t n, bool zero) noexcept {
+constexpr void* allocator_pointer_aligned_impl(::std::size_t alignment, ::std::size_t n, bool zero) noexcept {
     static_assert(::pltxt2htm::memory::GenericAllocatorAdapter<alloc>::has_native_allocate);
 
     constexpr ::std::size_t defaultalignment{::pltxt2htm::memory::details::calculate_default_alignment<alloc>()};
@@ -2758,8 +2755,9 @@ inline constexpr void* allocator_pointer_aligned_impl(::std::size_t alignment, :
 }
 
 template<typename alloc>
-inline constexpr ::pltxt2htm::memory::AllocationLeastResult allocator_pointer_aligned_at_least_impl(
-    ::std::size_t alignment, ::std::size_t n, bool zero) noexcept {
+constexpr ::pltxt2htm::memory::AllocationLeastResult allocator_pointer_aligned_at_least_impl(::std::size_t alignment,
+                                                                                             ::std::size_t n,
+                                                                                             bool zero) noexcept {
     static_assert(::pltxt2htm::memory::GenericAllocatorAdapter<alloc>::has_native_allocate);
 
     constexpr ::std::size_t defaultalignment{::pltxt2htm::memory::details::calculate_default_alignment<alloc>()};
@@ -2780,7 +2778,7 @@ inline constexpr ::pltxt2htm::memory::AllocationLeastResult allocator_pointer_al
 
 #if 0
 template <typename alloc, bool zero>
-inline constexpr void *status_allocator_pointer_aligned_impl(typename alloc::handle_type handle, ::std::size_t alignment, ::std::size_t n) noexcept
+constexpr void *status_allocator_pointer_aligned_impl(typename alloc::handle_type handle, ::std::size_t alignment, ::std::size_t n) noexcept
 {
 	static_assert(::pltxt2htm::memory::GenericAllocatorAdapter<alloc>::has_native_handle_allocate);
 
@@ -2807,7 +2805,7 @@ inline constexpr void *status_allocator_pointer_aligned_impl(typename alloc::han
 }
 
 template <typename alloc, bool zero>
-inline constexpr ::pltxt2htm::memory::AllocationLeastResult status_allocator_pointer_aligned_impl(typename alloc::handle_type handle, ::std::size_t alignment, ::std::size_t n) noexcept
+constexpr ::pltxt2htm::memory::AllocationLeastResult status_allocator_pointer_aligned_impl(typename alloc::handle_type handle, ::std::size_t alignment, ::std::size_t n) noexcept
 {
 	static_assert(::pltxt2htm::memory::GenericAllocatorAdapter<alloc>::has_native_handle_allocate);
 
