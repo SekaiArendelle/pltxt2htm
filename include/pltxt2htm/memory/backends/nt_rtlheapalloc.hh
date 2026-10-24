@@ -131,14 +131,14 @@ inline ::pltxt2htm::memory::AllocationLeastResult nt_rtlallocate_heap_least_comm
     ::std::size_t n, ::std::uint_least32_t flag) noexcept {
     auto processheap{nt_get_process_heap()};
     auto ptr{nt_rtlallocate_heap_handle_common_impl(processheap, n, flag)};
-    return {ptr, ::pltxt2htm::sys_nt::RtlSizeHeap(processheap, 0, ptr)};
+    return {.ptr = ptr, .count = ::pltxt2htm::sys_nt::RtlSizeHeap(processheap, 0, ptr)};
 }
 
 inline ::pltxt2htm::memory::AllocationLeastResult nt_rtlreallocate_heap_least_common_impl(
     void* addr, ::std::size_t n, ::std::uint_least32_t flag) noexcept {
     auto processheap{nt_get_process_heap()};
     auto ptr{nt_rtlreallocate_heap_handle_common_impl(processheap, addr, n, flag)};
-    return {ptr, ::pltxt2htm::sys_nt::RtlSizeHeap(processheap, 0, ptr)};
+    return {.ptr = ptr, .count = ::pltxt2htm::sys_nt::RtlSizeHeap(processheap, 0, ptr)};
 }
 
 class NtRtlAllocateHeapAllocator {

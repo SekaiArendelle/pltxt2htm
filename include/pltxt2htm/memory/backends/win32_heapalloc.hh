@@ -99,14 +99,14 @@ inline ::pltxt2htm::memory::AllocationLeastResult win32_heapalloc_least_common_i
     ::std::size_t n, ::std::uint_least32_t flag) noexcept {
     auto processheap{win32_get_process_heap()};
     auto ptr{win32_heapalloc_handle_common_impl(processheap, n, flag)};
-    return {ptr, ::pltxt2htm::sys_win32::HeapSize(processheap, 0, ptr)};
+    return {.ptr = ptr, .count = ::pltxt2htm::sys_win32::HeapSize(processheap, 0, ptr)};
 }
 
 inline ::pltxt2htm::memory::AllocationLeastResult win32_heaprealloc_least_common_impl(
     void* addr, ::std::size_t n, ::std::uint_least32_t flag) noexcept {
     auto processheap{win32_get_process_heap()};
     auto ptr{win32_heaprealloc_handle_common_impl(processheap, addr, n, flag)};
-    return {ptr, ::pltxt2htm::sys_win32::HeapSize(processheap, 0, ptr)};
+    return {.ptr = ptr, .count = ::pltxt2htm::sys_win32::HeapSize(processheap, 0, ptr)};
 }
 
 class Win32HeapAllocAllocator {

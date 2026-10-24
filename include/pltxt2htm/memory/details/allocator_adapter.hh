@@ -59,8 +59,8 @@ constexpr ::std::size_t allocator_compute_aligned_total_size_impl(::std::size_t 
     if (alignment > mxmptr) {
         ::pltxt2htm::details::trap();
     }
-    ::std::size_t total_extra_space{alignment + sizeofptr};
-    ::std::size_t upperlimit{static_cast<::std::size_t>(mxn - total_extra_space)};
+    ::std::size_t const total_extra_space{alignment + sizeofptr};
+    ::std::size_t const upperlimit{static_cast<::std::size_t>(mxn - total_extra_space)};
     if (n > upperlimit) {
         ::pltxt2htm::details::trap();
     }
@@ -455,7 +455,7 @@ public:
             auto newptr{::operator new(n)};
             if (p != nullptr) {
                 if (n) {
-                    ::std::size_t copyn{oldn < n ? oldn : n};
+                    ::std::size_t const copyn{oldn < n ? oldn : n};
                     ::pltxt2htm::memory::details::nonoverlapped_bytes_copy_n(
                         reinterpret_cast<::std::byte const*>(p), copyn, reinterpret_cast<::std::byte*>(newptr));
                 }
@@ -533,7 +533,7 @@ public:
                     auto newptr{GenericAllocatorAdapter::allocate(n)};
                     if (p != nullptr) {
                         if (n) {
-                            ::std::size_t copyn{oldn < n ? oldn : n};
+                            ::std::size_t const copyn{oldn < n ? oldn : n};
                             ::pltxt2htm::memory::details::nonoverlapped_bytes_copy_n(
                                 reinterpret_cast<::std::byte const*>(p), copyn, reinterpret_cast<::std::byte*>(newptr));
                         }
@@ -807,21 +807,21 @@ public:
         if (false)
 #endif
         {
-            return {
+            return {.ptr =
 #if defined(__has_builtin) && __has_builtin(__builtin_operator_new)
-                __builtin_operator_new(n)
+                        __builtin_operator_new(n)
 #else
-                ::operator new(n)
+                        ::operator new(n)
 #endif
-                    ,
-                n};
+                        ,
+                    .count = n};
         }
         else {
             if constexpr (::pltxt2htm::memory::details::has_allocate_at_least_impl<alloc>) {
                 return allocator_type::allocate_at_least(n);
             }
             else {
-                return {GenericAllocatorAdapter::allocate(n), n};
+                return {.ptr = GenericAllocatorAdapter::allocate(n), .count = n};
             }
         }
     }
@@ -837,14 +837,14 @@ public:
         if (false)
 #endif
         {
-            return {
+            return {.ptr =
 #if defined(__has_builtin) && __has_builtin(__builtin_operator_new)
-                __builtin_operator_new(n)
+                        __builtin_operator_new(n)
 #else
-                ::operator new(n)
+                        ::operator new(n)
 #endif
-                    ,
-                n};
+                        ,
+                    .count = n};
         }
         else {
             if constexpr (::pltxt2htm::memory::details::has_allocate_zero_at_least_impl<alloc>) {
@@ -871,21 +871,22 @@ public:
             if (zero) {
                 ::pltxt2htm::memory::details::bytes_clear_n(reinterpret_cast<::std::byte*>(p), n);
             }
-            return {p, n};
+            return {.ptr = p, .count = n};
         }
         else {
             if constexpr (::pltxt2htm::memory::details::has_allocate_conditional_zero_at_least_impl<alloc>) {
                 return allocator_type::allocate_conditional_zero_at_least(n, zero);
             }
             if constexpr (::pltxt2htm::memory::details::has_allocate_conditional_zero_impl<alloc>) {
-                return {allocator_type::allocate_conditional_zero(n, zero), n};
+                return {.ptr = allocator_type::allocate_conditional_zero(n, zero), .count = n};
             }
             else if constexpr (::pltxt2htm::memory::details::has_allocate_aligned_conditional_zero_at_least_impl<
                                    alloc>) {
                 return allocator_type::allocate_aligned_conditional_zero_at_least(default_alignment, n, zero);
             }
             else if constexpr (::pltxt2htm::memory::details::has_allocate_aligned_conditional_zero_impl<alloc>) {
-                return {allocator_type::allocate_aligned_conditional_zero(default_alignment, n, zero), n};
+                return {.ptr = allocator_type::allocate_aligned_conditional_zero(default_alignment, n, zero),
+                        .count = n};
             }
             else {
                 constexpr bool has_none_zero_ops{
@@ -902,13 +903,13 @@ public:
                         return allocator_type::allocate_zero_at_least(n);
                     }
                     else if constexpr (::pltxt2htm::memory::details::has_allocate_zero_impl<alloc>) {
-                        return {allocator_type::allocate_zero(n), n};
+                        return {.ptr = allocator_type::allocate_zero(n), .count = n};
                     }
                     else if constexpr (::pltxt2htm::memory::details::has_allocate_aligned_zero_at_least_impl<alloc>) {
                         return allocator_type::allocate_aligned_zero_at_least(default_alignment, n);
                     }
                     else if constexpr (::pltxt2htm::memory::details::has_allocate_aligned_zero_impl<alloc>) {
-                        return {allocator_type::allocate_aligned_zero(default_alignment, n), n};
+                        return {.ptr = allocator_type::allocate_aligned_zero(default_alignment, n), .count = n};
                     }
                 }
                 else if constexpr (has_none_zero_ops && !has_zero_ops) {
@@ -1037,13 +1038,13 @@ public:
             if (zero) {
                 ::pltxt2htm::memory::details::bytes_clear_n(reinterpret_cast<::std::byte*>(p), n);
             }
-            return {p, n};
+            return {.ptr = p, .count = n};
         }
         if constexpr (::pltxt2htm::memory::details::has_allocate_aligned_conditional_zero_at_least_impl<alloc>) {
             return allocator_type::allocate_aligned_conditional_zero_at_least(alignment, n, zero);
         }
         else if constexpr (::pltxt2htm::memory::details::has_allocate_aligned_conditional_zero_impl<alloc>) {
-            return {allocator_type::allocate_aligned_conditional_zero(alignment, n, zero), n};
+            return {.ptr = allocator_type::allocate_aligned_conditional_zero(alignment, n, zero), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::native_allocate_aligned_has_ops<alloc>) {
             constexpr bool has_none_zero_ops{
@@ -1054,7 +1055,7 @@ public:
                     return allocator_type::allocate_aligned_zero_at_least(alignment, n);
                 }
                 else {
-                    return {allocator_type::allocate_aligned_zero(alignment, n), n};
+                    return {.ptr = allocator_type::allocate_aligned_zero(alignment, n), .count = n};
                 }
             }
             else if constexpr (has_none_zero_ops && !has_zero_ops) {
@@ -1208,7 +1209,7 @@ public:
             auto newptr{::operator new(n)};
             if (p != nullptr) {
                 if (n) {
-                    ::std::size_t copyn{oldn < n ? oldn : n};
+                    ::std::size_t const copyn{oldn < n ? oldn : n};
                     ::pltxt2htm::memory::details::nonoverlapped_bytes_copy_n(
                         reinterpret_cast<::std::byte const*>(p), copyn, reinterpret_cast<::std::byte*>(newptr));
                 }
@@ -1281,8 +1282,8 @@ public:
                         ::pltxt2htm::memory::details::allocator_pointer_aligned_impl<alloc>(alignment, n, false)};
                     if (p != nullptr) {
                         if (n) {
-                            bool moren{oldn < n};
-                            ::std::size_t copyn{moren ? oldn : n};
+                            bool const moren{oldn < n};
+                            ::std::size_t const copyn{moren ? oldn : n};
                             ::pltxt2htm::memory::details::nonoverlapped_bytes_copy_n(
                                 reinterpret_cast<::std::byte const*>(p), copyn, reinterpret_cast<::std::byte*>(newptr));
                         }
@@ -1362,16 +1363,16 @@ public:
             return allocator_type::reallocate_aligned_zero_at_least(p, default_alignment, n);
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_impl<alloc>) {
-            return {allocator_type::reallocate(p, n), n};
+            return {.ptr = allocator_type::reallocate(p, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_impl<alloc>) {
-            return {allocator_type::reallocate_aligned(p, default_alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned(p, default_alignment, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_zero_impl<alloc>) {
-            return {allocator_type::reallocate_zero(p, n), n};
+            return {.ptr = allocator_type::reallocate_zero(p, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_impl<alloc>) {
-            return {allocator_type::reallocate_aligned_zero(p, default_alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned_zero(p, default_alignment, n), .count = n};
         }
     }
 
@@ -1389,12 +1390,12 @@ public:
             return allocator_type::reallocate_aligned_zero_at_least(p, default_alignment, n);
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_zero_impl<alloc>) {
-            return {allocator_type::reallocate_zero(p, n), n};
+            return {.ptr = allocator_type::reallocate_zero(p, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_impl<alloc>) {
             auto newptr{allocator_type::reallocate_aligned(p, default_alignment, n)};
             ::pltxt2htm::memory::details::bytes_clear_n(reinterpret_cast<::std::byte*>(newptr), n);
-            return {newptr, n};
+            return {.ptr = newptr, .count = n};
         }
         else {
             auto newres{GenericAllocatorAdapter::reallocate_at_least(p, n)};
@@ -1432,28 +1433,28 @@ public:
             return allocator_type::reallocate_aligned_zero_at_least(p, default_alignment, n);
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_n_impl<alloc>) {
-            return {allocator_type::reallocate_n(p, oldn, n), n};
+            return {.ptr = allocator_type::reallocate_n(p, oldn, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_n_impl<alloc>) {
-            return {allocator_type::reallocate_aligned_n(p, oldn, default_alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned_n(p, oldn, default_alignment, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_zero_n_impl<alloc>) {
-            return {allocator_type::reallocate_zero_n(p, oldn, n), n};
+            return {.ptr = allocator_type::reallocate_zero_n(p, oldn, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_n_impl<alloc>) {
-            return {allocator_type::reallocate_aligned_zero_n(p, oldn, default_alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned_zero_n(p, oldn, default_alignment, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_impl<alloc>) {
-            return {allocator_type::reallocate(p, n), n};
+            return {.ptr = allocator_type::reallocate(p, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_impl<alloc>) {
-            return {allocator_type::reallocate_aligned(p, default_alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned(p, default_alignment, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_zero_impl<alloc>) {
-            return {allocator_type::reallocate_zero(p, n), n};
+            return {.ptr = allocator_type::reallocate_zero(p, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_impl<alloc>) {
-            return {allocator_type::reallocate_aligned_zero(p, default_alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned_zero(p, default_alignment, n), .count = n};
         }
         else {
             auto newres{GenericAllocatorAdapter::allocate_at_least(n)};
@@ -1517,10 +1518,10 @@ public:
             return allocator_type::reallocate_aligned_zero_at_least(p, alignment, n);
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_impl<alloc>) {
-            return {allocator_type::reallocate_aligned(p, alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned(p, alignment, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_impl<alloc>) {
-            return {allocator_type::reallocate_aligned_zero(p, alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned_zero(p, alignment, n), .count = n};
         }
     }
 
@@ -1536,7 +1537,7 @@ public:
             return allocator_type::reallocate_aligned_zero_at_least(p, alignment, n);
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_impl<alloc>) {
-            return {allocator_type::reallocate_aligned_zero(p, alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned_zero(p, alignment, n), .count = n};
         }
     }
 
@@ -1562,16 +1563,16 @@ public:
             return allocator_type::reallocate_aligned_zero_at_least(p, alignment, n);
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_impl<alloc>) {
-            return {allocator_type::reallocate_aligned_n(p, oldn, alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned_n(p, oldn, alignment, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_impl<alloc>) {
-            return {allocator_type::reallocate_aligned(p, alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned(p, alignment, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_n_impl<alloc>) {
-            return {allocator_type::reallocate_aligned_zero_n(p, oldn, alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned_zero_n(p, oldn, alignment, n), .count = n};
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_impl<alloc>) {
-            return {allocator_type::reallocate_aligned_zero(p, alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned_zero(p, alignment, n), .count = n};
         }
         else {
             if constexpr (::pltxt2htm::memory::details::has_reallocate_at_least_impl<alloc> ||
@@ -1610,7 +1611,7 @@ public:
             return allocator_type::reallocate_aligned_zero_n_at_least(p, oldn, alignment, n);
         }
         else if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_n_impl<alloc>) {
-            return {allocator_type::reallocate_aligned_zero_n(p, oldn, alignment, n), n};
+            return {.ptr = allocator_type::reallocate_aligned_zero_n(p, oldn, alignment, n), .count = n};
         }
         else {
             auto newres = GenericAllocatorAdapter::reallocate_aligned_n_at_least(p, oldn, alignment, n);
@@ -2066,7 +2067,7 @@ public:
                 auto newptr{GenericAllocatorAdapter::handle_allocate(handle, n)};
                 if (p != nullptr) {
                     if (n) {
-                        ::std::size_t copyn{oldn < n ? oldn : n};
+                        ::std::size_t const copyn{oldn < n ? oldn : n};
                         ::pltxt2htm::memory::details::nonoverlapped_bytes_copy_n(
                             reinterpret_cast<::std::byte const*>(p), copyn, reinterpret_cast<::std::byte*>(newptr));
                     }
@@ -2207,7 +2208,7 @@ public:
     {
 #if __cpp_constexpr_dynamic_alloc >= 201907L
         if (__builtin_is_constant_evaluated()) {
-            return {::std::allocator<T>{}.allocate(n), n};
+            return {.ptr = ::std::allocator<T>{}.allocate(n), .count = n};
         }
 #endif
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2216,11 +2217,11 @@ public:
         }
         if constexpr (alignof(T) <= alloc::default_alignment) {
             auto newres{alloc::allocate_at_least(n * sizeof(T))};
-            return {reinterpret_cast<T*>(newres.ptr), newres.count / sizeof(T)};
+            return {.ptr = reinterpret_cast<T*>(newres.ptr), .count = newres.count / sizeof(T)};
         }
         else {
             auto newres{alloc::allocate_aligned_at_least(alignof(T), n * sizeof(T))};
-            return {reinterpret_cast<T*>(newres.ptr), newres.count / sizeof(T)};
+            return {.ptr = reinterpret_cast<T*>(newres.ptr), .count = newres.count / sizeof(T)};
         }
     }
 
@@ -2257,7 +2258,7 @@ public:
     {
 #if __cpp_constexpr_dynamic_alloc >= 201907L
         if (__builtin_is_constant_evaluated()) {
-            return {::std::allocator<T>{}.allocate(n), n};
+            return {.ptr = ::std::allocator<T>{}.allocate(n), .count = n};
         }
 #endif
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2266,11 +2267,11 @@ public:
         }
         if constexpr (alignof(T) <= alloc::default_alignment) {
             auto newres{alloc::allocate_zero_at_least(n * sizeof(T))};
-            return {reinterpret_cast<T*>(newres.ptr), newres.count / sizeof(T)};
+            return {.ptr = reinterpret_cast<T*>(newres.ptr), .count = newres.count / sizeof(T)};
         }
         else {
             auto newres{alloc::allocate_aligned_zero_at_least(alignof(T), n * sizeof(T))};
-            return {reinterpret_cast<T*>(newres.ptr), newres.count / sizeof(T)};
+            return {.ptr = reinterpret_cast<T*>(newres.ptr), .count = newres.count / sizeof(T)};
         }
     }
 
@@ -2313,11 +2314,11 @@ public:
         }
         if constexpr (alignof(T) <= alloc::default_alignment) {
             auto newres{alloc::reallocate_at_least(ptr, n * sizeof(T))};
-            return {reinterpret_cast<T*>(newres.ptr), newres.count / sizeof(T)};
+            return {.ptr = reinterpret_cast<T*>(newres.ptr), .count = newres.count / sizeof(T)};
         }
         else {
             auto newres{alloc::reallocate_aligned_at_least(ptr, alignof(T), n * sizeof(T))};
-            return {reinterpret_cast<T*>(newres.ptr), newres.count / sizeof(T)};
+            return {.ptr = reinterpret_cast<T*>(newres.ptr), .count = newres.count / sizeof(T)};
         }
     }
 
@@ -2359,11 +2360,11 @@ public:
         }
         if constexpr (alignof(T) <= alloc::default_alignment) {
             auto newres{alloc::reallocate_zero_at_least(ptr, n * sizeof(T))};
-            return {reinterpret_cast<T*>(newres.ptr), newres.count / sizeof(T)};
+            return {.ptr = reinterpret_cast<T*>(newres.ptr), .count = newres.count / sizeof(T)};
         }
         else {
             auto newres{alloc::reallocate_aligned_zero_at_least(ptr, alignof(T), n * sizeof(T))};
-            return {reinterpret_cast<T*>(newres.ptr), newres.count / sizeof(T)};
+            return {.ptr = reinterpret_cast<T*>(newres.ptr), .count = newres.count / sizeof(T)};
         }
     }
 
@@ -2405,11 +2406,11 @@ public:
         }
         if constexpr (alignof(T) <= alloc::default_alignment) {
             auto newres{alloc::reallocate_n_at_least(ptr, oldn * sizeof(T), n * sizeof(T))};
-            return {reinterpret_cast<T*>(newres.ptr), newres.count / sizeof(T)};
+            return {.ptr = reinterpret_cast<T*>(newres.ptr), .count = newres.count / sizeof(T)};
         }
         else {
             auto newres{alloc::reallocate_aligned_n_at_least(ptr, oldn * sizeof(T), alignof(T), n * sizeof(T))};
-            return {reinterpret_cast<T*>(newres.ptr), newres.count / sizeof(T)};
+            return {.ptr = reinterpret_cast<T*>(newres.ptr), .count = newres.count / sizeof(T)};
         }
     }
 
@@ -2451,11 +2452,11 @@ public:
         }
         if constexpr (alignof(T) <= alloc::default_alignment) {
             auto newres{alloc::reallocate_zero_n_at_least(ptr, oldn * sizeof(T), n * sizeof(T))};
-            return {reinterpret_cast<T*>(newres.ptr), newres.count / sizeof(T)};
+            return {.ptr = reinterpret_cast<T*>(newres.ptr), .count = newres.count / sizeof(T)};
         }
         else {
             auto newres{alloc::reallocate_aligned_zero_n_at_least(ptr, oldn * sizeof(T), alignof(T), n * sizeof(T))};
-            return {reinterpret_cast<T*>(newres.ptr), newres.count / sizeof(T)};
+            return {.ptr = reinterpret_cast<T*>(newres.ptr), .count = newres.count / sizeof(T)};
         }
     }
 
@@ -2473,9 +2474,7 @@ public:
             if (ptr) {
                 return ::std::allocator<T>{}.deallocate(ptr, 1);
             }
-            else {
-                return;
-            }
+            return;
         }
 #endif
         if constexpr (alignof(T) <= alloc::default_alignment) {
@@ -2498,9 +2497,7 @@ public:
             if (ptr) {
                 return ::std::allocator<T>{}.deallocate(ptr, n);
             }
-            else {
-                return;
-            }
+            return;
         }
 #endif
         if constexpr (alignof(T) <= alloc::default_alignment) {
@@ -2770,8 +2767,9 @@ constexpr ::pltxt2htm::memory::AllocationLeastResult allocator_pointer_aligned_a
     if (alignedadjustment) {
         auto resptr{res.ptr};
         auto aligned_ptr = ::pltxt2htm::memory::details::allocator_adjust_ptr_to_aligned_impl(resptr, alignment);
-        res = {aligned_ptr, res.count - static_cast<::std::size_t>(reinterpret_cast<char unsigned*>(aligned_ptr) -
-                                                                   reinterpret_cast<char unsigned*>(resptr))};
+        res = {.ptr = aligned_ptr,
+               .count = res.count - static_cast<::std::size_t>(reinterpret_cast<char unsigned*>(aligned_ptr) -
+                                                               reinterpret_cast<char unsigned*>(resptr))};
     }
     return res;
 }
