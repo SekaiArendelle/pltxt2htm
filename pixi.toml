@@ -130,26 +130,9 @@ clangxx = ">=23"
 llvm-tools = ">=23"
 python = ">=3.15,<3.16"
 
-[feature.symbols.target.linux.dependencies]
-gxx = ">=16"
-
-[feature.symbols.target.win-64.dependencies]
-gxx = ">=16"
-
-[feature.symbols.target.osx.dependencies]
-libcxx-devel = ">=19"
-
-[feature.symbols.target.linux.tasks]
-windows-symbols = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm --gxx g++"
-windows-symbols-check = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm --gxx g++ --check"
-
-[feature.symbols.target.win-64.tasks]
-windows-symbols = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm --gxx g++"
-windows-symbols-check = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm --gxx g++ --check"
-
-[feature.symbols.target.osx.tasks]
-windows-symbols = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm --cxx-include-dir $CONDA_PREFIX/include/c++/v1"
-windows-symbols-check = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm --cxx-include-dir $CONDA_PREFIX/include/c++/v1 --check"
+[feature.symbols.tasks]
+windows-symbols = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm"
+windows-symbols-check = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm --check"
 
 [environments]
 default = []

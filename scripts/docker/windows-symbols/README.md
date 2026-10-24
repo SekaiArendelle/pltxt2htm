@@ -1,6 +1,6 @@
 # Windows symbol generator
 
-Build the dedicated Clang and LLVM image from the repository root:
+Build the dedicated Clang, LLVM, and Python image from the repository root:
 
 ```sh
 docker build -t pltxt2htm-windows-symbols scripts/docker/windows-symbols
@@ -15,7 +15,7 @@ docker run --rm -v "${PWD}:/pltxt2htm:ro" pltxt2htm-windows-symbols
 After editing the symbol manifest, regenerate the files with a writable mount:
 
 ```sh
-docker run --rm -v "${PWD}:/pltxt2htm" pltxt2htm-windows-symbols python3 scripts/gen_windows_symbols.py --cxx-include-dir /usr/include/c++/v1
+docker run --rm -v "${PWD}:/pltxt2htm" pltxt2htm-windows-symbols python3 scripts/gen_windows_symbols.py
 docker run --rm -v "${PWD}:/pltxt2htm:ro" pltxt2htm-windows-symbols
 ```
 
@@ -33,5 +33,9 @@ The default still checks every library.
 
 The generator cross-compiles temporary objects for its MSVC targets and does
 not need a Windows SDK or linker in the container.
-It compiles the same definitions headers used by the library. Outside the image,
-pass `--cxx-include-dir` when the target cannot find compatible C++ headers.
+It compiles the same definitions headers used by the library. The probes only
+need `<cstddef>` and `<cstdint>`, which `scripts/probe_headers` supplies without
+depending on a host C++ standard library. Those shims intentionally provide only
+the types the definitions headers use; extend them if those headers start using
+more of the standard library. Pass `--cxx-include-dir` to use a real standard
+library header set instead.

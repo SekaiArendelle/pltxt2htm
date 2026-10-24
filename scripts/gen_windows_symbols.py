@@ -15,6 +15,8 @@ from typing import Literal
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SYS_ROOT = ROOT / "include" / "pltxt2htm" / "sys"
+# Freestanding <cstddef>/<cstdint> shims for the cross-target symbol probes.
+PROBE_HEADERS = ROOT / "scripts" / "probe_headers"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -2658,11 +2660,12 @@ def undefined_imports(
 ) -> tuple[str, ...]:
     compile_command = [clang, f"--target={target}", "-std=c++23"]
     if cxx_include_dirs:
-        # MSVC's current STL headers reject the ARM32 target, but the probes still need <cstdint>.
-        # Use a compatible C++ header set without mixing it with Clang's default C++ headers.
-        # -nostdlibinc keeps the Clang resource headers (stdint-gcc.h and
-        # friends) while discarding the host SDK headers, mirroring the
-        # behavior of compiling without a host SDK available.
+        # The probes only need <cstddef> and <cstdint>, supplied by the
+        # repository's freestanding headers unless a caller passes a real
+        # standard library header set. -nostdinc++ and -nostdlibinc keep the
+        # compile hermetic: they discard Clang's default C++ headers and the
+        # host SDK C headers, so the same probe works for every target even
+        # when an MSVC SDK is installed locally.
         compile_command.extend(("-nostdinc++", "-nostdlibinc"))
         for cxx_include_dir in cxx_include_dirs:
             compile_command.extend(("-isystem", str(cxx_include_dir)))
@@ -2811,51 +2814,6 @@ def resolve_tool(value: str, description: str) -> str:
     return resolved
 
 
-def gnu_cxx_include_dirs(gxx: str) -> tuple[pathlib.Path, ...]:
-    # The linker-support probes only need <cstddef> and <cstdint>, so the
-    # resolved libstdc++ header directories are sufficient; no GNU runtime
-    # library must be linked and, importantly, no GCC C header directory may
-    # be added: their stddef.h is not portable across Clang targets. The
-    # compiler resource headers (stdint-gcc.h and friends under -nostdlibinc)
-    # supply the C side. -H reports the exact include directories the GNU
-    # compiler applies, regardless of how the libstdc++ installation is laid
-    # out (GCC tree, distro, or sysroot packaging); only the directories of
-    # the C++ standard library itself are kept.
-    probe_result = subprocess.run(
-        [gxx, "-xc++", "-E", "-H", "-"],
-        input=b"#include <cstddef>\n#include <cstdint>\n",
-        check=False,
-        capture_output=True,
-    )
-    if probe_result.returncode != 0:
-        raise RuntimeError(
-            f"gxx failed:\n{probe_result.stderr.decode(errors='replace').strip()}"
-        )
-    wanted = ("cstddef", "cstdint", "c++config.h")
-    directories: list[pathlib.Path] = []
-    for line in probe_result.stderr.decode("ascii", errors="replace").splitlines():
-        header_str = line.lstrip(". ")
-        header_path = pathlib.Path(header_str)
-        matched = next((name for name in wanted if header_path.name == name), None)
-        if matched is None:
-            continue
-        directory = header_path.parent
-        if directory.name == "bits":
-            directory = directory.parent
-        if directory not in directories:
-            directories.append(directory)
-    if (
-        len(directories) < 2
-        or not directories[0].is_dir()
-        or directories[0] == directories[1]
-    ):
-        raise RuntimeError(
-            f"gxx {gxx} did not provide usable libstdc++ headers; "
-            f"probe output:\n{probe_result.stderr.decode(errors='replace').strip()}"
-        )
-    return tuple(directories)
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -2874,15 +2832,8 @@ def main() -> int:
         action="append",
         help=(
             "C++ standard library header directory to cross-compile with; "
-            "repeatable, supports environment variable references, bypasses "
-            "the compiler's default C++ headers"
-        ),
-    )
-    parser.add_argument(
-        "--gxx",
-        help=(
-            "GNU C++ driver whose libstdc++ install provides the probe "
-            "headers; adds the directories it reports"
+            "repeatable, supports environment variable references, overrides "
+            "the built-in freestanding probe headers"
         ),
     )
     arguments = parser.parse_args()
@@ -2892,11 +2843,16 @@ def main() -> int:
     cxx_include_dirs = tuple(
         pathlib.Path(os.path.expandvars(directory))
         for directory in arguments.cxx_include_dir or ()
+        if directory
     )
-    if arguments.gxx is not None:
-        cxx_include_dirs += gnu_cxx_include_dirs(
-            resolve_tool(arguments.gxx, "GNU C++ driver")
-        )
+    if cxx_include_dirs:
+        for directory in cxx_include_dirs:
+            if not directory.is_dir():
+                raise RuntimeError(
+                    f"C++ standard library header directory was not found: {directory}"
+                )
+    else:
+        cxx_include_dirs = (PROBE_HEADERS,)
     files = generated_files(clang, llvm_nm, cxx_include_dirs, arguments.library)
     stale: list[pathlib.Path] = []
     for path, content in files.items():
