@@ -37,5 +37,4 @@ It compiles the same definitions headers used by the library. The probes only
 need `<cstddef>` and `<cstdint>`, which `scripts/probe_headers` supplies without
 depending on a host C++ standard library. Those shims intentionally provide only
 the types the definitions headers use; extend them if those headers start using
-more of the standard library. Pass `--cxx-include-dir` to use a real standard
-library header set instead.
+more of the standard library.
