@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import dataclasses
+import os
 import pathlib
 import re
 import shutil
@@ -1487,11 +1489,13 @@ LIBRARIES = (
                 "RtlReAllocateHeap",
                 "void *",
                 ("Handle", "Ulong", "void *", "::std::size_t"),
+                nodiscard=True,
             ),
             Symbol(
                 "RtlFreeHeap",
                 "Boolean",
                 ("Handle", "Ulong", "void *"),
+                nodiscard=True,
             ),
             Symbol(
                 "RtlGetCurrentPeb",
@@ -2162,11 +2166,13 @@ LIBRARIES = (
                 "HeapReAlloc",
                 "void*",
                 ("Handle", "Dword", "void*", "::std::size_t"),
+                nodiscard=True,
             ),
             Symbol(
                 "HeapFree",
                 "Bool",
                 ("Handle", "Dword", "void*"),
+                nodiscard=True,
             ),
             Symbol(
                 "HeapSize",
@@ -2738,10 +2744,21 @@ def generate_linker_aliases(
 ) -> tuple[str, dict[str, int]]:
     result = [GENERATED_NOTICE, "\n"]
     x86_stdcall_stack_bytes: dict[str, int] = {}
-    for symbol in library.symbols:
-        pairs = undefined_symbols(
+
+    def probe(symbol: Symbol) -> tuple[Symbol, tuple[tuple[str, str], ...]]:
+        return symbol, undefined_symbols(
             symbol, library, target, clang, llvm_nm, cxx_include_dir
         )
+
+    with concurrent.futures.ThreadPoolExecutor(
+        max_workers=min(16, os.cpu_count() or 1)
+    ) as executor:
+        try:
+            paired = list(executor.map(probe, library.symbols))
+        except BaseException:
+            executor.shutdown(wait=False, cancel_futures=True)
+            raise
+    for symbol, pairs in paired:
         for local, exported in pairs:
             result.append(
                 f'#pragma comment(linker, "/alternatename:{local}={exported}")\n'
