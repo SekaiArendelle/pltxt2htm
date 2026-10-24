@@ -13,8 +13,8 @@
 #include "precompile.hh"
 
 using Contracts = ::pltxt2htm::Contracts;
-using allocator_type = ::pltxt2htm::memory::native_global_allocator;
-using int_allocator = ::pltxt2htm::memory::typed_generic_allocator_adapter<allocator_type, int>;
+using allocator_type = ::pltxt2htm::memory::NativeGlobalAllocator;
+using int_allocator = ::pltxt2htm::memory::TypedGenericAllocatorAdapter<allocator_type, int>;
 
 // trait surface ---------------------------------------------------------------
 
@@ -37,7 +37,7 @@ inline auto is_aligned(void const* pointer, ::std::size_t alignment) noexcept ->
     if (pointer == nullptr) {
         return false;
     }
-    bool ok{::pltxt2htm::memory::native_global_allocator::has_reallocate};
+    bool ok{::pltxt2htm::memory::NativeGlobalAllocator::has_reallocate};
     int_allocator::deallocate(pointer);
     return ok;
 }
@@ -131,7 +131,7 @@ private:
 public:
     [[nodiscard]]
     static auto allocate_at_least(::std::size_t requested_bytes) noexcept
-        -> ::pltxt2htm::memory::allocation_least_result {
+        -> ::pltxt2htm::memory::AllocationLeastResult {
         ++allocations;
         last_bytes = requested_bytes;
         slot = allocator_type::allocate(requested_bytes);
@@ -148,7 +148,7 @@ public:
     }
 };
 
-using count_allocator = ::pltxt2htm::memory::generic_allocator_adapter<CountingRawAllocator>;
+using count_allocator = ::pltxt2htm::memory::GenericAllocatorAdapter<CountingRawAllocator>;
 
 static_assert(count_allocator::has_status == false);
 static_assert(count_allocator::has_native_allocate_at_least);

@@ -1,9 +1,9 @@
 /**
  * @file allocator_concepts.hh
- * @brief Concepts classifying allocators usable with `generic_allocator_adapter`,
+ * @brief Concepts classifying allocators usable with `GenericAllocatorAdapter`,
  *        built on the detection traits in `allocator_detect.hh`. The capability
  *        unions mirror the dispatch conditions of the adapter itself
- *        (e.g. `generic_allocator_adapter::has_native_allocate`).
+ *        (e.g. `GenericAllocatorAdapter::has_native_allocate`).
  */
 
 #pragma once
@@ -61,7 +61,7 @@ concept StatefulAllocator =
     details::allocator_has_stateful_deallocate_ops<Alloc>;
 
 /**
- * @brief Any allocator usable with `generic_allocator_adapter`, stateless or stateful.
+ * @brief Any allocator usable with `GenericAllocatorAdapter`, stateless or stateful.
  */
 template<typename Alloc>
 concept Allocator = StatelessAllocator<Alloc> || StatefulAllocator<Alloc>;

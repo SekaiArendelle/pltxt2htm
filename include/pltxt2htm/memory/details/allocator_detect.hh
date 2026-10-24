@@ -124,110 +124,106 @@ concept has_deallocate_aligned_n_impl = requires(void* p, ::std::size_t n) {
 
 template<typename alloc>
 concept has_allocate_at_least_impl = requires(::std::size_t n) {
-    { alloc::allocate_at_least(n) } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::allocate_at_least(n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_allocate_aligned_at_least_impl = requires(::std::size_t n) {
-    { alloc::allocate_aligned_at_least(n, n) } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::allocate_aligned_at_least(n, n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_allocate_zero_at_least_impl = requires(::std::size_t n) {
-    { alloc::allocate_zero_at_least(n) } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::allocate_zero_at_least(n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_allocate_aligned_zero_at_least_impl = requires(::std::size_t n) {
-    { alloc::allocate_aligned_zero_at_least(n, n) } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::allocate_aligned_zero_at_least(n, n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_allocate_conditional_zero_at_least_impl = requires(::std::size_t n, bool zero) {
     {
         alloc::allocate_conditional_zero_at_least(n, zero)
-    } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_allocate_aligned_conditional_zero_at_least_impl = requires(::std::size_t n, bool zero) {
     {
         alloc::allocate_aligned_conditional_zero_at_least(n, n, zero)
-    } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_reallocate_at_least_impl = requires(void* p, ::std::size_t n) {
-    { alloc::reallocate_at_least(p, n) } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::reallocate_at_least(p, n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_reallocate_aligned_at_least_impl = requires(void* p, ::std::size_t n) {
-    { alloc::reallocate_aligned_at_least(p, n, n) } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::reallocate_aligned_at_least(p, n, n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_reallocate_zero_at_least_impl = requires(void* p, ::std::size_t n) {
-    { alloc::reallocate_zero_at_least(p, n) } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::reallocate_zero_at_least(p, n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_reallocate_aligned_zero_at_least_impl = requires(void* p, ::std::size_t n) {
-    {
-        alloc::reallocate_aligned_zero_at_least(p, n, n)
-    } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::reallocate_aligned_zero_at_least(p, n, n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_reallocate_conditional_zero_at_least_impl = requires(void* p, ::std::size_t n, bool zero) {
     {
         alloc::reallocate_conditional_zero_at_least(p, n, zero)
-    } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_reallocate_aligned_conditional_zero_at_least_impl = requires(void* p, ::std::size_t n, bool zero) {
     {
         alloc::reallocate_aligned_conditional_zero_at_least(p, n, n, zero)
-    } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_reallocate_n_at_least_impl = requires(void* p, ::std::size_t n) {
-    { alloc::reallocate_n_at_least(p, n, n) } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::reallocate_n_at_least(p, n, n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_reallocate_aligned_n_at_least_impl = requires(void* p, ::std::size_t n) {
-    {
-        alloc::reallocate_aligned_n_at_least(p, n, n, n)
-    } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::reallocate_aligned_n_at_least(p, n, n, n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_reallocate_zero_n_at_least_impl = requires(void* p, ::std::size_t n) {
-    { alloc::reallocate_zero_n_at_least(p, n, n) } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::reallocate_zero_n_at_least(p, n, n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_reallocate_aligned_zero_n_at_least_impl = requires(void* p, ::std::size_t n) {
     {
         alloc::reallocate_aligned_zero_n_at_least(p, n, n, n)
-    } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_reallocate_n_conditional_zero_at_least_impl = requires(void* p, ::std::size_t n, bool zero) {
     {
         alloc::reallocate_n_conditional_zero_at_least(p, n, n, zero)
-    } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_reallocate_aligned_n_conditional_zero_at_least_impl = requires(void* p, ::std::size_t n, bool zero) {
     {
         alloc::reallocate_aligned_n_conditional_zero_at_least(p, n, n, n, zero)
-    } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
@@ -336,26 +332,26 @@ concept has_handle_reallocate_aligned_n_conditional_zero_impl =
 
 template<typename alloc>
 concept has_handle_allocate_at_least_impl = requires(typename alloc::handle_type handle, ::std::size_t n) {
-    { alloc::handle_allocate_at_least(handle, n) } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::handle_allocate_at_least(handle, n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_handle_allocate_aligned_at_least_impl = requires(typename alloc::handle_type handle, ::std::size_t n) {
     {
         alloc::handle_allocate_aligned_at_least(handle, n, n)
-    } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_handle_allocate_zero_at_least_impl = requires(typename alloc::handle_type handle, ::std::size_t n) {
-    { alloc::handle_allocate_zero_at_least(handle, n) } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::handle_allocate_zero_at_least(handle, n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
 concept has_handle_allocate_aligned_zero_at_least_impl = requires(typename alloc::handle_type handle, ::std::size_t n) {
     {
         alloc::handle_allocate_aligned_zero_at_least(handle, n, n)
-    } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
@@ -363,7 +359,7 @@ concept has_handle_allocate_conditional_zero_at_least_impl =
     requires(typename alloc::handle_type handle, ::std::size_t n, bool zero) {
         {
             alloc::handle_allocate_conditional_zero_at_least(handle, n, zero)
-        } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+        } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
     };
 
 template<typename alloc>
@@ -371,12 +367,12 @@ concept has_handle_allocate_aligned_conditional_zero_at_least_impl =
     requires(typename alloc::handle_type handle, ::std::size_t n, bool zero) {
         {
             alloc::handle_allocate_aligned_conditional_zero_at_least(handle, n, n, zero)
-        } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+        } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
     };
 
 template<typename alloc>
 concept has_handle_reallocate_at_least_impl = requires(typename alloc::handle_type handle, void* p, ::std::size_t n) {
-    { alloc::handle_reallocate_at_least(handle, p, n) } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    { alloc::handle_reallocate_at_least(handle, p, n) } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
@@ -384,7 +380,7 @@ concept has_handle_reallocate_aligned_at_least_impl =
     requires(typename alloc::handle_type handle, void* p, ::std::size_t n) {
         {
             alloc::handle_reallocate_aligned_at_least(handle, p, n, n)
-        } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+        } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
     };
 
 template<typename alloc>
@@ -392,7 +388,7 @@ concept has_handle_reallocate_zero_at_least_impl =
     requires(typename alloc::handle_type handle, void* p, ::std::size_t n) {
         {
             alloc::handle_reallocate_zero_at_least(handle, p, n)
-        } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+        } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
     };
 
 template<typename alloc>
@@ -400,7 +396,7 @@ concept has_handle_reallocate_aligned_zero_at_least_impl =
     requires(typename alloc::handle_type handle, void* p, ::std::size_t n) {
         {
             alloc::handle_reallocate_aligned_zero_at_least(handle, p, n, n)
-        } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+        } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
     };
 
 template<typename alloc>
@@ -408,7 +404,7 @@ concept has_handle_reallocate_conditional_zero_at_least_impl =
     requires(typename alloc::handle_type handle, void* p, ::std::size_t n, bool zero) {
         {
             alloc::handle_reallocate_conditional_zero_at_least(handle, p, n, zero)
-        } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+        } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
     };
 
 template<typename alloc>
@@ -416,14 +412,14 @@ concept has_handle_reallocate_aligned_conditional_zero_at_least_impl =
     requires(typename alloc::handle_type handle, void* p, ::std::size_t n, bool zero) {
         {
             alloc::handle_reallocate_aligned_conditional_zero_at_least(handle, p, n, n, zero)
-        } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+        } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
     };
 
 template<typename alloc>
 concept has_handle_reallocate_n_at_least_impl = requires(typename alloc::handle_type handle, void* p, ::std::size_t n) {
     {
         alloc::handle_reallocate_n_at_least(handle, p, n, n)
-    } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+    } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
 };
 
 template<typename alloc>
@@ -431,7 +427,7 @@ concept has_handle_reallocate_aligned_n_at_least_impl =
     requires(typename alloc::handle_type handle, void* p, ::std::size_t n) {
         {
             alloc::handle_reallocate_aligned_n_at_least(handle, p, n, n, n)
-        } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+        } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
     };
 
 template<typename alloc>
@@ -439,7 +435,7 @@ concept has_handle_reallocate_zero_n_at_least_impl =
     requires(typename alloc::handle_type handle, void* p, ::std::size_t n) {
         {
             alloc::handle_reallocate_zero_n_at_least(handle, p, n, n)
-        } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+        } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
     };
 
 template<typename alloc>
@@ -447,7 +443,7 @@ concept has_handle_reallocate_aligned_zero_n_at_least_impl =
     requires(typename alloc::handle_type handle, void* p, ::std::size_t n) {
         {
             alloc::handle_reallocate_aligned_zero_n_at_least(handle, p, n, n, n)
-        } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+        } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
     };
 
 template<typename alloc>
@@ -455,7 +451,7 @@ concept has_handle_reallocate_n_conditional_zero_at_least_impl =
     requires(typename alloc::handle_type handle, void* p, ::std::size_t n, bool zero) {
         {
             alloc::handle_reallocate_n_conditional_zero_at_least(handle, p, n, n, zero)
-        } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+        } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
     };
 
 template<typename alloc>
@@ -463,7 +459,7 @@ concept has_handle_reallocate_aligned_n_conditional_zero_at_least_impl =
     requires(typename alloc::handle_type handle, void* p, ::std::size_t n, bool zero) {
         {
             alloc::handle_reallocate_aligned_n_conditional_zero_at_least(handle, p, n, n, n, zero)
-        } -> ::std::same_as<::pltxt2htm::memory::allocation_least_result>;
+        } -> ::std::same_as<::pltxt2htm::memory::AllocationLeastResult>;
     };
 
 template<typename alloc>

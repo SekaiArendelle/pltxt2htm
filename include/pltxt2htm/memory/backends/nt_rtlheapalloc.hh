@@ -7,7 +7,7 @@
  * @details The TEB register-access machinery is dropped (project style forbids
  *          `register ... __asm__`), falling back to `RtlGetCurrentPeb()`
  *          instead. The whole result lives in `pltxt2htm::memory::details`:
- *          the backend is only composed by `native_global_allocator` and is
+ *          the backend is only composed by `NativeGlobalAllocator` and is
  *          not public API.
  */
 
@@ -127,21 +127,21 @@ inline void* nt_rtlreallocate_heap_common_impl(void* addr, ::std::size_t n, ::st
     return nt_rtlreallocate_heap_handle_common_impl(nt_get_process_heap(), addr, n, flag);
 }
 
-inline ::pltxt2htm::memory::allocation_least_result nt_rtlallocate_heap_least_common_impl(
+inline ::pltxt2htm::memory::AllocationLeastResult nt_rtlallocate_heap_least_common_impl(
     ::std::size_t n, ::std::uint_least32_t flag) noexcept {
     auto processheap{nt_get_process_heap()};
     auto ptr{nt_rtlallocate_heap_handle_common_impl(processheap, n, flag)};
     return {ptr, ::pltxt2htm::sys_nt::RtlSizeHeap(processheap, 0, ptr)};
 }
 
-inline ::pltxt2htm::memory::allocation_least_result nt_rtlreallocate_heap_least_common_impl(
+inline ::pltxt2htm::memory::AllocationLeastResult nt_rtlreallocate_heap_least_common_impl(
     void* addr, ::std::size_t n, ::std::uint_least32_t flag) noexcept {
     auto processheap{nt_get_process_heap()};
     auto ptr{nt_rtlreallocate_heap_handle_common_impl(processheap, addr, n, flag)};
     return {ptr, ::pltxt2htm::sys_nt::RtlSizeHeap(processheap, 0, ptr)};
 }
 
-class nt_rtlallocateheap_allocator {
+class NtRtlAllocateHeapAllocator {
 public:
     #if __has_cpp_attribute(__gnu__::__malloc__)
     [[__gnu__::__malloc__]]
@@ -165,19 +165,19 @@ public:
         static_cast<void>(::pltxt2htm::sys_nt::RtlFreeHeap(details::nt_get_process_heap(), 0u, addr));
     }
     #if 0
-	static inline allocation_least_result allocate_at_least(::std::size_t n) noexcept
+	static inline AllocationLeastResult allocate_at_least(::std::size_t n) noexcept
 	{
 		return details::nt_rtlallocate_heap_least_common_impl(n, 0u);
 	}
-	static inline allocation_least_result allocate_zero_at_least(::std::size_t n) noexcept
+	static inline AllocationLeastResult allocate_zero_at_least(::std::size_t n) noexcept
 	{
 		return details::nt_rtlallocate_heap_least_common_impl(n, 0x00000008u);
 	}
-	static inline allocation_least_result reallocate_at_least(void* addr, ::std::size_t n) noexcept
+	static inline AllocationLeastResult reallocate_at_least(void* addr, ::std::size_t n) noexcept
 	{
 		return details::nt_rtlreallocate_heap_least_common_impl(addr, n, 0u);
 	}
-	static inline allocation_least_result reallocate_zero_at_least(void* addr, ::std::size_t n) noexcept
+	static inline AllocationLeastResult reallocate_zero_at_least(void* addr, ::std::size_t n) noexcept
 	{
 		return details::nt_rtlreallocate_heap_least_common_impl(addr, n, 0x00000008u);
 	}

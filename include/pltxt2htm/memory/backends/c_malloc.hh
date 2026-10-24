@@ -4,7 +4,7 @@
  *        `fast_io_core_impl/allocation/c_malloc.h`. Used as the fallback backend
  *        and as the backend under AddressSanitizer.
  * @details The whole result lives in `pltxt2htm::memory::details`: the backend
- *          is only composed by `native_global_allocator` and is not public API.
+ *          is only composed by `NativeGlobalAllocator` and is not public API.
  */
 
 #pragma once
@@ -33,7 +33,7 @@ inline ::std::size_t c_malloc_usable_size_impl(void* p) noexcept {
 
 #endif // (__has_include(<malloc.h>) || __has_include(<malloc_np.h>)) && !defined(__MSDOS__) && !defined(__LLVM_LIBC__)
 
-class c_malloc_allocator {
+class CMallocAllocator {
 public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
@@ -96,18 +96,18 @@ public:
         return p;
     }
 #if (__has_include(<malloc.h>) || __has_include(<malloc_np.h>)) && !defined(__MSDOS__) && !defined(__LLVM_LIBC__)
-    static inline allocation_least_result allocate_at_least(::std::size_t n) noexcept {
-        auto p{c_malloc_allocator::allocate(n)};
+    static inline AllocationLeastResult allocate_at_least(::std::size_t n) noexcept {
+        auto p{CMallocAllocator::allocate(n)};
         return {p, details::c_malloc_usable_size_impl(p)};
     }
 
-    static inline allocation_least_result allocate_zero_at_least(::std::size_t n) noexcept {
-        auto p{c_malloc_allocator::allocate_zero(n)};
+    static inline AllocationLeastResult allocate_zero_at_least(::std::size_t n) noexcept {
+        auto p{CMallocAllocator::allocate_zero(n)};
         return {p, details::c_malloc_usable_size_impl(p)};
     }
 
-    static inline allocation_least_result reallocate_at_least(void* oldp, ::std::size_t n) noexcept {
-        auto p{c_malloc_allocator::reallocate(oldp, n)};
+    static inline AllocationLeastResult reallocate_at_least(void* oldp, ::std::size_t n) noexcept {
+        auto p{CMallocAllocator::reallocate(oldp, n)};
         return {p, details::c_malloc_usable_size_impl(p)};
     }
 #endif

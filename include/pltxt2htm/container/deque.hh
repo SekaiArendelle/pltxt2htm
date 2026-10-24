@@ -36,7 +36,7 @@ namespace pltxt2htm::container {
  * and middle erasure invalidate iterators; erasure at an end invalidates only erased elements
  * and the past-the-end iterator.
  */
-template<typename T, typename Allocator = ::pltxt2htm::memory::native_global_allocator>
+template<typename T, typename Allocator = ::pltxt2htm::memory::NativeGlobalAllocator>
 class Deque {
 public:
     using value_type = T;
@@ -49,8 +49,8 @@ public:
     using const_pointer = value_type const*;
 
 private:
-    using element_allocator = ::pltxt2htm::memory::typed_generic_allocator_adapter<allocator_type, value_type>;
-    using map_allocator = ::pltxt2htm::memory::typed_generic_allocator_adapter<allocator_type, pointer>;
+    using element_allocator = ::pltxt2htm::memory::TypedGenericAllocatorAdapter<allocator_type, value_type>;
+    using map_allocator = ::pltxt2htm::memory::TypedGenericAllocatorAdapter<allocator_type, pointer>;
 
     static_assert(!element_allocator::has_status,
                   "Deque requires a stateless fast_io allocator; stateful allocators need an external handle");

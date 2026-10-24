@@ -50,10 +50,10 @@ namespace memory {
 using ::pltxt2htm::memory::Allocator;
 using ::pltxt2htm::memory::StatefulAllocator;
 using ::pltxt2htm::memory::StatelessAllocator;
-using ::pltxt2htm::memory::allocation_least_result;
-using ::pltxt2htm::memory::generic_allocator_adapter;
-using ::pltxt2htm::memory::native_global_allocator;
-using ::pltxt2htm::memory::typed_generic_allocator_adapter;
+using ::pltxt2htm::memory::AllocationLeastResult;
+using ::pltxt2htm::memory::GenericAllocatorAdapter;
+using ::pltxt2htm::memory::NativeGlobalAllocator;
+using ::pltxt2htm::memory::TypedGenericAllocatorAdapter;
 
 } // namespace memory
 

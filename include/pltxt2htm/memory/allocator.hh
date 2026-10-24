@@ -34,19 +34,19 @@
 
 namespace pltxt2htm::memory {
 
-using native_global_allocator = generic_allocator_adapter<
+using NativeGlobalAllocator = GenericAllocatorAdapter<
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WINE__) && !defined(PLTXT2HTM_MEMORY_USE_C_MALLOC)
     ::std::conditional_t<::pltxt2htm::memory::details::asan::asan_status::current ==
                              ::pltxt2htm::memory::details::asan::asan_status::none,
     #ifdef _WIN32_WINDOWS
-                         details::win32_heapalloc_allocator
+                         details::Win32HeapAllocAllocator
     #else
-                         details::nt_rtlallocateheap_allocator
+                         details::NtRtlAllocateHeapAllocator
     #endif
                          ,
-                         details::c_malloc_allocator>
+                         details::CMallocAllocator>
 #else
-    details::c_malloc_allocator
+    details::CMallocAllocator
 #endif
     >;
 
@@ -55,11 +55,11 @@ using native_global_allocator = generic_allocator_adapter<
 namespace pltxt2htm::memory::details {
 
 template<typename T>
-using native_typed_global_allocator = typed_generic_allocator_adapter<native_global_allocator, T>;
+using NativeTypedGlobalAllocator = TypedGenericAllocatorAdapter<NativeGlobalAllocator, T>;
 
-using native_thread_local_allocator = generic_allocator_adapter<native_global_allocator>;
+using NativeThreadLocalAllocator = GenericAllocatorAdapter<NativeGlobalAllocator>;
 
 template<typename T>
-using native_typed_thread_local_allocator = typed_generic_allocator_adapter<native_thread_local_allocator, T>;
+using NativeTypedThreadLocalAllocator = TypedGenericAllocatorAdapter<NativeThreadLocalAllocator, T>;
 
 } // namespace pltxt2htm::memory::details

@@ -47,7 +47,7 @@ namespace pltxt2htm::container {
  * Growth paths finish reading the old allocation before releasing it, while
  * in-place paths use overlap-safe copying where necessary.
  */
-template<::pltxt2htm::details::is_char_type CharType, typename Allocator = ::pltxt2htm::memory::native_global_allocator>
+template<::pltxt2htm::details::is_char_type CharType, typename Allocator = ::pltxt2htm::memory::NativeGlobalAllocator>
 class BasicString {
 public:
     using allocator_type = Allocator; ///< Allocator used for owned storage.
@@ -67,10 +67,10 @@ public:
 
 private:
     using untyped_allocator_type =
-        ::pltxt2htm::memory::generic_allocator_adapter<allocator_type>; ///< Normalized fast_io allocator adapter.
+        ::pltxt2htm::memory::GenericAllocatorAdapter<allocator_type>; ///< Normalized fast_io allocator adapter.
     using typed_allocator_type =
-        ::pltxt2htm::memory::typed_generic_allocator_adapter<untyped_allocator_type,
-                                                             value_type>; ///< Character-counted allocator adapter.
+        ::pltxt2htm::memory::TypedGenericAllocatorAdapter<untyped_allocator_type,
+                                                          value_type>; ///< Character-counted allocator adapter.
 
     pointer begin_pointer; ///< First character, or the shared runtime empty character.
     pointer current_pointer; ///< Trailing null character and logical end iterator.

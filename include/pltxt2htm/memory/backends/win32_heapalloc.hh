@@ -5,7 +5,7 @@
  *        (HeapAlloc, GetProcessHeap, ...) come from the generated declarations
  *        in pltxt2htm::sys_win32.
  * @details The whole result lives in `pltxt2htm::memory::details`: the backend
- *          is only composed by `native_global_allocator` and is not public API.
+ *          is only composed by `NativeGlobalAllocator` and is not public API.
  */
 
 #pragma once
@@ -95,21 +95,21 @@ inline void* win32_heaprealloc_common_impl(void* addr, ::std::size_t n, ::std::u
     return win32_heaprealloc_handle_common_impl(win32_get_process_heap(), addr, n, flag);
 }
 
-inline ::pltxt2htm::memory::allocation_least_result win32_heapalloc_least_common_impl(
+inline ::pltxt2htm::memory::AllocationLeastResult win32_heapalloc_least_common_impl(
     ::std::size_t n, ::std::uint_least32_t flag) noexcept {
     auto processheap{win32_get_process_heap()};
     auto ptr{win32_heapalloc_handle_common_impl(processheap, n, flag)};
     return {ptr, ::pltxt2htm::sys_win32::HeapSize(processheap, 0, ptr)};
 }
 
-inline ::pltxt2htm::memory::allocation_least_result win32_heaprealloc_least_common_impl(
+inline ::pltxt2htm::memory::AllocationLeastResult win32_heaprealloc_least_common_impl(
     void* addr, ::std::size_t n, ::std::uint_least32_t flag) noexcept {
     auto processheap{win32_get_process_heap()};
     auto ptr{win32_heaprealloc_handle_common_impl(processheap, addr, n, flag)};
     return {ptr, ::pltxt2htm::sys_win32::HeapSize(processheap, 0, ptr)};
 }
 
-class win32_heapalloc_allocator {
+class Win32HeapAllocAllocator {
 public:
     #if __has_cpp_attribute(__gnu__::__malloc__)
     [[__gnu__::__malloc__]]
@@ -137,19 +137,19 @@ public:
         static_cast<void>(::pltxt2htm::sys_win32::HeapFree(details::win32_get_process_heap(), 0u, addr));
     }
     #if 0
-	static inline allocation_least_result allocate_at_least(::std::size_t n) noexcept
+	static inline AllocationLeastResult allocate_at_least(::std::size_t n) noexcept
 	{
 		return details::win32_heapalloc_least_common_impl(n, 0u);
 	}
-	static inline allocation_least_result allocate_zero_at_least(::std::size_t n) noexcept
+	static inline AllocationLeastResult allocate_zero_at_least(::std::size_t n) noexcept
 	{
 		return details::win32_heapalloc_least_common_impl(n, 0x00000008u);
 	}
-	static inline allocation_least_result reallocate_at_least(void* addr, ::std::size_t n) noexcept
+	static inline AllocationLeastResult reallocate_at_least(void* addr, ::std::size_t n) noexcept
 	{
 		return details::win32_heaprealloc_least_common_impl(addr, n, 0u);
 	}
-	static inline allocation_least_result reallocate_zero_at_least(void* addr, ::std::size_t n) noexcept
+	static inline AllocationLeastResult reallocate_zero_at_least(void* addr, ::std::size_t n) noexcept
 	{
 		return details::win32_heaprealloc_least_common_impl(addr, n, 0x00000008u);
 	}

@@ -12,7 +12,7 @@
 namespace pltxt2htm::memory::details {
 
 template<typename Pointer>
-struct basic_allocation_least_result {
+struct BasicAllocationLeastResult {
     using pointer = Pointer;
     using size_type = ::std::size_t;
     pointer ptr;
@@ -23,6 +23,6 @@ struct basic_allocation_least_result {
 
 namespace pltxt2htm::memory {
 
-using allocation_least_result = details::basic_allocation_least_result<void*>;
+using AllocationLeastResult = details::BasicAllocationLeastResult<void*>;
 
 } // namespace pltxt2htm::memory
