@@ -4,6 +4,8 @@
  *        `fast_io_core_impl/allocation/win32_heapalloc.h`; the Win32 symbols
  *        (HeapAlloc, GetProcessHeap, ...) come from the generated declarations
  *        in pltxt2htm::sys_win32.
+ * @details The whole result lives in `pltxt2htm::memory::details`: the backend
+ *          is only composed by `native_global_allocator` and is not public API.
  */
 
 #pragma once
@@ -107,10 +109,6 @@ inline ::pltxt2htm::memory::allocation_least_result win32_heaprealloc_least_comm
     return {ptr, ::pltxt2htm::sys_win32::HeapSize(processheap, 0, ptr)};
 }
 
-} // namespace pltxt2htm::memory::details
-
-namespace pltxt2htm::memory {
-
 class win32_heapalloc_allocator {
 public:
     #if __has_cpp_attribute(__gnu__::__malloc__)
@@ -136,7 +134,7 @@ public:
         if (addr == nullptr) [[unlikely]] {
             return;
         }
-        ::pltxt2htm::sys_win32::HeapFree(details::win32_get_process_heap(), 0u, addr);
+        static_cast<void>(::pltxt2htm::sys_win32::HeapFree(details::win32_get_process_heap(), 0u, addr));
     }
     #if 0
 	static inline allocation_least_result allocate_at_least(::std::size_t n) noexcept
@@ -158,6 +156,6 @@ public:
     #endif
 };
 
-} // namespace pltxt2htm::memory
+} // namespace pltxt2htm::memory::details
 
 #endif

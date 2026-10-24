@@ -3,6 +3,8 @@
  * @brief C malloc/calloc/realloc/free based allocator, synced from fast_io
  *        `fast_io_core_impl/allocation/c_malloc.h`. Used as the fallback backend
  *        and as the backend under AddressSanitizer.
+ * @details The whole result lives in `pltxt2htm::memory::details`: the backend
+ *          is only composed by `native_global_allocator` and is not public API.
  */
 
 #pragma once
@@ -17,9 +19,8 @@
 #include "../details/allocation_least_result.hh"
 #include "../../details/trap.hh"
 
-namespace pltxt2htm::memory {
+namespace pltxt2htm::memory::details {
 
-namespace details {
 #if (__has_include(<malloc.h>) || __has_include(<malloc_np.h>)) && !defined(__MSDOS__) && !defined(__LLVM_LIBC__)
 
 inline ::std::size_t c_malloc_usable_size_impl(void* p) noexcept {
@@ -30,9 +31,7 @@ inline ::std::size_t c_malloc_usable_size_impl(void* p) noexcept {
     #endif
 }
 
-#endif
-
-} // namespace details
+#endif // (__has_include(<malloc.h>) || __has_include(<malloc_np.h>)) && !defined(__MSDOS__) && !defined(__LLVM_LIBC__)
 
 class c_malloc_allocator {
 public:
@@ -197,4 +196,4 @@ public:
     }
 };
 
-} // namespace pltxt2htm::memory
+} // namespace pltxt2htm::memory::details

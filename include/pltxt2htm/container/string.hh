@@ -70,7 +70,7 @@ private:
         ::pltxt2htm::memory::generic_allocator_adapter<allocator_type>; ///< Normalized fast_io allocator adapter.
     using typed_allocator_type =
         ::pltxt2htm::memory::typed_generic_allocator_adapter<untyped_allocator_type,
-                                                   value_type>; ///< Character-counted allocator adapter.
+                                                             value_type>; ///< Character-counted allocator adapter.
 
     pointer begin_pointer; ///< First character, or the shared runtime empty character.
     pointer current_pointer; ///< Trailing null character and logical end iterator.

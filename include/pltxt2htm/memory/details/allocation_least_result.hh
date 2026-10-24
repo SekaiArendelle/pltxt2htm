@@ -9,7 +9,7 @@
 
 #include <cstddef>
 
-namespace pltxt2htm::memory {
+namespace pltxt2htm::memory::details {
 
 template<typename Pointer>
 struct basic_allocation_least_result {
@@ -19,6 +19,10 @@ struct basic_allocation_least_result {
     size_type count;
 };
 
-using allocation_least_result = basic_allocation_least_result<void*>;
+} // namespace pltxt2htm::memory::details
+
+namespace pltxt2htm::memory {
+
+using allocation_least_result = details::basic_allocation_least_result<void*>;
 
 } // namespace pltxt2htm::memory

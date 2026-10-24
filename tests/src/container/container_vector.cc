@@ -63,7 +63,8 @@ class TrackingRawAllocator {
 
 public:
     [[nodiscard]]
-    static auto allocate_at_least(::std::size_t requested_bytes) noexcept -> ::pltxt2htm::memory::allocation_least_result {
+    static auto allocate_at_least(::std::size_t requested_bytes) noexcept
+        -> ::pltxt2htm::memory::allocation_least_result {
         last_requested_bytes = requested_bytes;
         ::std::size_t const allocated_bytes{requested_bytes + additional_bytes};
         void* const pointer{::pltxt2htm::memory::native_global_allocator::allocate(allocated_bytes)};

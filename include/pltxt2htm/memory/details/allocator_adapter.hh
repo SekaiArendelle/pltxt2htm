@@ -2192,7 +2192,7 @@ public:
         constexpr
 #endif
 
-        basic_allocation_least_result<T*> allocate_at_least(::std::size_t n) noexcept
+        details::basic_allocation_least_result<T*> allocate_at_least(::std::size_t n) noexcept
         requires (!has_status)
     {
 #if __cpp_constexpr_dynamic_alloc >= 201907L
@@ -2242,7 +2242,7 @@ public:
 #if __cpp_constexpr_dynamic_alloc >= 201907L
         constexpr
 #endif
-        basic_allocation_least_result<T*> allocate_zero_at_least(::std::size_t n) noexcept
+        details::basic_allocation_least_result<T*> allocate_zero_at_least(::std::size_t n) noexcept
         requires (!has_status)
     {
 #if __cpp_constexpr_dynamic_alloc >= 201907L
@@ -2294,7 +2294,7 @@ public:
     __cpp_constexpr_dynamic_alloc >= 201907L
         constexpr
 #endif
-        basic_allocation_least_result<T*> reallocate_at_least(T* ptr, ::std::size_t n) noexcept
+        details::basic_allocation_least_result<T*> reallocate_at_least(T* ptr, ::std::size_t n) noexcept
         requires (!has_status && has_reallocate)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2340,7 +2340,7 @@ public:
     __cpp_constexpr_dynamic_alloc >= 201907L
         constexpr
 #endif
-        basic_allocation_least_result<T*> reallocate_zero_at_least(T* ptr, ::std::size_t n) noexcept
+        details::basic_allocation_least_result<T*> reallocate_zero_at_least(T* ptr, ::std::size_t n) noexcept
         requires (!has_status && has_reallocate_zero)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2385,7 +2385,8 @@ public:
     __cpp_constexpr_dynamic_alloc >= 201907L
         constexpr
 #endif
-        basic_allocation_least_result<T*> reallocate_n_at_least(T* ptr, ::std::size_t oldn, ::std::size_t n) noexcept
+        details::basic_allocation_least_result<T*> reallocate_n_at_least(T* ptr, ::std::size_t oldn,
+                                                                         ::std::size_t n) noexcept
         requires (!has_status)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2430,8 +2431,8 @@ public:
     __cpp_constexpr_dynamic_alloc >= 201907L
         constexpr
 #endif
-        basic_allocation_least_result<T*> reallocate_zero_n_at_least(T* ptr, ::std::size_t oldn,
-                                                                     ::std::size_t n) noexcept
+        details::basic_allocation_least_result<T*> reallocate_zero_n_at_least(T* ptr, ::std::size_t oldn,
+                                                                              ::std::size_t n) noexcept
         requires (!has_status)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};

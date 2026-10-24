@@ -11,7 +11,7 @@
 
 #include <cstddef>
 
-namespace pltxt2htm::memory::asan {
+namespace pltxt2htm::memory::details::asan {
 
 enum class asan_status {
     none,
@@ -29,4 +29,4 @@ enum class asan_status {
 #endif
 };
 
-} // namespace pltxt2htm::memory::asan
+} // namespace pltxt2htm::memory::details::asan

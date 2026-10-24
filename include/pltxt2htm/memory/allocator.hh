@@ -7,6 +7,10 @@
  *          the Linux-kernel allocator, MSVC debug-CRT (`_DEBUG`) allocators,
  *          and the user-customization hooks (`custom.h`) are intentionally not
  *          ported; freestanding toolchains are rejected at compile time.
+ *          Only the names referenced by the public containers (and by allocator
+ *          authors satisfying the concepts) are public here; everything else,
+ *          including the concrete backends, lives in
+ *          `pltxt2htm::memory::details`.
  */
 
 #pragma once
@@ -32,19 +36,23 @@ namespace pltxt2htm::memory {
 
 using native_global_allocator = generic_allocator_adapter<
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__WINE__) && !defined(PLTXT2HTM_MEMORY_USE_C_MALLOC)
-    ::std::conditional_t<::pltxt2htm::memory::asan::asan_status::current ==
-                             ::pltxt2htm::memory::asan::asan_status::none,
+    ::std::conditional_t<::pltxt2htm::memory::details::asan::asan_status::current ==
+                             ::pltxt2htm::memory::details::asan::asan_status::none,
     #ifdef _WIN32_WINDOWS
-                         win32_heapalloc_allocator
+                         details::win32_heapalloc_allocator
     #else
-                         nt_rtlallocateheap_allocator
+                         details::nt_rtlallocateheap_allocator
     #endif
                          ,
-                         c_malloc_allocator>
+                         details::c_malloc_allocator>
 #else
-    c_malloc_allocator
+    details::c_malloc_allocator
 #endif
     >;
+
+} // namespace pltxt2htm::memory
+
+namespace pltxt2htm::memory::details {
 
 template<typename T>
 using native_typed_global_allocator = typed_generic_allocator_adapter<native_global_allocator, T>;
@@ -54,4 +62,4 @@ using native_thread_local_allocator = generic_allocator_adapter<native_global_al
 template<typename T>
 using native_typed_thread_local_allocator = typed_generic_allocator_adapter<native_thread_local_allocator, T>;
 
-} // namespace pltxt2htm::memory
+} // namespace pltxt2htm::memory::details

@@ -51,16 +51,9 @@ using ::pltxt2htm::memory::Allocator;
 using ::pltxt2htm::memory::StatefulAllocator;
 using ::pltxt2htm::memory::StatelessAllocator;
 using ::pltxt2htm::memory::allocation_least_result;
-using ::pltxt2htm::memory::basic_allocation_least_result;
-using ::pltxt2htm::memory::c_malloc_allocator;
 using ::pltxt2htm::memory::generic_allocator_adapter;
 using ::pltxt2htm::memory::native_global_allocator;
-using ::pltxt2htm::memory::native_thread_local_allocator;
-using ::pltxt2htm::memory::native_typed_global_allocator;
-using ::pltxt2htm::memory::native_typed_thread_local_allocator;
-using ::pltxt2htm::memory::nt_rtlallocateheap_allocator;
 using ::pltxt2htm::memory::typed_generic_allocator_adapter;
-using ::pltxt2htm::memory::win32_heapalloc_allocator;
 
 } // namespace memory
 
