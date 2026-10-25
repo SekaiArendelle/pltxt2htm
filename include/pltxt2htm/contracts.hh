@@ -1,8 +1,8 @@
 /**
  * @file contracts.hh
  * @brief Compile-time contract checking configuration.
- * @details Defines the build-wide `contract_mode` constant selected by the
- *          `PLTXT2HTM_CONTRACTS` macro.
+ * @details Defines the `Contracts` enum and the build-wide `contract_mode`
+ *          constant selected by the `PLTXT2HTM_CONTRACTS` macro.
  */
 #pragma once
 
@@ -15,13 +15,23 @@
 namespace pltxt2htm {
 
 /**
- * @brief Contract checking mode for the current build.
- * @details `0` turns contract violations into panics; `1` replaces the checks
+ * @brief Contract checking mode.
+ * @details `enforce` turns violations into panics; `ignore` replaces the checks
  *          with optimizer assumptions, so a violation is undefined behavior.
- *          It is a public constant so callers and the C++ module can inspect it.
+ */
+enum class Contracts : unsigned {
+    enforce = 0, ///< Enforce runtime checks and panic on violation.
+    ignore, ///< Replace checks with optimizer assumptions.
+};
+
+/**
+ * @brief Contract checking mode for the current build.
+ * @details `PLTXT2HTM_CONTRACTS` is mapped to this constant: `0` selects
+ *          `Contracts::enforce`, `1` selects `Contracts::ignore`. It is a
+ *          public constant so callers and the C++ module can inspect it.
  * @note The value is build-wide: every translation unit of a program must be
  *       compiled with the same `PLTXT2HTM_CONTRACTS` value.
  */
-inline constexpr auto contract_mode = PLTXT2HTM_CONTRACTS;
+inline constexpr Contracts contract_mode{PLTXT2HTM_CONTRACTS == 0 ? Contracts::enforce : Contracts::ignore};
 
 } // namespace pltxt2htm

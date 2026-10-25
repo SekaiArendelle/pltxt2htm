@@ -86,7 +86,6 @@ constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t cons
  * @details Converts Physics-Lab text to basic HTML with limited formatting support.
  *          This is the C wrapper around pltxt2htm::pltxt2common_html.
  * Contract mode follows PLTXT2HTM_CONTRACTS.
- * `ignore mode` to skip them.
  * @param[in] text The Physics-Lab text to convert (null-terminated UTF-8 string)
  * @return Heap-allocated UTF-8 string containing the HTML output
  * @retval char8_t const* Pointer to heap-allocated UTF-8 string containing HTML
@@ -109,7 +108,6 @@ constexpr char8_t const* common_parser(char8_t const* const text) noexcept {
  * @details Converts Physics-Lab text into the PLUnity introduction HTML format.
  *          This is the C wrapper around pltxt2htm::pltxt2plunity_introduction.
  * Contract mode follows PLTXT2HTM_CONTRACTS.
- * `ignore mode` to skip them.
  * @param[in] text The Physics-Lab text to convert (null-terminated UTF-8 string)
  * @param[in] project Project identifier for Physics-Lab context
  * @param[in] visitor Visitor identifier for Physics-Lab context

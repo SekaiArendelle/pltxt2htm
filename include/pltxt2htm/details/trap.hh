@@ -34,7 +34,7 @@ inline void trap() noexcept {
  */
 [[noreturn]]
 inline void unreachable() noexcept {
-    if constexpr (::pltxt2htm::contract_mode == 1) {
+    if constexpr (::pltxt2htm::contract_mode == ::pltxt2htm::Contracts::ignore) {
 #if defined(__has_builtin)
     #if __has_builtin(__builtin_unreachable)
         __builtin_unreachable();

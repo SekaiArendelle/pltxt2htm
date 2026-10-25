@@ -116,9 +116,9 @@ entry:
                 auto const& color_value = active_node.get_color();
                 // Under normal circumstances, `color_value` should never contain characters that could enable XSS in
                 // HTML attributes. To avoid masking upstream bugs (and to keep release-path performance), we only
-                // assert this in debug mode. Do not try to hide such errors by routing output through
+                // assert this in enforce mode. Do not try to hide such errors by routing output through
                 // `append_html_escaped_attribute_value`.
-                if constexpr (::pltxt2htm::contract_mode == 0) {
+                if constexpr (::pltxt2htm::contract_mode == ::pltxt2htm::Contracts::enforce) {
                     ::pltxt2htm::container::U8String purified_color_value{};
                     ::pltxt2htm::details::append_html_escaped_attribute_value(
                         purified_color_value, ::pltxt2htm::container::U8StringView{color_value});
@@ -457,7 +457,7 @@ entry:
                 result.append(u8"<span style=\"");
                 if (has_color) {
                     result.append(u8"color:");
-                    if constexpr (::pltxt2htm::contract_mode == 0) {
+                    if constexpr (::pltxt2htm::contract_mode == ::pltxt2htm::Contracts::enforce) {
                         ::pltxt2htm::container::U8String purified_color{};
                         ::pltxt2htm::details::append_html_escaped_attribute_value(
                             purified_color, ::pltxt2htm::container::U8StringView{span_color});
@@ -577,7 +577,7 @@ entry:
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::html_mark));
                 auto const& mark_background_color = active_node.get_background_color();
                 result.append(u8"<mark style=\"background-color:");
-                if constexpr (::pltxt2htm::contract_mode == 0) {
+                if constexpr (::pltxt2htm::contract_mode == ::pltxt2htm::Contracts::enforce) {
                     ::pltxt2htm::container::U8String purified_color{};
                     ::pltxt2htm::details::append_html_escaped_attribute_value(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
@@ -595,7 +595,7 @@ entry:
                     BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_mark));
                 auto const& mark_background_color = active_node.get_background_color();
                 result.append(u8"<mark style=\"background-color:");
-                if constexpr (::pltxt2htm::contract_mode == 0) {
+                if constexpr (::pltxt2htm::contract_mode == ::pltxt2htm::Contracts::enforce) {
                     ::pltxt2htm::container::U8String purified_color{};
                     ::pltxt2htm::details::append_html_escaped_attribute_value(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});

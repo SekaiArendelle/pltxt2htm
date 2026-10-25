@@ -105,7 +105,6 @@ constexpr auto pltxt2plunity_introduction(::pltxt2htm::container::U8StringView p
  *          - Header rendering where complex formatting isn't needed
  *          - Performance-critical applications that don't need full features
  * Contract mode follows PLTXT2HTM_CONTRACTS.
- * `ignore mode` to skip them.
  * @tparam optimize Whether to optimize the AST before HTML generation (default: false)
  * @param[in] pltext The Physics-Lab text content to convert
  * @return Generated HTML string with basic formatting support
