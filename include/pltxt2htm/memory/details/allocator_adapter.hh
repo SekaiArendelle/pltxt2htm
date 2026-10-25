@@ -41,7 +41,7 @@ template<typename alloc>
 concept has_default_alignment_impl = requires(::std::size_t n) { alloc::default_alignment; };
 
 template<typename alloc>
-constexpr ::std::size_t calculate_default_alignment() noexcept {
+constexpr auto calculate_default_alignment() noexcept -> ::std::size_t {
     if constexpr (has_default_alignment_impl<alloc>) {
         return alloc::default_alignment;
     }
@@ -50,7 +50,7 @@ constexpr ::std::size_t calculate_default_alignment() noexcept {
     }
 }
 
-constexpr ::std::size_t allocator_compute_aligned_total_size_impl(::std::size_t alignment, ::std::size_t n) noexcept {
+constexpr auto allocator_compute_aligned_total_size_impl(::std::size_t alignment, ::std::size_t n) noexcept -> ::std::size_t {
     constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max()}, sizeofptr{sizeof(void*)},
         mxmptr{mxn - sizeofptr};
     if (alignment < sizeofptr) {
@@ -67,27 +67,27 @@ constexpr ::std::size_t allocator_compute_aligned_total_size_impl(::std::size_t 
     return n + total_extra_space;
 }
 
-inline void* allocator_adjust_ptr_to_aligned_impl(void* p, ::std::size_t alignment) noexcept {
+inline auto allocator_adjust_ptr_to_aligned_impl(void* p, ::std::size_t alignment) noexcept -> void* {
     void* aligned_ptr{reinterpret_cast<void*>((reinterpret_cast<::std::uintptr_t>(p) + alignment) & (0 - alignment))};
     reinterpret_cast<void**>(aligned_ptr)[-1] = p;
     return aligned_ptr;
 }
 
 template<typename>
-constexpr void* allocator_pointer_aligned_impl(::std::size_t, ::std::size_t, bool) noexcept;
+constexpr auto allocator_pointer_aligned_impl(::std::size_t, ::std::size_t, bool) noexcept -> void*;
 
 template<typename>
-constexpr ::pltxt2htm::memory::AllocationLeastResult allocator_pointer_aligned_at_least_impl(::std::size_t,
-                                                                                             ::std::size_t,
-                                                                                             bool) noexcept;
+constexpr auto allocator_pointer_aligned_at_least_impl(::std::size_t,
+                                                        ::std::size_t, bool) noexcept
+    -> ::pltxt2htm::memory::AllocationLeastResult;
 
 template<typename alloc>
-constexpr void* status_allocator_pointer_aligned_impl(typename alloc::handle_type, ::std::size_t, ::std::size_t,
-                                                      bool) noexcept;
+constexpr auto status_allocator_pointer_aligned_impl(typename alloc::handle_type, ::std::size_t, ::std::size_t,
+                                                      bool) noexcept -> void*;
 
 template<typename alloc>
-constexpr ::pltxt2htm::memory::AllocationLeastResult status_allocator_pointer_aligned_at_least_impl(
-    typename alloc::handle_type, ::std::size_t, ::std::size_t, bool) noexcept;
+constexpr auto status_allocator_pointer_aligned_at_least_impl(
+    typename alloc::handle_type, ::std::size_t, ::std::size_t, bool) noexcept -> ::pltxt2htm::memory::AllocationLeastResult;
 } // namespace details
 
 // Upstream `allocator_adapter_flags.h` (compile-time adapter feature flags) was not ported.
@@ -128,7 +128,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* allocate_conditional_zero(::std::size_t n, bool zero) noexcept
+    static inline auto allocate_conditional_zero(::std::size_t n, bool zero) noexcept -> void*
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -253,7 +253,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static constexpr void* allocate(::std::size_t n) noexcept
+    static constexpr auto allocate(::std::size_t n) noexcept -> void*
         requires (!has_status)
     {
 #if __cpp_constexpr_dynamic_alloc >= 201907L
@@ -280,7 +280,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* allocate_zero(::std::size_t n) noexcept
+    static inline auto allocate_zero(::std::size_t n) noexcept -> void*
         requires (!has_status)
     {
 #if __cpp_constexpr_dynamic_alloc >= 201907L
@@ -321,7 +321,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate_conditional_zero(void* p, ::std::size_t n, bool zero) noexcept
+    static inline auto reallocate_conditional_zero(void* p, ::std::size_t n, bool zero) noexcept -> void*
         requires (!has_status && has_reallocate)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_conditional_zero_impl<alloc>) {
@@ -398,7 +398,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate(void* p, ::std::size_t n) noexcept
+    static inline auto reallocate(void* p, ::std::size_t n) noexcept -> void*
         requires (!has_status && has_reallocate)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_impl<alloc>) {
@@ -421,7 +421,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate_zero(void* p, ::std::size_t n) noexcept
+    static inline auto reallocate_zero(void* p, ::std::size_t n) noexcept -> void*
         requires (!has_status && has_reallocate_zero)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_zero_impl<alloc>) {
@@ -438,7 +438,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate_n_conditional_zero(void* p, ::std::size_t oldn, ::std::size_t n, bool zero) noexcept
+    static inline auto reallocate_n_conditional_zero(void* p, ::std::size_t oldn, ::std::size_t n, bool zero) noexcept -> void*
         requires (!has_status)
     {
         if (p != nullptr && oldn == n) {
@@ -548,7 +548,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate_n(void* p, ::std::size_t oldn, ::std::size_t n) noexcept
+    static inline auto reallocate_n(void* p, ::std::size_t oldn, ::std::size_t n) noexcept -> void*
         requires (!has_status)
     {
         if (p != nullptr && oldn == n) {
@@ -568,7 +568,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate_zero_n(void* p, ::std::size_t oldn, ::std::size_t n) noexcept
+    static inline auto reallocate_zero_n(void* p, ::std::size_t oldn, ::std::size_t n) noexcept -> void*
         requires (!has_status)
     {
         if (p != nullptr && oldn == n) {
@@ -646,8 +646,8 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static constexpr void* allocate_aligned_conditional_zero(::std::size_t alignment, ::std::size_t n,
-                                                             bool zero) noexcept
+    static constexpr auto allocate_aligned_conditional_zero(::std::size_t alignment, ::std::size_t n,
+                                                             bool zero) noexcept -> void*
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -733,7 +733,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static constexpr void* allocate_aligned(::std::size_t alignment, ::std::size_t n) noexcept
+    static constexpr auto allocate_aligned(::std::size_t alignment, ::std::size_t n) noexcept -> void*
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -763,7 +763,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static constexpr void* allocate_aligned_zero(::std::size_t alignment, ::std::size_t n) noexcept
+    static constexpr auto allocate_aligned_zero(::std::size_t alignment, ::std::size_t n) noexcept -> void*
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -796,7 +796,7 @@ public:
                         ::pltxt2htm::memory::details::has_allocate_zero_at_least_impl<alloc> ||
                         ::pltxt2htm::memory::details::has_allocate_aligned_zero_at_least_impl<alloc>)};
 
-    static constexpr AllocationLeastResult allocate_at_least(::std::size_t n) noexcept
+    static constexpr auto allocate_at_least(::std::size_t n) noexcept -> AllocationLeastResult
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -826,7 +826,7 @@ public:
         }
     }
 
-    static constexpr AllocationLeastResult allocate_zero_at_least(::std::size_t n) noexcept
+    static constexpr auto allocate_zero_at_least(::std::size_t n) noexcept -> AllocationLeastResult
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -856,7 +856,7 @@ public:
         }
     }
 
-    static constexpr AllocationLeastResult allocate_conditional_zero_at_least(::std::size_t n, bool zero) noexcept
+    static constexpr auto allocate_conditional_zero_at_least(::std::size_t n, bool zero) noexcept -> AllocationLeastResult
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -974,7 +974,7 @@ public:
         }
     }
 
-    static constexpr AllocationLeastResult allocate_aligned_at_least(::std::size_t alignment, ::std::size_t n) noexcept
+    static constexpr auto allocate_aligned_at_least(::std::size_t alignment, ::std::size_t n) noexcept -> AllocationLeastResult
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -997,8 +997,8 @@ public:
         }
     }
 
-    static constexpr AllocationLeastResult allocate_aligned_zero_at_least(::std::size_t alignment,
-                                                                          ::std::size_t n) noexcept
+    static constexpr auto allocate_aligned_zero_at_least(::std::size_t alignment,
+                                                                          ::std::size_t n) noexcept -> AllocationLeastResult
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -1021,9 +1021,9 @@ public:
         }
     }
 
-    static constexpr AllocationLeastResult allocate_aligned_conditional_zero_at_least(::std::size_t alignment,
+    static constexpr auto allocate_aligned_conditional_zero_at_least(::std::size_t alignment,
                                                                                       ::std::size_t n,
-                                                                                      bool zero) noexcept
+                                                                                      bool zero) noexcept -> AllocationLeastResult
         requires (!has_status)
     {
 #if __cpp_if_consteval >= 202106L
@@ -1111,8 +1111,8 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate_aligned_conditional_zero(void* p, ::std::size_t alignment, ::std::size_t n,
-                                                            bool zero) noexcept
+    static inline auto reallocate_aligned_conditional_zero(void* p, ::std::size_t alignment, ::std::size_t n,
+                                                            bool zero) noexcept -> void*
         requires (!has_status && has_reallocate_aligned)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_conditional_zero_impl<alloc>) {
@@ -1154,7 +1154,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate_aligned(void* p, ::std::size_t alignment, ::std::size_t n) noexcept
+    static inline auto reallocate_aligned(void* p, ::std::size_t alignment, ::std::size_t n) noexcept -> void*
         requires (!has_status && has_reallocate_aligned)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_impl<alloc>) {
@@ -1174,7 +1174,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate_aligned_zero(void* p, ::std::size_t alignment, ::std::size_t n) noexcept
+    static inline auto reallocate_aligned_zero(void* p, ::std::size_t alignment, ::std::size_t n) noexcept -> void*
         requires (!has_status && has_reallocate_aligned_zero)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_impl<alloc>) {
@@ -1191,8 +1191,8 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate_aligned_n_conditional_zero(void* p, ::std::size_t oldn, ::std::size_t alignment,
-                                                              ::std::size_t n, bool zero) noexcept
+    static inline auto reallocate_aligned_n_conditional_zero(void* p, ::std::size_t oldn, ::std::size_t alignment,
+                                                              ::std::size_t n, bool zero) noexcept -> void*
         requires (!has_status)
     {
         if (p != nullptr && oldn == n) {
@@ -1298,8 +1298,8 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate_aligned_n(void* p, ::std::size_t oldn, ::std::size_t alignment,
-                                             ::std::size_t n) noexcept
+    static inline auto reallocate_aligned_n(void* p, ::std::size_t oldn, ::std::size_t alignment,
+                                             ::std::size_t n) noexcept -> void*
         requires (!has_status)
     {
         if (p != nullptr && oldn == n) {
@@ -1319,8 +1319,8 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate_aligned_zero_n(void* p, ::std::size_t oldn, ::std::size_t alignment,
-                                                  ::std::size_t n) noexcept
+    static inline auto reallocate_aligned_zero_n(void* p, ::std::size_t oldn, ::std::size_t alignment,
+                                                  ::std::size_t n) noexcept -> void*
         requires (!has_status)
     {
         if (p != nullptr && oldn == n) {
@@ -1347,7 +1347,7 @@ public:
         (has_reallocate && (::pltxt2htm::memory::details::has_reallocate_aligned_at_least_impl<alloc> ||
                             ::pltxt2htm::memory::details::has_reallocate_aligned_zero_at_least_impl<alloc>));
 
-    static inline ::pltxt2htm::memory::AllocationLeastResult reallocate_at_least(void* p, ::std::size_t n) noexcept
+    static inline auto reallocate_at_least(void* p, ::std::size_t n) noexcept -> ::pltxt2htm::memory::AllocationLeastResult
         requires (!has_status && has_reallocate)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_at_least_impl<alloc>) {
@@ -1380,7 +1380,7 @@ public:
         (has_reallocate_zero && (::pltxt2htm::memory::details::has_reallocate_zero_at_least_impl<alloc> ||
                                  ::pltxt2htm::memory::details::has_reallocate_aligned_zero_at_least_impl<alloc>));
 
-    static inline ::pltxt2htm::memory::AllocationLeastResult reallocate_zero_at_least(void* p, ::std::size_t n) noexcept
+    static inline auto reallocate_zero_at_least(void* p, ::std::size_t n) noexcept -> ::pltxt2htm::memory::AllocationLeastResult
         requires (!has_status && has_reallocate)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_zero_at_least_impl<alloc>) {
@@ -1404,8 +1404,8 @@ public:
         }
     }
 
-    static inline ::pltxt2htm::memory::AllocationLeastResult reallocate_n_at_least(void* p, ::std::size_t oldn,
-                                                                                   ::std::size_t n) noexcept
+    static inline auto reallocate_n_at_least(void* p, ::std::size_t oldn,
+                                                                                   ::std::size_t n) noexcept -> ::pltxt2htm::memory::AllocationLeastResult
         requires (!has_status)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_n_at_least_impl<alloc>) {
@@ -1473,8 +1473,8 @@ public:
         }
     }
 
-    static inline ::pltxt2htm::memory::AllocationLeastResult reallocate_zero_n_at_least(void* p, ::std::size_t oldn,
-                                                                                        ::std::size_t n) noexcept
+    static inline auto reallocate_zero_n_at_least(void* p, ::std::size_t oldn,
+                                                                                        ::std::size_t n) noexcept -> ::pltxt2htm::memory::AllocationLeastResult
         requires (!has_status)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_zero_n_at_least_impl<alloc>) {
@@ -1506,9 +1506,9 @@ public:
         (has_reallocate_aligned && (::pltxt2htm::memory::details::has_reallocate_aligned_zero_at_least_impl<alloc> ||
                                     ::pltxt2htm::memory::details::has_reallocate_aligned_at_least_impl<alloc>));
 
-    static inline ::pltxt2htm::memory::AllocationLeastResult reallocate_aligned_at_least(void* p,
+    static inline auto reallocate_aligned_at_least(void* p,
                                                                                          ::std::size_t alignment,
-                                                                                         ::std::size_t n) noexcept
+                                                                                         ::std::size_t n) noexcept -> ::pltxt2htm::memory::AllocationLeastResult
         requires (!has_status && has_reallocate_aligned_zero)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_at_least_impl<alloc>) {
@@ -1528,9 +1528,9 @@ public:
     static inline constexpr bool has_native_reallocate_aligned_zero_at_least =
         (has_reallocate_aligned_zero && ::pltxt2htm::memory::details::has_reallocate_aligned_zero_at_least_impl<alloc>);
 
-    static inline ::pltxt2htm::memory::AllocationLeastResult reallocate_aligned_zero_at_least(void* p,
+    static inline auto reallocate_aligned_zero_at_least(void* p,
                                                                                               ::std::size_t alignment,
-                                                                                              ::std::size_t n) noexcept
+                                                                                              ::std::size_t n) noexcept -> ::pltxt2htm::memory::AllocationLeastResult
         requires (!has_status && has_reallocate_aligned_zero)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_at_least_impl<alloc>) {
@@ -1545,9 +1545,9 @@ public:
         (has_reallocate_aligned && (::pltxt2htm::memory::details::has_reallocate_aligned_n_at_least_impl<alloc> ||
                                     ::pltxt2htm::memory::details::has_reallocate_aligned_zero_n_at_least_impl<alloc>));
 
-    static inline ::pltxt2htm::memory::AllocationLeastResult reallocate_aligned_n_at_least(void* p, ::std::size_t oldn,
+    static inline auto reallocate_aligned_n_at_least(void* p, ::std::size_t oldn,
                                                                                            ::std::size_t alignment,
-                                                                                           ::std::size_t n) noexcept
+                                                                                           ::std::size_t n) noexcept -> ::pltxt2htm::memory::AllocationLeastResult
         requires (!has_status)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_n_at_least_impl<alloc>) {
@@ -1603,8 +1603,8 @@ public:
     static inline constexpr bool has_native_reallocate_aligned_zero_n_at_least =
         (has_reallocate_aligned_zero && ::pltxt2htm::memory::details::has_reallocate_aligned_zero_at_least_impl<alloc>);
 
-    static inline ::pltxt2htm::memory::AllocationLeastResult reallocate_aligned_zero_n_at_least(
-        void* p, ::std::size_t oldn, ::std::size_t alignment, ::std::size_t n) noexcept
+    static inline auto reallocate_aligned_zero_n_at_least(
+        void* p, ::std::size_t oldn, ::std::size_t alignment, ::std::size_t n) noexcept -> ::pltxt2htm::memory::AllocationLeastResult
         requires (!has_status)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_n_at_least_impl<alloc>) {
@@ -1694,7 +1694,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* handle_allocate_conditional_zero(handle_type handle, ::std::size_t n, bool zero) noexcept
+    static inline auto handle_allocate_conditional_zero(handle_type handle, ::std::size_t n, bool zero) noexcept -> void*
         requires (has_status && has_native_handle_allocate)
     {
 #if __cpp_if_consteval >= 202106L
@@ -1791,7 +1791,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* handle_allocate(handle_type handle, ::std::size_t n) noexcept
+    static inline auto handle_allocate(handle_type handle, ::std::size_t n) noexcept -> void*
         requires (has_status && has_native_handle_allocate)
     {
 #if __cpp_if_consteval >= 202106L
@@ -1820,7 +1820,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* handle_allocate_zero(handle_type handle, ::std::size_t n) noexcept
+    static inline auto handle_allocate_zero(handle_type handle, ::std::size_t n) noexcept -> void*
         requires (has_status && has_native_handle_allocate)
     {
         if constexpr (::pltxt2htm::memory::details::has_handle_allocate_zero_impl<alloc>) {
@@ -1852,8 +1852,8 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* handle_reallocate_conditional_zero(handle_type handle, void* p, ::std::size_t n,
-                                                           bool zero) noexcept
+    static inline auto handle_reallocate_conditional_zero(handle_type handle, void* p, ::std::size_t n,
+                                                           bool zero) noexcept -> void*
         requires (has_status && has_handle_reallocate)
     {
         if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_conditional_zero_impl<alloc>) {
@@ -1930,7 +1930,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* handle_reallocate(handle_type handle, void* p, ::std::size_t n) noexcept
+    static inline auto handle_reallocate(handle_type handle, void* p, ::std::size_t n) noexcept -> void*
         requires (has_status && has_handle_reallocate)
     {
         if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_impl<alloc>) {
@@ -1947,7 +1947,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* handle_reallocate_zero(handle_type handle, void* p, ::std::size_t n) noexcept
+    static inline auto handle_reallocate_zero(handle_type handle, void* p, ::std::size_t n) noexcept -> void*
         requires (has_status && has_handle_reallocate)
     {
         if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_impl<alloc>) {
@@ -1979,8 +1979,8 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* handle_reallocate_n_conditional_zero(handle_type handle, void* p, ::std::size_t oldn,
-                                                             ::std::size_t n, bool zero) noexcept
+    static inline auto handle_reallocate_n_conditional_zero(handle_type handle, void* p, ::std::size_t oldn,
+                                                             ::std::size_t n, bool zero) noexcept -> void*
         requires (has_status && has_handle_reallocate_n)
     {
         if (p != nullptr && oldn == n) {
@@ -2085,7 +2085,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* handle_reallocate_n(handle_type handle, void* p, ::std::size_t oldn, ::std::size_t n) noexcept
+    static inline auto handle_reallocate_n(handle_type handle, void* p, ::std::size_t oldn, ::std::size_t n) noexcept -> void*
         requires (has_status && has_handle_reallocate_n)
     {
         if (p != nullptr && oldn == n) {
@@ -2105,8 +2105,8 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* handle_reallocate_zero_n(handle_type handle, void* p, ::std::size_t oldn,
-                                                 ::std::size_t n) noexcept
+    static inline auto handle_reallocate_zero_n(handle_type handle, void* p, ::std::size_t oldn,
+                                                 ::std::size_t n) noexcept -> void*
         requires (has_status && has_handle_reallocate_n)
     {
         if (p != nullptr && oldn == n) {
@@ -2177,7 +2177,7 @@ public:
 #if __cpp_constexpr_dynamic_alloc >= 201907L
     constexpr
 #endif
-    T* allocate(::std::size_t n) noexcept
+    auto allocate(::std::size_t n) noexcept -> T*
         requires (!has_status)
     {
 #if __cpp_constexpr_dynamic_alloc >= 201907L
@@ -2203,7 +2203,7 @@ public:
         constexpr
 #endif
 
-        details::BasicAllocationLeastResult<T*> allocate_at_least(::std::size_t n) noexcept
+        auto allocate_at_least(::std::size_t n) noexcept -> details::BasicAllocationLeastResult<T*>
         requires (!has_status)
     {
 #if __cpp_constexpr_dynamic_alloc >= 201907L
@@ -2234,7 +2234,7 @@ public:
     constexpr
 #endif
 
-    T* allocate_zero(::std::size_t n) noexcept
+    auto allocate_zero(::std::size_t n) noexcept -> T*
         requires (!has_status)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2253,7 +2253,7 @@ public:
 #if __cpp_constexpr_dynamic_alloc >= 201907L
         constexpr
 #endif
-        details::BasicAllocationLeastResult<T*> allocate_zero_at_least(::std::size_t n) noexcept
+        auto allocate_zero_at_least(::std::size_t n) noexcept -> details::BasicAllocationLeastResult<T*>
         requires (!has_status)
     {
 #if __cpp_constexpr_dynamic_alloc >= 201907L
@@ -2285,7 +2285,7 @@ public:
     __cpp_constexpr_dynamic_alloc >= 201907L
     constexpr
 #endif
-    T* reallocate(T* ptr, ::std::size_t n) noexcept
+    auto reallocate(T* ptr, ::std::size_t n) noexcept -> T*
         requires (!has_status && has_reallocate)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2305,7 +2305,7 @@ public:
     __cpp_constexpr_dynamic_alloc >= 201907L
         constexpr
 #endif
-        details::BasicAllocationLeastResult<T*> reallocate_at_least(T* ptr, ::std::size_t n) noexcept
+        auto reallocate_at_least(T* ptr, ::std::size_t n) noexcept -> details::BasicAllocationLeastResult<T*>
         requires (!has_status && has_reallocate)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2331,7 +2331,7 @@ public:
     __cpp_constexpr_dynamic_alloc >= 201907L
     constexpr
 #endif
-    T* reallocate_zero(T* ptr, ::std::size_t n) noexcept
+    auto reallocate_zero(T* ptr, ::std::size_t n) noexcept -> T*
         requires (!has_status && has_reallocate_zero)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2351,7 +2351,7 @@ public:
     __cpp_constexpr_dynamic_alloc >= 201907L
         constexpr
 #endif
-        details::BasicAllocationLeastResult<T*> reallocate_zero_at_least(T* ptr, ::std::size_t n) noexcept
+        auto reallocate_zero_at_least(T* ptr, ::std::size_t n) noexcept -> details::BasicAllocationLeastResult<T*>
         requires (!has_status && has_reallocate_zero)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2376,7 +2376,7 @@ public:
     __cpp_constexpr_dynamic_alloc >= 201907L
     constexpr
 #endif
-    T* reallocate_n(T* ptr, ::std::size_t oldn, ::std::size_t n) noexcept
+    auto reallocate_n(T* ptr, ::std::size_t oldn, ::std::size_t n) noexcept -> T*
         requires (!has_status)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2396,8 +2396,8 @@ public:
     __cpp_constexpr_dynamic_alloc >= 201907L
         constexpr
 #endif
-        details::BasicAllocationLeastResult<T*> reallocate_n_at_least(T* ptr, ::std::size_t oldn,
-                                                                      ::std::size_t n) noexcept
+        auto reallocate_n_at_least(T* ptr, ::std::size_t oldn,
+                                                                      ::std::size_t n) noexcept -> details::BasicAllocationLeastResult<T*>
         requires (!has_status)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2422,7 +2422,7 @@ public:
     __cpp_constexpr_dynamic_alloc >= 201907L
     constexpr
 #endif
-    T* reallocate_zero_n(T* ptr, ::std::size_t oldn, ::std::size_t n) noexcept
+    auto reallocate_zero_n(T* ptr, ::std::size_t oldn, ::std::size_t n) noexcept -> T*
         requires (!has_status)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2442,8 +2442,8 @@ public:
     __cpp_constexpr_dynamic_alloc >= 201907L
         constexpr
 #endif
-        details::BasicAllocationLeastResult<T*> reallocate_zero_n_at_least(T* ptr, ::std::size_t oldn,
-                                                                           ::std::size_t n) noexcept
+        auto reallocate_zero_n_at_least(T* ptr, ::std::size_t oldn,
+                                                                           ::std::size_t n) noexcept -> details::BasicAllocationLeastResult<T*>
         requires (!has_status)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
@@ -2736,7 +2736,7 @@ public:
 namespace details {
 
 template<typename alloc>
-constexpr void* allocator_pointer_aligned_impl(::std::size_t alignment, ::std::size_t n, bool zero) noexcept {
+constexpr auto allocator_pointer_aligned_impl(::std::size_t alignment, ::std::size_t n, bool zero) noexcept -> void* {
     static_assert(::pltxt2htm::memory::GenericAllocatorAdapter<alloc>::has_native_allocate);
 
     constexpr ::std::size_t defaultalignment{::pltxt2htm::memory::details::calculate_default_alignment<alloc>()};
@@ -2752,9 +2752,9 @@ constexpr void* allocator_pointer_aligned_impl(::std::size_t alignment, ::std::s
 }
 
 template<typename alloc>
-constexpr ::pltxt2htm::memory::AllocationLeastResult allocator_pointer_aligned_at_least_impl(::std::size_t alignment,
+constexpr auto allocator_pointer_aligned_at_least_impl(::std::size_t alignment,
                                                                                              ::std::size_t n,
-                                                                                             bool zero) noexcept {
+                                                                                             bool zero) noexcept -> ::pltxt2htm::memory::AllocationLeastResult {
     static_assert(::pltxt2htm::memory::GenericAllocatorAdapter<alloc>::has_native_allocate);
 
     constexpr ::std::size_t defaultalignment{::pltxt2htm::memory::details::calculate_default_alignment<alloc>()};
@@ -2803,7 +2803,9 @@ constexpr void *status_allocator_pointer_aligned_impl(typename alloc::handle_typ
 }
 
 template <typename alloc, bool zero>
-constexpr ::pltxt2htm::memory::AllocationLeastResult status_allocator_pointer_aligned_impl(typename alloc::handle_type handle, ::std::size_t alignment, ::std::size_t n) noexcept
+constexpr auto status_allocator_pointer_aligned_impl(typename alloc::handle_type handle, ::std::size_t alignment,
+                                                     ::std::size_t n) noexcept
+    -> ::pltxt2htm::memory::AllocationLeastResult
 {
 	static_assert(::pltxt2htm::memory::GenericAllocatorAdapter<alloc>::has_native_handle_allocate);
 

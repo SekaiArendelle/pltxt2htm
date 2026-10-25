@@ -23,8 +23,8 @@ namespace pltxt2htm::memory::details {
     #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
 [[__gnu__::__returns_nonnull__]]
     #endif
-inline void* win32_heapalloc_handle_common_impl(void* heaphandle, ::std::size_t n,
-                                                ::std::uint_least32_t flag) noexcept {
+inline auto win32_heapalloc_handle_common_impl(void* heaphandle, ::std::size_t n,
+                                                ::std::uint_least32_t flag) noexcept -> void* {
     if (n == 0) {
         n = 1;
     }
@@ -38,8 +38,8 @@ inline void* win32_heapalloc_handle_common_impl(void* heaphandle, ::std::size_t 
     #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
 [[__gnu__::__returns_nonnull__]]
     #endif
-inline void* win32_heaprealloc_handle_common_impl(void* heaphandle, void* addr, ::std::size_t n,
-                                                  ::std::uint_least32_t flag) noexcept {
+inline auto win32_heaprealloc_handle_common_impl(void* heaphandle, void* addr, ::std::size_t n,
+                                                  ::std::uint_least32_t flag) noexcept -> void* {
     if (n == 0) {
         n = 1;
     }
@@ -65,7 +65,7 @@ inline void* win32_heaprealloc_handle_common_impl(void* heaphandle, void* addr, 
 [[__gnu__::__const__]]
     #endif
 [[nodiscard]]
-inline void* win32_get_process_heap() noexcept {
+inline auto win32_get_process_heap() noexcept -> void* {
     constexpr bool intrinsicssupported{
     #if (defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER)) && \
         (defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_AMD64) || defined(__aarch64__) || \
@@ -84,26 +84,26 @@ inline void* win32_get_process_heap() noexcept {
     #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
 [[__gnu__::__returns_nonnull__]]
     #endif
-inline void* win32_heapalloc_common_impl(::std::size_t n, ::std::uint_least32_t flag) noexcept {
+inline auto win32_heapalloc_common_impl(::std::size_t n, ::std::uint_least32_t flag) noexcept -> void* {
     return win32_heapalloc_handle_common_impl(win32_get_process_heap(), n, flag);
 }
 
     #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
 [[__gnu__::__returns_nonnull__]]
     #endif
-inline void* win32_heaprealloc_common_impl(void* addr, ::std::size_t n, ::std::uint_least32_t flag) noexcept {
+inline auto win32_heaprealloc_common_impl(void* addr, ::std::size_t n, ::std::uint_least32_t flag) noexcept -> void* {
     return win32_heaprealloc_handle_common_impl(win32_get_process_heap(), addr, n, flag);
 }
 
-inline ::pltxt2htm::memory::AllocationLeastResult win32_heapalloc_least_common_impl(
-    ::std::size_t n, ::std::uint_least32_t flag) noexcept {
+inline auto win32_heapalloc_least_common_impl(
+    ::std::size_t n, ::std::uint_least32_t flag) noexcept -> ::pltxt2htm::memory::AllocationLeastResult {
     auto processheap{win32_get_process_heap()};
     auto ptr{win32_heapalloc_handle_common_impl(processheap, n, flag)};
     return {.ptr = ptr, .count = ::pltxt2htm::sys_win32::HeapSize(processheap, 0, ptr)};
 }
 
-inline ::pltxt2htm::memory::AllocationLeastResult win32_heaprealloc_least_common_impl(
-    void* addr, ::std::size_t n, ::std::uint_least32_t flag) noexcept {
+inline auto win32_heaprealloc_least_common_impl(
+    void* addr, ::std::size_t n, ::std::uint_least32_t flag) noexcept -> ::pltxt2htm::memory::AllocationLeastResult {
     auto processheap{win32_get_process_heap()};
     auto ptr{win32_heaprealloc_handle_common_impl(processheap, addr, n, flag)};
     return {.ptr = ptr, .count = ::pltxt2htm::sys_win32::HeapSize(processheap, 0, ptr)};
@@ -114,19 +114,19 @@ public:
     #if __has_cpp_attribute(__gnu__::__malloc__)
     [[__gnu__::__malloc__]]
     #endif
-    static inline void* allocate_conditional_zero(::std::size_t n, bool zeroing) noexcept {
+    static inline auto allocate_conditional_zero(::std::size_t n, bool zeroing) noexcept -> void* {
         return details::win32_heapalloc_common_impl(n, zeroing ? 0x00000008u : 0u);
     }
 
-    static inline void* reallocate(void* addr, ::std::size_t n) noexcept {
+    static inline auto reallocate(void* addr, ::std::size_t n) noexcept -> void* {
         return details::win32_heaprealloc_common_impl(addr, n, 0u);
     }
 
-    static inline void* reallocate_zero(void* addr, ::std::size_t n) noexcept {
+    static inline auto reallocate_zero(void* addr, ::std::size_t n) noexcept -> void* {
         return details::win32_heaprealloc_common_impl(addr, n, 0x00000008u);
     }
 
-    static inline void* reallocate_conditional_zero(void* addr, ::std::size_t n, bool zeroing) noexcept {
+    static inline auto reallocate_conditional_zero(void* addr, ::std::size_t n, bool zeroing) noexcept -> void* {
         return details::win32_heaprealloc_common_impl(addr, n, zeroing ? 0x00000008u : 0u);
     }
 
@@ -137,19 +137,19 @@ public:
         static_cast<void>(::pltxt2htm::sys_win32::HeapFree(details::win32_get_process_heap(), 0u, addr));
     }
     #if 0
-	static inline AllocationLeastResult allocate_at_least(::std::size_t n) noexcept
+	static inline auto allocate_at_least(::std::size_t n) noexcept -> AllocationLeastResult
 	{
 		return details::win32_heapalloc_least_common_impl(n, 0u);
 	}
-	static inline AllocationLeastResult allocate_zero_at_least(::std::size_t n) noexcept
+	static inline auto allocate_zero_at_least(::std::size_t n) noexcept -> AllocationLeastResult
 	{
 		return details::win32_heapalloc_least_common_impl(n, 0x00000008u);
 	}
-	static inline AllocationLeastResult reallocate_at_least(void* addr, ::std::size_t n) noexcept
+	static inline auto reallocate_at_least(void* addr, ::std::size_t n) noexcept -> AllocationLeastResult
 	{
 		return details::win32_heaprealloc_least_common_impl(addr, n, 0u);
 	}
-	static inline AllocationLeastResult reallocate_zero_at_least(void* addr, ::std::size_t n) noexcept
+	static inline auto reallocate_zero_at_least(void* addr, ::std::size_t n) noexcept -> AllocationLeastResult
 	{
 		return details::win32_heaprealloc_least_common_impl(addr, n, 0x00000008u);
 	}

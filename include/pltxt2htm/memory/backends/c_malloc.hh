@@ -23,7 +23,7 @@ namespace pltxt2htm::memory::details {
 
 #if (__has_include(<malloc.h>) || __has_include(<malloc_np.h>)) && !defined(__MSDOS__) && !defined(__LLVM_LIBC__)
 
-inline ::std::size_t c_malloc_usable_size_impl(void* p) noexcept {
+inline auto c_malloc_usable_size_impl(void* p) noexcept -> ::std::size_t {
     #if defined(_WIN32) && !defined(__WINE__) && !defined(__CYGWIN__)
     return ::_msize(p);
     #else
@@ -38,7 +38,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* allocate(::std::size_t n) noexcept {
+    static inline auto allocate(::std::size_t n) noexcept -> void* {
         if (n == 0) {
             n = 1;
         }
@@ -57,7 +57,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* reallocate(void* p, ::std::size_t n) noexcept {
+    static inline auto reallocate(void* p, ::std::size_t n) noexcept -> void* {
         if (n == 0) {
             n = 1;
         }
@@ -78,7 +78,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline void* allocate_zero(::std::size_t n) noexcept {
+    static inline auto allocate_zero(::std::size_t n) noexcept -> void* {
         if (n == 0) {
             n = 1;
         }
@@ -96,17 +96,17 @@ public:
         return p;
     }
 #if (__has_include(<malloc.h>) || __has_include(<malloc_np.h>)) && !defined(__MSDOS__) && !defined(__LLVM_LIBC__)
-    static inline AllocationLeastResult allocate_at_least(::std::size_t n) noexcept {
+    static inline auto allocate_at_least(::std::size_t n) noexcept -> AllocationLeastResult {
         auto p{CMallocAllocator::allocate(n)};
         return {.ptr = p, .count = details::c_malloc_usable_size_impl(p)};
     }
 
-    static inline AllocationLeastResult allocate_zero_at_least(::std::size_t n) noexcept {
+    static inline auto allocate_zero_at_least(::std::size_t n) noexcept -> AllocationLeastResult {
         auto p{CMallocAllocator::allocate_zero(n)};
         return {.ptr = p, .count = details::c_malloc_usable_size_impl(p)};
     }
 
-    static inline AllocationLeastResult reallocate_at_least(void* oldp, ::std::size_t n) noexcept {
+    static inline auto reallocate_at_least(void* oldp, ::std::size_t n) noexcept -> AllocationLeastResult {
         auto p{CMallocAllocator::reallocate(oldp, n)};
         return {.ptr = p, .count = details::c_malloc_usable_size_impl(p)};
     }
@@ -116,7 +116,7 @@ public:
     #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
     #endif
-    static inline void* allocate_aligned(::std::size_t alignment, ::std::size_t n) noexcept {
+    static inline auto allocate_aligned(::std::size_t alignment, ::std::size_t n) noexcept -> void* {
         if (n == 0) {
             n = 1;
         }
@@ -141,7 +141,7 @@ public:
     #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
     #endif
-    static inline void* reallocate_aligned(void* p, ::std::size_t alignment, ::std::size_t n) noexcept {
+    static inline auto reallocate_aligned(void* p, ::std::size_t alignment, ::std::size_t n) noexcept -> void* {
         if (n == 0) {
             n = 1;
         }

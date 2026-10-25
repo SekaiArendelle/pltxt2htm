@@ -14,7 +14,7 @@
 
 namespace pltxt2htm::memory::details {
 
-constexpr ::std::byte* bytes_clear_n(::std::byte* data, ::std::size_t size) noexcept {
+constexpr auto bytes_clear_n(::std::byte* data, ::std::size_t size) noexcept -> ::std::byte* {
     if (__builtin_is_constant_evaluated()) {
         for (::std::size_t i{}; i != size; ++i) {
             data[i] = ::std::byte{};
@@ -30,8 +30,8 @@ constexpr ::std::byte* bytes_clear_n(::std::byte* data, ::std::size_t size) noex
     return data + size;
 }
 
-constexpr ::std::byte* nonoverlapped_bytes_copy_n(::std::byte const* first, ::std::size_t n,
-                                                  ::std::byte* dest) noexcept {
+constexpr auto nonoverlapped_bytes_copy_n(::std::byte const* first, ::std::size_t n,
+                                                  ::std::byte* dest) noexcept -> ::std::byte* {
     if (__builtin_is_constant_evaluated()) {
         for (::std::size_t i{}; i != n; ++i) {
             dest[i] = first[i];
