@@ -20,18 +20,17 @@ namespace pltxt2htm {
 /**
  * @brief Table node (&lt;table&gt;...&lt;/table&gt; or Markdown pipe-table)
  */
-template<::pltxt2htm::Contracts ndebug>
 class Table {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit Table(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr Table(::pltxt2htm::Table<ndebug> const&) noexcept;
-    constexpr Table(::pltxt2htm::Table<ndebug>&&) noexcept;
+    constexpr explicit Table(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr Table(::pltxt2htm::Table const&) noexcept = default;
+    constexpr Table(::pltxt2htm::Table&&) noexcept;
     constexpr ~Table() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::Table<ndebug> const&) noexcept -> ::pltxt2htm::Table<ndebug>& = default;
-    constexpr auto operator=(this Table<ndebug>& self, ::pltxt2htm::Table<ndebug>&&) noexcept
-        -> ::pltxt2htm::Table<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::Table const&) noexcept -> ::pltxt2htm::Table& = default;
+    constexpr auto operator=(this Table& self, ::pltxt2htm::Table&&) noexcept
+        -> ::pltxt2htm::Table&;
 
     [[nodiscard]]
     constexpr auto operator==(this Table const&, Table const&) noexcept -> bool;
@@ -45,18 +44,17 @@ public:
 /**
  * @brief Table row node (&lt;tr&gt;...&lt;/tr&gt; or Markdown pipe-table row)
  */
-template<::pltxt2htm::Contracts ndebug>
 class TableTr {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit TableTr(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr TableTr(::pltxt2htm::TableTr<ndebug> const&) noexcept;
-    constexpr TableTr(::pltxt2htm::TableTr<ndebug>&&) noexcept;
+    constexpr explicit TableTr(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr TableTr(::pltxt2htm::TableTr const&) noexcept = default;
+    constexpr TableTr(::pltxt2htm::TableTr&&) noexcept;
     constexpr ~TableTr() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableTr<ndebug> const&) noexcept -> ::pltxt2htm::TableTr<ndebug>& = default;
-    constexpr auto operator=(this TableTr<ndebug>& self, ::pltxt2htm::TableTr<ndebug>&&) noexcept
-        -> ::pltxt2htm::TableTr<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::TableTr const&) noexcept -> ::pltxt2htm::TableTr& = default;
+    constexpr auto operator=(this TableTr& self, ::pltxt2htm::TableTr&&) noexcept
+        -> ::pltxt2htm::TableTr&;
 
     [[nodiscard]]
     constexpr auto operator==(this TableTr const&, TableTr const&) noexcept -> bool;
@@ -70,19 +68,18 @@ public:
 /**
  * @brief Table data cell node (&lt;td&gt;...&lt;/td&gt; or Markdown cell)
  */
-template<::pltxt2htm::Contracts ndebug>
 class TableTd {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::TableAlign align;
 
 public:
-    constexpr explicit TableTd(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::TableAlign align_) noexcept;
-    constexpr TableTd(::pltxt2htm::TableTd<ndebug> const&) noexcept;
-    constexpr TableTd(::pltxt2htm::TableTd<ndebug>&&) noexcept;
+    constexpr explicit TableTd(::pltxt2htm::Ast&& subast_, ::pltxt2htm::TableAlign align_) noexcept;
+    constexpr TableTd(::pltxt2htm::TableTd const&) noexcept = default;
+    constexpr TableTd(::pltxt2htm::TableTd&&) noexcept;
     constexpr ~TableTd() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableTd<ndebug> const&) noexcept -> ::pltxt2htm::TableTd<ndebug>& = default;
-    constexpr auto operator=(this TableTd<ndebug>& self, ::pltxt2htm::TableTd<ndebug>&&) noexcept
-        -> ::pltxt2htm::TableTd<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::TableTd const&) noexcept -> ::pltxt2htm::TableTd& = default;
+    constexpr auto operator=(this TableTd& self, ::pltxt2htm::TableTd&&) noexcept
+        -> ::pltxt2htm::TableTd&;
 
     [[nodiscard]]
     constexpr auto operator==(this TableTd const&, TableTd const&) noexcept -> bool;
@@ -101,19 +98,18 @@ public:
 /**
  * @brief Table header cell node (&lt;th&gt;...&lt;/th&gt; or Markdown header cell)
  */
-template<::pltxt2htm::Contracts ndebug>
 class TableTh {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::TableAlign align;
 
 public:
-    constexpr explicit TableTh(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::TableAlign align_) noexcept;
-    constexpr TableTh(::pltxt2htm::TableTh<ndebug> const&) noexcept;
-    constexpr TableTh(::pltxt2htm::TableTh<ndebug>&&) noexcept;
+    constexpr explicit TableTh(::pltxt2htm::Ast&& subast_, ::pltxt2htm::TableAlign align_) noexcept;
+    constexpr TableTh(::pltxt2htm::TableTh const&) noexcept = default;
+    constexpr TableTh(::pltxt2htm::TableTh&&) noexcept;
     constexpr ~TableTh() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableTh<ndebug> const&) noexcept -> ::pltxt2htm::TableTh<ndebug>& = default;
-    constexpr auto operator=(this TableTh<ndebug>& self, ::pltxt2htm::TableTh<ndebug>&&) noexcept
-        -> ::pltxt2htm::TableTh<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::TableTh const&) noexcept -> ::pltxt2htm::TableTh& = default;
+    constexpr auto operator=(this TableTh& self, ::pltxt2htm::TableTh&&) noexcept
+        -> ::pltxt2htm::TableTh&;
 
     [[nodiscard]]
     constexpr auto operator==(this TableTh const&, TableTh const&) noexcept -> bool;
@@ -132,19 +128,18 @@ public:
 /**
  * @brief Table header section node (&lt;thead&gt;...&lt;/thead&gt; or Markdown header)
  */
-template<::pltxt2htm::Contracts ndebug>
 class TableThead {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit TableThead(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr TableThead(::pltxt2htm::TableThead<ndebug> const&) noexcept;
-    constexpr TableThead(::pltxt2htm::TableThead<ndebug>&&) noexcept;
+    constexpr explicit TableThead(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr TableThead(::pltxt2htm::TableThead const&) noexcept = default;
+    constexpr TableThead(::pltxt2htm::TableThead&&) noexcept;
     constexpr ~TableThead() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableThead<ndebug> const&) noexcept
-        -> ::pltxt2htm::TableThead<ndebug>& = default;
-    constexpr auto operator=(this TableThead<ndebug>& self, ::pltxt2htm::TableThead<ndebug>&&) noexcept
-        -> ::pltxt2htm::TableThead<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::TableThead const&) noexcept
+        -> ::pltxt2htm::TableThead& = default;
+    constexpr auto operator=(this TableThead& self, ::pltxt2htm::TableThead&&) noexcept
+        -> ::pltxt2htm::TableThead&;
 
     [[nodiscard]]
     constexpr auto operator==(this TableThead const&, TableThead const&) noexcept -> bool;
@@ -158,19 +153,18 @@ public:
 /**
  * @brief Table body section node (&lt;tbody&gt;...&lt;/tbody&gt; or Markdown body)
  */
-template<::pltxt2htm::Contracts ndebug>
 class TableTbody {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit TableTbody(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr TableTbody(::pltxt2htm::TableTbody<ndebug> const&) noexcept;
-    constexpr TableTbody(::pltxt2htm::TableTbody<ndebug>&&) noexcept;
+    constexpr explicit TableTbody(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr TableTbody(::pltxt2htm::TableTbody const&) noexcept = default;
+    constexpr TableTbody(::pltxt2htm::TableTbody&&) noexcept;
     constexpr ~TableTbody() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableTbody<ndebug> const&) noexcept
-        -> ::pltxt2htm::TableTbody<ndebug>& = default;
-    constexpr auto operator=(this TableTbody<ndebug>& self, ::pltxt2htm::TableTbody<ndebug>&&) noexcept
-        -> ::pltxt2htm::TableTbody<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::TableTbody const&) noexcept
+        -> ::pltxt2htm::TableTbody& = default;
+    constexpr auto operator=(this TableTbody& self, ::pltxt2htm::TableTbody&&) noexcept
+        -> ::pltxt2htm::TableTbody&;
 
     [[nodiscard]]
     constexpr auto operator==(this TableTbody const&, TableTbody const&) noexcept -> bool;
@@ -184,19 +178,18 @@ public:
 /**
  * @brief Table foot section node (&lt;tfoot&gt;...&lt;/tfoot&gt;)
  */
-template<::pltxt2htm::Contracts ndebug>
 class TableTfoot {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit TableTfoot(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr TableTfoot(::pltxt2htm::TableTfoot<ndebug> const&) noexcept;
-    constexpr TableTfoot(::pltxt2htm::TableTfoot<ndebug>&&) noexcept;
+    constexpr explicit TableTfoot(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr TableTfoot(::pltxt2htm::TableTfoot const&) noexcept = default;
+    constexpr TableTfoot(::pltxt2htm::TableTfoot&&) noexcept;
     constexpr ~TableTfoot() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableTfoot<ndebug> const&) noexcept
-        -> ::pltxt2htm::TableTfoot<ndebug>& = default;
-    constexpr auto operator=(this TableTfoot<ndebug>& self, ::pltxt2htm::TableTfoot<ndebug>&&) noexcept
-        -> ::pltxt2htm::TableTfoot<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::TableTfoot const&) noexcept
+        -> ::pltxt2htm::TableTfoot& = default;
+    constexpr auto operator=(this TableTfoot& self, ::pltxt2htm::TableTfoot&&) noexcept
+        -> ::pltxt2htm::TableTfoot&;
 
     [[nodiscard]]
     constexpr auto operator==(this TableTfoot const&, TableTfoot const&) noexcept -> bool;
@@ -210,19 +203,18 @@ public:
 /**
  * @brief Table caption node (&lt;caption&gt;...&lt;/caption&gt;)
  */
-template<::pltxt2htm::Contracts ndebug>
 class TableCaption {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit TableCaption(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr TableCaption(::pltxt2htm::TableCaption<ndebug> const&) noexcept;
-    constexpr TableCaption(::pltxt2htm::TableCaption<ndebug>&&) noexcept;
+    constexpr explicit TableCaption(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr TableCaption(::pltxt2htm::TableCaption const&) noexcept = default;
+    constexpr TableCaption(::pltxt2htm::TableCaption&&) noexcept;
     constexpr ~TableCaption() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableCaption<ndebug> const&) noexcept
-        -> ::pltxt2htm::TableCaption<ndebug>& = default;
-    constexpr auto operator=(this TableCaption<ndebug>& self, ::pltxt2htm::TableCaption<ndebug>&&) noexcept
-        -> ::pltxt2htm::TableCaption<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::TableCaption const&) noexcept
+        -> ::pltxt2htm::TableCaption& = default;
+    constexpr auto operator=(this TableCaption& self, ::pltxt2htm::TableCaption&&) noexcept
+        -> ::pltxt2htm::TableCaption&;
 
     [[nodiscard]]
     constexpr auto operator==(this TableCaption const&, TableCaption const&) noexcept -> bool;
@@ -236,19 +228,18 @@ public:
 /**
  * @brief Table column group node (&lt;colgroup&gt;...&lt;/colgroup&gt;)
  */
-template<::pltxt2htm::Contracts ndebug>
 class TableColgroup {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit TableColgroup(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr TableColgroup(::pltxt2htm::TableColgroup<ndebug> const&) noexcept;
-    constexpr TableColgroup(::pltxt2htm::TableColgroup<ndebug>&&) noexcept;
+    constexpr explicit TableColgroup(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr TableColgroup(::pltxt2htm::TableColgroup const&) noexcept = default;
+    constexpr TableColgroup(::pltxt2htm::TableColgroup&&) noexcept;
     constexpr ~TableColgroup() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableColgroup<ndebug> const&) noexcept
-        -> ::pltxt2htm::TableColgroup<ndebug>& = default;
-    constexpr auto operator=(this TableColgroup<ndebug>& self, ::pltxt2htm::TableColgroup<ndebug>&&) noexcept
-        -> ::pltxt2htm::TableColgroup<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::TableColgroup const&) noexcept
+        -> ::pltxt2htm::TableColgroup& = default;
+    constexpr auto operator=(this TableColgroup& self, ::pltxt2htm::TableColgroup&&) noexcept
+        -> ::pltxt2htm::TableColgroup&;
 
     [[nodiscard]]
     constexpr auto operator==(this TableColgroup const&, TableColgroup const&) noexcept -> bool;

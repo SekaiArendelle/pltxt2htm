@@ -47,10 +47,9 @@ enum class VerticalAlignKind : unsigned {
  *          active member is `keyword`; when `kind == length`, the active member
  *          is `length` (a ::pltxt2htm::ValueWithUnit&lt;::std::ptrdiff_t&gt;). Exactly one member is
  *          active at any time. The `kind` is derived from the constructor used
- *          and needs no explicit argument. Template parameter `ndebug` selects
- *          whether the accessor contract checks are enforced at runtime.
+ *          and needs no explicit argument. Accessor contract checks follow the
+ *          build-wide setting in PLTXT2HTM_CONTRACTS.
  */
-template<::pltxt2htm::Contracts ndebug>
 class VerticalAlignValue {
     ::pltxt2htm::VerticalAlignKind kind; ///< Discriminator of the value.
 
@@ -71,8 +70,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto operator==(this VerticalAlignValue<ndebug> const& self,
-                              VerticalAlignValue<ndebug> const& other) noexcept -> bool {
+    constexpr auto operator==(this VerticalAlignValue const& self,
+                              VerticalAlignValue const& other) noexcept -> bool {
         if (self.kind != other.kind) {
             return false;
         }
@@ -94,7 +93,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_length(this VerticalAlignValue<ndebug> const& self) noexcept
+    constexpr auto get_length(this VerticalAlignValue const& self) noexcept
         -> ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> {
         pltxt2htm_assert(self.kind == ::pltxt2htm::VerticalAlignKind::length, u8"vertical-align kind mismatch");
         return self.length;
@@ -108,7 +107,6 @@ namespace details {
  * @param keyword The keyword to stringify.
  * @return The CSS keyword spelling; baseline for any invalid value.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto vertical_align_keyword_string(::pltxt2htm::VerticalAlignKeyword const keyword) noexcept
     -> ::pltxt2htm::container::U8StringView {

@@ -12,8 +12,8 @@ TEST_SUITE("xss") {
         for (::std::size_t i{}; i + needle.size() <= haystack.size(); ++i) {
             bool match{true};
             for (::std::size_t j{}; j < needle.size(); ++j) {
-                if (haystack.index<::pltxt2htm::Contracts::quick_enforce>(i + j) !=
-                    needle.index<::pltxt2htm::Contracts::quick_enforce>(j)) {
+                if (haystack.index(i + j) !=
+                    needle.index(j)) {
                     match = false;
                     break;
                 }
@@ -34,13 +34,13 @@ TEST_SUITE("xss") {
         }
         ::std::size_t const limit{html.size() - tag_sz};
         for (::std::size_t i{}; i < limit; ++i) {
-            if (html.index<::pltxt2htm::Contracts::quick_enforce>(i) != u8'<') {
+            if (html.index(i) != u8'<') {
                 continue;
             }
             bool match{true};
             for (::std::size_t j{}; j < tag_sz; ++j) {
-                if (html.index<::pltxt2htm::Contracts::quick_enforce>(i + 1 + j) !=
-                    tag.index<::pltxt2htm::Contracts::quick_enforce>(j)) {
+                if (html.index(i + 1 + j) !=
+                    tag.index(j)) {
                     match = false;
                     break;
                 }

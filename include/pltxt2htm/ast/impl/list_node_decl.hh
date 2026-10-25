@@ -17,18 +17,17 @@ namespace pltxt2htm {
 /**
  * @brief Unordered list node (&lt;ul&gt;...&lt;/ul&gt; or Markdown `- item`)
  */
-template<::pltxt2htm::Contracts ndebug>
 class ListUl {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit ListUl(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr ListUl(::pltxt2htm::ListUl<ndebug> const&) noexcept;
-    constexpr ListUl(::pltxt2htm::ListUl<ndebug>&&) noexcept;
+    constexpr explicit ListUl(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr ListUl(::pltxt2htm::ListUl const&) noexcept = default;
+    constexpr ListUl(::pltxt2htm::ListUl&&) noexcept;
     constexpr ~ListUl() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::ListUl<ndebug> const&) noexcept -> ::pltxt2htm::ListUl<ndebug>& = default;
-    constexpr auto operator=(this ListUl<ndebug>& self, ::pltxt2htm::ListUl<ndebug>&&) noexcept
-        -> ::pltxt2htm::ListUl<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::ListUl const&) noexcept -> ::pltxt2htm::ListUl& = default;
+    constexpr auto operator=(this ListUl& self, ::pltxt2htm::ListUl&&) noexcept
+        -> ::pltxt2htm::ListUl&;
 
     [[nodiscard]]
     constexpr auto operator==(this ListUl const&, ListUl const&) noexcept -> bool;
@@ -44,19 +43,18 @@ public:
  * @details The `start` member records the value of the HTML `start` attribute
  *          (Markdown lists always start at 1).
  */
-template<::pltxt2htm::Contracts ndebug>
 class ListOl {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::std::size_t start;
 
 public:
-    constexpr ListOl(::pltxt2htm::Ast<ndebug>&& subast_, ::std::size_t start_ = 1) noexcept;
-    constexpr ListOl(::pltxt2htm::ListOl<ndebug> const&) noexcept;
-    constexpr ListOl(::pltxt2htm::ListOl<ndebug>&&) noexcept;
+    constexpr ListOl(::pltxt2htm::Ast&& subast_, ::std::size_t start_ = 1) noexcept;
+    constexpr ListOl(::pltxt2htm::ListOl const&) noexcept = default;
+    constexpr ListOl(::pltxt2htm::ListOl&&) noexcept;
     constexpr ~ListOl() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::ListOl<ndebug> const&) noexcept -> ::pltxt2htm::ListOl<ndebug>& = default;
-    constexpr auto operator=(this ListOl<ndebug>& self, ::pltxt2htm::ListOl<ndebug>&&) noexcept
-        -> ::pltxt2htm::ListOl<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::ListOl const&) noexcept -> ::pltxt2htm::ListOl& = default;
+    constexpr auto operator=(this ListOl& self, ::pltxt2htm::ListOl&&) noexcept
+        -> ::pltxt2htm::ListOl&;
 
     [[nodiscard]]
     constexpr auto operator==(this ListOl const&, ListOl const&) noexcept -> bool;
@@ -75,18 +73,17 @@ public:
 /**
  * @brief List item node (&lt;li&gt;...&lt;/li&gt; or Markdown list item)
  */
-template<::pltxt2htm::Contracts ndebug>
 class ListLi {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit ListLi(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr ListLi(::pltxt2htm::ListLi<ndebug> const&) noexcept;
-    constexpr ListLi(::pltxt2htm::ListLi<ndebug>&&) noexcept;
+    constexpr explicit ListLi(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr ListLi(::pltxt2htm::ListLi const&) noexcept = default;
+    constexpr ListLi(::pltxt2htm::ListLi&&) noexcept;
     constexpr ~ListLi() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::ListLi<ndebug> const&) noexcept -> ::pltxt2htm::ListLi<ndebug>& = default;
-    constexpr auto operator=(this ListLi<ndebug>& self, ::pltxt2htm::ListLi<ndebug>&&) noexcept
-        -> ::pltxt2htm::ListLi<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::ListLi const&) noexcept -> ::pltxt2htm::ListLi& = default;
+    constexpr auto operator=(this ListLi& self, ::pltxt2htm::ListLi&&) noexcept
+        -> ::pltxt2htm::ListLi&;
 
     [[nodiscard]]
     constexpr auto operator==(this ListLi const&, ListLi const&) noexcept -> bool;
@@ -100,20 +97,19 @@ public:
 /**
  * @brief Checkbox list item node (Markdown `- [ ]` / `- [x]`)
  */
-template<::pltxt2htm::Contracts ndebug>
 class ListLiCheckbox {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     bool checked;
 
 public:
-    constexpr explicit ListLiCheckbox(::pltxt2htm::Ast<ndebug>&& subast_, bool checked_) noexcept;
-    constexpr ListLiCheckbox(::pltxt2htm::ListLiCheckbox<ndebug> const&) noexcept;
-    constexpr ListLiCheckbox(::pltxt2htm::ListLiCheckbox<ndebug>&&) noexcept;
+    constexpr explicit ListLiCheckbox(::pltxt2htm::Ast&& subast_, bool checked_) noexcept;
+    constexpr ListLiCheckbox(::pltxt2htm::ListLiCheckbox const&) noexcept = default;
+    constexpr ListLiCheckbox(::pltxt2htm::ListLiCheckbox&&) noexcept;
     constexpr ~ListLiCheckbox() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::ListLiCheckbox<ndebug> const&) noexcept
-        -> ::pltxt2htm::ListLiCheckbox<ndebug>& = default;
-    constexpr auto operator=(this ListLiCheckbox<ndebug>& self, ::pltxt2htm::ListLiCheckbox<ndebug>&&) noexcept
-        -> ::pltxt2htm::ListLiCheckbox<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::ListLiCheckbox const&) noexcept
+        -> ::pltxt2htm::ListLiCheckbox& = default;
+    constexpr auto operator=(this ListLiCheckbox& self, ::pltxt2htm::ListLiCheckbox&&) noexcept
+        -> ::pltxt2htm::ListLiCheckbox&;
 
     [[nodiscard]]
     constexpr auto operator==(this ListLiCheckbox const&, ListLiCheckbox const&) noexcept -> bool;
@@ -124,7 +120,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto is_checked(this ListLiCheckbox<ndebug> const& self) noexcept -> bool {
+    constexpr auto is_checked(this ListLiCheckbox const& self) noexcept -> bool {
         return self.checked;
     }
 };

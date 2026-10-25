@@ -32,10 +32,9 @@ inline void trap() noexcept {
 /**
  * @brief Marks a code path as unreachable.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[noreturn]]
 inline void unreachable() noexcept {
-    if constexpr (ndebug == ::pltxt2htm::Contracts::ignore) {
+    if constexpr (::pltxt2htm::contract_mode == 1) {
 #if defined(__has_builtin)
     #if __has_builtin(__builtin_unreachable)
         __builtin_unreachable();

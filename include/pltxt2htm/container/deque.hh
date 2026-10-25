@@ -190,7 +190,6 @@ private:
         self.start_offset = new_first_block * elements_per_block + self.start_offset % elements_per_block;
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void grow_map(this Deque& self, size_type required_front, size_type required_back) noexcept {
         size_type const used_blocks{self.allocated_block_count()};
         size_type const front_spare{self.has_front_spare() ? 1u : 0u};
@@ -429,26 +428,16 @@ public:
     constexpr explicit Deque(size_type count) noexcept
         requires ::std::is_nothrow_default_constructible_v<value_type>
     {
-#ifdef NDEBUG
-        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-#else
-        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-#endif
         for (size_type index{}; index != count; ++index) {
-            this->template emplace_back<ndebug>();
+            this->emplace_back();
         }
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires (is_nothrow_input_range<InputIterator, Sentinel>())
     constexpr Deque(InputIterator first, Sentinel last) noexcept {
-#ifdef NDEBUG
-        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-#else
-        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-#endif
         for (; first != last; ++first) {
-            this->template emplace_back<ndebug>(*first);
+            this->emplace_back(*first);
         }
     }
 
@@ -460,13 +449,8 @@ public:
     constexpr Deque(Deque const& other) noexcept
         requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
-#ifdef NDEBUG
-        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-#else
-        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-#endif
         for (const_reference value : other) {
-            this->template emplace_back<ndebug>(value);
+            this->emplace_back(value);
         }
     }
 
@@ -486,11 +470,6 @@ public:
         requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    #ifdef NDEBUG
-        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-    #else
-        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-    #endif
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
                          u8"Internal self-assignment is not allowed");
 #else
@@ -506,11 +485,6 @@ public:
     /// @pre Internal callers must not assign the Deque to itself.
     constexpr auto operator=(this Deque& self, Deque&& other) noexcept -> Deque& {
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    #ifdef NDEBUG
-        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-    #else
-        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-    #endif
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
                          u8"Internal self-assignment is not allowed");
 #else
@@ -648,7 +622,7 @@ public:
             #pragma clang diagnostic push
             #pragma clang diagnostic ignored "-Wc++26-extensions"
         #endif
-        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        ("operator[] is external-only; use index() inside pltxt2htm")
         #if defined __clang__
             #pragma clang diagnostic pop
         #endif
@@ -672,7 +646,7 @@ public:
             #pragma clang diagnostic push
             #pragma clang diagnostic ignored "-Wc++26-extensions"
         #endif
-        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        ("operator[] is external-only; use index() inside pltxt2htm")
         #if defined __clang__
             #pragma clang diagnostic pop
         #endif
@@ -685,49 +659,43 @@ public:
     }
 #endif
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto index(this Deque& self, size_type position) noexcept -> reference {
         pltxt2htm_assert(position < self.element_count, u8"Index of Deque out of bound");
         return *self.pointer_at(position);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto index(this Deque const& self, size_type position) noexcept -> const_reference {
         pltxt2htm_assert(position < self.element_count, u8"Index of Deque out of bound");
         return *self.pointer_at(position);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this Deque& self) noexcept -> reference {
         pltxt2htm_assert(!self.is_empty(), u8"Accessing front of empty Deque");
         return *self.pointer_at(0);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this Deque const& self) noexcept -> const_reference {
         pltxt2htm_assert(!self.is_empty(), u8"Accessing front of empty Deque");
         return *self.pointer_at(0);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this Deque& self) noexcept -> reference {
         pltxt2htm_assert(!self.is_empty(), u8"Accessing back of empty Deque");
         return *self.pointer_at(self.element_count - 1);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this Deque const& self) noexcept -> const_reference {
         pltxt2htm_assert(!self.is_empty(), u8"Accessing back of empty Deque");
         return *self.pointer_at(self.element_count - 1);
     }
 
-    template<::pltxt2htm::Contracts ndebug, typename... Args>
+    template<typename... Args>
         requires ::std::is_nothrow_constructible_v<value_type, Args...>
     constexpr auto emplace_back(this Deque& self, Args&&... args) noexcept -> reference {
         pltxt2htm_assert(self.element_count < self.max_size(), u8"Deque size exceeds max_size");
@@ -753,7 +721,7 @@ public:
                     --map_index;
                 }
                 else {
-                    self.template grow_map<ndebug>(0, 1);
+                    self.grow_map(0, 1);
                     map_index = self.start_offset / elements_per_block + used_blocks;
                 }
             }
@@ -771,7 +739,7 @@ public:
         return *result;
     }
 
-    template<::pltxt2htm::Contracts ndebug, typename... Args>
+    template<typename... Args>
         requires ::std::is_nothrow_constructible_v<value_type, Args...>
     constexpr auto emplace_front(this Deque& self, Args&&... args) noexcept -> reference {
         pltxt2htm_assert(self.element_count < self.max_size(), u8"Deque size exceeds max_size");
@@ -799,7 +767,7 @@ public:
                 self.start_offset += elements_per_block;
             }
             else {
-                self.template grow_map<ndebug>(1, 0);
+                self.grow_map(1, 0);
             }
         }
         if (new_block == nullptr) {
@@ -812,35 +780,30 @@ public:
         return *result;
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this Deque& self, const_reference value) noexcept
         requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
-        self.template emplace_back<ndebug>(value);
+        self.emplace_back(value);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this Deque& self, value_type&& value) noexcept
         requires ::std::is_nothrow_move_constructible_v<value_type>
     {
-        self.template emplace_back<ndebug>(::std::move(value));
+        self.emplace_back(::std::move(value));
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_front(this Deque& self, const_reference value) noexcept
         requires ::std::is_nothrow_copy_constructible_v<value_type>
     {
-        self.template emplace_front<ndebug>(value);
+        self.emplace_front(value);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_front(this Deque& self, value_type&& value) noexcept
         requires ::std::is_nothrow_move_constructible_v<value_type>
     {
-        self.template emplace_front<ndebug>(::std::move(value));
+        self.emplace_front(::std::move(value));
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void pop_back(this Deque& self) noexcept {
         pltxt2htm_assert(!self.is_empty(), u8"Popping back of empty Deque");
         size_type const erased_index{self.element_count - 1};
@@ -860,7 +823,6 @@ public:
         }
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void pop_front(this Deque& self) noexcept {
         pltxt2htm_assert(!self.is_empty(), u8"Popping front of empty Deque");
         size_type const erased_block{self.start_offset / elements_per_block};
@@ -945,68 +907,64 @@ public:
         }
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void resize(this Deque& self, size_type count) noexcept
         requires ::std::is_nothrow_default_constructible_v<value_type>
     {
         while (self.element_count > count) {
-            self.template pop_back<ndebug>();
+            self.pop_back();
         }
         while (self.element_count < count) {
-            self.template emplace_back<ndebug>();
+            self.emplace_back();
         }
     }
 
-    template<::pltxt2htm::Contracts ndebug, typename... Args>
+    template<typename... Args>
         requires (::std::is_nothrow_constructible_v<value_type, Args...> &&
                   ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     constexpr auto emplace(this Deque& self, const_iterator position, Args&&... args) noexcept -> iterator {
         size_type const index{static_cast<size_type>(position - self.cbegin())};
         pltxt2htm_assert(index <= self.element_count, u8"Insertion position of Deque out of bound");
         if (index == 0) {
-            self.template emplace_front<ndebug>(::std::forward<Args>(args)...);
+            self.emplace_front(::std::forward<Args>(args)...);
             return self.begin();
         }
         if (index == self.element_count) {
-            self.template emplace_back<ndebug>(::std::forward<Args>(args)...);
+            self.emplace_back(::std::forward<Args>(args)...);
             return self.begin() + static_cast<difference_type>(index);
         }
 
         value_type value{::std::forward<Args>(args)...};
         size_type const old_size{self.element_count};
         if (index < old_size / 2) {
-            self.template emplace_front<ndebug>(::std::move(self.template front<ndebug>()));
+            self.emplace_front(::std::move(self.front()));
             for (size_type current{1}; current != index; ++current) {
-                self.template index<ndebug>(current) = ::std::move(self.template index<ndebug>(current + 1));
+                self.index(current) = ::std::move(self.index(current + 1));
             }
         }
         else {
-            self.template emplace_back<ndebug>(::std::move(self.template back<ndebug>()));
+            self.emplace_back(::std::move(self.back()));
             for (size_type current{old_size - 1}; current != index; --current) {
-                self.template index<ndebug>(current) = ::std::move(self.template index<ndebug>(current - 1));
+                self.index(current) = ::std::move(self.index(current - 1));
             }
         }
-        self.template index<ndebug>(index) = ::std::move(value);
+        self.index(index) = ::std::move(value);
         return self.begin() + static_cast<difference_type>(index);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto insert(this Deque& self, const_iterator position, const_reference value) noexcept -> iterator
         requires (::std::is_nothrow_copy_constructible_v<value_type> &&
                   ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     {
-        return self.template emplace<ndebug>(position, value);
+        return self.emplace(position, value);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto insert(this Deque& self, const_iterator position, value_type&& value) noexcept -> iterator
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     {
-        return self.template emplace<ndebug>(position, ::std::move(value));
+        return self.emplace(position, ::std::move(value));
     }
 
-    template<::pltxt2htm::Contracts ndebug, ::std::input_iterator InputIterator,
-             ::std::sentinel_for<InputIterator> Sentinel>
+    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires (is_nothrow_input_range<InputIterator, Sentinel>() &&
                   ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     constexpr auto insert(this Deque& self, const_iterator position, InputIterator first, Sentinel last) noexcept
@@ -1022,37 +980,34 @@ public:
         }
         if (index < old_size - index) {
             for (size_type remaining{inserted}; remaining != 0; --remaining) {
-                self.template emplace_front<ndebug>(::std::move(values.template index<ndebug>(remaining - 1)));
+                self.emplace_front(::std::move(values.index(remaining - 1)));
             }
             self.rotate_elements(0, inserted, inserted + index);
         }
         else {
             for (reference value : values) {
-                self.template emplace_back<ndebug>(::std::move(value));
+                self.emplace_back(::std::move(value));
             }
             self.rotate_elements(index, old_size, old_size + inserted);
         }
         return self.begin() + static_cast<difference_type>(index);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto insert(this Deque& self, const_iterator position,
                           ::std::initializer_list<value_type> values) noexcept -> iterator
         requires (::std::is_nothrow_copy_constructible_v<value_type> &&
                   ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     {
-        return self.template insert<ndebug>(position, values.begin(), values.end());
+        return self.insert(position, values.begin(), values.end());
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto erase(this Deque& self, const_iterator position) noexcept -> iterator
         requires ::std::is_nothrow_move_assignable_v<value_type>
     {
         pltxt2htm_assert(position != self.cend(), u8"Erasing past the end of Deque");
-        return self.template erase<ndebug>(position, position + 1);
+        return self.erase(position, position + 1);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto erase(this Deque& self, const_iterator first, const_iterator last) noexcept -> iterator
         requires ::std::is_nothrow_move_assignable_v<value_type>
     {
@@ -1068,19 +1023,19 @@ public:
         size_type const suffix_size{self.element_count - last_index};
         if (first_index < suffix_size) {
             for (size_type current{first_index}; current != 0; --current) {
-                self.template index<ndebug>(current + erased_count - 1) =
-                    ::std::move(self.template index<ndebug>(current - 1));
+                self.index(current + erased_count - 1) =
+                    ::std::move(self.index(current - 1));
             }
             for (size_type count{}; count != erased_count; ++count) {
-                self.template pop_front<ndebug>();
+                self.pop_front();
             }
         }
         else {
             for (size_type current{first_index}; current + erased_count != self.element_count; ++current) {
-                self.template index<ndebug>(current) = ::std::move(self.template index<ndebug>(current + erased_count));
+                self.index(current) = ::std::move(self.index(current + erased_count));
             }
             for (size_type count{}; count != erased_count; ++count) {
-                self.template pop_back<ndebug>();
+                self.pop_back();
             }
         }
         return self.begin() + static_cast<difference_type>(first_index);

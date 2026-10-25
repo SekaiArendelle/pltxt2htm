@@ -1,184 +1,122 @@
 #pragma once
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityColor<ndebug>::UnityColor(::pltxt2htm::Ast<ndebug>&& subast_,
+constexpr ::pltxt2htm::UnityColor::UnityColor(::pltxt2htm::Ast&& subast_,
                                                       ::pltxt2htm::container::U8String&& color_) noexcept
     : subast(::std::move(subast_)),
       color(::std::move(color_)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityColor<ndebug>::UnityColor(::pltxt2htm::UnityColor<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityColor<ndebug>::UnityColor(::pltxt2htm::UnityColor<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityColor<ndebug>::operator=(this UnityColor<ndebug>& self,
-                                                          ::pltxt2htm::UnityColor<ndebug>&&) noexcept
-    -> ::pltxt2htm::UnityColor<ndebug>& = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityColor<ndebug>::operator==(this UnityColor<ndebug> const&,
-                                                           ::pltxt2htm::UnityColor<ndebug> const&) noexcept
+constexpr ::pltxt2htm::UnityColor::UnityColor(::pltxt2htm::UnityColor&&) noexcept = default;
+constexpr auto ::pltxt2htm::UnityColor::operator=(this UnityColor& self,
+                                                          ::pltxt2htm::UnityColor&&) noexcept
+    -> ::pltxt2htm::UnityColor& = default;
+constexpr auto ::pltxt2htm::UnityColor::operator==(this UnityColor const&,
+                                                           ::pltxt2htm::UnityColor const&) noexcept
     -> bool = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityLink<ndebug>::UnityLink(::pltxt2htm::Ast<ndebug>&& subast_,
+constexpr ::pltxt2htm::UnityLink::UnityLink(::pltxt2htm::Ast&& subast_,
                                                     ::pltxt2htm::Url&& url_) noexcept
     : subast(::std::move(subast_)),
       url(::std::move(url_)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityLink<ndebug>::UnityLink(::pltxt2htm::UnityLink<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityLink<ndebug>::UnityLink(::pltxt2htm::UnityLink<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityLink<ndebug>::operator=(this UnityLink<ndebug>& self,
-                                                         ::pltxt2htm::UnityLink<ndebug>&&) noexcept
-    -> ::pltxt2htm::UnityLink<ndebug>& = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityLink<ndebug>::operator==(this UnityLink<ndebug> const&,
-                                                          ::pltxt2htm::UnityLink<ndebug> const&) noexcept
+constexpr ::pltxt2htm::UnityLink::UnityLink(::pltxt2htm::UnityLink&&) noexcept = default;
+constexpr auto ::pltxt2htm::UnityLink::operator=(this UnityLink& self,
+                                                         ::pltxt2htm::UnityLink&&) noexcept
+    -> ::pltxt2htm::UnityLink& = default;
+constexpr auto ::pltxt2htm::UnityLink::operator==(this UnityLink const&,
+                                                          ::pltxt2htm::UnityLink const&) noexcept
     -> bool = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnitySize<ndebug>::UnitySize(::pltxt2htm::Ast<ndebug>&& subast_,
+constexpr ::pltxt2htm::UnitySize::UnitySize(::pltxt2htm::Ast&& subast_,
                                                     ::pltxt2htm::ValueWithUnit<double> font_size_) noexcept
     : subast(::std::move(subast_)),
       font_size(font_size_) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnitySize<ndebug>::UnitySize(::pltxt2htm::UnitySize<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnitySize<ndebug>::UnitySize(::pltxt2htm::UnitySize<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnitySize<ndebug>::operator=(this UnitySize<ndebug>& self,
-                                                         ::pltxt2htm::UnitySize<ndebug>&&) noexcept
-    -> ::pltxt2htm::UnitySize<ndebug>& = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnitySize<ndebug>::operator==(this UnitySize<ndebug> const&,
-                                                          ::pltxt2htm::UnitySize<ndebug> const&) noexcept
+constexpr ::pltxt2htm::UnitySize::UnitySize(::pltxt2htm::UnitySize&&) noexcept = default;
+constexpr auto ::pltxt2htm::UnitySize::operator=(this UnitySize& self,
+                                                         ::pltxt2htm::UnitySize&&) noexcept
+    -> ::pltxt2htm::UnitySize& = default;
+constexpr auto ::pltxt2htm::UnitySize::operator==(this UnitySize const&,
+                                                          ::pltxt2htm::UnitySize const&) noexcept
     -> bool = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityVoffset<ndebug>::UnityVoffset(::pltxt2htm::Ast<ndebug>&& subast_,
+constexpr ::pltxt2htm::UnityVoffset::UnityVoffset(::pltxt2htm::Ast&& subast_,
                                                           ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value_) noexcept
     : subast(::std::move(subast_)),
       value(value_) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityVoffset<ndebug>::UnityVoffset(::pltxt2htm::UnityVoffset<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityVoffset<ndebug>::UnityVoffset(::pltxt2htm::UnityVoffset<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityVoffset<ndebug>::operator=(this UnityVoffset<ndebug>& self,
-                                                            ::pltxt2htm::UnityVoffset<ndebug>&&) noexcept
-    -> ::pltxt2htm::UnityVoffset<ndebug>& = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityVoffset<ndebug>::operator==(this UnityVoffset<ndebug> const&,
-                                                             ::pltxt2htm::UnityVoffset<ndebug> const&) noexcept
+constexpr ::pltxt2htm::UnityVoffset::UnityVoffset(::pltxt2htm::UnityVoffset&&) noexcept = default;
+constexpr auto ::pltxt2htm::UnityVoffset::operator=(this UnityVoffset& self,
+                                                            ::pltxt2htm::UnityVoffset&&) noexcept
+    -> ::pltxt2htm::UnityVoffset& = default;
+constexpr auto ::pltxt2htm::UnityVoffset::operator==(this UnityVoffset const&,
+                                                             ::pltxt2htm::UnityVoffset const&) noexcept
     -> bool = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityAlign<ndebug>::UnityAlign(::pltxt2htm::Ast<ndebug>&& subast_,
+constexpr ::pltxt2htm::UnityAlign::UnityAlign(::pltxt2htm::Ast&& subast_,
                                                       ::pltxt2htm::TextAlign align_) noexcept
     : subast(::std::move(subast_)),
       align(align_) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityAlign<ndebug>::UnityAlign(::pltxt2htm::UnityAlign<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityAlign<ndebug>::UnityAlign(::pltxt2htm::UnityAlign<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityAlign<ndebug>::operator=(this UnityAlign<ndebug>& self,
-                                                          ::pltxt2htm::UnityAlign<ndebug>&&) noexcept
-    -> ::pltxt2htm::UnityAlign<ndebug>& = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityAlign<ndebug>::operator==(this UnityAlign<ndebug> const&,
-                                                           ::pltxt2htm::UnityAlign<ndebug> const&) noexcept
+constexpr ::pltxt2htm::UnityAlign::UnityAlign(::pltxt2htm::UnityAlign&&) noexcept = default;
+constexpr auto ::pltxt2htm::UnityAlign::operator=(this UnityAlign& self,
+                                                          ::pltxt2htm::UnityAlign&&) noexcept
+    -> ::pltxt2htm::UnityAlign& = default;
+constexpr auto ::pltxt2htm::UnityAlign::operator==(this UnityAlign const&,
+                                                           ::pltxt2htm::UnityAlign const&) noexcept
     -> bool = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityMark<ndebug>::UnityMark(::pltxt2htm::Ast<ndebug>&& subast_,
+constexpr ::pltxt2htm::UnityMark::UnityMark(::pltxt2htm::Ast&& subast_,
                                                     ::pltxt2htm::container::U8String&& background_color_) noexcept
     : subast(::std::move(subast_)),
       background_color(::std::move(background_color_)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityMark<ndebug>::UnityMark(::pltxt2htm::UnityMark<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityMark<ndebug>::UnityMark(::pltxt2htm::UnityMark<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityMark<ndebug>::operator=(this UnityMark<ndebug>& self,
-                                                         ::pltxt2htm::UnityMark<ndebug>&&) noexcept
-    -> ::pltxt2htm::UnityMark<ndebug>& = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityMark<ndebug>::operator==(this UnityMark<ndebug> const&,
-                                                          ::pltxt2htm::UnityMark<ndebug> const&) noexcept
+constexpr ::pltxt2htm::UnityMark::UnityMark(::pltxt2htm::UnityMark&&) noexcept = default;
+constexpr auto ::pltxt2htm::UnityMark::operator=(this UnityMark& self,
+                                                         ::pltxt2htm::UnityMark&&) noexcept
+    -> ::pltxt2htm::UnityMark& = default;
+constexpr auto ::pltxt2htm::UnityMark::operator==(this UnityMark const&,
+                                                          ::pltxt2htm::UnityMark const&) noexcept
     -> bool = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityMargin<ndebug>::UnityMargin(
-    ::pltxt2htm::Ast<ndebug>&& subast_,
+constexpr ::pltxt2htm::UnityMargin::UnityMargin(
+    ::pltxt2htm::Ast&& subast_,
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept
     : subast(::std::move(subast_)),
       margins{left_, right_} {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityMargin<ndebug>::UnityMargin(::pltxt2htm::UnityMargin<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityMargin<ndebug>::UnityMargin(::pltxt2htm::UnityMargin<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityMargin<ndebug>::operator=(this UnityMargin<ndebug>& self,
-                                                           ::pltxt2htm::UnityMargin<ndebug>&&) noexcept
-    -> ::pltxt2htm::UnityMargin<ndebug>& = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityMargin<ndebug>::operator==(this UnityMargin<ndebug> const&,
-                                                            ::pltxt2htm::UnityMargin<ndebug> const&) noexcept
+constexpr ::pltxt2htm::UnityMargin::UnityMargin(::pltxt2htm::UnityMargin&&) noexcept = default;
+constexpr auto ::pltxt2htm::UnityMargin::operator=(this UnityMargin& self,
+                                                           ::pltxt2htm::UnityMargin&&) noexcept
+    -> ::pltxt2htm::UnityMargin& = default;
+constexpr auto ::pltxt2htm::UnityMargin::operator==(this UnityMargin const&,
+                                                            ::pltxt2htm::UnityMargin const&) noexcept
     -> bool = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityI<ndebug>::UnityI(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+constexpr ::pltxt2htm::UnityI::UnityI(::pltxt2htm::Ast&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityI<ndebug>::UnityI(::pltxt2htm::UnityI<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityI<ndebug>::UnityI(::pltxt2htm::UnityI<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityI<ndebug>::operator=(this UnityI<ndebug>& self, ::pltxt2htm::UnityI<ndebug>&&) noexcept
-    -> ::pltxt2htm::UnityI<ndebug>& = default;
+constexpr ::pltxt2htm::UnityI::UnityI(::pltxt2htm::UnityI&&) noexcept = default;
+constexpr auto ::pltxt2htm::UnityI::operator=(this UnityI& self, ::pltxt2htm::UnityI&&) noexcept
+    -> ::pltxt2htm::UnityI& = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityI<ndebug>::operator==(this UnityI<ndebug> const&,
-                                                       ::pltxt2htm::UnityI<ndebug> const&) noexcept -> bool = default;
+constexpr auto ::pltxt2htm::UnityI::operator==(this UnityI const&,
+                                                       ::pltxt2htm::UnityI const&) noexcept -> bool = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityB<ndebug>::UnityB(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+constexpr ::pltxt2htm::UnityB::UnityB(::pltxt2htm::Ast&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityB<ndebug>::UnityB(::pltxt2htm::UnityB<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::UnityB<ndebug>::UnityB(::pltxt2htm::UnityB<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityB<ndebug>::operator=(this UnityB<ndebug>& self, ::pltxt2htm::UnityB<ndebug>&&) noexcept
-    -> ::pltxt2htm::UnityB<ndebug>& = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::UnityB<ndebug>::operator==(this UnityB<ndebug> const&,
-                                                       ::pltxt2htm::UnityB<ndebug> const&) noexcept -> bool = default;
+constexpr ::pltxt2htm::UnityB::UnityB(::pltxt2htm::UnityB&&) noexcept = default;
+constexpr auto ::pltxt2htm::UnityB::operator=(this UnityB& self, ::pltxt2htm::UnityB&&) noexcept
+    -> ::pltxt2htm::UnityB& = default;
+constexpr auto ::pltxt2htm::UnityB::operator==(this UnityB const&,
+                                                       ::pltxt2htm::UnityB const&) noexcept -> bool = default;

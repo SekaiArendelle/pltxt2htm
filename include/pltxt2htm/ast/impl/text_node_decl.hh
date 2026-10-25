@@ -19,10 +19,9 @@ namespace pltxt2htm {
  * @brief A leaf node containing a run of UTF-8 code units.
  * @details Uses the full storage footprint required by the largest other AST node.
  */
-template<::pltxt2htm::Contracts ndebug>
 class Text {
-    static constexpr ::std::size_t storage_capacity{sizeof(::pltxt2htm::HtmlSpan<ndebug>) - 1};
-    using Storage = ::pltxt2htm::details::U8InplaceString<storage_capacity, ndebug>;
+    static constexpr ::std::size_t storage_capacity{sizeof(::pltxt2htm::HtmlSpan) - 1};
+    using Storage = ::pltxt2htm::details::U8InplaceString<storage_capacity>;
 
     Storage storage;
 

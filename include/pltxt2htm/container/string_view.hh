@@ -24,7 +24,7 @@ namespace pltxt2htm::container {
  * @tparam CharType Character type stored by the referenced sequence.
  *
  * BasicStringView deliberately implements only the operations currently needed by
- * pltxt2htm. Checked operations take a Contracts template argument so they use the
+ * pltxt2htm. Checked operations take a build-wide contract setting so they use the
  * same panic/assertion policy as the rest of the library.
  */
 template<::pltxt2htm::details::is_char_type CharType>
@@ -106,15 +106,15 @@ public:
 #endif
         ;
 
-    template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
+    template<::std::size_t extent>
     constexpr BasicStringView(
-        ::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug> const& string) noexcept
+        ::pltxt2htm::details::BasicInplaceString<value_type, extent> const& string) noexcept
         : pointer{string.data()},
           length{string.size()} {
     }
 
-    template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
-    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug>&&) = delete
+    template<::std::size_t extent>
+    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent>&&) = delete
 #if __cpp_deleted_function >= 202403L
     #if defined __clang__
         #pragma clang diagnostic push
@@ -127,8 +127,8 @@ public:
 #endif
         ;
 
-    template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
-    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent, ndebug> const&&) = delete
+    template<::std::size_t extent>
+    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent> const&&) = delete
 #if __cpp_deleted_function >= 202403L
     #if defined __clang__
         #pragma clang diagnostic push
@@ -205,7 +205,6 @@ public:
         return self.pointer + self.length;
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto index(this BasicStringView const& self, size_type index) noexcept -> const_reference {
         pltxt2htm_assert(index < self.length, u8"Index of BasicStringView out of bound");
@@ -217,7 +216,7 @@ public:
      *
      * Contract-bearing access stays on index(); this overload is external-only:
      * while pltxt2htm itself is being built (PLTXT2HTM_INTERNAL_USE) it stays
-     * deleted, so implementation code must name a Contracts policy.
+     * deleted, so implementation code must name a build-wide contract setting.
      * @param index Zero-based character position.
      * @return Read-only reference to the requested character.
      * @pre index < size(); otherwise the behavior is undefined.
@@ -229,7 +228,7 @@ public:
             #pragma clang diagnostic push
             #pragma clang diagnostic ignored "-Wc++26-extensions"
         #endif
-        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        ("operator[] is external-only; use index() inside pltxt2htm")
         #if defined __clang__
             #pragma clang diagnostic pop
         #endif
@@ -241,7 +240,6 @@ public:
     }
 #endif
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto subview(this BasicStringView const& self, size_type position, size_type count = npos) noexcept
         -> BasicStringView {
@@ -295,8 +293,8 @@ BasicStringView(CharType const (&)[size_with_null]) -> BasicStringView<CharType>
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t size>
 BasicStringView(::pltxt2htm::details::BasicLiteralString<CharType, size> const&) -> BasicStringView<CharType>;
 
-template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent, ::pltxt2htm::Contracts ndebug>
-BasicStringView(::pltxt2htm::details::BasicInplaceString<CharType, extent, ndebug> const&) -> BasicStringView<CharType>;
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent>
+BasicStringView(::pltxt2htm::details::BasicInplaceString<CharType, extent> const&) -> BasicStringView<CharType>;
 
 using StringView = BasicStringView<char>;
 using WStringView = BasicStringView<wchar_t>;

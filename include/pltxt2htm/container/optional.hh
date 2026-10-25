@@ -379,18 +379,16 @@ public:
     /**
      * @brief Get the contained value, terminating when the Optional is empty.
      */
-    template<::pltxt2htm::Contracts ndebug>
-        requires (!::std::is_reference_v<T>)
     [[nodiscard]]
-    constexpr auto value(this auto&& self) noexcept -> decltype(auto) {
+    constexpr auto value(this auto&& self) noexcept -> decltype(auto)
+        requires (!::std::is_reference_v<T>) {
         pltxt2htm_assert(self.storage.has_value(), u8"optional does not contain a value");
         return ::std::forward_like<decltype(self)>(self.storage).value();
     }
 
-    template<::pltxt2htm::Contracts ndebug>
-        requires (::std::is_lvalue_reference_v<T>)
     [[nodiscard]]
-    constexpr auto value(this Optional<T> const& self) noexcept -> T {
+    constexpr auto value(this Optional<T> const& self) noexcept -> T
+        requires (::std::is_lvalue_reference_v<T>) {
         pltxt2htm_assert(self.storage.has_value(), u8"optional does not contain a value");
         return self.storage.value();
     }

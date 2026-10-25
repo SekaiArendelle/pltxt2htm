@@ -35,8 +35,8 @@ static_assert(::std::is_trivially_copyable_v<IntArray>);
 static_assert(!can_subscript<IntArray>);
 static_assert(!can_call_empty<IntArray>);
 static_assert(!can_call_is_empty<IntArray>);
-static_assert(!can_call_front_without_contract<IntArray>);
-static_assert(!can_call_back_without_contract<IntArray>);
+static_assert(can_call_front_without_contract<IntArray>);
+static_assert(can_call_back_without_contract<IntArray>);
 
 consteval auto test_constexpr_array() noexcept -> bool {
     auto values = ::pltxt2htm::container::Array{1, 2, 3};
@@ -46,15 +46,15 @@ consteval auto test_constexpr_array() noexcept -> bool {
         return false;
     }
     if (values.data() != values.begin() || values.end() - values.begin() != 3 || values.cend() - values.cbegin() != 3 ||
-        values.template front<::pltxt2htm::Contracts::quick_enforce>() != 1 ||
-        values.template back<::pltxt2htm::Contracts::quick_enforce>() != 3 || *values.rbegin() != 3 ||
+        values.front() != 1 ||
+        values.back() != 3 || *values.rbegin() != 3 ||
         *values.crbegin() != 3) {
         return false;
     }
 
-    values.template index<::pltxt2htm::Contracts::quick_enforce>(1) = 4;
-    if (values.template index<::pltxt2htm::Contracts::quick_enforce>(1) != 4 ||
-        values.template index<::pltxt2htm::Contracts::quick_enforce>(2) != 3) {
+    values.index(1) = 4;
+    if (values.index(1) != 4 ||
+        values.index(2) != 3) {
         return false;
     }
 
@@ -86,7 +86,7 @@ int main() {
     auto const strings = ::pltxt2htm::container::Array{"first", "second", nullptr};
     static_assert(
         ::std::same_as<::std::remove_cvref_t<decltype(strings)>, ::pltxt2htm::container::Array<char const*, 3>>);
-    pltxt2htm_test_assert_true(::std::string_view{strings.template index<::pltxt2htm::Contracts::quick_enforce>(1)} ==
+    pltxt2htm_test_assert_true(::std::string_view{strings.index(1)} ==
                                "second");
 
     return 0;

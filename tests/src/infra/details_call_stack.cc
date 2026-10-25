@@ -5,8 +5,7 @@
 
 #include "precompile.hh"
 
-using Contracts = ::pltxt2htm::Contracts;
-using IntCallStack = ::pltxt2htm::details::CallStack<Contracts::quick_enforce, int>;
+using IntCallStack = ::pltxt2htm::details::CallStack< int>;
 
 template<typename CallStack>
 concept has_unchecked_operation = requires(CallStack& call_stack) {
@@ -60,10 +59,9 @@ consteval auto test_constexpr_empty_stack() noexcept -> bool {
 
 static_assert(test_constexpr_empty_stack());
 
-template<Contracts ndebug>
 [[nodiscard]]
 constexpr auto test_call_stack() noexcept -> bool {
-    ::pltxt2htm::details::CallStack<ndebug, int> call_stack{};
+    ::pltxt2htm::details::CallStack< int> call_stack{};
 
     call_stack.push_frame(1);
     if (!call_stack.is_root() || call_stack.has_parent()) {
@@ -112,8 +110,8 @@ struct NothrowMovable {
 };
 
 int main() {
-    pltxt2htm_test_assert_true(test_call_stack<Contracts::quick_enforce>());
-    ::pltxt2htm::details::CallStack<Contracts::quick_enforce, NothrowMovable> call_stack{};
+    pltxt2htm_test_assert_true(test_call_stack());
+    ::pltxt2htm::details::CallStack< NothrowMovable> call_stack{};
     call_stack.push_frame(NothrowMovable{42});
     auto frame = call_stack.pop_frame();
 

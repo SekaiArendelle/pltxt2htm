@@ -104,25 +104,24 @@ public:
 };
 
 /**
- * @brief ::pltxt2htm::Group<ndebug> container node
+ * @brief ::pltxt2htm::Group container node
  * @details Holds a sub-AST representing text content and inline formatting.
  */
-template<::pltxt2htm::Contracts ndebug>
 class Group {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
     /**
-     * @brief Construct a ::pltxt2htm::Group<ndebug> node with a sub-AST.
+     * @brief Construct a ::pltxt2htm::Group node with a sub-AST.
      * @param subast The sub-AST to be contained.
      */
-    constexpr Group(::pltxt2htm::Ast<ndebug>&& subast) noexcept;
-    constexpr Group(::pltxt2htm::Group<ndebug> const&) noexcept;
-    constexpr Group(::pltxt2htm::Group<ndebug>&&) noexcept;
+    constexpr Group(::pltxt2htm::Ast&& subast) noexcept;
+    constexpr Group(::pltxt2htm::Group const&) noexcept = default;
+    constexpr Group(::pltxt2htm::Group&&) noexcept;
     constexpr ~Group() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::Group<ndebug> const&) noexcept -> ::pltxt2htm::Group<ndebug>& = default;
-    constexpr auto operator=(this Group<ndebug>& self, ::pltxt2htm::Group<ndebug>&&) noexcept
-        -> ::pltxt2htm::Group<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::Group const&) noexcept -> ::pltxt2htm::Group& = default;
+    constexpr auto operator=(this Group& self, ::pltxt2htm::Group&&) noexcept
+        -> ::pltxt2htm::Group&;
 
     [[nodiscard]]
     constexpr auto operator==(this Group const&, Group const&) noexcept -> bool;
@@ -137,9 +136,8 @@ public:
  * @brief Markdown fenced code block
  * @details Contains code content and an optional language identifier.
  */
-template<::pltxt2htm::Contracts ndebug>
 class CodeFence {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> lang;
 
 public:
@@ -148,15 +146,15 @@ public:
      * @param subast The code content as an AST.
      * @param lang Optional language string.
      */
-    constexpr explicit CodeFence(::pltxt2htm::Ast<ndebug>&& subast_,
+    constexpr explicit CodeFence(::pltxt2htm::Ast&& subast_,
                                  ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>&& lang_) noexcept;
-    constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
-    constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
+    constexpr CodeFence(::pltxt2htm::CodeFence const&) noexcept = default;
+    constexpr CodeFence(::pltxt2htm::CodeFence&&) noexcept;
     constexpr ~CodeFence() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::CodeFence<ndebug> const&) noexcept
-        -> ::pltxt2htm::CodeFence<ndebug>& = default;
-    constexpr auto operator=(this CodeFence<ndebug>& self, ::pltxt2htm::CodeFence<ndebug>&&) noexcept
-        -> ::pltxt2htm::CodeFence<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::CodeFence const&) noexcept
+        -> ::pltxt2htm::CodeFence& = default;
+    constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence&&) noexcept
+        -> ::pltxt2htm::CodeFence&;
 
     [[nodiscard]]
     constexpr auto operator==(this CodeFence const& self, CodeFence const& other) noexcept -> bool;

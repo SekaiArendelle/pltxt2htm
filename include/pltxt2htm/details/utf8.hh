@@ -49,7 +49,6 @@ struct DecodeUtf8CodePointResult {
  * @brief Decode the first UTF-8 code point in a view.
  * @details Invalid input reports how many bytes belong to the invalid prefix. An empty view consumes zero bytes.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text) noexcept -> DecodeUtf8CodePointResult {
     ::std::size_t const text_size{text.size()};
@@ -57,7 +56,7 @@ constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text)
         return {.consumed_size = 0, .code_point = char32_t{}, .valid = false};
     }
 
-    char8_t const first{text.template index<ndebug>(0)};
+    char8_t const first{text.index(0)};
     if ((first & 0x80) == 0) {
         return {.consumed_size = 1, .code_point = static_cast<char32_t>(first), .valid = true};
     }
@@ -66,7 +65,7 @@ constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text)
         if (text_size < 2) {
             return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
         }
-        char8_t const second{text.template index<ndebug>(1)};
+        char8_t const second{text.index(1)};
         if ((second & 0xC0) != 0x80) {
             return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
         }
@@ -79,14 +78,14 @@ constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text)
         if (text_size < 2) {
             return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
         }
-        char8_t const second{text.template index<ndebug>(1)};
+        char8_t const second{text.index(1)};
         if ((second & 0xC0) != 0x80) {
             return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
         }
         if (text_size < 3) {
             return {.consumed_size = 2, .code_point = char32_t{}, .valid = false};
         }
-        char8_t const third{text.template index<ndebug>(2)};
+        char8_t const third{text.index(2)};
         if ((third & 0xC0) != 0x80) {
             return {.consumed_size = 2, .code_point = char32_t{}, .valid = false};
         }
@@ -100,21 +99,21 @@ constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text)
         if (text_size < 2) {
             return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
         }
-        char8_t const second{text.template index<ndebug>(1)};
+        char8_t const second{text.index(1)};
         if ((second & 0xC0) != 0x80) {
             return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
         }
         if (text_size < 3) {
             return {.consumed_size = 2, .code_point = char32_t{}, .valid = false};
         }
-        char8_t const third{text.template index<ndebug>(2)};
+        char8_t const third{text.index(2)};
         if ((third & 0xC0) != 0x80) {
             return {.consumed_size = 2, .code_point = char32_t{}, .valid = false};
         }
         if (text_size < 4) {
             return {.consumed_size = 3, .code_point = char32_t{}, .valid = false};
         }
-        char8_t const fourth{text.template index<ndebug>(3)};
+        char8_t const fourth{text.index(3)};
         if ((fourth & 0xC0) != 0x80) {
             return {.consumed_size = 3, .code_point = char32_t{}, .valid = false};
         }
@@ -178,11 +177,10 @@ constexpr auto encode_utf8_code_point(char32_t code_point) noexcept -> EncodedUt
  * @brief Append a Unicode scalar value to a UTF-8 string.
  * @details An invalid scalar value produces no output.
  */
-template<::pltxt2htm::Contracts ndebug>
 constexpr void append_utf8_code_point(::pltxt2htm::container::U8String& result, char32_t code_point) noexcept {
     auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
     for (::std::size_t index{}; index < encoded.size; ++index) {
-        result.push_back<ndebug>(encoded.code_units[index]);
+        result.push_back(encoded.code_units[index]);
     }
 }
 

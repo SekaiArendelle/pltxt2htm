@@ -22,20 +22,19 @@ namespace pltxt2htm {
  * @brief Unity color tag node
  * @details Represents &lt;color=value&gt;...&lt;/color&gt; with a color string and sub-AST.
  */
-template<::pltxt2htm::Contracts ndebug>
 class UnityColor {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::container::U8String color;
 
 public:
-    constexpr UnityColor(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::U8String&& color_) noexcept;
-    constexpr UnityColor(::pltxt2htm::UnityColor<ndebug> const&) noexcept;
-    constexpr UnityColor(::pltxt2htm::UnityColor<ndebug>&&) noexcept;
+    constexpr UnityColor(::pltxt2htm::Ast&& subast_, ::pltxt2htm::container::U8String&& color_) noexcept;
+    constexpr UnityColor(::pltxt2htm::UnityColor const&) noexcept = default;
+    constexpr UnityColor(::pltxt2htm::UnityColor&&) noexcept;
     constexpr ~UnityColor() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityColor<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnityColor<ndebug>& = default;
-    constexpr auto operator=(this UnityColor<ndebug>& self, ::pltxt2htm::UnityColor<ndebug>&&) noexcept
-        -> ::pltxt2htm::UnityColor<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::UnityColor const&) noexcept
+        -> ::pltxt2htm::UnityColor& = default;
+    constexpr auto operator=(this UnityColor& self, ::pltxt2htm::UnityColor&&) noexcept
+        -> ::pltxt2htm::UnityColor&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityColor const&, UnityColor const&) noexcept -> bool;
@@ -55,20 +54,19 @@ public:
  * @brief Unity link tag node
  * @details Represents &lt;link=&quot;url&quot;&gt;...&lt;/link&gt; with a URL.
  */
-template<::pltxt2htm::Contracts ndebug>
 class UnityLink {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::Url url;
 
 public:
-    constexpr UnityLink(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_) noexcept;
-    constexpr UnityLink(::pltxt2htm::UnityLink<ndebug> const&) noexcept;
-    constexpr UnityLink(::pltxt2htm::UnityLink<ndebug>&&) noexcept;
+    constexpr UnityLink(::pltxt2htm::Ast&& subast_, ::pltxt2htm::Url&& url_) noexcept;
+    constexpr UnityLink(::pltxt2htm::UnityLink const&) noexcept = default;
+    constexpr UnityLink(::pltxt2htm::UnityLink&&) noexcept;
     constexpr ~UnityLink() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityLink<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnityLink<ndebug>& = default;
-    constexpr auto operator=(this UnityLink<ndebug>& self, ::pltxt2htm::UnityLink<ndebug>&&) noexcept
-        -> ::pltxt2htm::UnityLink<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::UnityLink const&) noexcept
+        -> ::pltxt2htm::UnityLink& = default;
+    constexpr auto operator=(this UnityLink& self, ::pltxt2htm::UnityLink&&) noexcept
+        -> ::pltxt2htm::UnityLink&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityLink const&, UnityLink const&) noexcept -> bool;
@@ -89,20 +87,19 @@ public:
  * @details Represents &lt;size=value&gt;...&lt;/size&gt; or &lt;size=value%&gt;...&lt;/size&gt;
  *          (TMP_Text rich text) with a font size value and its unit.
  */
-template<::pltxt2htm::Contracts ndebug>
 class UnitySize {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::ValueWithUnit<double> font_size;
 
 public:
-    constexpr UnitySize(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::ValueWithUnit<double> font_size_) noexcept;
-    constexpr UnitySize(::pltxt2htm::UnitySize<ndebug> const&) noexcept;
-    constexpr UnitySize(::pltxt2htm::UnitySize<ndebug>&&) noexcept;
+    constexpr UnitySize(::pltxt2htm::Ast&& subast_, ::pltxt2htm::ValueWithUnit<double> font_size_) noexcept;
+    constexpr UnitySize(::pltxt2htm::UnitySize const&) noexcept = default;
+    constexpr UnitySize(::pltxt2htm::UnitySize&&) noexcept;
     constexpr ~UnitySize() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnitySize<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnitySize<ndebug>& = default;
-    constexpr auto operator=(this UnitySize<ndebug>& self, ::pltxt2htm::UnitySize<ndebug>&&) noexcept
-        -> ::pltxt2htm::UnitySize<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::UnitySize const&) noexcept
+        -> ::pltxt2htm::UnitySize& = default;
+    constexpr auto operator=(this UnitySize& self, ::pltxt2htm::UnitySize&&) noexcept
+        -> ::pltxt2htm::UnitySize&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnitySize const&, UnitySize const&) noexcept -> bool;
@@ -123,7 +120,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_font_size(this UnitySize<ndebug> const& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
+    constexpr auto get_font_size(this UnitySize const& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
         return self.font_size;
     }
 };
@@ -134,21 +131,20 @@ public:
  *          with a signed px/em offset (negative shifts text down; the unit defaults to px)
  *          and sub-AST.
  */
-template<::pltxt2htm::Contracts ndebug>
 class UnityVoffset {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value;
 
 public:
-    constexpr UnityVoffset(::pltxt2htm::Ast<ndebug>&& subast_,
+    constexpr UnityVoffset(::pltxt2htm::Ast&& subast_,
                            ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value_) noexcept;
-    constexpr UnityVoffset(::pltxt2htm::UnityVoffset<ndebug> const&) noexcept;
-    constexpr UnityVoffset(::pltxt2htm::UnityVoffset<ndebug>&&) noexcept;
+    constexpr UnityVoffset(::pltxt2htm::UnityVoffset const&) noexcept = default;
+    constexpr UnityVoffset(::pltxt2htm::UnityVoffset&&) noexcept;
     constexpr ~UnityVoffset() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityVoffset<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnityVoffset<ndebug>& = default;
-    constexpr auto operator=(this UnityVoffset<ndebug>& self, ::pltxt2htm::UnityVoffset<ndebug>&&) noexcept
-        -> ::pltxt2htm::UnityVoffset<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::UnityVoffset const&) noexcept
+        -> ::pltxt2htm::UnityVoffset& = default;
+    constexpr auto operator=(this UnityVoffset& self, ::pltxt2htm::UnityVoffset&&) noexcept
+        -> ::pltxt2htm::UnityVoffset&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityVoffset const&, UnityVoffset const&) noexcept -> bool;
@@ -169,20 +165,19 @@ public:
  * @details Represents &lt;align=value&gt;...&lt;/align&gt; (Unity TextMeshPro rich text)
  *          with a text-alignment keyword and sub-AST.
  */
-template<::pltxt2htm::Contracts ndebug>
 class UnityAlign {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::TextAlign align;
 
 public:
-    constexpr UnityAlign(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::TextAlign align_) noexcept;
-    constexpr UnityAlign(::pltxt2htm::UnityAlign<ndebug> const&) noexcept;
-    constexpr UnityAlign(::pltxt2htm::UnityAlign<ndebug>&&) noexcept;
+    constexpr UnityAlign(::pltxt2htm::Ast&& subast_, ::pltxt2htm::TextAlign align_) noexcept;
+    constexpr UnityAlign(::pltxt2htm::UnityAlign const&) noexcept = default;
+    constexpr UnityAlign(::pltxt2htm::UnityAlign&&) noexcept;
     constexpr ~UnityAlign() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityAlign<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnityAlign<ndebug>& = default;
-    constexpr auto operator=(this UnityAlign<ndebug>& self, ::pltxt2htm::UnityAlign<ndebug>&&) noexcept
-        -> ::pltxt2htm::UnityAlign<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::UnityAlign const&) noexcept
+        -> ::pltxt2htm::UnityAlign& = default;
+    constexpr auto operator=(this UnityAlign& self, ::pltxt2htm::UnityAlign&&) noexcept
+        -> ::pltxt2htm::UnityAlign&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityAlign const&, UnityAlign const&) noexcept -> bool;
@@ -203,21 +198,20 @@ public:
  * @details Represents &lt;mark=value&gt;...&lt;/mark&gt; (TMP rich text) with a background
  *          color string and sub-AST.
  */
-template<::pltxt2htm::Contracts ndebug>
 class UnityMark {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::container::U8String background_color;
 
 public:
-    constexpr UnityMark(::pltxt2htm::Ast<ndebug>&& subast_,
+    constexpr UnityMark(::pltxt2htm::Ast&& subast_,
                         ::pltxt2htm::container::U8String&& background_color_) noexcept;
-    constexpr UnityMark(::pltxt2htm::UnityMark<ndebug> const&) noexcept;
-    constexpr UnityMark(::pltxt2htm::UnityMark<ndebug>&&) noexcept;
+    constexpr UnityMark(::pltxt2htm::UnityMark const&) noexcept = default;
+    constexpr UnityMark(::pltxt2htm::UnityMark&&) noexcept;
     constexpr ~UnityMark() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityMark<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnityMark<ndebug>& = default;
-    constexpr auto operator=(this UnityMark<ndebug>& self, ::pltxt2htm::UnityMark<ndebug>&&) noexcept
-        -> ::pltxt2htm::UnityMark<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::UnityMark const&) noexcept
+        -> ::pltxt2htm::UnityMark& = default;
+    constexpr auto operator=(this UnityMark& self, ::pltxt2htm::UnityMark&&) noexcept
+        -> ::pltxt2htm::UnityMark&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityMark const&, UnityMark const&) noexcept -> bool;
@@ -240,7 +234,6 @@ public:
  *          text) with optional left and right unsigned px/em/% values (the unit
  *          defaults to px), and sub-AST.
  */
-template<::pltxt2htm::Contracts ndebug>
 class UnityMargin {
     struct MarginStorage {
         ::std::size_t left_value{};
@@ -254,13 +247,13 @@ class UnityMargin {
             ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> const& left,
             ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> const& right) noexcept {
             if (left.has_value()) {
-                auto const& value = left.template value<ndebug>();
+                auto const& value = left.value();
                 left_value = value.value;
                 left_unit = value.unit;
                 has_left = true;
             }
             if (right.has_value()) {
-                auto const& value = right.template value<ndebug>();
+                auto const& value = right.value();
                 right_value = value.value;
                 right_unit = value.unit;
                 has_right = true;
@@ -296,20 +289,20 @@ class UnityMargin {
         }
     };
 
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     MarginStorage margins;
 
 public:
-    constexpr UnityMargin(::pltxt2htm::Ast<ndebug>&& subast_,
+    constexpr UnityMargin(::pltxt2htm::Ast&& subast_,
                           ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
                           ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept;
-    constexpr UnityMargin(::pltxt2htm::UnityMargin<ndebug> const&) noexcept;
-    constexpr UnityMargin(::pltxt2htm::UnityMargin<ndebug>&&) noexcept;
+    constexpr UnityMargin(::pltxt2htm::UnityMargin const&) noexcept = default;
+    constexpr UnityMargin(::pltxt2htm::UnityMargin&&) noexcept;
     constexpr ~UnityMargin() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityMargin<ndebug> const&) noexcept
-        -> ::pltxt2htm::UnityMargin<ndebug>& = default;
-    constexpr auto operator=(this UnityMargin<ndebug>& self, ::pltxt2htm::UnityMargin<ndebug>&&) noexcept
-        -> ::pltxt2htm::UnityMargin<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::UnityMargin const&) noexcept
+        -> ::pltxt2htm::UnityMargin& = default;
+    constexpr auto operator=(this UnityMargin& self, ::pltxt2htm::UnityMargin&&) noexcept
+        -> ::pltxt2htm::UnityMargin&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityMargin const&, UnityMargin const&) noexcept -> bool;
@@ -336,18 +329,17 @@ public:
  * @brief Unity italic text tag node
  * @details Represents &lt;i&gt;...&lt;/i&gt; with sub-AST content.
  */
-template<::pltxt2htm::Contracts ndebug>
 class UnityI {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr UnityI(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr UnityI(::pltxt2htm::UnityI<ndebug> const&) noexcept;
-    constexpr UnityI(::pltxt2htm::UnityI<ndebug>&&) noexcept;
+    constexpr UnityI(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr UnityI(::pltxt2htm::UnityI const&) noexcept = default;
+    constexpr UnityI(::pltxt2htm::UnityI&&) noexcept;
     constexpr ~UnityI() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityI<ndebug> const&) noexcept -> ::pltxt2htm::UnityI<ndebug>& = default;
-    constexpr auto operator=(this UnityI<ndebug>& self, ::pltxt2htm::UnityI<ndebug>&&) noexcept
-        -> ::pltxt2htm::UnityI<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::UnityI const&) noexcept -> ::pltxt2htm::UnityI& = default;
+    constexpr auto operator=(this UnityI& self, ::pltxt2htm::UnityI&&) noexcept
+        -> ::pltxt2htm::UnityI&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityI const&, UnityI const&) noexcept -> bool;
@@ -362,18 +354,17 @@ public:
  * @brief Unity bold text tag node
  * @details Represents &lt;b&gt;...&lt;/b&gt; with sub-AST content.
  */
-template<::pltxt2htm::Contracts ndebug>
 class UnityB {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr UnityB(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr UnityB(::pltxt2htm::UnityB<ndebug> const&) noexcept;
-    constexpr UnityB(::pltxt2htm::UnityB<ndebug>&&) noexcept;
+    constexpr UnityB(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr UnityB(::pltxt2htm::UnityB const&) noexcept = default;
+    constexpr UnityB(::pltxt2htm::UnityB&&) noexcept;
     constexpr ~UnityB() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityB<ndebug> const&) noexcept -> ::pltxt2htm::UnityB<ndebug>& = default;
-    constexpr auto operator=(this UnityB<ndebug>& self, ::pltxt2htm::UnityB<ndebug>&&) noexcept
-        -> ::pltxt2htm::UnityB<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::UnityB const&) noexcept -> ::pltxt2htm::UnityB& = default;
+    constexpr auto operator=(this UnityB& self, ::pltxt2htm::UnityB&&) noexcept
+        -> ::pltxt2htm::UnityB&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityB const&, UnityB const&) noexcept -> bool;

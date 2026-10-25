@@ -33,11 +33,10 @@ namespace pltxt2htm {
  * @brief Tagged-union AST node for Physics-Lab, Unity rich-text, Markdown, and HTML elements.
  * @details Dispatched by ::pltxt2htm::NodeKind. Holds exactly one of the concrete
  *          node types (basic, HTML, Markdown, Physics-Lab, Unity rich text) in a type-safe union.
- * @tparam ndebug Contract checking mode.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  */
-template<::pltxt2htm::Contracts ndebug>
 class PlTxtNode {
-    using Storage = ::pltxt2htm::details::PlTxtNodeStorage<ndebug>;
+    using Storage = ::pltxt2htm::details::PlTxtNodeStorage;
 
     Storage storage{};
     ::pltxt2htm::NodeKind node_kind{};
@@ -52,13 +51,13 @@ public:
      * @return A ::pltxt2htm::PlTxtNode containing the constructed node.
      */
     template<typename Node, typename... Args>
-        requires (::pltxt2htm::details::PlTxtNodeConcept<ndebug, Node> &&
+        requires (::pltxt2htm::details::PlTxtNodeConcept< Node> &&
                   ::std::is_nothrow_constructible_v<Node, Args...>)
     [[nodiscard]]
-    static constexpr auto emplace(Args&&... args) noexcept -> ::pltxt2htm::PlTxtNode<ndebug> {
-        using Traits = ::pltxt2htm::details::PlTxtNodeTraits<ndebug, Node>;
+    static constexpr auto emplace(Args&&... args) noexcept -> ::pltxt2htm::PlTxtNode {
+        using Traits = ::pltxt2htm::details::PlTxtNodeTraits< Node>;
 
-        auto result = ::pltxt2htm::PlTxtNode<ndebug>{};
+        auto result = ::pltxt2htm::PlTxtNode{};
         ::std::construct_at(::std::addressof(result.storage.*Traits::member), ::std::forward<Args>(args)...);
         result.node_kind = Traits::kind;
         return result;
@@ -70,13 +69,13 @@ public:
      *        silently pay for a deep copy (PLTXT2HTM_INTERNAL_USE).
      */
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept = delete;
+    constexpr PlTxtNode(::pltxt2htm::PlTxtNode const&) noexcept = delete;
 #else
-    constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
+    constexpr PlTxtNode(::pltxt2htm::PlTxtNode const& other) noexcept
         : node_kind(other.node_kind) {
         switch (node_kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::text: {
-            new (::std::addressof(storage.text_node))::pltxt2htm::Text<ndebug>(other.storage.text_node);
+            new (::std::addressof(storage.text_node))::pltxt2htm::Text(other.storage.text_node);
             break;
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
@@ -92,7 +91,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::pl_a: {
-            new (::std::addressof(storage.pl_a_node))::pltxt2htm::PlA<ndebug>(other.storage.pl_a_node);
+            new (::std::addressof(storage.pl_a_node))::pltxt2htm::PlA(other.storage.pl_a_node);
             break;
         }
         case ::pltxt2htm::NodeKind::pl_experiment: {
@@ -297,7 +296,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::html_a: {
-            new (::std::addressof(storage.html_a_node))::pltxt2htm::HtmlA<ndebug>(other.storage.html_a_node);
+            new (::std::addressof(storage.html_a_node))::pltxt2htm::HtmlA(other.storage.html_a_node);
             break;
         }
         case ::pltxt2htm::NodeKind::list_ul: {
@@ -331,7 +330,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::html_img: {
-            new (::std::addressof(storage.html_img_node))::pltxt2htm::HtmlImg<ndebug>(other.storage.html_img_node);
+            new (::std::addressof(storage.html_img_node))::pltxt2htm::HtmlImg(other.storage.html_img_node);
             break;
         }
         case ::pltxt2htm::NodeKind::table: {
@@ -403,7 +402,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::code_fence: {
-            new (::std::addressof(storage.code_fence_node))::pltxt2htm::CodeFence<ndebug>(
+            new (::std::addressof(storage.code_fence_node))::pltxt2htm::CodeFence(
                 other.storage.code_fence_node);
             break;
         }
@@ -493,7 +492,7 @@ public:
     }
 #endif
 
-    constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug>&& other) noexcept
+    constexpr PlTxtNode(::pltxt2htm::PlTxtNode&& other) noexcept
         : node_kind(other.node_kind) {
         switch (node_kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::text: {
@@ -1323,9 +1322,9 @@ public:
      *        because the assignment destroys the destination before reconstructing it.
      */
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator=(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept -> PlTxtNode& = delete;
+    constexpr auto operator=(::pltxt2htm::PlTxtNode const&) noexcept -> PlTxtNode& = delete;
 #else
-    constexpr auto operator=(this PlTxtNode<ndebug>& self, ::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
+    constexpr auto operator=(this PlTxtNode& self, ::pltxt2htm::PlTxtNode const& other) noexcept
         -> PlTxtNode& {
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
@@ -1336,7 +1335,7 @@ public:
     }
 #endif
 
-    constexpr auto operator=(this PlTxtNode<ndebug>& self, ::pltxt2htm::PlTxtNode<ndebug>&& other) noexcept
+    constexpr auto operator=(this PlTxtNode& self, ::pltxt2htm::PlTxtNode&& other) noexcept
         -> PlTxtNode& {
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"self assignment is not allowed");
         ::std::destroy_at(::std::addressof(self));
@@ -1345,7 +1344,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto operator==(this PlTxtNode<ndebug> const& self, ::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
+    constexpr auto operator==(this PlTxtNode const& self, ::pltxt2htm::PlTxtNode const& other) noexcept
         -> bool {
         if (self.node_kind != other.node_kind) {
             return false;
@@ -2240,40 +2239,149 @@ public:
     }
 };
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr void Ast<ndebug>::append_code_point(this Ast& self, char32_t code_point) noexcept {
+#if !defined(PLTXT2HTM_INTERNAL_USE)
+constexpr Ast::Ast(::std::initializer_list<value_type> values) noexcept
+    : storage{values} {
+}
+constexpr Ast::Ast(Ast const&) noexcept = default;
+constexpr auto Ast::operator=(this Ast& self, Ast const& other) noexcept -> Ast& {
+    self.storage = other.storage;
+    return self;
+}
+#endif
+constexpr Ast::Ast(Ast&&) noexcept = default;
+constexpr auto Ast::operator=(this Ast& self, Ast&& other) noexcept -> Ast& {
+    self.storage = ::std::move(other.storage);
+    return self;
+}
+constexpr Ast::~Ast() noexcept = default;
+constexpr auto Ast::data(this Ast& self) noexcept -> pointer {
+    return self.storage.data();
+}
+constexpr auto Ast::data(this Ast const& self) noexcept -> const_pointer {
+    return self.storage.data();
+}
+constexpr auto Ast::is_empty(this Ast const& self) noexcept -> bool {
+    return self.storage.is_empty();
+}
+#if !defined(PLTXT2HTM_INTERNAL_USE)
+constexpr auto Ast::empty(this Ast const& self) noexcept -> bool {
+    return self.storage.is_empty();
+}
+#endif
+constexpr auto Ast::size(this Ast const& self) noexcept -> size_type {
+    return self.storage.size();
+}
+constexpr auto Ast::capacity(this Ast const& self) noexcept -> size_type {
+    return self.storage.capacity();
+}
+constexpr auto Ast::max_size() noexcept -> size_type {
+    return storage_type::max_size();
+}
+constexpr auto Ast::begin(this Ast& self) noexcept -> iterator {
+    return self.storage.begin();
+}
+constexpr auto Ast::begin(this Ast const& self) noexcept -> const_iterator {
+    return self.storage.begin();
+}
+constexpr auto Ast::end(this Ast& self) noexcept -> iterator {
+    return self.storage.end();
+}
+constexpr auto Ast::end(this Ast const& self) noexcept -> const_iterator {
+    return self.storage.end();
+}
+constexpr auto Ast::cbegin(this Ast const& self) noexcept -> const_iterator {
+    return self.storage.cbegin();
+}
+constexpr auto Ast::cend(this Ast const& self) noexcept -> const_iterator {
+    return self.storage.cend();
+}
+constexpr auto Ast::rbegin(this Ast& self) noexcept -> reverse_iterator {
+    return self.storage.rbegin();
+}
+constexpr auto Ast::rbegin(this Ast const& self) noexcept -> const_reverse_iterator {
+    return self.storage.rbegin();
+}
+constexpr auto Ast::rend(this Ast& self) noexcept -> reverse_iterator {
+    return self.storage.rend();
+}
+constexpr auto Ast::rend(this Ast const& self) noexcept -> const_reverse_iterator {
+    return self.storage.rend();
+}
+constexpr auto Ast::front(this Ast& self) noexcept -> reference {
+    return self.storage.front();
+}
+constexpr auto Ast::front(this Ast const& self) noexcept -> const_reference {
+    return self.storage.front();
+}
+constexpr auto Ast::index(this Ast& self, size_type position) noexcept -> reference {
+    return self.storage.index(position);
+}
+constexpr auto Ast::index(this Ast const& self, size_type position) noexcept -> const_reference {
+    return self.storage.index(position);
+}
+constexpr void Ast::reserve(this Ast& self, size_type requested_capacity) noexcept {
+    self.storage.reserve(requested_capacity);
+}
+#if !defined(PLTXT2HTM_INTERNAL_USE)
+constexpr void Ast::push_back(this Ast& self, const_reference value) noexcept {
+    self.storage.push_back(value);
+}
+#endif
+constexpr void Ast::push_back(this Ast& self, value_type&& value) noexcept {
+    self.storage.push_back(::std::move(value));
+}
+constexpr void Ast::pop_back(this Ast& self) noexcept {
+    self.storage.pop_back();
+}
+constexpr void Ast::clear(this Ast& self) noexcept {
+    self.storage.clear();
+}
+constexpr auto Ast::erase(this Ast& self, const_iterator position) noexcept -> iterator {
+    return self.storage.erase(position);
+}
+constexpr auto Ast::erase(this Ast& self, const_iterator first, const_iterator last) noexcept -> iterator {
+    return self.storage.erase(first, last);
+}
+constexpr void Ast::swap(this Ast& self, Ast& other) noexcept {
+    self.storage.swap(other.storage);
+}
+constexpr auto Ast::operator==(this Ast const& self, Ast const& other) noexcept -> bool {
+    return self.storage == other.storage;
+}
+constexpr void Ast::append_code_point(this Ast& self, char32_t code_point) noexcept {
     switch (code_point) {
     case U'\n': {
-        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LineBreak>());
+        self.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LineBreak>());
         return;
     }
     case U' ':
     case char32_t{0xA0}: {
-        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Space>());
+        self.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Space>());
         return;
     }
     case U'&': {
-        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Ampersand>());
+        self.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Ampersand>());
         return;
     }
     case U'\'': {
-        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::SingleQuote>());
+        self.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::SingleQuote>());
         return;
     }
     case U'"': {
-        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::DoubleQuote>());
+        self.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::DoubleQuote>());
         return;
     }
     case U'<': {
-        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::LessThan>());
+        self.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
         return;
     }
     case U'>': {
-        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::GreaterThan>());
+        self.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::GreaterThan>());
         return;
     }
     case U'\t': {
-        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Tab>());
+        self.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Tab>());
         return;
     }
     default: {
@@ -2282,13 +2390,13 @@ constexpr void Ast<ndebug>::append_code_point(this Ast& self, char32_t code_poin
     }
 
     if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
-        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::InvalidUtf8>());
+        self.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::InvalidUtf8>());
         return;
     }
 
     auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
     if (encoded.size == 0) {
-        self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::InvalidUtf8>());
+        self.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::InvalidUtf8>());
         return;
     }
     for (::std::size_t index{}; index < encoded.size; ++index) {
@@ -2296,26 +2404,24 @@ constexpr void Ast<ndebug>::append_code_point(this Ast& self, char32_t code_poin
     }
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr void Ast<ndebug>::append_text(this Ast& self, char8_t code_unit) noexcept {
+constexpr void Ast::append_text(this Ast& self, char8_t code_unit) noexcept {
     if (self.is_empty() == false) {
         auto&& last_node = self.index(self.size() - 1);
         if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text && last_node.as_text().try_push_back(code_unit)) {
             return;
         }
     }
-    self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(code_unit));
+    self.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(code_unit));
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr void Ast<ndebug>::append_text(this Ast& self, ::pltxt2htm::container::U8StringView text) noexcept {
+constexpr void Ast::append_text(this Ast& self, ::pltxt2htm::container::U8StringView text) noexcept {
     auto current = text.begin();
     auto const end = text.end();
     if (current == end) {
         return;
     }
 
-    constexpr auto text_capacity = ::pltxt2htm::Text<ndebug>::capacity();
+    constexpr auto text_capacity = ::pltxt2htm::Text::capacity();
     if (self.is_empty() == false) {
         auto&& last_node = self.index(self.size() - 1);
         if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text) {
@@ -2341,7 +2447,7 @@ constexpr void Ast<ndebug>::append_text(this Ast& self, ::pltxt2htm::container::
         auto const remaining_size = static_cast<::std::size_t>(end - current);
         auto const node_size = remaining_size < text_capacity ? remaining_size : text_capacity;
         self.push_back(
-            ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(current, current + node_size));
+            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(current, current + node_size));
         current += node_size;
     }
 }

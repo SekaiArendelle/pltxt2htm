@@ -134,14 +134,12 @@ public:
         return const_reverse_iterator{self.begin()};
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto index(this Array& self, size_type position) noexcept -> reference {
         pltxt2htm_assert(position < extent, u8"Index of array out of bound");
         return self.element[position];
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto index(this Array const& self, size_type position) noexcept -> const_reference {
         pltxt2htm_assert(position < extent, u8"Index of array out of bound");
@@ -153,7 +151,7 @@ public:
      *
      * Contract-bearing access stays on index(); this overload is external-only:
      * while pltxt2htm itself is being built (PLTXT2HTM_INTERNAL_USE) it stays
-     * deleted, so implementation code must name a Contracts policy.
+     * deleted, so implementation code must name a build-wide contract setting.
      * @param position Zero-based element position.
      * @return Mutable reference to the requested element.
      * @pre position < extent; otherwise the behavior is undefined.
@@ -165,7 +163,7 @@ public:
             #pragma clang diagnostic push
             #pragma clang diagnostic ignored "-Wc++26-extensions"
         #endif
-        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        ("operator[] is external-only; use index() inside pltxt2htm")
         #if defined __clang__
             #pragma clang diagnostic pop
         #endif
@@ -191,7 +189,7 @@ public:
             #pragma clang diagnostic push
             #pragma clang diagnostic ignored "-Wc++26-extensions"
         #endif
-        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
+        ("operator[] is external-only; use index() inside pltxt2htm")
         #if defined __clang__
             #pragma clang diagnostic pop
         #endif
@@ -203,28 +201,24 @@ public:
     }
 #endif
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this Array& self) noexcept -> reference {
         pltxt2htm_assert(extent != 0, u8"front() called on an empty array");
         return self.element[0];
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this Array const& self) noexcept -> const_reference {
         pltxt2htm_assert(extent != 0, u8"front() called on an empty array");
         return self.element[0];
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this Array& self) noexcept -> reference {
         pltxt2htm_assert(extent != 0, u8"back() called on an empty array");
         return self.element[extent - 1];
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this Array const& self) noexcept -> const_reference {
         pltxt2htm_assert(extent != 0, u8"back() called on an empty array");

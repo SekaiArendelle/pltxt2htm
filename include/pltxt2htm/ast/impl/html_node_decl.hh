@@ -47,24 +47,23 @@ public:
  * @brief HTML &lt;img&gt; image node (self-closing)
  * @details Represents &lt;img src=&quot;...&quot; alt=&quot;...&quot;&gt;.
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlImg {
     ::pltxt2htm::container::U8String src;
-    ::pltxt2htm::PlainText<ndebug> alt;
+    ::pltxt2htm::PlainText alt;
 
 public:
-    constexpr HtmlImg(::pltxt2htm::container::U8String&& src_, ::pltxt2htm::PlainText<ndebug>&& alt_) noexcept
+    constexpr HtmlImg(::pltxt2htm::container::U8String&& src_, ::pltxt2htm::PlainText&& alt_) noexcept
         : src(::std::move(src_)),
           alt(::std::move(alt_)) {
     }
 
-    constexpr HtmlImg(::pltxt2htm::HtmlImg<ndebug> const&) noexcept = default;
-    constexpr HtmlImg(::pltxt2htm::HtmlImg<ndebug>&&) noexcept = default;
+    constexpr HtmlImg(::pltxt2htm::HtmlImg const&) noexcept = default;
+    constexpr HtmlImg(::pltxt2htm::HtmlImg&&) noexcept = default;
     constexpr ~HtmlImg() noexcept = default;
-    constexpr auto operator=(this HtmlImg& self, ::pltxt2htm::HtmlImg<ndebug> const&) noexcept
-        -> ::pltxt2htm::HtmlImg<ndebug>& = default;
-    constexpr auto operator=(this HtmlImg& self, ::pltxt2htm::HtmlImg<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlImg<ndebug>& = default;
+    constexpr auto operator=(this HtmlImg& self, ::pltxt2htm::HtmlImg const&) noexcept
+        -> ::pltxt2htm::HtmlImg& = default;
+    constexpr auto operator=(this HtmlImg& self, ::pltxt2htm::HtmlImg&&) noexcept
+        -> ::pltxt2htm::HtmlImg& = default;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlImg const&, HtmlImg const&) noexcept -> bool = default;
@@ -84,18 +83,17 @@ public:
  * @brief HTML &lt;h1&gt; heading node
  * @details Represents a level-1 heading containing sub-AST content.
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlH1 {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlH1(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlH1(::pltxt2htm::HtmlH1<ndebug> const&) noexcept;
-    constexpr HtmlH1(::pltxt2htm::HtmlH1<ndebug>&&) noexcept;
+    constexpr explicit HtmlH1(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlH1(::pltxt2htm::HtmlH1 const&) noexcept = default;
+    constexpr HtmlH1(::pltxt2htm::HtmlH1&&) noexcept;
     constexpr ~HtmlH1() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlH1<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH1<ndebug>& = default;
-    constexpr auto operator=(this HtmlH1<ndebug>& self, ::pltxt2htm::HtmlH1<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlH1<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlH1 const&) noexcept -> ::pltxt2htm::HtmlH1& = default;
+    constexpr auto operator=(this HtmlH1& self, ::pltxt2htm::HtmlH1&&) noexcept
+        -> ::pltxt2htm::HtmlH1&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlH1 const&, HtmlH1 const&) noexcept -> bool;
@@ -109,18 +107,17 @@ public:
 /**
  * @brief HTML &lt;h2&gt; heading node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlH2 {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlH2(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlH2(::pltxt2htm::HtmlH2<ndebug> const&) noexcept;
-    constexpr HtmlH2(::pltxt2htm::HtmlH2<ndebug>&&) noexcept;
+    constexpr explicit HtmlH2(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlH2(::pltxt2htm::HtmlH2 const&) noexcept = default;
+    constexpr HtmlH2(::pltxt2htm::HtmlH2&&) noexcept;
     constexpr ~HtmlH2() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlH2<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH2<ndebug>& = default;
-    constexpr auto operator=(this HtmlH2<ndebug>& self, ::pltxt2htm::HtmlH2<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlH2<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlH2 const&) noexcept -> ::pltxt2htm::HtmlH2& = default;
+    constexpr auto operator=(this HtmlH2& self, ::pltxt2htm::HtmlH2&&) noexcept
+        -> ::pltxt2htm::HtmlH2&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlH2 const&, HtmlH2 const&) noexcept -> bool;
@@ -134,18 +131,17 @@ public:
 /**
  * @brief HTML &lt;h3&gt; heading node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlH3 {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlH3(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlH3(::pltxt2htm::HtmlH3<ndebug> const&) noexcept;
-    constexpr HtmlH3(::pltxt2htm::HtmlH3<ndebug>&&) noexcept;
+    constexpr explicit HtmlH3(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlH3(::pltxt2htm::HtmlH3 const&) noexcept = default;
+    constexpr HtmlH3(::pltxt2htm::HtmlH3&&) noexcept;
     constexpr ~HtmlH3() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlH3<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH3<ndebug>& = default;
-    constexpr auto operator=(this HtmlH3<ndebug>& self, ::pltxt2htm::HtmlH3<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlH3<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlH3 const&) noexcept -> ::pltxt2htm::HtmlH3& = default;
+    constexpr auto operator=(this HtmlH3& self, ::pltxt2htm::HtmlH3&&) noexcept
+        -> ::pltxt2htm::HtmlH3&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlH3 const&, HtmlH3 const&) noexcept -> bool;
@@ -159,18 +155,17 @@ public:
 /**
  * @brief HTML &lt;h4&gt; heading node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlH4 {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlH4(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlH4(::pltxt2htm::HtmlH4<ndebug> const&) noexcept;
-    constexpr HtmlH4(::pltxt2htm::HtmlH4<ndebug>&&) noexcept;
+    constexpr explicit HtmlH4(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlH4(::pltxt2htm::HtmlH4 const&) noexcept = default;
+    constexpr HtmlH4(::pltxt2htm::HtmlH4&&) noexcept;
     constexpr ~HtmlH4() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlH4<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH4<ndebug>& = default;
-    constexpr auto operator=(this HtmlH4<ndebug>& self, ::pltxt2htm::HtmlH4<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlH4<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlH4 const&) noexcept -> ::pltxt2htm::HtmlH4& = default;
+    constexpr auto operator=(this HtmlH4& self, ::pltxt2htm::HtmlH4&&) noexcept
+        -> ::pltxt2htm::HtmlH4&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlH4 const&, HtmlH4 const&) noexcept -> bool;
@@ -184,18 +179,17 @@ public:
 /**
  * @brief HTML &lt;h5&gt; heading node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlH5 {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlH5(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlH5(::pltxt2htm::HtmlH5<ndebug> const&) noexcept;
-    constexpr HtmlH5(::pltxt2htm::HtmlH5<ndebug>&&) noexcept;
+    constexpr explicit HtmlH5(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlH5(::pltxt2htm::HtmlH5 const&) noexcept = default;
+    constexpr HtmlH5(::pltxt2htm::HtmlH5&&) noexcept;
     constexpr ~HtmlH5() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlH5<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH5<ndebug>& = default;
-    constexpr auto operator=(this HtmlH5<ndebug>& self, ::pltxt2htm::HtmlH5<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlH5<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlH5 const&) noexcept -> ::pltxt2htm::HtmlH5& = default;
+    constexpr auto operator=(this HtmlH5& self, ::pltxt2htm::HtmlH5&&) noexcept
+        -> ::pltxt2htm::HtmlH5&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlH5 const&, HtmlH5 const&) noexcept -> bool;
@@ -209,18 +203,17 @@ public:
 /**
  * @brief HTML &lt;h6&gt; heading node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlH6 {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlH6(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlH6(::pltxt2htm::HtmlH6<ndebug> const&) noexcept;
-    constexpr HtmlH6(::pltxt2htm::HtmlH6<ndebug>&&) noexcept;
+    constexpr explicit HtmlH6(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlH6(::pltxt2htm::HtmlH6 const&) noexcept = default;
+    constexpr HtmlH6(::pltxt2htm::HtmlH6&&) noexcept;
     constexpr ~HtmlH6() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlH6<ndebug> const&) noexcept -> ::pltxt2htm::HtmlH6<ndebug>& = default;
-    constexpr auto operator=(this HtmlH6<ndebug>& self, ::pltxt2htm::HtmlH6<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlH6<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlH6 const&) noexcept -> ::pltxt2htm::HtmlH6& = default;
+    constexpr auto operator=(this HtmlH6& self, ::pltxt2htm::HtmlH6&&) noexcept
+        -> ::pltxt2htm::HtmlH6&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlH6 const&, HtmlH6 const&) noexcept -> bool;
@@ -234,20 +227,19 @@ public:
 /**
  * @brief HTML &lt;p&gt; paragraph node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlP {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::TextAlign align;
 
 public:
-    constexpr HtmlP(::pltxt2htm::Ast<ndebug>&& subast_,
+    constexpr HtmlP(::pltxt2htm::Ast&& subast_,
                     ::pltxt2htm::TextAlign align_ = ::pltxt2htm::TextAlign::left) noexcept;
-    constexpr HtmlP(::pltxt2htm::HtmlP<ndebug> const&) noexcept;
-    constexpr HtmlP(::pltxt2htm::HtmlP<ndebug>&&) noexcept;
+    constexpr HtmlP(::pltxt2htm::HtmlP const&) noexcept = default;
+    constexpr HtmlP(::pltxt2htm::HtmlP&&) noexcept;
     constexpr ~HtmlP() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlP<ndebug> const&) noexcept -> ::pltxt2htm::HtmlP<ndebug>& = default;
-    constexpr auto operator=(this HtmlP<ndebug>& self, ::pltxt2htm::HtmlP<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlP<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlP const&) noexcept -> ::pltxt2htm::HtmlP& = default;
+    constexpr auto operator=(this HtmlP& self, ::pltxt2htm::HtmlP&&) noexcept
+        -> ::pltxt2htm::HtmlP&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlP const&, HtmlP const&) noexcept -> bool;
@@ -266,18 +258,17 @@ public:
 /**
  * @brief HTML &lt;del&gt; deleted text node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlDel {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlDel(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlDel(::pltxt2htm::HtmlDel<ndebug> const&) noexcept;
-    constexpr HtmlDel(::pltxt2htm::HtmlDel<ndebug>&&) noexcept;
+    constexpr explicit HtmlDel(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlDel(::pltxt2htm::HtmlDel const&) noexcept = default;
+    constexpr HtmlDel(::pltxt2htm::HtmlDel&&) noexcept;
     constexpr ~HtmlDel() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlDel<ndebug> const&) noexcept -> ::pltxt2htm::HtmlDel<ndebug>& = default;
-    constexpr auto operator=(this HtmlDel<ndebug>& self, ::pltxt2htm::HtmlDel<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlDel<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlDel const&) noexcept -> ::pltxt2htm::HtmlDel& = default;
+    constexpr auto operator=(this HtmlDel& self, ::pltxt2htm::HtmlDel&&) noexcept
+        -> ::pltxt2htm::HtmlDel&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlDel const&, HtmlDel const&) noexcept -> bool;
@@ -291,18 +282,17 @@ public:
 /**
  * @brief HTML &lt;u&gt; underline text node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlU {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlU(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlU(::pltxt2htm::HtmlU<ndebug> const&) noexcept;
-    constexpr HtmlU(::pltxt2htm::HtmlU<ndebug>&&) noexcept;
+    constexpr explicit HtmlU(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlU(::pltxt2htm::HtmlU const&) noexcept = default;
+    constexpr HtmlU(::pltxt2htm::HtmlU&&) noexcept;
     constexpr ~HtmlU() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlU<ndebug> const&) noexcept -> ::pltxt2htm::HtmlU<ndebug>& = default;
-    constexpr auto operator=(this HtmlU<ndebug>& self, ::pltxt2htm::HtmlU<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlU<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlU const&) noexcept -> ::pltxt2htm::HtmlU& = default;
+    constexpr auto operator=(this HtmlU& self, ::pltxt2htm::HtmlU&&) noexcept
+        -> ::pltxt2htm::HtmlU&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlU const&, HtmlU const&) noexcept -> bool;
@@ -316,18 +306,17 @@ public:
 /**
  * @brief HTML &lt;s&gt; strikethrough text node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlS {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlS(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlS(::pltxt2htm::HtmlS<ndebug> const&) noexcept;
-    constexpr HtmlS(::pltxt2htm::HtmlS<ndebug>&&) noexcept;
+    constexpr explicit HtmlS(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlS(::pltxt2htm::HtmlS const&) noexcept = default;
+    constexpr HtmlS(::pltxt2htm::HtmlS&&) noexcept;
     constexpr ~HtmlS() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlS<ndebug> const&) noexcept -> ::pltxt2htm::HtmlS<ndebug>& = default;
-    constexpr auto operator=(this HtmlS<ndebug>& self, ::pltxt2htm::HtmlS<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlS<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlS const&) noexcept -> ::pltxt2htm::HtmlS& = default;
+    constexpr auto operator=(this HtmlS& self, ::pltxt2htm::HtmlS&&) noexcept
+        -> ::pltxt2htm::HtmlS&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlS const&, HtmlS const&) noexcept -> bool;
@@ -342,18 +331,17 @@ public:
  * @brief HTML &lt;sup&gt; superscript text node
  * @details Represents &lt;sup&gt;...&lt;/sup&gt; with sub-AST content.
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlSup {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr HtmlSup(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlSup(::pltxt2htm::HtmlSup<ndebug> const&) noexcept;
-    constexpr HtmlSup(::pltxt2htm::HtmlSup<ndebug>&&) noexcept;
+    constexpr HtmlSup(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlSup(::pltxt2htm::HtmlSup const&) noexcept = default;
+    constexpr HtmlSup(::pltxt2htm::HtmlSup&&) noexcept;
     constexpr ~HtmlSup() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlSup<ndebug> const&) noexcept -> ::pltxt2htm::HtmlSup<ndebug>& = default;
-    constexpr auto operator=(this HtmlSup<ndebug>& self, ::pltxt2htm::HtmlSup<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlSup<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlSup const&) noexcept -> ::pltxt2htm::HtmlSup& = default;
+    constexpr auto operator=(this HtmlSup& self, ::pltxt2htm::HtmlSup&&) noexcept
+        -> ::pltxt2htm::HtmlSup&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlSup const&, HtmlSup const&) noexcept -> bool;
@@ -368,18 +356,17 @@ public:
  * @brief HTML &lt;sub&gt; subscript text node
  * @details Represents &lt;sub&gt;...&lt;/sub&gt; with sub-AST content.
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlSub {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr HtmlSub(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlSub(::pltxt2htm::HtmlSub<ndebug> const&) noexcept;
-    constexpr HtmlSub(::pltxt2htm::HtmlSub<ndebug>&&) noexcept;
+    constexpr HtmlSub(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlSub(::pltxt2htm::HtmlSub const&) noexcept = default;
+    constexpr HtmlSub(::pltxt2htm::HtmlSub&&) noexcept;
     constexpr ~HtmlSub() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlSub<ndebug> const&) noexcept -> ::pltxt2htm::HtmlSub<ndebug>& = default;
-    constexpr auto operator=(this HtmlSub<ndebug>& self, ::pltxt2htm::HtmlSub<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlSub<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlSub const&) noexcept -> ::pltxt2htm::HtmlSub& = default;
+    constexpr auto operator=(this HtmlSub& self, ::pltxt2htm::HtmlSub&&) noexcept
+        -> ::pltxt2htm::HtmlSub&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlSub const&, HtmlSub const&) noexcept -> bool;
@@ -393,18 +380,17 @@ public:
 /**
  * @brief HTML &lt;note&gt; custom note node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlNote {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlNote(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlNote(::pltxt2htm::HtmlNote<ndebug> const&) noexcept;
-    constexpr HtmlNote(::pltxt2htm::HtmlNote<ndebug>&&) noexcept;
+    constexpr explicit HtmlNote(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlNote(::pltxt2htm::HtmlNote const&) noexcept = default;
+    constexpr HtmlNote(::pltxt2htm::HtmlNote&&) noexcept;
     constexpr ~HtmlNote() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlNote<ndebug> const&) noexcept -> ::pltxt2htm::HtmlNote<ndebug>& = default;
-    constexpr auto operator=(this HtmlNote<ndebug>& self, ::pltxt2htm::HtmlNote<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlNote<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlNote const&) noexcept -> ::pltxt2htm::HtmlNote& = default;
+    constexpr auto operator=(this HtmlNote& self, ::pltxt2htm::HtmlNote&&) noexcept
+        -> ::pltxt2htm::HtmlNote&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlNote const&, HtmlNote const&) noexcept -> bool;
@@ -418,18 +404,17 @@ public:
 /**
  * @brief HTML &lt;em&gt; emphasis node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlEm {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlEm(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlEm(::pltxt2htm::HtmlEm<ndebug> const&) noexcept;
-    constexpr HtmlEm(::pltxt2htm::HtmlEm<ndebug>&&) noexcept;
+    constexpr explicit HtmlEm(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlEm(::pltxt2htm::HtmlEm const&) noexcept = default;
+    constexpr HtmlEm(::pltxt2htm::HtmlEm&&) noexcept;
     constexpr ~HtmlEm() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlEm<ndebug> const&) noexcept -> ::pltxt2htm::HtmlEm<ndebug>& = default;
-    constexpr auto operator=(this HtmlEm<ndebug>& self, ::pltxt2htm::HtmlEm<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlEm<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlEm const&) noexcept -> ::pltxt2htm::HtmlEm& = default;
+    constexpr auto operator=(this HtmlEm& self, ::pltxt2htm::HtmlEm&&) noexcept
+        -> ::pltxt2htm::HtmlEm&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlEm const&, HtmlEm const&) noexcept -> bool;
@@ -443,19 +428,18 @@ public:
 /**
  * @brief HTML &lt;strong&gt; strong importance node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlStrong {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlStrong(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlStrong(::pltxt2htm::HtmlStrong<ndebug> const&) noexcept;
-    constexpr HtmlStrong(::pltxt2htm::HtmlStrong<ndebug>&&) noexcept;
+    constexpr explicit HtmlStrong(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlStrong(::pltxt2htm::HtmlStrong const&) noexcept = default;
+    constexpr HtmlStrong(::pltxt2htm::HtmlStrong&&) noexcept;
     constexpr ~HtmlStrong() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlStrong<ndebug> const&) noexcept
-        -> ::pltxt2htm::HtmlStrong<ndebug>& = default;
-    constexpr auto operator=(this HtmlStrong<ndebug>& self, ::pltxt2htm::HtmlStrong<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlStrong<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlStrong const&) noexcept
+        -> ::pltxt2htm::HtmlStrong& = default;
+    constexpr auto operator=(this HtmlStrong& self, ::pltxt2htm::HtmlStrong&&) noexcept
+        -> ::pltxt2htm::HtmlStrong&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlStrong const&, HtmlStrong const&) noexcept -> bool;
@@ -472,22 +456,21 @@ public:
  *          background-color value. Defaults to the standard highlight color "#FFFF00";
  *          an explicitly provided style value (e.g. "red" or "#FF0000") overrides it.
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlMark {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::container::U8String background_color;
 
 public:
     static constexpr auto default_background_color = ::pltxt2htm::container::U8StringView{u8"#FFFF00"};
 
-    constexpr explicit HtmlMark(::pltxt2htm::Ast<ndebug>&& subast_,
+    constexpr explicit HtmlMark(::pltxt2htm::Ast&& subast_,
                                 ::pltxt2htm::container::U8String&& background_color_ = ::pltxt2htm::container::U8String{
                                     default_background_color}) noexcept;
-    constexpr HtmlMark(HtmlMark<ndebug> const&) noexcept;
-    constexpr HtmlMark(HtmlMark<ndebug>&&) noexcept;
+    constexpr HtmlMark(HtmlMark const&) noexcept = default;
+    constexpr HtmlMark(HtmlMark&&) noexcept;
     constexpr ~HtmlMark() noexcept = default;
-    constexpr auto operator=(HtmlMark<ndebug> const&) noexcept -> HtmlMark<ndebug>& = default;
-    constexpr auto operator=(this HtmlMark<ndebug>& self, HtmlMark<ndebug>&&) noexcept -> HtmlMark<ndebug>&;
+    constexpr auto operator=(HtmlMark const&) noexcept -> HtmlMark& = default;
+    constexpr auto operator=(this HtmlMark& self, HtmlMark&&) noexcept -> HtmlMark&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlMark const&, HtmlMark const&) noexcept -> bool;
@@ -506,18 +489,17 @@ public:
 /**
  * @brief HTML &lt;code&gt; inline code node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlCode {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlCode(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug> const&) noexcept;
-    constexpr HtmlCode(::pltxt2htm::HtmlCode<ndebug>&&) noexcept;
+    constexpr explicit HtmlCode(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlCode(::pltxt2htm::HtmlCode const&) noexcept = default;
+    constexpr HtmlCode(::pltxt2htm::HtmlCode&&) noexcept;
     constexpr ~HtmlCode() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlCode<ndebug> const&) noexcept -> ::pltxt2htm::HtmlCode<ndebug>& = default;
-    constexpr auto operator=(this HtmlCode<ndebug>& self, ::pltxt2htm::HtmlCode<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlCode<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlCode const&) noexcept -> ::pltxt2htm::HtmlCode& = default;
+    constexpr auto operator=(this HtmlCode& self, ::pltxt2htm::HtmlCode&&) noexcept
+        -> ::pltxt2htm::HtmlCode&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlCode const&, HtmlCode const&) noexcept -> bool;
@@ -535,14 +517,13 @@ public:
  *          font_size stores the font-size value+unit if present (e.g. {20.5, px} for 20.5px).
  *          vertical_align stores the vertical-align value+unit if present (e.g. {super} or {5, px}).
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlSpan {
     /**
      * @brief Compact storage for the optional span style attributes.
      * @details Semantically equivalent to the clearer but larger representation:
      * @code
      * Optional<ValueWithUnit<double>> font_size;
-     * Optional<VerticalAlignValue<ndebug>> vertical_align;
+     * Optional<VerticalAlignValue> vertical_align;
      * @endcode
      * Flattening their state lets the tags share alignment padding and avoids enlarging every PlTxtNode.
      */
@@ -632,9 +613,9 @@ class HtmlSpan {
 
         constexpr StyleStorage(
             ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> const& font_size,
-            ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> const& vertical_align) noexcept {
+            ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> const& vertical_align) noexcept {
             if (font_size.has_value()) {
-                auto const& value = font_size.template value<ndebug>();
+                auto const& value = font_size.value();
                 font_size_value = value.value;
                 font_size_unit = value.unit;
                 has_font_size = true;
@@ -642,7 +623,7 @@ class HtmlSpan {
             if (vertical_align.has_value() == false) {
                 return;
             }
-            auto const& value = vertical_align.template value<ndebug>();
+            auto const& value = vertical_align.value();
             if (value.get_kind() == ::pltxt2htm::VerticalAlignKind::keyword) {
                 vertical_align_kind = encode_vertical_align_keyword(value.get_keyword());
                 return;
@@ -679,45 +660,45 @@ class HtmlSpan {
 
         [[nodiscard]]
         constexpr auto get_vertical_align(this StyleStorage const& self) noexcept
-            -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
+            -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> {
             switch (self.vertical_align_kind) /* -Werror=switch */ {
             case VerticalAlignStorageKind::none: {
                 return ::pltxt2htm::container::nullopt;
             }
             case VerticalAlignStorageKind::keyword_baseline: {
-                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::baseline};
+                return ::pltxt2htm::VerticalAlignValue{::pltxt2htm::VerticalAlignKeyword::baseline};
             }
             case VerticalAlignStorageKind::keyword_sub: {
-                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::sub};
+                return ::pltxt2htm::VerticalAlignValue{::pltxt2htm::VerticalAlignKeyword::sub};
             }
             case VerticalAlignStorageKind::keyword_super: {
-                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::super};
+                return ::pltxt2htm::VerticalAlignValue{::pltxt2htm::VerticalAlignKeyword::super};
             }
             case VerticalAlignStorageKind::keyword_text_top: {
-                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::text_top};
+                return ::pltxt2htm::VerticalAlignValue{::pltxt2htm::VerticalAlignKeyword::text_top};
             }
             case VerticalAlignStorageKind::keyword_text_bottom: {
-                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::text_bottom};
+                return ::pltxt2htm::VerticalAlignValue{::pltxt2htm::VerticalAlignKeyword::text_bottom};
             }
             case VerticalAlignStorageKind::keyword_middle: {
-                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::middle};
+                return ::pltxt2htm::VerticalAlignValue{::pltxt2htm::VerticalAlignKeyword::middle};
             }
             case VerticalAlignStorageKind::keyword_top: {
-                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::top};
+                return ::pltxt2htm::VerticalAlignValue{::pltxt2htm::VerticalAlignKeyword::top};
             }
             case VerticalAlignStorageKind::keyword_bottom: {
-                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::VerticalAlignKeyword::bottom};
+                return ::pltxt2htm::VerticalAlignValue{::pltxt2htm::VerticalAlignKeyword::bottom};
             }
             case VerticalAlignStorageKind::length_px: {
-                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{
+                return ::pltxt2htm::VerticalAlignValue{::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{
                     .value = self.vertical_align_length, .unit = ::pltxt2htm::Unit::px}};
             }
             case VerticalAlignStorageKind::length_percent: {
-                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{
+                return ::pltxt2htm::VerticalAlignValue{::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{
                     .value = self.vertical_align_length, .unit = ::pltxt2htm::Unit::percent}};
             }
             case VerticalAlignStorageKind::length_em: {
-                return ::pltxt2htm::VerticalAlignValue<ndebug>{::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{
+                return ::pltxt2htm::VerticalAlignValue{::pltxt2htm::ValueWithUnit<::std::ptrdiff_t>{
                     .value = self.vertical_align_length, .unit = ::pltxt2htm::Unit::em}};
             }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
@@ -731,21 +712,21 @@ class HtmlSpan {
         }
     };
 
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::container::U8String color;
     StyleStorage style;
 
 public:
     constexpr HtmlSpan(
-        ::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::U8String&& color_,
+        ::pltxt2htm::Ast&& subast_, ::pltxt2htm::container::U8String&& color_,
         ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size_,
-        ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align_) noexcept;
-    constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept;
-    constexpr HtmlSpan(::pltxt2htm::HtmlSpan<ndebug>&&) noexcept;
+        ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> vertical_align_) noexcept;
+    constexpr HtmlSpan(::pltxt2htm::HtmlSpan const&) noexcept = default;
+    constexpr HtmlSpan(::pltxt2htm::HtmlSpan&&) noexcept;
     constexpr ~HtmlSpan() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlSpan<ndebug> const&) noexcept -> ::pltxt2htm::HtmlSpan<ndebug>& = default;
-    constexpr auto operator=(this HtmlSpan<ndebug>& self, ::pltxt2htm::HtmlSpan<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlSpan<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlSpan const&) noexcept -> ::pltxt2htm::HtmlSpan& = default;
+    constexpr auto operator=(this HtmlSpan& self, ::pltxt2htm::HtmlSpan&&) noexcept
+        -> ::pltxt2htm::HtmlSpan&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlSpan const&, HtmlSpan const&) noexcept -> bool;
@@ -761,14 +742,14 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_font_size(this HtmlSpan<ndebug> const& self) noexcept
+    constexpr auto get_font_size(this HtmlSpan const& self) noexcept
         -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
         return self.style.get_font_size();
     }
 
     [[nodiscard]]
-    constexpr auto get_vertical_align(this HtmlSpan<ndebug> const& self) noexcept
-        -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
+    constexpr auto get_vertical_align(this HtmlSpan const& self) noexcept
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> {
         return self.style.get_vertical_align();
     }
 };
@@ -779,7 +760,6 @@ public:
  *          margin-left and margin-right (each an optional px/em/% value). Any other
  *          attribute or CSS declaration is rejected by the parser to prevent XSS.
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlDiv {
     struct MarginStorage {
         ::std::size_t left_value{};
@@ -793,13 +773,13 @@ class HtmlDiv {
             ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> const& left,
             ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> const& right) noexcept {
             if (left.has_value()) {
-                auto const& value = left.template value<ndebug>();
+                auto const& value = left.value();
                 left_value = value.value;
                 left_unit = value.unit;
                 has_left = true;
             }
             if (right.has_value()) {
-                auto const& value = right.template value<ndebug>();
+                auto const& value = right.value();
                 right_value = value.value;
                 right_unit = value.unit;
                 has_right = true;
@@ -835,19 +815,19 @@ class HtmlDiv {
         }
     };
 
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     MarginStorage margins;
 
 public:
-    constexpr HtmlDiv(::pltxt2htm::Ast<ndebug>&& subast_,
+    constexpr HtmlDiv(::pltxt2htm::Ast&& subast_,
                       ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
                       ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept;
-    constexpr HtmlDiv(::pltxt2htm::HtmlDiv<ndebug> const&) noexcept;
-    constexpr HtmlDiv(::pltxt2htm::HtmlDiv<ndebug>&&) noexcept;
+    constexpr HtmlDiv(::pltxt2htm::HtmlDiv const&) noexcept = default;
+    constexpr HtmlDiv(::pltxt2htm::HtmlDiv&&) noexcept;
     constexpr ~HtmlDiv() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlDiv<ndebug> const&) noexcept -> ::pltxt2htm::HtmlDiv<ndebug>& = default;
-    constexpr auto operator=(this HtmlDiv<ndebug>& self, ::pltxt2htm::HtmlDiv<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlDiv<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlDiv const&) noexcept -> ::pltxt2htm::HtmlDiv& = default;
+    constexpr auto operator=(this HtmlDiv& self, ::pltxt2htm::HtmlDiv&&) noexcept
+        -> ::pltxt2htm::HtmlDiv&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlDiv const&, HtmlDiv const&) noexcept -> bool;
@@ -874,20 +854,19 @@ public:
  * @brief HTML &lt;a href="URL"&gt; anchor/link node
  * @details Represents an HTML anchor element with href attribute.
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlA {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::Url url;
     bool internal;
 
 public:
-    constexpr explicit HtmlA(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_, bool internal_) noexcept;
-    constexpr HtmlA(::pltxt2htm::HtmlA<ndebug> const&) noexcept;
-    constexpr HtmlA(::pltxt2htm::HtmlA<ndebug>&&) noexcept;
+    constexpr explicit HtmlA(::pltxt2htm::Ast&& subast_, ::pltxt2htm::Url&& url_, bool internal_) noexcept;
+    constexpr HtmlA(::pltxt2htm::HtmlA const&) noexcept = default;
+    constexpr HtmlA(::pltxt2htm::HtmlA&&) noexcept;
     constexpr ~HtmlA() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlA<ndebug> const&) noexcept -> ::pltxt2htm::HtmlA<ndebug>& = default;
-    constexpr auto operator=(this HtmlA<ndebug>& self, ::pltxt2htm::HtmlA<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlA<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlA const&) noexcept -> ::pltxt2htm::HtmlA& = default;
+    constexpr auto operator=(this HtmlA& self, ::pltxt2htm::HtmlA&&) noexcept
+        -> ::pltxt2htm::HtmlA&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlA const&, HtmlA const&) noexcept -> bool;
@@ -911,19 +890,18 @@ public:
 /**
  * @brief HTML &lt;blockquote&gt; block quotation node
  */
-template<::pltxt2htm::Contracts ndebug>
 class HtmlBlockquote {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
-    constexpr explicit HtmlBlockquote(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr HtmlBlockquote(::pltxt2htm::HtmlBlockquote<ndebug> const&) noexcept;
-    constexpr HtmlBlockquote(::pltxt2htm::HtmlBlockquote<ndebug>&&) noexcept;
+    constexpr explicit HtmlBlockquote(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr HtmlBlockquote(::pltxt2htm::HtmlBlockquote const&) noexcept = default;
+    constexpr HtmlBlockquote(::pltxt2htm::HtmlBlockquote&&) noexcept;
     constexpr ~HtmlBlockquote() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::HtmlBlockquote<ndebug> const&) noexcept
-        -> ::pltxt2htm::HtmlBlockquote<ndebug>& = default;
-    constexpr auto operator=(this HtmlBlockquote<ndebug>& self, ::pltxt2htm::HtmlBlockquote<ndebug>&&) noexcept
-        -> ::pltxt2htm::HtmlBlockquote<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::HtmlBlockquote const&) noexcept
+        -> ::pltxt2htm::HtmlBlockquote& = default;
+    constexpr auto operator=(this HtmlBlockquote& self, ::pltxt2htm::HtmlBlockquote&&) noexcept
+        -> ::pltxt2htm::HtmlBlockquote&;
 
     [[nodiscard]]
     constexpr auto operator==(this HtmlBlockquote const&, HtmlBlockquote const&) noexcept -> bool;

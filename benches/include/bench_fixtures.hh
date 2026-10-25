@@ -6,12 +6,6 @@
 #include <pltxt2htm/contracts.hh>
 #include "bench_inputs.hh"
 
-#ifdef NDEBUG
-constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-#else
-constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-#endif
-
 // Helper: convert range(0) to std::size_t
 inline auto as_size(::benchmark::State const& state) -> ::std::size_t {
     return static_cast<::std::size_t>(state.range(0));
@@ -155,64 +149,64 @@ struct PlainDocE2EFixture : ::benchmark::Fixture {
 // AST builder helpers — construct ASTs directly for optimizer benches
 // -------------------------------------------------------------------
 
-inline auto build_nested_color_ast(::std::size_t depth) -> ::pltxt2htm::Ast<ndebug> {
-    auto inner = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8't');
+inline auto build_nested_color_ast(::std::size_t depth) -> ::pltxt2htm::Ast {
+    auto inner = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't');
     for (::std::size_t i = 0; i < depth; ++i) {
-        ::pltxt2htm::Ast<ndebug> sub;
+        ::pltxt2htm::Ast sub;
         sub.push_back(::std::move(inner));
-        inner = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityColor<ndebug>>(
+        inner = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
             ::std::move(sub), ::pltxt2htm::container::U8String{u8"red"});
     }
-    ::pltxt2htm::Ast<ndebug> ast;
+    ::pltxt2htm::Ast ast;
     ast.push_back(::std::move(inner));
     return ast;
 }
 
-inline auto build_adjacent_color_ast(::std::size_t count) -> ::pltxt2htm::Ast<ndebug> {
-    ::pltxt2htm::Ast<ndebug> ast;
+inline auto build_adjacent_color_ast(::std::size_t count) -> ::pltxt2htm::Ast {
+    ::pltxt2htm::Ast ast;
     for (::std::size_t i = 0; i < count; ++i) {
-        ::pltxt2htm::Ast<ndebug> sub;
-        sub.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8't'));
-        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityColor<ndebug>>(
+        ::pltxt2htm::Ast sub;
+        sub.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
+        ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
             ::std::move(sub), ::pltxt2htm::container::U8String{u8"red"}));
     }
     return ast;
 }
 
-inline auto build_mixed_redundant_ast(::std::size_t depth) -> ::pltxt2htm::Ast<ndebug> {
-    auto inner = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8't');
+inline auto build_mixed_redundant_ast(::std::size_t depth) -> ::pltxt2htm::Ast {
+    auto inner = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't');
     for (::std::size_t i = 0; i < depth; ++i) {
         {
-            ::pltxt2htm::Ast<ndebug> sub;
+            ::pltxt2htm::Ast sub;
             sub.push_back(::std::move(inner));
-            inner = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityI<ndebug>>(::std::move(sub));
+            inner = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityI>(::std::move(sub));
         }
         {
-            ::pltxt2htm::Ast<ndebug> sub;
+            ::pltxt2htm::Ast sub;
             sub.push_back(::std::move(inner));
-            inner = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityB<ndebug>>(::std::move(sub));
+            inner = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityB>(::std::move(sub));
         }
         {
-            ::pltxt2htm::Ast<ndebug> sub;
+            ::pltxt2htm::Ast sub;
             sub.push_back(::std::move(inner));
-            inner = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityColor<ndebug>>(
+            inner = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
                 ::std::move(sub), ::pltxt2htm::container::U8String{u8"red"});
         }
     }
-    ::pltxt2htm::Ast<ndebug> ast;
+    ::pltxt2htm::Ast ast;
     ast.push_back(::std::move(inner));
     return ast;
 }
 
-inline auto build_html_span_ast(::std::size_t count) -> ::pltxt2htm::Ast<ndebug> {
-    ::pltxt2htm::Ast<ndebug> ast;
+inline auto build_html_span_ast(::std::size_t count) -> ::pltxt2htm::Ast {
+    ::pltxt2htm::Ast ast;
     for (::std::size_t i = 0; i < count; ++i) {
-        ::pltxt2htm::Ast<ndebug> sub;
-        sub.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8't'));
-        ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlSpan<ndebug>>(
+        ::pltxt2htm::Ast sub;
+        sub.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
+        ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlSpan>(
             ::std::move(sub), ::pltxt2htm::container::U8String{u8"color:red;font-size:16px"},
             ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>{::pltxt2htm::container::nullopt},
-            ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>{
+            ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue>{
                 ::pltxt2htm::container::nullopt}));
     }
     return ast;

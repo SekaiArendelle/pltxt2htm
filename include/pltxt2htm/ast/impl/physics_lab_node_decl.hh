@@ -29,7 +29,6 @@ namespace pltxt2htm {
  *          folded to the lowercase form BSON emits, so equal identifiers compare equal
  *          no matter which case the source used.
  */
-template<::pltxt2htm::Contracts ndebug>
 class PlObjectId {
     ::pltxt2htm::container::U8String text;
 
@@ -70,15 +69,15 @@ public:
             return ::pltxt2htm::container::nullopt;
         }
         ::pltxt2htm::container::U8String canonical{};
-        canonical.template reserve<ndebug>(hex_digits);
+        canonical.reserve(hex_digits);
         for (::std::size_t index{}; index < hex_digits; ++index) {
-            char8_t const digit{input.template index<ndebug>(index)};
+            char8_t const digit{input.index(index)};
             if (::pltxt2htm::details::is_ascii_hexdigit(digit) == false) {
                 return ::pltxt2htm::container::nullopt;
             }
             // ASCII case bit 0x20 is already set for '0'-'9', so OR-ing it folds 'A'-'F'
             // to 'a'-'f' without changing the digits or an already-lowercase spelling.
-            canonical.template push_back<ndebug>(static_cast<char8_t>(digit | char8_t{0x20}));
+            canonical.push_back(static_cast<char8_t>(digit | char8_t{0x20}));
         }
         return PlObjectId{::std::move(canonical)};
     }
@@ -92,18 +91,17 @@ public:
  * @brief Physics-Lab anchor tag node
  * @details Represents &lt;a&gt;...&lt;/a&gt; with a fixed blue color used for styled links.
  */
-template<::pltxt2htm::Contracts ndebug>
 class PlA {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     static constexpr ::pltxt2htm::details::U8LiteralString<7> color{u8"#0000AA"};
 
 public:
-    constexpr PlA(::pltxt2htm::Ast<ndebug>&& subast_) noexcept;
-    constexpr PlA(::pltxt2htm::PlA<ndebug> const&) noexcept;
-    constexpr PlA(::pltxt2htm::PlA<ndebug>&&) noexcept;
+    constexpr PlA(::pltxt2htm::Ast&& subast_) noexcept;
+    constexpr PlA(::pltxt2htm::PlA const&) noexcept = default;
+    constexpr PlA(::pltxt2htm::PlA&&) noexcept;
     constexpr ~PlA() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::PlA<ndebug> const&) noexcept -> ::pltxt2htm::PlA<ndebug>& = default;
-    constexpr auto operator=(this PlA<ndebug>& self, ::pltxt2htm::PlA<ndebug>&&) noexcept -> ::pltxt2htm::PlA<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlA const&) noexcept -> ::pltxt2htm::PlA& = default;
+    constexpr auto operator=(this PlA& self, ::pltxt2htm::PlA&&) noexcept -> ::pltxt2htm::PlA&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlA const&, PlA const&) noexcept -> bool;
@@ -123,20 +121,19 @@ public:
  * @brief Physics-Lab experiment reference tag node
  * @details Represents &lt;experiment=id&gt;...&lt;/experiment&gt; with an experiment ObjectId.
  */
-template<::pltxt2htm::Contracts ndebug>
 class PlExperiment {
-    ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::PlObjectId<ndebug> id;
+    ::pltxt2htm::Ast subast;
+    ::pltxt2htm::PlObjectId id;
 
 public:
-    constexpr PlExperiment(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::PlObjectId<ndebug>&& id_) noexcept;
-    constexpr PlExperiment(::pltxt2htm::PlExperiment<ndebug> const&) noexcept;
-    constexpr PlExperiment(::pltxt2htm::PlExperiment<ndebug>&&) noexcept;
+    constexpr PlExperiment(::pltxt2htm::Ast&& subast_, ::pltxt2htm::PlObjectId&& id_) noexcept;
+    constexpr PlExperiment(::pltxt2htm::PlExperiment const&) noexcept = default;
+    constexpr PlExperiment(::pltxt2htm::PlExperiment&&) noexcept;
     constexpr ~PlExperiment() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::PlExperiment<ndebug> const&) noexcept
-        -> ::pltxt2htm::PlExperiment<ndebug>& = default;
-    constexpr auto operator=(this PlExperiment<ndebug>& self, ::pltxt2htm::PlExperiment<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlExperiment<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlExperiment const&) noexcept
+        -> ::pltxt2htm::PlExperiment& = default;
+    constexpr auto operator=(this PlExperiment& self, ::pltxt2htm::PlExperiment&&) noexcept
+        -> ::pltxt2htm::PlExperiment&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlExperiment const&, PlExperiment const&) noexcept -> bool;
@@ -156,20 +153,19 @@ public:
  * @brief Physics-Lab discussion reference tag node
  * @details Represents &lt;discussion=id&gt;...&lt;/discussion&gt; with a discussion ObjectId.
  */
-template<::pltxt2htm::Contracts ndebug>
 class PlDiscussion {
-    ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::PlObjectId<ndebug> id;
+    ::pltxt2htm::Ast subast;
+    ::pltxt2htm::PlObjectId id;
 
 public:
-    constexpr PlDiscussion(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::PlObjectId<ndebug>&& id_) noexcept;
-    constexpr PlDiscussion(::pltxt2htm::PlDiscussion<ndebug> const&) noexcept;
-    constexpr PlDiscussion(::pltxt2htm::PlDiscussion<ndebug>&&) noexcept;
+    constexpr PlDiscussion(::pltxt2htm::Ast&& subast_, ::pltxt2htm::PlObjectId&& id_) noexcept;
+    constexpr PlDiscussion(::pltxt2htm::PlDiscussion const&) noexcept = default;
+    constexpr PlDiscussion(::pltxt2htm::PlDiscussion&&) noexcept;
     constexpr ~PlDiscussion() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::PlDiscussion<ndebug> const&) noexcept
-        -> ::pltxt2htm::PlDiscussion<ndebug>& = default;
-    constexpr auto operator=(this PlDiscussion<ndebug>& self, ::pltxt2htm::PlDiscussion<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlDiscussion<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlDiscussion const&) noexcept
+        -> ::pltxt2htm::PlDiscussion& = default;
+    constexpr auto operator=(this PlDiscussion& self, ::pltxt2htm::PlDiscussion&&) noexcept
+        -> ::pltxt2htm::PlDiscussion&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlDiscussion const&, PlDiscussion const&) noexcept -> bool;
@@ -190,20 +186,19 @@ public:
  * @details Represents &lt;experiments=params&gt;...&lt;/experiments&gt; with a slash-separated
  *          key-value parameter string (e.g. `UserID/123/UserName/...`) and sub-AST.
  */
-template<::pltxt2htm::Contracts ndebug>
 class PlExperiments {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::container::U8String value;
 
 public:
-    constexpr PlExperiments(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::U8String&& value_) noexcept;
-    constexpr PlExperiments(::pltxt2htm::PlExperiments<ndebug> const&) noexcept;
-    constexpr PlExperiments(::pltxt2htm::PlExperiments<ndebug>&&) noexcept;
+    constexpr PlExperiments(::pltxt2htm::Ast&& subast_, ::pltxt2htm::container::U8String&& value_) noexcept;
+    constexpr PlExperiments(::pltxt2htm::PlExperiments const&) noexcept = default;
+    constexpr PlExperiments(::pltxt2htm::PlExperiments&&) noexcept;
     constexpr ~PlExperiments() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::PlExperiments<ndebug> const&) noexcept
-        -> ::pltxt2htm::PlExperiments<ndebug>& = default;
-    constexpr auto operator=(this PlExperiments<ndebug>& self, ::pltxt2htm::PlExperiments<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlExperiments<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlExperiments const&) noexcept
+        -> ::pltxt2htm::PlExperiments& = default;
+    constexpr auto operator=(this PlExperiments& self, ::pltxt2htm::PlExperiments&&) noexcept
+        -> ::pltxt2htm::PlExperiments&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlExperiments const&, PlExperiments const&) noexcept -> bool;
@@ -224,20 +219,19 @@ public:
  * @details Represents &lt;discussions=params&gt;...&lt;/discussions&gt; with a slash-separated
  *          key-value parameter string (e.g. `UserID/123/UserName/...`) and sub-AST.
  */
-template<::pltxt2htm::Contracts ndebug>
 class PlDiscussions {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::container::U8String value;
 
 public:
-    constexpr PlDiscussions(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::U8String&& value_) noexcept;
-    constexpr PlDiscussions(::pltxt2htm::PlDiscussions<ndebug> const&) noexcept;
-    constexpr PlDiscussions(::pltxt2htm::PlDiscussions<ndebug>&&) noexcept;
+    constexpr PlDiscussions(::pltxt2htm::Ast&& subast_, ::pltxt2htm::container::U8String&& value_) noexcept;
+    constexpr PlDiscussions(::pltxt2htm::PlDiscussions const&) noexcept = default;
+    constexpr PlDiscussions(::pltxt2htm::PlDiscussions&&) noexcept;
     constexpr ~PlDiscussions() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::PlDiscussions<ndebug> const&) noexcept
-        -> ::pltxt2htm::PlDiscussions<ndebug>& = default;
-    constexpr auto operator=(this PlDiscussions<ndebug>& self, ::pltxt2htm::PlDiscussions<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlDiscussions<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlDiscussions const&) noexcept
+        -> ::pltxt2htm::PlDiscussions& = default;
+    constexpr auto operator=(this PlDiscussions& self, ::pltxt2htm::PlDiscussions&&) noexcept
+        -> ::pltxt2htm::PlDiscussions&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlDiscussions const&, PlDiscussions const&) noexcept -> bool;
@@ -257,19 +251,18 @@ public:
  * @brief Physics-Lab user reference tag node
  * @details Represents &lt;user=id&gt;...&lt;/user&gt; with a user ObjectId.
  */
-template<::pltxt2htm::Contracts ndebug>
 class PlUser {
-    ::pltxt2htm::Ast<ndebug> subast;
-    ::pltxt2htm::PlObjectId<ndebug> id;
+    ::pltxt2htm::Ast subast;
+    ::pltxt2htm::PlObjectId id;
 
 public:
-    constexpr PlUser(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::PlObjectId<ndebug>&& id_) noexcept;
-    constexpr PlUser(::pltxt2htm::PlUser<ndebug> const&) noexcept;
-    constexpr PlUser(::pltxt2htm::PlUser<ndebug>&&) noexcept;
+    constexpr PlUser(::pltxt2htm::Ast&& subast_, ::pltxt2htm::PlObjectId&& id_) noexcept;
+    constexpr PlUser(::pltxt2htm::PlUser const&) noexcept = default;
+    constexpr PlUser(::pltxt2htm::PlUser&&) noexcept;
     constexpr ~PlUser() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::PlUser<ndebug> const&) noexcept -> ::pltxt2htm::PlUser<ndebug>& = default;
-    constexpr auto operator=(this PlUser<ndebug>& self, ::pltxt2htm::PlUser<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlUser<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlUser const&) noexcept -> ::pltxt2htm::PlUser& = default;
+    constexpr auto operator=(this PlUser& self, ::pltxt2htm::PlUser&&) noexcept
+        -> ::pltxt2htm::PlUser&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlUser const&, PlUser const&) noexcept -> bool;
@@ -289,20 +282,19 @@ public:
  * @brief Physics-Lab trigger tag node
  * @details Represents &lt;trigger=value&gt;...&lt;/trigger&gt; with a string value.
  */
-template<::pltxt2htm::Contracts ndebug>
 class PlTrigger {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::container::U8String value;
 
 public:
-    constexpr PlTrigger(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::U8String&& value_) noexcept;
-    constexpr PlTrigger(::pltxt2htm::PlTrigger<ndebug> const&) noexcept;
-    constexpr PlTrigger(::pltxt2htm::PlTrigger<ndebug>&&) noexcept;
+    constexpr PlTrigger(::pltxt2htm::Ast&& subast_, ::pltxt2htm::container::U8String&& value_) noexcept;
+    constexpr PlTrigger(::pltxt2htm::PlTrigger const&) noexcept = default;
+    constexpr PlTrigger(::pltxt2htm::PlTrigger&&) noexcept;
     constexpr ~PlTrigger() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::PlTrigger<ndebug> const&) noexcept
-        -> ::pltxt2htm::PlTrigger<ndebug>& = default;
-    constexpr auto operator=(this PlTrigger<ndebug>& self, ::pltxt2htm::PlTrigger<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlTrigger<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlTrigger const&) noexcept
+        -> ::pltxt2htm::PlTrigger& = default;
+    constexpr auto operator=(this PlTrigger& self, ::pltxt2htm::PlTrigger&&) noexcept
+        -> ::pltxt2htm::PlTrigger&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlTrigger const&, PlTrigger const&) noexcept -> bool;
@@ -322,20 +314,19 @@ public:
  * @brief Physics-Lab internal tag node
  * @details Represents &lt;internal=value&gt;...&lt;/internal&gt; with a string value, rendered verbatim.
  */
-template<::pltxt2htm::Contracts ndebug>
 class PlInternal {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::container::U8String value;
 
 public:
-    constexpr PlInternal(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::container::U8String&& value_) noexcept;
-    constexpr PlInternal(::pltxt2htm::PlInternal<ndebug> const&) noexcept;
-    constexpr PlInternal(::pltxt2htm::PlInternal<ndebug>&&) noexcept;
+    constexpr PlInternal(::pltxt2htm::Ast&& subast_, ::pltxt2htm::container::U8String&& value_) noexcept;
+    constexpr PlInternal(::pltxt2htm::PlInternal const&) noexcept = default;
+    constexpr PlInternal(::pltxt2htm::PlInternal&&) noexcept;
     constexpr ~PlInternal() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::PlInternal<ndebug> const&) noexcept
-        -> ::pltxt2htm::PlInternal<ndebug>& = default;
-    constexpr auto operator=(this PlInternal<ndebug>& self, ::pltxt2htm::PlInternal<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlInternal<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlInternal const&) noexcept
+        -> ::pltxt2htm::PlInternal& = default;
+    constexpr auto operator=(this PlInternal& self, ::pltxt2htm::PlInternal&&) noexcept
+        -> ::pltxt2htm::PlInternal&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlInternal const&, PlInternal const&) noexcept -> bool;
@@ -355,20 +346,19 @@ public:
  * @brief Physics-Lab external link tag node
  * @details Represents &lt;external=url&gt;...&lt;/external&gt; with a URL.
  */
-template<::pltxt2htm::Contracts ndebug>
 class PlExternal {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
     ::pltxt2htm::Url url;
 
 public:
-    constexpr PlExternal(::pltxt2htm::Ast<ndebug>&& subast_, ::pltxt2htm::Url&& url_) noexcept;
-    constexpr PlExternal(::pltxt2htm::PlExternal<ndebug> const&) noexcept;
-    constexpr PlExternal(::pltxt2htm::PlExternal<ndebug>&&) noexcept;
+    constexpr PlExternal(::pltxt2htm::Ast&& subast_, ::pltxt2htm::Url&& url_) noexcept;
+    constexpr PlExternal(::pltxt2htm::PlExternal const&) noexcept = default;
+    constexpr PlExternal(::pltxt2htm::PlExternal&&) noexcept;
     constexpr ~PlExternal() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::PlExternal<ndebug> const&) noexcept
-        -> ::pltxt2htm::PlExternal<ndebug>& = default;
-    constexpr auto operator=(this PlExternal<ndebug>& self, ::pltxt2htm::PlExternal<ndebug>&&) noexcept
-        -> ::pltxt2htm::PlExternal<ndebug>&;
+    constexpr auto operator=(::pltxt2htm::PlExternal const&) noexcept
+        -> ::pltxt2htm::PlExternal& = default;
+    constexpr auto operator=(this PlExternal& self, ::pltxt2htm::PlExternal&&) noexcept
+        -> ::pltxt2htm::PlExternal&;
 
     [[nodiscard]]
     constexpr auto operator==(this PlExternal const&, PlExternal const&) noexcept -> bool;

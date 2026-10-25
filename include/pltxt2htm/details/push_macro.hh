@@ -26,7 +26,7 @@
     #define pltxt2htm_assume(condition) \
         do { \
             if ((condition) == false) [[unlikely]] { \
-                ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>(); \
+                ::pltxt2htm::details::unreachable(); \
             } \
         } while (0)
 #endif
@@ -38,9 +38,9 @@
  * This macro evaluates the given condition and if it evaluates to false,
  * it will call panic() to terminate the program with diagnostic information.
  * The assertion is active for contract modes other than
- * `::pltxt2htm::Contracts::ignore` (for example, `quick_enforce`) and is
+ * `ignore mode` (for example, `quick_enforce`) and is
  * replaced with an optimizer assumption when
- * `ndebug == ::pltxt2htm::Contracts::ignore`.
+ * `::pltxt2htm::contract_mode == 1`.
  *
  * @param condition The condition expression to evaluate
  * @param message A descriptive error message to display if the assertion fails
@@ -54,7 +54,7 @@
 #undef pltxt2htm_assert
 #define pltxt2htm_assert(condition, message) \
     do { \
-        if constexpr (ndebug != ::pltxt2htm::Contracts::ignore) { \
+        if constexpr (::pltxt2htm::contract_mode != 1) { \
             if ((condition) == false) [[unlikely]] { \
                 constexpr auto source_location = ::std::source_location::current(); \
                 ::pltxt2htm::details::panic< \
@@ -72,19 +72,19 @@
  * @brief Mark a code path as unreachable; calls panic or unreachable builtin.
  * @param message Diagnostic message string literal.
  * @note In quick_enforce mode invokes ::pltxt2htm::details::panic.
- *       In ignore mode uses ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>().
+ *       In ignore mode uses ::pltxt2htm::details::unreachable().
  */
 #pragma push_macro("pltxt2htm_unreachable")
 #undef pltxt2htm_unreachable
 #define pltxt2htm_unreachable(message) \
     do { \
-        if constexpr (ndebug != ::pltxt2htm::Contracts::ignore) { \
+        if constexpr (::pltxt2htm::contract_mode != 1) { \
             constexpr auto source_location = ::std::source_location::current(); \
             ::pltxt2htm::details::panic<::pltxt2htm::details::U8LiteralString{u8"unreachable code reached"}, \
                                         ::pltxt2htm::details::U8LiteralString{u8"" __FILE__}, source_location.line(), \
                                         source_location.column(), ::pltxt2htm::details::U8LiteralString{message}>(); \
         } \
         else { \
-            ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>(); \
+            ::pltxt2htm::details::unreachable(); \
         } \
     } while (0)

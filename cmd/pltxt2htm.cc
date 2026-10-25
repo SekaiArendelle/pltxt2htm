@@ -339,34 +339,17 @@ int main(int argc, char const* const* const argv) noexcept {
 
         ::pltxt2htm::container::U8String html;
         if (target_type == ::TargetType::html4unittest) {
-#ifdef NDEBUG
-            constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-#else
-            constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-#endif
-            auto ast = ::pltxt2htm::parse_pltxt<ndebug>(::pltxt2htm::container::U8StringView{input_text});
-            ::pltxt2htm::optimize_ast<ndebug>(ast);
-            html = ::pltxt2htm::details::plweb_text_backend<ndebug,
+            auto ast = ::pltxt2htm::parse_pltxt(::pltxt2htm::container::U8StringView{input_text});
+            ::pltxt2htm::optimize_ast(ast);
+            html = ::pltxt2htm::details::plweb_text_backend<
                                                             ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
                 ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         }
         else if (target_type == ::TargetType::common_html) {
-            html = ::pltxt2htm::pltxt2common_html<
-#ifdef NDEBUG
-                ::pltxt2htm::Contracts::ignore
-#else
-                ::pltxt2htm::Contracts::quick_enforce
-#endif
-                >(::pltxt2htm::container::U8StringView{input_text});
+            html = ::pltxt2htm::pltxt2common_html(::pltxt2htm::container::U8StringView{input_text});
         }
         else if (target_type == ::TargetType::fixedadv_html) {
-            html = ::pltxt2htm::pltxt2fixedadv_html<
-#ifdef NDEBUG
-                ::pltxt2htm::Contracts::ignore
-#else
-                ::pltxt2htm::Contracts::quick_enforce
-#endif
-                >(::pltxt2htm::container::U8StringView{input_text},
+            html = ::pltxt2htm::pltxt2fixedadv_html(::pltxt2htm::container::U8StringView{input_text},
                   ::pltxt2htm::container::U8StringView::from_c_str(host),
                   ::pltxt2htm::container::U8StringView::from_c_str(project),
                   ::pltxt2htm::container::U8StringView::from_c_str(visitor),
@@ -374,26 +357,14 @@ int main(int argc, char const* const* const argv) noexcept {
                   ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
         }
         else if (target_type == ::TargetType::plunity_text) {
-            html = ::pltxt2htm::pltxt2plunity_introduction<
-#ifdef NDEBUG
-                ::pltxt2htm::Contracts::ignore
-#else
-                ::pltxt2htm::Contracts::quick_enforce
-#endif
-                >(::pltxt2htm::container::U8StringView{input_text},
+            html = ::pltxt2htm::pltxt2plunity_introduction(::pltxt2htm::container::U8StringView{input_text},
                   ::pltxt2htm::container::U8StringView::from_c_str(project),
                   ::pltxt2htm::container::U8StringView::from_c_str(visitor),
                   ::pltxt2htm::container::U8StringView::from_c_str(author),
                   ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
         }
         else [[unlikely]] {
-            ::pltxt2htm::details::unreachable<
-#ifdef NDEBUG
-                ::pltxt2htm::Contracts::ignore
-#else
-                ::pltxt2htm::Contracts::quick_enforce
-#endif
-                >();
+            ::pltxt2htm::details::unreachable();
         }
         if (output_file_path == nullptr) {
             ::fast_io::println(::fast_io::u8c_stdout(), html);

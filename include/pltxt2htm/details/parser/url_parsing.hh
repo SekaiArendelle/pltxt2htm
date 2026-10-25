@@ -24,19 +24,18 @@ namespace pltxt2htm::details {
  * @param pltext Input that may begin with a supported scheme.
  * @return The scheme length (7 or 8), or nullopt when no supported scheme matches.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_url_scheme(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZeroUsize> {
-    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"http">(pltext) == false) {
+    if (::pltxt2htm::details::is_prefix_match< u8"http">(pltext) == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto const after_http = pltext.template subview<ndebug>(4);
-    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"://">(after_http)) {
-        return ::pltxt2htm::container::NonZeroUsize::from<ndebug>(7);
+    auto const after_http = pltext.subview(4);
+    if (::pltxt2htm::details::is_prefix_match< u8"://">(after_http)) {
+        return ::pltxt2htm::container::NonZeroUsize::from(7);
     }
-    if (::pltxt2htm::details::is_prefix_match<ndebug, u8"s://">(after_http)) {
-        return ::pltxt2htm::container::NonZeroUsize::from<ndebug>(8);
+    if (::pltxt2htm::details::is_prefix_match< u8"s://">(after_http)) {
+        return ::pltxt2htm::container::NonZeroUsize::from(8);
     }
     return ::pltxt2htm::container::nullopt;
 }
@@ -62,7 +61,6 @@ constexpr bool has_allowed_url_tld(::pltxt2htm::container::U8StringView domain) 
  * @param[in] pltext Input text starting at the domain.
  * @return The relative index after the domain, or nullopt when a label or TLD is invalid.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_url_domain(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZeroUsize> {
@@ -71,7 +69,7 @@ constexpr auto try_parse_url_domain(::pltxt2htm::container::U8StringView pltext)
     bool label_has_char{};
     bool label_ended_with_hyphen{};
     while (current_index < pltext_size) {
-        auto const chr = pltext.template index<ndebug>(current_index);
+        auto const chr = pltext.index(current_index);
         if (::pltxt2htm::details::is_ascii_alpha(chr) || ::pltxt2htm::details::is_ascii_digit(chr)) {
             label_has_char = true;
             label_ended_with_hyphen = false;
@@ -98,11 +96,11 @@ constexpr auto try_parse_url_domain(::pltxt2htm::container::U8StringView pltext)
     if (label_has_char == false || label_ended_with_hyphen) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto const domain = pltext.template subview<ndebug>(0, current_index);
+    auto const domain = pltext.subview(0, current_index);
     if (::pltxt2htm::details::has_allowed_url_tld(domain) == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    return ::pltxt2htm::container::NonZeroUsize::from<ndebug>(current_index);
+    return ::pltxt2htm::container::NonZeroUsize::from(current_index);
 }
 
 /**
@@ -112,7 +110,6 @@ constexpr auto try_parse_url_domain(::pltxt2htm::container::U8StringView pltext)
  * @param[in] pltext Input text starting at the port.
  * @return The relative index after the port, or nullopt when the port is invalid.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_url_port(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZeroUsize> {
@@ -121,7 +118,7 @@ constexpr auto try_parse_url_port(::pltxt2htm::container::U8StringView pltext) n
     ::std::size_t current_index{};
     ::std::size_t port_size{};
     while (current_index < pltext_size) {
-        auto const chr = pltext.template index<ndebug>(current_index);
+        auto const chr = pltext.index(current_index);
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
         }
@@ -136,12 +133,12 @@ constexpr auto try_parse_url_port(::pltxt2htm::container::U8StringView pltext) n
         return ::pltxt2htm::container::nullopt;
     }
     if (current_index < pltext_size) {
-        auto const next_chr = pltext.template index<ndebug>(current_index);
+        auto const next_chr = pltext.index(current_index);
         if (next_chr != u8'/' && next_chr != u8'?' && next_chr != u8'#') {
             return ::pltxt2htm::container::nullopt;
         }
     }
-    return ::pltxt2htm::container::NonZeroUsize::from<ndebug>(current_index);
+    return ::pltxt2htm::container::NonZeroUsize::from(current_index);
 }
 
 /**
@@ -152,53 +149,51 @@ constexpr auto try_parse_url_port(::pltxt2htm::container::U8StringView pltext) n
  * domain validation and optional port. Does NOT parse the path, query, or fragment - that
  * is the caller's responsibility.
  *
- * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param[in] pltext The input text starting at the domain.
  * @return The relative index after the port (or after the domain if no port), or nullopt when
  *         domain/port validation fails.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_url_authority(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZeroUsize> {
-    auto const opt_domain_end = ::pltxt2htm::details::try_parse_url_domain<ndebug>(pltext);
+    auto const opt_domain_end = ::pltxt2htm::details::try_parse_url_domain(pltext);
     if (opt_domain_end.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto const domain_end = opt_domain_end.template value<ndebug>().template get<ndebug>();
-    if (domain_end >= pltext.size() || pltext.template index<ndebug>(domain_end) != u8':') {
-        return ::pltxt2htm::container::NonZeroUsize::from<ndebug>(domain_end);
+    auto const domain_end = opt_domain_end.value().get();
+    if (domain_end >= pltext.size() || pltext.index(domain_end) != u8':') {
+        return ::pltxt2htm::container::NonZeroUsize::from(domain_end);
     }
     auto const opt_port_end =
-        ::pltxt2htm::details::try_parse_url_port<ndebug>(pltext.template subview<ndebug>(domain_end + 1));
+        ::pltxt2htm::details::try_parse_url_port(pltext.subview(domain_end + 1));
     if (opt_port_end.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    return ::pltxt2htm::container::NonZeroUsize::from<ndebug>(
-        domain_end + 1 + opt_port_end.template value<ndebug>().template get<ndebug>());
+    return ::pltxt2htm::container::NonZeroUsize::from(
+        domain_end + 1 + opt_port_end.value().get());
 }
 
 /**
  * @brief Parse the simple URL path: printable ASCII, stops at `<` `>` `"` or non-printable characters.
  * @details `pltext` must start at the path (the caller subviews past the authority); the
  *          returned index is relative to `pltext`.
- * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param[in] pltext The input text view starting at the path.
  * @return The relative index at which the path ends.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_url_path_simple(::pltxt2htm::container::U8StringView pltext) noexcept -> ::std::size_t {
     ::std::size_t const pltext_size{pltext.size()};
     if (pltext.is_empty() == false) {
-        auto const chr = pltext.template index<ndebug>(0);
+        auto const chr = pltext.index(0);
         if (chr != u8'/' && chr != u8'?' && chr != u8'#') {
             return 0;
         }
     }
     ::std::size_t current_index{};
     while (current_index < pltext_size) {
-        auto const chr = pltext.template index<ndebug>(current_index);
+        auto const chr = pltext.index(current_index);
         if (chr < u8'!' || chr > u8'~' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
             break;
         }
@@ -214,23 +209,22 @@ constexpr auto try_parse_url_path_simple(::pltxt2htm::container::U8StringView pl
  *          Url::try_make percent-encodes them. Auto-detected URLs stay ASCII-only.
  *          `pltext` must start at the path (the caller subviews past the authority); the
  *          returned index is relative to `pltext`.
- * @tparam ndebug When set to `::pltxt2htm::Contracts::ignore`, runtime assertions are disabled for performance.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param[in] pltext The input text view starting at the path.
  * @return The relative index at which the path ends.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_url_path_unicode(::pltxt2htm::container::U8StringView pltext) noexcept -> ::std::size_t {
     ::std::size_t const pltext_size{pltext.size()};
     if (pltext.is_empty() == false) {
-        auto const chr = pltext.template index<ndebug>(0);
+        auto const chr = pltext.index(0);
         if (chr != u8'/' && chr != u8'?' && chr != u8'#') {
             return 0;
         }
     }
     ::std::size_t current_index{};
     while (current_index < pltext_size) {
-        auto const chr = pltext.template index<ndebug>(current_index);
+        auto const chr = pltext.index(current_index);
         if (chr < u8'!' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
             break;
         }
@@ -239,31 +233,29 @@ constexpr auto try_parse_url_path_unicode(::pltxt2htm::container::U8StringView p
     return current_index;
 }
 
-template<::pltxt2htm::Contracts ndebug>
 constexpr void append_percent_encoded_url_byte(::pltxt2htm::container::U8String& result, char8_t byte) noexcept {
-    result.push_back<ndebug>(u8'%');
+    result.push_back(u8'%');
     auto const hi = static_cast<unsigned>(byte) >> 4;
     auto const lo = static_cast<unsigned>(byte) & 0x0F;
-    result.push_back<ndebug>(static_cast<char8_t>(hi < 10 ? u8'0' + hi : u8'A' + (hi - 10)));
-    result.push_back<ndebug>(static_cast<char8_t>(lo < 10 ? u8'0' + lo : u8'A' + (lo - 10)));
+    result.push_back(static_cast<char8_t>(hi < 10 ? u8'0' + hi : u8'A' + (hi - 10)));
+    result.push_back(static_cast<char8_t>(lo < 10 ? u8'0' + lo : u8'A' + (lo - 10)));
 }
 
-template<::pltxt2htm::Contracts ndebug>
 constexpr void append_code_point_to_url(::pltxt2htm::container::U8String& result, char32_t code_point) noexcept {
     if (code_point < char32_t{0x80}) {
         auto const chr = static_cast<char8_t>(code_point);
         if (chr < u8'!' || chr > u8'~' || chr == u8'\'' || chr == u8'<' || chr == u8'>' || chr == u8'"') {
-            ::pltxt2htm::details::append_percent_encoded_url_byte<ndebug>(result, chr);
+            ::pltxt2htm::details::append_percent_encoded_url_byte(result, chr);
         }
         else {
-            result.push_back<ndebug>(chr);
+            result.push_back(chr);
         }
         return;
     }
 
     auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
     for (::std::size_t index{}; index < encoded.size; ++index) {
-        ::pltxt2htm::details::append_percent_encoded_url_byte<ndebug>(result, encoded.code_units[index]);
+        ::pltxt2htm::details::append_percent_encoded_url_byte(result, encoded.code_units[index]);
     }
 }
 

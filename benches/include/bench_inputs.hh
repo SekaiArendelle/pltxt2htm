@@ -11,11 +11,11 @@ struct BenchInput {
 inline ::pltxt2htm::container::U8String make_plain_text(::std::size_t repeat) {
     ::pltxt2htm::container::U8String text;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        text.append<::pltxt2htm::Contracts::quick_enforce>(
+        text.append(
             u8"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n");
-        text.append<::pltxt2htm::Contracts::quick_enforce>(
+        text.append(
             u8"Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n");
-        text.append<::pltxt2htm::Contracts::quick_enforce>(
+        text.append(
             u8"Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.\n");
     }
     return text;
@@ -24,7 +24,7 @@ inline ::pltxt2htm::container::U8String make_plain_text(::std::size_t repeat) {
 inline ::pltxt2htm::container::U8String make_rich_markdown(::std::size_t repeat) {
     ::pltxt2htm::container::U8String text;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        text.append<::pltxt2htm::Contracts::quick_enforce>(
+        text.append(
             u8R"(# Heading 1
 ## Heading 2
 ### Heading 3
@@ -69,11 +69,11 @@ std::cout << x;
 inline ::pltxt2htm::container::U8String make_pl_tags_nested(::std::size_t depth) {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < depth; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(u8"<color=red>");
+        input.append(u8"<color=red>");
     }
-    input.append<::pltxt2htm::Contracts::quick_enforce>(u8"deeply nested text");
+    input.append(u8"deeply nested text");
     for (::std::size_t i = 0; i < depth; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(u8"</color>");
+        input.append(u8"</color>");
     }
     return input;
 }
@@ -81,7 +81,7 @@ inline ::pltxt2htm::container::U8String make_pl_tags_nested(::std::size_t depth)
 inline ::pltxt2htm::container::U8String make_pl_tags_mixed(::std::size_t repeat) {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(
+        input.append(
             u8R"(<color=red><b>bold text</b> and <i>italic</i></color>
 <experiment=12345>experiment link</experiment>
 <discussion=67890>discussion link</discussion>
@@ -97,7 +97,7 @@ inline ::pltxt2htm::container::U8String make_pl_tags_mixed(::std::size_t repeat)
 inline ::pltxt2htm::container::U8String make_latex_heavy(::std::size_t repeat) {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(
+        input.append(
             u8R"(Inline equation: $E = mc^2$
 Block equation:
 $$
@@ -112,7 +112,7 @@ Mixed: $\alpha + \beta = \gamma$ and $\sum_{i=1}^{n} i = \frac{n(n+1)}{2}$
 inline ::pltxt2htm::container::U8String make_stress_long_line(::std::size_t length) {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < length; ++i) {
-        input.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'a' + static_cast<char8_t>(i % 26));
+        input.push_back(u8'a' + static_cast<char8_t>(i % 26));
     }
     return input;
 }
@@ -120,7 +120,7 @@ inline ::pltxt2htm::container::U8String make_stress_long_line(::std::size_t leng
 inline ::pltxt2htm::container::U8String make_stress_many_lines(::std::size_t lines) {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < lines; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(u8"line 1234567890\n");
+        input.append(u8"line 1234567890\n");
     }
     return input;
 }
@@ -128,7 +128,7 @@ inline ::pltxt2htm::container::U8String make_stress_many_lines(::std::size_t lin
 constexpr auto make_adversarial_unclosed(::std::size_t repeat) -> ::pltxt2htm::container::U8String {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(
+        input.append(
             u8"<color=red [link](https://example.com/path **emphasis `code $latex &entity\n");
     }
     return input;
@@ -139,7 +139,7 @@ constexpr auto make_large_table(::std::size_t rows) -> ::pltxt2htm::container::U
         u8"| Header 1 | Header 2 | Header 3 | Header 4 | Header 5 | Header 6 | Header 7 | Header 8 |\n"
         u8"|:---------|:--------:|---------:|-----------|-----------|-----------|-----------|-----------|\n"};
     for (::std::size_t i = 0; i < rows; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(
+        input.append(
             u8"| value 1 | **value 2** | `value 3` | value 4 | value 5 | value 6 | value 7 | value 8 |\n");
     }
     return input;
@@ -148,7 +148,7 @@ constexpr auto make_large_table(::std::size_t rows) -> ::pltxt2htm::container::U
 constexpr auto make_escape_entity_autolink(::std::size_t repeat) -> ::pltxt2htm::container::U8String {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(
+        input.append(
             u8"Visit https://example.com/path?query=1&value=2 and http://example.org/docs#intro "
             u8"&amp; &#38; &#x1F600; \\*escaped\\* \\[label\\] \\&amp;\n");
     }
@@ -158,12 +158,12 @@ constexpr auto make_escape_entity_autolink(::std::size_t repeat) -> ::pltxt2htm:
 constexpr auto make_utf8_mixed(::std::size_t repeat) -> ::pltxt2htm::container::U8String {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(
+        input.append(
             u8"中文段落，包含 café、Ελληνικά、العربية、emoji 😊🚀，以及 ASCII text 123. invalid:");
-        input.push_back<::pltxt2htm::Contracts::quick_enforce>(static_cast<char8_t>(0xc3));
-        input.push_back<::pltxt2htm::Contracts::quick_enforce>(u8' ');
-        input.push_back<::pltxt2htm::Contracts::quick_enforce>(static_cast<char8_t>(0x80));
-        input.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'\n');
+        input.push_back(static_cast<char8_t>(0xc3));
+        input.push_back(u8' ');
+        input.push_back(static_cast<char8_t>(0x80));
+        input.push_back(u8'\n');
     }
     return input;
 }
@@ -173,11 +173,11 @@ constexpr auto make_utf8_mixed(::std::size_t repeat) -> ::pltxt2htm::container::
 inline ::pltxt2htm::container::U8String make_redundant_color_nesting(::std::size_t depth) {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < depth; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(u8"<color=red>");
+        input.append(u8"<color=red>");
     }
-    input.append<::pltxt2htm::Contracts::quick_enforce>(u8"redundant nested text");
+    input.append(u8"redundant nested text");
     for (::std::size_t i = 0; i < depth; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(u8"</color>");
+        input.append(u8"</color>");
     }
     return input;
 }
@@ -185,11 +185,11 @@ inline ::pltxt2htm::container::U8String make_redundant_color_nesting(::std::size
 inline ::pltxt2htm::container::U8String make_mixed_redundant(::std::size_t depth) {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < depth; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(u8"<color=red><b><i>");
+        input.append(u8"<color=red><b><i>");
     }
-    input.append<::pltxt2htm::Contracts::quick_enforce>(u8"deep mixed formatting");
+    input.append(u8"deep mixed formatting");
     for (::std::size_t i = 0; i < depth; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(u8"</i></b></color>");
+        input.append(u8"</i></b></color>");
     }
     return input;
 }
@@ -197,13 +197,13 @@ inline ::pltxt2htm::container::U8String make_mixed_redundant(::std::size_t depth
 inline ::pltxt2htm::container::U8String make_adjacent_text_nodes(::std::size_t segments) {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < segments; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(u8"<color=red>segment_");
-        input.push_back<::pltxt2htm::Contracts::quick_enforce>(u8'0' + static_cast<char8_t>(i % 10));
+        input.append(u8"<color=red>segment_");
+        input.push_back(u8'0' + static_cast<char8_t>(i % 10));
         if (i % 2 == 0) {
-            input.append<::pltxt2htm::Contracts::quick_enforce>(u8"</color><color=red>");
+            input.append(u8"</color><color=red>");
         }
         else {
-            input.append<::pltxt2htm::Contracts::quick_enforce>(u8"</color>");
+            input.append(u8"</color>");
         }
     }
     return input;
@@ -212,7 +212,7 @@ inline ::pltxt2htm::container::U8String make_adjacent_text_nodes(::std::size_t s
 inline ::pltxt2htm::container::U8String make_html_span_attrs(::std::size_t spans) {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < spans; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(
+        input.append(
             u8R"(<span style="color:red;font-size:16px">text</span>
 )");
     }
@@ -224,7 +224,7 @@ inline ::pltxt2htm::container::U8String make_html_span_attrs(::std::size_t spans
 inline ::pltxt2htm::container::U8String make_full_document(::std::size_t repeat) {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(
+        input.append(
             u8R"(# Chapter Title
 
 This is a paragraph with **bold** and *italic* text.
@@ -287,7 +287,7 @@ $$
 inline ::pltxt2htm::container::U8String make_terse_document(::std::size_t repeat) {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(
+        input.append(
             u8R"(<color=red>item</color> <b>bold</b> <i>italic</i>
 <experiment=1>exp</experiment>
 [link](https://x.com)
@@ -300,7 +300,7 @@ inline ::pltxt2htm::container::U8String make_terse_document(::std::size_t repeat
 inline ::pltxt2htm::container::U8String make_plain_document(::std::size_t chars) {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < chars / 50; ++i) {
-        input.append<::pltxt2htm::Contracts::quick_enforce>(u8"Plain text line with no special formatting at all.\n");
+        input.append(u8"Plain text line with no special formatting at all.\n");
     }
     return input;
 }
