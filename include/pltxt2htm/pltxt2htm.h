@@ -75,7 +75,7 @@ constexpr char8_t const* c_ptr_style_wrapper(Args&&... args) noexcept(
 constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t const* const host,
                                          char8_t const* const project, char8_t const* const visitor,
                                          char8_t const* const author, char8_t const* const coauthors) noexcept {
-    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2fixedadv_html>(
+    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2fixedadv_html<>>(
         container::U8StringView::from_c_str(text), container::U8StringView::from_c_str(host),
         container::U8StringView::from_c_str(project), container::U8StringView::from_c_str(visitor),
         container::U8StringView::from_c_str(author), container::U8StringView::from_c_str(coauthors));
@@ -99,7 +99,7 @@ constexpr char8_t const* fixedadv_parser(char8_t const* const text, char8_t cons
 [[__gnu__::__nonnull__]]
 #endif
 constexpr char8_t const* common_parser(char8_t const* const text) noexcept {
-    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2common_html>(
+    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2common_html<>>(
         container::U8StringView::from_c_str(text));
 }
 
@@ -126,7 +126,7 @@ constexpr char8_t const* common_parser(char8_t const* const text) noexcept {
 constexpr char8_t const* plrichtext_parser(char8_t const* const text, char8_t const* const project,
                                            char8_t const* const visitor, char8_t const* const author,
                                            char8_t const* const coauthors) noexcept {
-    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2plunity_introduction>(
+    return ::pltxt2htm::details::c_ptr_style_wrapper<::pltxt2htm::pltxt2plunity_introduction<>>(
         container::U8StringView::from_c_str(text), container::U8StringView::from_c_str(project),
         container::U8StringView::from_c_str(visitor), container::U8StringView::from_c_str(author),
         container::U8StringView::from_c_str(coauthors));

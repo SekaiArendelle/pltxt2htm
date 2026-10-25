@@ -14,7 +14,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <fast_io/fast_io.h>
-#include <pltxt2htm/pltxt2htm.hh>
+#include <pltxt2htm/pltxt2htm.h>
 #include <pltxt2htm/details/parser/html_parser.hh>
 
 #if defined(pltxt2htm_assert)
