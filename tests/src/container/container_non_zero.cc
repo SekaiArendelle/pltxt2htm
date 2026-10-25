@@ -82,10 +82,9 @@ consteval auto test_constexpr_non_zero() noexcept -> bool {
     auto const u8_maximum = ::pltxt2htm::container::NonZeroU8::from<::pltxt2htm::Contracts::quick_enforce>(
         (::std::numeric_limits<::std::uint8_t>::max)());
 
-    return value.get<::pltxt2htm::Contracts::quick_enforce>() == 42 &&
-           value.get<::pltxt2htm::Contracts::ignore>() == 42 && value == equal_value && value == 42 && 42 == value &&
-           value == 42U && 42U == value && value != 41 && 41 != value && value != -1 && -1 != value && maximum != -1 &&
-           -1 != maximum && u8_maximum == 255LL && 255LL == u8_maximum && u8_maximum == 255ULL &&
+    return value.get<::pltxt2htm::Contracts::quick_enforce>() == 42 && value == equal_value && value == 42 &&
+           42 == value && value == 42U && 42U == value && value != 41 && 41 != value && value != -1 && -1 != value &&
+           maximum != -1 && -1 != maximum && u8_maximum == 255LL && 255LL == u8_maximum && u8_maximum == 255ULL &&
            255ULL == u8_maximum && u8_maximum != 257 && 257 != u8_maximum && u8_maximum != 511U && 511U != u8_maximum;
 }
 

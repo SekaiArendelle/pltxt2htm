@@ -51,12 +51,12 @@ consteval bool optional_constexpr_operations_work() noexcept {
     if (!value.has_value() || empty.has_value()) {
         return false;
     }
-    if (value.value<::pltxt2htm::Contracts::ignore>() != 42 || value != 42 ||
+    if (value.value<::pltxt2htm::Contracts::quick_enforce>() != 42 || value != 42 ||
         empty != ::pltxt2htm::container::nullopt) {
         return false;
     }
     empty = value;
-    if (!empty.has_value() || empty.value<::pltxt2htm::Contracts::ignore>() != 42) {
+    if (!empty.has_value() || empty.value<::pltxt2htm::Contracts::quick_enforce>() != 42) {
         return false;
     }
     value = ::pltxt2htm::container::nullopt;
@@ -107,24 +107,24 @@ consteval bool optional_non_zero_constexpr_operations_work() noexcept {
         ::std::size_t{11} == value || empty == ::std::size_t{7} || ::std::size_t{7} == empty) {
         return false;
     }
-    if (value.value<::pltxt2htm::Contracts::ignore>().get<::pltxt2htm::Contracts::ignore>() != 7) {
+    if (value.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() != 7) {
         return false;
     }
     empty = value;
     if (!empty.has_value() ||
-        empty.value<::pltxt2htm::Contracts::ignore>().get<::pltxt2htm::Contracts::ignore>() != 7) {
+        empty.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() != 7) {
         return false;
     }
     value = eleven;
     empty.swap(value);
-    if (empty.value<::pltxt2htm::Contracts::ignore>().get<::pltxt2htm::Contracts::ignore>() != 11 ||
-        value.value<::pltxt2htm::Contracts::ignore>().get<::pltxt2htm::Contracts::ignore>() != 7) {
+    if (empty.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() != 11 ||
+        value.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() != 7) {
         return false;
     }
     empty = ::pltxt2htm::container::nullopt;
     value.swap(empty);
     return !value.has_value() && empty.has_value() &&
-           empty.value<::pltxt2htm::Contracts::ignore>().get<::pltxt2htm::Contracts::ignore>() == 7;
+           empty.value<::pltxt2htm::Contracts::quick_enforce>().get<::pltxt2htm::Contracts::quick_enforce>() == 7;
 }
 
 static_assert(optional_non_zero_constexpr_operations_work());
@@ -216,7 +216,7 @@ static_assert(
 static_assert(::std::same_as<decltype(::std::declval<IntReferenceOptional const&>().value_or(0)), int>);
 static_assert(noexcept(::std::declval<IntReferenceOptional const&>().value_or(0)));
 static_assert(noexcept(::std::declval<ConstIntReferenceOptional const&>().value_or(0)));
-static_assert(::std::same_as<decltype(&IntReferenceOptional::template value<::pltxt2htm::Contracts::ignore>),
+static_assert(::std::same_as<decltype(&IntReferenceOptional::template value<::pltxt2htm::Contracts::quick_enforce>),
                              IntReferenceValueFunction*>);
 
 consteval bool optional_reference_constexpr_operations_work() noexcept {
@@ -236,29 +236,32 @@ consteval bool optional_reference_constexpr_operations_work() noexcept {
     if (empty.value_or(17) != 17) {
         return false;
     }
-    if (::std::addressof(implicit_proxy_value.value<::pltxt2htm::Contracts::ignore>()) != ::std::addressof(first) ||
-        ::std::addressof(explicit_proxy_value.value<::pltxt2htm::Contracts::ignore>()) != ::std::addressof(second)) {
+    if (::std::addressof(implicit_proxy_value.value<::pltxt2htm::Contracts::quick_enforce>()) !=
+            ::std::addressof(first) ||
+        ::std::addressof(explicit_proxy_value.value<::pltxt2htm::Contracts::quick_enforce>()) !=
+            ::std::addressof(second)) {
         return false;
     }
-    value.value<::pltxt2htm::Contracts::ignore>() = 9;
+    value.value<::pltxt2htm::Contracts::quick_enforce>() = 9;
     if (first != 9 || value.value_or(0) != 9) {
         return false;
     }
     empty = value;
-    if (::std::addressof(empty.value<::pltxt2htm::Contracts::ignore>()) != ::std::addressof(first)) {
+    if (::std::addressof(empty.value<::pltxt2htm::Contracts::quick_enforce>()) != ::std::addressof(first)) {
         return false;
     }
     value = second;
-    if (::std::addressof(value.value<::pltxt2htm::Contracts::ignore>()) != ::std::addressof(second) || first != 9) {
+    if (::std::addressof(value.value<::pltxt2htm::Contracts::quick_enforce>()) != ::std::addressof(second) ||
+        first != 9) {
         return false;
     }
-    static_cast<IntReferenceOptional const&>(value).value<::pltxt2htm::Contracts::ignore>() = 13;
+    static_cast<IntReferenceOptional const&>(value).value<::pltxt2htm::Contracts::quick_enforce>() = 13;
     if (second != 13) {
         return false;
     }
     value.swap(empty);
-    if (::std::addressof(value.value<::pltxt2htm::Contracts::ignore>()) != ::std::addressof(first) ||
-        ::std::addressof(empty.value<::pltxt2htm::Contracts::ignore>()) != ::std::addressof(second)) {
+    if (::std::addressof(value.value<::pltxt2htm::Contracts::quick_enforce>()) != ::std::addressof(first) ||
+        ::std::addressof(empty.value<::pltxt2htm::Contracts::quick_enforce>()) != ::std::addressof(second)) {
         return false;
     }
     value = ::pltxt2htm::container::nullopt;
@@ -449,12 +452,12 @@ consteval bool optional_copy_only_assignment_works() noexcept {
     CopyOnlyOptional source{source_value};
     CopyOnlyOptional target{::pltxt2htm::container::nullopt};
     target = source;
-    if (!target.has_value() || target.value<::pltxt2htm::Contracts::ignore>().value != 17) {
+    if (!target.has_value() || target.value<::pltxt2htm::Contracts::quick_enforce>().value != 17) {
         return false;
     }
     CopyOnlyOptional other{target_value};
     target = other;
-    if (target.value<::pltxt2htm::Contracts::ignore>().value != 23) {
+    if (target.value<::pltxt2htm::Contracts::quick_enforce>().value != 23) {
         return false;
     }
     CopyOnlyOptional empty{::pltxt2htm::container::nullopt};

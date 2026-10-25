@@ -113,8 +113,6 @@ struct NothrowMovable {
 
 int main() {
     pltxt2htm_test_assert_true(test_call_stack<Contracts::quick_enforce>());
-    pltxt2htm_test_assert_true(test_call_stack<Contracts::ignore>());
-
     ::pltxt2htm::details::CallStack<Contracts::quick_enforce, NothrowMovable> call_stack{};
     call_stack.push_frame(NothrowMovable{42});
     auto frame = call_stack.pop_frame();

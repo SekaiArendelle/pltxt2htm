@@ -14,7 +14,6 @@ TEST_SUITE("html_div_storage") {
         return ::pltxt2htm::HtmlDiv<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(left), ::std::move(right)};
     }
 
-    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlDiv<::pltxt2htm::Contracts::ignore>) == 48);
     static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlDiv<ndebug>) == 48);
 
     TEST_CASE("absent margins") {

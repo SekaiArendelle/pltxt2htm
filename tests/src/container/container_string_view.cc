@@ -73,9 +73,10 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
 
     auto const tail = text.template subview<::pltxt2htm::Contracts::quick_enforce>(3);
     auto const middle = text.template subview<::pltxt2htm::Contracts::quick_enforce>(1, 3);
-    auto const ignored_contract = text.template subview<::pltxt2htm::Contracts::ignore>(2, 2);
+    auto const enforced_contract = text.template subview<::pltxt2htm::Contracts::quick_enforce>(2, 2);
     if (tail != u8"def" || middle != u8"bcd" || !text.starts_with(u8"abc") || !text.ends_with(u8"def") ||
-        text.ends_with(u8"abcdefg") || ignored_contract.template index<::pltxt2htm::Contracts::ignore>(0) != u8'c') {
+        text.ends_with(u8"abcdefg") ||
+        enforced_contract.template index<::pltxt2htm::Contracts::quick_enforce>(0) != u8'c') {
         return false;
     }
 

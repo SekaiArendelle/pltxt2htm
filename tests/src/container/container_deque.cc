@@ -153,7 +153,6 @@ consteval auto test_constexpr_deque() -> bool {
 }
 
 static_assert(test_constexpr_deque<Contracts::quick_enforce>());
-static_assert(test_constexpr_deque<Contracts::ignore>());
 
 template<Contracts ndebug>
 constexpr auto test_contract_operations() noexcept -> bool {
@@ -193,7 +192,6 @@ constexpr auto test_contract_operations() noexcept -> bool {
 }
 
 static_assert(test_contract_operations<Contracts::quick_enforce>());
-static_assert(test_contract_operations<Contracts::ignore>());
 
 namespace pltxt2htm_test {
 
@@ -521,7 +519,6 @@ void test_range_insertion() {
 int main() {
     pltxt2htm_test_assert_true(test_offset_relocation());
     pltxt2htm_test_assert_true(test_contract_operations<Contracts::quick_enforce>());
-    pltxt2htm_test_assert_true(test_contract_operations<Contracts::ignore>());
     ::pltxt2htm_test::test_rolling_queue(true);
     ::pltxt2htm_test::test_rolling_queue(false);
     ::pltxt2htm_test::test_spare_blocks();
