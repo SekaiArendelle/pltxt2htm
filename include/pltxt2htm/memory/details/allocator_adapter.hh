@@ -3,7 +3,7 @@
  * @brief Generic and typed allocator adapters, synced from fast_io
  *          `fast_io_core_impl/allocation/adapters.h`.
  * @details Class, method, and concept names are kept identical to upstream so
- *          fast_io-style allocators work unchanged; only the namespace differs
+ *          stateless fast_io-style allocators work unchanged; only the namespace differs
  *          (`pltxt2htm::memory` instead of `fast_io`). Dependencies were remapped:
  *          `fast_terminate` -> `pltxt2htm::details::trap`, `fast_io::freestanding`
  *          byte/string helpers -> local `details` equivalents, and the consteval
@@ -27,7 +27,6 @@
 #include <limits>
 #include <memory>
 #include <new>
-#include <type_traits>
 
 #include "../../details/trap.hh"
 #include "allocation_least_result.hh"
@@ -88,41 +87,26 @@ template<typename alloc>
 class GenericAllocatorAdapter {
 public:
     using allocator_type = alloc;
-    static constexpr bool has_status{::pltxt2htm::memory::details::has_non_empty_handle_type<allocator_type>};
-
-    template<typename T, bool = false>
-    struct has {
-        using type = allocator_type; // any meaningless type other than void
-    };
-
-    template<typename T>
-    struct has<T, true> {
-        using type = typename T::handle_type;
-    };
-
-    using handle_type = typename has<allocator_type, has_status>::type;
     static constexpr ::std::size_t default_alignment{
         ::pltxt2htm::memory::details::calculate_default_alignment<allocator_type>()};
     static constexpr bool has_native_allocate{
-        !has_status && (::pltxt2htm::memory::details::has_allocate_at_least_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_aligned_at_least_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_zero_at_least_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_aligned_zero_at_least_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_aligned_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_zero_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_aligned_zero_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_conditional_zero_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_aligned_conditional_zero_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_conditional_zero_at_least_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_aligned_conditional_zero_at_least_impl<alloc>)};
+        ::pltxt2htm::memory::details::has_allocate_at_least_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_aligned_at_least_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_zero_at_least_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_aligned_zero_at_least_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_aligned_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_zero_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_aligned_zero_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_conditional_zero_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_aligned_conditional_zero_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_conditional_zero_at_least_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_aligned_conditional_zero_at_least_impl<alloc>};
 
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline auto allocate_conditional_zero(::std::size_t n, bool zero) noexcept -> void*
-        requires (!has_status)
-    {
+    static inline auto allocate_conditional_zero(::std::size_t n, bool zero) noexcept -> void* {
         if consteval {
             auto p{
 #if defined(__has_builtin) && __has_builtin(__builtin_operator_new)
@@ -238,9 +222,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static constexpr auto allocate(::std::size_t n) noexcept -> void*
-        requires (!has_status)
-    {
+    static constexpr auto allocate(::std::size_t n) noexcept -> void* {
         if consteval {
             return GenericAllocatorAdapter::allocate_conditional_zero(n, false);
         }
@@ -257,9 +239,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline auto allocate_zero(::std::size_t n) noexcept -> void*
-        requires (!has_status)
-    {
+    static inline auto allocate_zero(::std::size_t n) noexcept -> void* {
         if consteval {
             return GenericAllocatorAdapter::allocate_conditional_zero(n, true);
         }
@@ -291,7 +271,7 @@ public:
     [[__gnu__::__returns_nonnull__]]
 #endif
     static inline auto reallocate_conditional_zero(void* p, ::std::size_t n, bool zero) noexcept -> void*
-        requires (!has_status && has_reallocate)
+        requires (has_reallocate)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_conditional_zero_impl<alloc>) {
             return allocator_type::reallocate_conditional_zero(p, n, zero);
@@ -368,7 +348,7 @@ public:
     [[__gnu__::__returns_nonnull__]]
 #endif
     static inline auto reallocate(void* p, ::std::size_t n) noexcept -> void*
-        requires (!has_status && has_reallocate)
+        requires (has_reallocate)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_impl<alloc>) {
             return allocator_type::reallocate(p, n);
@@ -391,7 +371,7 @@ public:
     [[__gnu__::__returns_nonnull__]]
 #endif
     static inline auto reallocate_zero(void* p, ::std::size_t n) noexcept -> void*
-        requires (!has_status && has_reallocate_zero)
+        requires (has_reallocate_zero)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_zero_impl<alloc>) {
             return allocator_type::reallocate_zero(p, n);
@@ -408,9 +388,7 @@ public:
     [[__gnu__::__returns_nonnull__]]
 #endif
     static inline auto reallocate_n_conditional_zero(void* p, ::std::size_t oldn, ::std::size_t n, bool zero) noexcept
-        -> void*
-        requires (!has_status)
-    {
+        -> void* {
         if (p != nullptr && oldn == n) {
             return p;
         }
@@ -511,9 +489,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline auto reallocate_n(void* p, ::std::size_t oldn, ::std::size_t n) noexcept -> void*
-        requires (!has_status)
-    {
+    static inline auto reallocate_n(void* p, ::std::size_t oldn, ::std::size_t n) noexcept -> void* {
         if (p != nullptr && oldn == n) {
             return p;
         }
@@ -531,9 +507,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static inline auto reallocate_zero_n(void* p, ::std::size_t oldn, ::std::size_t n) noexcept -> void*
-        requires (!has_status)
-    {
+    static inline auto reallocate_zero_n(void* p, ::std::size_t oldn, ::std::size_t n) noexcept -> void* {
         if (p != nullptr && oldn == n) {
             return p;
         }
@@ -552,7 +526,7 @@ public:
                                                    ::pltxt2htm::memory::details::has_deallocate_aligned_impl<alloc>);
 
     static constexpr void deallocate(void* p) noexcept
-        requires (!has_status && has_deallocate)
+        requires (has_deallocate)
     {
         if consteval {
 #if defined(__has_builtin) && __has_builtin(__builtin_operator_delete)
@@ -571,9 +545,7 @@ public:
         }
     }
 
-    static constexpr void deallocate_n(void* p, ::std::size_t n) noexcept
-        requires (!has_status)
-    {
+    static constexpr void deallocate_n(void* p, ::std::size_t n) noexcept {
         if consteval {
 #if defined(__has_builtin) && __has_builtin(__builtin_operator_delete)
             __builtin_operator_delete(p);
@@ -604,9 +576,7 @@ public:
     [[__gnu__::__returns_nonnull__]]
 #endif
     static constexpr auto allocate_aligned_conditional_zero(::std::size_t alignment, ::std::size_t n,
-                                                            bool zero) noexcept -> void*
-        requires (!has_status)
-    {
+                                                            bool zero) noexcept -> void* {
         if consteval {
             auto p{
 #if defined(__has_builtin) && __has_builtin(__builtin_operator_new)
@@ -683,9 +653,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static constexpr auto allocate_aligned(::std::size_t alignment, ::std::size_t n) noexcept -> void*
-        requires (!has_status)
-    {
+    static constexpr auto allocate_aligned(::std::size_t alignment, ::std::size_t n) noexcept -> void* {
         if consteval {
             return
 #if defined(__has_builtin) && __has_builtin(__builtin_operator_new)
@@ -706,9 +674,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static constexpr auto allocate_aligned_zero(::std::size_t alignment, ::std::size_t n) noexcept -> void*
-        requires (!has_status)
-    {
+    static constexpr auto allocate_aligned_zero(::std::size_t alignment, ::std::size_t n) noexcept -> void* {
         if consteval {
             return
 #if defined(__has_builtin) && __has_builtin(__builtin_operator_new)
@@ -727,14 +693,12 @@ public:
     }
 
     static constexpr bool has_native_allocate_at_least{
-        !has_status && (::pltxt2htm::memory::details::has_allocate_at_least_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_aligned_at_least_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_zero_at_least_impl<alloc> ||
-                        ::pltxt2htm::memory::details::has_allocate_aligned_zero_at_least_impl<alloc>)};
+        ::pltxt2htm::memory::details::has_allocate_at_least_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_aligned_at_least_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_zero_at_least_impl<alloc> ||
+        ::pltxt2htm::memory::details::has_allocate_aligned_zero_at_least_impl<alloc>};
 
-    static constexpr auto allocate_at_least(::std::size_t n) noexcept -> AllocationLeastResult
-        requires (!has_status)
-    {
+    static constexpr auto allocate_at_least(::std::size_t n) noexcept -> AllocationLeastResult {
         if consteval {
             return {.ptr =
 #if defined(__has_builtin) && __has_builtin(__builtin_operator_new)
@@ -755,9 +719,7 @@ public:
         }
     }
 
-    static constexpr auto allocate_zero_at_least(::std::size_t n) noexcept -> AllocationLeastResult
-        requires (!has_status)
-    {
+    static constexpr auto allocate_zero_at_least(::std::size_t n) noexcept -> AllocationLeastResult {
         if consteval {
             return {.ptr =
 #if defined(__has_builtin) && __has_builtin(__builtin_operator_new)
@@ -779,9 +741,7 @@ public:
     }
 
     static constexpr auto allocate_conditional_zero_at_least(::std::size_t n, bool zero) noexcept
-        -> AllocationLeastResult
-        requires (!has_status)
-    {
+        -> AllocationLeastResult {
         if consteval {
             auto p{::operator new(n)};
             if (zero) {
@@ -891,9 +851,7 @@ public:
     }
 
     static constexpr auto allocate_aligned_at_least(::std::size_t alignment, ::std::size_t n) noexcept
-        -> AllocationLeastResult
-        requires (!has_status)
-    {
+        -> AllocationLeastResult {
         if consteval {
             return GenericAllocatorAdapter::allocate_aligned_conditional_zero_at_least(alignment, n, false);
         }
@@ -908,9 +866,7 @@ public:
     }
 
     static constexpr auto allocate_aligned_zero_at_least(::std::size_t alignment, ::std::size_t n) noexcept
-        -> AllocationLeastResult
-        requires (!has_status)
-    {
+        -> AllocationLeastResult {
         if consteval {
             return GenericAllocatorAdapter::allocate_aligned_conditional_zero_at_least(alignment, n, true);
         }
@@ -925,9 +881,7 @@ public:
     }
 
     static constexpr auto allocate_aligned_conditional_zero_at_least(::std::size_t alignment, ::std::size_t n,
-                                                                     bool zero) noexcept -> AllocationLeastResult
-        requires (!has_status)
-    {
+                                                                     bool zero) noexcept -> AllocationLeastResult {
         if consteval {
             auto p{::operator new(n)};
             if (zero) {
@@ -1008,7 +962,7 @@ public:
 #endif
     static inline auto reallocate_aligned_conditional_zero(void* p, ::std::size_t alignment, ::std::size_t n,
                                                            bool zero) noexcept -> void*
-        requires (!has_status && has_reallocate_aligned)
+        requires (has_reallocate_aligned)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_conditional_zero_impl<alloc>) {
             return allocator_type::reallocate_aligned_conditional_zero(p, alignment, n, zero);
@@ -1050,7 +1004,7 @@ public:
     [[__gnu__::__returns_nonnull__]]
 #endif
     static inline auto reallocate_aligned(void* p, ::std::size_t alignment, ::std::size_t n) noexcept -> void*
-        requires (!has_status && has_reallocate_aligned)
+        requires (has_reallocate_aligned)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_impl<alloc>) {
             return allocator_type::reallocate_aligned(p, alignment, n);
@@ -1070,7 +1024,7 @@ public:
     [[__gnu__::__returns_nonnull__]]
 #endif
     static inline auto reallocate_aligned_zero(void* p, ::std::size_t alignment, ::std::size_t n) noexcept -> void*
-        requires (!has_status && has_reallocate_aligned_zero)
+        requires (has_reallocate_aligned_zero)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_impl<alloc>) {
             return allocator_type::reallocate_aligned_zero(p, alignment, n);
@@ -1087,9 +1041,7 @@ public:
     [[__gnu__::__returns_nonnull__]]
 #endif
     static inline auto reallocate_aligned_n_conditional_zero(void* p, ::std::size_t oldn, ::std::size_t alignment,
-                                                             ::std::size_t n, bool zero) noexcept -> void*
-        requires (!has_status)
-    {
+                                                             ::std::size_t n, bool zero) noexcept -> void* {
         if (p != nullptr && oldn == n) {
             return p;
         }
@@ -1187,9 +1139,7 @@ public:
     [[__gnu__::__returns_nonnull__]]
 #endif
     static inline auto reallocate_aligned_n(void* p, ::std::size_t oldn, ::std::size_t alignment,
-                                            ::std::size_t n) noexcept -> void*
-        requires (!has_status)
-    {
+                                            ::std::size_t n) noexcept -> void* {
         if (p != nullptr && oldn == n) {
             return p;
         }
@@ -1208,9 +1158,7 @@ public:
     [[__gnu__::__returns_nonnull__]]
 #endif
     static inline auto reallocate_aligned_zero_n(void* p, ::std::size_t oldn, ::std::size_t alignment,
-                                                 ::std::size_t n) noexcept -> void*
-        requires (!has_status)
-    {
+                                                 ::std::size_t n) noexcept -> void* {
         if (p != nullptr && oldn == n) {
             return p;
         }
@@ -1237,7 +1185,7 @@ public:
 
     static inline auto reallocate_at_least(void* p, ::std::size_t n) noexcept
         -> ::pltxt2htm::memory::AllocationLeastResult
-        requires (!has_status && has_reallocate)
+        requires (has_reallocate)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_at_least_impl<alloc>) {
             return allocator_type::reallocate_at_least(p, n);
@@ -1271,7 +1219,7 @@ public:
 
     static inline auto reallocate_zero_at_least(void* p, ::std::size_t n) noexcept
         -> ::pltxt2htm::memory::AllocationLeastResult
-        requires (!has_status && has_reallocate)
+        requires (has_reallocate)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_zero_at_least_impl<alloc>) {
             return allocator_type::reallocate_zero_at_least(p, n);
@@ -1295,9 +1243,7 @@ public:
     }
 
     static inline auto reallocate_n_at_least(void* p, ::std::size_t oldn, ::std::size_t n) noexcept
-        -> ::pltxt2htm::memory::AllocationLeastResult
-        requires (!has_status)
-    {
+        -> ::pltxt2htm::memory::AllocationLeastResult {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_n_at_least_impl<alloc>) {
             return allocator_type::reallocate_n_at_least(p, oldn, n);
         }
@@ -1364,9 +1310,7 @@ public:
     }
 
     static inline auto reallocate_zero_n_at_least(void* p, ::std::size_t oldn, ::std::size_t n) noexcept
-        -> ::pltxt2htm::memory::AllocationLeastResult
-        requires (!has_status)
-    {
+        -> ::pltxt2htm::memory::AllocationLeastResult {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_zero_n_at_least_impl<alloc>) {
             return allocator_type::reallocate_zero_n_at_least(p, oldn, n);
         }
@@ -1398,7 +1342,7 @@ public:
 
     static inline auto reallocate_aligned_at_least(void* p, ::std::size_t alignment, ::std::size_t n) noexcept
         -> ::pltxt2htm::memory::AllocationLeastResult
-        requires (!has_status && has_reallocate_aligned_zero)
+        requires (has_reallocate_aligned_zero)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_at_least_impl<alloc>) {
             return allocator_type::reallocate_aligned_at_least(p, alignment, n);
@@ -1419,7 +1363,7 @@ public:
 
     static inline auto reallocate_aligned_zero_at_least(void* p, ::std::size_t alignment, ::std::size_t n) noexcept
         -> ::pltxt2htm::memory::AllocationLeastResult
-        requires (!has_status && has_reallocate_aligned_zero)
+        requires (has_reallocate_aligned_zero)
     {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_at_least_impl<alloc>) {
             return allocator_type::reallocate_aligned_zero_at_least(p, alignment, n);
@@ -1435,9 +1379,7 @@ public:
 
     static inline auto reallocate_aligned_n_at_least(void* p, ::std::size_t oldn, ::std::size_t alignment,
                                                      ::std::size_t n) noexcept
-        -> ::pltxt2htm::memory::AllocationLeastResult
-        requires (!has_status)
-    {
+        -> ::pltxt2htm::memory::AllocationLeastResult {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_n_at_least_impl<alloc>) {
             return allocator_type::reallocate_aligned_n_at_least(p, oldn, alignment, n);
         }
@@ -1493,9 +1435,7 @@ public:
 
     static inline auto reallocate_aligned_zero_n_at_least(void* p, ::std::size_t oldn, ::std::size_t alignment,
                                                           ::std::size_t n) noexcept
-        -> ::pltxt2htm::memory::AllocationLeastResult
-        requires (!has_status)
-    {
+        -> ::pltxt2htm::memory::AllocationLeastResult {
         if constexpr (::pltxt2htm::memory::details::has_reallocate_aligned_zero_n_at_least_impl<alloc>) {
             return allocator_type::reallocate_aligned_zero_n_at_least(p, oldn, alignment, n);
         }
@@ -1520,7 +1460,7 @@ public:
          ::pltxt2htm::memory::details::has_deallocate_impl<alloc>);
 
     static inline void deallocate_aligned(void* p, ::std::size_t alignment) noexcept
-        requires (!has_status && has_deallocate_aligned)
+        requires (has_deallocate_aligned)
     {
         if constexpr (::pltxt2htm::memory::details::has_deallocate_aligned_impl<alloc>) {
             allocator_type::deallocate_aligned(p, alignment);
@@ -1536,9 +1476,7 @@ public:
         }
     }
 
-    static inline void deallocate_aligned_n(void* p, ::std::size_t alignment, ::std::size_t n) noexcept
-        requires (!has_status)
-    {
+    static inline void deallocate_aligned_n(void* p, ::std::size_t alignment, ::std::size_t n) noexcept {
         if constexpr (::pltxt2htm::memory::details::has_deallocate_aligned_n_impl<alloc>) {
             allocator_type::deallocate_aligned_n(p, alignment, n);
         }
@@ -1564,495 +1502,17 @@ public:
         }
     }
 
-    // Handle-based allocation functions (for allocators with non-empty handle_type)
-    static constexpr bool has_native_handle_allocate{
-        has_status &&
-        (::pltxt2htm::memory::details::has_handle_allocate_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_allocate_aligned_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_allocate_zero_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_allocate_aligned_zero_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_allocate_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_allocate_aligned_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_allocate_zero_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_allocate_aligned_zero_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_allocate_conditional_zero_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_allocate_aligned_conditional_zero_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_allocate_conditional_zero_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_allocate_aligned_conditional_zero_at_least_impl<alloc>)};
 
-#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
-    [[__gnu__::__returns_nonnull__]]
-#endif
-    static inline auto handle_allocate_conditional_zero(handle_type handle, ::std::size_t n, bool zero) noexcept
-        -> void*
-        requires (has_status && has_native_handle_allocate)
-    {
-        if consteval {
-            auto p{::operator new(n)};
-            if (zero) {
-                ::pltxt2htm::memory::details::bytes_clear_n(reinterpret_cast<::std::byte*>(p), n);
-            }
-            return p;
-        }
-        else {
-            if constexpr (::pltxt2htm::memory::details::has_handle_allocate_conditional_zero_impl<alloc>) {
-                return allocator_type::handle_allocate_conditional_zero(handle, n, zero);
-            }
-            else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_conditional_zero_at_least_impl<
-                                   alloc>) {
-                return allocator_type::handle_allocate_conditional_zero_at_least(handle, n, zero).ptr;
-            }
-            else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_aligned_conditional_zero_impl<alloc>) {
-                return allocator_type::handle_allocate_aligned_conditional_zero(handle, default_alignment, n, zero);
-            }
-            else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_aligned_conditional_zero_at_least_impl<
-                                   alloc>) {
-                return allocator_type::handle_allocate_aligned_conditional_zero_at_least(handle, default_alignment, n,
-                                                                                         zero)
-                    .ptr;
-            }
-            else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_impl<alloc> ||
-                               ::pltxt2htm::memory::details::has_handle_allocate_at_least_impl<alloc> ||
-                               ::pltxt2htm::memory::details::has_handle_allocate_aligned_impl<alloc> ||
-                               ::pltxt2htm::memory::details::has_handle_allocate_aligned_at_least_impl<alloc>) {
-                if (zero) {
-                    if constexpr (::pltxt2htm::memory::details::has_handle_allocate_zero_impl<alloc>) {
-                        return allocator_type::handle_allocate_zero(handle, n);
-                    }
-                    else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_zero_at_least_impl<alloc>) {
-                        return allocator_type::handle_allocate_zero_at_least(handle, n).ptr;
-                    }
-                    else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_aligned_zero_impl<alloc>) {
-                        return allocator_type::handle_allocate_aligned_zero(handle, default_alignment, n);
-                    }
-                    else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_aligned_zero_at_least_impl<
-                                           alloc>) {
-                        return allocator_type::handle_allocate_aligned_zero_at_least(handle, default_alignment, n).ptr;
-                    }
-                    else {
-                        auto p{GenericAllocatorAdapter::handle_allocate(handle, n)};
-                        ::pltxt2htm::memory::details::bytes_clear_n(reinterpret_cast<::std::byte*>(p), n);
-                        return p;
-                    }
-                }
-                else {
-                    if constexpr (::pltxt2htm::memory::details::has_handle_allocate_impl<alloc>) {
-                        return allocator_type::handle_allocate(handle, n);
-                    }
-                    else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_at_least_impl<alloc>) {
-                        return allocator_type::handle_allocate_at_least(handle, n).ptr;
-                    }
-                    else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_aligned_impl<alloc>) {
-                        return allocator_type::handle_allocate_aligned(handle, default_alignment, n);
-                    }
-                    else {
-                        return allocator_type::handle_allocate_aligned_at_least(handle, default_alignment, n).ptr;
-                    }
-                }
-            }
-            else {
-                if constexpr (::pltxt2htm::memory::details::has_handle_allocate_zero_impl<alloc>) {
-                    return allocator_type::handle_allocate_zero(handle, n);
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_zero_at_least_impl<alloc>) {
-                    return allocator_type::handle_allocate_zero_at_least(handle, n).ptr;
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_aligned_zero_impl<alloc>) {
-                    return allocator_type::handle_allocate_aligned_zero(handle, default_alignment, n);
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_aligned_zero_at_least_impl<
-                                       alloc>) {
-                    return allocator_type::handle_allocate_aligned_zero_at_least(handle, default_alignment, n).ptr;
-                }
-                else {
-                    ::pltxt2htm::details::trap();
-                }
-            }
-        }
-    }
-
-#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
-    [[__gnu__::__returns_nonnull__]]
-#endif
-    static inline auto handle_allocate(handle_type handle, ::std::size_t n) noexcept -> void*
-        requires (has_status && has_native_handle_allocate)
-    {
-        if consteval {
-            return static_cast<void*>(::std::allocator<::std::byte>{}.allocate(n));
-        }
-        else {
-            if constexpr (::pltxt2htm::memory::details::has_handle_allocate_impl<alloc>) {
-                return allocator_type::handle_allocate(handle, n);
-            }
-            else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_at_least_impl<alloc>) {
-                return allocator_type::handle_allocate_at_least(handle, n).ptr;
-            }
-            else {
-                return GenericAllocatorAdapter::handle_allocate_conditional_zero(handle, n, false);
-            }
-        }
-    }
-
-#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
-    [[__gnu__::__returns_nonnull__]]
-#endif
-    static inline auto handle_allocate_zero(handle_type handle, ::std::size_t n) noexcept -> void*
-        requires (has_status && has_native_handle_allocate)
-    {
-        if constexpr (::pltxt2htm::memory::details::has_handle_allocate_zero_impl<alloc>) {
-            return allocator_type::handle_allocate_zero(handle, n);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_allocate_zero_at_least_impl<alloc>) {
-            return allocator_type::handle_allocate_zero_at_least(handle, n).ptr;
-        }
-        else {
-            return GenericAllocatorAdapter::handle_allocate_conditional_zero(handle, n, true);
-        }
-    }
-
-    static constexpr bool has_handle_reallocate{
-        has_status &&
-        (::pltxt2htm::memory::details::has_handle_reallocate_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_aligned_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_zero_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_aligned_zero_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_aligned_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_zero_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_aligned_zero_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_conditional_zero_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_aligned_conditional_zero_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_conditional_zero_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_aligned_conditional_zero_at_least_impl<alloc>)};
-
-#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
-    [[__gnu__::__returns_nonnull__]]
-#endif
-    static inline auto handle_reallocate_conditional_zero(handle_type handle, void* p, ::std::size_t n,
-                                                          bool zero) noexcept -> void*
-        requires (has_status && has_handle_reallocate)
-    {
-        if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_conditional_zero_impl<alloc>) {
-            return allocator_type::handle_reallocate_conditional_zero(handle, p, n, zero);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_conditional_zero_at_least_impl<alloc>) {
-            return allocator_type::handle_reallocate_conditional_zero_at_least(handle, p, n, zero).ptr;
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_conditional_zero_impl<alloc>) {
-            return allocator_type::handle_reallocate_aligned_conditional_zero(handle, p, default_alignment, n, zero);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_conditional_zero_at_least_impl<
-                               alloc>) {
-            return allocator_type::handle_reallocate_aligned_conditional_zero_at_least(handle, p, default_alignment, n,
-                                                                                       zero)
-                .ptr;
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_impl<alloc> ||
-                           ::pltxt2htm::memory::details::has_handle_reallocate_at_least_impl<alloc> ||
-                           ::pltxt2htm::memory::details::has_handle_reallocate_aligned_impl<alloc> ||
-                           ::pltxt2htm::memory::details::has_handle_reallocate_aligned_at_least_impl<alloc>) {
-            if (zero) {
-                if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_impl<alloc>) {
-                    return allocator_type::handle_reallocate_zero(handle, p, n);
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_at_least_impl<alloc>) {
-                    return allocator_type::handle_reallocate_zero_at_least(handle, p, n).ptr;
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_zero_impl<alloc>) {
-                    return allocator_type::handle_reallocate_aligned_zero(handle, p, default_alignment, n);
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_zero_at_least_impl<
-                                       alloc>) {
-                    return allocator_type::handle_reallocate_aligned_zero_at_least(handle, p, default_alignment, n).ptr;
-                }
-                else {
-                    ::pltxt2htm::details::trap();
-                }
-            }
-            else {
-                if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_impl<alloc>) {
-                    return allocator_type::handle_reallocate(handle, p, n);
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_at_least_impl<alloc>) {
-                    return allocator_type::handle_reallocate_at_least(handle, p, n).ptr;
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_impl<alloc>) {
-                    return allocator_type::handle_reallocate_aligned(handle, p, default_alignment, n);
-                }
-                else {
-                    return allocator_type::handle_reallocate_aligned_at_least(handle, p, default_alignment, n).ptr;
-                }
-            }
-        }
-        else {
-            if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_impl<alloc>) {
-                return allocator_type::handle_reallocate_zero(handle, p, n);
-            }
-            else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_at_least_impl<alloc>) {
-                return allocator_type::handle_reallocate_zero_at_least(handle, p, n).ptr;
-            }
-            else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_zero_impl<alloc>) {
-                return allocator_type::handle_reallocate_aligned_zero(handle, p, default_alignment, n);
-            }
-            else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_zero_at_least_impl<alloc>) {
-                return allocator_type::handle_reallocate_aligned_zero_at_least(handle, p, default_alignment, n).ptr;
-            }
-            else {
-                ::pltxt2htm::details::trap();
-            }
-        }
-    }
-
-#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
-    [[__gnu__::__returns_nonnull__]]
-#endif
-    static inline auto handle_reallocate(handle_type handle, void* p, ::std::size_t n) noexcept -> void*
-        requires (has_status && has_handle_reallocate)
-    {
-        if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_impl<alloc>) {
-            return allocator_type::handle_reallocate(handle, p, n);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_at_least_impl<alloc>) {
-            return allocator_type::handle_reallocate_at_least(handle, p, n).ptr;
-        }
-        else {
-            return GenericAllocatorAdapter::handle_reallocate_conditional_zero(handle, p, n, false);
-        }
-    }
-
-#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
-    [[__gnu__::__returns_nonnull__]]
-#endif
-    static inline auto handle_reallocate_zero(handle_type handle, void* p, ::std::size_t n) noexcept -> void*
-        requires (has_status && has_handle_reallocate)
-    {
-        if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_impl<alloc>) {
-            return allocator_type::handle_reallocate_zero(handle, p, n);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_at_least_impl<alloc>) {
-            return allocator_type::handle_reallocate_zero_at_least(handle, p, n).ptr;
-        }
-        else {
-            return GenericAllocatorAdapter::handle_reallocate_conditional_zero(handle, p, n, true);
-        }
-    }
-
-    static constexpr bool has_handle_reallocate_n{
-        has_status &&
-        (::pltxt2htm::memory::details::has_handle_reallocate_n_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_aligned_n_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_zero_n_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_aligned_zero_n_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_n_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_aligned_n_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_zero_n_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_aligned_zero_n_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_n_conditional_zero_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_aligned_n_conditional_zero_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_n_conditional_zero_at_least_impl<alloc> ||
-         ::pltxt2htm::memory::details::has_handle_reallocate_aligned_n_conditional_zero_at_least_impl<alloc>)};
-
-#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
-    [[__gnu__::__returns_nonnull__]]
-#endif
-    static inline auto handle_reallocate_n_conditional_zero(handle_type handle, void* p, ::std::size_t oldn,
-                                                            ::std::size_t n, bool zero) noexcept -> void*
-        requires (has_status && has_handle_reallocate_n)
-    {
-        if (p != nullptr && oldn == n) {
-            return p;
-        }
-        if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_n_conditional_zero_impl<alloc>) {
-            return allocator_type::handle_reallocate_n_conditional_zero(handle, p, oldn, n, zero);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_n_conditional_zero_at_least_impl<
-                               alloc>) {
-            return allocator_type::handle_reallocate_n_conditional_zero_at_least(handle, p, oldn, n, zero).ptr;
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_n_conditional_zero_impl<alloc>) {
-            return allocator_type::handle_reallocate_aligned_n_conditional_zero(handle, p, oldn, default_alignment, n,
-                                                                                zero);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_n_conditional_zero_at_least_impl<
-                               alloc>) {
-            return allocator_type::handle_reallocate_aligned_n_conditional_zero_at_least(handle, p, oldn,
-                                                                                         default_alignment, n, zero)
-                .ptr;
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_n_impl<alloc> ||
-                           ::pltxt2htm::memory::details::has_handle_reallocate_n_at_least_impl<alloc> ||
-                           ::pltxt2htm::memory::details::has_handle_reallocate_aligned_n_impl<alloc> ||
-                           ::pltxt2htm::memory::details::has_handle_reallocate_aligned_n_at_least_impl<alloc>) {
-            if (zero) {
-                if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_n_impl<alloc>) {
-                    return allocator_type::handle_reallocate_zero_n(handle, p, oldn, n);
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_n_at_least_impl<alloc>) {
-                    return allocator_type::handle_reallocate_zero_n_at_least(handle, p, oldn, n).ptr;
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_zero_n_impl<alloc>) {
-                    return allocator_type::handle_reallocate_aligned_zero_n(handle, p, oldn, default_alignment, n);
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_zero_n_at_least_impl<
-                                       alloc>) {
-                    return allocator_type::handle_reallocate_aligned_zero_n_at_least(handle, p, oldn, default_alignment,
-                                                                                     n)
-                        .ptr;
-                }
-                else {
-                    auto newptr{GenericAllocatorAdapter::handle_reallocate_n(handle, p, oldn, n)};
-                    if (oldn < n) {
-                        ::pltxt2htm::memory::details::bytes_clear_n(reinterpret_cast<::std::byte*>(newptr) + oldn,
-                                                                    n - oldn);
-                    }
-                    return newptr;
-                }
-            }
-            else {
-                if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_n_impl<alloc>) {
-                    return allocator_type::handle_reallocate_n(handle, p, oldn, n);
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_n_at_least_impl<alloc>) {
-                    return allocator_type::handle_reallocate_n_at_least(handle, p, oldn, n).ptr;
-                }
-                else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_n_impl<alloc>) {
-                    return allocator_type::handle_reallocate_aligned_n(handle, p, oldn, default_alignment, n);
-                }
-                else {
-                    return allocator_type::handle_reallocate_aligned_n_at_least(handle, p, oldn, default_alignment, n)
-                        .ptr;
-                }
-            }
-        }
-        else {
-            if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_n_impl<alloc>) {
-                return allocator_type::handle_reallocate_zero_n(handle, p, oldn, n);
-            }
-            else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_n_at_least_impl<alloc>) {
-                return allocator_type::handle_reallocate_zero_n_at_least(handle, p, oldn, n).ptr;
-            }
-            else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_zero_n_impl<alloc>) {
-                return allocator_type::handle_reallocate_aligned_zero_n(handle, p, oldn, default_alignment, n);
-            }
-            else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_aligned_zero_n_at_least_impl<
-                                   alloc>) {
-                return allocator_type::handle_reallocate_aligned_zero_n_at_least(handle, p, oldn, default_alignment, n)
-                    .ptr;
-            }
-            else {
-                auto newptr{GenericAllocatorAdapter::handle_allocate(handle, n)};
-                if (p != nullptr) {
-                    if (n) {
-                        ::std::size_t const copyn{oldn < n ? oldn : n};
-                        ::pltxt2htm::memory::details::nonoverlapped_bytes_copy_n(
-                            reinterpret_cast<::std::byte const*>(p), copyn, reinterpret_cast<::std::byte*>(newptr));
-                    }
-                    GenericAllocatorAdapter::handle_deallocate_n(handle, p, oldn);
-                }
-                if (zero && oldn < n) {
-                    ::pltxt2htm::memory::details::bytes_clear_n(reinterpret_cast<::std::byte*>(newptr) + oldn,
-                                                                n - oldn);
-                }
-                return newptr;
-            }
-        }
-    }
-
-#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
-    [[__gnu__::__returns_nonnull__]]
-#endif
-    static inline auto handle_reallocate_n(handle_type handle, void* p, ::std::size_t oldn, ::std::size_t n) noexcept
-        -> void*
-        requires (has_status && has_handle_reallocate_n)
-    {
-        if (p != nullptr && oldn == n) {
-            return p;
-        }
-        if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_n_impl<alloc>) {
-            return allocator_type::handle_reallocate_n(handle, p, oldn, n);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_n_at_least_impl<alloc>) {
-            return allocator_type::handle_reallocate_n_at_least(handle, p, oldn, n).ptr;
-        }
-        else {
-            return GenericAllocatorAdapter::handle_reallocate_n_conditional_zero(handle, p, oldn, n, false);
-        }
-    }
-
-#if __has_cpp_attribute(__gnu__::__returns_nonnull__)
-    [[__gnu__::__returns_nonnull__]]
-#endif
-    static inline auto handle_reallocate_zero_n(handle_type handle, void* p, ::std::size_t oldn,
-                                                ::std::size_t n) noexcept -> void*
-        requires (has_status && has_handle_reallocate_n)
-    {
-        if (p != nullptr && oldn == n) {
-            return p;
-        }
-        if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_n_impl<alloc>) {
-            return allocator_type::handle_reallocate_zero_n(handle, p, oldn, n);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_reallocate_zero_n_at_least_impl<alloc>) {
-            return allocator_type::handle_reallocate_zero_n_at_least(handle, p, oldn, n).ptr;
-        }
-        else {
-            return GenericAllocatorAdapter::handle_reallocate_n_conditional_zero(handle, p, oldn, n, true);
-        }
-    }
-
-    static constexpr bool has_handle_deallocate{
-        has_status && (::pltxt2htm::memory::details::has_handle_deallocate_impl<alloc> ||
-                       ::pltxt2htm::memory::details::has_handle_deallocate_aligned_impl<alloc> ||
-                       ::pltxt2htm::memory::details::has_handle_deallocate_n_impl<alloc> ||
-                       ::pltxt2htm::memory::details::has_handle_deallocate_aligned_n_impl<alloc>)};
-
-    static inline void handle_deallocate(handle_type handle, void* p) noexcept
-        requires (has_status && has_handle_deallocate)
-    {
-        if constexpr (::pltxt2htm::memory::details::has_handle_deallocate_impl<alloc>) {
-            allocator_type::handle_deallocate(handle, p);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_deallocate_aligned_impl<alloc>) {
-            allocator_type::handle_deallocate_aligned(handle, p, default_alignment);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_deallocate_n_impl<alloc>) {
-            allocator_type::handle_deallocate_n(handle, p, 0);
-        }
-        else {
-            allocator_type::handle_deallocate_aligned_n(handle, p, default_alignment, 0);
-        }
-    }
-
-    static inline void handle_deallocate_n(handle_type handle, void* p, ::std::size_t n) noexcept
-        requires (has_status && has_handle_deallocate)
-    {
-        if constexpr (::pltxt2htm::memory::details::has_handle_deallocate_n_impl<alloc>) {
-            allocator_type::handle_deallocate_n(handle, p, n);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_deallocate_aligned_n_impl<alloc>) {
-            allocator_type::handle_deallocate_aligned_n(handle, p, default_alignment, n);
-        }
-        else if constexpr (::pltxt2htm::memory::details::has_handle_deallocate_impl<alloc>) {
-            allocator_type::handle_deallocate(handle, p);
-        }
-        else {
-            allocator_type::handle_deallocate_aligned(handle, p, default_alignment);
-        }
-    }
 };
 
 template<typename alloc, typename T>
 class TypedGenericAllocatorAdapter {
 public:
     using allocator_adaptor = alloc;
-    static constexpr bool has_status{allocator_adaptor::has_status};
-    using handle_type = typename allocator_adaptor::handle_type;
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static constexpr auto allocate(::std::size_t n) noexcept -> T*
-        requires (!has_status)
-    {
+    static constexpr auto allocate(::std::size_t n) noexcept -> T* {
         if consteval {
             return ::std::allocator<T>{}.allocate(n);
         }
@@ -2071,9 +1531,7 @@ public:
     static constexpr
 
         auto
-        allocate_at_least(::std::size_t n) noexcept -> details::BasicAllocationLeastResult<T*>
-        requires (!has_status)
-    {
+        allocate_at_least(::std::size_t n) noexcept -> details::BasicAllocationLeastResult<T*> {
         if consteval {
             return {.ptr = ::std::allocator<T>{}.allocate(n), .count = n};
         }
@@ -2096,9 +1554,7 @@ public:
 #endif
     static constexpr
 
-    auto allocate_zero(::std::size_t n) noexcept -> T*
-        requires (!has_status)
-    {
+    auto allocate_zero(::std::size_t n) noexcept -> T* {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
         if (n > mxn) {
             ::pltxt2htm::details::trap();
@@ -2112,9 +1568,7 @@ public:
     }
 
     static constexpr auto allocate_zero_at_least(::std::size_t n) noexcept
-        -> details::BasicAllocationLeastResult<T*>
-        requires (!has_status)
-    {
+        -> details::BasicAllocationLeastResult<T*> {
         if consteval {
             return {.ptr = ::std::allocator<T>{}.allocate(n), .count = n};
         }
@@ -2138,7 +1592,7 @@ public:
     [[__gnu__::__returns_nonnull__]]
 #endif
     static constexpr auto reallocate(T* ptr, ::std::size_t n) noexcept -> T*
-        requires (!has_status && has_reallocate)
+        requires (has_reallocate)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
         if (n > mxn) {
@@ -2154,7 +1608,7 @@ public:
 
     static constexpr auto reallocate_at_least(T* ptr, ::std::size_t n) noexcept
         -> details::BasicAllocationLeastResult<T*>
-        requires (!has_status && has_reallocate)
+        requires (has_reallocate)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
         if (n > mxn) {
@@ -2175,7 +1629,7 @@ public:
     [[__gnu__::__returns_nonnull__]]
 #endif
     static constexpr auto reallocate_zero(T* ptr, ::std::size_t n) noexcept -> T*
-        requires (!has_status && has_reallocate_zero)
+        requires (has_reallocate_zero)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
         if (n > mxn) {
@@ -2191,7 +1645,7 @@ public:
 
     static constexpr auto reallocate_zero_at_least(T* ptr, ::std::size_t n) noexcept
         -> details::BasicAllocationLeastResult<T*>
-        requires (!has_status && has_reallocate_zero)
+        requires (has_reallocate_zero)
     {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
         if (n > mxn) {
@@ -2210,9 +1664,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static constexpr auto reallocate_n(T* ptr, ::std::size_t oldn, ::std::size_t n) noexcept -> T*
-        requires (!has_status)
-    {
+    static constexpr auto reallocate_n(T* ptr, ::std::size_t oldn, ::std::size_t n) noexcept -> T* {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
         if (n > mxn) {
             ::pltxt2htm::details::trap();
@@ -2226,9 +1678,7 @@ public:
     }
 
     static constexpr auto reallocate_n_at_least(T* ptr, ::std::size_t oldn, ::std::size_t n) noexcept
-        -> details::BasicAllocationLeastResult<T*>
-        requires (!has_status)
-    {
+        -> details::BasicAllocationLeastResult<T*> {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
         if (n > mxn) {
             ::pltxt2htm::details::trap();
@@ -2246,9 +1696,7 @@ public:
 #if __has_cpp_attribute(__gnu__::__returns_nonnull__)
     [[__gnu__::__returns_nonnull__]]
 #endif
-    static constexpr auto reallocate_zero_n(T* ptr, ::std::size_t oldn, ::std::size_t n) noexcept -> T*
-        requires (!has_status)
-    {
+    static constexpr auto reallocate_zero_n(T* ptr, ::std::size_t oldn, ::std::size_t n) noexcept -> T* {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
         if (n > mxn) {
             ::pltxt2htm::details::trap();
@@ -2262,9 +1710,7 @@ public:
     }
 
     static constexpr auto reallocate_zero_n_at_least(T* ptr, ::std::size_t oldn, ::std::size_t n) noexcept
-        -> details::BasicAllocationLeastResult<T*>
-        requires (!has_status)
-    {
+        -> details::BasicAllocationLeastResult<T*> {
         constexpr ::std::size_t mxn{::std::numeric_limits<::std::size_t>::max() / sizeof(T)};
         if (n > mxn) {
             ::pltxt2htm::details::trap();
@@ -2282,7 +1728,7 @@ public:
     static constexpr bool has_deallocate = allocator_adaptor::has_deallocate;
 
     static constexpr void deallocate(T* ptr) noexcept
-        requires (!has_status && has_deallocate)
+        requires (has_deallocate)
     {
         if consteval {
             if (ptr) {
@@ -2298,9 +1744,7 @@ public:
         }
     }
 
-    static constexpr void deallocate_n(T* ptr, ::std::size_t n) noexcept
-        requires (!has_status)
-    {
+    static constexpr void deallocate_n(T* ptr, ::std::size_t n) noexcept {
         if consteval {
             if (ptr) {
                 return ::std::allocator<T>{}.deallocate(ptr, n);

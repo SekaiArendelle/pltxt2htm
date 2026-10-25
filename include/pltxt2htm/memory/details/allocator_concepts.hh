@@ -25,21 +25,6 @@ template<typename Alloc>
 concept allocator_has_stateless_deallocate_ops = has_deallocate_impl<Alloc> || has_deallocate_aligned_impl<Alloc> ||
                                                  has_deallocate_n_impl<Alloc> || has_deallocate_aligned_n_impl<Alloc>;
 
-template<typename Alloc>
-concept allocator_has_stateful_allocate_ops =
-    has_handle_allocate_impl<Alloc> || has_handle_allocate_aligned_impl<Alloc> ||
-    has_handle_allocate_zero_impl<Alloc> || has_handle_allocate_aligned_zero_impl<Alloc> ||
-    has_handle_allocate_conditional_zero_impl<Alloc> || has_handle_allocate_aligned_conditional_zero_impl<Alloc> ||
-    has_handle_allocate_at_least_impl<Alloc> || has_handle_allocate_aligned_at_least_impl<Alloc> ||
-    has_handle_allocate_zero_at_least_impl<Alloc> || has_handle_allocate_aligned_zero_at_least_impl<Alloc> ||
-    has_handle_allocate_conditional_zero_at_least_impl<Alloc> ||
-    has_handle_allocate_aligned_conditional_zero_at_least_impl<Alloc>;
-
-template<typename Alloc>
-concept allocator_has_stateful_deallocate_ops =
-    has_handle_deallocate_impl<Alloc> || has_handle_deallocate_aligned_impl<Alloc> ||
-    has_handle_deallocate_n_impl<Alloc> || has_handle_deallocate_aligned_n_impl<Alloc>;
-
 } // namespace pltxt2htm::memory::details
 
 namespace pltxt2htm::memory {
@@ -52,18 +37,9 @@ concept stateless_allocator =
     details::allocator_has_stateless_allocate_ops<Alloc> && details::allocator_has_stateless_deallocate_ops<Alloc>;
 
 /**
- * @brief A handle-based allocator: allocation and deallocation both go through
- *        `handle_*` methods taking the allocator's `handle_type`.
+ * @brief An allocator usable with `GenericAllocatorAdapter`.
  */
 template<typename Alloc>
-concept stateful_allocator =
-    details::has_non_empty_handle_type<Alloc> && details::allocator_has_stateful_allocate_ops<Alloc> &&
-    details::allocator_has_stateful_deallocate_ops<Alloc>;
-
-/**
- * @brief Any allocator usable with `GenericAllocatorAdapter`, stateless or stateful.
- */
-template<typename Alloc>
-concept allocator = stateless_allocator<Alloc> || stateful_allocator<Alloc>;
+concept allocator = stateless_allocator<Alloc>;
 
 } // namespace pltxt2htm::memory
