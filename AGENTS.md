@@ -137,19 +137,7 @@ For custom compilers or CMake options, configure `tests/` directly - see [tests/
 pixi run clean-tests
 ```
 
-Sanitizer examples:
-
-```sh
-# ASan
-cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=address
-cmake --build tests/build
-ctest --test-dir tests/build --interactive-debug-mode 0
-
-# MSan
-cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=memory
-cmake --build tests/build
-ctest --test-dir tests/build --interactive-debug-mode 0
-```
+Pass a sanitizer name as a positional argument, for example `pixi run -e clang test-clang address` (or `pixi run -e gcc test-gcc address`); `undefined` and `memory` are accepted where the compiler supports them.
 
 Coverage - see [tests/docker/codecov/README.md](./tests/docker/codecov/README.md) for the container image that builds an lcov + genhtml report with GCC. For a local run, configure a GCC build with `-DPLTXT2HTM_ENABLE_COVERAGE=ON` and capture it with the same tools.
 
