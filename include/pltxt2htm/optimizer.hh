@@ -791,11 +791,12 @@ entry:
                 auto const& span_color = active_node.get_color();
                 auto const span_font_size = active_node.get_font_size();
                 auto const span_vertical_align = active_node.get_vertical_align();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
-                        ::std::addressof(subast), subast.begin(),
-                        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo{
-                            ::pltxt2htm::container::U8StringView{span_color}, span_font_size, span_vertical_align}));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), subast.begin(),
+                    ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo{
+                        .color = ::pltxt2htm::container::U8StringView{span_color},
+                        .font_size = span_font_size,
+                        .vertical_align = span_vertical_align}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_a: {

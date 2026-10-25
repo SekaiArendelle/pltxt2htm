@@ -75,9 +75,9 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             -> ::pltxt2htm::container::Optional<::pltxt2htm::details::ParserFrameContextWithMarginsInfo> {
             if (type_of_subast == ::pltxt2htm::NodeKind::unity_margin) {
                 return ::pltxt2htm::details::ParserFrameContextWithMarginsInfo{
-                    call_stack.current_frame().get_pltext(),
-                    call_stack.current_frame().as_margins_info().left,
-                    call_stack.current_frame().as_margins_info().right};
+                    .pltext = call_stack.current_frame().get_pltext(),
+                    .left = call_stack.current_frame().as_margins_info().left,
+                    .right = call_stack.current_frame().as_margins_info().right};
             }
             return ::pltxt2htm::container::nullopt;
         }();
@@ -91,9 +91,9 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             -> ::pltxt2htm::container::Optional<::pltxt2htm::details::ParserFrameContextWithMarginsInfo> {
             if (type_of_subast == ::pltxt2htm::NodeKind::html_div) {
                 return ::pltxt2htm::details::ParserFrameContextWithMarginsInfo{
-                    call_stack.current_frame().get_pltext(),
-                    call_stack.current_frame().as_margins_info().left,
-                    call_stack.current_frame().as_margins_info().right};
+                    .pltext = call_stack.current_frame().get_pltext(),
+                    .left = call_stack.current_frame().as_margins_info().left,
+                    .right = call_stack.current_frame().as_margins_info().right};
             }
             return ::pltxt2htm::container::nullopt;
         }();

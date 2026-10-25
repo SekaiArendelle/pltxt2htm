@@ -1056,7 +1056,7 @@ constexpr auto try_parse_size_tag(::pltxt2htm::container::U8StringView pltext) n
         return ::pltxt2htm::container::nullopt;
     }
     auto const tag_len = value_end + opt_close.value();
-    return TryParseSizeTagResult{tag_len, {value.value, unit}};
+    return TryParseSizeTagResult{.tag_len = tag_len, .value = {.value = value.value, .unit = unit}};
 }
 
 /**
@@ -1113,7 +1113,7 @@ constexpr auto try_parse_font_size_value(::pltxt2htm::container::U8StringView pl
         unit = ::pltxt2htm::Unit::em;
         pos += 2;
     }
-    return TryParseFontSizeValueResult{pos, {decimal.value, unit}};
+    return TryParseFontSizeValueResult{.end = pos, .value = {.value = decimal.value, .unit = unit}};
 }
 
 /**
@@ -1160,7 +1160,7 @@ constexpr auto try_parse_signed_length_value(::pltxt2htm::container::U8StringVie
         unit = ::pltxt2htm::Unit::em;
         pos += 2;
     }
-    return TryParseSignedLengthValueResult{pos, {decimal.value, unit}};
+    return TryParseSignedLengthValueResult{.end = pos, .value = {.value = decimal.value, .unit = unit}};
 }
 
 /**
@@ -1203,7 +1203,7 @@ constexpr auto try_parse_voffset_tag(::pltxt2htm::container::U8StringView pltext
         return ::pltxt2htm::container::nullopt;
     }
     auto const tag_len = value_end + opt_close.value();
-    return TryParseVoffsetTagResult{tag_len, value.value};
+    return TryParseVoffsetTagResult{.tag_len = tag_len, .value = value.value};
 }
 
 /**
@@ -1246,10 +1246,10 @@ constexpr auto try_parse_align_tag(::pltxt2htm::container::U8StringView pltext) 
     };
 
     constexpr AlignCandidate candidates[]{
-        {u8"justified", ::pltxt2htm::TextAlign::justify},
-        {u8"left", ::pltxt2htm::TextAlign::left},
-        {u8"center", ::pltxt2htm::TextAlign::center},
-        {u8"right", ::pltxt2htm::TextAlign::right},
+        {.keyword = u8"justified", .align = ::pltxt2htm::TextAlign::justify},
+        {.keyword = u8"left", .align = ::pltxt2htm::TextAlign::left},
+        {.keyword = u8"center", .align = ::pltxt2htm::TextAlign::center},
+        {.keyword = u8"right", .align = ::pltxt2htm::TextAlign::right},
     };
     bool matched{false};
     for (auto const& candidate : candidates) {
@@ -1297,7 +1297,7 @@ constexpr auto try_parse_align_tag(::pltxt2htm::container::U8StringView pltext) 
     }
     auto const tag_len =
         value_start + quote_offset + value_end + quote_close_offset + opt_close.value();
-    return TryParseAlignTagResult{tag_len, align};
+    return TryParseAlignTagResult{.tag_len = tag_len, .align = align};
 }
 
 /**
@@ -1340,7 +1340,7 @@ constexpr auto try_parse_margin_value(::pltxt2htm::container::U8StringView pltex
         unit = ::pltxt2htm::Unit::em;
         value_end += 2;
     }
-    return TryParseMarginValueResult{value_end, {parsed.value, unit}};
+    return TryParseMarginValueResult{.end = value_end, .value = {.value = parsed.value, .unit = unit}};
 }
 
 /**
@@ -1371,7 +1371,7 @@ constexpr auto try_parse_margin_single(::pltxt2htm::container::U8StringView plte
         return ::pltxt2htm::container::nullopt;
     }
     auto const tag_len = value.end + opt_close.value();
-    return TryParseMarginSingleResult{tag_len, value.value};
+    return TryParseMarginSingleResult{.tag_len = tag_len, .value = value.value};
 }
 
 /**
@@ -1476,7 +1476,8 @@ constexpr auto try_parse_margin_tag(::pltxt2htm::container::U8StringView pltext)
             return ::pltxt2htm::container::nullopt;
         }
         auto const single = opt_single.value();
-        return TryParseMarginTagResult{value_start + single.tag_len, single.value, ::pltxt2htm::container::nullopt};
+        return TryParseMarginTagResult{
+            .tag_len = value_start + single.tag_len, .left = single.value, .right = ::pltxt2htm::container::nullopt};
     }
     if (::pltxt2htm::details::is_equal_sign_tag_prefix< right_prefix_str>(pltext)) {
         constexpr auto value_start = right_prefix_str.size() + 1;
@@ -1486,7 +1487,8 @@ constexpr auto try_parse_margin_tag(::pltxt2htm::container::U8StringView pltext)
             return ::pltxt2htm::container::nullopt;
         }
         auto const single = opt_single.value();
-        return TryParseMarginTagResult{value_start + single.tag_len, ::pltxt2htm::container::nullopt, single.value};
+        return TryParseMarginTagResult{
+            .tag_len = value_start + single.tag_len, .left = ::pltxt2htm::container::nullopt, .right = single.value};
     }
     if (::pltxt2htm::details::is_equal_sign_tag_prefix< prefix_str>(pltext)) {
         constexpr auto value_start = prefix_str.size() + 1;
@@ -1496,7 +1498,8 @@ constexpr auto try_parse_margin_tag(::pltxt2htm::container::U8StringView pltext)
             return ::pltxt2htm::container::nullopt;
         }
         auto const single = opt_single.value();
-        return TryParseMarginTagResult{value_start + single.tag_len, single.value, single.value};
+        return TryParseMarginTagResult{
+            .tag_len = value_start + single.tag_len, .left = single.value, .right = single.value};
     }
     if (::pltxt2htm::details::is_prefix_match< prefix_str>(pltext)) {
         if (pltext_size > prefix_str.size()) {
@@ -1509,7 +1512,8 @@ constexpr auto try_parse_margin_tag(::pltxt2htm::container::U8StringView pltext)
                     return ::pltxt2htm::container::nullopt;
                 }
                 auto const attributes = opt_attributes.value();
-                return TryParseMarginTagResult{start + attributes.tag_len, attributes.left, attributes.right};
+                return TryParseMarginTagResult{
+                    .tag_len = start + attributes.tag_len, .left = attributes.left, .right = attributes.right};
             }
         }
     }
@@ -1729,22 +1733,22 @@ constexpr auto try_parse_vertical_align_value(::pltxt2htm::container::U8StringVi
     };
 
     static constexpr auto keywords = ::pltxt2htm::container::Array{
-        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::baseline,
-                                  ::pltxt2htm::container::U8StringView{u8"baseline"}},
-        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::text_bottom,
-                                  ::pltxt2htm::container::U8StringView{u8"text-bottom"}},
-        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::text_top,
-                                  ::pltxt2htm::container::U8StringView{u8"text-top"}},
-        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::super,
-                                  ::pltxt2htm::container::U8StringView{u8"super"}},
-        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::sub,
-                                  ::pltxt2htm::container::U8StringView{u8"sub"}},
-        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::middle,
-                                  ::pltxt2htm::container::U8StringView{u8"middle"}},
-        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::bottom,
-                                  ::pltxt2htm::container::U8StringView{u8"bottom"}},
-        VerticalAlignKeywordEntry{::pltxt2htm::VerticalAlignKeyword::top,
-                                  ::pltxt2htm::container::U8StringView{u8"top"}},
+        VerticalAlignKeywordEntry{.keyword = ::pltxt2htm::VerticalAlignKeyword::baseline,
+                                  .spelling = ::pltxt2htm::container::U8StringView{u8"baseline"}},
+        VerticalAlignKeywordEntry{.keyword = ::pltxt2htm::VerticalAlignKeyword::text_bottom,
+                                  .spelling = ::pltxt2htm::container::U8StringView{u8"text-bottom"}},
+        VerticalAlignKeywordEntry{.keyword = ::pltxt2htm::VerticalAlignKeyword::text_top,
+                                  .spelling = ::pltxt2htm::container::U8StringView{u8"text-top"}},
+        VerticalAlignKeywordEntry{.keyword = ::pltxt2htm::VerticalAlignKeyword::super,
+                                  .spelling = ::pltxt2htm::container::U8StringView{u8"super"}},
+        VerticalAlignKeywordEntry{.keyword = ::pltxt2htm::VerticalAlignKeyword::sub,
+                                  .spelling = ::pltxt2htm::container::U8StringView{u8"sub"}},
+        VerticalAlignKeywordEntry{.keyword = ::pltxt2htm::VerticalAlignKeyword::middle,
+                                  .spelling = ::pltxt2htm::container::U8StringView{u8"middle"}},
+        VerticalAlignKeywordEntry{.keyword = ::pltxt2htm::VerticalAlignKeyword::bottom,
+                                  .spelling = ::pltxt2htm::container::U8StringView{u8"bottom"}},
+        VerticalAlignKeywordEntry{.keyword = ::pltxt2htm::VerticalAlignKeyword::top,
+                                  .spelling = ::pltxt2htm::container::U8StringView{u8"top"}},
     };
     for (auto const& entry : keywords) {
         auto opt_len = ::pltxt2htm::details::try_parse_vertical_align_keyword(pltext, entry.spelling);

@@ -1477,7 +1477,8 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack< ParserFrame>
                 auto const& cell = raw_ast.cell_at(row_index, cell_index);
                 call_stack.push_frame(ParserFrame(
                     FrontendContextVariant{
-                        ParserFrameContextWithCellInfo{::pltxt2htm::container::U8StringView{cell.text}, cell.align},
+                        ParserFrameContextWithCellInfo{.pltext = ::pltxt2htm::container::U8StringView{cell.text},
+                                                       .align = cell.align},
                         cell.is_header ? ::pltxt2htm::NodeKind::table_th : ::pltxt2htm::NodeKind::table_td},
                     ::pltxt2htm::Ast{}));
                 active_frame_data.cell_index = cell_index + 1;

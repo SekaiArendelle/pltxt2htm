@@ -328,8 +328,9 @@ entry:
                 auto&& [advance_count, url_text, url_link] = opt_md_link.value();
                 current_index += advance_count;
                 call_stack.push_frame(ParserFrame(
-                    FrontendContextVariant{ParserFrameContextWithUrlInfo{url_text, ::std::move(url_link)},
-                                                   ::pltxt2htm::NodeKind::md_link},
+                    FrontendContextVariant{
+                        ParserFrameContextWithUrlInfo{.pltext = url_text, .url = ::std::move(url_link)},
+                        ::pltxt2htm::NodeKind::md_link},
                     ::pltxt2htm::Ast{}));
                 goto entry;
             }
@@ -399,8 +400,9 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
                             FrontendContextVariant{ParserFrameContextWithHtmlATagInfo{
-                                pltext.subview(current_index), ::std::move(url),
-                                internal}}, // ::pltxt2htm::NodeKind::html_a is automatically set in ctor
+                                .pltext = pltext.subview(current_index),
+                                .url = ::std::move(url),
+                                .internal = internal}}, // ::pltxt2htm::NodeKind::html_a is automatically set in ctor
                             ::pltxt2htm::Ast{}));
                         goto entry;
                     }
@@ -471,8 +473,8 @@ entry:
                         // parsing start tag <color> successed
                         call_stack.push_frame(ParserFrame(
                             FrontendContextVariant{
-                                ParserFrameContextWithEqualSignTagInfo{pltext.subview(current_index),
-                                                                       ::pltxt2htm::container::U8String{color}},
+                                ParserFrameContextWithEqualSignTagInfo{.pltext = pltext.subview(current_index),
+                                                                       .id = ::pltxt2htm::container::U8String{color}},
                                 ::pltxt2htm::NodeKind::unity_color},
                             ::pltxt2htm::Ast{}));
                         goto entry;
@@ -504,11 +506,10 @@ entry:
                         auto&& [tag_len, value] = opt_discussions_tag.value();
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
-                            FrontendContextVariant{
-                                ParserFrameContextWithEqualSignTagInfo{
-                                    pltext.subview(current_index),
-                                    ::pltxt2htm::details::decode_character_references(value)},
-                                ::pltxt2htm::NodeKind::pl_discussions},
+                            FrontendContextVariant{ParserFrameContextWithEqualSignTagInfo{
+                                                       .pltext = pltext.subview(current_index),
+                                                       .id = ::pltxt2htm::details::decode_character_references(value)},
+                                                   ::pltxt2htm::NodeKind::pl_discussions},
                             ::pltxt2htm::Ast{}));
                         goto entry;
                     }
@@ -520,10 +521,9 @@ entry:
                         auto&& [tag_len, id] = opt_discussion_tag.value();
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
-                            FrontendContextVariant{
-                                ParserFrameContextWithObjectIdInfo{pltext.subview(current_index),
-                                                                       ::std::move(id)},
-                                ::pltxt2htm::NodeKind::pl_discussion},
+                            FrontendContextVariant{ParserFrameContextWithObjectIdInfo{
+                                                       .pltext = pltext.subview(current_index), .id = ::std::move(id)},
+                                                   ::pltxt2htm::NodeKind::pl_discussion},
                             ::pltxt2htm::Ast{}));
                         goto entry;
                     }
@@ -542,11 +542,10 @@ entry:
                         auto&& [tag_len, value] = opt_experiments_tag.value();
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
-                            FrontendContextVariant{
-                                ParserFrameContextWithEqualSignTagInfo{
-                                    pltext.subview(current_index),
-                                    ::pltxt2htm::details::decode_character_references(value)},
-                                ::pltxt2htm::NodeKind::pl_experiments},
+                            FrontendContextVariant{ParserFrameContextWithEqualSignTagInfo{
+                                                       .pltext = pltext.subview(current_index),
+                                                       .id = ::pltxt2htm::details::decode_character_references(value)},
+                                                   ::pltxt2htm::NodeKind::pl_experiments},
                             ::pltxt2htm::Ast{}));
                         goto entry;
                     }
@@ -558,10 +557,9 @@ entry:
                         auto&& [tag_len, id] = opt_experiment_tag.value();
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
-                            FrontendContextVariant{
-                                ParserFrameContextWithObjectIdInfo{pltext.subview(current_index),
-                                                                       ::std::move(id)},
-                                ::pltxt2htm::NodeKind::pl_experiment},
+                            FrontendContextVariant{ParserFrameContextWithObjectIdInfo{
+                                                       .pltext = pltext.subview(current_index), .id = ::std::move(id)},
+                                                   ::pltxt2htm::NodeKind::pl_experiment},
                             ::pltxt2htm::Ast{}));
                         goto entry;
                     }
@@ -573,8 +571,8 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
                             FrontendContextVariant{
-                                ParserFrameContextWithUrlInfo{pltext.subview(current_index),
-                                                              ::std::move(url)},
+                                ParserFrameContextWithUrlInfo{.pltext = pltext.subview(current_index),
+                                                              .url = ::std::move(url)},
                                 ::pltxt2htm::NodeKind::pl_external},
                             ::pltxt2htm::Ast{}));
                         goto entry;
@@ -615,11 +613,10 @@ entry:
                         auto&& [tag_len, value] = opt_internal_tag.value();
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
-                            FrontendContextVariant{
-                                ParserFrameContextWithEqualSignTagInfo{
-                                    pltext.subview(current_index),
-                                    ::pltxt2htm::details::decode_character_references(value)},
-                                ::pltxt2htm::NodeKind::pl_internal},
+                            FrontendContextVariant{ParserFrameContextWithEqualSignTagInfo{
+                                                       .pltext = pltext.subview(current_index),
+                                                       .id = ::pltxt2htm::details::decode_character_references(value)},
+                                                   ::pltxt2htm::NodeKind::pl_internal},
                             ::pltxt2htm::Ast{}));
                         goto entry;
                     }
@@ -662,8 +659,8 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
                             FrontendContextVariant{
-                                ParserFrameContextWithUrlInfo{pltext.subview(current_index),
-                                                              ::std::move(url)},
+                                ParserFrameContextWithUrlInfo{.pltext = pltext.subview(current_index),
+                                                              .url = ::std::move(url)},
                                 ::pltxt2htm::NodeKind::unity_link},
                             ::pltxt2htm::Ast{}));
                         goto entry;
@@ -692,12 +689,12 @@ entry:
                         auto&& [tag_len, background_color] = opt_mark_tag.value();
                         // parsing Unity <mark=Xxx> tag (TMP rich text)
                         current_index += tag_len + 2;
-                        call_stack.push_frame(ParserFrame(
-                            FrontendContextVariant{
-                                ParserFrameContextWithBackgroundColorInfo{
-                                    pltext.subview(current_index), ::std::move(background_color)},
-                                ::pltxt2htm::NodeKind::unity_mark},
-                            ::pltxt2htm::Ast{}));
+                        call_stack.push_frame(
+                            ParserFrame(FrontendContextVariant{ParserFrameContextWithBackgroundColorInfo{
+                                                                   .pltext = pltext.subview(current_index),
+                                                                   .background_color = ::std::move(background_color)},
+                                                               ::pltxt2htm::NodeKind::unity_mark},
+                                        ::pltxt2htm::Ast{}));
                         goto entry;
                     }
                     if (auto opt_mark_tag = ::pltxt2htm::details::try_parse_mark_tag(
@@ -706,12 +703,12 @@ entry:
                         auto&& [tag_len, background_color] = opt_mark_tag.value();
                         // parsing html <mark> tag (bare or with style="background-color:...")
                         current_index += tag_len + 2;
-                        call_stack.push_frame(ParserFrame(
-                            FrontendContextVariant{
-                                ParserFrameContextWithBackgroundColorInfo{
-                                    pltext.subview(current_index), ::std::move(background_color)},
-                                ::pltxt2htm::NodeKind::html_mark},
-                            ::pltxt2htm::Ast{}));
+                        call_stack.push_frame(
+                            ParserFrame(FrontendContextVariant{ParserFrameContextWithBackgroundColorInfo{
+                                                                   .pltext = pltext.subview(current_index),
+                                                                   .background_color = ::std::move(background_color)},
+                                                               ::pltxt2htm::NodeKind::html_mark},
+                                        ::pltxt2htm::Ast{}));
                         goto entry;
                     }
                     result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
@@ -736,8 +733,8 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
                             FrontendContextVariant{ParserFrameContextWithUnitySizeTagInfo{
-                                                               pltext.subview(current_index), value},
-                                                           ::pltxt2htm::NodeKind::unity_size},
+                                                       .pltext = pltext.subview(current_index), .value = value},
+                                                   ::pltxt2htm::NodeKind::unity_size},
                             ::pltxt2htm::Ast{}));
                         goto entry;
                     }
@@ -749,9 +746,10 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
                             FrontendContextVariant{
-                                ParserFrameContextWithHtmlSpanInfo{pltext.subview(current_index),
-                                                                   ::std::move(color), ::std::move(font_size),
-                                                                   ::std::move(vertical_align)},
+                                ParserFrameContextWithHtmlSpanInfo{.pltext = pltext.subview(current_index),
+                                                                   .color = ::std::move(color),
+                                                                   .font_size = ::std::move(font_size),
+                                                                   .vertical_align = ::std::move(vertical_align)},
                                 ::pltxt2htm::NodeKind::html_span},
                             ::pltxt2htm::Ast{}));
                         goto entry;
@@ -819,11 +817,10 @@ entry:
                         auto&& [tag_len, value] = opt_trigger_tag.value();
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
-                            FrontendContextVariant{
-                                ParserFrameContextWithEqualSignTagInfo{
-                                    pltext.subview(current_index),
-                                    ::pltxt2htm::details::decode_character_references(value)},
-                                ::pltxt2htm::NodeKind::pl_trigger},
+                            FrontendContextVariant{ParserFrameContextWithEqualSignTagInfo{
+                                                       .pltext = pltext.subview(current_index),
+                                                       .id = ::pltxt2htm::details::decode_character_references(value)},
+                                                   ::pltxt2htm::NodeKind::pl_trigger},
                             ::pltxt2htm::Ast{}));
                         goto entry;
                     }
@@ -842,10 +839,9 @@ entry:
                         auto&& [tag_len, id] = opt_user_tag.value();
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
-                            FrontendContextVariant{
-                                ParserFrameContextWithObjectIdInfo{pltext.subview(current_index),
-                                                                       ::std::move(id)},
-                                ::pltxt2htm::NodeKind::pl_user},
+                            FrontendContextVariant{ParserFrameContextWithObjectIdInfo{
+                                                       .pltext = pltext.subview(current_index), .id = ::std::move(id)},
+                                                   ::pltxt2htm::NodeKind::pl_user},
                             ::pltxt2htm::Ast{}));
                         goto entry;
                     }
@@ -879,8 +875,8 @@ entry:
                         current_index += tag_len + 2;
                         call_stack.push_frame(ParserFrame(
                             FrontendContextVariant{ParserFrameContextWithUnityVoffsetTagInfo{
-                                                               pltext.subview(current_index), value},
-                                                           ::pltxt2htm::NodeKind::unity_voffset},
+                                                       .pltext = pltext.subview(current_index), .value = value},
+                                                   ::pltxt2htm::NodeKind::unity_voffset},
                             ::pltxt2htm::Ast{}));
                         goto entry;
                     }
