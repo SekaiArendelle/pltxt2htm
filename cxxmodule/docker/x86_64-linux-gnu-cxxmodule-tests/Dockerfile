@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends cmake ninja-bui
 
 WORKDIR /pltxt2htm
 COPY include/ /pltxt2htm/include/
+COPY cmake/ /pltxt2htm/cmake/
 COPY cxxmodule/ /pltxt2htm/cxxmodule/
 
 RUN cmake -S cxxmodule/tests -B cxxmodule/tests/build -G Ninja \

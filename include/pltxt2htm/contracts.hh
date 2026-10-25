@@ -1,6 +1,8 @@
 /**
  * @file contracts.hh
  * @brief Compile-time contract checking configuration.
+ * @details Defines the build-wide `contract_mode` constant selected by the
+ *          `PLTXT2HTM_CONTRACTS` macro.
  */
 #pragma once
 
@@ -12,6 +14,14 @@
 #endif
 namespace pltxt2htm {
 
-constexpr auto contract_mode = PLTXT2HTM_CONTRACTS;
+/**
+ * @brief Contract checking mode for the current build.
+ * @details `0` turns contract violations into panics; `1` replaces the checks
+ *          with optimizer assumptions, so a violation is undefined behavior.
+ *          It is a public constant so callers and the C++ module can inspect it.
+ * @note The value is build-wide: every translation unit of a program must be
+ *       compiled with the same `PLTXT2HTM_CONTRACTS` value.
+ */
+inline constexpr auto contract_mode = PLTXT2HTM_CONTRACTS;
 
 } // namespace pltxt2htm
