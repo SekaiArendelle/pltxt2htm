@@ -6,7 +6,7 @@ This file is the entry point for AI coding agents. It contains the development w
 
 - **Do NOT run git write operations without explicit human instruction.** An agent must not run `git add`, `git commit`, `git push`, open a **Pull Request**, open an **Issue**, or perform any other write operation to the repository or remote unless the human explicitly asks for it.
 - **Treat the git index as human-owned shared state.** The human may stage files by hand at any time, and often does while reviewing your work. Unexpected staged changes are not your mistake - never undo them, leave the index alone, and mention them in your summary instead of stopping or asking.
-- After changing code, run the affected tests (commands below). If `git-clang-format` is available, format your changes with it so the diff stays limited to the lines you touched; if it is not installed, skip formatting (see [Code formatting](#code-formatting)). Static analysis (`clang-tidy`) is run in full by CI and does **not** need to be run locally for every change.
+- After changing code, run the affected tests (commands below) and follow [Code formatting](#code-formatting). Static analysis (`clang-tidy`) is run in full by CI and does **not** need to be run locally for every change.
 - **Stop and report when the request appears misguided.** If the agent believes the user's prompt is based on a false premise, points in the wrong direction, or would lead to an incorrect or harmful change, the agent must stop, explain the problem with concrete evidence (file paths, code excerpts, test results), and propose the corrected direction - rather than silently complying or silently "fixing" the intent. Do not use this rule to avoid difficult tasks: when the direction is sound and only the approach is unclear, proceed or ask a focused question instead.
 
 ## Project layout
@@ -55,7 +55,7 @@ Each sub-project is independently built with CMake - see the respective `README.
 
 1. **Locate** – Read the relevant sub-project README to understand which module to modify.
 2. **Code** – Follow the [Coding conventions](#coding-conventions) below.
-3. **Format** – If `git-clang-format` is available, run the [formatting](#code-formatting) command, which only touches the lines your change adds or modifies; if it is not installed, skip this step rather than installing it. Static analysis is handled by CI, not as a local step.
+3. **Format** – Follow the [Code formatting](#code-formatting) instructions.
 4. **Test** – Run the tests for the module you touched, then the full suite.
 5. **Review** – After a substantive code change, ask a subagent to perform the [independent read-only review](#independent-read-only-review) when subagents are available. Validate its findings, fix confirmed issues, and rerun the affected checks.
 6. **Submit** – Do NOT run any git write operations (such as `git add`, `git commit`, `git push`) or open a PR/Issue without explicit human instruction. Present a patch file or a sketch of the approach instead (see [CONTRIBUTING.md](./CONTRIBUTING.md)).
@@ -83,30 +83,23 @@ The implementing agent remains responsible for the final result. It must validat
 
 ### Code formatting
 
-Formatting is **not enforced by CI**. When `git-clang-format` is available, use it instead of formatting the whole tree - it reformats only the lines your change touches, which keeps diffs and merges small. When it is not installed, skip formatting rather than installing it.
+Formatting is **not enforced by CI**. Use the Pixi tasks below to preview and apply `git-clang-format` to changed lines relative to `main`. They run in the project `scripts` environment, which supplies `git-clang-format`, Python, and `clang-format`.
 
 `.clang-format` at the project root is the single source of truth for style.
 
 ```sh
-git-clang-format main      # reformat only what this branch changed, relative to main
-git-clang-format --diff    # preview the result without writing anything
+pixi run -e scripts git-clang-format-diff  # preview formatting without writing changes
+pixi run -e scripts git-clang-format       # apply formatting to changed lines
 ```
 
 Notes:
 
 - Untracked (brand-new) files are ignored by `git-clang-format`. Format them directly instead - every line in them is new anyway:
 ```sh
-clang-format -i path/to/new_file.cc
+pixi run -e scripts clang-format -i path/to/new_file.cc
 ```
-- Unstaged edits are refused by default: pass `--force` (`git-clang-format --force main`) or stage the changes first.
-- If the toolchain only ships a versioned launcher (for example `git-clang-format-20`), use that one so the result matches `.clang-format`.
+- The apply task passes `--force`, so it also handles unstaged edits in changed files.
 - Do not reformat code you did not touch. Unrelated reformatting makes review harder and causes merge conflicts.
-- A one-off sweep over the whole tree is still possible when it is actually wanted:
-```sh
-pixi run -e scripts format-cpp
-```
-`format-cpp` regenerates the untracked `format_cpp.ninja` and runs it with Ninja. The file is **not tracked by git** (see `.gitignore`).
-
 ### Static analysis
 
 Run in full by CI: the `x86_64-linux-gnu-clang-tidy` job in [`.github/workflows/test.yml`](./.github/workflows/test.yml) builds `tests/docker/x86_64-linux-gnu-clang-tidy/Dockerfile`, which invokes the script below. **Do not run clang-tidy locally as part of the normal edit loop** - it is slow, and CI covers every translation unit anyway.

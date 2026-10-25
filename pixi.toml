@@ -142,9 +142,16 @@ gen-version = "python scripts/gen_version.py"
 run-clang-tidy = "python scripts/run_clang_tidy.py"
 windows-symbols = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm"
 windows-symbols-check = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm --check"
+git-clang-format-diff = "git-clang-format --diff main"
+git-clang-format = "git-clang-format --force main"
 
-# Generate and run the untracked clang-format Ninja file.
-format-cpp = { cmd = "ninja -f format_cpp.ninja", depends-on = ["gen-format-ninja"] }
+# Full-tree formatting is discouraged; prefer the git-clang-format tasks for changed lines.
+format-all-cpp = { cmd = "ninja -f format_cpp.ninja", depends-on = ["gen-format-ninja"] }
+
+[feature.scripts.target.win-64.tasks]
+# The Windows launcher calls the system `py -3`; invoke the Pixi Python directly.
+git-clang-format-diff = { cmd = "cmd /c \"\"%CONDA_PREFIX%\\python.exe\" \"%CONDA_PREFIX%\\Library\\bin\\git-clang-format\" --diff main\"" }
+git-clang-format = { cmd = "cmd /c \"\"%CONDA_PREFIX%\\python.exe\" \"%CONDA_PREFIX%\\Library\\bin\\git-clang-format\" --force main\"" }
 
 [environments]
 default = []
