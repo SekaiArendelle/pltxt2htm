@@ -512,7 +512,7 @@ consteval auto test_constexpr_vector() -> bool {
         return false;
     }
     IntVector copy{values};
-    copy.template index<::pltxt2htm::Contracts::ignore>(0) = 9;
+    copy.template index<::pltxt2htm::Contracts::quick_enforce>(0) = 9;
     if (values != IntVector{1} || copy != IntVector{9}) {
         return false;
     }

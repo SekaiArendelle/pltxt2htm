@@ -10,7 +10,7 @@
 #include "precompile.hh"
 
 using CheckedU8String4 = ::pltxt2htm::details::U8InplaceString<4, ::pltxt2htm::Contracts::quick_enforce>;
-using IgnoredU8String8 = ::pltxt2htm::details::U8InplaceString<8, ::pltxt2htm::Contracts::ignore>;
+using CheckedU8String8 = ::pltxt2htm::details::U8InplaceString<8, ::pltxt2htm::Contracts::quick_enforce>;
 
 struct PotentiallyThrowingIterator {
     using value_type = char8_t;
@@ -121,7 +121,7 @@ consteval auto test_constexpr_inplace_string() -> bool {
     copy = moved;
     copy.clear();
     copy.append(initial, initial + 3);
-    auto const larger = IgnoredU8String8{initial, initial + 3};
+    auto const larger = CheckedU8String8{initial, initial + 3};
     if (!(copy == larger) || (copy <=> larger) != ::std::strong_ordering::equal) {
         return false;
     }

@@ -129,8 +129,8 @@ consteval auto test_constexpr_string() noexcept -> bool {
     }
 
     U8String unchecked_string{};
-    unchecked_string.push_back<Contracts::ignore>(u8'a');
-    unchecked_string.append<Contracts::ignore>(u8"bc");
+    unchecked_string.push_back<Contracts::quick_enforce>(u8'a');
+    unchecked_string.append<Contracts::quick_enforce>(u8"bc");
     if (unchecked_string != u8"abc") {
         return false;
     }

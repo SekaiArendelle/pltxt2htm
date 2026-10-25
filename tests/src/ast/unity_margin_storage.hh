@@ -14,7 +14,6 @@ TEST_SUITE("unity_margin_storage") {
         return ::pltxt2htm::UnityMargin<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(left), ::std::move(right)};
     }
 
-    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::UnityMargin<::pltxt2htm::Contracts::ignore>) == 48);
     static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::UnityMargin<ndebug>) == 48);
 
     TEST_CASE("absent margins") {

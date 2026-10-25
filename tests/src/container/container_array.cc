@@ -47,13 +47,13 @@ consteval auto test_constexpr_array() noexcept -> bool {
     }
     if (values.data() != values.begin() || values.end() - values.begin() != 3 || values.cend() - values.cbegin() != 3 ||
         values.template front<::pltxt2htm::Contracts::quick_enforce>() != 1 ||
-        values.template back<::pltxt2htm::Contracts::ignore>() != 3 || *values.rbegin() != 3 ||
+        values.template back<::pltxt2htm::Contracts::quick_enforce>() != 3 || *values.rbegin() != 3 ||
         *values.crbegin() != 3) {
         return false;
     }
 
     values.template index<::pltxt2htm::Contracts::quick_enforce>(1) = 4;
-    if (values.template index<::pltxt2htm::Contracts::ignore>(1) != 4 ||
+    if (values.template index<::pltxt2htm::Contracts::quick_enforce>(1) != 4 ||
         values.template index<::pltxt2htm::Contracts::quick_enforce>(2) != 3) {
         return false;
     }
