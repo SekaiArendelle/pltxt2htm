@@ -16,7 +16,7 @@ using Contracts = ::pltxt2htm::Contracts;
 using allocator_type = ::pltxt2htm::memory::NativeGlobalAllocator;
 using int_allocator = ::pltxt2htm::memory::TypedGenericAllocatorAdapter<allocator_type, int>;
 
-// trait surface ---------------------------------------------------------------
+// trait surface
 
 static_assert(allocator_type::has_native_allocate);
 static_assert(allocator_type::has_reallocate);
@@ -29,7 +29,8 @@ inline auto is_aligned(void const* pointer, ::std::size_t alignment) noexcept ->
     return (raw & (alignment - 1u)) == 0;
 }
 
-[[nodiscard]] inline consteval auto test_typed_allocation_consteval() noexcept -> bool {
+[[nodiscard]]
+consteval auto test_typed_allocation_consteval() noexcept -> bool {
     int* pointer{int_allocator::allocate(4u)};
     if (pointer == nullptr) {
         return false;
@@ -112,7 +113,7 @@ void pltxt2htm_memory_allocator_aligned_protocol() noexcept {
     allocator_type::deallocate_aligned(grown_aligned, alignment);
 }
 
-// tracking through containers -------------------------------------------------
+// tracking through containers
 
 namespace {
 
@@ -167,10 +168,10 @@ void pltxt2htm_memory_allocator_container_tracking() noexcept {
     pltxt2htm_test_assert_true(CountingRawAllocator::last_bytes >= sizeof(int) * 2u);
 }
 
-// consteval container strings -------------------------------------------------
+// consteval container strings
 
 [[nodiscard]]
-inline consteval bool consteval_container_allocation_works() noexcept {
+consteval bool consteval_container_allocation_works() noexcept {
     ::pltxt2htm::container::U8String text{};
     text.assign<Contracts::quick_enforce>(u8"defg");
     return !text.is_empty() && text.size() == 4u;
