@@ -7,8 +7,9 @@ pixi run -e clang test-clang
 pixi run -e gcc test-gcc
 ```
 
-For other compilers or custom CMake options, use `run_all_tests.py` or configure
-the test project directly.
+For a clean rebuild of the Pixi build trees, run `pixi run clean-tests` before the
+test task. For other compilers or custom CMake options, configure the test
+project directly.
 
 Windows symbol declarations and MSVC linker aliases are generated with Clang's
 MSVC targets. After changing their manifest, regenerate and verify them with the
@@ -16,8 +17,7 @@ MSVC targets. After changing their manifest, regenerate and verify them with the
 
 The C++ standard defaults to `AUTO`: GCC 16 or newer uses C++26 so the tests
 exercise supported C++26 code paths, while other compilers use C++23. Override
-it with `-DCMAKE_CXX_STANDARD=23` or `-DCMAKE_CXX_STANDARD=26`. When
-using `run_all_tests.py`, pass `--cxx-standard 23` or `--cxx-standard 26`.
+it with `-DCMAKE_CXX_STANDARD=23` or `-DCMAKE_CXX_STANDARD=26`.
 
 ## enable sanitizer:
 

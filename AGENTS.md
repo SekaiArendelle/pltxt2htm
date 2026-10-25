@@ -131,10 +131,10 @@ pixi run -e clang test-clang
 pixi run -e gcc test-gcc
 ```
 
-For compiler selection and custom CMake options outside these tasks, use:
+For custom compilers or CMake options, configure `tests/` directly - see [tests/README.md](./tests/README.md). To force a clean rebuild of the Pixi test trees, run:
 
 ```sh
-python ./tests/run_all_tests.py
+pixi run clean-tests
 ```
 
 Sanitizer examples:
@@ -153,7 +153,7 @@ ctest --test-dir tests/build --interactive-debug-mode 0
 
 Coverage - see [tests/docker/codecov/README.md](./tests/docker/codecov/README.md) for the container image that builds an lcov + genhtml report with GCC. For a local run, configure a GCC build with `-DPLTXT2HTM_ENABLE_COVERAGE=ON` and capture it with the same tools.
 
-**Command cost note:** `run_all_tests.py` and the coverage image are the full, slowest checks. For quick iteration, use the relevant Pixi task or test only the module you changed. The expected local check before submitting is the test suite; clang-tidy does not need to be run locally.
+**Command cost note:** The coverage image is the full, slowest check; a forced clean rebuild (`pixi run clean-tests` first) is also slower than the incremental default. For quick iteration, use the relevant Pixi task or test only the module you changed. The expected local check before submitting is the test suite; clang-tidy does not need to be run locally.
 
 ### Windows symbol generation
 

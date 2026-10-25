@@ -27,6 +27,8 @@ git = "*"
 # prepare-tmp runs before they invoke a tool that may use the temp directory.
 prepare-tmp = "cmake -E make_directory \"$PIXI_PROJECT_ROOT/.tmp\""
 clean-tmp = "cmake -E rm -rf \"$PIXI_PROJECT_ROOT/.tmp\""
+# Force a clean rebuild on the next test-* task.
+clean-tests = "cmake -E rm -rf \"$PIXI_PROJECT_ROOT/tests/build-pixi-clang\" \"$PIXI_PROJECT_ROOT/tests/build-pixi-gcc\""
 
 [feature.clang.dependencies]
 clangxx = ">=23"
