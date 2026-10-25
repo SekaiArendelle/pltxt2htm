@@ -48,7 +48,7 @@ namespace pltxt2htm::memory {
  * @brief An allocator whose allocation surface is entirely static (no handle).
  */
 template<typename Alloc>
-concept StatelessAllocator =
+concept stateless_allocator =
     details::allocator_has_stateless_allocate_ops<Alloc> && details::allocator_has_stateless_deallocate_ops<Alloc>;
 
 /**
@@ -56,7 +56,7 @@ concept StatelessAllocator =
  *        `handle_*` methods taking the allocator's `handle_type`.
  */
 template<typename Alloc>
-concept StatefulAllocator =
+concept stateful_allocator =
     details::has_non_empty_handle_type<Alloc> && details::allocator_has_stateful_allocate_ops<Alloc> &&
     details::allocator_has_stateful_deallocate_ops<Alloc>;
 
@@ -64,6 +64,6 @@ concept StatefulAllocator =
  * @brief Any allocator usable with `GenericAllocatorAdapter`, stateless or stateful.
  */
 template<typename Alloc>
-concept Allocator = StatelessAllocator<Alloc> || StatefulAllocator<Alloc>;
+concept allocator = stateless_allocator<Alloc> || stateful_allocator<Alloc>;
 
 } // namespace pltxt2htm::memory

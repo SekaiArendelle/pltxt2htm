@@ -22,9 +22,9 @@ static_assert(!allocator_type::has_status);
 static_assert(allocator_type::has_native_allocate);
 static_assert(allocator_type::has_reallocate);
 static_assert(!allocator_type::has_native_handle_allocate);
-static_assert(::pltxt2htm::memory::Allocator<allocator_type::allocator_type>);
-static_assert(::pltxt2htm::memory::StatelessAllocator<allocator_type::allocator_type>);
-static_assert(!::pltxt2htm::memory::StatefulAllocator<allocator_type::allocator_type>);
+static_assert(::pltxt2htm::memory::allocator<allocator_type::allocator_type>);
+static_assert(::pltxt2htm::memory::stateless_allocator<allocator_type::allocator_type>);
+static_assert(!::pltxt2htm::memory::stateful_allocator<allocator_type::allocator_type>);
 
 [[nodiscard]]
 inline auto is_aligned(void const* pointer, ::std::size_t alignment) noexcept -> bool {

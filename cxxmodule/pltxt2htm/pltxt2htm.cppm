@@ -47,9 +47,9 @@ using ::pltxt2htm::container::swap;
 
 namespace memory {
 
-using ::pltxt2htm::memory::Allocator;
-using ::pltxt2htm::memory::StatefulAllocator;
-using ::pltxt2htm::memory::StatelessAllocator;
+using ::pltxt2htm::memory::allocator;
+using ::pltxt2htm::memory::stateful_allocator;
+using ::pltxt2htm::memory::stateless_allocator;
 using ::pltxt2htm::memory::AllocationLeastResult;
 using ::pltxt2htm::memory::GenericAllocatorAdapter;
 using ::pltxt2htm::memory::NativeGlobalAllocator;
