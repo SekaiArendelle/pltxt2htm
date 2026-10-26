@@ -432,85 +432,85 @@ static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<
 static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<CvSensitiveForwardRange&>())));
 static_assert(noexcept(::std::declval<IntVector const&>() == ::std::declval<IntVector const&>()));
 
-consteval auto test_constexpr_vector() -> bool {
-    IntVector values{};
-    if (!values.is_empty() || values.size() != 0 || values.capacity() != 0 || values.data() != nullptr) {
-        return false;
-    }
-    if (values.erase(values.begin(), values.end()) != values.end()) {
-        return false;
-    }
-
-    values.push_back(1);
-    values.emplace_back(2);
-    values.reserve(8);
-    if (values.size() != 2 || values.capacity() < 8 || values.front() != 1 || values[1] != 2) {
-        return false;
-    }
-
-    IntVector suffix{3, 4};
-    values.append_range(::std::move(suffix));
-    if (values != IntVector{1, 2, 3, 4}) {
-        return false;
-    }
-
-    int const sized_values[]{5, 6};
-    auto sized_range = NonConstexprSizedForwardRange{sized_values, sized_values + ::std::size(sized_values)};
-    IntVector sized_result{};
-    sized_result.append_range(sized_range);
-    if (sized_result != IntVector{5, 6}) {
-        return false;
-    }
-
-    values.erase(values.begin() + 1);
-    if (values != IntVector{1, 3, 4}) {
-        return false;
-    }
-
-    values.erase(values.begin() + 1, values.end());
-    if (values.erase(values.begin(), values.begin()) != values.begin()) {
-        return false;
-    }
-    IntVector copy{values};
-    copy[0] = 9;
-    if (values != IntVector{1} || copy != IntVector{9}) {
-        return false;
-    }
-
-    IntVector self_reference{};
-    self_reference.reserve(1);
-    self_reference.push_back(7);
-    while (self_reference.size() != self_reference.capacity()) {
-        self_reference.push_back(0);
-    }
-    auto const previous_size = self_reference.size();
-    self_reference.emplace_back(self_reference.front());
-    if (self_reference.size() != previous_size + 1 || self_reference[previous_size] != 7) {
-        return false;
-    }
-
-    IntVector self_append{};
-    self_append.reserve(1);
-    self_append.push_back(1);
-    while (self_append.size() != self_append.capacity()) {
-        self_append.push_back(static_cast<int>(self_append.size() + 1));
-    }
-    auto const self_append_size = self_append.size();
-    self_append.append_range(self_append);
-    if (self_append.size() != self_append_size * 2) {
-        return false;
-    }
-    for (::std::size_t index{}; index < self_append_size; ++index) {
-        if (self_append[index] != self_append[self_append_size + index]) {
+TEST_SUITE("container_vector") {
+    consteval auto test_constexpr_vector() -> bool {
+        IntVector values{};
+        if (!values.is_empty() || values.size() != 0 || values.capacity() != 0 || values.data() != nullptr) {
             return false;
         }
+        if (values.erase(values.begin(), values.end()) != values.end()) {
+            return false;
+        }
+
+        values.push_back(1);
+        values.emplace_back(2);
+        values.reserve(8);
+        if (values.size() != 2 || values.capacity() < 8 || values.front() != 1 || values[1] != 2) {
+            return false;
+        }
+
+        IntVector suffix{3, 4};
+        values.append_range(::std::move(suffix));
+        if (values != IntVector{1, 2, 3, 4}) {
+            return false;
+        }
+
+        int const sized_values[]{5, 6};
+        auto sized_range = NonConstexprSizedForwardRange{sized_values, sized_values + ::std::size(sized_values)};
+        IntVector sized_result{};
+        sized_result.append_range(sized_range);
+        if (sized_result != IntVector{5, 6}) {
+            return false;
+        }
+
+        values.erase(values.begin() + 1);
+        if (values != IntVector{1, 3, 4}) {
+            return false;
+        }
+
+        values.erase(values.begin() + 1, values.end());
+        if (values.erase(values.begin(), values.begin()) != values.begin()) {
+            return false;
+        }
+        IntVector copy{values};
+        copy[0] = 9;
+        if (values != IntVector{1} || copy != IntVector{9}) {
+            return false;
+        }
+
+        IntVector self_reference{};
+        self_reference.reserve(1);
+        self_reference.push_back(7);
+        while (self_reference.size() != self_reference.capacity()) {
+            self_reference.push_back(0);
+        }
+        auto const previous_size = self_reference.size();
+        self_reference.emplace_back(self_reference.front());
+        if (self_reference.size() != previous_size + 1 || self_reference[previous_size] != 7) {
+            return false;
+        }
+
+        IntVector self_append{};
+        self_append.reserve(1);
+        self_append.push_back(1);
+        while (self_append.size() != self_append.capacity()) {
+            self_append.push_back(static_cast<int>(self_append.size() + 1));
+        }
+        auto const self_append_size = self_append.size();
+        self_append.append_range(self_append);
+        if (self_append.size() != self_append_size * 2) {
+            return false;
+        }
+        for (::std::size_t index{}; index < self_append_size; ++index) {
+            if (self_append[index] != self_append[self_append_size + index]) {
+                return false;
+            }
+        }
+        return true;
     }
-    return true;
-}
 
-static_assert(test_constexpr_vector());
+    static_assert(test_constexpr_vector());
 
-TEST_SUITE("container_vector") {
     TEST_CASE("tracking-allocator-growth") {
         TrackingRawAllocator::reset();
         {

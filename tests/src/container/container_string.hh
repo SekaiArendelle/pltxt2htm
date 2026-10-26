@@ -71,84 +71,85 @@ static_assert(::fast_io::context_scannable<
 static_assert(::fast_io::context_scannable<char8_t, decltype(::fast_io::mnp::line_get(::std::declval<U8String&>()))>);
 static_assert(::fast_io::context_scannable<char8_t, decltype(::fast_io::mnp::whole_get(::std::declval<U8String&>()))>);
 
-consteval auto test_constexpr_string() noexcept -> bool {
-    U8String empty_string;
-    empty_string.clear();
-    empty_string.assign(U8StringView{});
-    empty_string.assign_characters(0);
-    U8String moved_empty_string{::std::move(empty_string)};
-    if (!empty_string.is_empty() || empty_string.c_str()[0] != u8'\0' || !moved_empty_string.is_empty() ||
-        moved_empty_string.c_str()[0] != u8'\0') {
-        return false;
-    }
-    U8String assigned_empty_string{u8"not empty"};
-    assigned_empty_string = ::std::move(moved_empty_string);
-    if (!moved_empty_string.is_empty() || moved_empty_string.c_str()[0] != u8'\0' ||
-        !assigned_empty_string.is_empty() || assigned_empty_string.c_str()[0] != u8'\0') {
-        return false;
-    }
-
-    constexpr auto literal = ::pltxt2htm::details::U8LiteralString{u8"literal"};
-    U8String const literal_string{literal};
-    if (literal_string != u8"literal") {
-        return false;
-    }
-
-    U8String const zero_string{16};
-    if (!::std::all_of(zero_string.begin(), zero_string.end(), [](char8_t character) { return character == u8'\0'; }) ||
-        zero_string.c_str()[zero_string.size()] != u8'\0') {
-        return false;
-    }
-
-    U8String string{u8"abc"};
-    string.push_back(u8'd');
-    string.append(u8"ef");
-    string.insert(string.begin(), U8StringView{u8"0"});
-    if (string != u8"0abcdef" || string.size() != 7 || string.c_str()[string.size()] != u8'\0') {
-        return false;
-    }
-
-    U8String unchecked_string{};
-    unchecked_string.push_back(u8'a');
-    unchecked_string.append(u8"bc");
-    if (unchecked_string != u8"abc") {
-        return false;
-    }
-
-    U8String copy{string};
-    U8String moved{::std::move(copy)};
-    if (!copy.is_empty() || moved != string) {
-        return false;
-    }
-
-    moved.pop_back();
-    moved.assign(U8StringView{u8"xy"});
-    if (moved != u8"xy" || moved.front() != u8'x' || moved.back() != u8'y') {
-        return false;
-    }
-
-    U8String self_append{u8"abc"};
-    self_append.reserve(16);
-    self_append.append(U8StringView{self_append.data() + 1, 2});
-    if (self_append != u8"abcbc") {
-        return false;
-    }
-
-    U8String self_assign{u8"abcdef"};
-    self_assign.assign(U8StringView{self_assign.data() + 2, 3});
-    if (self_assign != u8"cde") {
-        return false;
-    }
-
-    U8String self_insert{u8"abcdef"};
-    self_insert.reserve(16);
-    self_insert.insert(self_insert.begin() + 3, U8StringView{self_insert.data() + 1, 4});
-    return self_insert == u8"abcbcdedef";
-}
-
-static_assert(test_constexpr_string());
-
 TEST_SUITE("container_string") {
+    consteval auto test_constexpr_string() noexcept -> bool {
+        U8String empty_string;
+        empty_string.clear();
+        empty_string.assign(U8StringView{});
+        empty_string.assign_characters(0);
+        U8String moved_empty_string{::std::move(empty_string)};
+        if (!empty_string.is_empty() || empty_string.c_str()[0] != u8'\0' || !moved_empty_string.is_empty() ||
+            moved_empty_string.c_str()[0] != u8'\0') {
+            return false;
+        }
+        U8String assigned_empty_string{u8"not empty"};
+        assigned_empty_string = ::std::move(moved_empty_string);
+        if (!moved_empty_string.is_empty() || moved_empty_string.c_str()[0] != u8'\0' ||
+            !assigned_empty_string.is_empty() || assigned_empty_string.c_str()[0] != u8'\0') {
+            return false;
+        }
+
+        constexpr auto literal = ::pltxt2htm::details::U8LiteralString{u8"literal"};
+        U8String const literal_string{literal};
+        if (literal_string != u8"literal") {
+            return false;
+        }
+
+        U8String const zero_string{16};
+        if (!::std::all_of(zero_string.begin(), zero_string.end(),
+                           [](char8_t character) { return character == u8'\0'; }) ||
+            zero_string.c_str()[zero_string.size()] != u8'\0') {
+            return false;
+        }
+
+        U8String string{u8"abc"};
+        string.push_back(u8'd');
+        string.append(u8"ef");
+        string.insert(string.begin(), U8StringView{u8"0"});
+        if (string != u8"0abcdef" || string.size() != 7 || string.c_str()[string.size()] != u8'\0') {
+            return false;
+        }
+
+        U8String unchecked_string{};
+        unchecked_string.push_back(u8'a');
+        unchecked_string.append(u8"bc");
+        if (unchecked_string != u8"abc") {
+            return false;
+        }
+
+        U8String copy{string};
+        U8String moved{::std::move(copy)};
+        if (!copy.is_empty() || moved != string) {
+            return false;
+        }
+
+        moved.pop_back();
+        moved.assign(U8StringView{u8"xy"});
+        if (moved != u8"xy" || moved.front() != u8'x' || moved.back() != u8'y') {
+            return false;
+        }
+
+        U8String self_append{u8"abc"};
+        self_append.reserve(16);
+        self_append.append(U8StringView{self_append.data() + 1, 2});
+        if (self_append != u8"abcbc") {
+            return false;
+        }
+
+        U8String self_assign{u8"abcdef"};
+        self_assign.assign(U8StringView{self_assign.data() + 2, 3});
+        if (self_assign != u8"cde") {
+            return false;
+        }
+
+        U8String self_insert{u8"abcdef"};
+        self_insert.reserve(16);
+        self_insert.insert(self_insert.begin() + 3, U8StringView{self_insert.data() + 1, 4});
+        return self_insert == u8"abcbcdedef";
+    }
+
+    static_assert(test_constexpr_string());
+
     TEST_CASE("assign-growth-and-range") {
         CHECK(test_assign_growth_and_range());
     }

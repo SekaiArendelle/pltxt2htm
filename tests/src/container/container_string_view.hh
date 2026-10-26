@@ -46,52 +46,52 @@ static_assert(!can_form_basic_string_view<bool>);
 static_assert(!can_call_empty<U8StringView>);
 static_assert(!can_form_basic_string_view<int>);
 
-consteval auto test_constexpr_string_view() noexcept -> bool {
-    U8StringView const empty{};
-    if (!empty.is_empty() || empty.size() != 0 || empty.data() != nullptr || empty.begin() != empty.end()) {
-        return false;
-    }
-
-    U8StringView const text{u8"abcdef"};
-    if (text.is_empty() || text.size() != 6 || text[2] != u8'c') {
-        return false;
-    }
-
-    auto const scatter = print_alias_define(::fast_io::io_alias, text);
-    if (scatter.base != text.data() || scatter.len != text.size()) {
-        return false;
-    }
-
-    auto const tail = text.subview(3);
-    auto const middle = text.subview(1, 3);
-    auto const enforced_contract = text.subview(2, 2);
-    if (tail != u8"def" || middle != u8"bcd" || !text.starts_with(u8"abc") || !text.ends_with(u8"def") ||
-        text.ends_with(u8"abcdefg") || enforced_contract[0] != u8'c') {
-        return false;
-    }
-
-    constexpr auto literal = ::pltxt2htm::details::U8LiteralString{u8"literal"};
-    auto const literal_view = ::pltxt2htm::container::BasicStringView{literal};
-    static_assert(::std::same_as<::std::remove_cvref_t<decltype(literal_view)>, U8StringView>);
-    if (literal_view != u8"literal") {
-        return false;
-    }
-
-    constexpr char8_t inplace_text[]{u8'i', u8'n', u8'p', u8'l', u8'a', u8'c', u8'e'};
-    auto inplace = U8InplaceString{inplace_text, inplace_text + 7};
-    auto const inplace_view = ::pltxt2htm::container::BasicStringView{inplace};
-    static_assert(::std::same_as<::std::remove_cvref_t<decltype(inplace_view)>, U8StringView>);
-    if (inplace_view.data() != inplace.data() || inplace_view != u8"inplace") {
-        return false;
-    }
-
-    inplace[0] = u8'I';
-    return inplace_view == u8"Inplace";
-}
-
-static_assert(test_constexpr_string_view());
-
 TEST_SUITE("container_string_view") {
+    consteval auto test_constexpr_string_view() noexcept -> bool {
+        U8StringView const empty{};
+        if (!empty.is_empty() || empty.size() != 0 || empty.data() != nullptr || empty.begin() != empty.end()) {
+            return false;
+        }
+
+        U8StringView const text{u8"abcdef"};
+        if (text.is_empty() || text.size() != 6 || text[2] != u8'c') {
+            return false;
+        }
+
+        auto const scatter = print_alias_define(::fast_io::io_alias, text);
+        if (scatter.base != text.data() || scatter.len != text.size()) {
+            return false;
+        }
+
+        auto const tail = text.subview(3);
+        auto const middle = text.subview(1, 3);
+        auto const enforced_contract = text.subview(2, 2);
+        if (tail != u8"def" || middle != u8"bcd" || !text.starts_with(u8"abc") || !text.ends_with(u8"def") ||
+            text.ends_with(u8"abcdefg") || enforced_contract[0] != u8'c') {
+            return false;
+        }
+
+        constexpr auto literal = ::pltxt2htm::details::U8LiteralString{u8"literal"};
+        auto const literal_view = ::pltxt2htm::container::BasicStringView{literal};
+        static_assert(::std::same_as<::std::remove_cvref_t<decltype(literal_view)>, U8StringView>);
+        if (literal_view != u8"literal") {
+            return false;
+        }
+
+        constexpr char8_t inplace_text[]{u8'i', u8'n', u8'p', u8'l', u8'a', u8'c', u8'e'};
+        auto inplace = U8InplaceString{inplace_text, inplace_text + 7};
+        auto const inplace_view = ::pltxt2htm::container::BasicStringView{inplace};
+        static_assert(::std::same_as<::std::remove_cvref_t<decltype(inplace_view)>, U8StringView>);
+        if (inplace_view.data() != inplace.data() || inplace_view != u8"inplace") {
+            return false;
+        }
+
+        inplace[0] = u8'I';
+        return inplace_view == u8"Inplace";
+    }
+
+    static_assert(test_constexpr_string_view());
+
     TEST_CASE("construct-from-u8-string") {
         ::pltxt2htm::container::U8String own_string{u8"pltxt2htm"};
         U8StringView const own_string_view{own_string};

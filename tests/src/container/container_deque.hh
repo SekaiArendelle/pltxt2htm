@@ -108,46 +108,6 @@ constexpr auto test_offset_relocation() -> bool {
 
 static_assert(test_offset_relocation());
 
-consteval auto test_constexpr_deque() -> bool {
-    IntDeque values{};
-    for (int value{}; value != 300; ++value) {
-        values.push_back(value);
-    }
-    for (int value{1}; value != 101; ++value) {
-        values.push_front(-value);
-    }
-
-    if (values.size() != 400 || values.front() != -100 || values.back() != 299 || values[100] != 0) {
-        return false;
-    }
-
-    values.erase(values.cbegin() + 50, values.cbegin() + 350);
-    if (values.size() != 100 || values[49] != -51 || values[50] != 250) {
-        return false;
-    }
-
-    IntDeque copy{values};
-    if (copy != values) {
-        return false;
-    }
-    copy.insert(copy.cbegin() + 50, {7, 8, 9});
-    if (copy.size() != 103 || copy[50] != 7 || copy[51] != 8 || copy[52] != 9) {
-        return false;
-    }
-
-    auto const saved = values.begin() + 50;
-    auto const saved_const = values.cbegin() + 50;
-    values.swap(copy);
-    if (*saved != 250 || saved != copy.begin() + 50 || saved_const - copy.cbegin() != 50) {
-        return false;
-    }
-    IntDeque moved{::std::move(copy)};
-    values = ::std::move(moved);
-    return *saved == 250 && saved == values.begin() + 50 && saved_const == saved;
-}
-
-static_assert(test_constexpr_deque());
-
 constexpr auto test_contract_operations() noexcept -> bool {
     IntDeque values{};
     values.emplace_front(1);
@@ -505,6 +465,46 @@ void test_range_insertion() {
 } // namespace pltxt2htm_test
 
 TEST_SUITE("container_deque") {
+    consteval auto test_constexpr_deque() -> bool {
+        IntDeque values{};
+        for (int value{}; value != 300; ++value) {
+            values.push_back(value);
+        }
+        for (int value{1}; value != 101; ++value) {
+            values.push_front(-value);
+        }
+
+        if (values.size() != 400 || values.front() != -100 || values.back() != 299 || values[100] != 0) {
+            return false;
+        }
+
+        values.erase(values.cbegin() + 50, values.cbegin() + 350);
+        if (values.size() != 100 || values[49] != -51 || values[50] != 250) {
+            return false;
+        }
+
+        IntDeque copy{values};
+        if (copy != values) {
+            return false;
+        }
+        copy.insert(copy.cbegin() + 50, {7, 8, 9});
+        if (copy.size() != 103 || copy[50] != 7 || copy[51] != 8 || copy[52] != 9) {
+            return false;
+        }
+
+        auto const saved = values.begin() + 50;
+        auto const saved_const = values.cbegin() + 50;
+        values.swap(copy);
+        if (*saved != 250 || saved != copy.begin() + 50 || saved_const - copy.cbegin() != 50) {
+            return false;
+        }
+        IntDeque moved{::std::move(copy)};
+        values = ::std::move(moved);
+        return *saved == 250 && saved == values.begin() + 50 && saved_const == saved;
+    }
+
+    static_assert(test_constexpr_deque());
+
     TEST_CASE("constexpr-helper-checks") {
         CHECK(test_offset_relocation());
         CHECK(test_contract_operations());
