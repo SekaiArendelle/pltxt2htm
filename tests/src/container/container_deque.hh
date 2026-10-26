@@ -182,193 +182,6 @@ struct CountingAllocator {
     }
 };
 
-void test_rolling_queue(bool front_to_back) {
-    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
-    static_assert(Queue::elements_per_block == 1);
-    CountingAllocator::map_allocations = 0;
-    CountingAllocator::largest_allocation = 0;
-    Queue queue{};
-    queue.emplace_back(BlockValue{front_to_back ? 0 : 1});
-    queue.emplace_back(BlockValue{front_to_back ? 1 : 0});
-    for (int index{2}; index != 10'000; ++index) {
-        if (front_to_back) {
-            auto const survivor = ::std::addressof(queue.back());
-            queue.pop_front();
-            queue.emplace_back(BlockValue{index});
-            REQUIRE(survivor == ::std::addressof(queue.front()));
-            REQUIRE((queue.front().value == index - 1 && queue.back().value == index));
-        }
-        else {
-            auto const survivor = ::std::addressof(queue.front());
-            queue.pop_back();
-            queue.emplace_front(BlockValue{index});
-            REQUIRE(survivor == ::std::addressof(queue.back()));
-            REQUIRE((queue.front().value == index && queue.back().value == index - 1));
-        }
-        REQUIRE(queue.size() == 2);
-    }
-    CHECK(CountingAllocator::map_allocations == 1);
-    CHECK(CountingAllocator::largest_allocation == sizeof(BlockValue));
-}
-
-void test_spare_blocks() {
-    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
-    CountingAllocator::block_allocations = 0;
-    CountingAllocator::block_deallocations = 0;
-    {
-        Queue queue{};
-        queue.emplace_back(BlockValue{1});
-        for (int index{}; index != 100; ++index) {
-            queue.pop_back();
-            queue.emplace_back(BlockValue{index});
-        }
-        CHECK(CountingAllocator::block_allocations == 1);
-
-        queue.emplace_back(BlockValue{2});
-        for (int index{}; index != 100; ++index) {
-            queue.pop_back();
-            queue.emplace_back(BlockValue{index});
-        }
-        CHECK(CountingAllocator::block_allocations == 2);
-
-        queue.pop_back();
-        queue.emplace_front(BlockValue{3});
-        CHECK(CountingAllocator::block_allocations == 2);
-        queue.pop_front();
-        queue.emplace_back(BlockValue{4});
-        CHECK(CountingAllocator::block_allocations == 2);
-
-        for (int index{}; index != 100; ++index) {
-            queue.pop_front();
-            queue.emplace_front(BlockValue{index});
-        }
-        CHECK(CountingAllocator::block_allocations == 2);
-
-        for (int index{}; index != 5; ++index) {
-            queue.emplace_back(BlockValue{index});
-        }
-        ::std::size_t const allocated_before_clear{CountingAllocator::block_allocations};
-        queue.clear();
-        CHECK(CountingAllocator::block_deallocations == allocated_before_clear - 2);
-        queue.emplace_front(BlockValue{6});
-        queue.emplace_back(BlockValue{5});
-        CHECK(CountingAllocator::block_allocations == allocated_before_clear);
-        queue.clear();
-        queue.shrink_to_fit();
-        CHECK(CountingAllocator::block_deallocations == CountingAllocator::block_allocations);
-    }
-    CHECK(CountingAllocator::block_deallocations == CountingAllocator::block_allocations);
-}
-
-void test_spare_transfer_at_map_edge() {
-    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
-    CountingAllocator::map_allocations = 0;
-    CountingAllocator::block_allocations = 0;
-    {
-        Queue queue{};
-        for (int index{}; index != 4; ++index) {
-            queue.emplace_back(BlockValue{index});
-        }
-        queue.pop_front();
-        queue.emplace_back(BlockValue{4});
-        CHECK(CountingAllocator::map_allocations == 1);
-        CHECK(CountingAllocator::block_allocations == 4);
-        for (int index{}; index != 4; ++index) {
-            CHECK(queue[index].value == index + 1);
-        }
-    }
-
-    CountingAllocator::map_allocations = 0;
-    CountingAllocator::block_allocations = 0;
-    {
-        Queue queue{};
-        for (int index{}; index != 5; ++index) {
-            queue.emplace_front(BlockValue{index});
-        }
-        queue.pop_back();
-        queue.emplace_front(BlockValue{5});
-        CHECK(CountingAllocator::map_allocations == 1);
-        CHECK(CountingAllocator::block_allocations == 5);
-        for (int index{}; index != 5; ++index) {
-            CHECK(queue[index].value == 5 - index);
-        }
-    }
-}
-
-void test_spare_blocks_follow_storage() {
-    using Queue = ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
-    CountingAllocator::block_allocations = 0;
-    CountingAllocator::block_deallocations = 0;
-    {
-        Queue first{};
-        first.emplace_back(BlockValue{1});
-        first.emplace_back(BlockValue{2});
-        first.pop_front();
-
-        Queue second{};
-        second.emplace_back(BlockValue{3});
-        second.emplace_back(BlockValue{4});
-        second.pop_back();
-
-        first.swap(second);
-        Queue moved{::std::move(first)};
-        moved.emplace_back(BlockValue{5});
-        second.emplace_front(BlockValue{0});
-        CHECK(moved.front().value == 3);
-        CHECK(moved.back().value == 5);
-        CHECK(second.front().value == 0);
-        CHECK(second.back().value == 2);
-        CHECK(CountingAllocator::block_allocations == 4);
-    }
-    CHECK(CountingAllocator::block_deallocations == CountingAllocator::block_allocations);
-}
-
-void test_iterator_storage() {
-    IntDeque destination{9};
-    IntDeque::iterator saved{};
-    IntDeque::const_iterator saved_const{};
-    IntDeque::reverse_iterator saved_reverse{};
-    {
-        IntDeque source{};
-        for (int index{}; index != 400; ++index) {
-            source.push_back(index);
-        }
-        // Exercise nonzero front offsets as well as several block boundaries.
-        for (int index{}; index != 17; ++index) {
-            source.pop_front();
-        }
-        saved = source.begin() + 150;
-        saved_const = saved;
-        saved_reverse = source.rbegin();
-        auto const address = ::std::addressof(*saved);
-        auto const old_destination = destination.begin();
-        source.swap(destination);
-        REQUIRE((*old_destination == 9 && old_destination == source.begin()));
-        REQUIRE((*saved == 167 && ::std::addressof(*saved) == address));
-        REQUIRE((saved == destination.begin() + 150 && saved_const - destination.cbegin() == 150));
-        IntDeque moved{::std::move(destination)};
-        REQUIRE((saved == moved.begin() + 150 && saved_reverse == moved.rbegin()));
-        destination = ::std::move(moved);
-    }
-    REQUIRE((*saved == 167 && saved_const == destination.cbegin() + 150));
-    REQUIRE((saved[-150] == 17 && saved[200] == 367));
-    REQUIRE((saved - 150 == destination.begin() && saved + 233 == destination.end()));
-    REQUIRE((destination.end() - saved == 233 && saved - destination.end() == -233));
-    REQUIRE(*saved_reverse == 399);
-    auto const survivor = destination.begin() + 1;
-    destination.pop_front();
-    REQUIRE((survivor == destination.begin() && *survivor == 18));
-    IntDeque empty{};
-    CHECK((empty.end() - empty.begin() == 0 && empty.begin() + 0 == empty.end()));
-}
-
-constexpr auto next_random(::std::uint_least32_t& state) noexcept -> ::std::uint_least32_t {
-    state ^= state << 13;
-    state ^= state >> 17;
-    state ^= state << 5;
-    return state;
-}
-
 struct TrackedValue {
     static inline ::std::size_t alive{};
     static inline ::std::size_t moves{};
@@ -412,59 +225,254 @@ struct TrackedValue {
     friend void swap(TrackedValue&, TrackedValue&) = delete;
 };
 
-void test_range_insertion() {
-    using Queue = ::pltxt2htm::container::Deque<TrackedValue>;
-    for (int scenario{}; scenario != 2; ++scenario) {
-        Queue queue{};
-        for (int index{}; index != 700; ++index) {
-            queue.emplace_back(index);
-        }
-        Queue inserted{};
-        for (int index{}; index != 200; ++index) {
-            inserted.emplace_back(1000 + index);
-        }
-        int const insertion_index{scenario == 0 ? 100 : 600};
-        TrackedValue::moves = 0;
-        auto const result = queue.insert(queue.cbegin() + insertion_index, inserted.cbegin(), inserted.cend());
-        REQUIRE(result == queue.begin() + insertion_index);
-        CHECK(TrackedValue::moves < 4500);
-        for (int index{}; index != 900; ++index) {
-            int const expected{index < insertion_index         ? index
-                               : index < insertion_index + 200 ? 1000 + index - insertion_index
-                                                               : index - 200};
-            CHECK(queue[index].value == expected);
-        }
-    }
-
-    Queue endpoints{};
-    endpoints.emplace_back(1);
-    Queue source{};
-    source.emplace_back(2);
-    source.emplace_back(3);
-    TrackedValue::moves = 0;
-    auto const empty_result = endpoints.insert(endpoints.cbegin(), source.cbegin(), source.cbegin());
-    CHECK((empty_result == endpoints.begin() && TrackedValue::moves == 0));
-    endpoints.insert(endpoints.cbegin(), source.cbegin(), source.cend());
-    CHECK(TrackedValue::moves == source.size());
-    TrackedValue::moves = 0;
-    endpoints.insert(endpoints.cend(), source.cbegin(), source.cend());
-    CHECK(TrackedValue::moves == source.size());
-
-    IntDeque self{1, 2, 3, 4};
-    auto const result = self.insert(self.cbegin() + 2, self.cbegin(), self.cbegin() + 3);
-    CHECK(result == self.begin() + 2);
-    CHECK((self == IntDeque{1, 2, 1, 2, 3, 3, 4}));
-
-    IntDeque front_self{0, 1, 2, 3, 4, 5};
-    auto const front_result =
-        front_self.insert(front_self.cbegin() + 1, front_self.cbegin() + 2, front_self.cbegin() + 5);
-    CHECK(front_result == front_self.begin() + 1);
-    CHECK((front_self == IntDeque{0, 2, 3, 4, 1, 2, 3, 4, 5}));
-}
-
 } // namespace pltxt2htm_test
 
 TEST_SUITE("container_deque") {
+    using ::pltxt2htm_test::BlockValue;
+    using ::pltxt2htm_test::CountingAllocator;
+    using ::pltxt2htm_test::TrackedValue;
+
+    void test_rolling_queue(bool front_to_back) {
+        using Queue =
+            ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
+        static_assert(Queue::elements_per_block == 1);
+        CountingAllocator::map_allocations = 0;
+        CountingAllocator::largest_allocation = 0;
+        Queue queue{};
+        queue.emplace_back(BlockValue{front_to_back ? 0 : 1});
+        queue.emplace_back(BlockValue{front_to_back ? 1 : 0});
+        for (int index{2}; index != 10'000; ++index) {
+            if (front_to_back) {
+                auto const survivor = ::std::addressof(queue.back());
+                queue.pop_front();
+                queue.emplace_back(BlockValue{index});
+                REQUIRE(survivor == ::std::addressof(queue.front()));
+                REQUIRE((queue.front().value == index - 1 && queue.back().value == index));
+            }
+            else {
+                auto const survivor = ::std::addressof(queue.front());
+                queue.pop_back();
+                queue.emplace_front(BlockValue{index});
+                REQUIRE(survivor == ::std::addressof(queue.back()));
+                REQUIRE((queue.front().value == index && queue.back().value == index - 1));
+            }
+            REQUIRE(queue.size() == 2);
+        }
+        CHECK(CountingAllocator::map_allocations == 1);
+        CHECK(CountingAllocator::largest_allocation == sizeof(BlockValue));
+    }
+
+    void test_spare_blocks() {
+        using Queue =
+            ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
+        CountingAllocator::block_allocations = 0;
+        CountingAllocator::block_deallocations = 0;
+        {
+            Queue queue{};
+            queue.emplace_back(BlockValue{1});
+            for (int index{}; index != 100; ++index) {
+                queue.pop_back();
+                queue.emplace_back(BlockValue{index});
+            }
+            CHECK(CountingAllocator::block_allocations == 1);
+
+            queue.emplace_back(BlockValue{2});
+            for (int index{}; index != 100; ++index) {
+                queue.pop_back();
+                queue.emplace_back(BlockValue{index});
+            }
+            CHECK(CountingAllocator::block_allocations == 2);
+
+            queue.pop_back();
+            queue.emplace_front(BlockValue{3});
+            CHECK(CountingAllocator::block_allocations == 2);
+            queue.pop_front();
+            queue.emplace_back(BlockValue{4});
+            CHECK(CountingAllocator::block_allocations == 2);
+
+            for (int index{}; index != 100; ++index) {
+                queue.pop_front();
+                queue.emplace_front(BlockValue{index});
+            }
+            CHECK(CountingAllocator::block_allocations == 2);
+
+            for (int index{}; index != 5; ++index) {
+                queue.emplace_back(BlockValue{index});
+            }
+            ::std::size_t const allocated_before_clear{CountingAllocator::block_allocations};
+            queue.clear();
+            CHECK(CountingAllocator::block_deallocations == allocated_before_clear - 2);
+            queue.emplace_front(BlockValue{6});
+            queue.emplace_back(BlockValue{5});
+            CHECK(CountingAllocator::block_allocations == allocated_before_clear);
+            queue.clear();
+            queue.shrink_to_fit();
+            CHECK(CountingAllocator::block_deallocations == CountingAllocator::block_allocations);
+        }
+        CHECK(CountingAllocator::block_deallocations == CountingAllocator::block_allocations);
+    }
+
+    void test_spare_transfer_at_map_edge() {
+        using Queue =
+            ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
+        CountingAllocator::map_allocations = 0;
+        CountingAllocator::block_allocations = 0;
+        {
+            Queue queue{};
+            for (int index{}; index != 4; ++index) {
+                queue.emplace_back(BlockValue{index});
+            }
+            queue.pop_front();
+            queue.emplace_back(BlockValue{4});
+            CHECK(CountingAllocator::map_allocations == 1);
+            CHECK(CountingAllocator::block_allocations == 4);
+            for (int index{}; index != 4; ++index) {
+                CHECK(queue[index].value == index + 1);
+            }
+        }
+
+        CountingAllocator::map_allocations = 0;
+        CountingAllocator::block_allocations = 0;
+        {
+            Queue queue{};
+            for (int index{}; index != 5; ++index) {
+                queue.emplace_front(BlockValue{index});
+            }
+            queue.pop_back();
+            queue.emplace_front(BlockValue{5});
+            CHECK(CountingAllocator::map_allocations == 1);
+            CHECK(CountingAllocator::block_allocations == 5);
+            for (int index{}; index != 5; ++index) {
+                CHECK(queue[index].value == 5 - index);
+            }
+        }
+    }
+
+    void test_spare_blocks_follow_storage() {
+        using Queue =
+            ::pltxt2htm::container::Deque<BlockValue, ::fast_io::generic_allocator_adapter<CountingAllocator>>;
+        CountingAllocator::block_allocations = 0;
+        CountingAllocator::block_deallocations = 0;
+        {
+            Queue first{};
+            first.emplace_back(BlockValue{1});
+            first.emplace_back(BlockValue{2});
+            first.pop_front();
+
+            Queue second{};
+            second.emplace_back(BlockValue{3});
+            second.emplace_back(BlockValue{4});
+            second.pop_back();
+
+            first.swap(second);
+            Queue moved{::std::move(first)};
+            moved.emplace_back(BlockValue{5});
+            second.emplace_front(BlockValue{0});
+            CHECK(moved.front().value == 3);
+            CHECK(moved.back().value == 5);
+            CHECK(second.front().value == 0);
+            CHECK(second.back().value == 2);
+            CHECK(CountingAllocator::block_allocations == 4);
+        }
+        CHECK(CountingAllocator::block_deallocations == CountingAllocator::block_allocations);
+    }
+
+    void test_iterator_storage() {
+        IntDeque destination{9};
+        IntDeque::iterator saved{};
+        IntDeque::const_iterator saved_const{};
+        IntDeque::reverse_iterator saved_reverse{};
+        {
+            IntDeque source{};
+            for (int index{}; index != 400; ++index) {
+                source.push_back(index);
+            }
+            // Exercise nonzero front offsets as well as several block boundaries.
+            for (int index{}; index != 17; ++index) {
+                source.pop_front();
+            }
+            saved = source.begin() + 150;
+            saved_const = saved;
+            saved_reverse = source.rbegin();
+            auto const address = ::std::addressof(*saved);
+            auto const old_destination = destination.begin();
+            source.swap(destination);
+            REQUIRE((*old_destination == 9 && old_destination == source.begin()));
+            REQUIRE((*saved == 167 && ::std::addressof(*saved) == address));
+            REQUIRE((saved == destination.begin() + 150 && saved_const - destination.cbegin() == 150));
+            IntDeque moved{::std::move(destination)};
+            REQUIRE((saved == moved.begin() + 150 && saved_reverse == moved.rbegin()));
+            destination = ::std::move(moved);
+        }
+        REQUIRE((*saved == 167 && saved_const == destination.cbegin() + 150));
+        REQUIRE((saved[-150] == 17 && saved[200] == 367));
+        REQUIRE((saved - 150 == destination.begin() && saved + 233 == destination.end()));
+        REQUIRE((destination.end() - saved == 233 && saved - destination.end() == -233));
+        REQUIRE(*saved_reverse == 399);
+        auto const survivor = destination.begin() + 1;
+        destination.pop_front();
+        REQUIRE((survivor == destination.begin() && *survivor == 18));
+        IntDeque empty{};
+        CHECK((empty.end() - empty.begin() == 0 && empty.begin() + 0 == empty.end()));
+    }
+
+    constexpr auto next_random(::std::uint_least32_t & state) noexcept -> ::std::uint_least32_t {
+        state ^= state << 13;
+        state ^= state >> 17;
+        state ^= state << 5;
+        return state;
+    }
+
+    void test_range_insertion() {
+        using Queue = ::pltxt2htm::container::Deque<TrackedValue>;
+        for (int scenario{}; scenario != 2; ++scenario) {
+            Queue queue{};
+            for (int index{}; index != 700; ++index) {
+                queue.emplace_back(index);
+            }
+            Queue inserted{};
+            for (int index{}; index != 200; ++index) {
+                inserted.emplace_back(1000 + index);
+            }
+            int const insertion_index{scenario == 0 ? 100 : 600};
+            TrackedValue::moves = 0;
+            auto const result = queue.insert(queue.cbegin() + insertion_index, inserted.cbegin(), inserted.cend());
+            REQUIRE(result == queue.begin() + insertion_index);
+            CHECK(TrackedValue::moves < 4500);
+            for (int index{}; index != 900; ++index) {
+                int const expected{index < insertion_index         ? index
+                                   : index < insertion_index + 200 ? 1000 + index - insertion_index
+                                                                   : index - 200};
+                CHECK(queue[index].value == expected);
+            }
+        }
+
+        Queue endpoints{};
+        endpoints.emplace_back(1);
+        Queue source{};
+        source.emplace_back(2);
+        source.emplace_back(3);
+        TrackedValue::moves = 0;
+        auto const empty_result = endpoints.insert(endpoints.cbegin(), source.cbegin(), source.cbegin());
+        CHECK((empty_result == endpoints.begin() && TrackedValue::moves == 0));
+        endpoints.insert(endpoints.cbegin(), source.cbegin(), source.cend());
+        CHECK(TrackedValue::moves == source.size());
+        TrackedValue::moves = 0;
+        endpoints.insert(endpoints.cend(), source.cbegin(), source.cend());
+        CHECK(TrackedValue::moves == source.size());
+
+        IntDeque self{1, 2, 3, 4};
+        auto const result = self.insert(self.cbegin() + 2, self.cbegin(), self.cbegin() + 3);
+        CHECK(result == self.begin() + 2);
+        CHECK((self == IntDeque{1, 2, 1, 2, 3, 3, 4}));
+
+        IntDeque front_self{0, 1, 2, 3, 4, 5};
+        auto const front_result =
+            front_self.insert(front_self.cbegin() + 1, front_self.cbegin() + 2, front_self.cbegin() + 5);
+        CHECK(front_result == front_self.begin() + 1);
+        CHECK((front_self == IntDeque{0, 2, 3, 4, 1, 2, 3, 4, 5}));
+    }
+
     consteval auto test_constexpr_deque() -> bool {
         IntDeque values{};
         for (int value{}; value != 300; ++value) {
@@ -511,28 +519,28 @@ TEST_SUITE("container_deque") {
     }
 
     TEST_CASE("rolling-queue") {
-        ::pltxt2htm_test::test_rolling_queue(true);
-        ::pltxt2htm_test::test_rolling_queue(false);
+        test_rolling_queue(true);
+        test_rolling_queue(false);
     }
 
     TEST_CASE("spare-blocks") {
-        ::pltxt2htm_test::test_spare_blocks();
+        test_spare_blocks();
     }
 
     TEST_CASE("spare-transfer-at-map-edge") {
-        ::pltxt2htm_test::test_spare_transfer_at_map_edge();
+        test_spare_transfer_at_map_edge();
     }
 
     TEST_CASE("spare-blocks-follow-storage") {
-        ::pltxt2htm_test::test_spare_blocks_follow_storage();
+        test_spare_blocks_follow_storage();
     }
 
     TEST_CASE("iterator-storage") {
-        ::pltxt2htm_test::test_iterator_storage();
+        test_iterator_storage();
     }
 
     TEST_CASE("range-insertion") {
-        ::pltxt2htm_test::test_range_insertion();
+        test_range_insertion();
     }
 
     TEST_CASE("differential-against-std-deque") {
@@ -540,7 +548,7 @@ TEST_SUITE("container_deque") {
         ::std::deque<int> reference{};
         ::std::uint_least32_t random_state{0xC0FFEEu};
         for (int operation{}; operation != 10'000; ++operation) {
-            ::std::uint_least32_t const random_value{::pltxt2htm_test::next_random(random_state)};
+            ::std::uint_least32_t const random_value{next_random(random_state)};
             switch (random_value % 6) {
             case 0:
                 differential.push_front(operation);
@@ -636,7 +644,7 @@ TEST_SUITE("container_deque") {
 
     TEST_CASE("tracked-value-lifetime") {
         {
-            ::pltxt2htm::container::Deque<::pltxt2htm_test::TrackedValue> tracked{};
+            ::pltxt2htm::container::Deque<TrackedValue> tracked{};
             for (int value{}; value != 500; ++value) {
                 tracked.emplace_back(value);
             }
@@ -644,16 +652,16 @@ TEST_SUITE("container_deque") {
             tracked.resize(50);
             auto tracked_copy{tracked};
             tracked_copy = tracked;
-            CHECK(::pltxt2htm_test::TrackedValue::alive == 100);
+            CHECK(TrackedValue::alive == 100);
             {
                 auto move_source{tracked};
-                ::pltxt2htm::container::Deque<::pltxt2htm_test::TrackedValue> move_target{};
+                ::pltxt2htm::container::Deque<TrackedValue> move_target{};
                 move_target.emplace_back(500);
                 move_target = ::std::move(move_source);
                 CHECK(move_target == tracked);
             }
-            CHECK(::pltxt2htm_test::TrackedValue::alive == 100);
+            CHECK(TrackedValue::alive == 100);
         }
-        CHECK(::pltxt2htm_test::TrackedValue::alive == 0);
+        CHECK(TrackedValue::alive == 0);
     }
 }
