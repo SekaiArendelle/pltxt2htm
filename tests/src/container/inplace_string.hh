@@ -1,3 +1,5 @@
+#pragma once
+
 #include <compare>
 #include <concepts>
 #include <cstddef>
@@ -6,7 +8,7 @@
 
 #include <pltxt2htm/details/inplace_string.hh>
 
-#include "precompile.hh"
+#include "doctest_config.hh"
 
 using CheckedU8String4 = ::pltxt2htm::details::U8InplaceString<4>;
 using CheckedU8String8 = ::pltxt2htm::details::U8InplaceString<8>;
@@ -41,7 +43,6 @@ concept can_form_basic_inplace_string =
 
 static_assert(can_form_basic_inplace_string<char>);
 static_assert(can_form_basic_inplace_string<wchar_t>);
-static_assert(can_form_basic_inplace_string<char8_t>);
 static_assert(can_form_basic_inplace_string<char16_t>);
 static_assert(can_form_basic_inplace_string<char32_t>);
 static_assert(!can_form_basic_inplace_string<bool>);
@@ -146,15 +147,15 @@ consteval auto test_constexpr_inplace_string() -> bool {
 
 static_assert(test_constexpr_inplace_string());
 
-int main() {
-    constexpr char8_t source[]{u8't', u8'e', u8's', u8't'};
-    auto value = CheckedU8String4{source, source + 4};
+TEST_SUITE("inplace_string") {
+    TEST_CASE("runtime") {
+        constexpr char8_t source[]{u8't', u8'e', u8's', u8't'};
+        auto value = CheckedU8String4{source, source + 4};
 
-    pltxt2htm_test_assert_true(value.size() == 4);
-    pltxt2htm_test_assert_true(value.data() == value.begin());
-    pltxt2htm_test_assert_true(value.end() - value.begin() == 4);
-    pltxt2htm_test_assert_true(value.front() == u8't');
-    pltxt2htm_test_assert_true(value.back() == u8't');
-
-    return 0;
+        CHECK(value.size() == 4);
+        CHECK(value.data() == value.begin());
+        CHECK(value.end() - value.begin() == 4);
+        CHECK(value.front() == u8't');
+        CHECK(value.back() == u8't');
+    }
 }

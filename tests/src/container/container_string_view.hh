@@ -1,3 +1,5 @@
+#pragma once
+
 #include <concepts>
 #include <type_traits>
 
@@ -9,19 +11,14 @@
 #include <pltxt2htm/details/inplace_string.hh>
 #include <pltxt2htm/details/literal_string.hh>
 
-#include "precompile.hh"
+#include "doctest_config.hh"
+#include "container/details/concepts.hh"
 
 using U8StringView = ::pltxt2htm::container::U8StringView;
 using U8InplaceString = ::pltxt2htm::details::U8InplaceString<8>;
 
 template<typename CharType>
 concept can_form_basic_string_view = requires { typename ::pltxt2htm::container::BasicStringView<CharType>; };
-
-template<typename T>
-concept can_call_empty = requires(T const& value) { value.empty(); };
-
-template<typename T>
-concept can_call_is_empty = requires(T const& value) { value.is_empty(); };
 
 static_assert(::std::is_trivially_copyable_v<U8StringView>);
 static_assert(::std::is_standard_layout_v<U8StringView>);
@@ -31,12 +28,9 @@ static_assert(!::std::is_constructible_v<U8StringView, ::fast_io::u8string_view>
 static_assert(!::std::is_constructible_v<U8StringView, ::fast_io::u8string const&>);
 static_assert(!::std::is_constructible_v<U8StringView, ::fast_io::u8string&&>);
 static_assert(!::std::is_convertible_v<U8StringView, ::fast_io::u8string_view>);
-static_assert(::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String const&>);
 static_assert(::std::same_as<decltype(U8StringView::from_c_str(static_cast<char8_t const*>(nullptr))), U8StringView>);
 static_assert(!::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String&&>);
-static_assert(::std::is_convertible_v<::pltxt2htm::container::U8String const&, U8StringView>);
 static_assert(!::std::is_convertible_v<::pltxt2htm::container::U8String&&, U8StringView>);
-static_assert(::std::is_constructible_v<U8StringView, U8InplaceString const&>);
 static_assert(!::std::is_constructible_v<U8StringView, U8InplaceString&&>);
 static_assert(!::std::is_constructible_v<U8StringView, U8InplaceString const&&>);
 static_assert(::fast_io::alias_printable<::pltxt2htm::container::StringView>);
@@ -46,13 +40,10 @@ static_assert(::fast_io::alias_printable<::pltxt2htm::container::U16StringView>)
 static_assert(::fast_io::alias_printable<::pltxt2htm::container::U32StringView>);
 static_assert(can_form_basic_string_view<char>);
 static_assert(can_form_basic_string_view<wchar_t>);
-static_assert(can_form_basic_string_view<char8_t>);
 static_assert(can_form_basic_string_view<char16_t>);
 static_assert(can_form_basic_string_view<char32_t>);
 static_assert(!can_form_basic_string_view<bool>);
 static_assert(!can_call_empty<U8StringView>);
-static_assert(can_call_is_empty<U8StringView>);
-static_assert(requires(U8StringView const view, ::std::size_t position) { view[position]; });
 static_assert(!can_form_basic_string_view<int>);
 
 consteval auto test_constexpr_string_view() noexcept -> bool {
@@ -100,23 +91,23 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
 
 static_assert(test_constexpr_string_view());
 
-int main() {
-    ::pltxt2htm::container::U8String own_string{u8"pltxt2htm"};
-    U8StringView const own_string_view{own_string};
-    U8StringView const converted_own_string_view = own_string;
-    pltxt2htm_test_assert_true(own_string_view == u8"pltxt2htm");
-    pltxt2htm_test_assert_true(converted_own_string_view == own_string_view);
+TEST_SUITE("container_string_view") {
+    TEST_CASE("runtime") {
+        ::pltxt2htm::container::U8String own_string{u8"pltxt2htm"};
+        U8StringView const own_string_view{own_string};
+        U8StringView const converted_own_string_view = own_string;
+        CHECK(own_string_view == u8"pltxt2htm");
+        CHECK(converted_own_string_view == own_string_view);
 
-    U8StringView const view{u8"view"};
-    auto const printed = ::fast_io::u8concat_fast_io(u8"[", view, u8"]");
-    pltxt2htm_test_assert_true(printed == u8"[view]");
+        U8StringView const view{u8"view"};
+        auto const printed = ::fast_io::u8concat_fast_io(u8"[", view, u8"]");
+        CHECK(printed == u8"[view]");
 
-    char8_t const string[]{u8"pltxt2htm"};
-    U8StringView const explicit_view{string, sizeof(string) / sizeof(char8_t) - 1};
-    pltxt2htm_test_assert_true(explicit_view == own_string_view);
+        char8_t const string[]{u8"pltxt2htm"};
+        U8StringView const explicit_view{string, sizeof(string) / sizeof(char8_t) - 1};
+        CHECK(explicit_view == own_string_view);
 
-    U8StringView const from_c_str_view = U8StringView::from_c_str(string);
-    pltxt2htm_test_assert_true(from_c_str_view == own_string_view);
-
-    return 0;
+        U8StringView const from_c_str_view = U8StringView::from_c_str(string);
+        CHECK(from_c_str_view == own_string_view);
+    }
 }

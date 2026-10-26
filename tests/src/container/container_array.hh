@@ -1,3 +1,5 @@
+#pragma once
+
 #include <compare>
 #include <concepts>
 #include <cstddef>
@@ -5,19 +7,11 @@
 #include <type_traits>
 #include <pltxt2htm/container/array.hh>
 
-#include "precompile.hh"
+#include "doctest_config.hh"
+#include "container/details/concepts.hh"
 
 template<::std::size_t extent>
 concept can_form_array = requires { typename ::pltxt2htm::container::Array<int, extent>; };
-
-template<typename T>
-concept can_subscript = requires(T& value) { value[0]; };
-
-template<typename T>
-concept can_call_empty = requires(T const& value) { value.empty(); };
-
-template<typename T>
-concept can_call_is_empty = requires(T const& value) { value.is_empty(); };
 
 using IntArray = ::pltxt2htm::container::Array<int, 3>;
 
@@ -26,7 +20,6 @@ static_assert(!can_form_array<0>);
 static_assert(::std::is_aggregate_v<IntArray>);
 static_assert(::std::is_standard_layout_v<IntArray>);
 static_assert(::std::is_trivially_copyable_v<IntArray>);
-static_assert(can_subscript<IntArray>);
 static_assert(!can_call_empty<IntArray>);
 static_assert(!can_call_is_empty<IntArray>);
 static_assert(requires(IntArray& values, IntArray const& const_values, ::std::size_t position) {
@@ -76,11 +69,11 @@ consteval auto test_constexpr_array() noexcept -> bool {
 
 static_assert(test_constexpr_array());
 
-int main() {
-    auto const strings = ::pltxt2htm::container::Array{"first", "second", nullptr};
-    static_assert(
-        ::std::same_as<::std::remove_cvref_t<decltype(strings)>, ::pltxt2htm::container::Array<char const*, 3>>);
-    pltxt2htm_test_assert_true(::std::string_view{strings[1]} == "second");
-
-    return 0;
+TEST_SUITE("container_array") {
+    TEST_CASE("runtime") {
+        auto const strings = ::pltxt2htm::container::Array{"first", "second", nullptr};
+        static_assert(
+            ::std::same_as<::std::remove_cvref_t<decltype(strings)>, ::pltxt2htm::container::Array<char const*, 3>>);
+        CHECK(::std::string_view{strings[1]} == "second");
+    }
 }

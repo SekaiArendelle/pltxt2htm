@@ -1,3 +1,5 @@
+#pragma once
+
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
@@ -7,7 +9,7 @@
 
 #include <pltxt2htm/container/non_zero.hh>
 
-#include "precompile.hh"
+#include "doctest_config.hh"
 
 template<typename T>
 concept can_form_non_zero = requires { typename ::pltxt2htm::container::NonZero<T>; };
@@ -81,7 +83,3 @@ consteval auto test_constexpr_non_zero() noexcept -> bool {
 }
 
 static_assert(test_constexpr_non_zero());
-
-int main() {
-    return 0;
-}
