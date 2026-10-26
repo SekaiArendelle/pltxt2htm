@@ -13,7 +13,7 @@
 #include "../../container/string_view.hh"
 #include "../../ast/node_kind.hh"
 #include "../../ast/ast.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../utils.hh"
 #include "frame_context.hh"
 #include "try_parse.hh"

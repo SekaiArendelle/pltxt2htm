@@ -12,7 +12,7 @@
 #include <cstddef>
 #include "../container/string_view.hh"
 #include "value_unit.hh"
-#include "../contracts.hh"
+#include "../details/contracts.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm {

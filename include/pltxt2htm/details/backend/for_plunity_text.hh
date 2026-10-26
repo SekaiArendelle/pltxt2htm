@@ -16,7 +16,7 @@
 #include "frame_context.hh"
 #include "html_escape.hh"
 #include "../utils.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -489,7 +489,7 @@ entry:
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::html_mark));
                 auto const& mark_background_color = active_node.get_background_color();
                 result.append(u8"<mark=");
-                if constexpr (::pltxt2htm::contract_mode == ::pltxt2htm::Contracts::enforce) {
+                if constexpr (::pltxt2htm::details::contract_mode == ::pltxt2htm::details::Contracts::enforce) {
                     ::pltxt2htm::container::U8String purified_color{};
                     ::pltxt2htm::details::append_html_escaped_attribute_value(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});
@@ -506,7 +506,7 @@ entry:
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_mark));
                 auto const& mark_background_color = active_node.get_background_color();
                 result.append(u8"<mark=");
-                if constexpr (::pltxt2htm::contract_mode == ::pltxt2htm::Contracts::enforce) {
+                if constexpr (::pltxt2htm::details::contract_mode == ::pltxt2htm::details::Contracts::enforce) {
                     ::pltxt2htm::container::U8String purified_color{};
                     ::pltxt2htm::details::append_html_escaped_attribute_value(
                         purified_color, ::pltxt2htm::container::U8StringView{mark_background_color});

@@ -12,7 +12,7 @@
 #include "../../container/optional.hh"
 #include "list_ast.hh"
 #include "../utils.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {

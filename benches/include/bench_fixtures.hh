@@ -3,7 +3,7 @@
 #include <benchmark/benchmark.h>
 #include <pltxt2htm/ast/ast.hh>
 #include <pltxt2htm/parser.hh>
-#include <pltxt2htm/contracts.hh>
+#include <pltxt2htm/details/contracts.hh>
 #include "bench_inputs.hh"
 
 // Helper: convert range(0) to std::size_t

@@ -18,7 +18,7 @@
 
 #include <fast_io/fast_io_core.h>
 
-#include "../contracts.hh"
+#include "../details/contracts.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::container {

@@ -10,7 +10,7 @@
 
 #include <memory>
 
-#include "../contracts.hh"
+#include "../details/contracts.hh"
 #include "../details/utf8.hh"
 #include "node_kind.hh"
 #include "plain_text.hh"

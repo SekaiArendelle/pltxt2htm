@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "../../contracts.hh"
+#include "../../details/contracts.hh"
 #include "../node_kind.hh"
 #include "basic_node_decl.hh"
 #include "html_node_decl.hh"

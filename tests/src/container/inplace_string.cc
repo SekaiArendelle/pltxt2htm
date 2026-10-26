@@ -4,7 +4,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <pltxt2htm/contracts.hh>
+#include <pltxt2htm/details/contracts.hh>
 #include <pltxt2htm/details/inplace_string.hh>
 
 #include "precompile.hh"

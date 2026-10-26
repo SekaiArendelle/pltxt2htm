@@ -30,7 +30,7 @@
 #endif
 
 // Tests are built with ENFORCE, so verify the macro-to-enum mapping.
-static_assert(::pltxt2htm::contract_mode == ::pltxt2htm::Contracts::enforce);
+static_assert(::pltxt2htm::details::contract_mode == ::pltxt2htm::details::Contracts::enforce);
 
 #if defined __GNUC__ || defined __clang__
     #if __has_attribute(visibility)

@@ -9,7 +9,7 @@
 #include "../../container/optional.hh"
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../utf8.hh"
 #include "html_named_character_references.hh"
 

@@ -11,7 +11,7 @@
 
 #include <fast_io/fast_io_core.h>
 
-#include "../contracts.hh"
+#include "../details/contracts.hh"
 #include "../details/concepts.hh"
 #include "../details/inplace_string.hh"
 #include "../details/literal_string.hh"

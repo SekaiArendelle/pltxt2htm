@@ -1,12 +1,12 @@
 /**
  * @file contracts.hh
  * @brief Compile-time contract checking configuration.
- * @details Defines the `Contracts` enum and the build-wide `contract_mode`
- *          constant selected by the `PLTXT2HTM_CONTRACTS` macro.
+ * @details Defines the internal `Contracts` enum and the build-wide
+ *          `contract_mode` constant selected by the `PLTXT2HTM_CONTRACTS` macro.
  */
 #pragma once
 
-namespace pltxt2htm {
+namespace pltxt2htm::details {
 
 /**
  * @brief Contract checking mode.
@@ -21,8 +21,8 @@ enum class Contracts : unsigned {
 /**
  * @brief Contract checking mode for the current build.
  * @details `PLTXT2HTM_CONTRACTS` is mapped to this constant: `0` selects
- *          `Contracts::enforce`, `1` selects `Contracts::ignore`. It is a
- *          public constant so callers and the C++ module can inspect it.
+ *          `Contracts::enforce`, `1` selects `Contracts::ignore`. This is an
+ *          implementation detail; the macro is the only configuration entry.
  * @note The value is build-wide: every translation unit of a program must be
  *       compiled with the same `PLTXT2HTM_CONTRACTS` value.
  */
@@ -36,4 +36,4 @@ inline constexpr Contracts contract_mode{
 #endif
 };
 
-} // namespace pltxt2htm
+} // namespace pltxt2htm::details

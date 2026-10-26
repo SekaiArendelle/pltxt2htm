@@ -16,7 +16,7 @@
 #include "container/optional.hh"
 #include "ast/node_kind.hh"
 #include "ast/ast.hh"
-#include "contracts.hh"
+#include "details/contracts.hh"
 #include "details/utils.hh"
 #include "details/parser/frame_context.hh"
 #include "details/parser/non_nestable_tag.hh"

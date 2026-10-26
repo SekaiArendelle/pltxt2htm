@@ -10,7 +10,7 @@
 #include "../../container/string.hh"
 #include "../../container/optional.hh"
 #include "../../container/string_view.hh"
-#include "../../contracts.hh"
+#include "../../details/contracts.hh"
 #include "../../details/parser/url_parsing.hh"
 
 namespace pltxt2htm {

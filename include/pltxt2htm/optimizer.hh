@@ -19,7 +19,7 @@
 #include "ast/ast.hh"
 #include "ast/value_unit.hh"
 #include "ast/vertical_align_value.hh"
-#include "contracts.hh"
+#include "details/contracts.hh"
 #include "details/utils.hh"
 #include "details/push_macro.hh"
 

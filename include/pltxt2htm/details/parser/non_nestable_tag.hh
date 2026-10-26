@@ -17,7 +17,7 @@
 #include "../call_stack.hh"
 #include "../../container/string_view.hh"
 #include "../utils.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../../ast/ast.hh"
 #include "../../ast/node_kind.hh"
 

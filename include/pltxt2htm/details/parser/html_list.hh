@@ -19,7 +19,7 @@
 #include "../../container/string_view.hh"
 #include "../../container/optional.hh"
 #include "../utils.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "list_ast.hh"
 #include "try_parse.hh"
 #include "../push_macro.hh"

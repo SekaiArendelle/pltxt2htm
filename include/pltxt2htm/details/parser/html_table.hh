@@ -21,7 +21,7 @@
 #include "../../container/string_view.hh"
 #include "../../container/optional.hh"
 #include "../utils.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../../ast/ast.hh"
 #include "../../ast/node_kind.hh"
 

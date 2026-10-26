@@ -21,7 +21,7 @@
 #include "container/string_view.hh"
 #include "container/optional.hh"
 #include "container/vector.hh"
-#include "contracts.hh"
+#include "details/contracts.hh"
 #include "parser.hh"
 #include "inline_parser.hh"
 #include "optimizer.hh"

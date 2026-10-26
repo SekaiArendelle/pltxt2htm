@@ -16,7 +16,7 @@
 #include "list_ast.hh"
 #include "md_table.hh"
 #include "html_table.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../../ast/ast.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"

@@ -14,7 +14,7 @@
 #include "../container/string.hh"
 #include "../container/optional.hh"
 #include "../container/string_view.hh"
-#include "../contracts.hh"
+#include "contracts.hh"
 #include "literal_string.hh"
 
 #include "push_macro.hh"

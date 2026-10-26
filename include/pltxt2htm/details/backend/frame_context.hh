@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <utility>
 #include "../../ast/ast.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {

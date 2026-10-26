@@ -14,7 +14,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "../contracts.hh"
+#include "../details/contracts.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::container {

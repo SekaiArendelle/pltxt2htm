@@ -11,7 +11,7 @@
     #include <intrin.h>
 #endif
 
-#include "../contracts.hh"
+#include "contracts.hh"
 
 namespace pltxt2htm::details {
 
@@ -34,7 +34,7 @@ inline void trap() noexcept {
  */
 [[noreturn]]
 inline void unreachable() noexcept {
-    if constexpr (::pltxt2htm::contract_mode == ::pltxt2htm::Contracts::ignore) {
+    if constexpr (::pltxt2htm::details::contract_mode == ::pltxt2htm::details::Contracts::ignore) {
 #if defined(__has_builtin)
     #if __has_builtin(__builtin_unreachable)
         __builtin_unreachable();

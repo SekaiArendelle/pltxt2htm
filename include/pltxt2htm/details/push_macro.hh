@@ -9,7 +9,7 @@
  */
 
 #include <source_location>
-#include "../contracts.hh"
+#include "contracts.hh"
 #include "panic.hh"
 #include "trap.hh"
 
@@ -37,9 +37,9 @@
  *
  * This macro evaluates the given condition and if it evaluates to false,
  * it will call panic() to terminate the program with diagnostic information.
- * The assertion is enabled when `::pltxt2htm::contract_mode` is
- * `::pltxt2htm::Contracts::enforce` and is replaced with an optimizer
- * assumption when it is `::pltxt2htm::Contracts::ignore`.
+ * The assertion is enabled when `::pltxt2htm::details::contract_mode` is
+ * `::pltxt2htm::details::Contracts::enforce` and is replaced with an optimizer
+ * assumption when it is `::pltxt2htm::details::Contracts::ignore`.
  *
  * @param condition The condition expression to evaluate
  * @param message A descriptive error message to display if the assertion fails
@@ -53,7 +53,7 @@
 #undef pltxt2htm_assert
 #define pltxt2htm_assert(condition, message) \
     do { \
-        if constexpr (::pltxt2htm::contract_mode != ::pltxt2htm::Contracts::ignore) { \
+        if constexpr (::pltxt2htm::details::contract_mode != ::pltxt2htm::details::Contracts::ignore) { \
             if ((condition) == false) [[unlikely]] { \
                 constexpr auto source_location = ::std::source_location::current(); \
                 ::pltxt2htm::details::panic< \
@@ -70,15 +70,15 @@
 /**
  * @brief Mark a code path as unreachable; calls panic or unreachable builtin.
  * @param message Diagnostic message string literal.
- * @note In `::pltxt2htm::Contracts::enforce` mode it invokes
- *       ::pltxt2htm::details::panic; in `::pltxt2htm::Contracts::ignore` mode it
+ * @note In `::pltxt2htm::details::Contracts::enforce` mode it invokes
+ *       ::pltxt2htm::details::panic; in `::pltxt2htm::details::Contracts::ignore` mode it
  *       uses ::pltxt2htm::details::unreachable().
  */
 #pragma push_macro("pltxt2htm_unreachable")
 #undef pltxt2htm_unreachable
 #define pltxt2htm_unreachable(message) \
     do { \
-        if constexpr (::pltxt2htm::contract_mode != ::pltxt2htm::Contracts::ignore) { \
+        if constexpr (::pltxt2htm::details::contract_mode != ::pltxt2htm::details::Contracts::ignore) { \
             constexpr auto source_location = ::std::source_location::current(); \
             ::pltxt2htm::details::panic<::pltxt2htm::details::U8LiteralString{u8"unreachable code reached"}, \
                                         ::pltxt2htm::details::U8LiteralString{u8"" __FILE__}, source_location.line(), \

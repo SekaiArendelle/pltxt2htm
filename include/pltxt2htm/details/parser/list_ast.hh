@@ -16,7 +16,7 @@
 #include "../../container/string_view.hh"
 #include "../../container/vector.hh"
 #include "../utils.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {

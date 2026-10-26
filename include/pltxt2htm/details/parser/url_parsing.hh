@@ -11,7 +11,7 @@
 #include "../../container/optional.hh"
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../utf8.hh"
 #include "../utils.hh"
 #include "character_reference.hh"

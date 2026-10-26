@@ -15,7 +15,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "../contracts.hh"
+#include "contracts.hh"
 #include "concepts.hh"
 #include "push_macro.hh"
 

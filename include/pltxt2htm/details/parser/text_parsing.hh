@@ -7,7 +7,7 @@
 
 #include <cstddef>
 #include "../../ast/ast.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../../container/string_view.hh"
 #include "../utf8.hh"
 #include "character_reference.hh"
