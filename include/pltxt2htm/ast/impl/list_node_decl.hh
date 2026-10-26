@@ -134,7 +134,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::ListLiCheckbox const&) noexcept -> ::pltxt2htm::ListLiCheckbox& = delete;
 #else
-    constexpr auto operator=(this ListLiCheckbox& self, ::pltxt2htm::ListLiCheckbox const&) noexcept -> ::pltxt2htm::ListLiCheckbox& = default;
+    constexpr auto operator=(this ListLiCheckbox& self, ::pltxt2htm::ListLiCheckbox const&) noexcept
+        -> ::pltxt2htm::ListLiCheckbox& = default;
 #endif
     constexpr auto operator=(this ListLiCheckbox& self, ::pltxt2htm::ListLiCheckbox&&) noexcept
         -> ::pltxt2htm::ListLiCheckbox&;

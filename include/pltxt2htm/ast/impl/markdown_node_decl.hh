@@ -36,7 +36,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::MdAtxH1 const&) noexcept -> ::pltxt2htm::MdAtxH1& = delete;
 #else
-    constexpr auto operator=(this MdAtxH1& self, ::pltxt2htm::MdAtxH1 const&) noexcept -> ::pltxt2htm::MdAtxH1& = default;
+    constexpr auto operator=(this MdAtxH1& self, ::pltxt2htm::MdAtxH1 const&) noexcept
+        -> ::pltxt2htm::MdAtxH1& = default;
 #endif
     constexpr auto operator=(this MdAtxH1& self, ::pltxt2htm::MdAtxH1&&) noexcept -> ::pltxt2htm::MdAtxH1&;
 
@@ -67,7 +68,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::MdAtxH2 const&) noexcept -> ::pltxt2htm::MdAtxH2& = delete;
 #else
-    constexpr auto operator=(this MdAtxH2& self, ::pltxt2htm::MdAtxH2 const&) noexcept -> ::pltxt2htm::MdAtxH2& = default;
+    constexpr auto operator=(this MdAtxH2& self, ::pltxt2htm::MdAtxH2 const&) noexcept
+        -> ::pltxt2htm::MdAtxH2& = default;
 #endif
     constexpr auto operator=(this MdAtxH2& self, ::pltxt2htm::MdAtxH2&&) noexcept -> ::pltxt2htm::MdAtxH2&;
 
@@ -98,7 +100,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::MdAtxH3 const&) noexcept -> ::pltxt2htm::MdAtxH3& = delete;
 #else
-    constexpr auto operator=(this MdAtxH3& self, ::pltxt2htm::MdAtxH3 const&) noexcept -> ::pltxt2htm::MdAtxH3& = default;
+    constexpr auto operator=(this MdAtxH3& self, ::pltxt2htm::MdAtxH3 const&) noexcept
+        -> ::pltxt2htm::MdAtxH3& = default;
 #endif
     constexpr auto operator=(this MdAtxH3& self, ::pltxt2htm::MdAtxH3&&) noexcept -> ::pltxt2htm::MdAtxH3&;
 
@@ -129,7 +132,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::MdAtxH4 const&) noexcept -> ::pltxt2htm::MdAtxH4& = delete;
 #else
-    constexpr auto operator=(this MdAtxH4& self, ::pltxt2htm::MdAtxH4 const&) noexcept -> ::pltxt2htm::MdAtxH4& = default;
+    constexpr auto operator=(this MdAtxH4& self, ::pltxt2htm::MdAtxH4 const&) noexcept
+        -> ::pltxt2htm::MdAtxH4& = default;
 #endif
     constexpr auto operator=(this MdAtxH4& self, ::pltxt2htm::MdAtxH4&&) noexcept -> ::pltxt2htm::MdAtxH4&;
 
@@ -160,7 +164,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::MdAtxH5 const&) noexcept -> ::pltxt2htm::MdAtxH5& = delete;
 #else
-    constexpr auto operator=(this MdAtxH5& self, ::pltxt2htm::MdAtxH5 const&) noexcept -> ::pltxt2htm::MdAtxH5& = default;
+    constexpr auto operator=(this MdAtxH5& self, ::pltxt2htm::MdAtxH5 const&) noexcept
+        -> ::pltxt2htm::MdAtxH5& = default;
 #endif
     constexpr auto operator=(this MdAtxH5& self, ::pltxt2htm::MdAtxH5&&) noexcept -> ::pltxt2htm::MdAtxH5&;
 
@@ -191,7 +196,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::MdAtxH6 const&) noexcept -> ::pltxt2htm::MdAtxH6& = delete;
 #else
-    constexpr auto operator=(this MdAtxH6& self, ::pltxt2htm::MdAtxH6 const&) noexcept -> ::pltxt2htm::MdAtxH6& = default;
+    constexpr auto operator=(this MdAtxH6& self, ::pltxt2htm::MdAtxH6 const&) noexcept
+        -> ::pltxt2htm::MdAtxH6& = default;
 #endif
     constexpr auto operator=(this MdAtxH6& self, ::pltxt2htm::MdAtxH6&&) noexcept -> ::pltxt2htm::MdAtxH6&;
 
@@ -670,7 +676,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::MdBlockQuotes const&) noexcept -> ::pltxt2htm::MdBlockQuotes& = delete;
 #else
-    constexpr auto operator=(this MdBlockQuotes& self, ::pltxt2htm::MdBlockQuotes const&) noexcept -> ::pltxt2htm::MdBlockQuotes& = default;
+    constexpr auto operator=(this MdBlockQuotes& self, ::pltxt2htm::MdBlockQuotes const&) noexcept
+        -> ::pltxt2htm::MdBlockQuotes& = default;
 #endif
     constexpr auto operator=(this MdBlockQuotes& self, ::pltxt2htm::MdBlockQuotes&&) noexcept
         -> ::pltxt2htm::MdBlockQuotes&;
@@ -702,7 +709,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::MdLatexInline const&) noexcept -> ::pltxt2htm::MdLatexInline& = delete;
 #else
-    constexpr auto operator=(this MdLatexInline& self, ::pltxt2htm::MdLatexInline const&) noexcept -> ::pltxt2htm::MdLatexInline& = default;
+    constexpr auto operator=(this MdLatexInline& self, ::pltxt2htm::MdLatexInline const&) noexcept
+        -> ::pltxt2htm::MdLatexInline& = default;
 #endif
     constexpr auto operator=(this MdLatexInline& self, ::pltxt2htm::MdLatexInline&&) noexcept
         -> ::pltxt2htm::MdLatexInline&;
@@ -734,7 +742,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::MdLatexBlock const&) noexcept -> ::pltxt2htm::MdLatexBlock& = delete;
 #else
-    constexpr auto operator=(this MdLatexBlock& self, ::pltxt2htm::MdLatexBlock const&) noexcept -> ::pltxt2htm::MdLatexBlock& = default;
+    constexpr auto operator=(this MdLatexBlock& self, ::pltxt2htm::MdLatexBlock const&) noexcept
+        -> ::pltxt2htm::MdLatexBlock& = default;
 #endif
     constexpr auto operator=(this MdLatexBlock& self, ::pltxt2htm::MdLatexBlock&&) noexcept
         -> ::pltxt2htm::MdLatexBlock&;

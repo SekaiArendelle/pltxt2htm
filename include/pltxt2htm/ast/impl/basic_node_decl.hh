@@ -165,7 +165,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::CodeFence const&) noexcept -> ::pltxt2htm::CodeFence& = delete;
 #else
-    constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence const&) noexcept -> ::pltxt2htm::CodeFence& = default;
+    constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence const&) noexcept
+        -> ::pltxt2htm::CodeFence& = default;
 #endif
     constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence&&) noexcept -> ::pltxt2htm::CodeFence&;
 

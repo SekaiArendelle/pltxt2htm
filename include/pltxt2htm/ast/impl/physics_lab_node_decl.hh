@@ -145,7 +145,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::PlExperiment const&) noexcept -> ::pltxt2htm::PlExperiment& = delete;
 #else
-    constexpr auto operator=(this PlExperiment& self, ::pltxt2htm::PlExperiment const&) noexcept -> ::pltxt2htm::PlExperiment& = default;
+    constexpr auto operator=(this PlExperiment& self, ::pltxt2htm::PlExperiment const&) noexcept
+        -> ::pltxt2htm::PlExperiment& = default;
 #endif
     constexpr auto operator=(this PlExperiment& self, ::pltxt2htm::PlExperiment&&) noexcept
         -> ::pltxt2htm::PlExperiment&;
@@ -184,7 +185,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::PlDiscussion const&) noexcept -> ::pltxt2htm::PlDiscussion& = delete;
 #else
-    constexpr auto operator=(this PlDiscussion& self, ::pltxt2htm::PlDiscussion const&) noexcept -> ::pltxt2htm::PlDiscussion& = default;
+    constexpr auto operator=(this PlDiscussion& self, ::pltxt2htm::PlDiscussion const&) noexcept
+        -> ::pltxt2htm::PlDiscussion& = default;
 #endif
     constexpr auto operator=(this PlDiscussion& self, ::pltxt2htm::PlDiscussion&&) noexcept
         -> ::pltxt2htm::PlDiscussion&;
@@ -224,7 +226,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::PlExperiments const&) noexcept -> ::pltxt2htm::PlExperiments& = delete;
 #else
-    constexpr auto operator=(this PlExperiments& self, ::pltxt2htm::PlExperiments const&) noexcept -> ::pltxt2htm::PlExperiments& = default;
+    constexpr auto operator=(this PlExperiments& self, ::pltxt2htm::PlExperiments const&) noexcept
+        -> ::pltxt2htm::PlExperiments& = default;
 #endif
     constexpr auto operator=(this PlExperiments& self, ::pltxt2htm::PlExperiments&&) noexcept
         -> ::pltxt2htm::PlExperiments&;
@@ -264,7 +267,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::PlDiscussions const&) noexcept -> ::pltxt2htm::PlDiscussions& = delete;
 #else
-    constexpr auto operator=(this PlDiscussions& self, ::pltxt2htm::PlDiscussions const&) noexcept -> ::pltxt2htm::PlDiscussions& = default;
+    constexpr auto operator=(this PlDiscussions& self, ::pltxt2htm::PlDiscussions const&) noexcept
+        -> ::pltxt2htm::PlDiscussions& = default;
 #endif
     constexpr auto operator=(this PlDiscussions& self, ::pltxt2htm::PlDiscussions&&) noexcept
         -> ::pltxt2htm::PlDiscussions&;
@@ -341,7 +345,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::PlTrigger const&) noexcept -> ::pltxt2htm::PlTrigger& = delete;
 #else
-    constexpr auto operator=(this PlTrigger& self, ::pltxt2htm::PlTrigger const&) noexcept -> ::pltxt2htm::PlTrigger& = default;
+    constexpr auto operator=(this PlTrigger& self, ::pltxt2htm::PlTrigger const&) noexcept
+        -> ::pltxt2htm::PlTrigger& = default;
 #endif
     constexpr auto operator=(this PlTrigger& self, ::pltxt2htm::PlTrigger&&) noexcept -> ::pltxt2htm::PlTrigger&;
 
@@ -379,7 +384,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::PlInternal const&) noexcept -> ::pltxt2htm::PlInternal& = delete;
 #else
-    constexpr auto operator=(this PlInternal& self, ::pltxt2htm::PlInternal const&) noexcept -> ::pltxt2htm::PlInternal& = default;
+    constexpr auto operator=(this PlInternal& self, ::pltxt2htm::PlInternal const&) noexcept
+        -> ::pltxt2htm::PlInternal& = default;
 #endif
     constexpr auto operator=(this PlInternal& self, ::pltxt2htm::PlInternal&&) noexcept -> ::pltxt2htm::PlInternal&;
 
@@ -417,7 +423,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::PlExternal const&) noexcept -> ::pltxt2htm::PlExternal& = delete;
 #else
-    constexpr auto operator=(this PlExternal& self, ::pltxt2htm::PlExternal const&) noexcept -> ::pltxt2htm::PlExternal& = default;
+    constexpr auto operator=(this PlExternal& self, ::pltxt2htm::PlExternal const&) noexcept
+        -> ::pltxt2htm::PlExternal& = default;
 #endif
     constexpr auto operator=(this PlExternal& self, ::pltxt2htm::PlExternal&&) noexcept -> ::pltxt2htm::PlExternal&;
 

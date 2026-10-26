@@ -320,7 +320,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::HtmlDel const&) noexcept -> ::pltxt2htm::HtmlDel& = delete;
 #else
-    constexpr auto operator=(this HtmlDel& self, ::pltxt2htm::HtmlDel const&) noexcept -> ::pltxt2htm::HtmlDel& = default;
+    constexpr auto operator=(this HtmlDel& self, ::pltxt2htm::HtmlDel const&) noexcept
+        -> ::pltxt2htm::HtmlDel& = default;
 #endif
     constexpr auto operator=(this HtmlDel& self, ::pltxt2htm::HtmlDel&&) noexcept -> ::pltxt2htm::HtmlDel&;
 
@@ -414,7 +415,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::HtmlSup const&) noexcept -> ::pltxt2htm::HtmlSup& = delete;
 #else
-    constexpr auto operator=(this HtmlSup& self, ::pltxt2htm::HtmlSup const&) noexcept -> ::pltxt2htm::HtmlSup& = default;
+    constexpr auto operator=(this HtmlSup& self, ::pltxt2htm::HtmlSup const&) noexcept
+        -> ::pltxt2htm::HtmlSup& = default;
 #endif
     constexpr auto operator=(this HtmlSup& self, ::pltxt2htm::HtmlSup&&) noexcept -> ::pltxt2htm::HtmlSup&;
 
@@ -446,7 +448,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::HtmlSub const&) noexcept -> ::pltxt2htm::HtmlSub& = delete;
 #else
-    constexpr auto operator=(this HtmlSub& self, ::pltxt2htm::HtmlSub const&) noexcept -> ::pltxt2htm::HtmlSub& = default;
+    constexpr auto operator=(this HtmlSub& self, ::pltxt2htm::HtmlSub const&) noexcept
+        -> ::pltxt2htm::HtmlSub& = default;
 #endif
     constexpr auto operator=(this HtmlSub& self, ::pltxt2htm::HtmlSub&&) noexcept -> ::pltxt2htm::HtmlSub&;
 
@@ -477,7 +480,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::HtmlNote const&) noexcept -> ::pltxt2htm::HtmlNote& = delete;
 #else
-    constexpr auto operator=(this HtmlNote& self, ::pltxt2htm::HtmlNote const&) noexcept -> ::pltxt2htm::HtmlNote& = default;
+    constexpr auto operator=(this HtmlNote& self, ::pltxt2htm::HtmlNote const&) noexcept
+        -> ::pltxt2htm::HtmlNote& = default;
 #endif
     constexpr auto operator=(this HtmlNote& self, ::pltxt2htm::HtmlNote&&) noexcept -> ::pltxt2htm::HtmlNote&;
 
@@ -539,7 +543,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::HtmlStrong const&) noexcept -> ::pltxt2htm::HtmlStrong& = delete;
 #else
-    constexpr auto operator=(this HtmlStrong& self, ::pltxt2htm::HtmlStrong const&) noexcept -> ::pltxt2htm::HtmlStrong& = default;
+    constexpr auto operator=(this HtmlStrong& self, ::pltxt2htm::HtmlStrong const&) noexcept
+        -> ::pltxt2htm::HtmlStrong& = default;
 #endif
     constexpr auto operator=(this HtmlStrong& self, ::pltxt2htm::HtmlStrong&&) noexcept -> ::pltxt2htm::HtmlStrong&;
 
@@ -614,7 +619,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::HtmlCode const&) noexcept -> ::pltxt2htm::HtmlCode& = delete;
 #else
-    constexpr auto operator=(this HtmlCode& self, ::pltxt2htm::HtmlCode const&) noexcept -> ::pltxt2htm::HtmlCode& = default;
+    constexpr auto operator=(this HtmlCode& self, ::pltxt2htm::HtmlCode const&) noexcept
+        -> ::pltxt2htm::HtmlCode& = default;
 #endif
     constexpr auto operator=(this HtmlCode& self, ::pltxt2htm::HtmlCode&&) noexcept -> ::pltxt2htm::HtmlCode&;
 
@@ -847,7 +853,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::HtmlSpan const&) noexcept -> ::pltxt2htm::HtmlSpan& = delete;
 #else
-    constexpr auto operator=(this HtmlSpan& self, ::pltxt2htm::HtmlSpan const&) noexcept -> ::pltxt2htm::HtmlSpan& = default;
+    constexpr auto operator=(this HtmlSpan& self, ::pltxt2htm::HtmlSpan const&) noexcept
+        -> ::pltxt2htm::HtmlSpan& = default;
 #endif
     constexpr auto operator=(this HtmlSpan& self, ::pltxt2htm::HtmlSpan&&) noexcept -> ::pltxt2htm::HtmlSpan&;
 
@@ -955,7 +962,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::HtmlDiv const&) noexcept -> ::pltxt2htm::HtmlDiv& = delete;
 #else
-    constexpr auto operator=(this HtmlDiv& self, ::pltxt2htm::HtmlDiv const&) noexcept -> ::pltxt2htm::HtmlDiv& = default;
+    constexpr auto operator=(this HtmlDiv& self, ::pltxt2htm::HtmlDiv const&) noexcept
+        -> ::pltxt2htm::HtmlDiv& = default;
 #endif
     constexpr auto operator=(this HtmlDiv& self, ::pltxt2htm::HtmlDiv&&) noexcept -> ::pltxt2htm::HtmlDiv&;
 
@@ -1042,7 +1050,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::HtmlBlockquote const&) noexcept -> ::pltxt2htm::HtmlBlockquote& = delete;
 #else
-    constexpr auto operator=(this HtmlBlockquote& self, ::pltxt2htm::HtmlBlockquote const&) noexcept -> ::pltxt2htm::HtmlBlockquote& = default;
+    constexpr auto operator=(this HtmlBlockquote& self, ::pltxt2htm::HtmlBlockquote const&) noexcept
+        -> ::pltxt2htm::HtmlBlockquote& = default;
 #endif
     constexpr auto operator=(this HtmlBlockquote& self, ::pltxt2htm::HtmlBlockquote&&) noexcept
         -> ::pltxt2htm::HtmlBlockquote&;

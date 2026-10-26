@@ -38,7 +38,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::UnityColor const&) noexcept -> ::pltxt2htm::UnityColor& = delete;
 #else
-    constexpr auto operator=(this UnityColor& self, ::pltxt2htm::UnityColor const&) noexcept -> ::pltxt2htm::UnityColor& = default;
+    constexpr auto operator=(this UnityColor& self, ::pltxt2htm::UnityColor const&) noexcept
+        -> ::pltxt2htm::UnityColor& = default;
 #endif
     constexpr auto operator=(this UnityColor& self, ::pltxt2htm::UnityColor&&) noexcept -> ::pltxt2htm::UnityColor&;
 
@@ -76,7 +77,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::UnityLink const&) noexcept -> ::pltxt2htm::UnityLink& = delete;
 #else
-    constexpr auto operator=(this UnityLink& self, ::pltxt2htm::UnityLink const&) noexcept -> ::pltxt2htm::UnityLink& = default;
+    constexpr auto operator=(this UnityLink& self, ::pltxt2htm::UnityLink const&) noexcept
+        -> ::pltxt2htm::UnityLink& = default;
 #endif
     constexpr auto operator=(this UnityLink& self, ::pltxt2htm::UnityLink&&) noexcept -> ::pltxt2htm::UnityLink&;
 
@@ -115,7 +117,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::UnitySize const&) noexcept -> ::pltxt2htm::UnitySize& = delete;
 #else
-    constexpr auto operator=(this UnitySize& self, ::pltxt2htm::UnitySize const&) noexcept -> ::pltxt2htm::UnitySize& = default;
+    constexpr auto operator=(this UnitySize& self, ::pltxt2htm::UnitySize const&) noexcept
+        -> ::pltxt2htm::UnitySize& = default;
 #endif
     constexpr auto operator=(this UnitySize& self, ::pltxt2htm::UnitySize&&) noexcept -> ::pltxt2htm::UnitySize&;
 
@@ -165,7 +168,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::UnityVoffset const&) noexcept -> ::pltxt2htm::UnityVoffset& = delete;
 #else
-    constexpr auto operator=(this UnityVoffset& self, ::pltxt2htm::UnityVoffset const&) noexcept -> ::pltxt2htm::UnityVoffset& = default;
+    constexpr auto operator=(this UnityVoffset& self, ::pltxt2htm::UnityVoffset const&) noexcept
+        -> ::pltxt2htm::UnityVoffset& = default;
 #endif
     constexpr auto operator=(this UnityVoffset& self, ::pltxt2htm::UnityVoffset&&) noexcept
         -> ::pltxt2htm::UnityVoffset&;
@@ -205,7 +209,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::UnityAlign const&) noexcept -> ::pltxt2htm::UnityAlign& = delete;
 #else
-    constexpr auto operator=(this UnityAlign& self, ::pltxt2htm::UnityAlign const&) noexcept -> ::pltxt2htm::UnityAlign& = default;
+    constexpr auto operator=(this UnityAlign& self, ::pltxt2htm::UnityAlign const&) noexcept
+        -> ::pltxt2htm::UnityAlign& = default;
 #endif
     constexpr auto operator=(this UnityAlign& self, ::pltxt2htm::UnityAlign&&) noexcept -> ::pltxt2htm::UnityAlign&;
 
@@ -244,7 +249,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::UnityMark const&) noexcept -> ::pltxt2htm::UnityMark& = delete;
 #else
-    constexpr auto operator=(this UnityMark& self, ::pltxt2htm::UnityMark const&) noexcept -> ::pltxt2htm::UnityMark& = default;
+    constexpr auto operator=(this UnityMark& self, ::pltxt2htm::UnityMark const&) noexcept
+        -> ::pltxt2htm::UnityMark& = default;
 #endif
     constexpr auto operator=(this UnityMark& self, ::pltxt2htm::UnityMark&&) noexcept -> ::pltxt2htm::UnityMark&;
 
@@ -341,7 +347,8 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::UnityMargin const&) noexcept -> ::pltxt2htm::UnityMargin& = delete;
 #else
-    constexpr auto operator=(this UnityMargin& self, ::pltxt2htm::UnityMargin const&) noexcept -> ::pltxt2htm::UnityMargin& = default;
+    constexpr auto operator=(this UnityMargin& self, ::pltxt2htm::UnityMargin const&) noexcept
+        -> ::pltxt2htm::UnityMargin& = default;
 #endif
     constexpr auto operator=(this UnityMargin& self, ::pltxt2htm::UnityMargin&&) noexcept -> ::pltxt2htm::UnityMargin&;
 
