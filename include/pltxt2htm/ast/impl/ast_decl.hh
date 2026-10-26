@@ -92,37 +92,56 @@ public:
     constexpr auto operator=(this Ast& self, Ast&& other) noexcept -> Ast&;
     constexpr ~Ast() noexcept;
 
-    [[nodiscard]] constexpr auto data(this Ast& self) noexcept -> pointer;
-    [[nodiscard]] constexpr auto data(this Ast const& self) noexcept -> const_pointer;
-    [[nodiscard]] constexpr auto is_empty(this Ast const& self) noexcept -> bool;
+    [[nodiscard]]
+    constexpr auto data(this Ast& self) noexcept -> pointer;
+    [[nodiscard]]
+    constexpr auto data(this Ast const& self) noexcept -> const_pointer;
+    [[nodiscard]]
+    constexpr auto is_empty(this Ast const& self) noexcept -> bool;
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto empty(this Ast const&) noexcept -> bool = delete;
 #else
-    [[nodiscard]] constexpr auto empty(this Ast const& self) noexcept -> bool;
+    [[nodiscard]]
+    constexpr auto empty(this Ast const& self) noexcept -> bool;
 #endif
-    [[nodiscard]] constexpr auto size(this Ast const& self) noexcept -> size_type;
-    [[nodiscard]] constexpr auto capacity(this Ast const& self) noexcept -> size_type;
-    [[nodiscard]] static constexpr auto max_size() noexcept -> size_type;
-    [[nodiscard]] constexpr auto begin(this Ast& self) noexcept -> iterator;
-    [[nodiscard]] constexpr auto begin(this Ast const& self) noexcept -> const_iterator;
-    [[nodiscard]] constexpr auto end(this Ast& self) noexcept -> iterator;
-    [[nodiscard]] constexpr auto end(this Ast const& self) noexcept -> const_iterator;
-    [[nodiscard]] constexpr auto cbegin(this Ast const& self) noexcept -> const_iterator;
-    [[nodiscard]] constexpr auto cend(this Ast const& self) noexcept -> const_iterator;
-    [[nodiscard]] constexpr auto rbegin(this Ast& self) noexcept -> reverse_iterator;
-    [[nodiscard]] constexpr auto rbegin(this Ast const& self) noexcept -> const_reverse_iterator;
-    [[nodiscard]] constexpr auto rend(this Ast& self) noexcept -> reverse_iterator;
-    [[nodiscard]] constexpr auto rend(this Ast const& self) noexcept -> const_reverse_iterator;
-    [[nodiscard]] constexpr auto front(this Ast& self) noexcept -> reference;
-    [[nodiscard]] constexpr auto front(this Ast const& self) noexcept -> const_reference;
-    [[nodiscard]] constexpr auto index(this Ast& self, size_type position) noexcept -> reference;
-    [[nodiscard]] constexpr auto index(this Ast const& self, size_type position) noexcept -> const_reference;
+    [[nodiscard]]
+    constexpr auto size(this Ast const& self) noexcept -> size_type;
+    [[nodiscard]]
+    constexpr auto capacity(this Ast const& self) noexcept -> size_type;
+    [[nodiscard]]
+    static constexpr auto max_size() noexcept -> size_type;
+    [[nodiscard]]
+    constexpr auto begin(this Ast& self) noexcept -> iterator;
+    [[nodiscard]]
+    constexpr auto begin(this Ast const& self) noexcept -> const_iterator;
+    [[nodiscard]]
+    constexpr auto end(this Ast& self) noexcept -> iterator;
+    [[nodiscard]]
+    constexpr auto end(this Ast const& self) noexcept -> const_iterator;
+    [[nodiscard]]
+    constexpr auto cbegin(this Ast const& self) noexcept -> const_iterator;
+    [[nodiscard]]
+    constexpr auto cend(this Ast const& self) noexcept -> const_iterator;
+    [[nodiscard]]
+    constexpr auto rbegin(this Ast& self) noexcept -> reverse_iterator;
+    [[nodiscard]]
+    constexpr auto rbegin(this Ast const& self) noexcept -> const_reverse_iterator;
+    [[nodiscard]]
+    constexpr auto rend(this Ast& self) noexcept -> reverse_iterator;
+    [[nodiscard]]
+    constexpr auto rend(this Ast const& self) noexcept -> const_reverse_iterator;
+    [[nodiscard]]
+    constexpr auto front(this Ast& self) noexcept -> reference;
+    [[nodiscard]]
+    constexpr auto front(this Ast const& self) noexcept -> const_reference;
+    [[nodiscard]]
+    constexpr auto index(this Ast& self, size_type position) noexcept -> reference;
+    [[nodiscard]]
+    constexpr auto index(this Ast const& self, size_type position) noexcept -> const_reference;
     constexpr void reserve(this Ast& self, size_type requested_capacity) noexcept;
 
     template<typename... Args>
-    constexpr auto emplace_back(this Ast& self, Args&&... args) noexcept -> reference {
-        return self.storage.emplace_back(::std::forward<Args>(args)...);
-    }
+    constexpr auto emplace_back(this Ast& self, Args&&... args) noexcept -> reference;
 
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr void push_back(this Ast& self, const_reference value) noexcept = delete;
@@ -140,15 +159,13 @@ public:
     constexpr void append_range(this Ast& self, R&& range) noexcept
         requires requires(storage_type& probe_storage, R&& probe_range) {
             probe_storage.append_range(::std::forward<R>(probe_range));
-        }
-    {
-        self.storage.append_range(::std::forward<R>(range));
-    }
+        };
 
     constexpr auto erase(this Ast& self, const_iterator position) noexcept -> iterator;
     constexpr auto erase(this Ast& self, const_iterator first, const_iterator last) noexcept -> iterator;
     constexpr void swap(this Ast& self, Ast& other) noexcept;
-    [[nodiscard]] constexpr auto operator==(this Ast const& self, Ast const& other) noexcept -> bool;
+    [[nodiscard]]
+    constexpr auto operator==(this Ast const& self, Ast const& other) noexcept -> bool;
 };
 
 } // namespace pltxt2htm

@@ -119,6 +119,13 @@ constexpr void ::pltxt2htm::Ast::reserve(this ::pltxt2htm::Ast& self,
                                          ::pltxt2htm::Ast::size_type requested_capacity) noexcept {
     self.storage.reserve(requested_capacity);
 }
+
+template<typename... Args>
+constexpr auto ::pltxt2htm::Ast::emplace_back(this ::pltxt2htm::Ast& self, Args&&... args) noexcept
+    -> ::pltxt2htm::Ast::reference {
+    return self.storage.emplace_back(::std::forward<Args>(args)...);
+}
+
 #if !defined(PLTXT2HTM_INTERNAL_USE)
 constexpr void ::pltxt2htm::Ast::push_back(this ::pltxt2htm::Ast& self,
                                            ::pltxt2htm::Ast::const_reference value) noexcept {
@@ -135,6 +142,15 @@ constexpr void ::pltxt2htm::Ast::pop_back(this ::pltxt2htm::Ast& self) noexcept 
 
 constexpr void ::pltxt2htm::Ast::clear(this ::pltxt2htm::Ast& self) noexcept {
     self.storage.clear();
+}
+
+template<::std::ranges::input_range R>
+constexpr void ::pltxt2htm::Ast::append_range(this ::pltxt2htm::Ast& self, R&& range) noexcept
+    requires requires(::pltxt2htm::Ast::storage_type& probe_storage, R&& probe_range) {
+        probe_storage.append_range(::std::forward<R>(probe_range));
+    }
+{
+    self.storage.append_range(::std::forward<R>(range));
 }
 
 constexpr auto ::pltxt2htm::Ast::erase(this ::pltxt2htm::Ast& self, ::pltxt2htm::Ast::const_iterator position) noexcept
