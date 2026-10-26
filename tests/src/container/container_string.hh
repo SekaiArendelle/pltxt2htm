@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <fast_io/fast_io_core.h>
+#include <fast_io/fast_io.h>
 #include <fast_io/fast_io_dsal/string.h>
 
 #include <pltxt2htm/container/string.hh>
