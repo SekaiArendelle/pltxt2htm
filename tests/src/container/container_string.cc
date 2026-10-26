@@ -3,9 +3,8 @@
 #include <type_traits>
 #include <utility>
 
-#include <fast_io/fast_io.h>
+#include <fast_io/fast_io_core.h>
 #include <fast_io/fast_io_dsal/string.h>
-#include <fast_io/fast_io_dsal/string_view.h>
 
 #include <pltxt2htm/container/string.hh>
 
@@ -66,9 +65,6 @@ template<typename String>
 concept has_subscript_operator = requires(String& string) { string[0]; };
 
 static_assert(::std::same_as<U8String::value_type, char8_t>);
-static_assert(!::std::is_constructible_v<U8String, ::fast_io::u8string_view>);
-static_assert(!::std::is_constructible_v<U8String, ::fast_io::u8string const&>);
-static_assert(!::std::is_convertible_v<U8String const&, ::fast_io::u8string_view>);
 static_assert(::std::is_constructible_v<U8StringView, U8String const&>);
 static_assert(!::std::is_constructible_v<U8StringView, U8String&&>);
 static_assert(::std::is_convertible_v<U8String const&, U8StringView>);

@@ -6,7 +6,6 @@
 
 #include <pltxt2htm/container/string_view.hh>
 #include <pltxt2htm/container/string.hh>
-#include <pltxt2htm/details/contracts.hh>
 #include <pltxt2htm/details/inplace_string.hh>
 #include <pltxt2htm/details/literal_string.hh>
 
