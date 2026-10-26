@@ -56,12 +56,9 @@ static_assert(noexcept(::std::declval<IntDeque&>().emplace_front(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().push_back(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().push_front(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().resize(1)));
-static_assert(noexcept(
-    ::std::declval<IntDeque&>().emplace(::std::declval<IntDeque::const_iterator>(), 1)));
-static_assert(noexcept(
-    ::std::declval<IntDeque&>().insert(::std::declval<IntDeque::const_iterator>(), 1)));
-static_assert(
-    noexcept(::std::declval<IntDeque&>().erase(::std::declval<IntDeque::const_iterator>())));
+static_assert(noexcept(::std::declval<IntDeque&>().emplace(::std::declval<IntDeque::const_iterator>(), 1)));
+static_assert(noexcept(::std::declval<IntDeque&>().insert(::std::declval<IntDeque::const_iterator>(), 1)));
+static_assert(noexcept(::std::declval<IntDeque&>().erase(::std::declval<IntDeque::const_iterator>())));
 static_assert(noexcept(::std::declval<IntDeque&>().assign(::std::declval<int const*>(), ::std::declval<int const*>())));
 
 struct UnevenBlockValue {
@@ -118,8 +115,7 @@ consteval auto test_constexpr_deque() -> bool {
         values.push_front(-value);
     }
 
-    if (values.size() != 400 || values.front() != -100 || values.back() != 299 ||
-        values.index(100) != 0) {
+    if (values.size() != 400 || values.front() != -100 || values.back() != 299 || values.index(100) != 0) {
         return false;
     }
 
@@ -133,8 +129,7 @@ consteval auto test_constexpr_deque() -> bool {
         return false;
     }
     copy.insert(copy.cbegin() + 50, {7, 8, 9});
-    if (copy.size() != 103 || copy.index(50) != 7 || copy.index(51) != 8 ||
-        copy.index(52) != 9) {
+    if (copy.size() != 103 || copy.index(50) != 7 || copy.index(51) != 8 || copy.index(52) != 9) {
         return false;
     }
 
@@ -176,8 +171,7 @@ constexpr auto test_contract_operations() noexcept -> bool {
     values.erase(values.cbegin() + 1, values.cbegin() + 5);
     values.resize(5);
     auto const& const_values = values;
-    if (const_values.front() != 6 || const_values.back() != 0 ||
-        const_values.index(1) != 2) {
+    if (const_values.front() != 6 || const_values.back() != 0 || const_values.index(1) != 2) {
         return false;
     }
     values.resize(1);
@@ -240,16 +234,14 @@ void test_rolling_queue(bool front_to_back) {
             queue.pop_front();
             queue.emplace_back(BlockValue{index});
             pltxt2htm_test_assert_true(survivor == ::std::addressof(queue.front()));
-            pltxt2htm_test_assert_true(queue.front().value == index - 1 &&
-                                       queue.back().value == index);
+            pltxt2htm_test_assert_true(queue.front().value == index - 1 && queue.back().value == index);
         }
         else {
             auto const survivor = ::std::addressof(queue.front());
             queue.pop_back();
             queue.emplace_front(BlockValue{index});
             pltxt2htm_test_assert_true(survivor == ::std::addressof(queue.back()));
-            pltxt2htm_test_assert_true(queue.front().value == index &&
-                                       queue.back().value == index - 1);
+            pltxt2htm_test_assert_true(queue.front().value == index && queue.back().value == index - 1);
         }
         pltxt2htm_test_assert_true(queue.size() == 2);
     }
@@ -471,8 +463,7 @@ void test_range_insertion() {
         }
         int const insertion_index{scenario == 0 ? 100 : 600};
         TrackedValue::moves = 0;
-        auto const result = queue.insert(queue.cbegin() + insertion_index, inserted.cbegin(),
-                                                                   inserted.cend());
+        auto const result = queue.insert(queue.cbegin() + insertion_index, inserted.cbegin(), inserted.cend());
         pltxt2htm_test_assert_true(result == queue.begin() + insertion_index);
         pltxt2htm_test_assert_true(TrackedValue::moves < 4500);
         for (int index{}; index != 900; ++index) {
@@ -489,8 +480,7 @@ void test_range_insertion() {
     source.emplace_back(2);
     source.emplace_back(3);
     TrackedValue::moves = 0;
-    auto const empty_result =
-        endpoints.insert(endpoints.cbegin(), source.cbegin(), source.cbegin());
+    auto const empty_result = endpoints.insert(endpoints.cbegin(), source.cbegin(), source.cbegin());
     pltxt2htm_test_assert_true(empty_result == endpoints.begin() && TrackedValue::moves == 0);
     endpoints.insert(endpoints.cbegin(), source.cbegin(), source.cend());
     pltxt2htm_test_assert_true(TrackedValue::moves == source.size());
@@ -504,8 +494,8 @@ void test_range_insertion() {
     pltxt2htm_test_assert_true((self == IntDeque{1, 2, 1, 2, 3, 3, 4}));
 
     IntDeque front_self{0, 1, 2, 3, 4, 5};
-    auto const front_result = front_self.insert(
-        front_self.cbegin() + 1, front_self.cbegin() + 2, front_self.cbegin() + 5);
+    auto const front_result =
+        front_self.insert(front_self.cbegin() + 1, front_self.cbegin() + 2, front_self.cbegin() + 5);
     pltxt2htm_test_assert_true(front_result == front_self.begin() + 1);
     pltxt2htm_test_assert_true((front_self == IntDeque{0, 2, 3, 4, 1, 2, 3, 4, 5}));
 }
@@ -551,15 +541,13 @@ int main() {
         case 4:
             if (!reference.empty()) {
                 ::std::size_t const index{random_value % reference.size()};
-                differential.erase(differential.cbegin() +
-                                                             static_cast<::std::ptrdiff_t>(index));
+                differential.erase(differential.cbegin() + static_cast<::std::ptrdiff_t>(index));
                 reference.erase(reference.cbegin() + static_cast<::std::ptrdiff_t>(index));
             }
             break;
         case 5: {
             ::std::size_t const index{reference.empty() ? 0 : random_value % (reference.size() + 1)};
-            differential.insert(differential.cbegin() + static_cast<::std::ptrdiff_t>(index),
-                                                          operation);
+            differential.insert(differential.cbegin() + static_cast<::std::ptrdiff_t>(index), operation);
             reference.insert(reference.cbegin() + static_cast<::std::ptrdiff_t>(index), operation);
             break;
         }
@@ -615,8 +603,7 @@ int main() {
     thread_local_values.push_front(2);
     thread_local_values.push_front(1);
     thread_local_values.push_back(3);
-    pltxt2htm_test_assert_true(thread_local_values.index(0) == 1 &&
-                               thread_local_values.index(2) == 3);
+    pltxt2htm_test_assert_true(thread_local_values.index(0) == 1 && thread_local_values.index(2) == 3);
 
     {
         ::pltxt2htm::container::Deque<::pltxt2htm_test::TrackedValue> tracked{};

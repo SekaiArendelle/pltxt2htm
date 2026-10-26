@@ -31,10 +31,8 @@ public:
     constexpr UnityColor(::pltxt2htm::UnityColor const&) noexcept = default;
     constexpr UnityColor(::pltxt2htm::UnityColor&&) noexcept;
     constexpr ~UnityColor() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityColor const&) noexcept
-        -> ::pltxt2htm::UnityColor& = default;
-    constexpr auto operator=(this UnityColor& self, ::pltxt2htm::UnityColor&&) noexcept
-        -> ::pltxt2htm::UnityColor&;
+    constexpr auto operator=(::pltxt2htm::UnityColor const&) noexcept -> ::pltxt2htm::UnityColor& = default;
+    constexpr auto operator=(this UnityColor& self, ::pltxt2htm::UnityColor&&) noexcept -> ::pltxt2htm::UnityColor&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityColor const&, UnityColor const&) noexcept -> bool;
@@ -63,10 +61,8 @@ public:
     constexpr UnityLink(::pltxt2htm::UnityLink const&) noexcept = default;
     constexpr UnityLink(::pltxt2htm::UnityLink&&) noexcept;
     constexpr ~UnityLink() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityLink const&) noexcept
-        -> ::pltxt2htm::UnityLink& = default;
-    constexpr auto operator=(this UnityLink& self, ::pltxt2htm::UnityLink&&) noexcept
-        -> ::pltxt2htm::UnityLink&;
+    constexpr auto operator=(::pltxt2htm::UnityLink const&) noexcept -> ::pltxt2htm::UnityLink& = default;
+    constexpr auto operator=(this UnityLink& self, ::pltxt2htm::UnityLink&&) noexcept -> ::pltxt2htm::UnityLink&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityLink const&, UnityLink const&) noexcept -> bool;
@@ -96,10 +92,8 @@ public:
     constexpr UnitySize(::pltxt2htm::UnitySize const&) noexcept = default;
     constexpr UnitySize(::pltxt2htm::UnitySize&&) noexcept;
     constexpr ~UnitySize() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnitySize const&) noexcept
-        -> ::pltxt2htm::UnitySize& = default;
-    constexpr auto operator=(this UnitySize& self, ::pltxt2htm::UnitySize&&) noexcept
-        -> ::pltxt2htm::UnitySize&;
+    constexpr auto operator=(::pltxt2htm::UnitySize const&) noexcept -> ::pltxt2htm::UnitySize& = default;
+    constexpr auto operator=(this UnitySize& self, ::pltxt2htm::UnitySize&&) noexcept -> ::pltxt2htm::UnitySize&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnitySize const&, UnitySize const&) noexcept -> bool;
@@ -136,13 +130,11 @@ class UnityVoffset {
     ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value;
 
 public:
-    constexpr UnityVoffset(::pltxt2htm::Ast&& subast_,
-                           ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value_) noexcept;
+    constexpr UnityVoffset(::pltxt2htm::Ast&& subast_, ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value_) noexcept;
     constexpr UnityVoffset(::pltxt2htm::UnityVoffset const&) noexcept = default;
     constexpr UnityVoffset(::pltxt2htm::UnityVoffset&&) noexcept;
     constexpr ~UnityVoffset() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityVoffset const&) noexcept
-        -> ::pltxt2htm::UnityVoffset& = default;
+    constexpr auto operator=(::pltxt2htm::UnityVoffset const&) noexcept -> ::pltxt2htm::UnityVoffset& = default;
     constexpr auto operator=(this UnityVoffset& self, ::pltxt2htm::UnityVoffset&&) noexcept
         -> ::pltxt2htm::UnityVoffset&;
 
@@ -174,10 +166,8 @@ public:
     constexpr UnityAlign(::pltxt2htm::UnityAlign const&) noexcept = default;
     constexpr UnityAlign(::pltxt2htm::UnityAlign&&) noexcept;
     constexpr ~UnityAlign() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityAlign const&) noexcept
-        -> ::pltxt2htm::UnityAlign& = default;
-    constexpr auto operator=(this UnityAlign& self, ::pltxt2htm::UnityAlign&&) noexcept
-        -> ::pltxt2htm::UnityAlign&;
+    constexpr auto operator=(::pltxt2htm::UnityAlign const&) noexcept -> ::pltxt2htm::UnityAlign& = default;
+    constexpr auto operator=(this UnityAlign& self, ::pltxt2htm::UnityAlign&&) noexcept -> ::pltxt2htm::UnityAlign&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityAlign const&, UnityAlign const&) noexcept -> bool;
@@ -203,15 +193,12 @@ class UnityMark {
     ::pltxt2htm::container::U8String background_color;
 
 public:
-    constexpr UnityMark(::pltxt2htm::Ast&& subast_,
-                        ::pltxt2htm::container::U8String&& background_color_) noexcept;
+    constexpr UnityMark(::pltxt2htm::Ast&& subast_, ::pltxt2htm::container::U8String&& background_color_) noexcept;
     constexpr UnityMark(::pltxt2htm::UnityMark const&) noexcept = default;
     constexpr UnityMark(::pltxt2htm::UnityMark&&) noexcept;
     constexpr ~UnityMark() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityMark const&) noexcept
-        -> ::pltxt2htm::UnityMark& = default;
-    constexpr auto operator=(this UnityMark& self, ::pltxt2htm::UnityMark&&) noexcept
-        -> ::pltxt2htm::UnityMark&;
+    constexpr auto operator=(::pltxt2htm::UnityMark const&) noexcept -> ::pltxt2htm::UnityMark& = default;
+    constexpr auto operator=(this UnityMark& self, ::pltxt2htm::UnityMark&&) noexcept -> ::pltxt2htm::UnityMark&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityMark const&, UnityMark const&) noexcept -> bool;
@@ -299,10 +286,8 @@ public:
     constexpr UnityMargin(::pltxt2htm::UnityMargin const&) noexcept = default;
     constexpr UnityMargin(::pltxt2htm::UnityMargin&&) noexcept;
     constexpr ~UnityMargin() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityMargin const&) noexcept
-        -> ::pltxt2htm::UnityMargin& = default;
-    constexpr auto operator=(this UnityMargin& self, ::pltxt2htm::UnityMargin&&) noexcept
-        -> ::pltxt2htm::UnityMargin&;
+    constexpr auto operator=(::pltxt2htm::UnityMargin const&) noexcept -> ::pltxt2htm::UnityMargin& = default;
+    constexpr auto operator=(this UnityMargin& self, ::pltxt2htm::UnityMargin&&) noexcept -> ::pltxt2htm::UnityMargin&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityMargin const&, UnityMargin const&) noexcept -> bool;
@@ -338,8 +323,7 @@ public:
     constexpr UnityI(::pltxt2htm::UnityI&&) noexcept;
     constexpr ~UnityI() noexcept = default;
     constexpr auto operator=(::pltxt2htm::UnityI const&) noexcept -> ::pltxt2htm::UnityI& = default;
-    constexpr auto operator=(this UnityI& self, ::pltxt2htm::UnityI&&) noexcept
-        -> ::pltxt2htm::UnityI&;
+    constexpr auto operator=(this UnityI& self, ::pltxt2htm::UnityI&&) noexcept -> ::pltxt2htm::UnityI&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityI const&, UnityI const&) noexcept -> bool;
@@ -363,8 +347,7 @@ public:
     constexpr UnityB(::pltxt2htm::UnityB&&) noexcept;
     constexpr ~UnityB() noexcept = default;
     constexpr auto operator=(::pltxt2htm::UnityB const&) noexcept -> ::pltxt2htm::UnityB& = default;
-    constexpr auto operator=(this UnityB& self, ::pltxt2htm::UnityB&&) noexcept
-        -> ::pltxt2htm::UnityB&;
+    constexpr auto operator=(this UnityB& self, ::pltxt2htm::UnityB&&) noexcept -> ::pltxt2htm::UnityB&;
 
     [[nodiscard]]
     constexpr auto operator==(this UnityB const&, UnityB const&) noexcept -> bool;

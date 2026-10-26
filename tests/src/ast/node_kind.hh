@@ -15,8 +15,7 @@ TEST_SUITE("node_kind") {
     using TestNode = ::pltxt2htm::PlTxtNode;
 
     // PlObjectId has no public constructor, so the node-building cases go through the factory.
-    constexpr auto make_object_id(::pltxt2htm::container::U8StringView const text)
-        -> ::pltxt2htm::PlObjectId {
+    constexpr auto make_object_id(::pltxt2htm::container::U8StringView const text) -> ::pltxt2htm::PlObjectId {
         return ::pltxt2htm::PlObjectId::try_make(text).value();
     }
 
@@ -78,8 +77,7 @@ TEST_SUITE("node_kind") {
     static_assert(noexcept(TestNode::emplace<::pltxt2htm::Text>(u8'x')));
     static_assert(test_constexpr_emplace());
     static_assert(test_constexpr_move());
-    static_assert(::pltxt2htm::details::PlTxtNodeTraits< ::pltxt2htm::Text>::kind ==
-                  ::pltxt2htm::NodeKind::text);
+    static_assert(::pltxt2htm::details::PlTxtNodeTraits<::pltxt2htm::Text>::kind == ::pltxt2htm::NodeKind::text);
     static_assert(test_md_escape_result());
     static_assert(::std::is_trivially_copyable_v<::pltxt2htm::details::TryParseMdEscapeResult>);
     static_assert(sizeof(::pltxt2htm::details::TryParseMdEscapeResult) <= sizeof(::std::size_t) * 2);
@@ -87,32 +85,22 @@ TEST_SUITE("node_kind") {
 
     TEST_CASE("node-kinds-and-storage-indexing") {
         ::pltxt2htm::container::Vector<::pltxt2htm::PlTxtNode> arr{};
-        arr.emplace_back(
-            TestNode::template emplace<::pltxt2htm::Text>(u8'a'));
-        arr.emplace_back(
-            TestNode::template emplace<::pltxt2htm::UnityColor>(
-                ::pltxt2htm::Ast{}, ::pltxt2htm::container::U8String{u8"red"}));
-        arr.emplace_back(
-            TestNode::template emplace<::pltxt2htm::PlExperiment>(
-                ::pltxt2htm::Ast{},
-                make_object_id(u8"642cf37a494746375aae306a")));
-        arr.emplace_back(
-            TestNode::template emplace<::pltxt2htm::PlDiscussion>(
-                ::pltxt2htm::Ast{},
-                make_object_id(u8"642cf37a494746375aae306a")));
+        arr.emplace_back(TestNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        arr.emplace_back(TestNode::template emplace<::pltxt2htm::UnityColor>(
+            ::pltxt2htm::Ast{}, ::pltxt2htm::container::U8String{u8"red"}));
+        arr.emplace_back(TestNode::template emplace<::pltxt2htm::PlExperiment>(
+            ::pltxt2htm::Ast{}, make_object_id(u8"642cf37a494746375aae306a")));
+        arr.emplace_back(TestNode::template emplace<::pltxt2htm::PlDiscussion>(
+            ::pltxt2htm::Ast{}, make_object_id(u8"642cf37a494746375aae306a")));
 
         auto invalid_utf8 = TestNode::emplace<::pltxt2htm::InvalidUtf8>();
-        auto unity_color = TestNode::emplace<::pltxt2htm::UnityColor>(
-            ::pltxt2htm::Ast{}, ::pltxt2htm::container::U8String{u8"blue"});
+        auto unity_color =
+            TestNode::emplace<::pltxt2htm::UnityColor>(::pltxt2htm::Ast{}, ::pltxt2htm::container::U8String{u8"blue"});
 
-        CHECK(arr.index(0).get_node_kind() ==
-              ::pltxt2htm::NodeKind::text);
-        CHECK(arr.index(1).get_node_kind() ==
-              ::pltxt2htm::NodeKind::unity_color);
-        CHECK(arr.index(2).get_node_kind() ==
-              ::pltxt2htm::NodeKind::pl_experiment);
-        CHECK(arr.index(3).get_node_kind() ==
-              ::pltxt2htm::NodeKind::pl_discussion);
+        CHECK(arr.index(0).get_node_kind() == ::pltxt2htm::NodeKind::text);
+        CHECK(arr.index(1).get_node_kind() == ::pltxt2htm::NodeKind::unity_color);
+        CHECK(arr.index(2).get_node_kind() == ::pltxt2htm::NodeKind::pl_experiment);
+        CHECK(arr.index(3).get_node_kind() == ::pltxt2htm::NodeKind::pl_discussion);
         CHECK(invalid_utf8.get_node_kind() == ::pltxt2htm::NodeKind::invalid_utf8);
         CHECK(unity_color.get_node_kind() == ::pltxt2htm::NodeKind::unity_color);
         CHECK(unity_color.as_unity_color().get_color() == ::pltxt2htm::container::U8String{u8"blue"});

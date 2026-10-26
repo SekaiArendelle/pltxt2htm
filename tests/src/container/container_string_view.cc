@@ -75,8 +75,7 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
     auto const middle = text.subview(1, 3);
     auto const enforced_contract = text.subview(2, 2);
     if (tail != u8"def" || middle != u8"bcd" || !text.starts_with(u8"abc") || !text.ends_with(u8"def") ||
-        text.ends_with(u8"abcdefg") ||
-        enforced_contract.index(0) != u8'c') {
+        text.ends_with(u8"abcdefg") || enforced_contract.index(0) != u8'c') {
         return false;
     }
 

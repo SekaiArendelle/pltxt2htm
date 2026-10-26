@@ -38,17 +38,13 @@ public:
     static constexpr auto try_make(::pltxt2htm::container::U8StringView url) noexcept
         -> ::pltxt2htm::container::Optional<Url> {
         auto const opt_scheme_end = ::pltxt2htm::details::try_parse_url_scheme(url);
-        auto const scheme_end = opt_scheme_end.has_value()
-                                    ? opt_scheme_end.value().get()
-                                    : ::std::size_t{};
-        auto const opt_auth_end =
-            ::pltxt2htm::details::try_parse_url_authority(url.subview(scheme_end));
+        auto const scheme_end = opt_scheme_end.has_value() ? opt_scheme_end.value().get() : ::std::size_t{};
+        auto const opt_auth_end = ::pltxt2htm::details::try_parse_url_authority(url.subview(scheme_end));
         if (opt_auth_end.has_value() == false) {
             return ::pltxt2htm::container::nullopt;
         }
         auto const auth_end = scheme_end + opt_auth_end.value().get();
-        auto const path_end =
-            auth_end + ::pltxt2htm::details::try_parse_url_path_unicode(url.subview(auth_end));
+        auto const path_end = auth_end + ::pltxt2htm::details::try_parse_url_path_unicode(url.subview(auth_end));
         if (path_end != url.size()) {
             return ::pltxt2htm::container::nullopt;
         }
@@ -58,8 +54,7 @@ public:
         for (::std::size_t index{}; index < url_size; ++index) {
             auto const chr = url.index(index);
             if (chr == u8'&') {
-                auto const reference =
-                    ::pltxt2htm::details::try_decode_character_reference(url.subview(index));
+                auto const reference = ::pltxt2htm::details::try_decode_character_reference(url.subview(index));
                 if (reference.has_value()) {
                     auto const& decoded = reference.value();
                     ::pltxt2htm::details::append_code_point_to_url(url_str, decoded.first_code_point);

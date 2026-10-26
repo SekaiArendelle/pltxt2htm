@@ -107,8 +107,7 @@ public:
         ;
 
     template<::std::size_t extent>
-    constexpr BasicStringView(
-        ::pltxt2htm::details::BasicInplaceString<value_type, extent> const& string) noexcept
+    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent> const& string) noexcept
         : pointer{string.data()},
           length{string.size()} {
     }

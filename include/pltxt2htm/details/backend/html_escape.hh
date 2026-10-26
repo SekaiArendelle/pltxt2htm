@@ -71,8 +71,7 @@ constexpr void append_plain_text_as_html_attribute(::pltxt2htm::container::U8Str
     ::std::size_t const text_size{text.size()};
     for (::std::size_t index{}; index < text_size; ++index) {
         char8_t const character{text.index(index)};
-        if (character == char8_t{0xC2} && index + 1 < text_size &&
-            text.index(index + 1) == char8_t{0xA0}) {
+        if (character == char8_t{0xC2} && index + 1 < text_size && text.index(index + 1) == char8_t{0xA0}) {
             result.append(u8"&nbsp;");
             ++index;
             continue;

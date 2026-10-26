@@ -1023,8 +1023,7 @@ public:
         size_type const suffix_size{self.element_count - last_index};
         if (first_index < suffix_size) {
             for (size_type current{first_index}; current != 0; --current) {
-                self.index(current + erased_count - 1) =
-                    ::std::move(self.index(current - 1));
+                self.index(current + erased_count - 1) = ::std::move(self.index(current - 1));
             }
             for (size_type count{}; count != erased_count; ++count) {
                 self.pop_front();

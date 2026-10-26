@@ -381,14 +381,16 @@ public:
      */
     [[nodiscard]]
     constexpr auto value(this auto&& self) noexcept -> decltype(auto)
-        requires (!::std::is_reference_v<T>) {
+        requires (!::std::is_reference_v<T>)
+    {
         pltxt2htm_assert(self.storage.has_value(), u8"optional does not contain a value");
         return ::std::forward_like<decltype(self)>(self.storage).value();
     }
 
     [[nodiscard]]
     constexpr auto value(this Optional<T> const& self) noexcept -> T
-        requires (::std::is_lvalue_reference_v<T>) {
+        requires (::std::is_lvalue_reference_v<T>)
+    {
         pltxt2htm_assert(self.storage.has_value(), u8"optional does not contain a value");
         return self.storage.value();
     }

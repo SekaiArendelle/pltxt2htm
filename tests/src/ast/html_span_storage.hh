@@ -10,10 +10,9 @@ TEST_SUITE("html_span_storage") {
     using VerticalAlign = ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue>;
 
     [[nodiscard]]
-    constexpr auto make_html_span(FontSize font_size, VerticalAlign vertical_align) noexcept
-        -> ::pltxt2htm::HtmlSpan {
-        return ::pltxt2htm::HtmlSpan{::pltxt2htm::Ast{}, ::pltxt2htm::container::U8String{},
-                                             ::std::move(font_size), ::std::move(vertical_align)};
+    constexpr auto make_html_span(FontSize font_size, VerticalAlign vertical_align) noexcept -> ::pltxt2htm::HtmlSpan {
+        return ::pltxt2htm::HtmlSpan{::pltxt2htm::Ast{}, ::pltxt2htm::container::U8String{}, ::std::move(font_size),
+                                     ::std::move(vertical_align)};
     }
 
     static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlSpan) == 72);

@@ -12,8 +12,7 @@ TEST_SUITE("xss") {
         for (::std::size_t i{}; i + needle.size() <= haystack.size(); ++i) {
             bool match{true};
             for (::std::size_t j{}; j < needle.size(); ++j) {
-                if (haystack.index(i + j) !=
-                    needle.index(j)) {
+                if (haystack.index(i + j) != needle.index(j)) {
                     match = false;
                     break;
                 }
@@ -39,8 +38,7 @@ TEST_SUITE("xss") {
             }
             bool match{true};
             for (::std::size_t j{}; j < tag_sz; ++j) {
-                if (html.index(i + 1 + j) !=
-                    tag.index(j)) {
+                if (html.index(i + 1 + j) != tag.index(j)) {
                     match = false;
                     break;
                 }

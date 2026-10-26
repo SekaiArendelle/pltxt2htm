@@ -6,12 +6,6 @@
  */
 #pragma once
 
-#ifndef PLTXT2HTM_CONTRACTS
-    #define PLTXT2HTM_CONTRACTS 0
-#endif
-#if PLTXT2HTM_CONTRACTS != 0 && PLTXT2HTM_CONTRACTS != 1
-    #error "PLTXT2HTM_CONTRACTS must be 0 (enforce) or 1 (ignore)"
-#endif
 namespace pltxt2htm {
 
 /**
@@ -32,6 +26,14 @@ enum class Contracts : unsigned {
  * @note The value is build-wide: every translation unit of a program must be
  *       compiled with the same `PLTXT2HTM_CONTRACTS` value.
  */
-inline constexpr Contracts contract_mode{PLTXT2HTM_CONTRACTS == 0 ? Contracts::enforce : Contracts::ignore};
+inline constexpr Contracts contract_mode{
+#if PLTXT2HTM_CONTRACTS == 0
+    Contracts::enforce
+#elif PLTXT2HTM_CONTRACTS == 1
+    Contracts::ignore
+#else
+    #error "PLTXT2HTM_CONTRACTS must be 0 (enforce) or 1 (ignore)"
+#endif
+};
 
 } // namespace pltxt2htm

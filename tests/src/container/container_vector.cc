@@ -418,19 +418,14 @@ struct ThrowingMoveAssignment {
 };
 
 template<typename T>
-concept ReservableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) {
-    values.reserve(1);
-};
+concept ReservableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.reserve(1); };
 
 template<typename T>
-concept IntEmplaceableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) {
-    values.emplace_back(1);
-};
+concept IntEmplaceableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.emplace_back(1); };
 
 template<typename T>
-concept CopyPushableVectorElement = requires(::pltxt2htm::container::Vector<T>& values, T const& value) {
-    values.push_back(value);
-};
+concept CopyPushableVectorElement =
+    requires(::pltxt2htm::container::Vector<T>& values, T const& value) { values.push_back(value); };
 
 template<typename T>
 concept ErasableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.erase(values.begin()); };
@@ -440,9 +435,7 @@ concept EqualityComparableVectorElement = requires(::pltxt2htm::container::Vecto
                                                    ::pltxt2htm::container::Vector<T> const& right) { left == right; };
 
 template<typename R>
-concept AppendableIntRange = requires(IntVector& values, R&& range) {
-    values.append_range(::std::forward<R>(range));
-};
+concept AppendableIntRange = requires(IntVector& values, R&& range) { values.append_range(::std::forward<R>(range)); };
 
 static_assert(::std::same_as<IntVector::allocator_type, ::fast_io::native_global_allocator>);
 static_assert(::std::same_as<IntVector::value_type, int>);
@@ -464,10 +457,8 @@ static_assert(!AppendableIntRange<ThrowingIncrementRange&>);
 static_assert(noexcept(::std::declval<IntVector&>().reserve(1)));
 static_assert(noexcept(::std::declval<IntVector&>().emplace_back(1)));
 static_assert(noexcept(::std::declval<IntVector&>().erase(::std::declval<IntVector::const_iterator>())));
-static_assert(noexcept(::std::declval<IntVector&>().append_range(
-    ::std::declval<SinglePassIntRange&>())));
-static_assert(noexcept(::std::declval<IntVector&>().append_range(
-    ::std::declval<CvSensitiveForwardRange&>())));
+static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<SinglePassIntRange&>())));
+static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<CvSensitiveForwardRange&>())));
 static_assert(noexcept(::std::declval<IntVector const&>() == ::std::declval<IntVector const&>()));
 
 consteval auto test_constexpr_vector() -> bool {
@@ -482,9 +473,7 @@ consteval auto test_constexpr_vector() -> bool {
     values.push_back(1);
     values.emplace_back(2);
     values.reserve(8);
-    if (values.size() != 2 || values.capacity() < 8 ||
-        values.front() != 1 ||
-        values.index(1) != 2) {
+    if (values.size() != 2 || values.capacity() < 8 || values.front() != 1 || values.index(1) != 2) {
         return false;
     }
 
@@ -524,10 +513,8 @@ consteval auto test_constexpr_vector() -> bool {
         self_reference.push_back(0);
     }
     auto const previous_size = self_reference.size();
-    self_reference.emplace_back(
-        self_reference.front());
-    if (self_reference.size() != previous_size + 1 ||
-        self_reference.index(previous_size) != 7) {
+    self_reference.emplace_back(self_reference.front());
+    if (self_reference.size() != previous_size + 1 || self_reference.index(previous_size) != 7) {
         return false;
     }
 
@@ -543,8 +530,7 @@ consteval auto test_constexpr_vector() -> bool {
         return false;
     }
     for (::std::size_t index{}; index < self_append_size; ++index) {
-        if (self_append.index(index) !=
-            self_append.index(self_append_size + index)) {
+        if (self_append.index(index) != self_append.index(self_append_size + index)) {
             return false;
         }
     }
@@ -633,24 +619,19 @@ int main() {
     }
     auto const direct_construction_size = direct_construction.size();
     direct_construction.emplace_back(2);
-    pltxt2htm_test_assert_true(
-        direct_construction.index(direct_construction_size)
-            .get_construction_kind() == 1);
+    pltxt2htm_test_assert_true(direct_construction.index(direct_construction_size).get_construction_kind() == 1);
 
     ::pltxt2htm::container::Vector<ConstructionTrace> copy_source{};
     copy_source.emplace_back(3);
     ::pltxt2htm::container::Vector<ConstructionTrace> copied_range{};
     copied_range.append_range(copy_source);
-    pltxt2htm_test_assert_true(
-        copied_range.front().get_construction_kind() == 2);
+    pltxt2htm_test_assert_true(copied_range.front().get_construction_kind() == 2);
 
     ::pltxt2htm::container::Vector<ConstructionTrace> move_source{};
     move_source.emplace_back(4);
     ::pltxt2htm::container::Vector<ConstructionTrace> moved_range{};
-    moved_range.append_range(
-        ::std::span<ConstructionTrace>{move_source.data(), move_source.size()});
-    pltxt2htm_test_assert_true(
-        moved_range.front().get_construction_kind() == 3);
+    moved_range.append_range(::std::span<ConstructionTrace>{move_source.data(), move_source.size()});
+    pltxt2htm_test_assert_true(moved_range.front().get_construction_kind() == 3);
 
     ::pltxt2htm::container::Vector<ConstructionTrace> self_move{};
     self_move.reserve(1);
@@ -659,10 +640,8 @@ int main() {
         self_move.emplace_back(0);
     }
     auto const self_move_size = self_move.size();
-    self_move.push_back(
-        ::std::move(self_move.front()));
-    pltxt2htm_test_assert_true(
-        self_move.index(self_move_size).get_payload() == 5);
+    self_move.push_back(::std::move(self_move.front()));
+    pltxt2htm_test_assert_true(self_move.index(self_move_size).get_payload() == 5);
 
     IntVector overlap{};
     overlap.reserve(1);
@@ -675,8 +654,7 @@ int main() {
     overlap.append_range(overlap_source);
     pltxt2htm_test_assert_true(overlap.size() == overlap_size * 2);
     for (::std::size_t index{}; index < overlap_size; ++index) {
-        pltxt2htm_test_assert_true(overlap.index(index) ==
-                                   overlap.index(overlap_size + index));
+        pltxt2htm_test_assert_true(overlap.index(index) == overlap.index(overlap_size + index));
     }
 
     return 0;

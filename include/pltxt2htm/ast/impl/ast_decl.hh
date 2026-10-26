@@ -134,8 +134,8 @@ public:
     template<::std::ranges::input_range R>
     constexpr void append_range(this Ast& self, R&& range) noexcept
         requires requires(storage_type& probe_storage, R&& probe_range) {
-                     probe_storage.append_range(::std::forward<R>(probe_range));
-                 }
+            probe_storage.append_range(::std::forward<R>(probe_range));
+        }
     {
         self.storage.append_range(::std::forward<R>(range));
     }

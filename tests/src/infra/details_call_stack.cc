@@ -5,7 +5,7 @@
 
 #include "precompile.hh"
 
-using IntCallStack = ::pltxt2htm::details::CallStack< int>;
+using IntCallStack = ::pltxt2htm::details::CallStack<int>;
 
 template<typename CallStack>
 concept has_unchecked_operation = requires(CallStack& call_stack) {
@@ -61,7 +61,7 @@ static_assert(test_constexpr_empty_stack());
 
 [[nodiscard]]
 constexpr auto test_call_stack() noexcept -> bool {
-    ::pltxt2htm::details::CallStack< int> call_stack{};
+    ::pltxt2htm::details::CallStack<int> call_stack{};
 
     call_stack.push_frame(1);
     if (!call_stack.is_root() || call_stack.has_parent()) {
@@ -111,7 +111,7 @@ struct NothrowMovable {
 
 int main() {
     pltxt2htm_test_assert_true(test_call_stack());
-    ::pltxt2htm::details::CallStack< NothrowMovable> call_stack{};
+    ::pltxt2htm::details::CallStack<NothrowMovable> call_stack{};
     call_stack.push_frame(NothrowMovable{42});
     auto frame = call_stack.pop_frame();
 

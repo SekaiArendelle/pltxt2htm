@@ -341,8 +341,7 @@ int main(int argc, char const* const* const argv) noexcept {
         if (target_type == ::TargetType::html4unittest) {
             auto ast = ::pltxt2htm::parse_pltxt(::pltxt2htm::container::U8StringView{input_text});
             ::pltxt2htm::optimize_ast(ast);
-            html = ::pltxt2htm::details::plweb_text_backend<
-                                                            ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
+            html = ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
                 ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
         }
         else if (target_type == ::TargetType::common_html) {
@@ -350,18 +349,18 @@ int main(int argc, char const* const* const argv) noexcept {
         }
         else if (target_type == ::TargetType::fixedadv_html) {
             html = ::pltxt2htm::pltxt2fixedadv_html(::pltxt2htm::container::U8StringView{input_text},
-                  ::pltxt2htm::container::U8StringView::from_c_str(host),
-                  ::pltxt2htm::container::U8StringView::from_c_str(project),
-                  ::pltxt2htm::container::U8StringView::from_c_str(visitor),
-                  ::pltxt2htm::container::U8StringView::from_c_str(author),
-                  ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
+                                                    ::pltxt2htm::container::U8StringView::from_c_str(host),
+                                                    ::pltxt2htm::container::U8StringView::from_c_str(project),
+                                                    ::pltxt2htm::container::U8StringView::from_c_str(visitor),
+                                                    ::pltxt2htm::container::U8StringView::from_c_str(author),
+                                                    ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
         }
         else if (target_type == ::TargetType::plunity_text) {
             html = ::pltxt2htm::pltxt2plunity_introduction(::pltxt2htm::container::U8StringView{input_text},
-                  ::pltxt2htm::container::U8StringView::from_c_str(project),
-                  ::pltxt2htm::container::U8StringView::from_c_str(visitor),
-                  ::pltxt2htm::container::U8StringView::from_c_str(author),
-                  ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
+                                                           ::pltxt2htm::container::U8StringView::from_c_str(project),
+                                                           ::pltxt2htm::container::U8StringView::from_c_str(visitor),
+                                                           ::pltxt2htm::container::U8StringView::from_c_str(author),
+                                                           ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
         }
         else [[unlikely]] {
             ::pltxt2htm::details::unreachable();

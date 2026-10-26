@@ -142,8 +142,7 @@ consteval auto test_constexpr_string() noexcept -> bool {
 
     moved.pop_back();
     moved.assign(U8StringView{u8"xy"});
-    if (moved != u8"xy" || moved.front() != u8'x' ||
-        moved.back() != u8'y') {
+    if (moved != u8"xy" || moved.front() != u8'x' || moved.back() != u8'y') {
         return false;
     }
 
@@ -240,19 +239,19 @@ int main() {
     U8String self_insert_after_source{u8"abcdef"};
     self_insert_after_source.reserve(16);
     self_insert_after_source.insert(self_insert_after_source.begin() + 4,
-                                                              U8StringView{self_insert_after_source.data() + 1, 2});
+                                    U8StringView{self_insert_after_source.data() + 1, 2});
     pltxt2htm_test_assert_true(self_insert_after_source == u8"abcdbcef");
 
     U8String self_insert_before_source{u8"abcdef"};
     self_insert_before_source.reserve(16);
     self_insert_before_source.insert(self_insert_before_source.begin() + 1,
-                                                               U8StringView{self_insert_before_source.data() + 3, 2});
+                                     U8StringView{self_insert_before_source.data() + 3, 2});
     pltxt2htm_test_assert_true(self_insert_before_source == u8"adebcdef");
 
     U8String self_insert_overlapping{u8"abcdef"};
     self_insert_overlapping.reserve(16);
     self_insert_overlapping.insert(self_insert_overlapping.begin() + 3,
-                                                             U8StringView{self_insert_overlapping.data() + 1, 4});
+                                   U8StringView{self_insert_overlapping.data() + 1, 4});
     pltxt2htm_test_assert_true(self_insert_overlapping == u8"abcbcdedef");
 
     U8String self_assign{u8"abcdef"};
@@ -264,8 +263,7 @@ int main() {
         self_insert_reallocate.push_back(u8'x');
     }
     ::std::size_t const insert_old_size{self_insert_reallocate.size()};
-    self_insert_reallocate.insert(self_insert_reallocate.begin() + 1,
-                                                            U8StringView{self_insert_reallocate.data(), 3});
+    self_insert_reallocate.insert(self_insert_reallocate.begin() + 1, U8StringView{self_insert_reallocate.data(), 3});
     pltxt2htm_test_assert_true(self_insert_reallocate.size() == insert_old_size + 3);
     pltxt2htm_test_assert_true(self_insert_reallocate.index(0) == u8'a');
     pltxt2htm_test_assert_true(self_insert_reallocate.index(1) == u8'a');

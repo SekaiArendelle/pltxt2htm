@@ -153,8 +153,7 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
     if (text.index(1) == u8'#') {
         ::std::size_t index{2};
         bool hexadecimal{};
-        if (index < text_size &&
-            (text.index(index) == u8'x' || text.index(index) == u8'X')) {
+        if (index < text_size && (text.index(index) == u8'x' || text.index(index) == u8'X')) {
             hexadecimal = true;
             ++index;
         }
@@ -254,14 +253,12 @@ constexpr auto decode_character_references(::pltxt2htm::container::U8StringView 
     result.reserve(text_size);
     for (::std::size_t index{}; index < text_size;) {
         if (text.index(index) == u8'&') {
-            auto const decoded =
-                ::pltxt2htm::details::try_decode_character_reference(text.subview(index));
+            auto const decoded = ::pltxt2htm::details::try_decode_character_reference(text.subview(index));
             if (decoded.has_value()) {
                 auto const& reference = decoded.value();
                 ::pltxt2htm::details::append_character_reference_code_point(result, reference.first_code_point);
                 if (reference.has_second_code_point()) {
-                    ::pltxt2htm::details::append_character_reference_code_point(result,
-                                                                                        reference.second_code_point);
+                    ::pltxt2htm::details::append_character_reference_code_point(result, reference.second_code_point);
                 }
                 index += reference.consumed_size;
                 continue;

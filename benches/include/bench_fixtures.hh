@@ -206,8 +206,7 @@ inline auto build_html_span_ast(::std::size_t count) -> ::pltxt2htm::Ast {
         ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlSpan>(
             ::std::move(sub), ::pltxt2htm::container::U8String{u8"color:red;font-size:16px"},
             ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>{::pltxt2htm::container::nullopt},
-            ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue>{
-                ::pltxt2htm::container::nullopt}));
+            ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue>{::pltxt2htm::container::nullopt}));
     }
     return ast;
 }

@@ -157,8 +157,7 @@ public:
 
     constexpr ~ListUlNode() noexcept = default;
 
-    constexpr auto operator=(this ListUlNode& self, ListUlNode const& other) noexcept
-        -> ListUlNode& = delete;
+    constexpr auto operator=(this ListUlNode& self, ListUlNode const& other) noexcept -> ListUlNode& = delete;
 
     constexpr auto operator=(this ListUlNode& self, ListUlNode&&) noexcept -> ListUlNode&;
 
@@ -189,8 +188,7 @@ public:
 
     constexpr ~ListOlNode() noexcept = default;
 
-    constexpr auto operator=(this ListOlNode& self, ListOlNode const& other) noexcept
-        -> ListOlNode& = delete;
+    constexpr auto operator=(this ListOlNode& self, ListOlNode const& other) noexcept -> ListOlNode& = delete;
 
     constexpr auto operator=(this ListOlNode& self, ListOlNode&&) noexcept -> ListOlNode&;
 
@@ -301,11 +299,9 @@ public:
         }
     }
 
-    constexpr auto operator=(this ListBaseNode& self, ListBaseNode const& other) noexcept
-        -> ListBaseNode& = delete;
+    constexpr auto operator=(this ListBaseNode& self, ListBaseNode const& other) noexcept -> ListBaseNode& = delete;
 
-    constexpr auto operator=(this ListBaseNode& self, ListBaseNode&& other) noexcept
-        -> ListBaseNode& {
+    constexpr auto operator=(this ListBaseNode& self, ListBaseNode&& other) noexcept -> ListBaseNode& {
         if (::std::addressof(other) != ::std::addressof(self)) {
             self.~ListBaseNode();
             ::std::construct_at(::std::addressof(self), ::std::move(other));
@@ -338,8 +334,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_text_view(this ListBaseNode const& self) noexcept
-        -> ::pltxt2htm::container::U8StringView {
+    constexpr auto get_text_view(this ListBaseNode const& self) noexcept -> ::pltxt2htm::container::U8StringView {
         switch (self.type) /* -Werror=switch */ {
         case ListNodeType::list_li: {
             return self.li_node.get_text_view();
@@ -402,8 +397,7 @@ public:
     }
 
     [[nodiscard]]
-    friend constexpr auto operator==(ListBaseNode const& self, ListBaseNode const& other) noexcept
-        -> bool {
+    friend constexpr auto operator==(ListBaseNode const& self, ListBaseNode const& other) noexcept -> bool {
         if (self.type != other.type) {
             return false;
         }
@@ -440,12 +434,10 @@ constexpr ListUlNode::ListUlNode(ListAst&& sublist_) noexcept
 
 constexpr ListUlNode::ListUlNode(ListUlNode&&) noexcept = default;
 
-constexpr auto ListUlNode::operator=(this ListUlNode& self, ListUlNode&& other) noexcept
-    -> ListUlNode& = default;
+constexpr auto ListUlNode::operator=(this ListUlNode& self, ListUlNode&& other) noexcept -> ListUlNode& = default;
 
 [[nodiscard]]
-constexpr auto ListUlNode::operator==(this ListUlNode const& self,
-                                              ListUlNode const& other) noexcept -> bool {
+constexpr auto ListUlNode::operator==(this ListUlNode const& self, ListUlNode const& other) noexcept -> bool {
     return self.sublist == other.sublist;
 }
 
@@ -458,12 +450,10 @@ constexpr ListOlNode::ListOlNode(ListAst&& sublist_, ::std::size_t start_) noexc
 
 constexpr ListOlNode::ListOlNode(ListOlNode&&) noexcept = default;
 
-constexpr auto ListOlNode::operator=(this ListOlNode& self, ListOlNode&& other) noexcept
-    -> ListOlNode& = default;
+constexpr auto ListOlNode::operator=(this ListOlNode& self, ListOlNode&& other) noexcept -> ListOlNode& = default;
 
 [[nodiscard]]
-constexpr auto ListOlNode::operator==(this ListOlNode const& self,
-                                              ListOlNode const& other) noexcept -> bool {
+constexpr auto ListOlNode::operator==(this ListOlNode const& self, ListOlNode const& other) noexcept -> bool {
     return self.sublist == other.sublist && self.start == other.start;
 }
 
@@ -471,10 +461,10 @@ constexpr auto ListOlNode::operator==(this ListOlNode const& self,
  * @brief Concept matching the concrete node types stored in ListBaseNode.
  */
 template<typename T>
-concept is_list_node_type = ::std::is_same_v<::std::remove_cvref_t<T>, ListLiNode> ||
-                            ::std::is_same_v<::std::remove_cvref_t<T>, ListLiCheckboxNode> ||
-                            ::std::is_same_v<::std::remove_cvref_t<T>, ListUlNode> ||
-                            ::std::is_same_v<::std::remove_cvref_t<T>, ListOlNode>;
+concept is_list_node_type =
+    ::std::is_same_v<::std::remove_cvref_t<T>, ListLiNode> ||
+    ::std::is_same_v<::std::remove_cvref_t<T>, ListLiCheckboxNode> ||
+    ::std::is_same_v<::std::remove_cvref_t<T>, ListUlNode> || ::std::is_same_v<::std::remove_cvref_t<T>, ListOlNode>;
 
 } // namespace pltxt2htm::details
 

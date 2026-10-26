@@ -46,15 +46,12 @@ consteval auto test_constexpr_array() noexcept -> bool {
         return false;
     }
     if (values.data() != values.begin() || values.end() - values.begin() != 3 || values.cend() - values.cbegin() != 3 ||
-        values.front() != 1 ||
-        values.back() != 3 || *values.rbegin() != 3 ||
-        *values.crbegin() != 3) {
+        values.front() != 1 || values.back() != 3 || *values.rbegin() != 3 || *values.crbegin() != 3) {
         return false;
     }
 
     values.index(1) = 4;
-    if (values.index(1) != 4 ||
-        values.index(2) != 3) {
+    if (values.index(1) != 4 || values.index(2) != 3) {
         return false;
     }
 
@@ -86,8 +83,7 @@ int main() {
     auto const strings = ::pltxt2htm::container::Array{"first", "second", nullptr};
     static_assert(
         ::std::same_as<::std::remove_cvref_t<decltype(strings)>, ::pltxt2htm::container::Array<char const*, 3>>);
-    pltxt2htm_test_assert_true(::std::string_view{strings.index(1)} ==
-                               "second");
+    pltxt2htm_test_assert_true(::std::string_view{strings.index(1)} == "second");
 
     return 0;
 }

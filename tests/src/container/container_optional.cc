@@ -22,16 +22,10 @@ static_assert(::std::same_as<IntOptional::rebind<double>, ::pltxt2htm::container
 static_assert(::std::same_as<decltype(::std::declval<IntOptional const&>().has_value()), bool>);
 static_assert(::std::same_as<decltype(::std::declval<IntOptional const&&>().has_value()), bool>);
 
-static_assert(
-    ::std::same_as<decltype(::std::declval<IntOptional&>().value()), int&>);
-static_assert(
-    ::std::same_as<decltype(::std::declval<IntOptional const&>().value()),
-                   int const&>);
-static_assert(
-    ::std::same_as<decltype(::std::declval<IntOptional&&>().value()), int&&>);
-static_assert(
-    ::std::same_as<decltype(::std::declval<IntOptional const&&>().value()),
-                   int const&&>);
+static_assert(::std::same_as<decltype(::std::declval<IntOptional&>().value()), int&>);
+static_assert(::std::same_as<decltype(::std::declval<IntOptional const&>().value()), int const&>);
+static_assert(::std::same_as<decltype(::std::declval<IntOptional&&>().value()), int&&>);
+static_assert(::std::same_as<decltype(::std::declval<IntOptional const&&>().value()), int const&&>);
 static_assert(::std::same_as<decltype(::std::declval<IntOptional&>().value_or(short{})), int>);
 static_assert(::std::same_as<decltype(::std::declval<IntOptional const&>().value_or(short{})), int>);
 static_assert(::std::same_as<decltype(::std::declval<IntOptional&&>().value_or(short{})), int>);
@@ -51,8 +45,7 @@ consteval bool optional_constexpr_operations_work() noexcept {
     if (!value.has_value() || empty.has_value()) {
         return false;
     }
-    if (value.value() != 42 || value != 42 ||
-        empty != ::pltxt2htm::container::nullopt) {
+    if (value.value() != 42 || value != 42 || empty != ::pltxt2htm::container::nullopt) {
         return false;
     }
     empty = value;
@@ -111,20 +104,17 @@ consteval bool optional_non_zero_constexpr_operations_work() noexcept {
         return false;
     }
     empty = value;
-    if (!empty.has_value() ||
-        empty.value().get() != 7) {
+    if (!empty.has_value() || empty.value().get() != 7) {
         return false;
     }
     value = eleven;
     empty.swap(value);
-    if (empty.value().get() != 11 ||
-        value.value().get() != 7) {
+    if (empty.value().get() != 11 || value.value().get() != 7) {
         return false;
     }
     empty = ::pltxt2htm::container::nullopt;
     value.swap(empty);
-    return !value.has_value() && empty.has_value() &&
-           empty.value().get() == 7;
+    return !value.has_value() && empty.has_value() && empty.value().get() == 7;
 }
 
 static_assert(optional_non_zero_constexpr_operations_work());
@@ -195,24 +185,16 @@ static_assert(::std::is_constructible_v<IntReferenceOptional, ::pltxt2htm_test::
 static_assert(!::std::is_convertible_v<::pltxt2htm_test::ExplicitReferenceProxy&, IntReferenceOptional>);
 static_assert(!::std::is_assignable_v<IntReferenceOptional&, ::pltxt2htm_test::ExplicitReferenceProxy&>);
 static_assert(::std::is_constructible_v<ArrayReferenceOptional, ::pltxt2htm_test::OptionalReferenceArray&>);
-static_assert(::std::same_as<
-              decltype(::std::declval<ArrayReferenceOptional const&>().value()),
-              ::pltxt2htm_test::OptionalReferenceArray&>);
+static_assert(::std::same_as<decltype(::std::declval<ArrayReferenceOptional const&>().value()),
+                             ::pltxt2htm_test::OptionalReferenceArray&>);
 static_assert(::std::is_constructible_v<FunctionReferenceOptional, ::pltxt2htm_test::OptionalReferenceFunction&>);
-static_assert(::std::same_as<decltype(::std::declval<FunctionReferenceOptional const&>()
-                                          .value()),
+static_assert(::std::same_as<decltype(::std::declval<FunctionReferenceOptional const&>().value()),
                              ::pltxt2htm_test::OptionalReferenceFunction&>);
 
-static_assert(::std::same_as<
-              decltype(::std::declval<IntReferenceOptional&>().value()), int&>);
-static_assert(
-    ::std::same_as<
-        decltype(::std::declval<IntReferenceOptional const&>().value()), int&>);
-static_assert(::std::same_as<
-              decltype(::std::declval<IntReferenceOptional&&>().value()), int&>);
-static_assert(
-    ::std::same_as<
-        decltype(::std::declval<IntReferenceOptional const&&>().value()), int&>);
+static_assert(::std::same_as<decltype(::std::declval<IntReferenceOptional&>().value()), int&>);
+static_assert(::std::same_as<decltype(::std::declval<IntReferenceOptional const&>().value()), int&>);
+static_assert(::std::same_as<decltype(::std::declval<IntReferenceOptional&&>().value()), int&>);
+static_assert(::std::same_as<decltype(::std::declval<IntReferenceOptional const&&>().value()), int&>);
 static_assert(::std::same_as<decltype(::std::declval<IntReferenceOptional const&>().value_or(0)), int>);
 static_assert(noexcept(::std::declval<IntReferenceOptional const&>().value_or(0)));
 static_assert(noexcept(::std::declval<ConstIntReferenceOptional const&>().value_or(0)));
@@ -236,10 +218,8 @@ consteval bool optional_reference_constexpr_operations_work() noexcept {
     if (empty.value_or(17) != 17) {
         return false;
     }
-    if (::std::addressof(implicit_proxy_value.value()) !=
-            ::std::addressof(first) ||
-        ::std::addressof(explicit_proxy_value.value()) !=
-            ::std::addressof(second)) {
+    if (::std::addressof(implicit_proxy_value.value()) != ::std::addressof(first) ||
+        ::std::addressof(explicit_proxy_value.value()) != ::std::addressof(second)) {
         return false;
     }
     value.value() = 9;
@@ -251,8 +231,7 @@ consteval bool optional_reference_constexpr_operations_work() noexcept {
         return false;
     }
     value = second;
-    if (::std::addressof(value.value()) != ::std::addressof(second) ||
-        first != 9) {
+    if (::std::addressof(value.value()) != ::std::addressof(second) || first != 9) {
         return false;
     }
     static_cast<IntReferenceOptional const&>(value).value() = 13;
@@ -524,8 +503,7 @@ int main() {
     reference.value() = 22;
     pltxt2htm_test_assert_true(first_reference_value == 22);
     reference = second_reference_value;
-    pltxt2htm_test_assert_true(::std::addressof(reference.value()) ==
-                               ::std::addressof(second_reference_value));
+    pltxt2htm_test_assert_true(::std::addressof(reference.value()) == ::std::addressof(second_reference_value));
     pltxt2htm_test_assert_true(first_reference_value == 22);
 
     using TrackedOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalTrackedValue>;
@@ -567,8 +545,7 @@ int main() {
     ::pltxt2htm_test::OptionalTrackedValue tracked_fallback{7};
     auto copied_value = moved_assignment.value_or(tracked_fallback);
     copied_value.value = 14;
-    pltxt2htm_test_assert_true(copied_value.value == 14 &&
-                               moved_assignment.value().value == 9 &&
+    pltxt2htm_test_assert_true(copied_value.value == 14 && moved_assignment.value().value == 9 &&
                                tracked_fallback.value == 7);
 
     TrackedOptional empty_tracked{::pltxt2htm::container::nullopt};

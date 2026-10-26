@@ -37,9 +37,8 @@ struct PotentiallyThrowingIterator {
 };
 
 template<typename CharType, ::std::size_t extent = 4>
-concept can_form_basic_inplace_string = requires {
-    typename ::pltxt2htm::details::BasicInplaceString<CharType, extent>;
-};
+concept can_form_basic_inplace_string =
+    requires { typename ::pltxt2htm::details::BasicInplaceString<CharType, extent>; };
 
 static_assert(can_form_basic_inplace_string<char>);
 static_assert(can_form_basic_inplace_string<wchar_t>);

@@ -475,8 +475,7 @@ constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8St
             auto const frac_start = digit_str_size - fractional_digits;
             candidate.append(::pltxt2htm::container::U8StringView{digit_str.data(), frac_start});
             candidate.push_back(u8'.');
-            candidate.append(
-                ::pltxt2htm::container::U8StringView{digit_str.data() + frac_start, fractional_digits});
+            candidate.append(::pltxt2htm::container::U8StringView{digit_str.data() + frac_start, fractional_digits});
         }
         else {
             candidate.append(u8"0.");
@@ -486,8 +485,8 @@ constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8St
             }
             candidate.append(digit_str);
         }
-        auto opt_reparsed = ::pltxt2htm::details::try_parse_double_decimal_value(
-            ::pltxt2htm::container::U8StringView{candidate});
+        auto opt_reparsed =
+            ::pltxt2htm::details::try_parse_double_decimal_value(::pltxt2htm::container::U8StringView{candidate});
         bool const round_trips = opt_reparsed.has_value() && (opt_reparsed.value().value == value);
         if (round_trips) {
             return candidate;

@@ -5,11 +5,8 @@
 #include <pltxt2htm/ast/ast.hh>
 
 TEST_SUITE("ast_operator_eq") {
-
-    auto make_object_id(::pltxt2htm::container::U8StringView const text)
-        -> ::pltxt2htm::PlObjectId {
-        return ::pltxt2htm::PlObjectId::try_make(text)
-            .value();
+    auto make_object_id(::pltxt2htm::container::U8StringView const text) -> ::pltxt2htm::PlObjectId {
+        return ::pltxt2htm::PlObjectId::try_make(text).value();
     }
 
     // Empty/stateless nodes
@@ -76,18 +73,14 @@ TEST_SUITE("ast_operator_eq") {
 
     // Text with same/different values
     TEST_CASE("equal-text-nodes") {
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
         CHECK(a == b);
     }
 
     TEST_CASE("different-text-nodes") {
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B');
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B');
         CHECK_FALSE(a == b);
     }
 
@@ -95,208 +88,147 @@ TEST_SUITE("ast_operator_eq") {
     TEST_CASE("equal-empty-groups") {
         ::pltxt2htm::Ast ast_a{};
         ::pltxt2htm::Ast ast_b{};
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(ast_b));
         CHECK(a == b);
     }
 
     // Group with non-empty sub-AST
     TEST_CASE("equal-groups-with-children") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(ast_b));
         CHECK(a == b);
     }
 
     // Group with different sub-AST content
     TEST_CASE("different-group-children") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'o'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'o'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(ast_b));
         CHECK_FALSE(a == b);
     }
 
     // Group with different sub-AST size
     TEST_CASE("different-group-sizes") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(ast_b));
         CHECK_FALSE(a == b);
     }
 
     // HtmlH1 with sub-AST
     TEST_CASE("equal-html-heading-children") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'X'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'X'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'X'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'X'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(ast_b));
         CHECK(a == b);
     }
 
     TEST_CASE("different-html-heading-children") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'X'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'X'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'Y'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'Y'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(ast_b));
         CHECK_FALSE(a == b);
     }
 
     // HtmlBlockquote with nested sub-AST
     TEST_CASE("equal-nested-blockquotes") {
         ::pltxt2htm::Ast inner_a{};
-        inner_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        inner_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
 
         ::pltxt2htm::Ast outer_a{};
-        outer_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(
-                ::std::move(inner_a)));
+        outer_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(inner_a)));
 
         ::pltxt2htm::Ast inner_b{};
-        inner_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        inner_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
 
         ::pltxt2htm::Ast outer_b{};
-        outer_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(
-                ::std::move(inner_b)));
+        outer_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(inner_b)));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlBlockquote>(
-                ::std::move(outer_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlBlockquote>(
-                ::std::move(outer_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlBlockquote>(::std::move(outer_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlBlockquote>(::std::move(outer_b));
         CHECK(a == b);
     }
 
     // CodeFence without language
     TEST_CASE("equal-markdown-code-fences-without-language") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_a),
-                ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_b),
-                ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_a),
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_b),
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
         CHECK(a == b);
     }
 
     // CodeFence with same language
     TEST_CASE("equal-markdown-code-fences-with-same-language") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"}));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"}));
         CHECK(a == b);
     }
 
     // CodeFence with different languages
     TEST_CASE("different-markdown-code-fence-languages") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"python"}));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"}));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"python"}));
         CHECK_FALSE(a == b);
     }
 
@@ -306,14 +238,12 @@ TEST_SUITE("ast_operator_eq") {
 
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_b),
-                ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"}));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_b),
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
         CHECK_FALSE(a == b);
     }
 
@@ -323,14 +253,12 @@ TEST_SUITE("ast_operator_eq") {
 
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_a),
-                ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_b),
-                ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_a),
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_b),
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
         CHECK(a == b);
     }
 
@@ -340,14 +268,12 @@ TEST_SUITE("ast_operator_eq") {
 
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"}));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"}));
         CHECK(a == b);
     }
 
@@ -357,14 +283,12 @@ TEST_SUITE("ast_operator_eq") {
 
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"python"}));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"}));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_b), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"python"}));
         CHECK_FALSE(a == b);
     }
 
@@ -374,56 +298,42 @@ TEST_SUITE("ast_operator_eq") {
 
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_b),
-                ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"}));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_b),
+            ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(::pltxt2htm::container::nullopt));
         CHECK_FALSE(a == b);
     }
 
     // MdLink with sub-AST and URL
     TEST_CASE("equal-markdown-links") {
         ::pltxt2htm::Ast text_a{};
-        text_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        text_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
 
         ::pltxt2htm::Ast text_b{};
-        text_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        text_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdLink>(
-                ::std::move(text_a),
-                ::pltxt2htm::Url::try_make(u8"https://example.com").value());
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdLink>(
-                ::std::move(text_b),
-                ::pltxt2htm::Url::try_make(u8"https://example.com").value());
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdLink>(
+            ::std::move(text_a), ::pltxt2htm::Url::try_make(u8"https://example.com").value());
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdLink>(
+            ::std::move(text_b), ::pltxt2htm::Url::try_make(u8"https://example.com").value());
         CHECK(a == b);
     }
 
     // MdLink with different URL
     TEST_CASE("markdown-links-with-different-urls") {
         ::pltxt2htm::Ast text_a{};
-        text_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        text_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
 
         ::pltxt2htm::Ast text_b{};
-        text_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
+        text_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'a'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdLink>(
-                ::std::move(text_a),
-                ::pltxt2htm::Url::try_make(u8"https://example.com").value());
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdLink>(
-                ::std::move(text_b),
-                ::pltxt2htm::Url::try_make(u8"https://example.org").value());
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdLink>(
+            ::std::move(text_a), ::pltxt2htm::Url::try_make(u8"https://example.com").value());
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdLink>(
+            ::std::move(text_b), ::pltxt2htm::Url::try_make(u8"https://example.org").value());
         CHECK_FALSE(a == b);
     }
 
@@ -502,33 +412,23 @@ TEST_SUITE("ast_operator_eq") {
         ::pltxt2htm::PlainText alt_b{};
         alt_b.append_code_point(U'a');
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdImage>(
-                ::std::move(alt_a),
-                ::pltxt2htm::Url::try_make(u8"https://example.com").value());
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdImage>(
-                ::std::move(alt_b),
-                ::pltxt2htm::Url::try_make(u8"https://example.com").value());
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdImage>(
+            ::std::move(alt_a), ::pltxt2htm::Url::try_make(u8"https://example.com").value());
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdImage>(
+            ::std::move(alt_b), ::pltxt2htm::Url::try_make(u8"https://example.com").value());
         CHECK(a == b);
     }
 
     // ListLiCheckbox (sub-AST + bool checked)
     TEST_CASE("equal-checked-list-items") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListLiCheckbox>(
-                ::std::move(ast_a), true);
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListLiCheckbox>(
-                ::std::move(ast_b), true);
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListLiCheckbox>(::std::move(ast_a), true);
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListLiCheckbox>(::std::move(ast_b), true);
         CHECK(a == b);
     }
 
@@ -537,67 +437,51 @@ TEST_SUITE("ast_operator_eq") {
 
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListLiCheckbox>(
-                ::std::move(ast_a), true);
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListLiCheckbox>(
-                ::std::move(ast_b), false);
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListLiCheckbox>(::std::move(ast_a), true);
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListLiCheckbox>(::std::move(ast_b), false);
         CHECK_FALSE(a == b);
     }
 
     // TableTh / TableTd (sub-AST + TableAlign)
     TEST_CASE("equal-table-headers") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'h'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'h'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'h'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'h'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTh>(
-                ::std::move(ast_a), ::pltxt2htm::TableAlign::center);
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTh>(
-                ::std::move(ast_b), ::pltxt2htm::TableAlign::center);
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTh>(::std::move(ast_a),
+                                                                                      ::pltxt2htm::TableAlign::center);
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTh>(::std::move(ast_b),
+                                                                                      ::pltxt2htm::TableAlign::center);
         CHECK(a == b);
     }
 
     TEST_CASE("different-table-header-alignments") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'h'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'h'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'h'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'h'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTh>(
-                ::std::move(ast_a), ::pltxt2htm::TableAlign::left);
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTh>(
-                ::std::move(ast_b), ::pltxt2htm::TableAlign::center);
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTh>(::std::move(ast_a),
+                                                                                      ::pltxt2htm::TableAlign::left);
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTh>(::std::move(ast_b),
+                                                                                      ::pltxt2htm::TableAlign::center);
         CHECK_FALSE(a == b);
     }
 
     TEST_CASE("equal-table-cells") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'd'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'd'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'd'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'd'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTd>(
-                ::std::move(ast_a), ::pltxt2htm::TableAlign::right);
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTd>(
-                ::std::move(ast_b), ::pltxt2htm::TableAlign::right);
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTd>(::std::move(ast_a),
+                                                                                      ::pltxt2htm::TableAlign::right);
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTd>(::std::move(ast_b),
+                                                                                      ::pltxt2htm::TableAlign::right);
         CHECK(a == b);
     }
 
@@ -606,12 +490,10 @@ TEST_SUITE("ast_operator_eq") {
         ::pltxt2htm::Ast ast_a{};
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
-                ::std::move(ast_a), ::pltxt2htm::container::U8String{u8"red"});
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
-                ::std::move(ast_b), ::pltxt2htm::container::U8String{u8"red"});
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
+            ::std::move(ast_a), ::pltxt2htm::container::U8String{u8"red"});
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
+            ::std::move(ast_b), ::pltxt2htm::container::U8String{u8"red"});
         CHECK(a == b);
     }
 
@@ -619,12 +501,10 @@ TEST_SUITE("ast_operator_eq") {
         ::pltxt2htm::Ast ast_a{};
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
-                ::std::move(ast_a), ::pltxt2htm::container::U8String{u8"red"});
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
-                ::std::move(ast_b), ::pltxt2htm::container::U8String{u8"blue"});
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
+            ::std::move(ast_a), ::pltxt2htm::container::U8String{u8"red"});
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
+            ::std::move(ast_b), ::pltxt2htm::container::U8String{u8"blue"});
         CHECK_FALSE(a == b);
     }
 
@@ -633,12 +513,10 @@ TEST_SUITE("ast_operator_eq") {
         ::pltxt2htm::Ast ast_a{};
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExperiment>(
-                ::std::move(ast_a), make_object_id(u8"642cf37a494746375aae306a"));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExperiment>(
-                ::std::move(ast_b), make_object_id(u8"642cf37a494746375aae306a"));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExperiment>(
+            ::std::move(ast_a), make_object_id(u8"642cf37a494746375aae306a"));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExperiment>(
+            ::std::move(ast_b), make_object_id(u8"642cf37a494746375aae306a"));
         CHECK(a == b);
     }
 
@@ -646,12 +524,10 @@ TEST_SUITE("ast_operator_eq") {
         ::pltxt2htm::Ast ast_a{};
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExperiment>(
-                ::std::move(ast_a), make_object_id(u8"642cf37a494746375aae306a"));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExperiment>(
-                ::std::move(ast_b), make_object_id(u8"642cf37a494746375aae306b"));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExperiment>(
+            ::std::move(ast_a), make_object_id(u8"642cf37a494746375aae306a"));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExperiment>(
+            ::std::move(ast_b), make_object_id(u8"642cf37a494746375aae306b"));
         CHECK_FALSE(a == b);
     }
 
@@ -660,12 +536,10 @@ TEST_SUITE("ast_operator_eq") {
         ::pltxt2htm::Ast ast_a{};
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
-                ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px});
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
-                ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px});
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
+            ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px});
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
+            ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px});
         CHECK(a == b);
     }
 
@@ -673,12 +547,10 @@ TEST_SUITE("ast_operator_eq") {
         ::pltxt2htm::Ast ast_a{};
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
-                ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px});
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
-                ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<double>{.value = 16, .unit = ::pltxt2htm::Unit::px});
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
+            ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px});
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
+            ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<double>{.value = 16, .unit = ::pltxt2htm::Unit::px});
         CHECK_FALSE(a == b);
     }
 
@@ -686,13 +558,10 @@ TEST_SUITE("ast_operator_eq") {
         ::pltxt2htm::Ast ast_a{};
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
-                ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px});
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
-                ::std::move(ast_b),
-                ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::percent});
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
+            ::std::move(ast_a), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::px});
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
+            ::std::move(ast_b), ::pltxt2htm::ValueWithUnit<double>{.value = 14, .unit = ::pltxt2htm::Unit::percent});
         CHECK_FALSE(a == b);
     }
 
@@ -702,14 +571,10 @@ TEST_SUITE("ast_operator_eq") {
 
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExternal>(
-                ::std::move(ast_a),
-                ::pltxt2htm::Url::try_make(u8"https://example.com").value());
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExternal>(
-                ::std::move(ast_b),
-                ::pltxt2htm::Url::try_make(u8"https://example.com").value());
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExternal>(
+            ::std::move(ast_a), ::pltxt2htm::Url::try_make(u8"https://example.com").value());
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExternal>(
+            ::std::move(ast_b), ::pltxt2htm::Url::try_make(u8"https://example.com").value());
         CHECK(a == b);
     }
 
@@ -723,12 +588,10 @@ TEST_SUITE("ast_operator_eq") {
     // Ast-level comparison (single matching elements)
     TEST_CASE("equal-single-node-asts") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
 
         CHECK(ast_a == ast_b);
     }
@@ -736,16 +599,12 @@ TEST_SUITE("ast_operator_eq") {
     // Ast-level comparison (multiple matching elements)
     TEST_CASE("equal-multi-node-asts") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B'));
 
         CHECK(ast_a == ast_b);
     }
@@ -753,16 +612,12 @@ TEST_SUITE("ast_operator_eq") {
     // Ast-level comparison (different elements)
     TEST_CASE("different-ast-elements") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'C'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'C'));
 
         CHECK_FALSE(ast_a == ast_b);
     }
@@ -770,32 +625,25 @@ TEST_SUITE("ast_operator_eq") {
     // Ast-level comparison (different sizes)
     TEST_CASE("different-ast-sizes") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B'));
 
         CHECK_FALSE(ast_a == ast_b);
     }
 
     // C++20 operator!= auto-generation
     TEST_CASE("text-inequality-operator") {
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B');
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B');
         CHECK(a != b);
     }
 
     TEST_CASE("inequality-operator-for-equal-text") {
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
         CHECK_FALSE(a != b);
     }
 
@@ -822,97 +670,65 @@ TEST_SUITE("ast_operator_eq") {
     // UnityI (sub-AST only)
     TEST_CASE("equal-unity-inline-nodes") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityI>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityI>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityI>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityI>(::std::move(ast_b));
         CHECK(a == b);
     }
 
     // UnityB (sub-AST only)
     TEST_CASE("equal-unity-block-nodes") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityB>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityB>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityB>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityB>(::std::move(ast_b));
         CHECK(a == b);
     }
 
     // Cross-type: same sub-AST, different wrapper type
     TEST_CASE("different-wrapper-types-with-same-content") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(ast_b));
         CHECK_FALSE(a == b);
     }
 
     TEST_CASE("different-wrapper-types-with-equal-empty-content") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'X'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'X'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'X'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'X'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlBlockquote>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlBlockquote>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(ast_b));
         CHECK_FALSE(a == b);
     }
 
     TEST_CASE("different-wrapper-types-with-same-child-node") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityI>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityB>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityI>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityB>(::std::move(ast_b));
         CHECK_FALSE(a == b);
     }
 
@@ -921,56 +737,38 @@ TEST_SUITE("ast_operator_eq") {
 
         ::pltxt2htm::Ast ast_b{};
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                        ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
+            ::std::move(ast_a), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
+                                    ::pltxt2htm::container::U8String{u8"cpp"}));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(ast_b));
         CHECK_FALSE(a == b);
     }
 
     // Sub-AST count mismatch
     TEST_CASE("different-sub-ast-item-counts") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'!'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'i'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'!'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'H'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(ast_b));
         CHECK_FALSE(a == b);
     }
 
     TEST_CASE("different-sub-ast-item-values") {
         ::pltxt2htm::Ast ast_a{};
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
-        ast_a.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
+        ast_a.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B'));
 
         ::pltxt2htm::Ast ast_b{};
-        ast_b.emplace_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
+        ast_b.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
 
-        auto const a =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(
-                ::std::move(ast_a));
-        auto const b =
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(
-                ::std::move(ast_b));
+        auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(ast_a));
+        auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(ast_b));
         CHECK_FALSE(a == b);
     }
 }

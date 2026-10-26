@@ -166,18 +166,18 @@ constexpr void push_table_section_node(::pltxt2htm::Ast& table_ast, TableRowSect
                                        ::pltxt2htm::Ast&& section_ast) noexcept {
     switch (section) /* -Werror=switch */ {
     case TableRowSection::thead: {
-        table_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableThead>(
-            ::std::move(section_ast)));
+        table_ast.push_back(
+            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableThead>(::std::move(section_ast)));
         return;
     }
     case TableRowSection::tbody: {
-        table_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTbody>(
-            ::std::move(section_ast)));
+        table_ast.push_back(
+            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTbody>(::std::move(section_ast)));
         return;
     }
     case TableRowSection::tfoot: {
-        table_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTfoot>(
-            ::std::move(section_ast)));
+        table_ast.push_back(
+            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTfoot>(::std::move(section_ast)));
         return;
     }
     case TableRowSection::none: {

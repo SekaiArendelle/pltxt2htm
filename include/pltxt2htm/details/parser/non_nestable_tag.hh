@@ -39,9 +39,9 @@ template<U8LiteralString prefix_str, auto value_char_predicate>
 [[nodiscard]]
 constexpr auto try_parse_non_nestable_equal_sign_tag(
     ::pltxt2htm::container::U8StringView pltext,
-    ::pltxt2htm::details::CallStack< ParserFrame> const& call_stack) noexcept
+    ::pltxt2htm::details::CallStack<ParserFrame> const& call_stack) noexcept
     -> ::pltxt2htm::container::Optional<TryParseEqualSignTagResult> {
-    auto result = ::pltxt2htm::details::try_parse_equal_sign_tag< prefix_str, value_char_predicate>(pltext);
+    auto result = ::pltxt2htm::details::try_parse_equal_sign_tag<prefix_str, value_char_predicate>(pltext);
     if (result.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
@@ -77,9 +77,9 @@ template<U8LiteralString prefix_str>
 [[nodiscard]]
 constexpr auto try_parse_non_nestable_object_id_tag(
     ::pltxt2htm::container::U8StringView pltext,
-    ::pltxt2htm::details::CallStack< ParserFrame> const& call_stack) noexcept
+    ::pltxt2htm::details::CallStack<ParserFrame> const& call_stack) noexcept
     -> ::pltxt2htm::container::Optional<TryParseObjectIdTagResult> {
-    auto result = ::pltxt2htm::details::try_parse_object_id_tag< prefix_str>(pltext);
+    auto result = ::pltxt2htm::details::try_parse_object_id_tag<prefix_str>(pltext);
     if (result.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
@@ -156,9 +156,9 @@ struct TryParseExternalTagResult {
  */
 [[nodiscard]]
 constexpr auto try_parse_external_tag(::pltxt2htm::container::U8StringView pltext,
-                                      ::pltxt2htm::details::CallStack< ParserFrame> const& call_stack) noexcept
+                                      ::pltxt2htm::details::CallStack<ParserFrame> const& call_stack) noexcept
     -> TryParseExternalTagResult {
-    auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag< u8"xternal",
+    auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<u8"xternal",
                                                                               ::pltxt2htm::details::is_url_value_char>(
         pltext, call_stack);
     if (result.has_value() == false) {
@@ -232,19 +232,18 @@ struct TryParseLinkTagResult {
  */
 [[nodiscard]]
 constexpr auto try_parse_link_tag(::pltxt2htm::container::U8StringView pltext,
-                                  ::pltxt2htm::details::CallStack< ParserFrame> const& call_stack) noexcept
+                                  ::pltxt2htm::details::CallStack<ParserFrame> const& call_stack) noexcept
     -> TryParseLinkTagResult {
-    auto result = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag< u8"ink",
-                                                                              ::pltxt2htm::details::is_url_value_char>(
-        pltext, call_stack);
+    auto result =
+        ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<u8"ink", ::pltxt2htm::details::is_url_value_char>(
+            pltext, call_stack);
     if (result.has_value() == false) {
         return {};
     }
     auto const tag_len = result.value().tag_len;
 
     auto&& [_, raw_value] = result.value();
-    if (raw_value.size() < 2 || raw_value.index(0) != u8'"' ||
-        raw_value.index(raw_value.size() - 1) != u8'"') {
+    if (raw_value.size() < 2 || raw_value.index(0) != u8'"' || raw_value.index(raw_value.size() - 1) != u8'"') {
         // unquoted value is not a Unity TextMeshPro link tag: keep the char-by-char fallback
         return {};
     }

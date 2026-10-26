@@ -11,12 +11,9 @@ struct BenchInput {
 inline ::pltxt2htm::container::U8String make_plain_text(::std::size_t repeat) {
     ::pltxt2htm::container::U8String text;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        text.append(
-            u8"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n");
-        text.append(
-            u8"Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n");
-        text.append(
-            u8"Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.\n");
+        text.append(u8"Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n");
+        text.append(u8"Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n");
+        text.append(u8"Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.\n");
     }
     return text;
 }
@@ -128,8 +125,7 @@ inline ::pltxt2htm::container::U8String make_stress_many_lines(::std::size_t lin
 constexpr auto make_adversarial_unclosed(::std::size_t repeat) -> ::pltxt2htm::container::U8String {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append(
-            u8"<color=red [link](https://example.com/path **emphasis `code $latex &entity\n");
+        input.append(u8"<color=red [link](https://example.com/path **emphasis `code $latex &entity\n");
     }
     return input;
 }
@@ -139,8 +135,7 @@ constexpr auto make_large_table(::std::size_t rows) -> ::pltxt2htm::container::U
         u8"| Header 1 | Header 2 | Header 3 | Header 4 | Header 5 | Header 6 | Header 7 | Header 8 |\n"
         u8"|:---------|:--------:|---------:|-----------|-----------|-----------|-----------|-----------|\n"};
     for (::std::size_t i = 0; i < rows; ++i) {
-        input.append(
-            u8"| value 1 | **value 2** | `value 3` | value 4 | value 5 | value 6 | value 7 | value 8 |\n");
+        input.append(u8"| value 1 | **value 2** | `value 3` | value 4 | value 5 | value 6 | value 7 | value 8 |\n");
     }
     return input;
 }
@@ -158,8 +153,7 @@ constexpr auto make_escape_entity_autolink(::std::size_t repeat) -> ::pltxt2htm:
 constexpr auto make_utf8_mixed(::std::size_t repeat) -> ::pltxt2htm::container::U8String {
     ::pltxt2htm::container::U8String input;
     for (::std::size_t i = 0; i < repeat; ++i) {
-        input.append(
-            u8"中文段落，包含 café、Ελληνικά、العربية、emoji 😊🚀，以及 ASCII text 123. invalid:");
+        input.append(u8"中文段落，包含 café、Ελληνικά、العربية、emoji 😊🚀，以及 ASCII text 123. invalid:");
         input.push_back(static_cast<char8_t>(0xc3));
         input.push_back(u8' ');
         input.push_back(static_cast<char8_t>(0x80));

@@ -147,8 +147,7 @@ public:
           end{ast_.cend()} {
     }
 
-    constexpr BackendFrame(::pltxt2htm::Ast const& ast_,
-                           BackendContextWithHtmlSpanInfo html_span_info_context) noexcept
+    constexpr BackendFrame(::pltxt2htm::Ast const& ast_, BackendContextWithHtmlSpanInfo html_span_info_context) noexcept
         : context_data{::std::move(html_span_info_context)},
           next{ast_.cbegin()},
           end{ast_.cend()} {
@@ -167,8 +166,7 @@ public:
     constexpr ~BackendFrame() noexcept = default;
 
     constexpr BackendFrame& operator=(BackendFrame const&) noexcept = delete;
-    constexpr auto operator=(this BackendFrame& self, BackendFrame&&) noexcept
-        -> BackendFrame& = default;
+    constexpr auto operator=(this BackendFrame& self, BackendFrame&&) noexcept -> BackendFrame& = default;
 
     [[nodiscard]]
     constexpr auto get_nested_tag_type(this BackendFrame const& self) noexcept {

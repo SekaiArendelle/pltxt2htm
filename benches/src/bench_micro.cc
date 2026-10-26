@@ -61,8 +61,8 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_MdLink)(benchmark::State& st) {
         ::pltxt2htm::Ast text_sub;
         text_sub.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'L'));
         ::pltxt2htm::Url url{valid_url};
-        auto node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdLink>(::std::move(text_sub),
-                                                                                                  ::std::move(url));
+        auto node =
+            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdLink>(::std::move(text_sub), ::std::move(url));
         ::benchmark::DoNotOptimize(node);
     }
 }

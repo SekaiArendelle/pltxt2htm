@@ -70,8 +70,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto operator==(this VerticalAlignValue const& self,
-                              VerticalAlignValue const& other) noexcept -> bool {
+    constexpr auto operator==(this VerticalAlignValue const& self, VerticalAlignValue const& other) noexcept -> bool {
         if (self.kind != other.kind) {
             return false;
         }

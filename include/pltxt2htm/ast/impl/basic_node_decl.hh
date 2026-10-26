@@ -120,8 +120,7 @@ public:
     constexpr Group(::pltxt2htm::Group&&) noexcept;
     constexpr ~Group() noexcept = default;
     constexpr auto operator=(::pltxt2htm::Group const&) noexcept -> ::pltxt2htm::Group& = default;
-    constexpr auto operator=(this Group& self, ::pltxt2htm::Group&&) noexcept
-        -> ::pltxt2htm::Group&;
+    constexpr auto operator=(this Group& self, ::pltxt2htm::Group&&) noexcept -> ::pltxt2htm::Group&;
 
     [[nodiscard]]
     constexpr auto operator==(this Group const&, Group const&) noexcept -> bool;
@@ -151,10 +150,8 @@ public:
     constexpr CodeFence(::pltxt2htm::CodeFence const&) noexcept = default;
     constexpr CodeFence(::pltxt2htm::CodeFence&&) noexcept;
     constexpr ~CodeFence() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::CodeFence const&) noexcept
-        -> ::pltxt2htm::CodeFence& = default;
-    constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence&&) noexcept
-        -> ::pltxt2htm::CodeFence&;
+    constexpr auto operator=(::pltxt2htm::CodeFence const&) noexcept -> ::pltxt2htm::CodeFence& = default;
+    constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence&&) noexcept -> ::pltxt2htm::CodeFence&;
 
     [[nodiscard]]
     constexpr auto operator==(this CodeFence const& self, CodeFence const& other) noexcept -> bool;

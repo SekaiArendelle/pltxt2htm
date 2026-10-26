@@ -30,10 +30,9 @@ namespace pltxt2htm::details {
  * @return A string containing the generated HTML
  */
 [[nodiscard]]
-constexpr auto plweb_title_backend(::pltxt2htm::Ast const& ast_init) noexcept
-    -> ::pltxt2htm::container::U8String {
+constexpr auto plweb_title_backend(::pltxt2htm::Ast const& ast_init) noexcept -> ::pltxt2htm::container::U8String {
     ::pltxt2htm::container::U8String result{};
-    ::pltxt2htm::details::CallStack< BackendFrame> call_stack{};
+    ::pltxt2htm::details::CallStack<BackendFrame> call_stack{};
     call_stack.push_frame(BackendFrame(ast_init, ::pltxt2htm::NodeKind::group));
 
 entry:
@@ -90,8 +89,7 @@ entry:
             }
             case ::pltxt2htm::NodeKind::unity_color: {
                 auto&& active_node = node.as_unity_color();
-                call_stack.push_frame(
-                    BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_color));
+                call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_color));
                 result.append(u8"<span style=\"color:");
                 result.append(active_node.get_color());
                 result.append(u8";\">");
@@ -100,9 +98,9 @@ entry:
             case ::pltxt2htm::NodeKind::pl_a: {
                 auto&& active_node = node.as_pl_a();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_a));
-                constexpr auto open_tag = ::pltxt2htm::details::concat(U8LiteralString{u8"<span style=\"color:"},
-                                                                       ::pltxt2htm::PlA::get_color_literal(),
-                                                                       U8LiteralString{u8";\">"});
+                constexpr auto open_tag =
+                    ::pltxt2htm::details::concat(U8LiteralString{u8"<span style=\"color:"},
+                                                 ::pltxt2htm::PlA::get_color_literal(), U8LiteralString{u8";\">"});
                 result.append(::pltxt2htm::container::U8StringView{open_tag});
                 goto entry;
             }
@@ -116,9 +114,9 @@ entry:
                 bool const has_vertical_align = span_vertical_align.has_value();
                 call_stack.push_frame(
                     BackendFrame(active_node.get_subast(),
-                                         BackendContextWithHtmlSpanInfo{.has_color = has_color,
-                                                                        .has_font_size = has_font_size,
-                                                                        .has_vertical_align = has_vertical_align}));
+                                 BackendContextWithHtmlSpanInfo{.has_color = has_color,
+                                                                .has_font_size = has_font_size,
+                                                                .has_vertical_align = has_vertical_align}));
                 result.append(u8"<span style=\"");
                 if (has_color) {
                     result.append(u8"color:");
@@ -167,8 +165,7 @@ entry:
                             ::pltxt2htm::details::vertical_align_keyword_string(vertical_align.get_keyword()));
                     }
                     else {
-                        result.append(
-                            ::pltxt2htm::details::ptrdiff_t2str(vertical_align.get_length().value));
+                        result.append(::pltxt2htm::details::ptrdiff_t2str(vertical_align.get_length().value));
                         switch (vertical_align.get_length().unit) /* -Werror=switch */ {
                         case ::pltxt2htm::Unit::percent: {
                             result.push_back(u8'%');
@@ -212,8 +209,8 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
                 auto&& active_node = node.as_md_double_emphasis_underscore();
-                call_stack.push_frame(BackendFrame(active_node.get_subast(),
-                                                           ::pltxt2htm::NodeKind::md_double_emphasis_underscore));
+                call_stack.push_frame(
+                    BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::md_double_emphasis_underscore));
                 result.append(u8"<strong>");
                 goto entry;
             }
@@ -232,15 +229,14 @@ entry:
             }
             case ::pltxt2htm::NodeKind::html_strong: {
                 auto&& active_node = node.as_html_strong();
-                call_stack.push_frame(
-                    BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::html_strong));
+                call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::html_strong));
                 result.append(u8"<strong>");
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
                 auto&& active_node = node.as_md_single_emphasis_underscore();
-                call_stack.push_frame(BackendFrame(active_node.get_subast(),
-                                                           ::pltxt2htm::NodeKind::md_single_emphasis_underscore));
+                call_stack.push_frame(
+                    BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::md_single_emphasis_underscore));
                 result.append(u8"<em>");
                 goto entry;
             }
@@ -265,8 +261,8 @@ entry:
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
                 auto&& active_node = node.as_md_triple_emphasis_underscore();
-                call_stack.push_frame(BackendFrame(active_node.get_subast(),
-                                                           ::pltxt2htm::NodeKind::md_triple_emphasis_underscore));
+                call_stack.push_frame(
+                    BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::md_triple_emphasis_underscore));
                 result.append(u8"<em><strong>");
                 goto entry;
             }
@@ -442,8 +438,7 @@ entry:
                 ::pltxt2htm::details::append_html_escaped_attribute_value(
                     result, ::pltxt2htm::container::U8StringView{external_url});
                 result.append(u8"\">");
-                call_stack.push_frame(
-                    BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_external));
+                call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_external));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_link: {
@@ -453,8 +448,7 @@ entry:
                 ::pltxt2htm::details::append_html_escaped_attribute_value(
                     result, ::pltxt2htm::container::U8StringView{link_url});
                 result.append(u8"\">");
-                call_stack.push_frame(
-                    BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_link));
+                call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_link));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_link: {

@@ -296,6 +296,7 @@ public:
 #endif
           kind{node_kind_} {
     }
+
     constexpr FrontendContextVariant(ParserFrameContextWithObjectIdInfo&& object_id_info_context,
                                      ::pltxt2htm::NodeKind node_kind_) noexcept
         : object_id_info{::std::move(object_id_info_context)},
@@ -676,8 +677,7 @@ public:
         }
     }
 
-    constexpr auto operator=(FrontendContextVariant const&) noexcept
-        -> FrontendContextVariant& = delete;
+    constexpr auto operator=(FrontendContextVariant const&) noexcept -> FrontendContextVariant& = delete;
     constexpr auto operator=(FrontendContextVariant&&) noexcept -> FrontendContextVariant& = delete;
 
     [[nodiscard]]
@@ -1405,14 +1405,14 @@ public:
 /**
  * @brief Push a list frame for a freshly parsed top-level ListUlNode/ListOlNode.
  */
-constexpr void push_list_frame(::pltxt2htm::details::CallStack< ParserFrame>& call_stack,
+constexpr void push_list_frame(::pltxt2htm::details::CallStack<ParserFrame>& call_stack,
                                ListBaseNode&& top_node) noexcept {
     switch (top_node.get_type()) {
     case ListNodeType::list_ul: {
-        call_stack.push_frame(ParserFrame(
-            FrontendContextVariant{ParserFrameContextWithListInfo{::std::move(top_node).get_sublist()},
-                                           ::pltxt2htm::NodeKind::list_ul},
-            ::pltxt2htm::Ast{}));
+        call_stack.push_frame(
+            ParserFrame(FrontendContextVariant{ParserFrameContextWithListInfo{::std::move(top_node).get_sublist()},
+                                               ::pltxt2htm::NodeKind::list_ul},
+                        ::pltxt2htm::Ast{}));
         break;
     }
     case ListNodeType::list_ol: {
@@ -1449,7 +1449,7 @@ constexpr void push_list_frame(::pltxt2htm::details::CallStack< ParserFrame>& ca
  *         loop).
  */
 [[nodiscard]]
-constexpr auto process_table_frame(::pltxt2htm::details::CallStack< ParserFrame>& call_stack) noexcept
+constexpr auto process_table_frame(::pltxt2htm::details::CallStack<ParserFrame>& call_stack) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::Ast> {
     auto&& frame = call_stack.current_frame();
     auto&& raw_ast = frame.as_table().raw_ast;
@@ -1463,8 +1463,8 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack< ParserFrame>
         if (raw_ast.has_caption()) {
             call_stack.push_frame(
                 ParserFrame(FrontendContextVariant{ParserFrameContextWithPltextInfo{raw_ast.caption()},
-                                                                   ::pltxt2htm::NodeKind::table_caption},
-                                    ::pltxt2htm::Ast{}));
+                                                   ::pltxt2htm::NodeKind::table_caption},
+                            ::pltxt2htm::Ast{}));
         }
         active_frame_data.state = TableParsePhase::body;
         return ::pltxt2htm::container::nullopt;
@@ -1513,8 +1513,8 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack< ParserFrame>
             for (::std::size_t c{}; c < column_count; ++c) {
                 colgroup_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableCol>());
             }
-            table_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableColgroup>(
-                ::std::move(colgroup_ast)));
+            table_ast.push_back(
+                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableColgroup>(::std::move(colgroup_ast)));
         }
 
         // Group cells into <tr> rows, then consecutive rows of the same section into
@@ -1534,27 +1534,24 @@ constexpr auto process_table_frame(::pltxt2htm::details::CallStack< ParserFrame>
             auto const section = prev_raw_ast.row_section(r);
             if (section == TableRowSection::none) {
                 ::pltxt2htm::details::push_table_section_node(table_ast, active_section,
-                                                                      ::std::move(active_section_ast));
+                                                              ::std::move(active_section_ast));
                 active_section = TableRowSection::none;
-                table_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTr>(
-                    ::std::move(tr_ast)));
+                table_ast.push_back(
+                    ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTr>(::std::move(tr_ast)));
             }
             else if (section == active_section) {
                 active_section_ast.push_back(
-                    ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTr>(
-                        ::std::move(tr_ast)));
+                    ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTr>(::std::move(tr_ast)));
             }
             else {
                 ::pltxt2htm::details::push_table_section_node(table_ast, active_section,
-                                                                      ::std::move(active_section_ast));
+                                                              ::std::move(active_section_ast));
                 active_section = section;
                 active_section_ast.push_back(
-                    ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTr>(
-                        ::std::move(tr_ast)));
+                    ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTr>(::std::move(tr_ast)));
             }
         }
-        ::pltxt2htm::details::push_table_section_node(table_ast, active_section,
-                                                              ::std::move(active_section_ast));
+        ::pltxt2htm::details::push_table_section_node(table_ast, active_section, ::std::move(active_section_ast));
 
         if (call_stack.empty()) {
             return table_ast;

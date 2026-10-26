@@ -26,8 +26,7 @@ public:
     constexpr ListUl(::pltxt2htm::ListUl&&) noexcept;
     constexpr ~ListUl() noexcept = default;
     constexpr auto operator=(::pltxt2htm::ListUl const&) noexcept -> ::pltxt2htm::ListUl& = default;
-    constexpr auto operator=(this ListUl& self, ::pltxt2htm::ListUl&&) noexcept
-        -> ::pltxt2htm::ListUl&;
+    constexpr auto operator=(this ListUl& self, ::pltxt2htm::ListUl&&) noexcept -> ::pltxt2htm::ListUl&;
 
     [[nodiscard]]
     constexpr auto operator==(this ListUl const&, ListUl const&) noexcept -> bool;
@@ -53,8 +52,7 @@ public:
     constexpr ListOl(::pltxt2htm::ListOl&&) noexcept;
     constexpr ~ListOl() noexcept = default;
     constexpr auto operator=(::pltxt2htm::ListOl const&) noexcept -> ::pltxt2htm::ListOl& = default;
-    constexpr auto operator=(this ListOl& self, ::pltxt2htm::ListOl&&) noexcept
-        -> ::pltxt2htm::ListOl&;
+    constexpr auto operator=(this ListOl& self, ::pltxt2htm::ListOl&&) noexcept -> ::pltxt2htm::ListOl&;
 
     [[nodiscard]]
     constexpr auto operator==(this ListOl const&, ListOl const&) noexcept -> bool;
@@ -82,8 +80,7 @@ public:
     constexpr ListLi(::pltxt2htm::ListLi&&) noexcept;
     constexpr ~ListLi() noexcept = default;
     constexpr auto operator=(::pltxt2htm::ListLi const&) noexcept -> ::pltxt2htm::ListLi& = default;
-    constexpr auto operator=(this ListLi& self, ::pltxt2htm::ListLi&&) noexcept
-        -> ::pltxt2htm::ListLi&;
+    constexpr auto operator=(this ListLi& self, ::pltxt2htm::ListLi&&) noexcept -> ::pltxt2htm::ListLi&;
 
     [[nodiscard]]
     constexpr auto operator==(this ListLi const&, ListLi const&) noexcept -> bool;
@@ -106,8 +103,7 @@ public:
     constexpr ListLiCheckbox(::pltxt2htm::ListLiCheckbox const&) noexcept = default;
     constexpr ListLiCheckbox(::pltxt2htm::ListLiCheckbox&&) noexcept;
     constexpr ~ListLiCheckbox() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::ListLiCheckbox const&) noexcept
-        -> ::pltxt2htm::ListLiCheckbox& = default;
+    constexpr auto operator=(::pltxt2htm::ListLiCheckbox const&) noexcept -> ::pltxt2htm::ListLiCheckbox& = default;
     constexpr auto operator=(this ListLiCheckbox& self, ::pltxt2htm::ListLiCheckbox&&) noexcept
         -> ::pltxt2htm::ListLiCheckbox&;
 

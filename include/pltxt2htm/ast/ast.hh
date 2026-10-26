@@ -51,11 +51,10 @@ public:
      * @return A ::pltxt2htm::PlTxtNode containing the constructed node.
      */
     template<typename Node, typename... Args>
-        requires (::pltxt2htm::details::PlTxtNodeConcept< Node> &&
-                  ::std::is_nothrow_constructible_v<Node, Args...>)
+        requires (::pltxt2htm::details::PlTxtNodeConcept<Node> && ::std::is_nothrow_constructible_v<Node, Args...>)
     [[nodiscard]]
     static constexpr auto emplace(Args&&... args) noexcept -> ::pltxt2htm::PlTxtNode {
-        using Traits = ::pltxt2htm::details::PlTxtNodeTraits< Node>;
+        using Traits = ::pltxt2htm::details::PlTxtNodeTraits<Node>;
 
         auto result = ::pltxt2htm::PlTxtNode{};
         ::std::construct_at(::std::addressof(result.storage.*Traits::member), ::std::forward<Args>(args)...);
@@ -402,8 +401,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::code_fence: {
-            new (::std::addressof(storage.code_fence_node))::pltxt2htm::CodeFence(
-                other.storage.code_fence_node);
+            new (::std::addressof(storage.code_fence_node))::pltxt2htm::CodeFence(other.storage.code_fence_node);
             break;
         }
         case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
@@ -1324,8 +1322,7 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr auto operator=(::pltxt2htm::PlTxtNode const&) noexcept -> PlTxtNode& = delete;
 #else
-    constexpr auto operator=(this PlTxtNode& self, ::pltxt2htm::PlTxtNode const& other) noexcept
-        -> PlTxtNode& {
+    constexpr auto operator=(this PlTxtNode& self, ::pltxt2htm::PlTxtNode const& other) noexcept -> PlTxtNode& {
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
@@ -1335,8 +1332,7 @@ public:
     }
 #endif
 
-    constexpr auto operator=(this PlTxtNode& self, ::pltxt2htm::PlTxtNode&& other) noexcept
-        -> PlTxtNode& {
+    constexpr auto operator=(this PlTxtNode& self, ::pltxt2htm::PlTxtNode&& other) noexcept -> PlTxtNode& {
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"self assignment is not allowed");
         ::std::destroy_at(::std::addressof(self));
         ::std::construct_at(::std::addressof(self), ::std::move(other));
@@ -1344,8 +1340,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto operator==(this PlTxtNode const& self, ::pltxt2htm::PlTxtNode const& other) noexcept
-        -> bool {
+    constexpr auto operator==(this PlTxtNode const& self, ::pltxt2htm::PlTxtNode const& other) noexcept -> bool {
         if (self.node_kind != other.node_kind) {
             return false;
         }
@@ -2243,24 +2238,31 @@ public:
 constexpr Ast::Ast(::std::initializer_list<value_type> values) noexcept
     : storage{values} {
 }
+
 constexpr Ast::Ast(Ast const&) noexcept = default;
+
 constexpr auto Ast::operator=(this Ast& self, Ast const& other) noexcept -> Ast& {
     self.storage = other.storage;
     return self;
 }
 #endif
 constexpr Ast::Ast(Ast&&) noexcept = default;
+
 constexpr auto Ast::operator=(this Ast& self, Ast&& other) noexcept -> Ast& {
     self.storage = ::std::move(other.storage);
     return self;
 }
+
 constexpr Ast::~Ast() noexcept = default;
+
 constexpr auto Ast::data(this Ast& self) noexcept -> pointer {
     return self.storage.data();
 }
+
 constexpr auto Ast::data(this Ast const& self) noexcept -> const_pointer {
     return self.storage.data();
 }
+
 constexpr auto Ast::is_empty(this Ast const& self) noexcept -> bool {
     return self.storage.is_empty();
 }
@@ -2272,54 +2274,71 @@ constexpr auto Ast::empty(this Ast const& self) noexcept -> bool {
 constexpr auto Ast::size(this Ast const& self) noexcept -> size_type {
     return self.storage.size();
 }
+
 constexpr auto Ast::capacity(this Ast const& self) noexcept -> size_type {
     return self.storage.capacity();
 }
+
 constexpr auto Ast::max_size() noexcept -> size_type {
     return storage_type::max_size();
 }
+
 constexpr auto Ast::begin(this Ast& self) noexcept -> iterator {
     return self.storage.begin();
 }
+
 constexpr auto Ast::begin(this Ast const& self) noexcept -> const_iterator {
     return self.storage.begin();
 }
+
 constexpr auto Ast::end(this Ast& self) noexcept -> iterator {
     return self.storage.end();
 }
+
 constexpr auto Ast::end(this Ast const& self) noexcept -> const_iterator {
     return self.storage.end();
 }
+
 constexpr auto Ast::cbegin(this Ast const& self) noexcept -> const_iterator {
     return self.storage.cbegin();
 }
+
 constexpr auto Ast::cend(this Ast const& self) noexcept -> const_iterator {
     return self.storage.cend();
 }
+
 constexpr auto Ast::rbegin(this Ast& self) noexcept -> reverse_iterator {
     return self.storage.rbegin();
 }
+
 constexpr auto Ast::rbegin(this Ast const& self) noexcept -> const_reverse_iterator {
     return self.storage.rbegin();
 }
+
 constexpr auto Ast::rend(this Ast& self) noexcept -> reverse_iterator {
     return self.storage.rend();
 }
+
 constexpr auto Ast::rend(this Ast const& self) noexcept -> const_reverse_iterator {
     return self.storage.rend();
 }
+
 constexpr auto Ast::front(this Ast& self) noexcept -> reference {
     return self.storage.front();
 }
+
 constexpr auto Ast::front(this Ast const& self) noexcept -> const_reference {
     return self.storage.front();
 }
+
 constexpr auto Ast::index(this Ast& self, size_type position) noexcept -> reference {
     return self.storage.index(position);
 }
+
 constexpr auto Ast::index(this Ast const& self, size_type position) noexcept -> const_reference {
     return self.storage.index(position);
 }
+
 constexpr void Ast::reserve(this Ast& self, size_type requested_capacity) noexcept {
     self.storage.reserve(requested_capacity);
 }
@@ -2331,24 +2350,31 @@ constexpr void Ast::push_back(this Ast& self, const_reference value) noexcept {
 constexpr void Ast::push_back(this Ast& self, value_type&& value) noexcept {
     self.storage.push_back(::std::move(value));
 }
+
 constexpr void Ast::pop_back(this Ast& self) noexcept {
     self.storage.pop_back();
 }
+
 constexpr void Ast::clear(this Ast& self) noexcept {
     self.storage.clear();
 }
+
 constexpr auto Ast::erase(this Ast& self, const_iterator position) noexcept -> iterator {
     return self.storage.erase(position);
 }
+
 constexpr auto Ast::erase(this Ast& self, const_iterator first, const_iterator last) noexcept -> iterator {
     return self.storage.erase(first, last);
 }
+
 constexpr void Ast::swap(this Ast& self, Ast& other) noexcept {
     self.storage.swap(other.storage);
 }
+
 constexpr auto Ast::operator==(this Ast const& self, Ast const& other) noexcept -> bool {
     return self.storage == other.storage;
 }
+
 constexpr void Ast::append_code_point(this Ast& self, char32_t code_point) noexcept {
     switch (code_point) {
     case U'\n': {
@@ -2446,8 +2472,7 @@ constexpr void Ast::append_text(this Ast& self, ::pltxt2htm::container::U8String
     while (current != end) {
         auto const remaining_size = static_cast<::std::size_t>(end - current);
         auto const node_size = remaining_size < text_capacity ? remaining_size : text_capacity;
-        self.push_back(
-            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(current, current + node_size));
+        self.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(current, current + node_size));
         current += node_size;
     }
 }

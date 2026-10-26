@@ -27,14 +27,14 @@ namespace pltxt2htm::details {
 [[nodiscard]]
 constexpr auto try_parse_url_scheme(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZeroUsize> {
-    if (::pltxt2htm::details::is_prefix_match< u8"http">(pltext) == false) {
+    if (::pltxt2htm::details::is_prefix_match<u8"http">(pltext) == false) {
         return ::pltxt2htm::container::nullopt;
     }
     auto const after_http = pltext.subview(4);
-    if (::pltxt2htm::details::is_prefix_match< u8"://">(after_http)) {
+    if (::pltxt2htm::details::is_prefix_match<u8"://">(after_http)) {
         return ::pltxt2htm::container::NonZeroUsize::from(7);
     }
-    if (::pltxt2htm::details::is_prefix_match< u8"s://">(after_http)) {
+    if (::pltxt2htm::details::is_prefix_match<u8"s://">(after_http)) {
         return ::pltxt2htm::container::NonZeroUsize::from(8);
     }
     return ::pltxt2htm::container::nullopt;
@@ -165,13 +165,11 @@ constexpr auto try_parse_url_authority(::pltxt2htm::container::U8StringView plte
     if (domain_end >= pltext.size() || pltext.index(domain_end) != u8':') {
         return ::pltxt2htm::container::NonZeroUsize::from(domain_end);
     }
-    auto const opt_port_end =
-        ::pltxt2htm::details::try_parse_url_port(pltext.subview(domain_end + 1));
+    auto const opt_port_end = ::pltxt2htm::details::try_parse_url_port(pltext.subview(domain_end + 1));
     if (opt_port_end.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    return ::pltxt2htm::container::NonZeroUsize::from(
-        domain_end + 1 + opt_port_end.value().get());
+    return ::pltxt2htm::container::NonZeroUsize::from(domain_end + 1 + opt_port_end.value().get());
 }
 
 /**

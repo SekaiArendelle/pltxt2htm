@@ -30,8 +30,7 @@ public:
     constexpr MdAtxH1(::pltxt2htm::MdAtxH1&&) noexcept;
     constexpr ~MdAtxH1() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdAtxH1 const&) noexcept -> ::pltxt2htm::MdAtxH1& = default;
-    constexpr auto operator=(this MdAtxH1& self, ::pltxt2htm::MdAtxH1&&) noexcept
-        -> ::pltxt2htm::MdAtxH1&;
+    constexpr auto operator=(this MdAtxH1& self, ::pltxt2htm::MdAtxH1&&) noexcept -> ::pltxt2htm::MdAtxH1&;
 
     [[nodiscard]]
     constexpr auto operator==(this MdAtxH1 const&, MdAtxH1 const&) noexcept -> bool;
@@ -54,8 +53,7 @@ public:
     constexpr MdAtxH2(::pltxt2htm::MdAtxH2&&) noexcept;
     constexpr ~MdAtxH2() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdAtxH2 const&) noexcept -> ::pltxt2htm::MdAtxH2& = default;
-    constexpr auto operator=(this MdAtxH2& self, ::pltxt2htm::MdAtxH2&&) noexcept
-        -> ::pltxt2htm::MdAtxH2&;
+    constexpr auto operator=(this MdAtxH2& self, ::pltxt2htm::MdAtxH2&&) noexcept -> ::pltxt2htm::MdAtxH2&;
 
     [[nodiscard]]
     constexpr auto operator==(this MdAtxH2 const&, MdAtxH2 const&) noexcept -> bool;
@@ -78,8 +76,7 @@ public:
     constexpr MdAtxH3(::pltxt2htm::MdAtxH3&&) noexcept;
     constexpr ~MdAtxH3() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdAtxH3 const&) noexcept -> ::pltxt2htm::MdAtxH3& = default;
-    constexpr auto operator=(this MdAtxH3& self, ::pltxt2htm::MdAtxH3&&) noexcept
-        -> ::pltxt2htm::MdAtxH3&;
+    constexpr auto operator=(this MdAtxH3& self, ::pltxt2htm::MdAtxH3&&) noexcept -> ::pltxt2htm::MdAtxH3&;
 
     [[nodiscard]]
     constexpr auto operator==(this MdAtxH3 const&, MdAtxH3 const&) noexcept -> bool;
@@ -102,8 +99,7 @@ public:
     constexpr MdAtxH4(::pltxt2htm::MdAtxH4&&) noexcept;
     constexpr ~MdAtxH4() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdAtxH4 const&) noexcept -> ::pltxt2htm::MdAtxH4& = default;
-    constexpr auto operator=(this MdAtxH4& self, ::pltxt2htm::MdAtxH4&&) noexcept
-        -> ::pltxt2htm::MdAtxH4&;
+    constexpr auto operator=(this MdAtxH4& self, ::pltxt2htm::MdAtxH4&&) noexcept -> ::pltxt2htm::MdAtxH4&;
 
     [[nodiscard]]
     constexpr auto operator==(this MdAtxH4 const&, MdAtxH4 const&) noexcept -> bool;
@@ -126,8 +122,7 @@ public:
     constexpr MdAtxH5(::pltxt2htm::MdAtxH5&&) noexcept;
     constexpr ~MdAtxH5() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdAtxH5 const&) noexcept -> ::pltxt2htm::MdAtxH5& = default;
-    constexpr auto operator=(this MdAtxH5& self, ::pltxt2htm::MdAtxH5&&) noexcept
-        -> ::pltxt2htm::MdAtxH5&;
+    constexpr auto operator=(this MdAtxH5& self, ::pltxt2htm::MdAtxH5&&) noexcept -> ::pltxt2htm::MdAtxH5&;
 
     [[nodiscard]]
     constexpr auto operator==(this MdAtxH5 const&, MdAtxH5 const&) noexcept -> bool;
@@ -150,8 +145,7 @@ public:
     constexpr MdAtxH6(::pltxt2htm::MdAtxH6&&) noexcept;
     constexpr ~MdAtxH6() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdAtxH6 const&) noexcept -> ::pltxt2htm::MdAtxH6& = default;
-    constexpr auto operator=(this MdAtxH6& self, ::pltxt2htm::MdAtxH6&&) noexcept
-        -> ::pltxt2htm::MdAtxH6&;
+    constexpr auto operator=(this MdAtxH6& self, ::pltxt2htm::MdAtxH6&&) noexcept -> ::pltxt2htm::MdAtxH6&;
 
     [[nodiscard]]
     constexpr auto operator==(this MdAtxH6 const&, MdAtxH6 const&) noexcept -> bool;
@@ -207,8 +201,7 @@ public:
     constexpr ~MdCodeSpan1Backtick() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdCodeSpan1Backtick const&) noexcept
         -> ::pltxt2htm::MdCodeSpan1Backtick& = default;
-    constexpr auto operator=(this MdCodeSpan1Backtick& self,
-                             ::pltxt2htm::MdCodeSpan1Backtick&&) noexcept
+    constexpr auto operator=(this MdCodeSpan1Backtick& self, ::pltxt2htm::MdCodeSpan1Backtick&&) noexcept
         -> ::pltxt2htm::MdCodeSpan1Backtick&;
 
     [[nodiscard]]
@@ -233,8 +226,7 @@ public:
     constexpr ~MdCodeSpan2Backtick() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdCodeSpan2Backtick const&) noexcept
         -> ::pltxt2htm::MdCodeSpan2Backtick& = default;
-    constexpr auto operator=(this MdCodeSpan2Backtick& self,
-                             ::pltxt2htm::MdCodeSpan2Backtick&&) noexcept
+    constexpr auto operator=(this MdCodeSpan2Backtick& self, ::pltxt2htm::MdCodeSpan2Backtick&&) noexcept
         -> ::pltxt2htm::MdCodeSpan2Backtick&;
 
     [[nodiscard]]
@@ -259,8 +251,7 @@ public:
     constexpr ~MdCodeSpan3Backtick() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdCodeSpan3Backtick const&) noexcept
         -> ::pltxt2htm::MdCodeSpan3Backtick& = default;
-    constexpr auto operator=(this MdCodeSpan3Backtick& self,
-                             ::pltxt2htm::MdCodeSpan3Backtick&&) noexcept
+    constexpr auto operator=(this MdCodeSpan3Backtick& self, ::pltxt2htm::MdCodeSpan3Backtick&&) noexcept
         -> ::pltxt2htm::MdCodeSpan3Backtick&;
 
     [[nodiscard]]
@@ -285,8 +276,7 @@ public:
     constexpr ~MdSingleEmphasisAsterisk() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdSingleEmphasisAsterisk const&) noexcept
         -> ::pltxt2htm::MdSingleEmphasisAsterisk& = default;
-    constexpr auto operator=(this MdSingleEmphasisAsterisk& self,
-                             ::pltxt2htm::MdSingleEmphasisAsterisk&&) noexcept
+    constexpr auto operator=(this MdSingleEmphasisAsterisk& self, ::pltxt2htm::MdSingleEmphasisAsterisk&&) noexcept
         -> ::pltxt2htm::MdSingleEmphasisAsterisk&;
 
     [[nodiscard]]
@@ -311,8 +301,7 @@ public:
     constexpr ~MdDoubleEmphasisAsterisk() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdDoubleEmphasisAsterisk const&) noexcept
         -> ::pltxt2htm::MdDoubleEmphasisAsterisk& = default;
-    constexpr auto operator=(this MdDoubleEmphasisAsterisk& self,
-                             ::pltxt2htm::MdDoubleEmphasisAsterisk&&) noexcept
+    constexpr auto operator=(this MdDoubleEmphasisAsterisk& self, ::pltxt2htm::MdDoubleEmphasisAsterisk&&) noexcept
         -> ::pltxt2htm::MdDoubleEmphasisAsterisk&;
 
     [[nodiscard]]
@@ -337,8 +326,7 @@ public:
     constexpr ~MdTripleEmphasisAsterisk() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdTripleEmphasisAsterisk const&) noexcept
         -> ::pltxt2htm::MdTripleEmphasisAsterisk& = default;
-    constexpr auto operator=(this MdTripleEmphasisAsterisk& self,
-                             ::pltxt2htm::MdTripleEmphasisAsterisk&&) noexcept
+    constexpr auto operator=(this MdTripleEmphasisAsterisk& self, ::pltxt2htm::MdTripleEmphasisAsterisk&&) noexcept
         -> ::pltxt2htm::MdTripleEmphasisAsterisk&;
 
     [[nodiscard]]
@@ -363,8 +351,7 @@ public:
     constexpr ~MdSingleEmphasisUnderscore() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdSingleEmphasisUnderscore const&) noexcept
         -> ::pltxt2htm::MdSingleEmphasisUnderscore& = default;
-    constexpr auto operator=(this MdSingleEmphasisUnderscore& self,
-                             ::pltxt2htm::MdSingleEmphasisUnderscore&&) noexcept
+    constexpr auto operator=(this MdSingleEmphasisUnderscore& self, ::pltxt2htm::MdSingleEmphasisUnderscore&&) noexcept
         -> ::pltxt2htm::MdSingleEmphasisUnderscore&;
 
     [[nodiscard]]
@@ -390,8 +377,7 @@ public:
     constexpr ~MdDoubleEmphasisUnderscore() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdDoubleEmphasisUnderscore const&) noexcept
         -> ::pltxt2htm::MdDoubleEmphasisUnderscore& = default;
-    constexpr auto operator=(this MdDoubleEmphasisUnderscore& self,
-                             ::pltxt2htm::MdDoubleEmphasisUnderscore&&) noexcept
+    constexpr auto operator=(this MdDoubleEmphasisUnderscore& self, ::pltxt2htm::MdDoubleEmphasisUnderscore&&) noexcept
         -> ::pltxt2htm::MdDoubleEmphasisUnderscore&;
 
     [[nodiscard]]
@@ -417,8 +403,7 @@ public:
     constexpr ~MdTripleEmphasisUnderscore() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdTripleEmphasisUnderscore const&) noexcept
         -> ::pltxt2htm::MdTripleEmphasisUnderscore& = default;
-    constexpr auto operator=(this MdTripleEmphasisUnderscore& self,
-                             ::pltxt2htm::MdTripleEmphasisUnderscore&&) noexcept
+    constexpr auto operator=(this MdTripleEmphasisUnderscore& self, ::pltxt2htm::MdTripleEmphasisUnderscore&&) noexcept
         -> ::pltxt2htm::MdTripleEmphasisUnderscore&;
 
     [[nodiscard]]
@@ -443,8 +428,7 @@ public:
     constexpr MdDel(::pltxt2htm::MdDel&&) noexcept;
     constexpr ~MdDel() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdDel const&) noexcept -> ::pltxt2htm::MdDel& = default;
-    constexpr auto operator=(this MdDel& self, ::pltxt2htm::MdDel&&) noexcept
-        -> ::pltxt2htm::MdDel&;
+    constexpr auto operator=(this MdDel& self, ::pltxt2htm::MdDel&&) noexcept -> ::pltxt2htm::MdDel&;
 
     [[nodiscard]]
     constexpr auto operator==(this MdDel const&, MdDel const&) noexcept -> bool;
@@ -473,8 +457,7 @@ public:
     constexpr MdLink(::pltxt2htm::MdLink&&) noexcept;
     constexpr ~MdLink() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdLink const&) noexcept -> ::pltxt2htm::MdLink& = default;
-    constexpr auto operator=(this MdLink& self, ::pltxt2htm::MdLink&&) noexcept
-        -> ::pltxt2htm::MdLink&;
+    constexpr auto operator=(this MdLink& self, ::pltxt2htm::MdLink&&) noexcept -> ::pltxt2htm::MdLink&;
 
     [[nodiscard]]
     constexpr auto operator==(this MdLink const&, MdLink const&) noexcept -> bool;
@@ -508,8 +491,7 @@ public:
     constexpr MdImage(::pltxt2htm::MdImage&&) noexcept;
     constexpr ~MdImage() noexcept = default;
     constexpr auto operator=(::pltxt2htm::MdImage const&) noexcept -> ::pltxt2htm::MdImage& = default;
-    constexpr auto operator=(this MdImage& self, ::pltxt2htm::MdImage&&) noexcept
-        -> ::pltxt2htm::MdImage&;
+    constexpr auto operator=(this MdImage& self, ::pltxt2htm::MdImage&&) noexcept -> ::pltxt2htm::MdImage&;
 
     [[nodiscard]]
     constexpr auto operator==(this MdImage const&, MdImage const&) noexcept -> bool;
@@ -536,8 +518,7 @@ public:
     constexpr MdBlockQuotes(::pltxt2htm::MdBlockQuotes const&) noexcept = default;
     constexpr MdBlockQuotes(::pltxt2htm::MdBlockQuotes&&) noexcept;
     constexpr ~MdBlockQuotes() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::MdBlockQuotes const&) noexcept
-        -> ::pltxt2htm::MdBlockQuotes& = default;
+    constexpr auto operator=(::pltxt2htm::MdBlockQuotes const&) noexcept -> ::pltxt2htm::MdBlockQuotes& = default;
     constexpr auto operator=(this MdBlockQuotes& self, ::pltxt2htm::MdBlockQuotes&&) noexcept
         -> ::pltxt2htm::MdBlockQuotes&;
 
@@ -561,8 +542,7 @@ public:
     constexpr MdLatexInline(::pltxt2htm::MdLatexInline const&) noexcept = default;
     constexpr MdLatexInline(::pltxt2htm::MdLatexInline&&) noexcept;
     constexpr ~MdLatexInline() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::MdLatexInline const&) noexcept
-        -> ::pltxt2htm::MdLatexInline& = default;
+    constexpr auto operator=(::pltxt2htm::MdLatexInline const&) noexcept -> ::pltxt2htm::MdLatexInline& = default;
     constexpr auto operator=(this MdLatexInline& self, ::pltxt2htm::MdLatexInline&&) noexcept
         -> ::pltxt2htm::MdLatexInline&;
 
@@ -586,8 +566,7 @@ public:
     constexpr MdLatexBlock(::pltxt2htm::MdLatexBlock const&) noexcept = default;
     constexpr MdLatexBlock(::pltxt2htm::MdLatexBlock&&) noexcept;
     constexpr ~MdLatexBlock() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::MdLatexBlock const&) noexcept
-        -> ::pltxt2htm::MdLatexBlock& = default;
+    constexpr auto operator=(::pltxt2htm::MdLatexBlock const&) noexcept -> ::pltxt2htm::MdLatexBlock& = default;
     constexpr auto operator=(this MdLatexBlock& self, ::pltxt2htm::MdLatexBlock&&) noexcept
         -> ::pltxt2htm::MdLatexBlock&;
 

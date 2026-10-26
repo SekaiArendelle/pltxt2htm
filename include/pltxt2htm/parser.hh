@@ -44,14 +44,14 @@ namespace pltxt2htm {
 [[nodiscard]]
 constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept -> ::pltxt2htm::Ast {
     // This stack is used to track nested tag contexts during parsing
-    ::pltxt2htm::details::CallStack< ::pltxt2htm::details::ParserFrame> call_stack{};
+    ::pltxt2htm::details::CallStack<::pltxt2htm::details::ParserFrame> call_stack{};
     ::pltxt2htm::Ast result{};
 
     ::std::size_t start_index{};
 
     while (true) {
-        auto&& [advance_count, has_new_frame] = ::pltxt2htm::details::find_next_block_after_line_break(
-            pltext.subview(start_index), call_stack, result);
+        auto&& [advance_count, has_new_frame] =
+            ::pltxt2htm::details::find_next_block_after_line_break(pltext.subview(start_index), call_stack, result);
         start_index += advance_count;
         if (has_new_frame == false) {
             break;
@@ -100,54 +100,45 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
         auto&& [subast, consumed_bytes] = ::pltxt2htm::details::parse_pltxt(call_stack);
         switch (type_of_subast) {
         case ::pltxt2htm::NodeKind::md_atx_h1: {
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH1>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH1>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_atx_h2: {
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH2>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH2>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_atx_h3: {
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH3>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH3>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_atx_h4: {
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH4>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH4>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_atx_h5: {
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH5>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH5>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_atx_h6: {
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH6>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH6>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::md_block_quotes: {
-            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdBlockQuotes>(
-                ::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdBlockQuotes>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::list_ul: {
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListUl>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListUl>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::list_ol: {
             auto const list_start = opt_list_start.value();
-            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListOl>(
-                ::std::move(subast), list_start));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListOl>(::std::move(subast), list_start));
             continue;
         }
         case ::pltxt2htm::NodeKind::table: {
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Table>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Table>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_p: {
@@ -156,8 +147,8 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             // past it so the remaining text handler doesn't re-process the consumed content.
             start_index += consumed_bytes;
             auto const html_p_align = opt_html_p_align.value();
-            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlP>(
-                ::std::move(subast), html_p_align));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlP>(::std::move(subast), html_p_align));
             continue;
         }
         case ::pltxt2htm::NodeKind::unity_align: {
@@ -165,8 +156,8 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
             // the Textalign read from the frame top before the recursive parse popped it.
             start_index += consumed_bytes;
             auto const unity_align_value = opt_unity_align.value();
-            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityAlign>(
-                ::std::move(subast), unity_align_value));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityAlign>(::std::move(subast),
+                                                                                               unity_align_value));
             continue;
         }
         case ::pltxt2htm::NodeKind::unity_margin: {
@@ -190,51 +181,45 @@ constexpr auto parse_pltxt(::pltxt2htm::container::U8StringView pltext) noexcept
         case ::pltxt2htm::NodeKind::html_h1: {
             // Same as html_p: advance start_index past the consumed html_h1 content.
             start_index += consumed_bytes;
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h2: {
             // Same as html_p: advance start_index past the consumed html_h2 content.
             start_index += consumed_bytes;
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH2>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH2>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h3: {
             // Same as html_p: advance start_index past the consumed html_h3 content.
             start_index += consumed_bytes;
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH3>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH3>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h4: {
             // Same as html_p: advance start_index past the consumed html_h4 content.
             start_index += consumed_bytes;
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH4>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH4>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h5: {
             // Same as html_p: advance start_index past the consumed html_h5 content.
             start_index += consumed_bytes;
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH5>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH5>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_h6: {
             // Same as html_p: advance start_index past the consumed html_h6 content.
             start_index += consumed_bytes;
-            result.push_back(
-                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH6>(::std::move(subast)));
+            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH6>(::std::move(subast)));
             continue;
         }
         case ::pltxt2htm::NodeKind::html_blockquote: {
             // Same as html_p: advance start_index past the consumed html_blockquote content so the
             // remaining text handler doesn't re-process it.
             start_index += consumed_bytes;
-            result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlBlockquote>(
-                ::std::move(subast)));
+            result.push_back(
+                ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlBlockquote>(::std::move(subast)));
             continue;
         }
         default:

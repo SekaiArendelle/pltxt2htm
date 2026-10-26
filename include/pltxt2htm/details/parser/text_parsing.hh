@@ -71,8 +71,8 @@ namespace pltxt2htm::details {
  * @return Number of consumed UTF-8 code units.
  */
 [[nodiscard]]
-constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text,
-                                     ::pltxt2htm::Ast& result) noexcept -> ::std::size_t {
+constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text, ::pltxt2htm::Ast& result) noexcept
+    -> ::std::size_t {
     char8_t const first{text.index(0)};
     if (::pltxt2htm::details::is_ascii_control_code_point(static_cast<char32_t>(first))) {
         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::InvalidUtf8>());

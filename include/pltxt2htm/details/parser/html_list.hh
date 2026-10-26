@@ -48,7 +48,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
     ::pltxt2htm::NodeKind item_kind{};
     ::std::size_t start{1};
     ::std::size_t current_index{};
-    if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag< u8"<ul">(pltext); opt_len.has_value()) {
+    if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<u8"<ul">(pltext); opt_len.has_value()) {
         item_kind = ::pltxt2htm::NodeKind::list_ul;
         current_index = opt_len.value();
     }
@@ -82,28 +82,24 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         // with only whitespace but no items) is not a valid list today, so fall
         // back to literal text like any other malformed list instead of building
         // an empty list container.
-        if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag< u8"</ul">(
-                pltext.subview(current_index));
+        if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<u8"</ul">(pltext.subview(current_index));
             item_kind == ::pltxt2htm::NodeKind::list_ul && opt_len.has_value()) {
             if (ast.is_empty()) {
                 return ::pltxt2htm::container::nullopt;
             }
             return ToHtmlListAstResult{.top_node = ListBaseNode{ListUlNode(::std::move(ast))},
-                                               .advance_count = current_index + opt_len.value()};
+                                       .advance_count = current_index + opt_len.value()};
         }
-        if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag< u8"</ol">(
-                pltext.subview(current_index));
+        if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<u8"</ol">(pltext.subview(current_index));
             item_kind == ::pltxt2htm::NodeKind::list_ol && opt_len.has_value()) {
             if (ast.is_empty()) {
                 return ::pltxt2htm::container::nullopt;
             }
-            return ToHtmlListAstResult{
-                .top_node = ListBaseNode{ListOlNode(::std::move(ast), start)},
-                .advance_count = current_index + opt_len.value()};
+            return ToHtmlListAstResult{.top_node = ListBaseNode{ListOlNode(::std::move(ast), start)},
+                                       .advance_count = current_index + opt_len.value()};
         }
         // Only <li> elements are allowed inside <ul>/<ol>.
-        if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag< u8"<li">(
-                pltext.subview(current_index));
+        if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<u8"<li">(pltext.subview(current_index));
             opt_len.has_value()) {
             current_index += opt_len.value();
         }
@@ -126,8 +122,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         // that inline occurrences of <input> stay literal text.
         bool checkbox{};
         bool checkbox_checked{};
-        if (auto opt_input = ::pltxt2htm::details::try_parse_input_checkbox_tag(
-                pltext.subview(current_index));
+        if (auto opt_input = ::pltxt2htm::details::try_parse_input_checkbox_tag(pltext.subview(current_index));
             opt_input.has_value()) {
             auto&& [input_len, checked] = opt_input.value();
             current_index += input_len;
@@ -152,27 +147,23 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
             if (current_index >= pltext_size) {
                 return ::pltxt2htm::container::nullopt;
             }
-            if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag< u8"</li">(
-                    pltext.subview(current_index));
+            if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<u8"</li">(pltext.subview(current_index));
                 opt_len.has_value()) {
                 current_index += opt_len.value();
                 break;
             }
             ::pltxt2htm::NodeKind nested_list_kind{};
-            if (auto const opt_len = ::pltxt2htm::details::try_parse_bare_tag< u8"<ul">(
-                    pltext.subview(current_index));
+            if (auto const opt_len = ::pltxt2htm::details::try_parse_bare_tag<u8"<ul">(pltext.subview(current_index));
                 opt_len.has_value()) {
                 nested_list_kind = ::pltxt2htm::NodeKind::list_ul;
             }
-            else if (auto const opt_ol_tag =
-                         ::pltxt2htm::details::try_parse_ol_tag(pltext.subview(current_index));
+            else if (auto const opt_ol_tag = ::pltxt2htm::details::try_parse_ol_tag(pltext.subview(current_index));
                      opt_ol_tag.has_value()) {
                 nested_list_kind = ::pltxt2htm::NodeKind::list_ol;
             }
             if (nested_list_kind == ::pltxt2htm::NodeKind::list_ul ||
                 nested_list_kind == ::pltxt2htm::NodeKind::list_ol) {
-                auto opt_nested = ::pltxt2htm::details::optionally_to_html_list_ast(
-                    pltext.subview(current_index));
+                auto opt_nested = ::pltxt2htm::details::optionally_to_html_list_ast(pltext.subview(current_index));
                 if (opt_nested.has_value() == false) {
                     return ::pltxt2htm::container::nullopt;
                 }

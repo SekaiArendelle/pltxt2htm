@@ -11,8 +11,7 @@
 
 constexpr void assert_decoded(::pltxt2htm::container::U8StringView text, ::std::size_t consumed_size,
                               char32_t first_code_point, char32_t second_code_point = char32_t{}) {
-    auto const result =
-        ::pltxt2htm::details::try_decode_character_reference(text);
+    auto const result = ::pltxt2htm::details::try_decode_character_reference(text);
     pltxt2htm_test_assert_true(result.has_value());
     auto const& decoded = result.value();
     pltxt2htm_test_assert_true(decoded.consumed_size == consumed_size);
@@ -22,20 +21,16 @@ constexpr void assert_decoded(::pltxt2htm::container::U8StringView text, ::std::
 }
 
 constexpr void assert_not_decoded(::pltxt2htm::container::U8StringView text) {
-    pltxt2htm_test_assert_true(
-        ::pltxt2htm::details::try_decode_character_reference(text).has_value() ==
-        false);
+    pltxt2htm_test_assert_true(::pltxt2htm::details::try_decode_character_reference(text).has_value() == false);
 }
 
 constexpr auto entity_decoder_is_constexpr() -> bool {
-    auto const result =
-        ::pltxt2htm::details::try_decode_character_reference(u8"&amp;");
+    auto const result = ::pltxt2htm::details::try_decode_character_reference(u8"&amp;");
     return result.has_value() && result.value().first_code_point == U'&';
 }
 
 constexpr auto utf8_helpers_are_constexpr() noexcept -> bool {
-    auto const decoded =
-        ::pltxt2htm::details::decode_utf8_code_point(u8"\U0001F600");
+    auto const decoded = ::pltxt2htm::details::decode_utf8_code_point(u8"\U0001F600");
     auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(char32_t{0x1F600});
     return decoded.valid && decoded.consumed_size == 4 && decoded.code_point == char32_t{0x1F600} &&
            encoded.size == 4 && encoded.code_units[0] == char8_t{0xF0} && encoded.code_units[1] == char8_t{0x9F} &&
@@ -67,10 +62,8 @@ static_assert(parsed_url_scheme_size(u8"http:/") == 0);
 static_assert(parsed_url_scheme_size(u8"ftp://x") == 0);
 static_assert(::pltxt2htm::details::scan_plain_ascii_run(u8"plain text") == 5);
 static_assert(::pltxt2htm::details::scan_plain_ascii_run(u8"hello") == 5);
-static_assert(
-    ::pltxt2htm::details::scan_plain_ascii_run(u8"abchttps://example.com") == 3);
-static_assert(
-    ::pltxt2htm::details::scan_plain_ascii_run(u8"abcHTTPS://example.com") == 3);
+static_assert(::pltxt2htm::details::scan_plain_ascii_run(u8"abchttps://example.com") == 3);
+static_assert(::pltxt2htm::details::scan_plain_ascii_run(u8"abcHTTPS://example.com") == 3);
 static_assert(::pltxt2htm::details::scan_plain_ascii_run(u8"abc*") == 3);
 static_assert(::pltxt2htm::details::scan_plain_ascii_run(u8"abc\u00E9") == 3);
 
@@ -104,10 +97,8 @@ int main() {
             for (::std::size_t index{}; index < size; ++index) {
                 input.push_back(u8'a');
             }
-            auto const ast = ::pltxt2htm::parse_pltxt(
-                ::pltxt2htm::container::U8StringView{input});
-            auto const inline_ast = ::pltxt2htm::inline_parse_pltxt(
-                ::pltxt2htm::container::U8StringView{input});
+            auto const ast = ::pltxt2htm::parse_pltxt(::pltxt2htm::container::U8StringView{input});
+            auto const inline_ast = ::pltxt2htm::inline_parse_pltxt(::pltxt2htm::container::U8StringView{input});
             auto const expected_nodes = size / text_capacity + static_cast<::std::size_t>(size % text_capacity != 0);
             pltxt2htm_test_assert_true(ast.size() == expected_nodes);
             pltxt2htm_test_assert_true(inline_ast == ast);
@@ -120,8 +111,7 @@ int main() {
             ::pltxt2htm::container::U8String input{u8"abc"};
             input.push_back(starter);
             pltxt2htm_test_assert_true(
-                ::pltxt2htm::details::scan_plain_ascii_run(
-                    ::pltxt2htm::container::U8StringView{input}) == 3);
+                ::pltxt2htm::details::scan_plain_ascii_run(::pltxt2htm::container::U8StringView{input}) == 3);
         }
     }
     {
@@ -131,8 +121,7 @@ int main() {
         pltxt2htm_test_assert_true(decoded.code_point == U'A');
     }
     {
-        auto const decoded =
-            ::pltxt2htm::details::decode_utf8_code_point(u8"\u20AC");
+        auto const decoded = ::pltxt2htm::details::decode_utf8_code_point(u8"\u20AC");
         pltxt2htm_test_assert_true(decoded.valid);
         pltxt2htm_test_assert_true(decoded.consumed_size == 3);
         pltxt2htm_test_assert_true(decoded.code_point == char32_t{0x20AC});
@@ -203,8 +192,8 @@ int main() {
     assert_decoded(u8"&#127;", 6, char32_t{0x7F});
 
     {
-        auto const decoded = ::pltxt2htm::details::decode_character_references(
-            u8"a&amp;&bogus;&#1;&#127;&NotEqualTilde;&amp");
+        auto const decoded =
+            ::pltxt2htm::details::decode_character_references(u8"a&amp;&bogus;&#1;&#127;&NotEqualTilde;&amp");
         pltxt2htm_test_assert_equal(decoded, u8"a&&bogus;\uFFFD\uFFFD\u2242\u0338&amp");
     }
 
@@ -224,8 +213,7 @@ int main() {
         spelling.append(entity.name);
         spelling.push_back(u8';');
         auto const decoded =
-            ::pltxt2htm::details::try_decode_character_reference(
-                ::pltxt2htm::container::U8StringView{spelling});
+            ::pltxt2htm::details::try_decode_character_reference(::pltxt2htm::container::U8StringView{spelling});
         pltxt2htm_test_assert_true(decoded.has_value());
         auto const& value = decoded.value();
         pltxt2htm_test_assert_true(value.consumed_size == spelling.size());
@@ -260,8 +248,7 @@ int main() {
         pltxt2htm_test_assert_equal(::pltxt2htm_test::pltxt2common_htmld(pltext), answer);
     }
     {
-        auto const ast = ::pltxt2htm::parse_pltxt(
-            u8" \u00A0&nbsp;&NonBreakingSpace;&#32;&#x20;&#160;&#xA0;");
+        auto const ast = ::pltxt2htm::parse_pltxt(u8" \u00A0&nbsp;&NonBreakingSpace;&#32;&#x20;&#160;&#xA0;");
         pltxt2htm_test_assert_true(ast.size() == 8);
         for (auto const& node : ast) {
             pltxt2htm_test_assert_true(node.get_node_kind() == ::pltxt2htm::NodeKind::space);
