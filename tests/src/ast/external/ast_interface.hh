@@ -62,9 +62,9 @@ TEST_SUITE("ast_interface") {
         CHECK(ast.data() == ast.cbegin());
         CHECK(ast.begin() == ast.cbegin());
         CHECK(ast.end() == ast.cend());
-        CHECK(ast.index(0).get_node_kind() == ::pltxt2htm::NodeKind::text);
-        CHECK(ast.front().as_text().index(0) == u8'a');
-        CHECK(ast.index(1).as_text().index(0) == u8'b');
+        CHECK(ast[0].get_node_kind() == ::pltxt2htm::NodeKind::text);
+        CHECK(ast.front().as_text()[0] == u8'a');
+        CHECK(ast[1].as_text()[0] == u8'b');
     }
 
     // Appending, removing and reusing the storage
@@ -79,7 +79,7 @@ TEST_SUITE("ast_interface") {
 
         ast.pop_back();
         CHECK(ast.size() == 2);
-        CHECK(ast.front().as_text().index(0) == u8'x');
+        CHECK(ast.front().as_text()[0] == u8'x');
 
         ast.reserve(16);
         auto const reserved_capacity = ast.capacity();
@@ -103,13 +103,13 @@ TEST_SUITE("ast_interface") {
         ast.append_text(::pltxt2htm::container::U8StringView{});
         CHECK(ast.size() == 1);
         CHECK(ast.front().as_text().size() == 3);
-        CHECK(ast.front().as_text().index(0) == u8'a');
-        CHECK(ast.front().as_text().index(2) == u8'c');
+        CHECK(ast.front().as_text()[0] == u8'a');
+        CHECK(ast.front().as_text()[2] == u8'c');
 
         ast.push_back(Node::template emplace<::pltxt2htm::LineBreak>());
         ast.append_text(u8'd');
         CHECK(ast.size() == 3);
-        CHECK(ast.index(2).as_text().index(0) == u8'd');
+        CHECK(ast[2].as_text()[0] == u8'd');
     }
 
     // Semantic code points become dedicated nodes or coalesced UTF-8 text.
@@ -125,15 +125,15 @@ TEST_SUITE("ast_interface") {
         ast.append_code_point(char32_t{0xD800});
 
         CHECK(ast.size() == 7);
-        CHECK(ast.index(0).as_text().size() == 4);
-        CHECK(ast.index(0).as_text().index(0) == u8'A');
-        CHECK(ast.index(0).as_text().index(1) == char8_t{0xE2});
-        CHECK(ast.index(1).get_node_kind() == ::pltxt2htm::NodeKind::space);
-        CHECK(ast.index(2).get_node_kind() == ::pltxt2htm::NodeKind::space);
-        CHECK(ast.index(3).get_node_kind() == ::pltxt2htm::NodeKind::line_break);
-        CHECK(ast.index(4).get_node_kind() == ::pltxt2htm::NodeKind::ampersand);
-        CHECK(ast.index(5).get_node_kind() == ::pltxt2htm::NodeKind::invalid_utf8);
-        CHECK(ast.index(6).get_node_kind() == ::pltxt2htm::NodeKind::invalid_utf8);
+        CHECK(ast[0].as_text().size() == 4);
+        CHECK(ast[0].as_text()[0] == u8'A');
+        CHECK(ast[0].as_text()[1] == char8_t{0xE2});
+        CHECK(ast[1].get_node_kind() == ::pltxt2htm::NodeKind::space);
+        CHECK(ast[2].get_node_kind() == ::pltxt2htm::NodeKind::space);
+        CHECK(ast[3].get_node_kind() == ::pltxt2htm::NodeKind::line_break);
+        CHECK(ast[4].get_node_kind() == ::pltxt2htm::NodeKind::ampersand);
+        CHECK(ast[5].get_node_kind() == ::pltxt2htm::NodeKind::invalid_utf8);
+        CHECK(ast[6].get_node_kind() == ::pltxt2htm::NodeKind::invalid_utf8);
     }
 
     // Iteration, reverse iteration and range-based for
@@ -149,7 +149,7 @@ TEST_SUITE("ast_interface") {
 
         CHECK(ast.begin() != ast.end());
         CHECK(ast.end() - ast.begin() == 3);
-        CHECK(*ast.rbegin() == ast.index(2));
+        CHECK(*ast.rbegin() == ast[2]);
         CHECK(ast.rend() == ast.rbegin() + 3);
     }
 
@@ -160,7 +160,7 @@ TEST_SUITE("ast_interface") {
         auto const next = ast.erase(ast.begin());
         CHECK(ast.size() == 2);
         CHECK(next == ast.begin());
-        CHECK(ast.front().as_text().index(0) == u8'b');
+        CHECK(ast.front().as_text()[0] == u8'b');
 
         auto const unchanged = ast.erase(ast.end(), ast.end());
         CHECK(unchanged == ast.end());
@@ -169,7 +169,7 @@ TEST_SUITE("ast_interface") {
         auto const after = ast.erase(ast.begin(), ast.begin() + 1);
         CHECK(ast.size() == 1);
         CHECK(after == ast.begin());
-        CHECK(ast.front().as_text().index(0) == u8'c');
+        CHECK(ast.front().as_text()[0] == u8'c');
     }
 
     // Appending a whole range, from an rvalue, an lvalue and an empty source
@@ -230,7 +230,7 @@ TEST_SUITE("ast_interface") {
 
         ast.swap(ast);
         CHECK(ast.size() == 2);
-        CHECK(ast.front().as_text().index(0) == u8'a');
+        CHECK(ast.front().as_text()[0] == u8'a');
     }
 
     // Swap, through the member and the free function

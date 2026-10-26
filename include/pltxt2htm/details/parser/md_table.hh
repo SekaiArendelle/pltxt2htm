@@ -50,13 +50,13 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
     ::std::size_t current_index{};
     // skip leading spaces
     for (; current_index < pltext_size; ++current_index) {
-        auto const chr = pltext.index(current_index);
+        auto const chr = pltext[current_index];
         if (chr != u8' ' && chr != u8'\t') {
             break;
         }
     }
     // must start with |
-    if (current_index >= pltext_size || pltext.index(current_index) != u8'|') {
+    if (current_index >= pltext_size || pltext[current_index] != u8'|') {
         return ::pltxt2htm::container::nullopt;
     }
     ++current_index; // skip the first |
@@ -66,7 +66,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
     while (current_index < pltext_size) {
         // skip spaces before cell content
         for (; current_index < pltext_size; ++current_index) {
-            auto const chr = pltext.index(current_index);
+            auto const chr = pltext[current_index];
             if (chr != u8' ' && chr != u8'\t') {
                 break;
             }
@@ -75,7 +75,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
             break;
         }
         // end of row at \n
-        if (pltext.index(current_index) == u8'\n') {
+        if (pltext[current_index] == u8'\n') {
             ++current_index;
             break;
         }
@@ -84,7 +84,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
         ::pltxt2htm::container::U8String cell{};
         bool prev_was_backslash{};
         for (; current_index < pltext_size; ++current_index) {
-            auto chr = pltext.index(current_index);
+            auto chr = pltext[current_index];
             if (chr == u8'|') {
                 if (prev_was_backslash) {
                     cell.pop_back(); // remove the escape backslash
@@ -106,7 +106,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
             cell.pop_back();
         }
         row.push_back(::std::move(cell));
-        if (current_index < pltext_size && pltext.index(current_index) == u8'|') {
+        if (current_index < pltext_size && pltext[current_index] == u8'|') {
             has_trailing_pipe = true;
             ++current_index; // skip |
         }
@@ -143,13 +143,13 @@ constexpr auto try_parse_table_align(::pltxt2htm::container::U8StringView cell) 
     ::std::size_t const cell_size{cell.size()};
     ::std::size_t current_index{};
     bool left{};
-    if (cell.index(current_index) == u8':') {
+    if (cell[current_index] == u8':') {
         left = true;
         ++current_index;
     }
 
     bool has_dash{};
-    while (current_index < cell_size && cell.index(current_index) == u8'-') {
+    while (current_index < cell_size && cell[current_index] == u8'-') {
         has_dash = true;
         ++current_index;
     }
@@ -158,7 +158,7 @@ constexpr auto try_parse_table_align(::pltxt2htm::container::U8StringView cell) 
     }
 
     bool right{};
-    if (current_index < cell_size && cell.index(current_index) == u8':') {
+    if (current_index < cell_size && cell[current_index] == u8':') {
         right = true;
         ++current_index;
     }
@@ -247,9 +247,9 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
     TableAstRaw raw_ast{};
     TableRowRaw header_row_raw{.cells = {}, .section = TableRowSection::thead};
     for (::std::size_t col{}; col < num_cols; ++col) {
-        auto const align_val = aligns.index(col);
+        auto const align_val = aligns[col];
         header_row_raw.cells.push_back(TableCellRaw{
-            .text = ::std::move(header_row.index(col)),
+            .text = ::std::move(header_row[col]),
             .align = align_val,
             .is_header = true,
         });
@@ -272,9 +272,9 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
         }
         TableRowRaw body_row_raw{.cells = {}, .section = TableRowSection::tbody};
         for (::std::size_t col{}; col < num_cols; ++col) {
-            auto const align_val = aligns.index(col);
+            auto const align_val = aligns[col];
             body_row_raw.cells.push_back(TableCellRaw{
-                .text = ::std::move(row.index(col)),
+                .text = ::std::move(row[col]),
                 .align = align_val,
                 .is_header = false,
             });

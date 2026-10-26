@@ -69,7 +69,7 @@ constexpr auto try_parse_url_domain(::pltxt2htm::container::U8StringView pltext)
     bool label_has_char{};
     bool label_ended_with_hyphen{};
     while (current_index < pltext_size) {
-        auto const chr = pltext.index(current_index);
+        auto const chr = pltext[current_index];
         if (::pltxt2htm::details::is_ascii_alpha(chr) || ::pltxt2htm::details::is_ascii_digit(chr)) {
             label_has_char = true;
             label_ended_with_hyphen = false;
@@ -118,7 +118,7 @@ constexpr auto try_parse_url_port(::pltxt2htm::container::U8StringView pltext) n
     ::std::size_t current_index{};
     ::std::size_t port_size{};
     while (current_index < pltext_size) {
-        auto const chr = pltext.index(current_index);
+        auto const chr = pltext[current_index];
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
         }
@@ -133,7 +133,7 @@ constexpr auto try_parse_url_port(::pltxt2htm::container::U8StringView pltext) n
         return ::pltxt2htm::container::nullopt;
     }
     if (current_index < pltext_size) {
-        auto const next_chr = pltext.index(current_index);
+        auto const next_chr = pltext[current_index];
         if (next_chr != u8'/' && next_chr != u8'?' && next_chr != u8'#') {
             return ::pltxt2htm::container::nullopt;
         }
@@ -162,7 +162,7 @@ constexpr auto try_parse_url_authority(::pltxt2htm::container::U8StringView plte
         return ::pltxt2htm::container::nullopt;
     }
     auto const domain_end = opt_domain_end.value().get();
-    if (domain_end >= pltext.size() || pltext.index(domain_end) != u8':') {
+    if (domain_end >= pltext.size() || pltext[domain_end] != u8':') {
         return ::pltxt2htm::container::NonZeroUsize::from(domain_end);
     }
     auto const opt_port_end = ::pltxt2htm::details::try_parse_url_port(pltext.subview(domain_end + 1));
@@ -184,14 +184,14 @@ constexpr auto try_parse_url_authority(::pltxt2htm::container::U8StringView plte
 constexpr auto try_parse_url_path_simple(::pltxt2htm::container::U8StringView pltext) noexcept -> ::std::size_t {
     ::std::size_t const pltext_size{pltext.size()};
     if (pltext.is_empty() == false) {
-        auto const chr = pltext.index(0);
+        auto const chr = pltext[0];
         if (chr != u8'/' && chr != u8'?' && chr != u8'#') {
             return 0;
         }
     }
     ::std::size_t current_index{};
     while (current_index < pltext_size) {
-        auto const chr = pltext.index(current_index);
+        auto const chr = pltext[current_index];
         if (chr < u8'!' || chr > u8'~' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
             break;
         }
@@ -215,14 +215,14 @@ constexpr auto try_parse_url_path_simple(::pltxt2htm::container::U8StringView pl
 constexpr auto try_parse_url_path_unicode(::pltxt2htm::container::U8StringView pltext) noexcept -> ::std::size_t {
     ::std::size_t const pltext_size{pltext.size()};
     if (pltext.is_empty() == false) {
-        auto const chr = pltext.index(0);
+        auto const chr = pltext[0];
         if (chr != u8'/' && chr != u8'?' && chr != u8'#') {
             return 0;
         }
     }
     ::std::size_t current_index{};
     while (current_index < pltext_size) {
-        auto const chr = pltext.index(current_index);
+        auto const chr = pltext[current_index];
         if (chr < u8'!' || chr == u8'<' || chr == u8'>' || chr == u8'\"') {
             break;
         }

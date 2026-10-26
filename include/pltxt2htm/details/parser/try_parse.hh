@@ -61,13 +61,13 @@ constexpr auto try_parse_md_escape(::pltxt2htm::container::U8StringView pltext) 
     if (pltext.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
-    if (pltext.index(0) != u8'\\') {
+    if (pltext[0] != u8'\\') {
         return ::pltxt2htm::container::nullopt;
     }
     if (pltext.size() == 1) {
         return TryParseMdEscapeResult{.character = u8'\\', .kind = MdEscapeKind::literal_backslash, .advance_count = 1};
     }
-    char8_t const escaped_character{pltext.index(1)};
+    char8_t const escaped_character{pltext[1]};
     if (::pltxt2htm::details::is_ascii_punctuation(escaped_character) == false) {
         return TryParseMdEscapeResult{.character = u8'\\', .kind = MdEscapeKind::literal_backslash, .advance_count = 1};
     }
@@ -103,11 +103,11 @@ constexpr auto try_parse_space(::pltxt2htm::container::U8StringView pltext) noex
     if (pltext.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
-    char8_t const chr{pltext.index(0)};
+    char8_t const chr{pltext[0]};
     if (chr == u8' ') {
         return ::pltxt2htm::container::NonZeroUsize::from(1);
     }
-    if (chr == char8_t{0xC2} && pltext.size() > 1 && pltext.index(1) == char8_t{0xA0}) {
+    if (chr == char8_t{0xC2} && pltext.size() > 1 && pltext[1] == char8_t{0xA0}) {
         return ::pltxt2htm::container::NonZeroUsize::from(2);
     }
     return ::pltxt2htm::container::nullopt;
@@ -140,7 +140,7 @@ constexpr auto try_parse_bare_tag(::pltxt2htm::container::U8StringView pltext) n
 
     ::std::size_t const pltext_size{pltext.size()};
     for (::std::size_t i{tag_name_size}; i < pltext_size; ++i) {
-        auto const forward_chr = pltext.index(i);
+        auto const forward_chr = pltext[i];
         if (forward_chr == u8'>') {
             return i + 1;
         }
@@ -163,7 +163,7 @@ constexpr auto try_parse_bare_tag(::pltxt2htm::container::U8StringView pltext) n
     -> ::pltxt2htm::container::Optional<::std::size_t> {
     ::std::size_t const pltext_size{pltext.size()};
     for (::std::size_t i{}; i < pltext_size; ++i) {
-        auto const forward_chr = pltext.index(i);
+        auto const forward_chr = pltext[i];
         if (forward_chr == u8'>') {
             return i + 1;
         }
@@ -351,14 +351,14 @@ constexpr auto try_parse_td_style(::pltxt2htm::container::U8StringView pltext, c
     ::std::size_t p{};
     ::pltxt2htm::TableAlign align{::pltxt2htm::TableAlign::left};
     while (p < pltext_size) {
-        while (p < pltext_size && (pltext.index(p) == u8' ' || pltext.index(p) == u8'\t')) {
+        while (p < pltext_size && (pltext[p] == u8' ' || pltext[p] == u8'\t')) {
             ++p;
         }
         if (p >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
 
-        auto const chr = pltext.index(p);
+        auto const chr = pltext[p];
         if (chr == quote) {
             return TryParseTdStyleResult{.end = p + 1, .align = align};
         }
@@ -375,7 +375,7 @@ constexpr auto try_parse_td_style(::pltxt2htm::container::U8StringView pltext, c
         ::std::size_t value_end{};
         bool value_started{};
         while (p < pltext_size) {
-            auto const segment_chr = pltext.index(p);
+            auto const segment_chr = pltext[p];
             if (segment_chr == u8';' || segment_chr == quote) {
                 break;
             }
@@ -420,11 +420,11 @@ constexpr auto try_parse_td_style(::pltxt2htm::container::U8StringView pltext, c
         if (p >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(p) == u8';') {
+        if (pltext[p] == u8';') {
             ++p;
             continue;
         }
-        if (pltext.index(p) == quote) {
+        if (pltext[p] == quote) {
             return TryParseTdStyleResult{.end = p + 1, .align = align};
         }
         return ::pltxt2htm::container::nullopt;
@@ -464,35 +464,35 @@ constexpr auto try_parse_th_tag(::pltxt2htm::container::U8StringView pltext,
 
     while (pos < pltext_size) {
         // skip whitespace
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(pos) == u8'>') {
+        if (pltext[pos] == u8'>') {
             return TryParseTdTagResult{.tag_len = pos + 1, .align = align};
         }
 
         // parse attribute name
         ::std::size_t const attr_start{pos};
-        while (pos < pltext_size && pltext.index(pos) != u8'=' && pltext.index(pos) != u8'>' &&
-               pltext.index(pos) != u8' ' && pltext.index(pos) != u8'\t' && pltext.index(pos) != u8'/') {
+        while (pos < pltext_size && pltext[pos] != u8'=' && pltext[pos] != u8'>' && pltext[pos] != u8' ' &&
+               pltext[pos] != u8'\t' && pltext[pos] != u8'/') {
             ++pos;
         }
         ::pltxt2htm::container::U8StringView const attr_name{pltext.data() + attr_start, pos - attr_start};
 
         // skip whitespace before '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
-        if (pos >= pltext_size || pltext.index(pos) != u8'=') {
+        if (pos >= pltext_size || pltext[pos] != u8'=') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip '='
 
         // skip whitespace after '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -500,13 +500,13 @@ constexpr auto try_parse_th_tag(::pltxt2htm::container::U8StringView pltext,
         }
 
         // parse quoted attribute value
-        char8_t const quote{pltext.index(pos)};
+        char8_t const quote{pltext[pos]};
         if (quote != u8'\"' && quote != u8'\'') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip opening quote
         ::std::size_t const val_start{pos};
-        while (pos < pltext_size && pltext.index(pos) != quote) {
+        while (pos < pltext_size && pltext[pos] != quote) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -524,7 +524,7 @@ constexpr auto try_parse_th_tag(::pltxt2htm::container::U8StringView pltext,
         ::std::size_t css_pos{};
         while (css_pos < attr_val_size) {
             // skip leading whitespace
-            while (css_pos < attr_val_size && (attr_val.index(css_pos) == u8' ' || attr_val.index(css_pos) == u8'\t')) {
+            while (css_pos < attr_val_size && (attr_val[css_pos] == u8' ' || attr_val[css_pos] == u8'\t')) {
                 ++css_pos;
             }
             if (css_pos >= attr_val_size) {
@@ -533,7 +533,7 @@ constexpr auto try_parse_th_tag(::pltxt2htm::container::U8StringView pltext,
 
             // parse CSS property name (text-align)
             ::std::size_t const css_prop_start{css_pos};
-            while (css_pos < attr_val_size && attr_val.index(css_pos) != u8':') {
+            while (css_pos < attr_val_size && attr_val[css_pos] != u8':') {
                 ++css_pos;
             }
             if (css_pos >= attr_val_size) {
@@ -544,13 +544,13 @@ constexpr auto try_parse_th_tag(::pltxt2htm::container::U8StringView pltext,
             ++css_pos; // skip ':'
 
             // skip whitespace before value
-            while (css_pos < attr_val_size && (attr_val.index(css_pos) == u8' ' || attr_val.index(css_pos) == u8'\t')) {
+            while (css_pos < attr_val_size && (attr_val[css_pos] == u8' ' || attr_val[css_pos] == u8'\t')) {
                 ++css_pos;
             }
 
             // parse CSS value
             ::std::size_t const css_val_start{css_pos};
-            while (css_pos < attr_val_size && attr_val.index(css_pos) != u8';') {
+            while (css_pos < attr_val_size && attr_val[css_pos] != u8';') {
                 ++css_pos;
             }
             ::pltxt2htm::container::U8StringView const css_val{attr_val.data() + css_val_start,
@@ -598,35 +598,35 @@ constexpr auto try_parse_td_tag(::pltxt2htm::container::U8StringView pltext,
 
     while (pos < pltext_size) {
         // skip whitespace
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(pos) == u8'>') {
+        if (pltext[pos] == u8'>') {
             return TryParseTdTagResult{.tag_len = pos + 1, .align = align};
         }
 
         // parse attribute name
         ::std::size_t const attr_start{pos};
-        while (pos < pltext_size && pltext.index(pos) != u8'=' && pltext.index(pos) != u8'>' &&
-               pltext.index(pos) != u8' ' && pltext.index(pos) != u8'\t' && pltext.index(pos) != u8'/') {
+        while (pos < pltext_size && pltext[pos] != u8'=' && pltext[pos] != u8'>' && pltext[pos] != u8' ' &&
+               pltext[pos] != u8'\t' && pltext[pos] != u8'/') {
             ++pos;
         }
         ::pltxt2htm::container::U8StringView const attr_name{pltext.data() + attr_start, pos - attr_start};
 
         // skip whitespace before '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
-        if (pos >= pltext_size || pltext.index(pos) != u8'=') {
+        if (pos >= pltext_size || pltext[pos] != u8'=') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip '='
 
         // skip whitespace after '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -634,7 +634,7 @@ constexpr auto try_parse_td_tag(::pltxt2htm::container::U8StringView pltext,
         }
 
         // parse quoted attribute value
-        char8_t const quote{pltext.index(pos)};
+        char8_t const quote{pltext[pos]};
         if (quote != u8'"' && quote != u8'\'') {
             return ::pltxt2htm::container::nullopt;
         }
@@ -679,20 +679,20 @@ constexpr auto try_parse_p_tag(::pltxt2htm::container::U8StringView pltext) noex
 
     while (pos < pltext_size) {
         // skip whitespace
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(pos) == u8'>') {
+        if (pltext[pos] == u8'>') {
             return TryParsePTagResult{.tag_len = pos + 1, .align = align};
         }
 
         // parse attribute name
         ::std::size_t const attr_start{pos};
-        while (pos < pltext_size && pltext.index(pos) != u8'=' && pltext.index(pos) != u8'>' &&
-               pltext.index(pos) != u8' ' && pltext.index(pos) != u8'\t' && pltext.index(pos) != u8'/') {
+        while (pos < pltext_size && pltext[pos] != u8'=' && pltext[pos] != u8'>' && pltext[pos] != u8' ' &&
+               pltext[pos] != u8'\t' && pltext[pos] != u8'/') {
             ++pos;
         }
         ::pltxt2htm::container::U8StringView const attr_name{pltext.data() + attr_start, pos - attr_start};
@@ -701,16 +701,16 @@ constexpr auto try_parse_p_tag(::pltxt2htm::container::U8StringView pltext) noex
         }
 
         // skip whitespace before '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
-        if (pos >= pltext_size || pltext.index(pos) != u8'=') {
+        if (pos >= pltext_size || pltext[pos] != u8'=') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip '='
 
         // skip whitespace after '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -718,13 +718,13 @@ constexpr auto try_parse_p_tag(::pltxt2htm::container::U8StringView pltext) noex
         }
 
         // parse quoted attribute value
-        char8_t const quote{pltext.index(pos)};
+        char8_t const quote{pltext[pos]};
         if (quote != u8'\"' && quote != u8'\'') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip opening quote
         ::std::size_t const val_start{pos};
-        while (pos < pltext_size && pltext.index(pos) != quote) {
+        while (pos < pltext_size && pltext[pos] != quote) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -738,7 +738,7 @@ constexpr auto try_parse_p_tag(::pltxt2htm::container::U8StringView pltext) noex
         ::std::size_t css_pos{};
         while (css_pos < attr_val_size) {
             // skip leading whitespace
-            while (css_pos < attr_val_size && (attr_val.index(css_pos) == u8' ' || attr_val.index(css_pos) == u8'\t')) {
+            while (css_pos < attr_val_size && (attr_val[css_pos] == u8' ' || attr_val[css_pos] == u8'\t')) {
                 ++css_pos;
             }
             if (css_pos >= attr_val_size) {
@@ -747,7 +747,7 @@ constexpr auto try_parse_p_tag(::pltxt2htm::container::U8StringView pltext) noex
 
             // parse CSS property name (text-align)
             ::std::size_t const css_prop_start{css_pos};
-            while (css_pos < attr_val_size && attr_val.index(css_pos) != u8':') {
+            while (css_pos < attr_val_size && attr_val[css_pos] != u8':') {
                 ++css_pos;
             }
             if (css_pos >= attr_val_size) {
@@ -758,13 +758,13 @@ constexpr auto try_parse_p_tag(::pltxt2htm::container::U8StringView pltext) noex
             ++css_pos; // skip ':'
 
             // skip whitespace before value
-            while (css_pos < attr_val_size && (attr_val.index(css_pos) == u8' ' || attr_val.index(css_pos) == u8'\t')) {
+            while (css_pos < attr_val_size && (attr_val[css_pos] == u8' ' || attr_val[css_pos] == u8'\t')) {
                 ++css_pos;
             }
 
             // parse CSS value
             ::std::size_t const css_val_start{css_pos};
-            while (css_pos < attr_val_size && attr_val.index(css_pos) != u8';') {
+            while (css_pos < attr_val_size && attr_val[css_pos] != u8';') {
                 ++css_pos;
             }
             ::pltxt2htm::container::U8StringView const css_val{attr_val.data() + css_val_start,
@@ -822,7 +822,7 @@ constexpr auto find_value_end(::pltxt2htm::container::U8StringView pltext) noexc
     ::std::size_t const pltext_size{pltext.size()};
     auto pos = ::std::size_t{0};
     while (pos < pltext_size) {
-        auto const chr = pltext.index(pos);
+        auto const chr = pltext[pos];
         if (chr == u8'>' || chr == u8' ' || chr == u8'\t' || value_char_predicate(chr) == false) {
             break;
         }
@@ -854,10 +854,10 @@ constexpr auto try_parse_equal_sign_tag_suffix(::pltxt2htm::container::U8StringV
     -> ::pltxt2htm::container::Optional<::std::size_t> {
     ::std::size_t const pltext_size{pltext.size()};
     auto pos = ::std::size_t{0};
-    while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+    while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
         ++pos;
     }
-    if (pos >= pltext_size || pltext.index(pos) != u8'>') {
+    if (pos >= pltext_size || pltext[pos] != u8'>') {
         return ::pltxt2htm::container::nullopt;
     }
     return pos + 1;
@@ -944,7 +944,7 @@ constexpr auto try_parse_color_value(::pltxt2htm::container::U8StringView pltext
     if (pltext.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
-    if (pltext.index(0) != u8'#') {
+    if (pltext[0] != u8'#') {
         auto const end = ::pltxt2htm::details::find_value_end<::pltxt2htm::details::is_ascii_alpha>(pltext);
         if (end == 0) {
             return ::pltxt2htm::container::nullopt;
@@ -1015,12 +1015,11 @@ constexpr auto try_parse_size_tag(::pltxt2htm::container::U8StringView pltext) n
     auto const value = opt_value.value();
     auto value_end = value_start + value.end;
     auto unit = ::pltxt2htm::Unit::px;
-    if (value_end < pltext.size() && pltext.index(value_end) == u8'%') {
+    if (value_end < pltext.size() && pltext[value_end] == u8'%') {
         unit = ::pltxt2htm::Unit::percent;
         ++value_end;
     }
-    else if (value_end + 1 < pltext.size() && pltext.index(value_end) == u8'e' &&
-             pltext.index(value_end + 1) == u8'm') {
+    else if (value_end + 1 < pltext.size() && pltext[value_end] == u8'e' && pltext[value_end + 1] == u8'm') {
         unit = ::pltxt2htm::Unit::em;
         value_end += 2;
     }
@@ -1070,18 +1069,18 @@ constexpr auto try_parse_font_size_value(::pltxt2htm::container::U8StringView pl
     }
     auto pos = decimal.end;
     auto unit = ::pltxt2htm::Unit::px;
-    if (pos < pltext.size() && pltext.index(pos) == u8'p') {
+    if (pos < pltext.size() && pltext[pos] == u8'p') {
         ++pos;
-        if (pos >= pltext.size() || pltext.index(pos) != u8'x') {
+        if (pos >= pltext.size() || pltext[pos] != u8'x') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos;
     }
-    else if (pos < pltext.size() && pltext.index(pos) == u8'%') {
+    else if (pos < pltext.size() && pltext[pos] == u8'%') {
         unit = ::pltxt2htm::Unit::percent;
         ++pos;
     }
-    else if (pos + 1 < pltext.size() && pltext.index(pos) == u8'e' && pltext.index(pos + 1) == u8'm') {
+    else if (pos + 1 < pltext.size() && pltext[pos] == u8'e' && pltext[pos + 1] == u8'm') {
         unit = ::pltxt2htm::Unit::em;
         pos += 2;
     }
@@ -1116,18 +1115,18 @@ constexpr auto try_parse_signed_length_value(::pltxt2htm::container::U8StringVie
     }
     auto pos = decimal.end;
     auto unit = ::pltxt2htm::Unit::px;
-    if (pos < pltext.size() && pltext.index(pos) == u8'p') {
+    if (pos < pltext.size() && pltext[pos] == u8'p') {
         ++pos;
-        if (pos >= pltext.size() || pltext.index(pos) != u8'x') {
+        if (pos >= pltext.size() || pltext[pos] != u8'x') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos;
     }
-    else if (pos < pltext.size() && pltext.index(pos) == u8'%') {
+    else if (pos < pltext.size() && pltext[pos] == u8'%') {
         unit = ::pltxt2htm::Unit::percent;
         ++pos;
     }
-    else if (pos + 1 < pltext.size() && pltext.index(pos) == u8'e' && pltext.index(pos + 1) == u8'm') {
+    else if (pos + 1 < pltext.size() && pltext[pos] == u8'e' && pltext[pos + 1] == u8'm') {
         unit = ::pltxt2htm::Unit::em;
         pos += 2;
     }
@@ -1200,7 +1199,7 @@ constexpr auto try_parse_align_tag(::pltxt2htm::container::U8StringView pltext) 
     }
     constexpr auto value_start = prefix_str.size() + 1;
     auto value_view = pltext.subview(value_start);
-    bool const quoted = value_view.size() != 0 && value_view.index(0) == u8'"';
+    bool const quoted = value_view.size() != 0 && value_view[0] == u8'"';
     ::std::size_t const quote_offset = quoted ? 1 : 0;
     if (quoted) {
         value_view = value_view.subview(1);
@@ -1232,7 +1231,7 @@ constexpr auto try_parse_align_tag(::pltxt2htm::container::U8StringView pltext) 
             continue;
         }
         if (value_view_size > keyword_size) {
-            auto const next = value_view.index(keyword_size);
+            auto const next = value_view[keyword_size];
             if (::pltxt2htm::details::is_ascii_alpha(next) || ::pltxt2htm::details::is_ascii_digit(next)) {
                 continue;
             }
@@ -1250,10 +1249,10 @@ constexpr auto try_parse_align_tag(::pltxt2htm::container::U8StringView pltext) 
     if (quoted) {
         ::std::size_t const after_value_size{after_value.size()};
         while (quote_close_offset < after_value_size &&
-               (after_value.index(quote_close_offset) == u8' ' || after_value.index(quote_close_offset) == u8'\t')) {
+               (after_value[quote_close_offset] == u8' ' || after_value[quote_close_offset] == u8'\t')) {
             ++quote_close_offset;
         }
-        if (quote_close_offset >= after_value_size || after_value.index(quote_close_offset) != u8'"') {
+        if (quote_close_offset >= after_value_size || after_value[quote_close_offset] != u8'"') {
             return ::pltxt2htm::container::nullopt;
         }
         ++quote_close_offset;
@@ -1291,19 +1290,18 @@ constexpr auto try_parse_margin_value(::pltxt2htm::container::U8StringView pltex
     auto const parsed = opt_value.value();
     auto value_end = parsed.end;
     auto unit = ::pltxt2htm::Unit::px;
-    if (value_end < pltext.size() && pltext.index(value_end) == u8'p') {
+    if (value_end < pltext.size() && pltext[value_end] == u8'p') {
         ++value_end;
-        if (value_end >= pltext.size() || pltext.index(value_end) != u8'x') {
+        if (value_end >= pltext.size() || pltext[value_end] != u8'x') {
             return ::pltxt2htm::container::nullopt;
         }
         ++value_end;
     }
-    else if (value_end < pltext.size() && pltext.index(value_end) == u8'%') {
+    else if (value_end < pltext.size() && pltext[value_end] == u8'%') {
         unit = ::pltxt2htm::Unit::percent;
         ++value_end;
     }
-    else if (value_end + 1 < pltext.size() && pltext.index(value_end) == u8'e' &&
-             pltext.index(value_end + 1) == u8'm') {
+    else if (value_end + 1 < pltext.size() && pltext[value_end] == u8'e' && pltext[value_end + 1] == u8'm') {
         unit = ::pltxt2htm::Unit::em;
         value_end += 2;
     }
@@ -1367,13 +1365,13 @@ constexpr auto try_parse_margin_attributes(::pltxt2htm::container::U8StringView 
     auto pos = ::std::size_t{0};
     bool saw_attribute = false;
     while (true) {
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(pos) == u8'>') {
+        if (pltext[pos] == u8'>') {
             if (saw_attribute == false) {
                 return ::pltxt2htm::container::nullopt;
             }
@@ -1388,7 +1386,7 @@ constexpr auto try_parse_margin_attributes(::pltxt2htm::container::U8StringView 
         }
         auto const name_len = is_left ? ::std::size_t{4} : ::std::size_t{5};
         pos += name_len;
-        if (pos >= pltext_size || pltext.index(pos) != u8'=') {
+        if (pos >= pltext_size || pltext[pos] != u8'=') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos;
@@ -1463,7 +1461,7 @@ constexpr auto try_parse_margin_tag(::pltxt2htm::container::U8StringView pltext)
     }
     if (::pltxt2htm::details::is_prefix_match<prefix_str>(pltext)) {
         if (pltext_size > prefix_str.size()) {
-            auto const next = pltext.index(prefix_str.size());
+            auto const next = pltext[prefix_str.size()];
             if (next == u8' ' || next == u8'\t') {
                 constexpr auto start = prefix_str.size();
                 auto opt_attributes = ::pltxt2htm::details::try_parse_margin_attributes(pltext.subview(start));
@@ -1510,7 +1508,7 @@ constexpr auto try_parse_html_div_tag(::pltxt2htm::container::U8StringView pltex
     ::std::size_t pos{4}; // skip past "<div"
 
     // match the single allowed attribute name "style" (case-sensitive, like the span parser)
-    while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+    while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
         ++pos;
     }
     constexpr auto style_str = ::pltxt2htm::details::U8LiteralString{u8"style"};
@@ -1520,20 +1518,20 @@ constexpr auto try_parse_html_div_tag(::pltxt2htm::container::U8StringView pltex
     }
     pos += style_str.size();
 
-    while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+    while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
         ++pos;
     }
-    if (pos >= pltext_size || pltext.index(pos) != u8'=') {
+    if (pos >= pltext_size || pltext[pos] != u8'=') {
         return ::pltxt2htm::container::nullopt;
     }
     ++pos;
-    while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+    while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
         ++pos;
     }
     if (pos >= pltext_size) {
         return ::pltxt2htm::container::nullopt;
     }
-    char8_t const quote{pltext.index(pos)};
+    char8_t const quote{pltext[pos]};
     if (quote != u8'"' && quote != u8'\'') {
         return ::pltxt2htm::container::nullopt;
     }
@@ -1543,13 +1541,13 @@ constexpr auto try_parse_html_div_tag(::pltxt2htm::container::U8StringView pltex
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right{::pltxt2htm::container::nullopt};
 
     while (true) {
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(pos) == quote) {
+        if (pltext[pos] == quote) {
             ++pos;
             break;
         }
@@ -1566,14 +1564,14 @@ constexpr auto try_parse_html_div_tag(::pltxt2htm::container::U8StringView pltex
         }
         pos += is_left ? left_str.size() : right_str.size();
 
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
-        if (pos >= pltext_size || pltext.index(pos) != u8':') {
+        if (pos >= pltext_size || pltext[pos] != u8':') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos;
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
 
@@ -1597,17 +1595,17 @@ constexpr auto try_parse_html_div_tag(::pltxt2htm::container::U8StringView pltex
             right = value.value;
         }
 
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(pos) == u8';') {
+        if (pltext[pos] == u8';') {
             ++pos;
             continue;
         }
-        if (pltext.index(pos) == quote) {
+        if (pltext[pos] == quote) {
             ++pos;
             break;
         }
@@ -1619,10 +1617,10 @@ constexpr auto try_parse_html_div_tag(::pltxt2htm::container::U8StringView pltex
         return ::pltxt2htm::container::nullopt;
     }
 
-    while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+    while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
         ++pos;
     }
-    if (pos >= pltext_size || pltext.index(pos) != u8'>') {
+    if (pos >= pltext_size || pltext[pos] != u8'>') {
         return ::pltxt2htm::container::nullopt;
     }
 
@@ -1657,7 +1655,7 @@ constexpr auto try_parse_vertical_align_keyword(::pltxt2htm::container::U8String
         return ::pltxt2htm::container::nullopt;
     }
     if (pltext.size() > keyword.size()) {
-        auto const next = pltext.index(keyword.size());
+        auto const next = pltext[keyword.size()];
         if (::pltxt2htm::details::is_ascii_alpha(next) || ::pltxt2htm::details::is_ascii_digit(next)) {
             return ::pltxt2htm::container::nullopt;
         }
@@ -1729,13 +1727,13 @@ constexpr auto try_parse_span_style_property_suffix(::pltxt2htm::container::U8St
     -> ::pltxt2htm::container::Optional<::std::size_t> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t pos{};
-    while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+    while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
         ++pos;
     }
     if (pos >= pltext_size) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto const chr = pltext.index(pos);
+    auto const chr = pltext[pos];
     if (chr != u8';' && chr != quote) {
         return ::pltxt2htm::container::nullopt;
     }
@@ -1764,14 +1762,14 @@ constexpr auto try_parse_span_style(::pltxt2htm::container::U8StringView pltext,
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> vertical_align{::pltxt2htm::container::nullopt};
 
     while (p < pltext_size) {
-        while (p < pltext_size && (pltext.index(p) == u8' ' || pltext.index(p) == u8'\t')) {
+        while (p < pltext_size && (pltext[p] == u8' ' || pltext[p] == u8'\t')) {
             ++p;
         }
         if (p >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
 
-        auto const chr = pltext.index(p);
+        auto const chr = pltext[p];
         if (chr == quote) {
             return TryParseSpanStyleResult{.end = p + 1,
                                            .color = ::std::move(color),
@@ -1786,7 +1784,7 @@ constexpr auto try_parse_span_style(::pltxt2htm::container::U8StringView pltext,
         auto const property_start = p;
         auto property_end = p;
         while (p < pltext_size) {
-            auto const property_chr = pltext.index(p);
+            auto const property_chr = pltext[p];
             if (property_chr == u8':') {
                 break;
             }
@@ -1805,7 +1803,7 @@ constexpr auto try_parse_span_style(::pltxt2htm::container::U8StringView pltext,
             ::pltxt2htm::container::U8StringView{pltext.data() + property_start, property_end - property_start};
         ++p;
 
-        while (p < pltext_size && (pltext.index(p) == u8' ' || pltext.index(p) == u8'\t')) {
+        while (p < pltext_size && (pltext[p] == u8' ' || pltext[p] == u8'\t')) {
             ++p;
         }
 
@@ -1872,11 +1870,11 @@ constexpr auto try_parse_span_style(::pltxt2htm::container::U8StringView pltext,
         if (p >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(p) == u8';') {
+        if (pltext[p] == u8';') {
             ++p;
             continue;
         }
-        if (pltext.index(p) == quote) {
+        if (pltext[p] == quote) {
             return TryParseSpanStyleResult{.end = p + 1,
                                            .color = ::std::move(color),
                                            .font_size = ::std::move(font_size),
@@ -1913,35 +1911,35 @@ constexpr auto try_parse_span_tag(::pltxt2htm::container::U8StringView pltext) n
 
     while (pos < pltext_size) {
         // skip whitespace
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(pos) == u8'>') {
+        if (pltext[pos] == u8'>') {
             break;
         }
 
         // parse attribute name
         ::std::size_t const attr_start = pos;
-        while (pos < pltext_size && pltext.index(pos) != u8'=' && pltext.index(pos) != u8'>' &&
-               pltext.index(pos) != u8' ' && pltext.index(pos) != u8'\t' && pltext.index(pos) != u8'/') {
+        while (pos < pltext_size && pltext[pos] != u8'=' && pltext[pos] != u8'>' && pltext[pos] != u8' ' &&
+               pltext[pos] != u8'\t' && pltext[pos] != u8'/') {
             ++pos;
         }
         ::pltxt2htm::container::U8StringView const attr_name{pltext.data() + attr_start, pos - attr_start};
 
         // skip whitespace before '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
-        if (pos >= pltext_size || pltext.index(pos) != u8'=') {
+        if (pos >= pltext_size || pltext[pos] != u8'=') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip '='
 
         // skip whitespace after '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -1949,7 +1947,7 @@ constexpr auto try_parse_span_tag(::pltxt2htm::container::U8StringView pltext) n
         }
 
         // parse quoted attribute value
-        char8_t const quote{pltext.index(pos)};
+        char8_t const quote{pltext[pos]};
         if (quote != u8'"' && quote != u8'\'') {
             return ::pltxt2htm::container::nullopt;
         }
@@ -1973,7 +1971,7 @@ constexpr auto try_parse_span_tag(::pltxt2htm::container::U8StringView pltext) n
     if (found_style == false || (color.is_empty() && !font_size.has_value() && !vertical_align.has_value())) {
         return ::pltxt2htm::container::nullopt;
     }
-    if (pos >= pltext_size || pltext.index(pos) != u8'>') {
+    if (pos >= pltext_size || pltext[pos] != u8'>') {
         return ::pltxt2htm::container::nullopt;
     }
     return TryParseSpanTagResult{.tag_len = pos + 1,
@@ -2008,13 +2006,13 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
     ::pltxt2htm::container::U8String background_color{};
 
     while (p < pltext_size) {
-        while (p < pltext_size && (pltext.index(p) == u8' ' || pltext.index(p) == u8'\t')) {
+        while (p < pltext_size && (pltext[p] == u8' ' || pltext[p] == u8'\t')) {
             ++p;
         }
         if (p >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        auto const chr = pltext.index(p);
+        auto const chr = pltext[p];
         if (chr == quote) {
             if (background_color.is_empty()) {
                 return ::pltxt2htm::container::nullopt;
@@ -2030,7 +2028,7 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
         auto const property_start = p;
         auto property_end = p;
         while (p < pltext_size) {
-            auto const property_chr = pltext.index(p);
+            auto const property_chr = pltext[p];
             if (property_chr == u8':') {
                 break;
             }
@@ -2048,7 +2046,7 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
         auto const property =
             ::pltxt2htm::container::U8StringView{pltext.data() + property_start, property_end - property_start};
         ++p;
-        while (p < pltext_size && (pltext.index(p) == u8' ' || pltext.index(p) == u8'\t')) {
+        while (p < pltext_size && (pltext[p] == u8' ' || pltext[p] == u8'\t')) {
             ++p;
         }
 
@@ -2076,11 +2074,11 @@ constexpr auto try_parse_mark_style(::pltxt2htm::container::U8StringView pltext,
         if (p >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(p) == u8';') {
+        if (pltext[p] == u8';') {
             ++p;
             continue;
         }
-        if (pltext.index(p) == quote) {
+        if (pltext[p] == quote) {
             return TryParseMarkStyleResult{.end = p + 1, .background_color = ::std::move(background_color)};
         }
         return ::pltxt2htm::container::nullopt;
@@ -2122,13 +2120,13 @@ constexpr auto try_parse_mark_tag(::pltxt2htm::container::U8StringView pltext) n
 
     while (pos < pltext_size) {
         // skip whitespace
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(pos) == u8'>') {
+        if (pltext[pos] == u8'>') {
             if (found_style == false) {
                 return TryParseMarkTagResult{.tag_len = pos + 1,
                                              .background_color = ::pltxt2htm::container::U8String{
@@ -2142,23 +2140,23 @@ constexpr auto try_parse_mark_tag(::pltxt2htm::container::U8StringView pltext) n
 
         // parse attribute name
         ::std::size_t const attr_start{pos};
-        while (pos < pltext_size && pltext.index(pos) != u8'=' && pltext.index(pos) != u8'>' &&
-               pltext.index(pos) != u8' ' && pltext.index(pos) != u8'\t' && pltext.index(pos) != u8'/') {
+        while (pos < pltext_size && pltext[pos] != u8'=' && pltext[pos] != u8'>' && pltext[pos] != u8' ' &&
+               pltext[pos] != u8'\t' && pltext[pos] != u8'/') {
             ++pos;
         }
         ::pltxt2htm::container::U8StringView const attr_name{pltext.data() + attr_start, pos - attr_start};
 
         // skip whitespace before '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
-        if (pos >= pltext_size || pltext.index(pos) != u8'=') {
+        if (pos >= pltext_size || pltext[pos] != u8'=') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip '='
 
         // skip whitespace after '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -2166,7 +2164,7 @@ constexpr auto try_parse_mark_tag(::pltxt2htm::container::U8StringView pltext) n
         }
 
         // parse quoted attribute value
-        char8_t const quote{pltext.index(pos)};
+        char8_t const quote{pltext[pos]};
         if (quote != u8'"' && quote != u8'\'') {
             return ::pltxt2htm::container::nullopt;
         }
@@ -2188,7 +2186,7 @@ constexpr auto try_parse_mark_tag(::pltxt2htm::container::U8StringView pltext) n
     if (found_style == false || background_color.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
-    if (pos >= pltext_size || pltext.index(pos) != u8'>') {
+    if (pos >= pltext_size || pltext[pos] != u8'>') {
         return ::pltxt2htm::container::nullopt;
     }
     return TryParseMarkTagResult{.tag_len = pos + 1, .background_color = ::std::move(background_color)};
@@ -2211,7 +2209,7 @@ constexpr auto try_parse_mark_equal_sign_tag(::pltxt2htm::container::U8StringVie
     if (::pltxt2htm::details::is_prefix_match<::pltxt2htm::details::U8LiteralString{u8"ark"}>(pltext) == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    if (pltext.size() <= 3 || pltext.index(3) != u8'=') {
+    if (pltext.size() <= 3 || pltext[3] != u8'=') {
         return ::pltxt2htm::container::nullopt;
     }
     constexpr ::std::size_t value_start{4};
@@ -2268,35 +2266,35 @@ constexpr auto try_parse_code_tag(::pltxt2htm::container::U8StringView pltext) n
 
     while (pos < pltext_size) {
         // skip whitespace
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(pos) == u8'>') {
+        if (pltext[pos] == u8'>') {
             break;
         }
 
         // parse attribute name
         ::std::size_t const attr_start = pos;
-        while (pos < pltext_size && pltext.index(pos) != u8'=' && pltext.index(pos) != u8'>' &&
-               pltext.index(pos) != u8' ' && pltext.index(pos) != u8'\t' && pltext.index(pos) != u8'/') {
+        while (pos < pltext_size && pltext[pos] != u8'=' && pltext[pos] != u8'>' && pltext[pos] != u8' ' &&
+               pltext[pos] != u8'\t' && pltext[pos] != u8'/') {
             ++pos;
         }
         ::pltxt2htm::container::U8StringView const attr_name{pltext.data() + attr_start, pos - attr_start};
 
         // skip whitespace before '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
-        if (pos >= pltext_size || pltext.index(pos) != u8'=') {
+        if (pos >= pltext_size || pltext[pos] != u8'=') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip '='
 
         // skip whitespace after '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -2304,16 +2302,16 @@ constexpr auto try_parse_code_tag(::pltxt2htm::container::U8StringView pltext) n
         }
 
         // parse quoted attribute value
-        char8_t const quote{pltext.index(pos)};
+        char8_t const quote{pltext[pos]};
         if (quote != u8'"' && quote != u8'\'') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip opening quote
         ::std::size_t const val_start = pos;
         bool language_suffix_is_safe{true};
-        while (pos < pltext_size && pltext.index(pos) != quote) {
+        while (pos < pltext_size && pltext[pos] != quote) {
             if (attr_name == ::pltxt2htm::container::U8StringView{u8"class"} && pos - val_start >= 9 &&
-                ::pltxt2htm::details::is_code_language_suffix_char(pltext.index(pos)) == false) {
+                ::pltxt2htm::details::is_code_language_suffix_char(pltext[pos]) == false) {
                 language_suffix_is_safe = false;
             }
             ++pos;
@@ -2333,10 +2331,9 @@ constexpr auto try_parse_code_tag(::pltxt2htm::container::U8StringView pltext) n
                 return ::pltxt2htm::container::nullopt;
             }
             // value must start with "language-" and have at least one char after
-            if (attr_val.size() < 10 || attr_val.index(0) != u8'l' || attr_val.index(1) != u8'a' ||
-                attr_val.index(2) != u8'n' || attr_val.index(3) != u8'g' || attr_val.index(4) != u8'u' ||
-                attr_val.index(5) != u8'a' || attr_val.index(6) != u8'g' || attr_val.index(7) != u8'e' ||
-                attr_val.index(8) != u8'-' || language_suffix_is_safe == false) {
+            if (attr_val.size() < 10 || attr_val[0] != u8'l' || attr_val[1] != u8'a' || attr_val[2] != u8'n' ||
+                attr_val[3] != u8'g' || attr_val[4] != u8'u' || attr_val[5] != u8'a' || attr_val[6] != u8'g' ||
+                attr_val[7] != u8'e' || attr_val[8] != u8'-' || language_suffix_is_safe == false) {
                 return ::pltxt2htm::container::nullopt;
             }
             language = ::pltxt2htm::container::U8String{attr_val};
@@ -2348,7 +2345,7 @@ constexpr auto try_parse_code_tag(::pltxt2htm::container::U8StringView pltext) n
     }
 
     // bare tag with no attributes is accepted
-    if (pos >= pltext_size || pltext.index(pos) != u8'>') {
+    if (pos >= pltext_size || pltext[pos] != u8'>') {
         return ::pltxt2htm::container::nullopt;
     }
     return TryParseCodeTagResult{.tag_len = pos + 1, .language = ::std::move(language)};
@@ -2375,11 +2372,11 @@ constexpr auto try_parse_self_closing_tag(::pltxt2htm::container::U8StringView p
     -> ::pltxt2htm::container::Optional<::pltxt2htm::container::NonZeroUsize> {
     ::std::size_t const pltext_size{pltext.size()};
     for (::std::size_t forward_index{}; forward_index < pltext_size; ++forward_index) {
-        char8_t const forward_chr{pltext.index(forward_index)};
+        char8_t const forward_chr{pltext[forward_index]};
         if (forward_chr == u8'>') {
             return ::pltxt2htm::container::NonZeroUsize::from(forward_index + 1);
         }
-        if (forward_chr == u8'/' && forward_index + 1 < pltext_size && pltext.index(forward_index + 1) == u8'>') {
+        if (forward_chr == u8'/' && forward_index + 1 < pltext_size && pltext[forward_index + 1] == u8'>') {
             return ::pltxt2htm::container::NonZeroUsize::from(forward_index + 2);
         }
         if (forward_chr != u8' ' && forward_chr != u8'\t') {
@@ -2407,11 +2404,11 @@ constexpr auto try_parse_self_closing_tag(::pltxt2htm::container::U8StringView p
     }
 
     for (::std::size_t forward_index{tag_name_size}; forward_index < pltext_size; ++forward_index) {
-        char8_t const forward_chr{pltext.index(forward_index)};
+        char8_t const forward_chr{pltext[forward_index]};
         if (forward_chr == u8'>') {
             return ::pltxt2htm::container::NonZeroUsize::from(forward_index + 1);
         }
-        if (forward_chr == u8'/' && forward_index + 1 < pltext_size && pltext.index(forward_index + 1) == u8'>') {
+        if (forward_chr == u8'/' && forward_index + 1 < pltext_size && pltext[forward_index + 1] == u8'>') {
             return ::pltxt2htm::container::NonZeroUsize::from(forward_index + 2);
         }
         if (forward_chr != u8' ' && forward_chr != u8'\t') {
@@ -2470,31 +2467,31 @@ constexpr auto try_parse_input_checkbox_tag(::pltxt2htm::container::U8StringView
 
     while (pos < pltext_size) {
         // skip whitespace
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
         // end of tag
-        if (pltext.index(pos) == u8'>') {
+        if (pltext[pos] == u8'>') {
             break;
         }
-        if (pltext.index(pos) == u8'/' && pos + 1 < pltext_size && pltext.index(pos + 1) == u8'>') {
+        if (pltext[pos] == u8'/' && pos + 1 < pltext_size && pltext[pos + 1] == u8'>') {
             break;
         }
 
         // parse attribute name
         ::std::size_t const attr_start = pos;
-        while (pos < pltext_size && pltext.index(pos) != u8'=' && pltext.index(pos) != u8'>' &&
-               pltext.index(pos) != u8' ' && pltext.index(pos) != u8'\t' && pltext.index(pos) != u8'/') {
+        while (pos < pltext_size && pltext[pos] != u8'=' && pltext[pos] != u8'>' && pltext[pos] != u8' ' &&
+               pltext[pos] != u8'\t' && pltext[pos] != u8'/') {
             ++pos;
         }
         ::pltxt2htm::container::U8StringView const attr_name{pltext.data() + attr_start, pos - attr_start};
 
         // boolean attribute without value: "disabled" or "checked"
-        if (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t' ||
-                                  pltext.index(pos) == u8'>' || pltext.index(pos) == u8'/')) {
+        if (pos < pltext_size &&
+            (pltext[pos] == u8' ' || pltext[pos] == u8'\t' || pltext[pos] == u8'>' || pltext[pos] == u8'/')) {
             if (attr_name == ::pltxt2htm::container::U8StringView{u8"disabled"}) {
                 found_disabled = true;
                 continue;
@@ -2507,13 +2504,13 @@ constexpr auto try_parse_input_checkbox_tag(::pltxt2htm::container::U8StringView
         }
 
         // attribute with '=' value: "type=..."
-        if (pos >= pltext_size || pltext.index(pos) != u8'=') {
+        if (pos >= pltext_size || pltext[pos] != u8'=') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip '='
 
         // skip whitespace after '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -2521,13 +2518,13 @@ constexpr auto try_parse_input_checkbox_tag(::pltxt2htm::container::U8StringView
         }
 
         // parse quoted attribute value
-        char8_t const quote{pltext.index(pos)};
+        char8_t const quote{pltext[pos]};
         if (quote != u8'"' && quote != u8'\'') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip opening quote
         ::std::size_t const val_start = pos;
-        while (pos < pltext_size && pltext.index(pos) != quote) {
+        while (pos < pltext_size && pltext[pos] != quote) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -2553,10 +2550,10 @@ constexpr auto try_parse_input_checkbox_tag(::pltxt2htm::container::U8StringView
         return ::pltxt2htm::container::nullopt;
     }
     // skip '>' or '/>'
-    if (pltext.index(pos) == u8'/' && pos + 1 < pltext_size) {
+    if (pltext[pos] == u8'/' && pos + 1 < pltext_size) {
         ++pos;
     }
-    if (pos >= pltext_size || pltext.index(pos) != u8'>') {
+    if (pos >= pltext_size || pltext[pos] != u8'>') {
         return ::pltxt2htm::container::nullopt;
     }
     return TryParseInputCheckboxTagResult{.tag_len = pos + 1, .checked = checked};
@@ -2593,24 +2590,24 @@ constexpr auto try_parse_ol_tag(::pltxt2htm::container::U8StringView pltext) noe
 
     while (pos < pltext_size) {
         // skip whitespace
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
         // end of tag
-        if (pltext.index(pos) == u8'>') {
+        if (pltext[pos] == u8'>') {
             return TryParseOlTagResult{.tag_len = pos + 1, .start = start};
         }
-        if (pltext.index(pos) == u8'/' && pos + 1 < pltext_size && pltext.index(pos + 1) == u8'>') {
+        if (pltext[pos] == u8'/' && pos + 1 < pltext_size && pltext[pos + 1] == u8'>') {
             return TryParseOlTagResult{.tag_len = pos + 2, .start = start};
         }
 
         // parse attribute name
         ::std::size_t const attr_start = pos;
-        while (pos < pltext_size && pltext.index(pos) != u8'=' && pltext.index(pos) != u8'>' &&
-               pltext.index(pos) != u8' ' && pltext.index(pos) != u8'\t' && pltext.index(pos) != u8'/') {
+        while (pos < pltext_size && pltext[pos] != u8'=' && pltext[pos] != u8'>' && pltext[pos] != u8' ' &&
+               pltext[pos] != u8'\t' && pltext[pos] != u8'/') {
             ++pos;
         }
         ::pltxt2htm::container::U8StringView const attr_name{pltext.data() + attr_start, pos - attr_start};
@@ -2619,13 +2616,13 @@ constexpr auto try_parse_ol_tag(::pltxt2htm::container::U8StringView pltext) noe
         if (attr_name != ::pltxt2htm::container::U8StringView{u8"start"}) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pos >= pltext_size || pltext.index(pos) != u8'=') {
+        if (pos >= pltext_size || pltext[pos] != u8'=') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip '='
 
         // skip whitespace after '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -2633,13 +2630,13 @@ constexpr auto try_parse_ol_tag(::pltxt2htm::container::U8StringView pltext) noe
         }
 
         // parse quoted attribute value
-        char8_t const quote{pltext.index(pos)};
+        char8_t const quote{pltext[pos]};
         if (quote != u8'"' && quote != u8'\'') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip opening quote
         ::std::size_t const val_start = pos;
-        while (pos < pltext_size && pltext.index(pos) != quote) {
+        while (pos < pltext_size && pltext[pos] != quote) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -2695,39 +2692,39 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
 
     while (pos < pltext_size) {
         // skip whitespace
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
         // end of tag
-        if (pltext.index(pos) == u8'>') {
+        if (pltext[pos] == u8'>') {
             break;
         }
-        if (pltext.index(pos) == u8'/' && pos + 1 < pltext_size && pltext.index(pos + 1) == u8'>') {
+        if (pltext[pos] == u8'/' && pos + 1 < pltext_size && pltext[pos + 1] == u8'>') {
             break;
         }
 
         // parse attribute name
         ::std::size_t const attr_start{pos};
-        while (pos < pltext_size && pltext.index(pos) != u8'=' && pltext.index(pos) != u8'>' &&
-               pltext.index(pos) != u8' ' && pltext.index(pos) != u8'\t' && pltext.index(pos) != u8'/') {
+        while (pos < pltext_size && pltext[pos] != u8'=' && pltext[pos] != u8'>' && pltext[pos] != u8' ' &&
+               pltext[pos] != u8'\t' && pltext[pos] != u8'/') {
             ++pos;
         }
         ::pltxt2htm::container::U8StringView const attr_name{pltext.data() + attr_start, pos - attr_start};
 
         // skip whitespace before '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
-        if (pos >= pltext_size || pltext.index(pos) != u8'=') {
+        if (pos >= pltext_size || pltext[pos] != u8'=') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip '='
 
         // skip whitespace after '='
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -2735,13 +2732,13 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
         }
 
         // parse quoted attribute value
-        char8_t const quote{pltext.index(pos)};
+        char8_t const quote{pltext[pos]};
         if (quote != u8'"' && quote != u8'\'') {
             return ::pltxt2htm::container::nullopt;
         }
         ++pos; // skip opening quote
         ::std::size_t const val_start{pos};
-        while (pos < pltext_size && pltext.index(pos) != quote) {
+        while (pos < pltext_size && pltext[pos] != quote) {
             ++pos;
         }
         if (pos >= pltext_size) {
@@ -2764,7 +2761,7 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
             }
             auto const attr_val_size = attr_val.size();
             for (::std::size_t index{}; index < attr_val_size;) {
-                char8_t const character{attr_val.index(index)};
+                char8_t const character{attr_val[index]};
                 if (character == u8'&') {
                     auto const decoded = ::pltxt2htm::details::try_decode_character_reference(attr_val.subview(index));
                     if (decoded.has_value()) {
@@ -2793,10 +2790,10 @@ constexpr auto try_parse_img_tag(::pltxt2htm::container::U8StringView pltext) no
         return ::pltxt2htm::container::nullopt;
     }
     // skip '>' or '/>'
-    if (pltext.index(pos) == u8'/' && pos + 1 < pltext_size) {
+    if (pltext[pos] == u8'/' && pos + 1 < pltext_size) {
         ++pos;
     }
-    if (pos >= pltext_size || pltext.index(pos) != u8'>') {
+    if (pos >= pltext_size || pltext[pos] != u8'>') {
         return ::pltxt2htm::container::nullopt;
     }
     return TryParseImgTagResult{.tag_len = pos + 1, .src = ::std::move(src), .alt = ::std::move(alt)};
@@ -2817,7 +2814,7 @@ constexpr auto try_parse_pltext_line_break(::pltxt2htm::container::U8StringView 
     if (pltext.is_empty()) {
         return ::pltxt2htm::container::nullopt;
     }
-    if (pltext.index(0) == u8'\n') {
+    if (pltext[0] == u8'\n') {
         return ::pltxt2htm::container::NonZeroUsize::from(1);
     }
     return ::pltxt2htm::details::try_parse_self_closing_tag<::pltxt2htm::details::U8LiteralString{u8"<br"}>(pltext);
@@ -2856,7 +2853,7 @@ constexpr auto try_parse_md_atx_heading(::pltxt2htm::container::U8StringView plt
         if (start_index >= pltext_size) {
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(start_index) != u8' ' && pltext.index(start_index) != u8'\t') {
+        if (pltext[start_index] != u8' ' && pltext[start_index] != u8'\t') {
             break;
         }
         ++start_index;
@@ -2877,7 +2874,7 @@ constexpr auto try_parse_md_atx_heading(::pltxt2htm::container::U8StringView plt
             }
             return ::pltxt2htm::container::nullopt;
         }
-        if (pltext.index(start_index) != u8'#') {
+        if (pltext[start_index] != u8'#') {
             break;
         }
         ++start_index;
@@ -2885,7 +2882,7 @@ constexpr auto try_parse_md_atx_heading(::pltxt2htm::container::U8StringView plt
     }
     if (md_atx_heading_type < static_cast<::std::size_t>(::pltxt2htm::NodeKind::md_atx_h1) ||
         static_cast<::std::size_t>(::pltxt2htm::NodeKind::md_atx_h6) < md_atx_heading_type ||
-        (pltext.index(start_index) != u8' ' && pltext.index(start_index) != u8'\t')) {
+        (pltext[start_index] != u8' ' && pltext[start_index] != u8'\t')) {
         // invalid atx header
         return ::pltxt2htm::container::nullopt;
     }
@@ -2900,7 +2897,7 @@ constexpr auto try_parse_md_atx_heading(::pltxt2htm::container::U8StringView plt
                 .advance_count = start_index,
                 .md_atx_heading_type = static_cast<::pltxt2htm::NodeKind>(md_atx_heading_type)};
         }
-        if (pltext.index(start_index) != u8' ' && pltext.index(start_index) != u8'\t') {
+        if (pltext[start_index] != u8' ' && pltext[start_index] != u8'\t') {
             break;
         }
         ++start_index;
@@ -2956,7 +2953,7 @@ constexpr auto try_parse_md_thematic_break(::pltxt2htm::container::U8StringView 
     ::std::size_t thematic_break_count{};
     ::std::size_t i{};
     for (; i < text_size; ++i) {
-        char8_t const chr{text.index(i)};
+        char8_t const chr{text[i]};
         if (chr == u8' ' || chr == u8'\t') {
             continue;
         }
@@ -3059,7 +3056,7 @@ template<bool process_md_escape>
 constexpr auto simply_parse_pltext_unit(::pltxt2htm::container::U8StringView pltext, ::pltxt2htm::Ast& ast) noexcept
     -> ::std::size_t {
     pltxt2htm_assert(pltext.is_empty() == false, u8"simply_parse_pltext_unit requires a non-empty view");
-    char8_t const chr{pltext.index(0)};
+    char8_t const chr{pltext[0]};
     if (chr == u8'\n') {
         ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LineBreak>());
         return 1;
@@ -3216,16 +3213,16 @@ constexpr auto try_parse_html_pre_code_block(::pltxt2htm::container::U8StringVie
     ::std::size_t pos{opt_pre_tag_len.value()};
 
     // allow spaces/tabs between <pre> and <code>
-    while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+    while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
         ++pos;
     }
     if (pos + 1 >= pltext_size) {
         return ::pltxt2htm::container::nullopt;
     }
-    if (pltext.index(pos) != u8'<') {
+    if (pltext[pos] != u8'<') {
         return ::pltxt2htm::container::nullopt;
     }
-    char8_t const code_first_chr{pltext.index(pos + 1)};
+    char8_t const code_first_chr{pltext[pos + 1]};
     if (code_first_chr != u8'c' && code_first_chr != u8'C') {
         return ::pltxt2htm::container::nullopt;
     }
@@ -3311,15 +3308,15 @@ constexpr auto find_md_code_fence_end(::pltxt2htm::container::U8StringView conte
     while (line_start < size) {
         // The closing fence must be exactly three delimiter characters: three fence
         // characters immediately followed by a non-delimiter (or the end of content).
-        if (line_start + 3 <= size && content.index(line_start) == fence_char &&
-            content.index(line_start + 1) == fence_char && content.index(line_start + 2) == fence_char &&
-            (line_start + 3 == size || content.index(line_start + 3) != fence_char)) {
+        if (line_start + 3 <= size && content[line_start] == fence_char && content[line_start + 1] == fence_char &&
+            content[line_start + 2] == fence_char &&
+            (line_start + 3 == size || content[line_start + 3] != fence_char)) {
             // The fence must be followed only by spaces/tabs and then a newline or EOF.
             ::std::size_t j{line_start + 3};
-            while (j < size && (content.index(j) == u8' ' || content.index(j) == u8'\t')) {
+            while (j < size && (content[j] == u8' ' || content[j] == u8'\t')) {
                 ++j;
             }
-            if (j == size || content.index(j) == u8'\n') {
+            if (j == size || content[j] == u8'\n') {
                 // Valid closing fence line. Content ends at the leading '\n' (or 0 when the
                 // closing fence is at the very start of the content), and all bytes up to `j`
                 // (the fence run and any trailing spaces/tabs) are consumed.
@@ -3329,7 +3326,7 @@ constexpr auto find_md_code_fence_end(::pltxt2htm::container::U8StringView conte
         }
         // Move to the next line start.
         ::std::size_t next{line_start};
-        while (next < size && content.index(next) != u8'\n') {
+        while (next < size && content[next] != u8'\n') {
             ++next;
         }
         if (next == size) {
@@ -3386,13 +3383,12 @@ constexpr auto try_parse_md_code_fence_(::pltxt2htm::container::U8StringView plt
     // Parsing language string
 
     // Skipping spaces before language string
-    while (current_index != pltext_size &&
-           (pltext.index(current_index) == u8' ' || pltext.index(current_index) == u8'\t')) {
+    while (current_index != pltext_size && (pltext[current_index] == u8' ' || pltext[current_index] == u8'\t')) {
         ++current_index;
     }
     // parsing language string
     for (; current_index != pltext_size; ++current_index) {
-        auto const chr = pltext.index(current_index);
+        auto const chr = pltext[current_index];
         if (chr == u8'\n') {
             ++current_index;
             break;
@@ -3403,7 +3399,7 @@ constexpr auto try_parse_md_code_fence_(::pltxt2htm::container::U8StringView plt
                 // space/tab at end of input after language: not a valid code fence
                 return ::pltxt2htm::container::nullopt;
             }
-            while (current_index != pltext_size && pltext.index(current_index) != u8'\n') {
+            while (current_index != pltext_size && pltext[current_index] != u8'\n') {
                 ++current_index;
             }
             if (current_index == pltext_size) {
@@ -3420,7 +3416,7 @@ constexpr auto try_parse_md_code_fence_(::pltxt2htm::container::U8StringView plt
         }
         if (::pltxt2htm::details::is_allowed_in_language(chr) == false) {
             lang.clear();
-            while (current_index != pltext_size && pltext.index(current_index) != u8'\n') {
+            while (current_index != pltext_size && pltext[current_index] != u8'\n') {
                 ++current_index;
             }
             if (current_index == pltext_size) {
@@ -3521,7 +3517,7 @@ constexpr auto try_parse_md_inlines(::pltxt2htm::container::U8StringView pltext)
     }
 
     for (::std::size_t current_index{embraced_size}; current_index < pltext_size; ++current_index) {
-        if (pltext.index(current_index) == u8'\n') {
+        if (pltext[current_index] == u8'\n') {
             return ::pltxt2htm::container::nullopt;
         }
         if (::pltxt2htm::details::is_prefix_match<embraced_chars>(pltext.subview(current_index))) {
@@ -3566,32 +3562,31 @@ constexpr auto try_parse_md_block_quotes(::pltxt2htm::container::U8StringView pl
     ::std::size_t current_index{};
     for (; current_index < pltext_size; ++current_index) {
         ::std::size_t temp_index{current_index};
-        while (pltext.index(temp_index) == u8' ' || pltext.index(temp_index) == u8'\t') {
+        while (pltext[temp_index] == u8' ' || pltext[temp_index] == u8'\t') {
             ++temp_index;
             pltxt2htm_assert(temp_index <= pltext_size, u8"temp_index out of range");
             if (temp_index == pltext_size) { // equals to `temp_index >= pltext_size`
                 return ::pltxt2htm::container::nullopt;
             }
         }
-        if (pltext.index(temp_index) != u8'>') {
+        if (pltext[temp_index] != u8'>') {
             break;
         }
         current_index = temp_index + 1;
-        while (current_index < pltext_size &&
-               (pltext.index(current_index) == u8' ' || pltext.index(current_index) == u8'\t')) {
+        while (current_index < pltext_size && (pltext[current_index] == u8' ' || pltext[current_index] == u8'\t')) {
             ++current_index;
         }
         if (current_index == pltext_size) {
             break;
         }
         while (true) {
-            subpltext.push_back(pltext.index(current_index));
+            subpltext.push_back(pltext[current_index]);
             ++current_index;
             pltxt2htm_assert(current_index <= pltext_size, u8"current_index exceeds pltext_size");
             if (current_index == pltext_size) {
                 break;
             }
-            if (pltext.index(current_index) == u8'\n') {
+            if (pltext[current_index] == u8'\n') {
                 break;
             }
         }
@@ -3697,7 +3692,7 @@ constexpr auto try_parse_md_latex_block_dollar(::pltxt2htm::container::U8StringV
         if (::pltxt2htm::details::is_prefix_match<double_dollar>(body.subview(current_index))) {
             return TryParseMdLatexResult{.advance_count = current_index + 4, .subast = ::std::move(ast)};
         }
-        if (body.index(current_index) == u8'\n') {
+        if (body[current_index] == u8'\n') {
             ast.append_text(u8'\n');
             ++current_index;
         }
@@ -3728,7 +3723,7 @@ constexpr auto try_parse_md_latex_block_dollar(::pltxt2htm::container::U8StringV
 [[nodiscard]]
 constexpr auto try_parse_md_latex_inline(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<TryParseMdLatexResult> {
-    if (pltext.size() < 3 || pltext.index(0) != u8'$') {
+    if (pltext.size() < 3 || pltext[0] != u8'$') {
         return ::pltxt2htm::container::nullopt;
     }
 
@@ -3736,7 +3731,7 @@ constexpr auto try_parse_md_latex_inline(::pltxt2htm::container::U8StringView pl
     ::std::size_t const body_size{body.size()};
     ::pltxt2htm::Ast ast{};
     for (::std::size_t current_index{}; current_index < body_size;) {
-        auto const chr = body.index(current_index);
+        auto const chr = body[current_index];
         if (chr == u8'\n') {
             return ::pltxt2htm::container::nullopt;
         }
@@ -3803,7 +3798,7 @@ struct TryParseHtmlATagResult {
 constexpr auto try_parse_html_a_tag(::pltxt2htm::container::U8StringView pltext) noexcept -> TryParseHtmlATagResult {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t pos{};
-    while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+    while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
         ++pos;
     }
     if (pos >= pltext_size) {
@@ -3814,26 +3809,26 @@ constexpr auto try_parse_html_a_tag(::pltxt2htm::container::U8StringView pltext)
         return {};
     }
     pos += 4;
-    while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+    while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
         ++pos;
     }
-    if (pos >= pltext_size || pltext.index(pos) != u8'=') {
+    if (pos >= pltext_size || pltext[pos] != u8'=') {
         return {};
     }
     ++pos;
-    while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+    while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
         ++pos;
     }
     if (pos >= pltext_size) {
         return {};
     }
-    char8_t const quote{pltext.index(pos)};
+    char8_t const quote{pltext[pos]};
     if (quote != u8'"' && quote != u8'\'') {
         return {};
     }
     ++pos;
     ::std::size_t const val_start{pos};
-    while (pos < pltext_size && pltext.index(pos) != quote) {
+    while (pos < pltext_size && pltext[pos] != quote) {
         ++pos;
     }
     if (pos >= pltext_size) {
@@ -3841,11 +3836,11 @@ constexpr auto try_parse_html_a_tag(::pltxt2htm::container::U8StringView pltext)
     }
     ::pltxt2htm::container::U8StringView const attr_val{pltext.data() + val_start, pos - val_start};
     ++pos;
-    while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+    while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
         ++pos;
     }
     bool internal{};
-    if (pos < pltext_size && pltext.index(pos) != u8'>') {
+    if (pos < pltext_size && pltext[pos] != u8'>') {
         // only the boolean attribute "internal" is accepted as an extra attribute
         constexpr auto internal_literal = ::pltxt2htm::details::U8LiteralString{u8"internal"};
         if (::pltxt2htm::details::is_prefix_match<internal_literal>(pltext.subview(pos)) == false) {
@@ -3853,11 +3848,11 @@ constexpr auto try_parse_html_a_tag(::pltxt2htm::container::U8StringView pltext)
         }
         internal = true;
         pos += internal_literal.size();
-        while (pos < pltext_size && (pltext.index(pos) == u8' ' || pltext.index(pos) == u8'\t')) {
+        while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
             ++pos;
         }
     }
-    if (pos >= pltext_size || pltext.index(pos) != u8'>') {
+    if (pos >= pltext_size || pltext[pos] != u8'>') {
         return {};
     }
     auto opt_url = ::pltxt2htm::Url::try_make(attr_val);
@@ -3923,14 +3918,13 @@ constexpr auto try_parse_md_url(::pltxt2htm::container::U8StringView pltext) noe
     auto opt_auth_end = ::pltxt2htm::details::try_parse_url_authority(pltext.subview(scheme_end));
     if (opt_auth_end.has_value()) {
         auto const auth_end = opt_auth_end.value().get() + scheme_end;
-        bool const has_path_start =
-            auth_end < pltext_size &&
-            (pltext.index(auth_end) == u8'/' || pltext.index(auth_end) == u8'?' || pltext.index(auth_end) == u8'#');
-        bool const ends_after_authority = auth_end < pltext_size && pltext.index(auth_end) == u8')';
+        bool const has_path_start = auth_end < pltext_size && (pltext[auth_end] == u8'/' || pltext[auth_end] == u8'?' ||
+                                                               pltext[auth_end] == u8'#');
+        bool const ends_after_authority = auth_end < pltext_size && pltext[auth_end] == u8')';
         if (has_path_start || ends_after_authority) {
             ::std::size_t path_end{auth_end};
             while (path_end < pltext_size) {
-                auto const chr = pltext.index(path_end);
+                auto const chr = pltext[path_end];
                 if (chr == u8')') {
                     break;
                 }
@@ -3939,7 +3933,7 @@ constexpr auto try_parse_md_url(::pltxt2htm::container::U8StringView pltext) noe
                 }
                 ++path_end;
             }
-            if (path_end < pltext_size && pltext.index(path_end) == u8')') {
+            if (path_end < pltext_size && pltext[path_end] == u8')') {
                 auto const url_vw = pltext.subview(0, path_end);
                 auto opt_url = ::pltxt2htm::Url::try_make(url_vw);
                 if (opt_url.has_value()) {
@@ -3953,7 +3947,7 @@ constexpr auto try_parse_md_url(::pltxt2htm::container::U8StringView pltext) noe
     ::pltxt2htm::container::U8String encoded{};
     ::std::size_t raw_len{};
     for (; raw_len < pltext_size; ++raw_len) {
-        auto const chr = pltext.index(raw_len);
+        auto const chr = pltext[raw_len];
         if (chr == u8')') {
             break;
         }
@@ -4020,7 +4014,7 @@ struct TryParseMdLinkResult {
 constexpr auto try_parse_md_link(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<TryParseMdLinkResult> {
     ::std::size_t const pltext_size{pltext.size()};
-    if (pltext_size < 4 || pltext.index(0) != u8'[') {
+    if (pltext_size < 4 || pltext[0] != u8'[') {
         return ::pltxt2htm::container::nullopt;
     }
 
@@ -4028,7 +4022,7 @@ constexpr auto try_parse_md_link(::pltxt2htm::container::U8StringView pltext) no
 
     // Parse link text
     while (current_index < pltext_size) {
-        char8_t const chr{pltext.index(current_index)};
+        char8_t const chr{pltext[current_index]};
         if (chr == u8'\\') {
             // No need to handle escape here
             // Because the result of `link_text` is string_view
@@ -4044,14 +4038,14 @@ constexpr auto try_parse_md_link(::pltxt2htm::container::U8StringView pltext) no
         ++current_index;
     }
 
-    if (current_index >= pltext_size || pltext.index(current_index) != u8']') {
+    if (current_index >= pltext_size || pltext[current_index] != u8']') {
         return ::pltxt2htm::container::nullopt;
     }
     ::std::size_t const link_text_end{current_index};
     ++current_index;
 
     // Ensure the next character is '('
-    if (current_index >= pltext_size || pltext.index(current_index) != u8'(') {
+    if (current_index >= pltext_size || pltext[current_index] != u8'(') {
         return ::pltxt2htm::container::nullopt;
     }
     ++current_index;
@@ -4061,7 +4055,7 @@ constexpr auto try_parse_md_link(::pltxt2htm::container::U8StringView pltext) no
     }
     auto&& md_url_result = opt_md_url.value();
     current_index += md_url_result.consumed_size;
-    if (current_index >= pltext_size || pltext.index(current_index) != u8')') {
+    if (current_index >= pltext_size || pltext[current_index] != u8')') {
         return ::pltxt2htm::container::nullopt;
     }
     ++current_index;
@@ -4086,7 +4080,7 @@ struct TryParseMdImageResult {
 constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<TryParseMdImageResult> {
     ::std::size_t const pltext_size{pltext.size()};
-    if (pltext_size < 5 || pltext.index(0) != u8'!' || pltext.index(1) != u8'[') {
+    if (pltext_size < 5 || pltext[0] != u8'!' || pltext[1] != u8'[') {
         return ::pltxt2htm::container::nullopt;
     }
 
@@ -4094,7 +4088,7 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
 
     ::pltxt2htm::PlainText alt{};
     while (current_index < pltext_size) {
-        char8_t const chr{pltext.index(current_index)};
+        char8_t const chr{pltext[current_index]};
 
         if (chr == u8']') {
             break;
@@ -4123,13 +4117,13 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
         continue;
     }
 
-    if (current_index >= pltext_size || pltext.index(current_index) != u8']') {
+    if (current_index >= pltext_size || pltext[current_index] != u8']') {
         return ::pltxt2htm::container::nullopt;
     }
     ++current_index;
 
     // Ensure the next character is '('
-    if (current_index >= pltext_size || pltext.index(current_index) != u8'(') {
+    if (current_index >= pltext_size || pltext[current_index] != u8'(') {
         return ::pltxt2htm::container::nullopt;
     }
     ++current_index;
@@ -4139,7 +4133,7 @@ constexpr auto try_parse_md_image(::pltxt2htm::container::U8StringView pltext) n
     }
     auto&& md_url_result = opt_md_url.value();
     current_index += md_url_result.consumed_size;
-    if (current_index >= pltext_size || pltext.index(current_index) != u8')') {
+    if (current_index >= pltext_size || pltext[current_index] != u8')') {
         return ::pltxt2htm::container::nullopt;
     }
     return TryParseMdImageResult{

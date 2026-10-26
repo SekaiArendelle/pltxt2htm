@@ -204,40 +204,18 @@ public:
         return self.pointer + self.length;
     }
 
-    [[nodiscard]]
-    constexpr auto index(this BasicStringView const& self, size_type index) noexcept -> const_reference {
-        pltxt2htm_assert(index < self.length, u8"Index of BasicStringView out of bound");
-        return self.pointer[index];
-    }
-
     /**
-     * @brief Unchecked element access, provided to downstream users only.
-     *
-     * Contract-bearing access stays on index(); this overload is external-only:
-     * while pltxt2htm itself is being built (PLTXT2HTM_INTERNAL_USE) it stays
-     * deleted, so implementation code must name a build-wide contract setting.
-     * @param index Zero-based character position.
-     * @return Read-only reference to the requested character.
-     * @pre index < size(); otherwise the behavior is undefined.
+     * @brief Indexed element access, read-only, bounds-checked according to the
+     * build-wide contract setting.
+     * @param position Zero-based element position.
+     * @return Read-only reference to the requested element.
+     * @pre position is a valid element position.
      */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this BasicStringView const& self, size_type index) noexcept -> const_reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
-    constexpr auto operator[](this BasicStringView const& self, size_type index) noexcept -> const_reference {
-        return self.pointer[index];
+    [[nodiscard]]
+    constexpr auto operator[](this BasicStringView const& self, size_type position) noexcept -> const_reference {
+        pltxt2htm_assert(position < self.length, u8"Index of BasicStringView out of bound");
+        return self.pointer[position];
     }
-#endif
 
     [[nodiscard]]
     constexpr auto subview(this BasicStringView const& self, size_type position, size_type count = npos) noexcept

@@ -73,8 +73,12 @@ static_assert(::std::is_constructible_v<U8StringView, U8String const&>);
 static_assert(!::std::is_constructible_v<U8StringView, U8String&&>);
 static_assert(::std::is_convertible_v<U8String const&, U8StringView>);
 static_assert(!::std::is_convertible_v<U8String&&, U8StringView>);
-static_assert(!has_subscript_operator<U8String>);
-static_assert(!has_subscript_operator<U8String const>);
+static_assert(has_subscript_operator<U8String>);
+static_assert(has_subscript_operator<U8String const>);
+static_assert(requires(U8String& string, ::std::size_t position) {
+    string[position];
+    string[position] = u8'a';
+});
 static_assert(::fast_io::alias_scannable<U8String>);
 static_assert(::fast_io::context_scannable<
               char8_t, ::std::remove_cvref_t<decltype(::fast_io::io_scan_alias(::std::declval<U8String&>()))>>);
@@ -223,9 +227,9 @@ int main() {
     ::std::size_t const append_old_size{self_append.size()};
     self_append.append(U8StringView{self_append.data(), 3});
     pltxt2htm_test_assert_true(self_append.size() == append_old_size + 3);
-    pltxt2htm_test_assert_true(self_append.index(append_old_size) == u8'a');
-    pltxt2htm_test_assert_true(self_append.index(append_old_size + 1) == u8'b');
-    pltxt2htm_test_assert_true(self_append.index(append_old_size + 2) == u8'c');
+    pltxt2htm_test_assert_true(self_append[append_old_size] == u8'a');
+    pltxt2htm_test_assert_true(self_append[append_old_size + 1] == u8'b');
+    pltxt2htm_test_assert_true(self_append[append_old_size + 2] == u8'c');
 
     U8String self_insert_after_source{u8"abcdef"};
     self_insert_after_source.reserve(16);
@@ -256,12 +260,12 @@ int main() {
     ::std::size_t const insert_old_size{self_insert_reallocate.size()};
     self_insert_reallocate.insert(self_insert_reallocate.begin() + 1, U8StringView{self_insert_reallocate.data(), 3});
     pltxt2htm_test_assert_true(self_insert_reallocate.size() == insert_old_size + 3);
-    pltxt2htm_test_assert_true(self_insert_reallocate.index(0) == u8'a');
-    pltxt2htm_test_assert_true(self_insert_reallocate.index(1) == u8'a');
-    pltxt2htm_test_assert_true(self_insert_reallocate.index(2) == u8'b');
-    pltxt2htm_test_assert_true(self_insert_reallocate.index(3) == u8'c');
-    pltxt2htm_test_assert_true(self_insert_reallocate.index(4) == u8'b');
-    pltxt2htm_test_assert_true(self_insert_reallocate.index(5) == u8'c');
+    pltxt2htm_test_assert_true(self_insert_reallocate[0] == u8'a');
+    pltxt2htm_test_assert_true(self_insert_reallocate[1] == u8'a');
+    pltxt2htm_test_assert_true(self_insert_reallocate[2] == u8'b');
+    pltxt2htm_test_assert_true(self_insert_reallocate[3] == u8'c');
+    pltxt2htm_test_assert_true(self_insert_reallocate[4] == u8'b');
+    pltxt2htm_test_assert_true(self_insert_reallocate[5] == u8'c');
 
     U8String reserved{u8"reserve keeps contents"};
     reserved.reserve(reserved.capacity() + 1024);

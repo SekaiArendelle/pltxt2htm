@@ -56,7 +56,7 @@ constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text)
         return {.consumed_size = 0, .code_point = char32_t{}, .valid = false};
     }
 
-    char8_t const first{text.index(0)};
+    char8_t const first{text[0]};
     if ((first & 0x80) == 0) {
         return {.consumed_size = 1, .code_point = static_cast<char32_t>(first), .valid = true};
     }
@@ -65,7 +65,7 @@ constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text)
         if (text_size < 2) {
             return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
         }
-        char8_t const second{text.index(1)};
+        char8_t const second{text[1]};
         if ((second & 0xC0) != 0x80) {
             return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
         }
@@ -78,14 +78,14 @@ constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text)
         if (text_size < 2) {
             return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
         }
-        char8_t const second{text.index(1)};
+        char8_t const second{text[1]};
         if ((second & 0xC0) != 0x80) {
             return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
         }
         if (text_size < 3) {
             return {.consumed_size = 2, .code_point = char32_t{}, .valid = false};
         }
-        char8_t const third{text.index(2)};
+        char8_t const third{text[2]};
         if ((third & 0xC0) != 0x80) {
             return {.consumed_size = 2, .code_point = char32_t{}, .valid = false};
         }
@@ -99,21 +99,21 @@ constexpr auto decode_utf8_code_point(::pltxt2htm::container::U8StringView text)
         if (text_size < 2) {
             return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
         }
-        char8_t const second{text.index(1)};
+        char8_t const second{text[1]};
         if ((second & 0xC0) != 0x80) {
             return {.consumed_size = 1, .code_point = char32_t{}, .valid = false};
         }
         if (text_size < 3) {
             return {.consumed_size = 2, .code_point = char32_t{}, .valid = false};
         }
-        char8_t const third{text.index(2)};
+        char8_t const third{text[2]};
         if ((third & 0xC0) != 0x80) {
             return {.consumed_size = 2, .code_point = char32_t{}, .valid = false};
         }
         if (text_size < 4) {
             return {.consumed_size = 3, .code_point = char32_t{}, .valid = false};
         }
-        char8_t const fourth{text.index(3)};
+        char8_t const fourth{text[3]};
         if ((fourth & 0xC0) != 0x80) {
             return {.consumed_size = 3, .code_point = char32_t{}, .valid = false};
         }

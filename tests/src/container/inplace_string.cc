@@ -49,6 +49,12 @@ static_assert(!can_form_basic_inplace_string<bool>);
 static_assert(!can_form_basic_inplace_string<int>);
 static_assert(!can_form_basic_inplace_string<char8_t, 0>);
 
+static_assert(requires(CheckedU8String4& value, CheckedU8String4 const& const_value, ::std::size_t position) {
+    value[position];
+    value[position] = u8'a';
+    const_value[position];
+});
+
 static_assert(!::std::is_trivially_copyable_v<CheckedU8String4>);
 static_assert(::std::is_nothrow_copy_constructible_v<CheckedU8String4>);
 static_assert(::std::is_nothrow_move_constructible_v<CheckedU8String4>);
@@ -79,25 +85,25 @@ consteval auto test_constexpr_inplace_string() -> bool {
 
     constexpr char8_t initial[]{u8'a', u8'\0', u8'b'};
     auto value = CheckedU8String4{initial, initial + 3};
-    if (value.empty() || value.size() != 3 || value.size_bytes() != 3 || value.index(0) != u8'a' ||
-        value.index(1) != u8'\0' || value.front() != u8'a' || value.back() != u8'b') {
+    if (value.empty() || value.size() != 3 || value.size_bytes() != 3 || value[0] != u8'a' || value[1] != u8'\0' ||
+        value.front() != u8'a' || value.back() != u8'b') {
         return false;
     }
 
-    value.index(2) = u8'c';
+    value[2] = u8'c';
     if (!value.try_push_back(u8'd') || value.try_push_back(u8'e') || value.back() != u8'd') {
         return false;
     }
 
     value.pop_back();
-    if (!value.try_push_back(u8'x') || value.size() != 4 || value.index(2) != u8'c' || value.index(3) != u8'x') {
+    if (!value.try_push_back(u8'x') || value.size() != 4 || value[2] != u8'c' || value[3] != u8'x') {
         return false;
     }
 
     value.clear();
     value.push_back(u8'z');
     value.push_back(u8'z');
-    if (value.size() != 2 || value.index(0) != u8'z' || value.index(1) != u8'z' || *value.rbegin() != u8'z') {
+    if (value.size() != 2 || value[0] != u8'z' || value[1] != u8'z' || *value.rbegin() != u8'z') {
         return false;
     }
 
@@ -125,18 +131,18 @@ consteval auto test_constexpr_inplace_string() -> bool {
         return false;
     }
 
-    copy.index(2) = u8'd';
+    copy[2] = u8'd';
     if ((copy <=> larger) != ::std::strong_ordering::greater || value == copy) {
         return false;
     }
 
     copy.assign(copy.begin(), copy.end());
-    if (copy.size() != 3 || copy.index(0) != u8'a' || copy.index(1) != u8'\0' || copy.index(2) != u8'd') {
+    if (copy.size() != 3 || copy[0] != u8'a' || copy[1] != u8'\0' || copy[2] != u8'd') {
         return false;
     }
 
     copy.assign(copy.begin() + 1, copy.end());
-    return copy.size() == 2 && copy.index(0) == u8'\0' && copy.index(1) == u8'd';
+    return copy.size() == 2 && copy[0] == u8'\0' && copy[1] == u8'd';
 }
 
 static_assert(test_constexpr_inplace_string());

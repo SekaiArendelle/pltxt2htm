@@ -26,9 +26,14 @@ static_assert(!can_form_array<0>);
 static_assert(::std::is_aggregate_v<IntArray>);
 static_assert(::std::is_standard_layout_v<IntArray>);
 static_assert(::std::is_trivially_copyable_v<IntArray>);
-static_assert(!can_subscript<IntArray>);
+static_assert(can_subscript<IntArray>);
 static_assert(!can_call_empty<IntArray>);
 static_assert(!can_call_is_empty<IntArray>);
+static_assert(requires(IntArray& values, IntArray const& const_values, ::std::size_t position) {
+    values[position];
+    values[position] = 1;
+    const_values[position];
+});
 
 consteval auto test_constexpr_array() noexcept -> bool {
     auto values = ::pltxt2htm::container::Array{1, 2, 3};
@@ -42,8 +47,8 @@ consteval auto test_constexpr_array() noexcept -> bool {
         return false;
     }
 
-    values.index(1) = 4;
-    if (values.index(1) != 4 || values.index(2) != 3) {
+    values[1] = 4;
+    if (values[1] != 4 || values[2] != 3) {
         return false;
     }
 
@@ -75,7 +80,7 @@ int main() {
     auto const strings = ::pltxt2htm::container::Array{"first", "second", nullptr};
     static_assert(
         ::std::same_as<::std::remove_cvref_t<decltype(strings)>, ::pltxt2htm::container::Array<char const*, 3>>);
-    pltxt2htm_test_assert_true(::std::string_view{strings.index(1)} == "second");
+    pltxt2htm_test_assert_true(::std::string_view{strings[1]} == "second");
 
     return 0;
 }

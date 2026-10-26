@@ -82,13 +82,13 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto index(this Text& self, size_type position) noexcept -> char8_t& {
-        return self.storage.index(position);
+    constexpr auto operator[](this Text& self, size_type position) noexcept -> char8_t& {
+        return self.storage[position];
     }
 
     [[nodiscard]]
-    constexpr auto index(this Text const& self, size_type position) noexcept -> char8_t const& {
-        return self.storage.index(position);
+    constexpr auto operator[](this Text const& self, size_type position) noexcept -> char8_t const& {
+        return self.storage[position];
     }
 
     [[nodiscard]]

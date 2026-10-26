@@ -135,9 +135,9 @@ public:
     [[nodiscard]]
     constexpr auto front(this Ast const& self) noexcept -> const_reference;
     [[nodiscard]]
-    constexpr auto index(this Ast& self, size_type position) noexcept -> reference;
+    constexpr auto operator[](this Ast& self, size_type position) noexcept -> reference;
     [[nodiscard]]
-    constexpr auto index(this Ast const& self, size_type position) noexcept -> const_reference;
+    constexpr auto operator[](this Ast const& self, size_type position) noexcept -> const_reference;
     constexpr void reserve(this Ast& self, size_type requested_capacity) noexcept;
 
     template<typename... Args>

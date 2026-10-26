@@ -86,8 +86,8 @@ int main() {
         }
         pltxt2htm_test_assert_true(ast == expected);
         pltxt2htm_test_assert_true(ast.size() == 2);
-        pltxt2htm_test_assert_true(ast.index(0).as_text().size() == text_capacity);
-        pltxt2htm_test_assert_true(ast.index(1).as_text().size() == 9);
+        pltxt2htm_test_assert_true(ast[0].as_text().size() == text_capacity);
+        pltxt2htm_test_assert_true(ast[1].as_text().size() == 9);
     }
     {
         constexpr auto text_capacity = ::pltxt2htm::Text::capacity();
@@ -203,8 +203,7 @@ int main() {
         ::pltxt2htm::Ast ast{};
         ast.append_code_point(code_point);
         pltxt2htm_test_assert_true(ast.size() == 1);
-        pltxt2htm_test_assert_true(ast.index(0).get_node_kind() ==
-                                   ::pltxt2htm::NodeKind::invalid_utf8);
+        pltxt2htm_test_assert_true(ast[0].get_node_kind() == ::pltxt2htm::NodeKind::invalid_utf8);
     }
 
     // Every generated named reference round-trips through the decoder.

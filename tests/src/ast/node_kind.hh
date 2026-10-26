@@ -60,14 +60,14 @@ TEST_SUITE("node_kind") {
     [[nodiscard]]
     constexpr auto test_constexpr_emplace() noexcept -> bool {
         auto node = TestNode::emplace<::pltxt2htm::Text>(u8'x');
-        return node.get_node_kind() == ::pltxt2htm::NodeKind::text && node.as_text().index(0) == u8'x';
+        return node.get_node_kind() == ::pltxt2htm::NodeKind::text && node.as_text()[0] == u8'x';
     }
 
     [[nodiscard]]
     constexpr auto test_constexpr_move() noexcept -> bool {
         auto source = TestNode::emplace<::pltxt2htm::Text>(u8'x');
         auto moved = TestNode{::std::move(source)};
-        return moved.get_node_kind() == ::pltxt2htm::NodeKind::text && moved.as_text().index(0) == u8'x';
+        return moved.get_node_kind() == ::pltxt2htm::NodeKind::text && moved.as_text()[0] == u8'x';
     }
 
     static_assert(CanEmplaceTestNode<::pltxt2htm::Text, char8_t>);
@@ -97,10 +97,10 @@ TEST_SUITE("node_kind") {
         auto unity_color =
             TestNode::emplace<::pltxt2htm::UnityColor>(::pltxt2htm::Ast{}, ::pltxt2htm::container::U8String{u8"blue"});
 
-        CHECK(arr.index(0).get_node_kind() == ::pltxt2htm::NodeKind::text);
-        CHECK(arr.index(1).get_node_kind() == ::pltxt2htm::NodeKind::unity_color);
-        CHECK(arr.index(2).get_node_kind() == ::pltxt2htm::NodeKind::pl_experiment);
-        CHECK(arr.index(3).get_node_kind() == ::pltxt2htm::NodeKind::pl_discussion);
+        CHECK(arr[0].get_node_kind() == ::pltxt2htm::NodeKind::text);
+        CHECK(arr[1].get_node_kind() == ::pltxt2htm::NodeKind::unity_color);
+        CHECK(arr[2].get_node_kind() == ::pltxt2htm::NodeKind::pl_experiment);
+        CHECK(arr[3].get_node_kind() == ::pltxt2htm::NodeKind::pl_discussion);
         CHECK(invalid_utf8.get_node_kind() == ::pltxt2htm::NodeKind::invalid_utf8);
         CHECK(unity_color.get_node_kind() == ::pltxt2htm::NodeKind::unity_color);
         CHECK(unity_color.as_unity_color().get_color() == ::pltxt2htm::container::U8String{u8"blue"});

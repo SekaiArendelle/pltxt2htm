@@ -58,7 +58,7 @@ constexpr void append_html_escaped_attribute_value(::pltxt2htm::container::U8Str
                                                    ::pltxt2htm::container::U8StringView value) noexcept {
     ::std::size_t const value_size{value.size()};
     for (::std::size_t index{}; index < value_size; ++index) {
-        ::pltxt2htm::details::append_html_escaped_character(result, value.index(index));
+        ::pltxt2htm::details::append_html_escaped_character(result, value[index]);
     }
 }
 
@@ -70,8 +70,8 @@ constexpr void append_plain_text_as_html_attribute(::pltxt2htm::container::U8Str
     auto const& text = value.as_string();
     ::std::size_t const text_size{text.size()};
     for (::std::size_t index{}; index < text_size; ++index) {
-        char8_t const character{text.index(index)};
-        if (character == char8_t{0xC2} && index + 1 < text_size && text.index(index + 1) == char8_t{0xA0}) {
+        char8_t const character{text[index]};
+        if (character == char8_t{0xC2} && index + 1 < text_size && text[index + 1] == char8_t{0xA0}) {
             result.append(u8"&nbsp;");
             ++index;
             continue;

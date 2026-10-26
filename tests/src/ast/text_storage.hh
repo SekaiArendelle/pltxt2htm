@@ -28,32 +28,32 @@ TEST_SUITE("text_storage") {
 
         auto const ast = ::pltxt2htm::parse_pltxt(::pltxt2htm::container::U8StringView{input});
         REQUIRE(ast.size() == 3);
-        CHECK(ast.index(0).get_node_kind() == ::pltxt2htm::NodeKind::text);
-        CHECK(ast.index(0).as_text().size() == Text::capacity());
-        CHECK(ast.index(1).as_text().size() == Text::capacity());
-        CHECK(ast.index(2).as_text().size() == 1);
+        CHECK(ast[0].get_node_kind() == ::pltxt2htm::NodeKind::text);
+        CHECK(ast[0].as_text().size() == Text::capacity());
+        CHECK(ast[1].as_text().size() == Text::capacity());
+        CHECK(ast[2].as_text().size() == 1);
     }
 
     TEST_CASE("spaces separate text nodes") {
         auto const ast = ::pltxt2htm::parse_pltxt(u8"abc def");
         REQUIRE(ast.size() == 3);
-        CHECK(ast.index(0).get_node_kind() == ::pltxt2htm::NodeKind::text);
-        CHECK(ast.index(0).as_text().size() == 3);
-        CHECK(ast.index(1).get_node_kind() == ::pltxt2htm::NodeKind::space);
-        CHECK(ast.index(2).get_node_kind() == ::pltxt2htm::NodeKind::text);
-        CHECK(ast.index(2).as_text().size() == 3);
+        CHECK(ast[0].get_node_kind() == ::pltxt2htm::NodeKind::text);
+        CHECK(ast[0].as_text().size() == 3);
+        CHECK(ast[1].get_node_kind() == ::pltxt2htm::NodeKind::space);
+        CHECK(ast[2].get_node_kind() == ::pltxt2htm::NodeKind::text);
+        CHECK(ast[2].as_text().size() == 3);
     }
 
     TEST_CASE("multibyte text size") {
         auto const ast = ::pltxt2htm::parse_pltxt(u8"a\u20ACb");
         REQUIRE(ast.size() == 1);
-        CHECK(ast.index(0).as_text().size() == 5);
+        CHECK(ast[0].as_text().size() == 5);
     }
 
     TEST_CASE("unknown escape text size") {
         auto const ast = ::pltxt2htm::parse_pltxt(u8"abc\\qdef");
         REQUIRE(ast.size() == 1);
-        CHECK(ast.index(0).as_text().size() == 8);
+        CHECK(ast[0].as_text().size() == 8);
     }
 
     TEST_CASE("adjacent text nodes merge") {
@@ -63,11 +63,11 @@ TEST_SUITE("text_storage") {
         ast.push_back(::pltxt2htm::PlTxtNode::template emplace<Text>(u8'c'));
         ::pltxt2htm::optimize_ast(ast);
         REQUIRE(ast.size() == 1);
-        auto const& text = ast.index(0).as_text();
+        auto const& text = ast[0].as_text();
         REQUIRE(text.size() == 3);
-        CHECK(text.index(0) == u8'a');
-        CHECK(text.index(1) == u8'b');
-        CHECK(text.index(2) == u8'c');
+        CHECK(text[0] == u8'a');
+        CHECK(text[1] == u8'b');
+        CHECK(text[2] == u8'c');
     }
 
     TEST_CASE("text merge respects capacity") {
@@ -80,13 +80,13 @@ TEST_SUITE("text_storage") {
         ast.push_back(::pltxt2htm::PlTxtNode::template emplace<Text>(::std::move(right)));
         ::pltxt2htm::optimize_ast(ast);
         REQUIRE(ast.size() == 2);
-        auto const& first = ast.index(0).as_text();
-        auto const& second = ast.index(1).as_text();
+        auto const& first = ast[0].as_text();
+        auto const& second = ast[1].as_text();
         REQUIRE(first.size() == Text::capacity());
         REQUIRE(second.size() == 5);
         for (::std::size_t index{}; index < 5; ++index) {
-            CHECK(first.index(Text::capacity() - 5 + index) == u8'b');
-            CHECK(second.index(index) == u8'b');
+            CHECK(first[Text::capacity() - 5 + index] == u8'b');
+            CHECK(second[index] == u8'b');
         }
     }
 
@@ -102,11 +102,11 @@ TEST_SUITE("text_storage") {
         for (auto const pltext : unclosed_strong) {
             auto const ast = ::pltxt2htm::parse_pltxt(pltext);
             REQUIRE(ast.size() == 1);
-            CHECK(ast.index(0).get_node_kind() == ::pltxt2htm::NodeKind::html_strong);
+            CHECK(ast[0].get_node_kind() == ::pltxt2htm::NodeKind::html_strong);
 
             auto const inline_ast = ::pltxt2htm::inline_parse_pltxt(pltext);
             REQUIRE(inline_ast.size() == 1);
-            CHECK(inline_ast.index(0).get_node_kind() == ::pltxt2htm::NodeKind::html_strong);
+            CHECK(inline_ast[0].get_node_kind() == ::pltxt2htm::NodeKind::html_strong);
         }
     }
 }

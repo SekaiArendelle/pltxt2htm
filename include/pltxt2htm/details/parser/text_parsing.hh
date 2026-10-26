@@ -24,7 +24,7 @@ namespace pltxt2htm::details {
 [[nodiscard]] constexpr auto scan_plain_ascii_run(::pltxt2htm::container::U8StringView text) noexcept -> ::std::size_t {
     auto const text_size = text.size();
     for (::std::size_t index{}; index < text_size; ++index) {
-        auto const character = text.index(index);
+        auto const character = text[index];
         if (character <= u8' ' || character >= char8_t{0x7F}) {
             return index;
         }
@@ -73,7 +73,7 @@ namespace pltxt2htm::details {
 [[nodiscard]]
 constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text, ::pltxt2htm::Ast& result) noexcept
     -> ::std::size_t {
-    char8_t const first{text.index(0)};
+    char8_t const first{text[0]};
     if (::pltxt2htm::details::is_ascii_control_code_point(static_cast<char32_t>(first))) {
         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::InvalidUtf8>());
         return 1;
@@ -85,7 +85,7 @@ constexpr auto parse_utf8_code_point(::pltxt2htm::container::U8StringView text, 
         return decoded.consumed_size;
     }
     for (::std::size_t index{}; index < decoded.consumed_size; ++index) {
-        result.append_text(text.index(index));
+        result.append_text(text[index]);
     }
     return decoded.consumed_size;
 }

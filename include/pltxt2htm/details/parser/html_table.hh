@@ -74,7 +74,7 @@ constexpr auto try_capture_until_tag(::pltxt2htm::container::U8StringView pltext
             current_index += opt_len.value();
             return TryCaptureUntilTagResult{.text = ::std::move(text), .advance_count = current_index};
         }
-        text.push_back(pltext.index(current_index));
+        text.push_back(pltext[current_index]);
         ++current_index;
     }
     return ::pltxt2htm::container::nullopt;
@@ -86,7 +86,7 @@ constexpr auto try_capture_until_tag(::pltxt2htm::container::U8StringView pltext
  */
 constexpr auto trim_table_content(::pltxt2htm::container::U8String& text) noexcept -> void {
     while (text.is_empty() == false) {
-        auto const chr = text.index(text.size() - 1);
+        auto const chr = text[text.size() - 1];
         if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
             break;
         }
@@ -125,7 +125,7 @@ constexpr auto optionally_to_html_table_ast(::pltxt2htm::container::U8StringView
     while (true) {
         // Skip whitespace between table tags.
         while (current_index < pltext_size) {
-            auto const chr = pltext.index(current_index);
+            auto const chr = pltext[current_index];
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;
             }
