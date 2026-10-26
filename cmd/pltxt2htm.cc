@@ -10,6 +10,7 @@
     #include <fast_io/fast_io_driver/install_path.h>
 #endif
 #include <pltxt2htm/pltxt2htm.hh>
+#include <pltxt2htm/details/push_macro.hh>
 
 enum class TargetType : unsigned {
     indeterminate = 0,
@@ -363,7 +364,7 @@ int main(int argc, char const* const* const argv) noexcept {
                                                            ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
         }
         else [[unlikely]] {
-            ::pltxt2htm::details::unreachable();
+            pltxt2htm_unreachable(u8"Unexpected target type in the CLI conversion dispatch");
         }
         if (output_file_path == nullptr) {
             ::fast_io::println(::fast_io::u8c_stdout(), html);
@@ -385,3 +386,5 @@ int main(int argc, char const* const* const argv) noexcept {
 
     return 0;
 }
+
+#include <pltxt2htm/details/pop_macro.hh>

@@ -11,8 +11,6 @@
     #include <intrin.h>
 #endif
 
-#include "contracts.hh"
-
 namespace pltxt2htm::details {
 
 /**
@@ -30,11 +28,15 @@ inline void trap() noexcept {
 }
 
 /**
- * @brief Marks a code path as unreachable.
+ * @brief Marks a code path as unreachable for the optimizer.
+ * @details Pure optimizer hint with no diagnostic behavior in any contract mode.
+ *          Prefer the pltxt2htm_unreachable macro (details/push_macro.hh), which
+ *          panics with a message in enforce mode and only falls back to this
+ *          function in ignore mode. Only use this function directly at call sites
+ *          whose unreachability is proven, or when the optimizer hint is the goal.
  */
 [[noreturn]]
 inline void unreachable() noexcept {
-    if constexpr (::pltxt2htm::details::contract_mode == ::pltxt2htm::details::Contracts::ignore) {
 #if defined(__has_builtin)
     #if __has_builtin(__builtin_unreachable)
         __builtin_unreachable();
@@ -44,10 +46,6 @@ inline void unreachable() noexcept {
 #else
         ::std::unreachable();
 #endif
-    }
-    else {
-        ::pltxt2htm::details::trap();
-    }
 }
 
 } // namespace pltxt2htm::details
