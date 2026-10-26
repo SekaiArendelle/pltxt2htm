@@ -1,5 +1,7 @@
 #pragma once
 
+// Downstream-only definitions; they copy PlTxtNode values, which internal
+// builds disable (see ast_decl.hh).
 #if !defined(PLTXT2HTM_INTERNAL_USE)
 constexpr ::pltxt2htm::Ast::Ast(::std::initializer_list<::pltxt2htm::Ast::value_type> values) noexcept
     : storage{values} {

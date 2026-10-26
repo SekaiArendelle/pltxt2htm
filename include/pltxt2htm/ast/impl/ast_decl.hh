@@ -74,6 +74,11 @@ public:
     using const_reverse_iterator = typename storage_type::const_reverse_iterator;
 
     constexpr Ast() noexcept = default;
+    // Constructing from an initializer_list copies each element, so it requires
+    // PlTxtNode's copy constructor, which is disabled while building pltxt2htm
+    // itself (PLTXT2HTM_INTERNAL_USE). The copy constructor and copy assignment
+    // are external-only for the same reason. Ast is no longer a template, so
+    // these definitions cannot be instantiated lazily and live in ast_def.inc.
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr Ast(::std::initializer_list<value_type> values) noexcept = delete;
     constexpr Ast(Ast const&) noexcept = delete;
