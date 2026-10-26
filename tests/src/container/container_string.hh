@@ -149,8 +149,11 @@ consteval auto test_constexpr_string() noexcept -> bool {
 static_assert(test_constexpr_string());
 
 TEST_SUITE("container_string") {
-    TEST_CASE("runtime") {
+    TEST_CASE("assign-growth-and-range") {
         CHECK(test_assign_growth_and_range());
+    }
+
+    TEST_CASE("empty-string-state") {
         U8String empty_string;
         CHECK(empty_string.data() == ::fast_io::null_terminated_c_str_v<char8_t>);
         CHECK(empty_string.capacity() == 0);
@@ -163,11 +166,15 @@ TEST_SUITE("container_string") {
         CHECK(empty_string.data() == ::fast_io::null_terminated_c_str_v<char8_t>);
         CHECK(moved_empty_string.data() == ::fast_io::null_terminated_c_str_v<char8_t>);
         CHECK(assigned_empty_string.data() == ::fast_io::null_terminated_c_str_v<char8_t>);
+    }
 
+    TEST_CASE("fast-io-output") {
         U8String const string{u8"abc"};
         auto const printed = ::fast_io::u8concat_fast_io(string, 123);
         CHECK(printed == u8"abc123");
+    }
 
+    TEST_CASE("fast-io-scanning") {
         char8_t const token_input[]{u8"  first second"};
         ::fast_io::u8ibuffer_view token_buffer{token_input, token_input + sizeof(token_input) / sizeof(char8_t) - 1};
         U8String scanned_token{u8"old value"};
@@ -195,7 +202,9 @@ TEST_SUITE("container_string") {
         U8String scanned_empty{u8"old value"};
         ::fast_io::io::scan(empty_buffer, ::fast_io::mnp::whole_get(scanned_empty));
         CHECK(scanned_empty.is_empty());
+    }
 
+    TEST_CASE("zero-initialization") {
         U8String zero_string{1024};
         for (char8_t const character : zero_string) {
             REQUIRE(character == u8'\0');
@@ -206,7 +215,9 @@ TEST_SUITE("container_string") {
         for (char8_t const character : dirty_allocator_zero_string) {
             REQUIRE(character == u8'\0');
         }
+    }
 
+    TEST_CASE("self-referential-append") {
         U8String self_append{u8"abc"};
         while (self_append.size() < self_append.capacity()) {
             self_append.push_back(u8'x');
@@ -217,7 +228,9 @@ TEST_SUITE("container_string") {
         CHECK(self_append[append_old_size] == u8'a');
         CHECK(self_append[append_old_size + 1] == u8'b');
         CHECK(self_append[append_old_size + 2] == u8'c');
+    }
 
+    TEST_CASE("self-referential-insert") {
         U8String self_insert_after_source{u8"abcdef"};
         self_insert_after_source.reserve(16);
         self_insert_after_source.insert(self_insert_after_source.begin() + 4,
@@ -235,11 +248,15 @@ TEST_SUITE("container_string") {
         self_insert_overlapping.insert(self_insert_overlapping.begin() + 3,
                                        U8StringView{self_insert_overlapping.data() + 1, 4});
         CHECK(self_insert_overlapping == u8"abcbcdedef");
+    }
 
+    TEST_CASE("self-referential-assign") {
         U8String self_assign{u8"abcdef"};
         self_assign.assign(U8StringView{self_assign.data() + 2, 3});
         CHECK(self_assign == u8"cde");
+    }
 
+    TEST_CASE("self-insert-reallocate") {
         U8String self_insert_reallocate{u8"abc"};
         while (self_insert_reallocate.size() < self_insert_reallocate.capacity()) {
             self_insert_reallocate.push_back(u8'x');
@@ -254,7 +271,9 @@ TEST_SUITE("container_string") {
         CHECK(self_insert_reallocate[3] == u8'c');
         CHECK(self_insert_reallocate[4] == u8'b');
         CHECK(self_insert_reallocate[5] == u8'c');
+    }
 
+    TEST_CASE("reserve-preserves-contents") {
         U8String reserved{u8"reserve keeps contents"};
         reserved.reserve(reserved.capacity() + 1024);
         CHECK(reserved == u8"reserve keeps contents");

@@ -505,16 +505,37 @@ void test_range_insertion() {
 } // namespace pltxt2htm_test
 
 TEST_SUITE("container_deque") {
-    TEST_CASE("runtime") {
+    TEST_CASE("constexpr-helper-checks") {
         CHECK(test_offset_relocation());
         CHECK(test_contract_operations());
+    }
+
+    TEST_CASE("rolling-queue") {
         ::pltxt2htm_test::test_rolling_queue(true);
         ::pltxt2htm_test::test_rolling_queue(false);
+    }
+
+    TEST_CASE("spare-blocks") {
         ::pltxt2htm_test::test_spare_blocks();
+    }
+
+    TEST_CASE("spare-transfer-at-map-edge") {
         ::pltxt2htm_test::test_spare_transfer_at_map_edge();
+    }
+
+    TEST_CASE("spare-blocks-follow-storage") {
         ::pltxt2htm_test::test_spare_blocks_follow_storage();
+    }
+
+    TEST_CASE("iterator-storage") {
         ::pltxt2htm_test::test_iterator_storage();
+    }
+
+    TEST_CASE("range-insertion") {
         ::pltxt2htm_test::test_range_insertion();
+    }
+
+    TEST_CASE("differential-against-std-deque") {
         IntDeque differential{};
         ::std::deque<int> reference{};
         ::std::uint_least32_t random_state{0xC0FFEEu};
@@ -558,7 +579,9 @@ TEST_SUITE("container_deque") {
             REQUIRE(differential.size() == reference.size());
             REQUIRE(::std::equal(differential.begin(), differential.end(), reference.begin()));
         }
+    }
 
+    TEST_CASE("growth-copy-and-modification") {
         IntDeque values{};
         values.push_back(1);
         int const* const stable_address{::std::addressof(values.front())};
@@ -601,13 +624,17 @@ TEST_SUITE("container_deque") {
         moved.clear();
         moved.shrink_to_fit();
         CHECK(moved.is_empty());
+    }
 
+    TEST_CASE("thread-local-allocator") {
         ::pltxt2htm::container::Deque<int, ::fast_io::native_thread_local_allocator> thread_local_values{};
         thread_local_values.push_front(2);
         thread_local_values.push_front(1);
         thread_local_values.push_back(3);
         CHECK((thread_local_values[0] == 1 && thread_local_values[2] == 3));
+    }
 
+    TEST_CASE("tracked-value-lifetime") {
         {
             ::pltxt2htm::container::Deque<::pltxt2htm_test::TrackedValue> tracked{};
             for (int value{}; value != 500; ++value) {

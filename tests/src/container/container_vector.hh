@@ -511,7 +511,7 @@ consteval auto test_constexpr_vector() -> bool {
 static_assert(test_constexpr_vector());
 
 TEST_SUITE("container_vector") {
-    TEST_CASE("runtime") {
+    TEST_CASE("tracking-allocator-growth") {
         TrackingRawAllocator::reset();
         {
             TrackingIntVector tracked{};
@@ -519,7 +519,9 @@ TEST_SUITE("container_vector") {
             CHECK(TrackingRawAllocator::get_last_requested_bytes() == sizeof(int) * 2);
         }
         CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
+    }
 
+    TEST_CASE("reserve-and-relocation") {
         TrackingRawAllocator::reset();
         {
             TrackingIntVector tracked{};
@@ -543,7 +545,9 @@ TEST_SUITE("container_vector") {
         CHECK(TrackingRawAllocator::get_active_allocations() == 0);
         CHECK(TrackingRawAllocator::get_deallocation_count() == 2);
         CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
+    }
 
+    TEST_CASE("copy-and-move-assignment") {
         IntVector original{1, 2, 3};
         IntVector copy{};
         copy = original;
@@ -558,32 +562,39 @@ TEST_SUITE("container_vector") {
         moved.pop_back();
         moved.clear();
         CHECK(moved.is_empty());
+    }
 
-        int const single_pass_values[]{6, 7};
-        auto single_pass_range = SinglePassIntRange{single_pass_values, single_pass_values + 2};
-        IntVector single_pass_result{};
-        single_pass_result.append_range(single_pass_range);
-        CHECK(single_pass_result == IntVector{6, 7});
+    TEST_CASE("append-single-pass-range") {
+        int const values[]{6, 7};
+        auto range = SinglePassIntRange{values, values + 2};
+        IntVector result{};
+        result.append_range(range);
+        CHECK(result == IntVector{6, 7});
+    }
 
-        int const cv_sensitive_values[]{8, 9};
-        auto cv_sensitive_range =
-            CvSensitiveForwardRange{cv_sensitive_values, cv_sensitive_values + ::std::size(cv_sensitive_values)};
-        IntVector cv_sensitive_result{};
-        cv_sensitive_result.append_range(cv_sensitive_range);
-        CHECK(cv_sensitive_result == IntVector{8, 9});
+    TEST_CASE("append-cv-sensitive-range") {
+        int const values[]{8, 9};
+        auto range = CvSensitiveForwardRange{values, values + ::std::size(values)};
+        IntVector result{};
+        result.append_range(range);
+        CHECK(result == IntVector{8, 9});
+    }
 
-        ::std::size_t sized_begin_call_count{};
-        ::std::size_t sized_size_call_count{};
-        int const sized_values[]{10, 11};
-        auto sized_range = NonConstexprSizedForwardRange{sized_values, sized_values + ::std::size(sized_values),
-                                                         ::std::addressof(sized_begin_call_count),
-                                                         ::std::addressof(sized_size_call_count)};
-        IntVector sized_result{};
-        sized_result.append_range(sized_range);
-        CHECK(sized_result == IntVector{10, 11});
-        CHECK(sized_begin_call_count == 1);
-        CHECK(sized_size_call_count == 1);
+    TEST_CASE("append-sized-range") {
+        ::std::size_t begin_call_count{};
+        ::std::size_t size_call_count{};
+        int const values[]{10, 11};
+        auto range =
+            NonConstexprSizedForwardRange{values, values + ::std::size(values), ::std::addressof(begin_call_count),
+                                          ::std::addressof(size_call_count)};
+        IntVector result{};
+        result.append_range(range);
+        CHECK(result == IntVector{10, 11});
+        CHECK(begin_call_count == 1);
+        CHECK(size_call_count == 1);
+    }
 
+    TEST_CASE("emplace-construction") {
         ::pltxt2htm::container::Vector<ConstructionTrace> direct_construction{};
         direct_construction.reserve(1);
         while (direct_construction.size() != direct_construction.capacity()) {
@@ -592,7 +603,9 @@ TEST_SUITE("container_vector") {
         auto const direct_construction_size = direct_construction.size();
         direct_construction.emplace_back(2);
         CHECK(direct_construction[direct_construction_size].get_construction_kind() == 1);
+    }
 
+    TEST_CASE("append-range-construction") {
         ::pltxt2htm::container::Vector<ConstructionTrace> copy_source{};
         copy_source.emplace_back(3);
         ::pltxt2htm::container::Vector<ConstructionTrace> copied_range{};
@@ -604,7 +617,9 @@ TEST_SUITE("container_vector") {
         ::pltxt2htm::container::Vector<ConstructionTrace> moved_range{};
         moved_range.append_range(::std::span<ConstructionTrace>{move_source.data(), move_source.size()});
         CHECK(moved_range.front().get_construction_kind() == 3);
+    }
 
+    TEST_CASE("self-move-construction") {
         ::pltxt2htm::container::Vector<ConstructionTrace> self_move{};
         self_move.reserve(1);
         self_move.emplace_back(5);
@@ -614,7 +629,9 @@ TEST_SUITE("container_vector") {
         auto const self_move_size = self_move.size();
         self_move.push_back(::std::move(self_move.front()));
         CHECK(self_move[self_move_size].get_payload() == 5);
+    }
 
+    TEST_CASE("append-overlapping-range") {
         IntVector overlap{};
         overlap.reserve(1);
         overlap.push_back(1);

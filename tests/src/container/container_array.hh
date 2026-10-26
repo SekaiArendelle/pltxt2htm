@@ -70,7 +70,7 @@ consteval auto test_constexpr_array() noexcept -> bool {
 static_assert(test_constexpr_array());
 
 TEST_SUITE("container_array") {
-    TEST_CASE("runtime") {
+    TEST_CASE("heterogeneous-element-access") {
         auto const strings = ::pltxt2htm::container::Array{"first", "second", nullptr};
         static_assert(
             ::std::same_as<::std::remove_cvref_t<decltype(strings)>, ::pltxt2htm::container::Array<char const*, 3>>);

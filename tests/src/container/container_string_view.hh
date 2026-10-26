@@ -92,22 +92,26 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
 static_assert(test_constexpr_string_view());
 
 TEST_SUITE("container_string_view") {
-    TEST_CASE("runtime") {
+    TEST_CASE("construct-from-u8-string") {
         ::pltxt2htm::container::U8String own_string{u8"pltxt2htm"};
         U8StringView const own_string_view{own_string};
         U8StringView const converted_own_string_view = own_string;
         CHECK(own_string_view == u8"pltxt2htm");
         CHECK(converted_own_string_view == own_string_view);
+    }
 
+    TEST_CASE("fast-io-printing") {
         U8StringView const view{u8"view"};
         auto const printed = ::fast_io::u8concat_fast_io(u8"[", view, u8"]");
         CHECK(printed == u8"[view]");
+    }
 
+    TEST_CASE("construct-from-pointer-and-c-str") {
         char8_t const string[]{u8"pltxt2htm"};
         U8StringView const explicit_view{string, sizeof(string) / sizeof(char8_t) - 1};
-        CHECK(explicit_view == own_string_view);
+        CHECK(explicit_view == u8"pltxt2htm");
 
         U8StringView const from_c_str_view = U8StringView::from_c_str(string);
-        CHECK(from_c_str_view == own_string_view);
+        CHECK(from_c_str_view == u8"pltxt2htm");
     }
 }

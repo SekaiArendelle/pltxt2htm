@@ -412,6 +412,7 @@ using ThrowingReferenceOptional = ::pltxt2htm::container::Optional<::pltxt2htm_t
 using ExplicitThrowingReferenceOptional =
     ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalExplicitThrowingValue&>;
 using ThrowingEqualityOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalThrowingEqualityValue>;
+using TrackedOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalTrackedValue>;
 
 static_assert(!::pltxt2htm_test::can_call_value_or<MoveOnlyOptional&, ::pltxt2htm_test::OptionalMoveOnlyValue>);
 static_assert(::std::is_copy_constructible_v<::pltxt2htm_test::OptionalCopyOnlyValue>);
@@ -469,7 +470,7 @@ static_assert(!noexcept(::std::declval<ThrowingEqualityOptional const&>() ==
                         ::std::declval<::pltxt2htm_test::OptionalThrowingEqualityValue const&>()));
 
 TEST_SUITE("container_optional") {
-    TEST_CASE("runtime") {
+    TEST_CASE("basic-value-and-value-or") {
         IntOptional empty{::pltxt2htm::container::nullopt};
         CHECK_FALSE(empty.has_value());
         CHECK(empty == ::pltxt2htm::container::nullopt);
@@ -491,7 +492,9 @@ TEST_SUITE("container_optional") {
         CHECK(value.value() == 42);
         CHECK(static_cast<IntOptional const&>(empty).value_or(const_fallback) == const_fallback);
         CHECK(IntOptional{::pltxt2htm::container::nullopt}.value_or(int{11}) == 11);
+    }
 
+    TEST_CASE("reference-assignment") {
         int first_reference_value{21};
         int second_reference_value{34};
         IntReferenceOptional reference{first_reference_value};
@@ -500,9 +503,9 @@ TEST_SUITE("container_optional") {
         reference = second_reference_value;
         CHECK(::std::addressof(reference.value()) == ::std::addressof(second_reference_value));
         CHECK(first_reference_value == 22);
+    }
 
-        using TrackedOptional = ::pltxt2htm::container::Optional<::pltxt2htm_test::OptionalTrackedValue>;
-
+    TEST_CASE("tracked-value-swap-and-copy") {
         TrackedOptional state{::pltxt2htm_test::OptionalTrackedValue{42}};
         TrackedOptional other{::pltxt2htm::container::nullopt};
         state.swap(other);
@@ -527,8 +530,11 @@ TEST_SUITE("container_optional") {
         other = ::pltxt2htm_test::OptionalTrackedValue{9};
         CHECK(other.has_value());
         CHECK(other.value().value == 9);
+    }
 
-        TrackedOptional moved{::std::move(other)};
+    TEST_CASE("tracked-value-move-and-value-or") {
+        TrackedOptional source{::pltxt2htm_test::OptionalTrackedValue{9}};
+        TrackedOptional moved{::std::move(source)};
         CHECK(moved.has_value());
         CHECK(moved.value().value == 9);
 
@@ -549,7 +555,9 @@ TEST_SUITE("container_optional") {
 
         auto moved_fallback = ::std::move(empty_tracked).value_or(::std::move(tracked_fallback));
         CHECK((moved_fallback.value == 7 && tracked_fallback.value == -1));
+    }
 
+    TEST_CASE("move-only-value-or") {
         MoveOnlyOptional move_only{::pltxt2htm_test::OptionalMoveOnlyValue{21}};
         auto moved_value = ::std::move(move_only).value_or(::pltxt2htm_test::OptionalMoveOnlyValue{34});
         CHECK(moved_value.value == 21);

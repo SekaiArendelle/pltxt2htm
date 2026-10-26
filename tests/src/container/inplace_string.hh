@@ -148,7 +148,7 @@ consteval auto test_constexpr_inplace_string() -> bool {
 static_assert(test_constexpr_inplace_string());
 
 TEST_SUITE("inplace_string") {
-    TEST_CASE("runtime") {
+    TEST_CASE("construction-and-accessors") {
         constexpr char8_t source[]{u8't', u8'e', u8's', u8't'};
         auto value = CheckedU8String4{source, source + 4};
 
