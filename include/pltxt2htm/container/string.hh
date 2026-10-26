@@ -147,7 +147,6 @@ private:
      * character instead.
      */
     constexpr void construct_zero(this BasicString& self, size_type count) noexcept {
-        // Work around constructors being unable to receive an explicitly selected build-wide contract setting.
         pltxt2htm_assert(count != 0, u8"BasicString capacity can not be zero");
         pltxt2htm_assert(count < self.max_size(), u8"BasicString capacity is too large");
         if consteval {
@@ -179,7 +178,6 @@ private:
             self.reset();
             return;
         }
-        // Constructors cannot receive an explicitly selected build-wide contract setting.
         pltxt2htm_assert(count < self.max_size(), u8"BasicString capacity is too large");
         auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(count + 1);
         self.start_lifetime(new_pointer, allocated_size);

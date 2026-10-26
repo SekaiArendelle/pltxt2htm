@@ -27,7 +27,7 @@ enum class Contracts : unsigned {
  *       compiled with the same `PLTXT2HTM_CONTRACTS` value.
  */
 inline constexpr Contracts contract_mode{
-#if PLTXT2HTM_CONTRACTS == 0
+#if !defined(PLTXT2HTM_CONTRACTS) || PLTXT2HTM_CONTRACTS == 0
     Contracts::enforce
 #elif PLTXT2HTM_CONTRACTS == 1
     Contracts::ignore
