@@ -27,8 +27,6 @@ git = "*"
 # prepare-tmp runs before they invoke a tool that may use the temp directory.
 prepare-tmp = "cmake -E make_directory \"$PIXI_PROJECT_ROOT/.tmp\""
 clean-tmp = "cmake -E rm -rf \"$PIXI_PROJECT_ROOT/.tmp\""
-# Force a clean rebuild on the next test-* task.
-clean-tests = "cmake -E rm -rf \"$PIXI_PROJECT_ROOT/tests/build-pixi-clang\" \"$PIXI_PROJECT_ROOT/tests/build-pixi-gcc\""
 
 [feature.clang.dependencies]
 clangxx = ">=23"
@@ -46,9 +44,9 @@ run-cxxmodule-example = { cmd = "cxxmodule/examples/build-pixi-clang/example", d
 configure-cmd = { cmd = "cmake -S cmd -B cmd/build-pixi-clang-{{ mode | lower }} -G Ninja -DCMAKE_BUILD_TYPE={{ mode | capitalize }} -DCMAKE_CXX_COMPILER=clang++", args = [{ arg = "mode", default = "debug" }], depends-on = ["prepare-tmp"] }
 build-cmd = { cmd = "cmake --build cmd/build-pixi-clang-{{ mode | lower }}", args = [{ arg = "mode", default = "debug" }], depends-on = [{ task = "configure-cmd", args = ["{{ mode }}"] }] }
 run-cmd = { cmd = "cmd/build-pixi-clang-{{ mode | lower }}/pltxt2htm {{ cli_args }}", args = [{ arg = "mode", default = "debug" }, { arg = "cli_args", default = "" }], depends-on = [{ task = "build-cmd", args = ["{{ mode }}"] }] }
-configure-tests-clang = { cmd = "cmake -S tests -B tests/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DPLTXT2HTM_SANITIZER={{ sanitizer }}", args = [{ arg = "sanitizer", default = "" }], depends-on = ["prepare-tmp"] }
-build-tests-clang = { cmd = "cmake --build tests/build-pixi-clang", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "configure-tests-clang", args = ["{{ sanitizer }}"] }] }
-test-clang = { cmd = "ctest --test-dir tests/build-pixi-clang --interactive-debug-mode 0 --output-on-failure", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "build-tests-clang", args = ["{{ sanitizer }}"] }] }
+configure-tests-clang = { cmd = "cmake -S tests -B tests/build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }} -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DPLTXT2HTM_SANITIZER={{ sanitizer }}", args = [{ arg = "sanitizer", default = "" }], depends-on = ["prepare-tmp"] }
+build-tests-clang = { cmd = "cmake --build tests/build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }}", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "configure-tests-clang", args = ["{{ sanitizer }}"] }] }
+test-clang = { cmd = "ctest --test-dir tests/build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }} --interactive-debug-mode 0 --output-on-failure", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "build-tests-clang", args = ["{{ sanitizer }}"] }] }
 configure-c-static = { cmd = "cmake -S c -B c/build-pixi-clang-static -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=OFF", depends-on = ["prepare-tmp"] }
 build-c-static = { cmd = "cmake --build c/build-pixi-clang-static", depends-on = ["configure-c-static"] }
 configure-c-shared = { cmd = "cmake -S c -B c/build-pixi-clang-shared -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=ON", depends-on = ["prepare-tmp"] }
@@ -58,9 +56,9 @@ build-c-shared = { cmd = "cmake --build c/build-pixi-clang-shared", depends-on =
 gxx = ">=16"
 
 [feature.gcc.tasks]
-configure-tests-gcc = { cmd = "cmake -S tests -B tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++ -DPLTXT2HTM_SANITIZER={{ sanitizer }}", args = [{ arg = "sanitizer", default = "" }], depends-on = ["prepare-tmp"] }
-build-tests-gcc = { cmd = "cmake --build tests/build-pixi-gcc", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "configure-tests-gcc", args = ["{{ sanitizer }}"] }] }
-test-gcc = { cmd = "ctest --test-dir tests/build-pixi-gcc --interactive-debug-mode 0 --output-on-failure", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "build-tests-gcc", args = ["{{ sanitizer }}"] }] }
+configure-tests-gcc = { cmd = "cmake -S tests -B tests/build-pixi-gcc{{ '-' ~ sanitizer if sanitizer != '' else '' }} -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++ -DPLTXT2HTM_SANITIZER={{ sanitizer }}", args = [{ arg = "sanitizer", default = "" }], depends-on = ["prepare-tmp"] }
+build-tests-gcc = { cmd = "cmake --build tests/build-pixi-gcc{{ '-' ~ sanitizer if sanitizer != '' else '' }}", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "configure-tests-gcc", args = ["{{ sanitizer }}"] }] }
+test-gcc = { cmd = "ctest --test-dir tests/build-pixi-gcc{{ '-' ~ sanitizer if sanitizer != '' else '' }} --interactive-debug-mode 0 --output-on-failure", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "build-tests-gcc", args = ["{{ sanitizer }}"] }] }
 configure-cxxmodule-tests = { cmd = "cmake -S cxxmodule/tests -B cxxmodule/tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++", depends-on = ["prepare-tmp"] }
 build-cxxmodule-tests = { cmd = "cmake --build cxxmodule/tests/build-pixi-gcc", depends-on = ["configure-cxxmodule-tests"] }
 test-cxxmodule = { cmd = "cxxmodule/tests/build-pixi-gcc/check_public_symbols", depends-on = ["build-cxxmodule-tests"] }

@@ -7,10 +7,6 @@ pixi run -e clang test-clang
 pixi run -e gcc test-gcc
 ```
 
-For a clean rebuild of the Pixi build trees, run `pixi run clean-tests` before the
-test task. For other compilers or custom CMake options, configure the test
-project directly.
-
 Windows symbol declarations and MSVC linker aliases are generated with Clang's
 MSVC targets. After changing their manifest, regenerate and verify them with the
 [Windows symbol generator image](../scripts/docker/windows-symbols/README.md).
@@ -28,15 +24,7 @@ pixi run -e clang test-clang address
 pixi run -e gcc test-gcc address
 ```
 
-Or configure the test project directly:
-
-```sh
-cmake -S tests -B tests/build -GNinja -DPLTXT2HTM_SANITIZER=address
-cmake --build tests/build
-ctest --test-dir tests/build --interactive-debug-mode 0
-```
-
-or `-DPLTXT2HTM_SANITIZER=undefined` or `-DPLTXT2HTM_SANITIZER=memory`.
+`undefined` and `memory` are accepted where the compiler supports them.
 
 ## available cmake options:
 | Option | Description |
