@@ -13,9 +13,6 @@ template<typename T>
 concept can_form_non_zero = requires { typename ::pltxt2htm::container::NonZero<T>; };
 
 template<typename T>
-concept can_call_get_without_contract = requires(T const& value) { value.get(); };
-
-template<typename T>
     requires can_form_non_zero<T>
 consteval auto has_zero_overhead_representation() noexcept -> bool {
     using NonZero = ::pltxt2htm::container::NonZero<T>;
@@ -57,7 +54,6 @@ static_assert(!::std::default_initializable<NonZeroUsize>);
 static_assert(!::std::is_aggregate_v<NonZeroUsize>);
 static_assert(!::std::is_constructible_v<NonZeroUsize, ::std::size_t>);
 static_assert(!::std::is_convertible_v<NonZeroUsize, ::std::size_t>);
-static_assert(!can_call_get_without_contract<NonZeroUsize>);
 static_assert(can_compare_non_zero_with<unsigned char>);
 static_assert(can_compare_non_zero_with<unsigned short>);
 static_assert(can_compare_non_zero_with<unsigned>);
@@ -70,23 +66,18 @@ static_assert(can_compare_non_zero_with<long>);
 static_assert(can_compare_non_zero_with<long long>);
 static_assert(!can_compare_non_zero_with<bool>);
 static_assert(!can_compare_non_zero_with<float>);
-static_assert(::std::same_as<
-              decltype(::std::declval<NonZeroUsize const&>().template get<::pltxt2htm::Contracts::quick_enforce>()),
-              ::std::size_t>);
+static_assert(::std::same_as<decltype(::std::declval<NonZeroUsize const&>().get()), ::std::size_t>);
 
 consteval auto test_constexpr_non_zero() noexcept -> bool {
-    auto const value = NonZeroUsize::from<::pltxt2htm::Contracts::quick_enforce>(42);
-    auto const equal_value = NonZeroUsize::from<::pltxt2htm::Contracts::quick_enforce>(42);
-    auto const maximum =
-        NonZeroUsize::from<::pltxt2htm::Contracts::quick_enforce>((::std::numeric_limits<::std::size_t>::max)());
-    auto const u8_maximum = ::pltxt2htm::container::NonZeroU8::from<::pltxt2htm::Contracts::quick_enforce>(
-        (::std::numeric_limits<::std::uint8_t>::max)());
+    auto const value = NonZeroUsize::from(42);
+    auto const equal_value = NonZeroUsize::from(42);
+    auto const maximum = NonZeroUsize::from((::std::numeric_limits<::std::size_t>::max)());
+    auto const u8_maximum = ::pltxt2htm::container::NonZeroU8::from((::std::numeric_limits<::std::uint8_t>::max)());
 
-    return value.get<::pltxt2htm::Contracts::quick_enforce>() == 42 &&
-           value.get<::pltxt2htm::Contracts::ignore>() == 42 && value == equal_value && value == 42 && 42 == value &&
-           value == 42U && 42U == value && value != 41 && 41 != value && value != -1 && -1 != value && maximum != -1 &&
-           -1 != maximum && u8_maximum == 255LL && 255LL == u8_maximum && u8_maximum == 255ULL &&
-           255ULL == u8_maximum && u8_maximum != 257 && 257 != u8_maximum && u8_maximum != 511U && 511U != u8_maximum;
+    return value.get() == 42 && value == equal_value && value == 42 && 42 == value && value == 42U && 42U == value &&
+           value != 41 && 41 != value && value != -1 && -1 != value && maximum != -1 && -1 != maximum &&
+           u8_maximum == 255LL && 255LL == u8_maximum && u8_maximum == 255ULL && 255ULL == u8_maximum &&
+           u8_maximum != 257 && 257 != u8_maximum && u8_maximum != 511U && 511U != u8_maximum;
 }
 
 static_assert(test_constexpr_non_zero());

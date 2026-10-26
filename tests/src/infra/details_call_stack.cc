@@ -5,8 +5,7 @@
 
 #include "precompile.hh"
 
-using Contracts = ::pltxt2htm::Contracts;
-using IntCallStack = ::pltxt2htm::details::CallStack<Contracts::quick_enforce, int>;
+using IntCallStack = ::pltxt2htm::details::CallStack<int>;
 
 template<typename CallStack>
 concept has_unchecked_operation = requires(CallStack& call_stack) {
@@ -14,12 +13,6 @@ concept has_unchecked_operation = requires(CallStack& call_stack) {
     call_stack.discard_current_frame_unchecked();
     call_stack.pop_frame_unchecked();
 };
-
-template<typename CallStack>
-concept has_current_frame_without_contract = requires(CallStack& call_stack) { call_stack.current_frame(); };
-
-template<typename CallStack>
-concept has_discard_without_contract = requires(CallStack& call_stack) { call_stack.discard_current_frame(); };
 
 template<typename CallStack>
 concept has_get_frames = requires(CallStack& call_stack) { call_stack.get_frames(); };
@@ -33,8 +26,6 @@ concept accepts_lvalue_push_frame =
 
 static_assert(::std::same_as<IntCallStack::frame_type, int>);
 static_assert(!has_unchecked_operation<IntCallStack>);
-static_assert(has_current_frame_without_contract<IntCallStack>);
-static_assert(has_discard_without_contract<IntCallStack>);
 static_assert(!has_get_frames<IntCallStack>);
 static_assert(!exposes_frames<IntCallStack>);
 static_assert(!accepts_lvalue_push_frame<IntCallStack>);
@@ -60,10 +51,9 @@ consteval auto test_constexpr_empty_stack() noexcept -> bool {
 
 static_assert(test_constexpr_empty_stack());
 
-template<Contracts ndebug>
 [[nodiscard]]
 constexpr auto test_call_stack() noexcept -> bool {
-    ::pltxt2htm::details::CallStack<ndebug, int> call_stack{};
+    ::pltxt2htm::details::CallStack<int> call_stack{};
 
     call_stack.push_frame(1);
     if (!call_stack.is_root() || call_stack.has_parent()) {
@@ -112,10 +102,8 @@ struct NothrowMovable {
 };
 
 int main() {
-    pltxt2htm_test_assert_true(test_call_stack<Contracts::quick_enforce>());
-    pltxt2htm_test_assert_true(test_call_stack<Contracts::ignore>());
-
-    ::pltxt2htm::details::CallStack<Contracts::quick_enforce, NothrowMovable> call_stack{};
+    pltxt2htm_test_assert_true(test_call_stack());
+    ::pltxt2htm::details::CallStack<NothrowMovable> call_stack{};
     call_stack.push_frame(NothrowMovable{42});
     auto frame = call_stack.pop_frame();
 

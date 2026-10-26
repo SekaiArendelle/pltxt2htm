@@ -6,14 +6,14 @@
 
 #include <pltxt2htm/container/string_view.hh>
 #include <pltxt2htm/container/string.hh>
-#include <pltxt2htm/contracts.hh>
+#include <pltxt2htm/details/contracts.hh>
 #include <pltxt2htm/details/inplace_string.hh>
 #include <pltxt2htm/details/literal_string.hh>
 
 #include "precompile.hh"
 
 using U8StringView = ::pltxt2htm::container::U8StringView;
-using U8InplaceString = ::pltxt2htm::details::U8InplaceString<8, ::pltxt2htm::Contracts::quick_enforce>;
+using U8InplaceString = ::pltxt2htm::details::U8InplaceString<8>;
 
 template<typename CharType>
 concept can_form_basic_string_view = requires { typename ::pltxt2htm::container::BasicStringView<CharType>; };
@@ -53,6 +53,7 @@ static_assert(can_form_basic_string_view<char32_t>);
 static_assert(!can_form_basic_string_view<bool>);
 static_assert(!can_call_empty<U8StringView>);
 static_assert(can_call_is_empty<U8StringView>);
+static_assert(requires(U8StringView const view, ::std::size_t position) { view[position]; });
 static_assert(!can_form_basic_string_view<int>);
 
 consteval auto test_constexpr_string_view() noexcept -> bool {
@@ -62,7 +63,7 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
     }
 
     U8StringView const text{u8"abcdef"};
-    if (text.is_empty() || text.size() != 6 || text.template index<::pltxt2htm::Contracts::quick_enforce>(2) != u8'c') {
+    if (text.is_empty() || text.size() != 6 || text[2] != u8'c') {
         return false;
     }
 
@@ -71,11 +72,11 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
         return false;
     }
 
-    auto const tail = text.template subview<::pltxt2htm::Contracts::quick_enforce>(3);
-    auto const middle = text.template subview<::pltxt2htm::Contracts::quick_enforce>(1, 3);
-    auto const ignored_contract = text.template subview<::pltxt2htm::Contracts::ignore>(2, 2);
+    auto const tail = text.subview(3);
+    auto const middle = text.subview(1, 3);
+    auto const enforced_contract = text.subview(2, 2);
     if (tail != u8"def" || middle != u8"bcd" || !text.starts_with(u8"abc") || !text.ends_with(u8"def") ||
-        text.ends_with(u8"abcdefg") || ignored_contract.template index<::pltxt2htm::Contracts::ignore>(0) != u8'c') {
+        text.ends_with(u8"abcdefg") || enforced_contract[0] != u8'c') {
         return false;
     }
 
@@ -94,7 +95,7 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
         return false;
     }
 
-    inplace.index(0) = u8'I';
+    inplace[0] = u8'I';
     return inplace_view == u8"Inplace";
 }
 

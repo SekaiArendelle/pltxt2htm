@@ -12,8 +12,7 @@
 #include <pltxt2htm/ast/ast.hh>
 
 TEST_SUITE("object_id") {
-    constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-    using ObjectId = ::pltxt2htm::PlObjectId<ndebug>;
+    using ObjectId = ::pltxt2htm::PlObjectId;
     using ::pltxt2htm::container::U8String;
     using ::pltxt2htm::container::U8StringView;
 
@@ -27,13 +26,13 @@ TEST_SUITE("object_id") {
     TEST_CASE("canonical identifier") {
         auto opt_id = ObjectId::try_make(canonical);
         REQUIRE(opt_id.has_value());
-        CHECK(opt_id.template value<ndebug>().as_string() == canonical);
+        CHECK(opt_id.value().as_string() == canonical);
     }
     TEST_CASE("uppercase digits are folded") {
         // BSON spells ObjectId in lowercase; uppercase source digits are folded.
         auto opt_id = ObjectId::try_make(U8StringView{u8"642CF37A494746375AAE306A"});
         REQUIRE(opt_id.has_value());
-        CHECK(opt_id.template value<ndebug>().as_string() == canonical);
+        CHECK(opt_id.value().as_string() == canonical);
     }
     TEST_CASE("invalid identifiers") {
         // The 12-byte value carries no check digits, so the whole grammar is the length plus the
@@ -45,9 +44,9 @@ TEST_SUITE("object_id") {
         CHECK_FALSE(ObjectId::try_make(U8StringView{u8""}).has_value());
     }
     TEST_CASE("identifier equality") {
-        auto const left = ObjectId::try_make(canonical).template value<ndebug>();
-        auto const right = ObjectId::try_make(canonical).template value<ndebug>();
-        auto const other_id = ObjectId::try_make(other).template value<ndebug>();
+        auto const left = ObjectId::try_make(canonical).value();
+        auto const right = ObjectId::try_make(canonical).value();
+        auto const other_id = ObjectId::try_make(other).value();
         CHECK(left == right);
         CHECK_FALSE(left == other_id);
     }

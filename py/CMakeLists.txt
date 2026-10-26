@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(pltxt2htm LANGUAGES CXX VERSION 0.27.0)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htm_contract_mode.cmake")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -62,6 +63,7 @@ else()
 endif()
 
 add_library(pltxt2htm MODULE pltxt2htm.cc)
+pltxt2htm_apply_contract_mode(pltxt2htm PRIVATE)
 
 set_target_properties(pltxt2htm PROPERTIES
     PREFIX ""

@@ -15,6 +15,8 @@ from typing import Literal
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SYS_ROOT = ROOT / "include" / "pltxt2htm" / "sys"
+# Freestanding <cstddef>/<cstdint> shims for the cross-target symbol probes.
+PROBE_HEADERS = ROOT / "scripts" / "probe_headers"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -2571,6 +2573,28 @@ LIBRARIES = (
 )
 
 
+def validate_libraries() -> None:
+    seen: dict[str, str] = {}
+    for library in LIBRARIES:
+        found: list[str] = []
+        for symbol in library.symbols:
+            name = symbol.export_name
+            owner = seen.get(name)
+            if owner is not None:
+                if owner == library.name:
+                    found.append(name)
+                else:
+                    raise RuntimeError(
+                        f"symbol {name} is declared in both {owner} and {library.name}"
+                    )
+            seen.setdefault(name, library.name)
+        if found:
+            raise RuntimeError(
+                f"library {library.name} declares duplicate symbols: "
+                + ", ".join(found)
+            )
+
+
 MSVC_TARGETS = (
     ("i686", "i686-pc-windows-msvc"),
     ("x64", "x86_64-pc-windows-msvc"),
@@ -2654,13 +2678,21 @@ def undefined_imports(
     target: str,
     clang: str,
     llvm_nm: str,
-    cxx_include_dir: pathlib.Path | None,
 ) -> tuple[str, ...]:
-    compile_command = [clang, f"--target={target}", "-std=c++23"]
-    if cxx_include_dir is not None:
-        # MSVC's current STL headers reject the ARM32 target, but the probes still need <cstdint>.
-        # Use a compatible C++ header set without mixing it with Clang's default C++ headers.
-        compile_command.extend(("-nostdinc++", "-isystem", str(cxx_include_dir)))
+    # The probes only need <cstddef> and <cstdint>, supplied by the repository's
+    # freestanding headers. -nostdinc++ and -nostdlibinc keep the compile
+    # hermetic: they discard Clang's default C++ headers and the host SDK C
+    # headers, so the same probe works for every target even when an MSVC SDK
+    # is installed locally.
+    compile_command = [
+        clang,
+        f"--target={target}",
+        "-std=c++23",
+        "-nostdinc++",
+        "-nostdlibinc",
+        "-isystem",
+        str(PROBE_HEADERS),
+    ]
     compile_command.extend(("-I", str(SYS_ROOT), "-x", "c++", "-c", "-o", "-", "-"))
     compile_result = subprocess.run(
         compile_command,
@@ -2707,7 +2739,6 @@ def undefined_symbols(
     target: str,
     clang: str,
     llvm_nm: str,
-    cxx_include_dir: pathlib.Path | None,
 ) -> tuple[tuple[str, str], ...]:
     local = undefined_imports(
         local_probe_source(symbol, library),
@@ -2715,7 +2746,6 @@ def undefined_symbols(
         target,
         clang,
         llvm_nm,
-        cxx_include_dir,
     )
     exported = undefined_imports(
         export_probe_source(symbol, library),
@@ -2723,7 +2753,6 @@ def undefined_symbols(
         target,
         clang,
         llvm_nm,
-        cxx_include_dir,
     )
     exported_by_flavor = {import_flavor(name): name for name in exported}
     pairs = tuple((name, exported_by_flavor[import_flavor(name)]) for name in local)
@@ -2740,15 +2769,12 @@ def generate_linker_aliases(
     target: str,
     clang: str,
     llvm_nm: str,
-    cxx_include_dir: pathlib.Path | None,
 ) -> tuple[str, dict[str, int]]:
     result = [GENERATED_NOTICE, "\n"]
     x86_stdcall_stack_bytes: dict[str, int] = {}
 
     def probe(symbol: Symbol) -> tuple[Symbol, tuple[tuple[str, str], ...]]:
-        return symbol, undefined_symbols(
-            symbol, library, target, clang, llvm_nm, cxx_include_dir
-        )
+        return symbol, undefined_symbols(symbol, library, target, clang, llvm_nm)
 
     with concurrent.futures.ThreadPoolExecutor(
         max_workers=min(16, os.cpu_count() or 1)
@@ -2776,7 +2802,6 @@ def generate_linker_aliases(
 def generated_files(
     clang: str,
     llvm_nm: str,
-    cxx_include_dir: pathlib.Path | None,
     library_name: str | None = None,
 ) -> dict[pathlib.Path, str]:
     result: dict[pathlib.Path, str] = {}
@@ -2787,7 +2812,7 @@ def generated_files(
         i686_stdcall_stack_bytes: dict[str, int] = {}
         for architecture, target in MSVC_TARGETS:
             aliases, target_stack_bytes = generate_linker_aliases(
-                library, target, clang, llvm_nm, cxx_include_dir
+                library, target, clang, llvm_nm
             )
             result[directory / f"{library.name}_msvc_linker_{architecture}.inc"] = (
                 aliases
@@ -2818,18 +2843,13 @@ def main() -> int:
     )
     parser.add_argument("--clang", default="clang++", help="Clang C++ driver")
     parser.add_argument("--llvm-nm", default="llvm-nm", help="LLVM symbol table dumper")
-    parser.add_argument(
-        "--cxx-include-dir",
-        type=pathlib.Path,
-        help="C++ standard library header directory for cross-compiling",
-    )
     arguments = parser.parse_args()
 
     clang = resolve_tool(arguments.clang, "Clang C++ driver")
     llvm_nm = resolve_tool(arguments.llvm_nm, "llvm-nm")
-    files = generated_files(
-        clang, llvm_nm, arguments.cxx_include_dir, arguments.library
-    )
+    if arguments.check:
+        validate_libraries()
+    files = generated_files(clang, llvm_nm, arguments.library)
     stale: list[pathlib.Path] = []
     for path, content in files.items():
         if arguments.check:

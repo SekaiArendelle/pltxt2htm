@@ -11,9 +11,8 @@
 
 TEST_SUITE("node_layout") {
 #if __cpp_impl_reflection >= 202506L
-    constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-    using Storage = ::pltxt2htm::details::PlTxtNodeStorage<ndebug>;
-    using Text = ::pltxt2htm::Text<ndebug>;
+    using Storage = ::pltxt2htm::details::PlTxtNodeStorage;
+    using Text = ::pltxt2htm::Text;
 
     [[nodiscard]]
     consteval auto largest_other_node_size() noexcept -> ::std::size_t {

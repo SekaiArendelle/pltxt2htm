@@ -17,7 +17,7 @@
 
 #include <fast_io/fast_io_core.h>
 
-#include "../contracts.hh"
+#include "../details/contracts.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::container {
@@ -115,7 +115,6 @@ private:
         return result;
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto growth_capacity(this Vector const& self, size_type additional_size) noexcept -> size_type {
         size_type const old_size{self.size()};
@@ -166,14 +165,14 @@ private:
         }
     }
 
-    template<::pltxt2htm::Contracts ndebug, typename... Args>
+    template<typename... Args>
     constexpr auto reallocate_and_emplace(this Vector& self, Args&&... args) noexcept -> reference
         requires (::std::is_nothrow_move_constructible_v<value_type> &&
                   ::std::is_nothrow_constructible_v<value_type, Args...> &&
                   ::std::is_nothrow_destructible_v<value_type>)
     {
         size_type const old_size{self.size()};
-        auto const allocation = typed_allocator_type::allocate_at_least(self.template growth_capacity<ndebug>(1));
+        auto const allocation = typed_allocator_type::allocate_at_least(self.growth_capacity(1));
         pointer const new_element{allocation.ptr + old_size};
         ::std::construct_at(new_element, ::std::forward<Args>(args)...);
         pointer new_current{allocation.ptr};
@@ -197,7 +196,7 @@ private:
         return *new_element;
     }
 
-    template<::pltxt2htm::Contracts ndebug, typename R>
+    template<typename R>
     constexpr void reallocate_and_append_range(this Vector& self, R&& range, size_type range_size,
                                                size_type new_capacity) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type> &&
@@ -239,12 +238,11 @@ private:
         }
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void ensure_additional_capacity(this Vector& self, size_type additional_size) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
     {
         size_type const old_capacity{self.capacity()};
-        size_type const new_capacity{self.template growth_capacity<ndebug>(additional_size)};
+        size_type const new_capacity{self.growth_capacity(additional_size)};
         if (new_capacity == old_capacity) {
             return;
         }
@@ -305,11 +303,6 @@ public:
                       "Vector requires nothrow-copy-constructible elements when copied");
         static_assert(::std::is_nothrow_destructible_v<value_type>, "Vector requires nothrow-destructible elements");
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    #ifdef NDEBUG
-        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-    #else
-        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-    #endif
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
                          u8"Internal self-assignment is not allowed");
 #else
@@ -326,11 +319,6 @@ public:
     constexpr auto operator=(this Vector& self, Vector&& other) noexcept -> Vector& {
         static_assert(::std::is_nothrow_destructible_v<value_type>, "Vector requires nothrow-destructible elements");
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    #ifdef NDEBUG
-        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-    #else
-        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-    #endif
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
                          u8"Internal self-assignment is not allowed");
 #else
@@ -456,92 +444,44 @@ public:
         return const_reverse_iterator{self.begin_pointer};
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this Vector& self) noexcept -> reference {
         pltxt2htm_assert(!self.is_empty(), u8"Accessing front but Vector is empty");
         return *self.begin_pointer;
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this Vector const& self) noexcept -> const_reference {
         pltxt2htm_assert(!self.is_empty(), u8"Accessing front but Vector is empty");
         return *self.begin_pointer;
     }
 
-    template<::pltxt2htm::Contracts ndebug>
-    [[nodiscard]]
-    constexpr auto index(this Vector& self, size_type position) noexcept -> reference {
-        pltxt2htm_assert(position < self.size(), u8"Index of Vector out of bound");
-        return self.begin_pointer[position];
-    }
-
-    template<::pltxt2htm::Contracts ndebug>
-    [[nodiscard]]
-    constexpr auto index(this Vector const& self, size_type position) noexcept -> const_reference {
-        pltxt2htm_assert(position < self.size(), u8"Index of Vector out of bound");
-        return self.begin_pointer[position];
-    }
-
     /**
-     * @brief Unchecked element access, provided to downstream users only.
-     *
-     * Contract-bearing access stays on index(); this overload is external-only:
-     * while pltxt2htm itself is being built (PLTXT2HTM_INTERNAL_USE) it stays
-     * deleted, so implementation code must name a Contracts policy.
+     * @brief Indexed element access, bounds-checked according to the
+     * build-wide contract setting.
      * @param position Zero-based element position.
      * @return Mutable reference to the requested element.
-     * @pre position < size(); otherwise the behavior is undefined.
+     * @pre position is a valid element position.
      */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this Vector&, size_type) noexcept -> reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
     [[nodiscard]]
     constexpr auto operator[](this Vector& self, size_type position) noexcept -> reference {
+        pltxt2htm_assert(position < self.size(), u8"Index of Vector out of bound");
         return self.begin_pointer[position];
     }
-#endif
 
     /**
-     * @brief Unchecked read-only element access, provided to downstream users only.
+     * @brief Indexed element access, read-only, bounds-checked according to the
+     * build-wide contract setting.
      * @param position Zero-based element position.
      * @return Read-only reference to the requested element.
-     * @pre position < size(); otherwise the behavior is undefined.
-     * @note External-only, mirroring the mutable overload above.
+     * @pre position is a valid element position.
      */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this Vector const&, size_type) noexcept -> const_reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
     [[nodiscard]]
     constexpr auto operator[](this Vector const& self, size_type position) noexcept -> const_reference {
+        pltxt2htm_assert(position < self.size(), u8"Index of Vector out of bound");
         return self.begin_pointer[position];
     }
-#endif
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void reserve(this Vector& self, size_type requested_capacity) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
     {
@@ -552,7 +492,7 @@ public:
         self.reallocate(requested_capacity);
     }
 
-    template<::pltxt2htm::Contracts ndebug, typename... Args>
+    template<typename... Args>
         requires (::std::is_nothrow_move_constructible_v<value_type> &&
                   ::std::is_nothrow_constructible_v<value_type, Args...> &&
                   ::std::is_nothrow_destructible_v<value_type>)
@@ -563,25 +503,22 @@ public:
             ++self.current_size;
             return *element;
         }
-        return self.template reallocate_and_emplace<ndebug>(::std::forward<Args>(args)...);
+        return self.reallocate_and_emplace(::std::forward<Args>(args)...);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this Vector& self, const_reference value) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> &&
                   ::std::is_nothrow_copy_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
     {
-        self.template emplace_back<ndebug>(value);
+        self.emplace_back(value);
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this Vector& self, value_type&& value) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
     {
-        self.template emplace_back<ndebug>(::std::move(value));
+        self.emplace_back(::std::move(value));
     }
 
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void pop_back(this Vector& self) noexcept
         requires ::std::is_nothrow_destructible_v<value_type>
     {
@@ -603,7 +540,7 @@ public:
     /**
      * @pre A single-pass input range must not reference elements in this Vector.
      */
-    template<::pltxt2htm::Contracts ndebug, ::std::ranges::input_range R>
+    template<::std::ranges::input_range R>
     constexpr void append_range(this Vector& self, R&& range) noexcept
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type> &&
                   is_nothrow_append_range<R>())
@@ -611,20 +548,20 @@ public:
         if constexpr (::std::ranges::forward_range<R>) {
             size_type const range_size{count_range(range)};
             size_type const old_capacity{self.capacity()};
-            size_type const new_capacity{self.template growth_capacity<ndebug>(range_size)};
+            size_type const new_capacity{self.growth_capacity(range_size)};
             if (new_capacity != old_capacity) {
-                self.template reallocate_and_append_range<ndebug>(::std::forward<R>(range), range_size, new_capacity);
+                self.reallocate_and_append_range(::std::forward<R>(range), range_size, new_capacity);
                 return;
             }
         }
 
         for (auto&& value : range) {
             if constexpr (::std::is_lvalue_reference_v<R&&>) {
-                self.template emplace_back<ndebug>(::std::forward<decltype(value)>(value));
+                self.emplace_back(::std::forward<decltype(value)>(value));
             }
             else {
                 static_assert(::std::is_rvalue_reference_v<R&&>);
-                self.template emplace_back<ndebug>(::std::forward_like<R>(value));
+                self.emplace_back(::std::forward_like<R>(value));
             }
         }
     }

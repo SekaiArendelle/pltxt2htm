@@ -5,6 +5,7 @@ RUN apk add --no-cache cmake ninja g++ git ca-certificates
 WORKDIR /app
 COPY benches/ benches/
 COPY include/ include/
+COPY cmake/ cmake/
 
 RUN cmake -S benches -B benches/build -G Ninja -DCMAKE_BUILD_TYPE=Release && \
     cmake --build benches/build

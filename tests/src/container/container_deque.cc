@@ -13,8 +13,6 @@
 
 #include "precompile.hh"
 
-using Contracts = ::pltxt2htm::Contracts;
-
 using IntDeque = ::pltxt2htm::container::Deque<int>;
 
 template<typename Deque>
@@ -23,8 +21,13 @@ concept has_external_subscript = requires(Deque& values) { values[0]; };
 template<typename Deque>
 concept has_external_empty = requires(Deque& values) { values.empty(); };
 
-static_assert(!has_external_subscript<IntDeque>);
-static_assert(!has_external_subscript<IntDeque const>);
+static_assert(has_external_subscript<IntDeque>);
+static_assert(has_external_subscript<IntDeque const>);
+static_assert(requires(IntDeque& values, IntDeque const& const_values, ::std::size_t position) {
+    { values[position] } -> ::std::same_as<int&>;
+    values[position] = 1;
+    { const_values[position] } -> ::std::same_as<int const&>;
+});
 static_assert(!has_external_empty<IntDeque>);
 static_assert(!has_external_empty<IntDeque const>);
 
@@ -53,17 +56,14 @@ static_assert(::std::is_nothrow_constructible_v<IntDeque, int const*, int const*
 static_assert(::std::is_nothrow_copy_constructible_v<IntDeque>);
 static_assert(::std::is_nothrow_copy_assignable_v<IntDeque>);
 static_assert(!::std::is_copy_constructible_v<::pltxt2htm::container::Deque<ThrowingCopy>>);
-static_assert(noexcept(::std::declval<IntDeque&>().emplace_back<Contracts::quick_enforce>(1)));
-static_assert(noexcept(::std::declval<IntDeque&>().emplace_front<Contracts::quick_enforce>(1)));
-static_assert(noexcept(::std::declval<IntDeque&>().push_back<Contracts::quick_enforce>(1)));
-static_assert(noexcept(::std::declval<IntDeque&>().push_front<Contracts::quick_enforce>(1)));
-static_assert(noexcept(::std::declval<IntDeque&>().resize<Contracts::quick_enforce>(1)));
-static_assert(noexcept(
-    ::std::declval<IntDeque&>().emplace<Contracts::quick_enforce>(::std::declval<IntDeque::const_iterator>(), 1)));
-static_assert(noexcept(
-    ::std::declval<IntDeque&>().insert<Contracts::quick_enforce>(::std::declval<IntDeque::const_iterator>(), 1)));
-static_assert(
-    noexcept(::std::declval<IntDeque&>().erase<Contracts::quick_enforce>(::std::declval<IntDeque::const_iterator>())));
+static_assert(noexcept(::std::declval<IntDeque&>().emplace_back(1)));
+static_assert(noexcept(::std::declval<IntDeque&>().emplace_front(1)));
+static_assert(noexcept(::std::declval<IntDeque&>().push_back(1)));
+static_assert(noexcept(::std::declval<IntDeque&>().push_front(1)));
+static_assert(noexcept(::std::declval<IntDeque&>().resize(1)));
+static_assert(noexcept(::std::declval<IntDeque&>().emplace(::std::declval<IntDeque::const_iterator>(), 1)));
+static_assert(noexcept(::std::declval<IntDeque&>().insert(::std::declval<IntDeque::const_iterator>(), 1)));
+static_assert(noexcept(::std::declval<IntDeque&>().erase(::std::declval<IntDeque::const_iterator>())));
 static_assert(noexcept(::std::declval<IntDeque&>().assign(::std::declval<int const*>(), ::std::declval<int const*>())));
 
 struct UnevenBlockValue {
@@ -76,58 +76,56 @@ constexpr auto test_offset_relocation() -> bool {
     static_assert(Queue::elements_per_block == 3);
     Queue queue{};
     for (int index{}; index != 40; ++index) {
-        queue.emplace_back<Contracts::quick_enforce>(UnevenBlockValue{index});
+        queue.emplace_back(UnevenBlockValue{index});
     }
-    queue.pop_front<Contracts::quick_enforce>();
-    auto const survivor = ::std::addressof(queue.front<Contracts::quick_enforce>());
+    queue.pop_front();
+    auto const survivor = ::std::addressof(queue.front());
     queue.shrink_to_fit();
     for (int index{40}; index != 200; ++index) {
-        queue.emplace_back<Contracts::quick_enforce>(UnevenBlockValue{index});
+        queue.emplace_back(UnevenBlockValue{index});
     }
-    if (survivor != ::std::addressof(queue.front<Contracts::quick_enforce>())) {
+    if (survivor != ::std::addressof(queue.front())) {
         return false;
     }
     for (int index{1}; index != 200; ++index) {
-        if (queue.front<Contracts::quick_enforce>().value != index) {
+        if (queue.front().value != index) {
             return false;
         }
-        queue.pop_front<Contracts::quick_enforce>();
-        queue.emplace_back<Contracts::quick_enforce>(UnevenBlockValue{index + 199});
+        queue.pop_front();
+        queue.emplace_back(UnevenBlockValue{index + 199});
     }
     for (int index{199}; index != 0; --index) {
-        queue.pop_back<Contracts::quick_enforce>();
-        queue.emplace_front<Contracts::quick_enforce>(UnevenBlockValue{index});
+        queue.pop_back();
+        queue.emplace_front(UnevenBlockValue{index});
     }
     for (int index{1}; index != 200; ++index) {
-        if (queue.front<Contracts::quick_enforce>().value != index) {
+        if (queue.front().value != index) {
             return false;
         }
-        queue.pop_front<Contracts::quick_enforce>();
+        queue.pop_front();
     }
     queue.shrink_to_fit();
-    queue.emplace_front<Contracts::quick_enforce>(UnevenBlockValue{7});
-    return queue.size() == 1 && queue.back<Contracts::quick_enforce>().value == 7;
+    queue.emplace_front(UnevenBlockValue{7});
+    return queue.size() == 1 && queue.back().value == 7;
 }
 
 static_assert(test_offset_relocation());
 
-template<Contracts ndebug>
 consteval auto test_constexpr_deque() -> bool {
     IntDeque values{};
     for (int value{}; value != 300; ++value) {
-        values.push_back<ndebug>(value);
+        values.push_back(value);
     }
     for (int value{1}; value != 101; ++value) {
-        values.push_front<ndebug>(-value);
+        values.push_front(-value);
     }
 
-    if (values.size() != 400 || values.front<ndebug>() != -100 || values.back<ndebug>() != 299 ||
-        values.index<ndebug>(100) != 0) {
+    if (values.size() != 400 || values.front() != -100 || values.back() != 299 || values[100] != 0) {
         return false;
     }
 
-    values.erase<ndebug>(values.cbegin() + 50, values.cbegin() + 350);
-    if (values.size() != 100 || values.template index<ndebug>(49) != -51 || values.template index<ndebug>(50) != 250) {
+    values.erase(values.cbegin() + 50, values.cbegin() + 350);
+    if (values.size() != 100 || values[49] != -51 || values[50] != 250) {
         return false;
     }
 
@@ -135,9 +133,8 @@ consteval auto test_constexpr_deque() -> bool {
     if (copy != values) {
         return false;
     }
-    copy.insert<ndebug>(copy.cbegin() + 50, {7, 8, 9});
-    if (copy.size() != 103 || copy.template index<ndebug>(50) != 7 || copy.template index<ndebug>(51) != 8 ||
-        copy.template index<ndebug>(52) != 9) {
+    copy.insert(copy.cbegin() + 50, {7, 8, 9});
+    if (copy.size() != 103 || copy[50] != 7 || copy[51] != 8 || copy[52] != 9) {
         return false;
     }
 
@@ -152,48 +149,44 @@ consteval auto test_constexpr_deque() -> bool {
     return *saved == 250 && saved == values.begin() + 50 && saved_const == saved;
 }
 
-static_assert(test_constexpr_deque<Contracts::quick_enforce>());
-static_assert(test_constexpr_deque<Contracts::ignore>());
+static_assert(test_constexpr_deque());
 
-template<Contracts ndebug>
 constexpr auto test_contract_operations() noexcept -> bool {
     IntDeque values{};
-    values.emplace_front<ndebug>(1);
-    values.emplace_back<ndebug>(2);
-    if (values.front<ndebug>() != 1 || values.back<ndebug>() != 2) {
+    values.emplace_front(1);
+    values.emplace_back(2);
+    if (values.front() != 1 || values.back() != 2) {
         return false;
     }
     values.clear();
-    values.template insert<ndebug>(values.cbegin(), {1, 2, 3});
-    values.template emplace<ndebug>(values.cbegin(), 0);
-    values.template emplace<ndebug>(values.cend(), 4);
-    values.template emplace<ndebug>(values.cbegin() + 2, 7);
+    values.insert(values.cbegin(), {1, 2, 3});
+    values.emplace(values.cbegin(), 0);
+    values.emplace(values.cend(), 4);
+    values.emplace(values.cbegin() + 2, 7);
     int const more[]{8, 9};
-    values.template insert<ndebug>(values.cbegin() + 2, more, more + 2);
-    values.template insert<ndebug>(values.cbegin() + 4, more[0]);
-    values.template insert<ndebug>(values.cbegin() + 1, 6);
+    values.insert(values.cbegin() + 2, more, more + 2);
+    values.insert(values.cbegin() + 4, more[0]);
+    values.insert(values.cbegin() + 1, 6);
     if (values != IntDeque{0, 6, 1, 8, 9, 8, 7, 2, 3, 4}) {
         return false;
     }
-    values.template pop_front<ndebug>();
-    values.template pop_back<ndebug>();
-    values.template erase<ndebug>(values.cbegin() + 1);
-    values.template erase<ndebug>(values.cbegin() + 1, values.cbegin() + 5);
-    values.template resize<ndebug>(5);
+    values.pop_front();
+    values.pop_back();
+    values.erase(values.cbegin() + 1);
+    values.erase(values.cbegin() + 1, values.cbegin() + 5);
+    values.resize(5);
     auto const& const_values = values;
-    if (const_values.template front<ndebug>() != 6 || const_values.template back<ndebug>() != 0 ||
-        const_values.template index<ndebug>(1) != 2) {
+    if (const_values.front() != 6 || const_values.back() != 0 || const_values[1] != 2) {
         return false;
     }
-    values.template resize<ndebug>(1);
-    values.template pop_front<ndebug>();
-    values.push_front<ndebug>(5);
-    values.template pop_back<ndebug>();
+    values.resize(1);
+    values.pop_front();
+    values.push_front(5);
+    values.pop_back();
     return values.is_empty();
 }
 
-static_assert(test_contract_operations<Contracts::quick_enforce>());
-static_assert(test_contract_operations<Contracts::ignore>());
+static_assert(test_contract_operations());
 
 namespace pltxt2htm_test {
 
@@ -238,24 +231,22 @@ void test_rolling_queue(bool front_to_back) {
     CountingAllocator::map_allocations = 0;
     CountingAllocator::largest_allocation = 0;
     Queue queue{};
-    queue.emplace_back<Contracts::quick_enforce>(BlockValue{front_to_back ? 0 : 1});
-    queue.emplace_back<Contracts::quick_enforce>(BlockValue{front_to_back ? 1 : 0});
+    queue.emplace_back(BlockValue{front_to_back ? 0 : 1});
+    queue.emplace_back(BlockValue{front_to_back ? 1 : 0});
     for (int index{2}; index != 10'000; ++index) {
         if (front_to_back) {
-            auto const survivor = ::std::addressof(queue.back<Contracts::quick_enforce>());
-            queue.pop_front<Contracts::quick_enforce>();
-            queue.emplace_back<Contracts::quick_enforce>(BlockValue{index});
-            pltxt2htm_test_assert_true(survivor == ::std::addressof(queue.front<Contracts::quick_enforce>()));
-            pltxt2htm_test_assert_true(queue.front<Contracts::quick_enforce>().value == index - 1 &&
-                                       queue.back<Contracts::quick_enforce>().value == index);
+            auto const survivor = ::std::addressof(queue.back());
+            queue.pop_front();
+            queue.emplace_back(BlockValue{index});
+            pltxt2htm_test_assert_true(survivor == ::std::addressof(queue.front()));
+            pltxt2htm_test_assert_true(queue.front().value == index - 1 && queue.back().value == index);
         }
         else {
-            auto const survivor = ::std::addressof(queue.front<Contracts::quick_enforce>());
-            queue.pop_back<Contracts::quick_enforce>();
-            queue.emplace_front<Contracts::quick_enforce>(BlockValue{index});
-            pltxt2htm_test_assert_true(survivor == ::std::addressof(queue.back<Contracts::quick_enforce>()));
-            pltxt2htm_test_assert_true(queue.front<Contracts::quick_enforce>().value == index &&
-                                       queue.back<Contracts::quick_enforce>().value == index - 1);
+            auto const survivor = ::std::addressof(queue.front());
+            queue.pop_back();
+            queue.emplace_front(BlockValue{index});
+            pltxt2htm_test_assert_true(survivor == ::std::addressof(queue.back()));
+            pltxt2htm_test_assert_true(queue.front().value == index && queue.back().value == index - 1);
         }
         pltxt2htm_test_assert_true(queue.size() == 2);
     }
@@ -269,41 +260,41 @@ void test_spare_blocks() {
     CountingAllocator::block_deallocations = 0;
     {
         Queue queue{};
-        queue.emplace_back<Contracts::quick_enforce>(BlockValue{1});
+        queue.emplace_back(BlockValue{1});
         for (int index{}; index != 100; ++index) {
-            queue.pop_back<Contracts::quick_enforce>();
-            queue.emplace_back<Contracts::quick_enforce>(BlockValue{index});
+            queue.pop_back();
+            queue.emplace_back(BlockValue{index});
         }
         pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 1);
 
-        queue.emplace_back<Contracts::quick_enforce>(BlockValue{2});
+        queue.emplace_back(BlockValue{2});
         for (int index{}; index != 100; ++index) {
-            queue.pop_back<Contracts::quick_enforce>();
-            queue.emplace_back<Contracts::quick_enforce>(BlockValue{index});
+            queue.pop_back();
+            queue.emplace_back(BlockValue{index});
         }
         pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 2);
 
-        queue.pop_back<Contracts::quick_enforce>();
-        queue.emplace_front<Contracts::quick_enforce>(BlockValue{3});
+        queue.pop_back();
+        queue.emplace_front(BlockValue{3});
         pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 2);
-        queue.pop_front<Contracts::quick_enforce>();
-        queue.emplace_back<Contracts::quick_enforce>(BlockValue{4});
+        queue.pop_front();
+        queue.emplace_back(BlockValue{4});
         pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 2);
 
         for (int index{}; index != 100; ++index) {
-            queue.pop_front<Contracts::quick_enforce>();
-            queue.emplace_front<Contracts::quick_enforce>(BlockValue{index});
+            queue.pop_front();
+            queue.emplace_front(BlockValue{index});
         }
         pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 2);
 
         for (int index{}; index != 5; ++index) {
-            queue.emplace_back<Contracts::quick_enforce>(BlockValue{index});
+            queue.emplace_back(BlockValue{index});
         }
         ::std::size_t const allocated_before_clear{CountingAllocator::block_allocations};
         queue.clear();
         pltxt2htm_test_assert_true(CountingAllocator::block_deallocations == allocated_before_clear - 2);
-        queue.emplace_front<Contracts::quick_enforce>(BlockValue{6});
-        queue.emplace_back<Contracts::quick_enforce>(BlockValue{5});
+        queue.emplace_front(BlockValue{6});
+        queue.emplace_back(BlockValue{5});
         pltxt2htm_test_assert_true(CountingAllocator::block_allocations == allocated_before_clear);
         queue.clear();
         queue.shrink_to_fit();
@@ -319,14 +310,14 @@ void test_spare_transfer_at_map_edge() {
     {
         Queue queue{};
         for (int index{}; index != 4; ++index) {
-            queue.emplace_back<Contracts::quick_enforce>(BlockValue{index});
+            queue.emplace_back(BlockValue{index});
         }
-        queue.pop_front<Contracts::quick_enforce>();
-        queue.emplace_back<Contracts::quick_enforce>(BlockValue{4});
+        queue.pop_front();
+        queue.emplace_back(BlockValue{4});
         pltxt2htm_test_assert_true(CountingAllocator::map_allocations == 1);
         pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 4);
         for (int index{}; index != 4; ++index) {
-            pltxt2htm_test_assert_true(queue.index<Contracts::quick_enforce>(index).value == index + 1);
+            pltxt2htm_test_assert_true(queue[index].value == index + 1);
         }
     }
 
@@ -335,14 +326,14 @@ void test_spare_transfer_at_map_edge() {
     {
         Queue queue{};
         for (int index{}; index != 5; ++index) {
-            queue.emplace_front<Contracts::quick_enforce>(BlockValue{index});
+            queue.emplace_front(BlockValue{index});
         }
-        queue.pop_back<Contracts::quick_enforce>();
-        queue.emplace_front<Contracts::quick_enforce>(BlockValue{5});
+        queue.pop_back();
+        queue.emplace_front(BlockValue{5});
         pltxt2htm_test_assert_true(CountingAllocator::map_allocations == 1);
         pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 5);
         for (int index{}; index != 5; ++index) {
-            pltxt2htm_test_assert_true(queue.index<Contracts::quick_enforce>(index).value == 5 - index);
+            pltxt2htm_test_assert_true(queue[index].value == 5 - index);
         }
     }
 }
@@ -353,23 +344,23 @@ void test_spare_blocks_follow_storage() {
     CountingAllocator::block_deallocations = 0;
     {
         Queue first{};
-        first.emplace_back<Contracts::quick_enforce>(BlockValue{1});
-        first.emplace_back<Contracts::quick_enforce>(BlockValue{2});
-        first.pop_front<Contracts::quick_enforce>();
+        first.emplace_back(BlockValue{1});
+        first.emplace_back(BlockValue{2});
+        first.pop_front();
 
         Queue second{};
-        second.emplace_back<Contracts::quick_enforce>(BlockValue{3});
-        second.emplace_back<Contracts::quick_enforce>(BlockValue{4});
-        second.pop_back<Contracts::quick_enforce>();
+        second.emplace_back(BlockValue{3});
+        second.emplace_back(BlockValue{4});
+        second.pop_back();
 
         first.swap(second);
         Queue moved{::std::move(first)};
-        moved.emplace_back<Contracts::quick_enforce>(BlockValue{5});
-        second.emplace_front<Contracts::quick_enforce>(BlockValue{0});
-        pltxt2htm_test_assert_true(moved.front<Contracts::quick_enforce>().value == 3);
-        pltxt2htm_test_assert_true(moved.back<Contracts::quick_enforce>().value == 5);
-        pltxt2htm_test_assert_true(second.front<Contracts::quick_enforce>().value == 0);
-        pltxt2htm_test_assert_true(second.back<Contracts::quick_enforce>().value == 2);
+        moved.emplace_back(BlockValue{5});
+        second.emplace_front(BlockValue{0});
+        pltxt2htm_test_assert_true(moved.front().value == 3);
+        pltxt2htm_test_assert_true(moved.back().value == 5);
+        pltxt2htm_test_assert_true(second.front().value == 0);
+        pltxt2htm_test_assert_true(second.back().value == 2);
         pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 4);
     }
     pltxt2htm_test_assert_true(CountingAllocator::block_deallocations == CountingAllocator::block_allocations);
@@ -383,11 +374,11 @@ void test_iterator_storage() {
     {
         IntDeque source{};
         for (int index{}; index != 400; ++index) {
-            source.push_back<Contracts::quick_enforce>(index);
+            source.push_back(index);
         }
         // Exercise nonzero front offsets as well as several block boundaries.
         for (int index{}; index != 17; ++index) {
-            source.pop_front<Contracts::quick_enforce>();
+            source.pop_front();
         }
         saved = source.begin() + 150;
         saved_const = saved;
@@ -408,7 +399,7 @@ void test_iterator_storage() {
     pltxt2htm_test_assert_true(destination.end() - saved == 233 && saved - destination.end() == -233);
     pltxt2htm_test_assert_true(*saved_reverse == 399);
     auto const survivor = destination.begin() + 1;
-    destination.pop_front<Contracts::quick_enforce>();
+    destination.pop_front();
     pltxt2htm_test_assert_true(survivor == destination.begin() && *survivor == 18);
     IntDeque empty{};
     pltxt2htm_test_assert_true(empty.end() - empty.begin() == 0 && empty.begin() + 0 == empty.end());
@@ -469,49 +460,47 @@ void test_range_insertion() {
     for (int scenario{}; scenario != 2; ++scenario) {
         Queue queue{};
         for (int index{}; index != 700; ++index) {
-            queue.emplace_back<Contracts::quick_enforce>(index);
+            queue.emplace_back(index);
         }
         Queue inserted{};
         for (int index{}; index != 200; ++index) {
-            inserted.emplace_back<Contracts::quick_enforce>(1000 + index);
+            inserted.emplace_back(1000 + index);
         }
         int const insertion_index{scenario == 0 ? 100 : 600};
         TrackedValue::moves = 0;
-        auto const result = queue.insert<Contracts::quick_enforce>(queue.cbegin() + insertion_index, inserted.cbegin(),
-                                                                   inserted.cend());
+        auto const result = queue.insert(queue.cbegin() + insertion_index, inserted.cbegin(), inserted.cend());
         pltxt2htm_test_assert_true(result == queue.begin() + insertion_index);
         pltxt2htm_test_assert_true(TrackedValue::moves < 4500);
         for (int index{}; index != 900; ++index) {
             int const expected{index < insertion_index         ? index
                                : index < insertion_index + 200 ? 1000 + index - insertion_index
                                                                : index - 200};
-            pltxt2htm_test_assert_true(queue.index<Contracts::quick_enforce>(index).value == expected);
+            pltxt2htm_test_assert_true(queue[index].value == expected);
         }
     }
 
     Queue endpoints{};
-    endpoints.emplace_back<Contracts::quick_enforce>(1);
+    endpoints.emplace_back(1);
     Queue source{};
-    source.emplace_back<Contracts::quick_enforce>(2);
-    source.emplace_back<Contracts::quick_enforce>(3);
+    source.emplace_back(2);
+    source.emplace_back(3);
     TrackedValue::moves = 0;
-    auto const empty_result =
-        endpoints.insert<Contracts::quick_enforce>(endpoints.cbegin(), source.cbegin(), source.cbegin());
+    auto const empty_result = endpoints.insert(endpoints.cbegin(), source.cbegin(), source.cbegin());
     pltxt2htm_test_assert_true(empty_result == endpoints.begin() && TrackedValue::moves == 0);
-    endpoints.insert<Contracts::quick_enforce>(endpoints.cbegin(), source.cbegin(), source.cend());
+    endpoints.insert(endpoints.cbegin(), source.cbegin(), source.cend());
     pltxt2htm_test_assert_true(TrackedValue::moves == source.size());
     TrackedValue::moves = 0;
-    endpoints.insert<Contracts::quick_enforce>(endpoints.cend(), source.cbegin(), source.cend());
+    endpoints.insert(endpoints.cend(), source.cbegin(), source.cend());
     pltxt2htm_test_assert_true(TrackedValue::moves == source.size());
 
     IntDeque self{1, 2, 3, 4};
-    auto const result = self.insert<Contracts::quick_enforce>(self.cbegin() + 2, self.cbegin(), self.cbegin() + 3);
+    auto const result = self.insert(self.cbegin() + 2, self.cbegin(), self.cbegin() + 3);
     pltxt2htm_test_assert_true(result == self.begin() + 2);
     pltxt2htm_test_assert_true((self == IntDeque{1, 2, 1, 2, 3, 3, 4}));
 
     IntDeque front_self{0, 1, 2, 3, 4, 5};
-    auto const front_result = front_self.insert<Contracts::quick_enforce>(
-        front_self.cbegin() + 1, front_self.cbegin() + 2, front_self.cbegin() + 5);
+    auto const front_result =
+        front_self.insert(front_self.cbegin() + 1, front_self.cbegin() + 2, front_self.cbegin() + 5);
     pltxt2htm_test_assert_true(front_result == front_self.begin() + 1);
     pltxt2htm_test_assert_true((front_self == IntDeque{0, 2, 3, 4, 1, 2, 3, 4, 5}));
 }
@@ -520,8 +509,7 @@ void test_range_insertion() {
 
 int main() {
     pltxt2htm_test_assert_true(test_offset_relocation());
-    pltxt2htm_test_assert_true(test_contract_operations<Contracts::quick_enforce>());
-    pltxt2htm_test_assert_true(test_contract_operations<Contracts::ignore>());
+    pltxt2htm_test_assert_true(test_contract_operations());
     ::pltxt2htm_test::test_rolling_queue(true);
     ::pltxt2htm_test::test_rolling_queue(false);
     ::pltxt2htm_test::test_spare_blocks();
@@ -536,37 +524,35 @@ int main() {
         ::std::uint_least32_t const random_value{::pltxt2htm_test::next_random(random_state)};
         switch (random_value % 6) {
         case 0:
-            differential.push_front<Contracts::quick_enforce>(operation);
+            differential.push_front(operation);
             reference.push_front(operation);
             break;
         case 1:
-            differential.push_back<Contracts::quick_enforce>(operation);
+            differential.push_back(operation);
             reference.push_back(operation);
             break;
         case 2:
             if (!reference.empty()) {
-                differential.pop_front<Contracts::quick_enforce>();
+                differential.pop_front();
                 reference.pop_front();
             }
             break;
         case 3:
             if (!reference.empty()) {
-                differential.pop_back<Contracts::quick_enforce>();
+                differential.pop_back();
                 reference.pop_back();
             }
             break;
         case 4:
             if (!reference.empty()) {
                 ::std::size_t const index{random_value % reference.size()};
-                differential.erase<Contracts::quick_enforce>(differential.cbegin() +
-                                                             static_cast<::std::ptrdiff_t>(index));
+                differential.erase(differential.cbegin() + static_cast<::std::ptrdiff_t>(index));
                 reference.erase(reference.cbegin() + static_cast<::std::ptrdiff_t>(index));
             }
             break;
         case 5: {
             ::std::size_t const index{reference.empty() ? 0 : random_value % (reference.size() + 1)};
-            differential.insert<Contracts::quick_enforce>(differential.cbegin() + static_cast<::std::ptrdiff_t>(index),
-                                                          operation);
+            differential.insert(differential.cbegin() + static_cast<::std::ptrdiff_t>(index), operation);
             reference.insert(reference.cbegin() + static_cast<::std::ptrdiff_t>(index), operation);
             break;
         }
@@ -576,15 +562,15 @@ int main() {
     }
 
     IntDeque values{};
-    values.push_back<Contracts::quick_enforce>(1);
-    int const* const stable_address{::std::addressof(values.front<::pltxt2htm::Contracts::quick_enforce>())};
+    values.push_back(1);
+    int const* const stable_address{::std::addressof(values.front())};
 
     for (int value{2}; value != 2000; ++value) {
         if (value % 2 == 0) {
-            values.push_back<Contracts::quick_enforce>(value);
+            values.push_back(value);
         }
         else {
-            values.push_front<Contracts::quick_enforce>(value);
+            values.push_front(value);
         }
     }
     pltxt2htm_test_assert_true(*stable_address == 1);
@@ -594,8 +580,8 @@ int main() {
 
     IntDeque copy{values};
     pltxt2htm_test_assert_true(copy == values);
-    copy.pop_front<Contracts::quick_enforce>();
-    copy.pop_back<Contracts::quick_enforce>();
+    copy.pop_front();
+    copy.pop_back();
     pltxt2htm_test_assert_true(copy < values || copy > values);
 
     IntDeque moved{::std::move(copy)};
@@ -603,42 +589,41 @@ int main() {
     pltxt2htm_test_assert_true(moved.size() == 1997);
 
     moved.assign({1, 2, 3, 4});
-    moved.insert<Contracts::quick_enforce>(moved.cbegin() + 2, {9, 9});
+    moved.insert(moved.cbegin() + 2, {9, 9});
     pltxt2htm_test_assert_true((moved == IntDeque{1, 2, 9, 9, 3, 4}));
-    auto const after_erase = moved.erase<Contracts::quick_enforce>(moved.cbegin() + 1, moved.cbegin() + 5);
+    auto const after_erase = moved.erase(moved.cbegin() + 1, moved.cbegin() + 5);
     pltxt2htm_test_assert_true(after_erase == moved.begin() + 1);
     pltxt2htm_test_assert_true((moved == IntDeque{1, 4}));
 
-    moved.resize<Contracts::quick_enforce>(300);
-    pltxt2htm_test_assert_true(moved.size() == 300 && moved.back<Contracts::quick_enforce>() == 0);
-    moved.resize<Contracts::quick_enforce>(1);
+    moved.resize(300);
+    pltxt2htm_test_assert_true(moved.size() == 300 && moved.back() == 0);
+    moved.resize(1);
     moved.shrink_to_fit();
-    pltxt2htm_test_assert_true(moved.size() == 1 && moved.front<Contracts::quick_enforce>() == 1);
+    pltxt2htm_test_assert_true(moved.size() == 1 && moved.front() == 1);
     moved.clear();
     moved.shrink_to_fit();
     pltxt2htm_test_assert_true(moved.is_empty());
 
     ::pltxt2htm::container::Deque<int, ::fast_io::native_thread_local_allocator> thread_local_values{};
-    thread_local_values.push_front<Contracts::quick_enforce>(2);
-    thread_local_values.push_front<Contracts::quick_enforce>(1);
-    thread_local_values.push_back<Contracts::quick_enforce>(3);
-    pltxt2htm_test_assert_true(thread_local_values.index<Contracts::quick_enforce>(0) == 1 &&
-                               thread_local_values.index<Contracts::quick_enforce>(2) == 3);
+    thread_local_values.push_front(2);
+    thread_local_values.push_front(1);
+    thread_local_values.push_back(3);
+    pltxt2htm_test_assert_true(thread_local_values[0] == 1 && thread_local_values[2] == 3);
 
     {
         ::pltxt2htm::container::Deque<::pltxt2htm_test::TrackedValue> tracked{};
         for (int value{}; value != 500; ++value) {
-            tracked.emplace_back<Contracts::quick_enforce>(value);
+            tracked.emplace_back(value);
         }
-        tracked.erase<Contracts::quick_enforce>(tracked.cbegin() + 100, tracked.cbegin() + 400);
-        tracked.resize<Contracts::quick_enforce>(50);
+        tracked.erase(tracked.cbegin() + 100, tracked.cbegin() + 400);
+        tracked.resize(50);
         auto tracked_copy{tracked};
         tracked_copy = tracked;
         pltxt2htm_test_assert_true(::pltxt2htm_test::TrackedValue::alive == 100);
         {
             auto move_source{tracked};
             ::pltxt2htm::container::Deque<::pltxt2htm_test::TrackedValue> move_target{};
-            move_target.emplace_back<Contracts::quick_enforce>(500);
+            move_target.emplace_back(500);
             move_target = ::std::move(move_source);
             pltxt2htm_test_assert_true(move_target == tracked);
         }

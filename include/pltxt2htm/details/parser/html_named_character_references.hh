@@ -14,7 +14,7 @@
 
 #include "../../container/array.hh"
 #include "../../container/string_view.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 
 namespace pltxt2htm::details {
 
@@ -37,7 +37,6 @@ class HtmlNamedCharacterReferenceTable {
 
 #include "html_named_character_references.inc"
 
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     static constexpr auto compare(::pltxt2htm::container::U8StringView name, CompressedEntry const& candidate) noexcept
         -> ::std::strong_ordering {
@@ -45,7 +44,7 @@ class HtmlNamedCharacterReferenceTable {
         ::std::size_t const candidate_size{candidate.name_size};
         ::std::size_t const common_size{name_size < candidate_size ? name_size : candidate_size};
         for (::std::size_t index{}; index < common_size; ++index) {
-            auto const comparison = name.template index<ndebug>(index) <=> names[candidate.name_offset + index];
+            auto const comparison = name[index] <=> names[candidate.name_offset + index];
             if (comparison != 0) {
                 return comparison;
             }
@@ -92,7 +91,6 @@ class HtmlNamedCharacterReferenceTable {
     };
 
 public:
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     static constexpr auto try_find(::pltxt2htm::container::U8StringView name) noexcept -> HtmlNamedCharacterReference
         const* /* TODO Maybe Optional<HtmlNamedCharacterReference const&> is better here? */ {
@@ -100,8 +98,8 @@ public:
         ::std::size_t last{compressed_entries.size()};
         while (first < last) {
             ::std::size_t const middle{first + (last - first) / 2};
-            auto const& candidate = compressed_entries.template index<ndebug>(middle);
-            auto const comparison = compare<ndebug>(name, candidate);
+            auto const& candidate = compressed_entries[middle];
+            auto const comparison = compare(name, candidate);
             if (comparison < 0) {
                 last = middle;
             }

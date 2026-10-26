@@ -27,6 +27,8 @@ git = "*"
 # prepare-tmp runs before they invoke a tool that may use the temp directory.
 prepare-tmp = "cmake -E make_directory \"$PIXI_PROJECT_ROOT/.tmp\""
 clean-tmp = "cmake -E rm -rf \"$PIXI_PROJECT_ROOT/.tmp\""
+# Force a clean rebuild on the next test-* task.
+clean-tests = "cmake -E rm -rf \"$PIXI_PROJECT_ROOT/tests/build-pixi-clang\" \"$PIXI_PROJECT_ROOT/tests/build-pixi-gcc\""
 
 [feature.clang.dependencies]
 clangxx = ">=23"
@@ -125,6 +127,32 @@ python = ">=3.14,<3.15"
 [feature.py315.dependencies]
 python = ">=3.15,<3.16"
 
+[feature.scripts.dependencies]
+clangxx = ">=23"
+llvm-tools = ">=23"
+clang-tools = ">=23"
+python = ">=3.10"
+
+[feature.scripts.tasks]
+# One task per Python script in scripts/.
+gen-dockerignore = "python scripts/gen_dockerignore.py"
+gen-format-ninja = "python scripts/gen_format_ninja.py"
+gen-html-named-character-references = "python scripts/gen_html_named_character_references.py"
+gen-version = "python scripts/gen_version.py"
+run-clang-tidy = "python scripts/run_clang_tidy.py"
+windows-symbols = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm"
+windows-symbols-check = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm --check"
+git-clang-format-diff = "git-clang-format --diff main"
+git-clang-format = "git-clang-format --force main"
+
+# Full-tree formatting is discouraged; prefer the git-clang-format tasks for changed lines.
+format-all-cpp = { cmd = "ninja -f format_cpp.ninja", depends-on = ["gen-format-ninja"] }
+
+[feature.scripts.target.win-64.tasks]
+# The Windows launcher calls the system `py -3`; invoke the Pixi Python directly.
+git-clang-format-diff = { cmd = "cmd /c \"\"%CONDA_PREFIX%\\python.exe\" \"%CONDA_PREFIX%\\Library\\bin\\git-clang-format\" --diff main\"" }
+git-clang-format = { cmd = "cmd /c \"\"%CONDA_PREFIX%\\python.exe\" \"%CONDA_PREFIX%\\Library\\bin\\git-clang-format\" --force main\"" }
+
 [environments]
 default = []
 clang = ["clang"]
@@ -132,6 +160,7 @@ gcc = ["gcc"]
 rust = ["clang", "rust"]
 wasm = { features = ["wasm"], platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"] }
 csharp = ["clang", "csharp"]
+scripts = ["scripts"]
 py37 = { features = ["clang", "py", "py37"], platforms = ["linux-64", "linux-aarch64", "osx-64", "win-64"] }
 py38 = ["clang", "py", "py38"]
 py39 = ["clang", "py", "py39"]
