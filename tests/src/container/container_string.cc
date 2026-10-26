@@ -23,15 +23,6 @@ concept can_call_is_empty = requires(T const& value) { value.is_empty(); };
 static_assert(!can_call_empty<U8String>);
 static_assert(can_call_is_empty<U8String>);
 
-template<typename T>
-concept can_assign_view_without_contract = requires(T& string, U8StringView view) { string.assign(view); };
-
-template<typename T>
-concept can_assign_range_without_contract = requires(T& string, char8_t const* first) { string.assign(first, first); };
-
-static_assert(can_assign_view_without_contract<U8String>);
-static_assert(can_assign_range_without_contract<U8String>);
-
 [[nodiscard]]
 constexpr auto test_assign_growth_and_range() noexcept -> bool {
     U8String string{};

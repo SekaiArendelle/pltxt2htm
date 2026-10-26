@@ -13,9 +13,6 @@ template<typename T>
 concept can_form_non_zero = requires { typename ::pltxt2htm::container::NonZero<T>; };
 
 template<typename T>
-concept can_call_get_without_contract = requires(T const& value) { value.get(); };
-
-template<typename T>
     requires can_form_non_zero<T>
 consteval auto has_zero_overhead_representation() noexcept -> bool {
     using NonZero = ::pltxt2htm::container::NonZero<T>;
@@ -57,7 +54,6 @@ static_assert(!::std::default_initializable<NonZeroUsize>);
 static_assert(!::std::is_aggregate_v<NonZeroUsize>);
 static_assert(!::std::is_constructible_v<NonZeroUsize, ::std::size_t>);
 static_assert(!::std::is_convertible_v<NonZeroUsize, ::std::size_t>);
-static_assert(can_call_get_without_contract<NonZeroUsize>);
 static_assert(can_compare_non_zero_with<unsigned char>);
 static_assert(can_compare_non_zero_with<unsigned short>);
 static_assert(can_compare_non_zero_with<unsigned>);

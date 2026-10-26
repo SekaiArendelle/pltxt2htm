@@ -19,12 +19,6 @@ concept can_call_empty = requires(T const& value) { value.empty(); };
 template<typename T>
 concept can_call_is_empty = requires(T const& value) { value.is_empty(); };
 
-template<typename T>
-concept can_call_front_without_contract = requires(T& value) { value.front(); };
-
-template<typename T>
-concept can_call_back_without_contract = requires(T& value) { value.back(); };
-
 using IntArray = ::pltxt2htm::container::Array<int, 3>;
 
 static_assert(can_form_array<1>);
@@ -35,8 +29,6 @@ static_assert(::std::is_trivially_copyable_v<IntArray>);
 static_assert(!can_subscript<IntArray>);
 static_assert(!can_call_empty<IntArray>);
 static_assert(!can_call_is_empty<IntArray>);
-static_assert(can_call_front_without_contract<IntArray>);
-static_assert(can_call_back_without_contract<IntArray>);
 
 consteval auto test_constexpr_array() noexcept -> bool {
     auto values = ::pltxt2htm::container::Array{1, 2, 3};

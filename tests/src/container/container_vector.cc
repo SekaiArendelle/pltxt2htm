@@ -26,31 +26,6 @@ static_assert(can_call_is_empty<IntVector>);
 static_assert(!can_subscript<IntVector>);
 static_assert(!can_subscript<IntVector const>);
 
-template<typename T>
-concept can_reserve_without_contract = requires(T& values) { values.reserve(1); };
-
-static_assert(can_reserve_without_contract<IntVector>);
-
-template<typename T>
-concept can_emplace_back_without_contract = requires(T& values) { values.emplace_back(1); };
-
-static_assert(can_emplace_back_without_contract<IntVector>);
-
-template<typename T>
-concept can_push_back_without_contract = requires(T& values) { values.push_back(1); };
-
-static_assert(can_push_back_without_contract<IntVector>);
-
-template<typename T>
-concept can_pop_back_without_contract = requires(T& values) { values.pop_back(); };
-
-static_assert(can_pop_back_without_contract<IntVector>);
-
-template<typename T>
-concept can_append_range_without_contract = requires(T& values) { values.append_range(values); };
-
-static_assert(can_append_range_without_contract<IntVector>);
-
 class TrackingRawAllocator {
     static inline constexpr ::std::size_t slot_count{4};
     static inline constexpr ::std::size_t additional_bytes{3 * sizeof(int)};

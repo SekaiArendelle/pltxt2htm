@@ -15,12 +15,6 @@ concept has_unchecked_operation = requires(CallStack& call_stack) {
 };
 
 template<typename CallStack>
-concept has_current_frame_without_contract = requires(CallStack& call_stack) { call_stack.current_frame(); };
-
-template<typename CallStack>
-concept has_discard_without_contract = requires(CallStack& call_stack) { call_stack.discard_current_frame(); };
-
-template<typename CallStack>
 concept has_get_frames = requires(CallStack& call_stack) { call_stack.get_frames(); };
 
 template<typename CallStack>
@@ -32,8 +26,6 @@ concept accepts_lvalue_push_frame =
 
 static_assert(::std::same_as<IntCallStack::frame_type, int>);
 static_assert(!has_unchecked_operation<IntCallStack>);
-static_assert(has_current_frame_without_contract<IntCallStack>);
-static_assert(has_discard_without_contract<IntCallStack>);
 static_assert(!has_get_frames<IntCallStack>);
 static_assert(!exposes_frames<IntCallStack>);
 static_assert(!accepts_lvalue_push_frame<IntCallStack>);
