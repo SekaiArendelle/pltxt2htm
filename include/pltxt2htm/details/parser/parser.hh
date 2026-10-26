@@ -480,7 +480,7 @@ entry:
                 current_index += plain_text_size;
                 continue;
             }
-            char8_t const chr{pltext.index(current_index)};
+            char8_t const chr{pltext[current_index]};
 
             if (chr == u8'\n') {
                 result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LineBreak>());
@@ -747,7 +747,7 @@ entry:
                 }
 
                 // a trie for tags
-                switch (pltext.index(current_index + 1)) {
+                switch (pltext[current_index + 1]) {
                 case u8'a':
                     [[fallthrough]];
                 case u8'A': {
@@ -1265,7 +1265,7 @@ entry:
                             if (::pltxt2htm::details::is_prefix_match<u8"-->">(pltext.subview(comment_end))) {
                                 break;
                             }
-                            subast.append_text(pltext.index(comment_end));
+                            subast.append_text(pltext[comment_end]);
                         }
 
                         current_index = comment_end + 2; // Point to '>'

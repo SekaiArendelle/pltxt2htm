@@ -243,7 +243,7 @@ constexpr auto try_parse_link_tag(::pltxt2htm::container::U8StringView pltext,
     auto const tag_len = result.value().tag_len;
 
     auto&& [_, raw_value] = result.value();
-    if (raw_value.size() < 2 || raw_value.index(0) != u8'"' || raw_value.index(raw_value.size() - 1) != u8'"') {
+    if (raw_value.size() < 2 || raw_value[0] != u8'"' || raw_value[raw_value.size() - 1] != u8'"') {
         // unquoted value is not a Unity TextMeshPro link tag: keep the char-by-char fallback
         return {};
     }

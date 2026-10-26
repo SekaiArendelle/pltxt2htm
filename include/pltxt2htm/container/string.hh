@@ -695,87 +695,30 @@ public:
     }
 
     /**
-     * @brief Returns a mutable character with contract-controlled bounds checking.
-     * Contract mode follows PLTXT2HTM_CONTRACTS.
-     * @param position Zero-based character position.
-     * @return Reference to the requested character.
-     * @pre position < size().
+     * @brief Indexed element access, bounds-checked according to the
+     * build-wide contract setting.
+     * @param position Zero-based element position.
+     * @return Mutable reference to the requested element.
+     * @pre position is a valid element position.
      */
     [[nodiscard]]
-    constexpr auto index(this BasicString& self, size_type position) noexcept -> reference {
-        pltxt2htm_assert(position < self.size(), u8"Index of BasicString out of bound");
-        return self.begin_pointer[position];
-    }
-
-    /**
-     * @brief Returns a read-only character with contract-controlled bounds checking.
-     * Contract mode follows PLTXT2HTM_CONTRACTS.
-     * @param position Zero-based character position.
-     * @return Read-only reference to the requested character.
-     * @pre position < size().
-     */
-    [[nodiscard]]
-    constexpr auto index(this BasicString const& self, size_type position) noexcept -> const_reference {
-        pltxt2htm_assert(position < self.size(), u8"Index of BasicString out of bound");
-        return self.begin_pointer[position];
-    }
-
-    /**
-     * @brief Unchecked element access, provided to downstream users only.
-     *
-     * A templated operator[] would require the awkward explicit spelling
-     * `string.template operator[]<policy>(position)`, so contract-bearing access
-     * stays on index(). This overload is therefore deliberately unchecked, and it
-     * is external-only: while pltxt2htm itself is being built
-     * (PLTXT2HTM_INTERNAL_USE) it stays deleted, so implementation code cannot
-     * silently index a character without naming a build-wide contract setting.
-     * @param position Zero-based character position.
-     * @return Mutable reference to the requested character.
-     * @pre position < size(); otherwise the behavior is undefined.
-     */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this BasicString& self, size_type position) noexcept -> reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
     constexpr auto operator[](this BasicString& self, size_type position) noexcept -> reference {
+        pltxt2htm_assert(position < self.size(), u8"Index of BasicString out of bound");
         return self.begin_pointer[position];
     }
-#endif
+
     /**
-     * @brief Unchecked read-only element access, provided to downstream users only.
-     * @param position Zero-based character position.
-     * @return Read-only reference to the requested character.
-     * @pre position < size(); otherwise the behavior is undefined.
-     * @note External-only, mirroring the mutable overload above.
+     * @brief Indexed element access, read-only, bounds-checked according to the
+     * build-wide contract setting.
+     * @param position Zero-based element position.
+     * @return Read-only reference to the requested element.
+     * @pre position is a valid element position.
      */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this BasicString const& self, size_type position) noexcept -> const_reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
+    [[nodiscard]]
     constexpr auto operator[](this BasicString const& self, size_type position) noexcept -> const_reference {
+        pltxt2htm_assert(position < self.size(), u8"Index of BasicString out of bound");
         return self.begin_pointer[position];
     }
-#endif
 
     /**
      * @brief Returns the first character.
@@ -785,7 +728,7 @@ public:
      */
     [[nodiscard]]
     constexpr auto front(this BasicString& self) noexcept -> reference {
-        return self.index(0);
+        return self[0];
     }
 
     /**
@@ -796,7 +739,7 @@ public:
      */
     [[nodiscard]]
     constexpr auto front(this BasicString const& self) noexcept -> const_reference {
-        return self.index(0);
+        return self[0];
     }
 
     /**

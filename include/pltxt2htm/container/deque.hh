@@ -612,61 +612,27 @@ public:
     }
 
     /**
-     * @brief Unchecked element access, for downstream users only.
-     * @pre index < size().
+     * @brief Indexed element access, bounds-checked according to the
+     * build-wide contract setting.
+     * @param position Zero-based element position.
+     * @return Mutable reference to the requested element.
+     * @pre position is a valid element position.
      */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this Deque&, size_type) noexcept -> reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
     [[nodiscard]]
-    constexpr auto operator[](this Deque& self, size_type index) noexcept -> reference {
-        return *self.pointer_at(index);
-    }
-#endif
-
-    /**
-     * @brief Unchecked read-only element access, for downstream users only.
-     * @pre index < size().
-     */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this Deque const&, size_type) noexcept -> const_reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
-    [[nodiscard]]
-    constexpr auto operator[](this Deque const& self, size_type index) noexcept -> const_reference {
-        return *self.pointer_at(index);
-    }
-#endif
-
-    [[nodiscard]]
-    constexpr auto index(this Deque& self, size_type position) noexcept -> reference {
+    constexpr auto operator[](this Deque& self, size_type position) noexcept -> reference {
         pltxt2htm_assert(position < self.element_count, u8"Index of Deque out of bound");
         return *self.pointer_at(position);
     }
 
+    /**
+     * @brief Indexed element access, read-only, bounds-checked according to the
+     * build-wide contract setting.
+     * @param position Zero-based element position.
+     * @return Read-only reference to the requested element.
+     * @pre position is a valid element position.
+     */
     [[nodiscard]]
-    constexpr auto index(this Deque const& self, size_type position) noexcept -> const_reference {
+    constexpr auto operator[](this Deque const& self, size_type position) noexcept -> const_reference {
         pltxt2htm_assert(position < self.element_count, u8"Index of Deque out of bound");
         return *self.pointer_at(position);
     }
@@ -938,16 +904,16 @@ public:
         if (index < old_size / 2) {
             self.emplace_front(::std::move(self.front()));
             for (size_type current{1}; current != index; ++current) {
-                self.index(current) = ::std::move(self.index(current + 1));
+                self[current] = ::std::move(self[current + 1]);
             }
         }
         else {
             self.emplace_back(::std::move(self.back()));
             for (size_type current{old_size - 1}; current != index; --current) {
-                self.index(current) = ::std::move(self.index(current - 1));
+                self[current] = ::std::move(self[current - 1]);
             }
         }
-        self.index(index) = ::std::move(value);
+        self[index] = ::std::move(value);
         return self.begin() + static_cast<difference_type>(index);
     }
 
@@ -980,7 +946,7 @@ public:
         }
         if (index < old_size - index) {
             for (size_type remaining{inserted}; remaining != 0; --remaining) {
-                self.emplace_front(::std::move(values.index(remaining - 1)));
+                self.emplace_front(::std::move(values[remaining - 1]));
             }
             self.rotate_elements(0, inserted, inserted + index);
         }
@@ -1023,7 +989,7 @@ public:
         size_type const suffix_size{self.element_count - last_index};
         if (first_index < suffix_size) {
             for (size_type current{first_index}; current != 0; --current) {
-                self.index(current + erased_count - 1) = ::std::move(self.index(current - 1));
+                self[current + erased_count - 1] = ::std::move(self[current - 1]);
             }
             for (size_type count{}; count != erased_count; ++count) {
                 self.pop_front();
@@ -1031,7 +997,7 @@ public:
         }
         else {
             for (size_type current{first_index}; current + erased_count != self.element_count; ++current) {
-                self.index(current) = ::std::move(self.index(current + erased_count));
+                self[current] = ::std::move(self[current + erased_count]);
             }
             for (size_type count{}; count != erased_count; ++count) {
                 self.pop_back();

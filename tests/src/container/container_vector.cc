@@ -23,8 +23,13 @@ concept can_subscript = requires(T& value) { value[0]; };
 
 static_assert(!can_call_empty<IntVector>);
 static_assert(can_call_is_empty<IntVector>);
-static_assert(!can_subscript<IntVector>);
-static_assert(!can_subscript<IntVector const>);
+static_assert(can_subscript<IntVector>);
+static_assert(can_subscript<IntVector const>);
+static_assert(requires(IntVector& vector, IntVector const& const_vector, ::std::size_t position) {
+    { vector[position] } noexcept -> ::std::same_as<int&>;
+    vector[position] = 1;
+    { const_vector[position] } noexcept -> ::std::same_as<int const&>;
+});
 
 class TrackingRawAllocator {
     static inline constexpr ::std::size_t slot_count{4};
@@ -448,7 +453,7 @@ consteval auto test_constexpr_vector() -> bool {
     values.push_back(1);
     values.emplace_back(2);
     values.reserve(8);
-    if (values.size() != 2 || values.capacity() < 8 || values.front() != 1 || values.index(1) != 2) {
+    if (values.size() != 2 || values.capacity() < 8 || values.front() != 1 || values[1] != 2) {
         return false;
     }
 
@@ -476,7 +481,7 @@ consteval auto test_constexpr_vector() -> bool {
         return false;
     }
     IntVector copy{values};
-    copy.index(0) = 9;
+    copy[0] = 9;
     if (values != IntVector{1} || copy != IntVector{9}) {
         return false;
     }
@@ -489,7 +494,7 @@ consteval auto test_constexpr_vector() -> bool {
     }
     auto const previous_size = self_reference.size();
     self_reference.emplace_back(self_reference.front());
-    if (self_reference.size() != previous_size + 1 || self_reference.index(previous_size) != 7) {
+    if (self_reference.size() != previous_size + 1 || self_reference[previous_size] != 7) {
         return false;
     }
 
@@ -505,7 +510,7 @@ consteval auto test_constexpr_vector() -> bool {
         return false;
     }
     for (::std::size_t index{}; index < self_append_size; ++index) {
-        if (self_append.index(index) != self_append.index(self_append_size + index)) {
+        if (self_append[index] != self_append[self_append_size + index]) {
             return false;
         }
     }
@@ -550,7 +555,7 @@ int main() {
     IntVector original{1, 2, 3};
     IntVector copy{};
     copy = original;
-    copy.index(0) = 4;
+    copy[0] = 4;
     pltxt2htm_test_assert_true(original == IntVector{1, 2, 3});
     pltxt2htm_test_assert_true(copy == IntVector{4, 2, 3});
 
@@ -594,7 +599,7 @@ int main() {
     }
     auto const direct_construction_size = direct_construction.size();
     direct_construction.emplace_back(2);
-    pltxt2htm_test_assert_true(direct_construction.index(direct_construction_size).get_construction_kind() == 1);
+    pltxt2htm_test_assert_true(direct_construction[direct_construction_size].get_construction_kind() == 1);
 
     ::pltxt2htm::container::Vector<ConstructionTrace> copy_source{};
     copy_source.emplace_back(3);
@@ -616,7 +621,7 @@ int main() {
     }
     auto const self_move_size = self_move.size();
     self_move.push_back(::std::move(self_move.front()));
-    pltxt2htm_test_assert_true(self_move.index(self_move_size).get_payload() == 5);
+    pltxt2htm_test_assert_true(self_move[self_move_size].get_payload() == 5);
 
     IntVector overlap{};
     overlap.reserve(1);
@@ -629,7 +634,7 @@ int main() {
     overlap.append_range(overlap_source);
     pltxt2htm_test_assert_true(overlap.size() == overlap_size * 2);
     for (::std::size_t index{}; index < overlap_size; ++index) {
-        pltxt2htm_test_assert_true(overlap.index(index) == overlap.index(overlap_size + index));
+        pltxt2htm_test_assert_true(overlap[index] == overlap[overlap_size + index]);
     }
 
     return 0;

@@ -113,7 +113,7 @@ public:
     /// @return Cells in row @p row (const/non-const reference).
     [[nodiscard]]
     constexpr auto row_cells(this auto&& self, ::std::size_t row) noexcept -> decltype(auto) {
-        return self.rows.index(row).cells;
+        return self.rows[row].cells;
     }
 
     /// @param row Row index.
@@ -121,14 +121,14 @@ public:
     /// @return Cell at (@p row, @p col) (const/non-const reference).
     [[nodiscard]]
     constexpr auto cell_at(this auto&& self, ::std::size_t row, ::std::size_t col) noexcept -> decltype(auto) {
-        return self.rows.index(row).cells.index(col);
+        return self.rows[row].cells[col];
     }
 
     /// @param row Row index.
     /// @return Section tag of row @p row.
     [[nodiscard]]
     constexpr auto row_section(this TableAstRaw const& self, ::std::size_t row) noexcept -> TableRowSection {
-        return self.rows.index(row).section;
+        return self.rows[row].section;
     }
 
     /// Append a row (its section tag is supplied by the scanner).
@@ -138,7 +138,7 @@ public:
 
     /// Append a cell to the most recently added row.
     constexpr void add_cell_to_last_row(this TableAstRaw& self, TableCellRaw&& cell) noexcept {
-        self.rows.index(self.rows.size() - 1).cells.push_back(::std::move(cell));
+        self.rows[self.rows.size() - 1].cells.push_back(::std::move(cell));
     }
 };
 

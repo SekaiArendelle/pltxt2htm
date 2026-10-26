@@ -105,14 +105,15 @@ constexpr auto ::pltxt2htm::Ast::front(this ::pltxt2htm::Ast const& self) noexce
     return self.storage.front();
 }
 
-constexpr auto ::pltxt2htm::Ast::index(this ::pltxt2htm::Ast& self, ::pltxt2htm::Ast::size_type position) noexcept
+constexpr auto ::pltxt2htm::Ast::operator[](this ::pltxt2htm::Ast & self, ::pltxt2htm::Ast::size_type position) noexcept
     -> ::pltxt2htm::Ast::reference {
-    return self.storage.index(position);
+    return self.storage[position];
 }
 
-constexpr auto ::pltxt2htm::Ast::index(this ::pltxt2htm::Ast const& self, ::pltxt2htm::Ast::size_type position) noexcept
+constexpr auto ::pltxt2htm::Ast::operator[](this ::pltxt2htm::Ast const& self,
+                                            ::pltxt2htm::Ast::size_type position) noexcept
     -> ::pltxt2htm::Ast::const_reference {
-    return self.storage.index(position);
+    return self.storage[position];
 }
 
 constexpr void ::pltxt2htm::Ast::reserve(this ::pltxt2htm::Ast& self,
@@ -225,7 +226,7 @@ constexpr void ::pltxt2htm::Ast::append_code_point(this ::pltxt2htm::Ast& self, 
 
 constexpr void ::pltxt2htm::Ast::append_text(this ::pltxt2htm::Ast& self, char8_t code_unit) noexcept {
     if (self.is_empty() == false) {
-        auto&& last_node = self.index(self.size() - 1);
+        auto&& last_node = self[self.size() - 1];
         if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text && last_node.as_text().try_push_back(code_unit)) {
             return;
         }
@@ -243,7 +244,7 @@ constexpr void ::pltxt2htm::Ast::append_text(this ::pltxt2htm::Ast& self,
 
     constexpr auto text_capacity = ::pltxt2htm::Text::capacity();
     if (self.is_empty() == false) {
-        auto&& last_node = self.index(self.size() - 1);
+        auto&& last_node = self[self.size() - 1];
         if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text) {
             auto&& last_text = last_node.as_text();
             auto const available = text_capacity - last_text.size();

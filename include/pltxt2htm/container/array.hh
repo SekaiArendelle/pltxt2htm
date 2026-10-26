@@ -134,72 +134,31 @@ public:
         return const_reverse_iterator{self.begin()};
     }
 
-    [[nodiscard]]
-    constexpr auto index(this Array& self, size_type position) noexcept -> reference {
-        pltxt2htm_assert(position < extent, u8"Index of array out of bound");
-        return self.element[position];
-    }
-
-    [[nodiscard]]
-    constexpr auto index(this Array const& self, size_type position) noexcept -> const_reference {
-        pltxt2htm_assert(position < extent, u8"Index of array out of bound");
-        return self.element[position];
-    }
-
     /**
-     * @brief Unchecked element access, provided to downstream users only.
-     *
-     * Contract-bearing access stays on index(); this overload is external-only:
-     * while pltxt2htm itself is being built (PLTXT2HTM_INTERNAL_USE) it stays
-     * deleted, so implementation code must name a build-wide contract setting.
+     * @brief Indexed element access, bounds-checked according to the
+     * build-wide contract setting.
      * @param position Zero-based element position.
      * @return Mutable reference to the requested element.
-     * @pre position < extent; otherwise the behavior is undefined.
+     * @pre position is a valid element position.
      */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this Array&, size_type) noexcept -> reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
+    [[nodiscard]]
     constexpr auto operator[](this Array& self, size_type position) noexcept -> reference {
+        pltxt2htm_assert(position < extent, u8"Index of array out of bound");
         return self.element[position];
     }
-#endif
 
     /**
-     * @brief Unchecked read-only element access, provided to downstream users only.
+     * @brief Indexed element access, read-only, bounds-checked according to the
+     * build-wide contract setting.
      * @param position Zero-based element position.
      * @return Read-only reference to the requested element.
-     * @pre position < extent; otherwise the behavior is undefined.
-     * @note External-only, mirroring the mutable overload above.
+     * @pre position is a valid element position.
      */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this Array const&, size_type) noexcept -> const_reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
+    [[nodiscard]]
     constexpr auto operator[](this Array const& self, size_type position) noexcept -> const_reference {
+        pltxt2htm_assert(position < extent, u8"Index of array out of bound");
         return self.element[position];
     }
-#endif
 
     [[nodiscard]]
     constexpr auto front(this Array& self) noexcept -> reference {

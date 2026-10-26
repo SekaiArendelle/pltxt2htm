@@ -71,7 +71,7 @@ public:
         ::pltxt2htm::container::U8String canonical{};
         canonical.reserve(hex_digits);
         for (::std::size_t index{}; index < hex_digits; ++index) {
-            char8_t const digit{input.index(index)};
+            char8_t const digit{input[index]};
             if (::pltxt2htm::details::is_ascii_hexdigit(digit) == false) {
                 return ::pltxt2htm::container::nullopt;
             }

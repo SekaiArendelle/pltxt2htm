@@ -135,12 +135,12 @@ constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcep
             // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
             constexpr ::std::uint8_t diff{32};
             // (expect != str[I] && expect != str[I] + diff) <=> (expect != (str[I] | diff))
-            if (expect != (str.index(I) | diff)) {
+            if (expect != (str[I] | diff)) {
                 return false;
             }
         }
         else {
-            if (expect != str.index(I)) {
+            if (expect != str[I]) {
                 return false;
             }
         }
@@ -154,10 +154,10 @@ constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcep
                 // ASCII between lowercase and uppercase is 32 (e.g. 'a' - 'A' == 32)
                 constexpr ::std::uint8_t diff{32};
                 // (expect != str[I] && expect != str[I] + diff) <=> (expect != (str[I] | diff))
-                return expect == (str.index(I) | diff);
+                return expect == (str[I] | diff);
             }
             else {
-                return expect == str.index(I);
+                return expect == str[I];
             }
         }.template operator()<Is>() &&
                 ...);
@@ -257,7 +257,7 @@ constexpr auto try_parse_size_t_decimal_value(::pltxt2htm::container::U8StringVi
     ::std::size_t parsed_value{};
     auto pos = ::std::size_t{0};
     for (; pos < str_size; ++pos) {
-        auto const chr = str.index(pos);
+        auto const chr = str[pos];
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
         }
@@ -330,7 +330,7 @@ constexpr auto try_parse_ptrdiff_t_decimal_value(::pltxt2htm::container::U8Strin
 
     ::std::size_t const str_size{str.size()};
     auto pos = ::std::size_t{0};
-    bool const negative = pos < str_size && str.index(pos) == u8'-';
+    bool const negative = pos < str_size && str[pos] == u8'-';
     if (negative) {
         ++pos;
     }
@@ -338,7 +338,7 @@ constexpr auto try_parse_ptrdiff_t_decimal_value(::pltxt2htm::container::U8Strin
     unsigned_type parsed_value{};
     auto digit_pos = pos;
     for (; digit_pos < str_size; ++digit_pos) {
-        auto const chr = str.index(digit_pos);
+        auto const chr = str[digit_pos];
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
         }
@@ -393,13 +393,13 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
     double parsed_value{};
     auto pos = ::std::size_t{0};
     for (; pos < str_size; ++pos) {
-        auto const chr = str.index(pos);
+        auto const chr = str[pos];
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
         }
         parsed_value = parsed_value * 10 + static_cast<double>(chr - u8'0');
     }
-    if (pos < str_size && str.index(pos) == u8'.') {
+    if (pos < str_size && str[pos] == u8'.') {
         if (pos == 0) {
             return ::pltxt2htm::container::nullopt;
         }
@@ -407,7 +407,7 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
         auto frac_pos = dot_pos + 1;
         double scale{10};
         for (; frac_pos < str_size; ++frac_pos) {
-            auto const chr = str.index(frac_pos);
+            auto const chr = str[frac_pos];
             if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
                 break;
             }

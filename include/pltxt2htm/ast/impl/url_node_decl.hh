@@ -52,7 +52,7 @@ public:
         ::pltxt2htm::container::U8String url_str{};
         url_str.reserve(url_size);
         for (::std::size_t index{}; index < url_size; ++index) {
-            auto const chr = url.index(index);
+            auto const chr = url[index];
             if (chr == u8'&') {
                 auto const reference = ::pltxt2htm::details::try_decode_character_reference(url.subview(index));
                 if (reference.has_value()) {

@@ -44,7 +44,7 @@ class HtmlNamedCharacterReferenceTable {
         ::std::size_t const candidate_size{candidate.name_size};
         ::std::size_t const common_size{name_size < candidate_size ? name_size : candidate_size};
         for (::std::size_t index{}; index < common_size; ++index) {
-            auto const comparison = name.index(index) <=> names[candidate.name_offset + index];
+            auto const comparison = name[index] <=> names[candidate.name_offset + index];
             if (comparison != 0) {
                 return comparison;
             }
@@ -98,7 +98,7 @@ public:
         ::std::size_t last{compressed_entries.size()};
         while (first < last) {
             ::std::size_t const middle{first + (last - first) / 2};
-            auto const& candidate = compressed_entries.index(middle);
+            auto const& candidate = compressed_entries[middle];
             auto const comparison = compare(name, candidate);
             if (comparison < 0) {
                 last = middle;

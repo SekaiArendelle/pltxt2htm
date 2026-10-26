@@ -68,7 +68,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
     while (true) {
         // Skip whitespace between items.
         while (current_index < pltext_size) {
-            auto const chr = pltext.index(current_index);
+            auto const chr = pltext[current_index];
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;
             }
@@ -110,7 +110,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         // Under the HTML block content model, leading whitespace/newlines inside an
         // item are just formatting for readability and are not rendered.
         while (current_index < pltext_size) {
-            auto const chr = pltext.index(current_index);
+            auto const chr = pltext[current_index];
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;
             }
@@ -130,7 +130,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
             checkbox_checked = checked;
             // Skip whitespace between the checkbox input and the item text.
             while (current_index < pltext_size) {
-                auto const chr = pltext.index(current_index);
+                auto const chr = pltext[current_index];
                 if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                     break;
                 }
@@ -173,12 +173,12 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
                 continue;
             }
             // Ordinary content character.
-            text.push_back(pltext.index(current_index));
+            text.push_back(pltext[current_index]);
             ++current_index;
         }
         // Trailing whitespace/newlines are formatting as well (see the leading-skip above).
         while (text.is_empty() == false) {
-            auto const chr = text.index(text.size() - 1);
+            auto const chr = text[text.size() - 1];
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;
             }

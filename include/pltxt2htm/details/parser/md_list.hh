@@ -118,7 +118,7 @@ constexpr auto is_valid_md_ul_list_hierarchy(::pltxt2htm::container::U8StringVie
                                              ::std::size_t const space_hierarchy,
                                              ::pltxt2htm::container::Optional<PreviousItemInfo> const expect) noexcept
     -> bool {
-    if (pltext.index(space_hierarchy) != static_cast<char8_t>(item_kind)) {
+    if (pltext[space_hierarchy] != static_cast<char8_t>(item_kind)) {
         return false;
     }
 
@@ -186,7 +186,7 @@ constexpr auto is_valid_md_ol_list_hierarchy(::pltxt2htm::container::U8StringVie
             return ::pltxt2htm::container::nullopt;
         }
         MdUlListItemKind ordered_kind;
-        auto const ordered_marker = pltext.index(i);
+        auto const ordered_marker = pltext[i];
         if (ordered_marker == u8'.') {
             ordered_kind = MdUlListItemKind::ordered_item;
         }
@@ -251,7 +251,7 @@ constexpr auto try_parse_item(
     ::std::size_t current_index{};
     // parsing spaces before - or + or *
     for (; current_index < pltext_size; ++current_index) {
-        auto const chr = pltext.index(current_index);
+        auto const chr = pltext[current_index];
         if (chr != u8' ' && chr != u8'\t') {
             break;
         }
@@ -300,12 +300,12 @@ constexpr auto try_parse_item(
     if (current_index == pltext_size) {
         return ::pltxt2htm::container::nullopt;
     }
-    if (char8_t const chr{pltext.index(current_index)}; chr != u8' ' && chr != u8'\t') {
+    if (char8_t const chr{pltext[current_index]}; chr != u8' ' && chr != u8'\t') {
         return ::pltxt2htm::container::nullopt;
     }
     // parsing spaces after - or + or *
     for (; current_index < pltext_size; ++current_index) {
-        auto const chr = pltext.index(current_index);
+        auto const chr = pltext[current_index];
         if (chr != u8' ' && chr != u8'\t') {
             break;
         }
@@ -313,19 +313,19 @@ constexpr auto try_parse_item(
     // detect markdown checkbox syntax: [ ] or [x]/[X] at start of text
     bool checkbox{};
     bool checked{};
-    if (pltext_size >= current_index + 4 && pltext.index(current_index) == u8'[' &&
-        (pltext.index(current_index + 1) == u8' ' || pltext.index(current_index + 1) == u8'x' ||
-         pltext.index(current_index + 1) == u8'X') &&
-        pltext.index(current_index + 2) == u8']' &&
-        (pltext.index(current_index + 3) == u8' ' || pltext.index(current_index + 3) == u8'\t')) {
+    if (pltext_size >= current_index + 4 && pltext[current_index] == u8'[' &&
+        (pltext[current_index + 1] == u8' ' || pltext[current_index + 1] == u8'x' ||
+         pltext[current_index + 1] == u8'X') &&
+        pltext[current_index + 2] == u8']' &&
+        (pltext[current_index + 3] == u8' ' || pltext[current_index + 3] == u8'\t')) {
         checkbox = true;
-        checked = (pltext.index(current_index + 1) == u8'x' || pltext.index(current_index + 1) == u8'X');
+        checked = (pltext[current_index + 1] == u8'x' || pltext[current_index + 1] == u8'X');
         current_index += 4;
     }
     // parsing text after - or + or *
     ::pltxt2htm::container::U8String text{};
     for (; current_index < pltext_size; ++current_index) {
-        auto const chr = pltext.index(current_index);
+        auto const chr = pltext[current_index];
         if (chr == u8'\n') {
             ++current_index;
             break;

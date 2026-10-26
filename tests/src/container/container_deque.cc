@@ -21,8 +21,13 @@ concept has_external_subscript = requires(Deque& values) { values[0]; };
 template<typename Deque>
 concept has_external_empty = requires(Deque& values) { values.empty(); };
 
-static_assert(!has_external_subscript<IntDeque>);
-static_assert(!has_external_subscript<IntDeque const>);
+static_assert(has_external_subscript<IntDeque>);
+static_assert(has_external_subscript<IntDeque const>);
+static_assert(requires(IntDeque& values, IntDeque const& const_values, ::std::size_t position) {
+    { values[position] } -> ::std::same_as<int&>;
+    values[position] = 1;
+    { const_values[position] } -> ::std::same_as<int const&>;
+});
 static_assert(!has_external_empty<IntDeque>);
 static_assert(!has_external_empty<IntDeque const>);
 
@@ -115,12 +120,12 @@ consteval auto test_constexpr_deque() -> bool {
         values.push_front(-value);
     }
 
-    if (values.size() != 400 || values.front() != -100 || values.back() != 299 || values.index(100) != 0) {
+    if (values.size() != 400 || values.front() != -100 || values.back() != 299 || values[100] != 0) {
         return false;
     }
 
     values.erase(values.cbegin() + 50, values.cbegin() + 350);
-    if (values.size() != 100 || values.index(49) != -51 || values.index(50) != 250) {
+    if (values.size() != 100 || values[49] != -51 || values[50] != 250) {
         return false;
     }
 
@@ -129,7 +134,7 @@ consteval auto test_constexpr_deque() -> bool {
         return false;
     }
     copy.insert(copy.cbegin() + 50, {7, 8, 9});
-    if (copy.size() != 103 || copy.index(50) != 7 || copy.index(51) != 8 || copy.index(52) != 9) {
+    if (copy.size() != 103 || copy[50] != 7 || copy[51] != 8 || copy[52] != 9) {
         return false;
     }
 
@@ -171,7 +176,7 @@ constexpr auto test_contract_operations() noexcept -> bool {
     values.erase(values.cbegin() + 1, values.cbegin() + 5);
     values.resize(5);
     auto const& const_values = values;
-    if (const_values.front() != 6 || const_values.back() != 0 || const_values.index(1) != 2) {
+    if (const_values.front() != 6 || const_values.back() != 0 || const_values[1] != 2) {
         return false;
     }
     values.resize(1);
@@ -312,7 +317,7 @@ void test_spare_transfer_at_map_edge() {
         pltxt2htm_test_assert_true(CountingAllocator::map_allocations == 1);
         pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 4);
         for (int index{}; index != 4; ++index) {
-            pltxt2htm_test_assert_true(queue.index(index).value == index + 1);
+            pltxt2htm_test_assert_true(queue[index].value == index + 1);
         }
     }
 
@@ -328,7 +333,7 @@ void test_spare_transfer_at_map_edge() {
         pltxt2htm_test_assert_true(CountingAllocator::map_allocations == 1);
         pltxt2htm_test_assert_true(CountingAllocator::block_allocations == 5);
         for (int index{}; index != 5; ++index) {
-            pltxt2htm_test_assert_true(queue.index(index).value == 5 - index);
+            pltxt2htm_test_assert_true(queue[index].value == 5 - index);
         }
     }
 }
@@ -470,7 +475,7 @@ void test_range_insertion() {
             int const expected{index < insertion_index         ? index
                                : index < insertion_index + 200 ? 1000 + index - insertion_index
                                                                : index - 200};
-            pltxt2htm_test_assert_true(queue.index(index).value == expected);
+            pltxt2htm_test_assert_true(queue[index].value == expected);
         }
     }
 
@@ -603,7 +608,7 @@ int main() {
     thread_local_values.push_front(2);
     thread_local_values.push_front(1);
     thread_local_values.push_back(3);
-    pltxt2htm_test_assert_true(thread_local_values.index(0) == 1 && thread_local_values.index(2) == 3);
+    pltxt2htm_test_assert_true(thread_local_values[0] == 1 && thread_local_values[2] == 3);
 
     {
         ::pltxt2htm::container::Deque<::pltxt2htm_test::TrackedValue> tracked{};
