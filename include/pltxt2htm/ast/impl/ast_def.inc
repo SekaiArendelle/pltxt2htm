@@ -145,11 +145,7 @@ constexpr void ::pltxt2htm::Ast::clear(this ::pltxt2htm::Ast& self) noexcept {
 }
 
 template<::std::ranges::input_range R>
-constexpr void ::pltxt2htm::Ast::append_range(this ::pltxt2htm::Ast& self, R&& range) noexcept
-    requires requires(::pltxt2htm::Ast::storage_type& probe_storage, R&& probe_range) {
-        probe_storage.append_range(::std::forward<R>(probe_range));
-    }
-{
+constexpr void ::pltxt2htm::Ast::append_range(this ::pltxt2htm::Ast& self, R&& range) noexcept {
     self.storage.append_range(::std::forward<R>(range));
 }
 

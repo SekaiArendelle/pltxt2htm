@@ -156,10 +156,7 @@ public:
     constexpr void append_code_point(this Ast& self, char32_t code_point) noexcept;
 
     template<::std::ranges::input_range R>
-    constexpr void append_range(this Ast& self, R&& range) noexcept
-        requires requires(storage_type& probe_storage, R&& probe_range) {
-            probe_storage.append_range(::std::forward<R>(probe_range));
-        };
+    constexpr void append_range(this Ast& self, R&& range) noexcept;
 
     constexpr auto erase(this Ast& self, const_iterator position) noexcept -> iterator;
     constexpr auto erase(this Ast& self, const_iterator first, const_iterator last) noexcept -> iterator;
