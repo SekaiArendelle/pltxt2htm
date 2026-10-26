@@ -57,7 +57,6 @@ public:
      * @brief Construct a NonZero after checking that @p value is not zero.
      * @note Passing zero violates the precondition when contracts are ignored.
      */
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     static constexpr auto from(T value) noexcept -> NonZero {
         pltxt2htm_assert(value != 0, u8"NonZero value must not be zero");
@@ -67,7 +66,6 @@ public:
     /**
      * @brief Return the underlying unsigned integer by value.
      */
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto get(this NonZero const& self) noexcept -> T {
         auto const value = self.value_storage;

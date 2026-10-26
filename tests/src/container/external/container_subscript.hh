@@ -11,7 +11,6 @@
 #include <pltxt2htm/container/string.hh>
 #include <pltxt2htm/container/string_view.hh>
 #include <pltxt2htm/container/vector.hh>
-#include <pltxt2htm/contracts.hh>
 #include <pltxt2htm/details/inplace_string.hh>
 
 TEST_SUITE("container_subscript") {
@@ -20,7 +19,7 @@ TEST_SUITE("container_subscript") {
     using U8Array = ::pltxt2htm::container::Array<char8_t, 4>;
     using IntVector = ::pltxt2htm::container::Vector<int>;
     using IntDeque = ::pltxt2htm::container::Deque<int>;
-    using U8InplaceString = ::pltxt2htm::details::U8InplaceString<4, ::pltxt2htm::Contracts::quick_enforce>;
+    using U8InplaceString = ::pltxt2htm::details::U8InplaceString<4>;
 
     static_assert(requires(U8String& string, U8String const& const_string, ::std::size_t position) {
         string[position];
@@ -124,7 +123,7 @@ TEST_SUITE("container_subscript") {
             return false;
         }
         for (int value{}; value != 300; ++value) {
-            values.push_back<::pltxt2htm::Contracts::quick_enforce>(value);
+            values.push_back(value);
         }
         values[129] = 42;
         auto const& const_values = values;
@@ -162,7 +161,7 @@ TEST_SUITE("container_subscript") {
         }
         IntDeque values{};
         for (int value{}; value != 300; ++value) {
-            values.push_back<::pltxt2htm::Contracts::quick_enforce>(value);
+            values.push_back(value);
         }
         auto& alias = values;
         auto const first_element = ::std::addressof(values[0]);

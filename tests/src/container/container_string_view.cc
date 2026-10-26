@@ -6,14 +6,14 @@
 
 #include <pltxt2htm/container/string_view.hh>
 #include <pltxt2htm/container/string.hh>
-#include <pltxt2htm/contracts.hh>
+#include <pltxt2htm/details/contracts.hh>
 #include <pltxt2htm/details/inplace_string.hh>
 #include <pltxt2htm/details/literal_string.hh>
 
 #include "precompile.hh"
 
 using U8StringView = ::pltxt2htm::container::U8StringView;
-using U8InplaceString = ::pltxt2htm::details::U8InplaceString<8, ::pltxt2htm::Contracts::quick_enforce>;
+using U8InplaceString = ::pltxt2htm::details::U8InplaceString<8>;
 
 template<typename CharType>
 concept can_form_basic_string_view = requires { typename ::pltxt2htm::container::BasicStringView<CharType>; };
@@ -62,7 +62,7 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
     }
 
     U8StringView const text{u8"abcdef"};
-    if (text.is_empty() || text.size() != 6 || text.template index<::pltxt2htm::Contracts::quick_enforce>(2) != u8'c') {
+    if (text.is_empty() || text.size() != 6 || text.index(2) != u8'c') {
         return false;
     }
 
@@ -71,12 +71,11 @@ consteval auto test_constexpr_string_view() noexcept -> bool {
         return false;
     }
 
-    auto const tail = text.template subview<::pltxt2htm::Contracts::quick_enforce>(3);
-    auto const middle = text.template subview<::pltxt2htm::Contracts::quick_enforce>(1, 3);
-    auto const enforced_contract = text.template subview<::pltxt2htm::Contracts::quick_enforce>(2, 2);
+    auto const tail = text.subview(3);
+    auto const middle = text.subview(1, 3);
+    auto const enforced_contract = text.subview(2, 2);
     if (tail != u8"def" || middle != u8"bcd" || !text.starts_with(u8"abc") || !text.ends_with(u8"def") ||
-        text.ends_with(u8"abcdefg") ||
-        enforced_contract.template index<::pltxt2htm::Contracts::quick_enforce>(0) != u8'c') {
+        text.ends_with(u8"abcdefg") || enforced_contract.index(0) != u8'c') {
         return false;
     }
 

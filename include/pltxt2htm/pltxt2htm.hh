@@ -21,7 +21,7 @@
 #include "container/string_view.hh"
 #include "container/optional.hh"
 #include "container/vector.hh"
-#include "contracts.hh"
+#include "details/contracts.hh"
 #include "parser.hh"
 #include "inline_parser.hh"
 #include "optimizer.hh"
@@ -34,9 +34,7 @@ namespace pltxt2htm {
 
 /**
  * @brief Convert Physics-Lab text to advanced HTML
- * @tparam ndebug Contract checking mode. Supported values are ::pltxt2htm::Contracts
- *                 enumerators such as ::pltxt2htm::Contracts::quick_enforce and
- *                 ::pltxt2htm::Contracts::ignore
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
  * @param[in] pltext The Physics-Lab text content to convert
  * @param[in] host Host URL for generating internal links (e.g., "https://physicslab.example.com")
@@ -46,7 +44,7 @@ namespace pltxt2htm {
  * @param[in] coauthors Co-authors identifier for Physics-Lab context
  * @note The host parameter is used for generating proper internal links to experiments and discussions
  */
-template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
+template<bool optimize = true>
 [[nodiscard]]
 constexpr auto pltxt2fixedadv_html(::pltxt2htm::container::U8StringView pltext,
                                    ::pltxt2htm::container::U8StringView host,
@@ -54,12 +52,12 @@ constexpr auto pltxt2fixedadv_html(::pltxt2htm::container::U8StringView pltext,
                                    ::pltxt2htm::container::U8StringView visitor,
                                    ::pltxt2htm::container::U8StringView author,
                                    ::pltxt2htm::container::U8StringView coauthors) noexcept {
-    using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
-    parser_result_type ast{::pltxt2htm::parse_pltxt<ndebug>(pltext)};
+    using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast, ::pltxt2htm::Ast const>;
+    parser_result_type ast{::pltxt2htm::parse_pltxt(pltext)};
     if constexpr (optimize) {
-        ::pltxt2htm::optimize_ast<ndebug>(ast);
+        ::pltxt2htm::optimize_ast(ast);
     }
-    return ::pltxt2htm::details::plweb_text_backend<ndebug, ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
+    return ::pltxt2htm::details::plweb_text_backend< ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
         ast, host, project, visitor, author, coauthors);
 }
 
@@ -67,9 +65,7 @@ constexpr auto pltxt2fixedadv_html(::pltxt2htm::container::U8StringView pltext,
  * @brief Convert Physics-Lab text to PLUnity introduction HTML
  * @details Generates HTML using the PLUnity introduction backend with caller-provided
  *          project and user context values for link/text rendering.
- * @tparam ndebug Contract checking mode. Supported values are ::pltxt2htm::Contracts
- *                 enumerators such as ::pltxt2htm::Contracts::quick_enforce and
- *                 ::pltxt2htm::Contracts::ignore
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @tparam optimize Whether to optimize the AST before HTML generation (default: true)
  * @param[in] pltext The Physics-Lab text content to convert
  * @param[in] project Project identifier for Physics-Lab context
@@ -79,19 +75,19 @@ constexpr auto pltxt2fixedadv_html(::pltxt2htm::container::U8StringView pltext,
  * @return Generated HTML string for PLUnity introduction rendering
  * @retval container::U8String UTF-8 string containing the generated HTML
  */
-template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = true>
+template<bool optimize = true>
 [[nodiscard]]
 constexpr auto pltxt2plunity_introduction(::pltxt2htm::container::U8StringView pltext,
                                           ::pltxt2htm::container::U8StringView project,
                                           ::pltxt2htm::container::U8StringView visitor,
                                           ::pltxt2htm::container::U8StringView author,
                                           ::pltxt2htm::container::U8StringView coauthors) noexcept {
-    using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
-    parser_result_type ast{::pltxt2htm::parse_pltxt<ndebug>(pltext)};
+    using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast, ::pltxt2htm::Ast const>;
+    parser_result_type ast{::pltxt2htm::parse_pltxt(pltext)};
     if constexpr (optimize) {
-        ::pltxt2htm::optimize_ast<ndebug>(ast);
+        ::pltxt2htm::optimize_ast(ast);
     }
-    return ::pltxt2htm::details::plunity_text_backend<ndebug>(ast, project, visitor, author, coauthors);
+    return ::pltxt2htm::details::plunity_text_backend(ast, project, visitor, author, coauthors);
 }
 
 /**
@@ -108,8 +104,7 @@ constexpr auto pltxt2plunity_introduction(::pltxt2htm::container::U8StringView p
  *          - Simple text formatting needs
  *          - Header rendering where complex formatting isn't needed
  *          - Performance-critical applications that don't need full features
- * @tparam ndebug Contract checking mode. Use `::pltxt2htm::Contracts::quick_enforce` to enforce checks or
- * `::pltxt2htm::Contracts::ignore` to skip them.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @tparam optimize Whether to optimize the AST before HTML generation (default: false)
  * @param[in] pltext The Physics-Lab text content to convert
  * @return Generated HTML string with basic formatting support
@@ -118,15 +113,15 @@ constexpr auto pltxt2plunity_introduction(::pltxt2htm::container::U8StringView p
  * @note Markdown block syntax and block-level HTML tags render as literal text in this mode
  * @warning AST optimization is disabled by default for this function
  */
-template<::pltxt2htm::Contracts ndebug = ::pltxt2htm::Contracts::quick_enforce, bool optimize = false>
+template<bool optimize = false>
 [[nodiscard]]
 constexpr auto pltxt2common_html(::pltxt2htm::container::U8StringView pltext) noexcept {
-    using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast<ndebug>, ::pltxt2htm::Ast<ndebug> const>;
-    parser_result_type ast{::pltxt2htm::inline_parse_pltxt<ndebug>(pltext)};
+    using parser_result_type = ::std::conditional_t<optimize, ::pltxt2htm::Ast, ::pltxt2htm::Ast const>;
+    parser_result_type ast{::pltxt2htm::inline_parse_pltxt(pltext)};
     if constexpr (optimize) {
-        ::pltxt2htm::optimize_ast<ndebug>(ast);
+        ::pltxt2htm::optimize_ast(ast);
     }
-    return ::pltxt2htm::details::plweb_title_backend<ndebug>(ast);
+    return ::pltxt2htm::details::plweb_title_backend(ast);
 }
 
 } // namespace pltxt2htm

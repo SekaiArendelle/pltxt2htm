@@ -13,7 +13,6 @@
 
 using U8String = ::pltxt2htm::container::U8String;
 using U8StringView = ::pltxt2htm::container::U8StringView;
-using Contracts = ::pltxt2htm::Contracts;
 
 template<typename T>
 concept can_call_empty = requires(T const& value) { value.empty(); };
@@ -24,32 +23,23 @@ concept can_call_is_empty = requires(T const& value) { value.is_empty(); };
 static_assert(!can_call_empty<U8String>);
 static_assert(can_call_is_empty<U8String>);
 
-template<typename T>
-concept can_assign_view_without_contract = requires(T& string, U8StringView view) { string.assign(view); };
-
-template<typename T>
-concept can_assign_range_without_contract = requires(T& string, char8_t const* first) { string.assign(first, first); };
-
-static_assert(!can_assign_view_without_contract<U8String>);
-static_assert(!can_assign_range_without_contract<U8String>);
-
 [[nodiscard]]
 constexpr auto test_assign_growth_and_range() noexcept -> bool {
     U8String string{};
-    string.assign<Contracts::quick_enforce>(U8StringView{u8"abcdef"});
+    string.assign(U8StringView{u8"abcdef"});
     if (string != u8"abcdef" || string.c_str()[string.size()] != u8'\0') {
         return false;
     }
-    string.assign<Contracts::quick_enforce>(string.data() + 2, string.data() + 5);
+    string.assign(string.data() + 2, string.data() + 5);
     if (string != u8"cde" || string.c_str()[string.size()] != u8'\0') {
         return false;
     }
     constexpr char8_t source[]{u8"longer replacement"};
-    string.assign<Contracts::quick_enforce>(source, source + sizeof(source) / sizeof(char8_t) - 1);
+    string.assign(source, source + sizeof(source) / sizeof(char8_t) - 1);
     if (string != u8"longer replacement" || string.c_str()[string.size()] != u8'\0') {
         return false;
     }
-    string.assign<Contracts::quick_enforce>(source, source);
+    string.assign(source, source);
     return string.is_empty() && string.c_str()[0] == u8'\0';
 }
 
@@ -94,8 +84,8 @@ static_assert(::fast_io::context_scannable<char8_t, decltype(::fast_io::mnp::who
 consteval auto test_constexpr_string() noexcept -> bool {
     U8String empty_string;
     empty_string.clear();
-    empty_string.assign<Contracts::quick_enforce>(U8StringView{});
-    empty_string.assign_characters<Contracts::quick_enforce>(0);
+    empty_string.assign(U8StringView{});
+    empty_string.assign_characters(0);
     U8String moved_empty_string{::std::move(empty_string)};
     if (!empty_string.is_empty() || empty_string.c_str()[0] != u8'\0' || !moved_empty_string.is_empty() ||
         moved_empty_string.c_str()[0] != u8'\0') {
@@ -121,16 +111,16 @@ consteval auto test_constexpr_string() noexcept -> bool {
     }
 
     U8String string{u8"abc"};
-    string.push_back<Contracts::quick_enforce>(u8'd');
-    string.append<Contracts::quick_enforce>(u8"ef");
-    string.insert<Contracts::quick_enforce>(string.begin(), U8StringView{u8"0"});
+    string.push_back(u8'd');
+    string.append(u8"ef");
+    string.insert(string.begin(), U8StringView{u8"0"});
     if (string != u8"0abcdef" || string.size() != 7 || string.c_str()[string.size()] != u8'\0') {
         return false;
     }
 
     U8String unchecked_string{};
-    unchecked_string.push_back<Contracts::quick_enforce>(u8'a');
-    unchecked_string.append<Contracts::quick_enforce>(u8"bc");
+    unchecked_string.push_back(u8'a');
+    unchecked_string.append(u8"bc");
     if (unchecked_string != u8"abc") {
         return false;
     }
@@ -141,29 +131,28 @@ consteval auto test_constexpr_string() noexcept -> bool {
         return false;
     }
 
-    moved.pop_back<Contracts::quick_enforce>();
-    moved.assign<Contracts::quick_enforce>(U8StringView{u8"xy"});
-    if (moved != u8"xy" || moved.front<Contracts::quick_enforce>() != u8'x' ||
-        moved.back<Contracts::quick_enforce>() != u8'y') {
+    moved.pop_back();
+    moved.assign(U8StringView{u8"xy"});
+    if (moved != u8"xy" || moved.front() != u8'x' || moved.back() != u8'y') {
         return false;
     }
 
     U8String self_append{u8"abc"};
-    self_append.reserve<Contracts::quick_enforce>(16);
-    self_append.append<Contracts::quick_enforce>(U8StringView{self_append.data() + 1, 2});
+    self_append.reserve(16);
+    self_append.append(U8StringView{self_append.data() + 1, 2});
     if (self_append != u8"abcbc") {
         return false;
     }
 
     U8String self_assign{u8"abcdef"};
-    self_assign.assign<Contracts::quick_enforce>(U8StringView{self_assign.data() + 2, 3});
+    self_assign.assign(U8StringView{self_assign.data() + 2, 3});
     if (self_assign != u8"cde") {
         return false;
     }
 
     U8String self_insert{u8"abcdef"};
-    self_insert.reserve<Contracts::quick_enforce>(16);
-    self_insert.insert<Contracts::quick_enforce>(self_insert.begin() + 3, U8StringView{self_insert.data() + 1, 4});
+    self_insert.reserve(16);
+    self_insert.insert(self_insert.begin() + 3, U8StringView{self_insert.data() + 1, 4});
     return self_insert == u8"abcbcdedef";
 }
 
@@ -175,8 +164,8 @@ int main() {
     pltxt2htm_test_assert_true(empty_string.data() == ::fast_io::null_terminated_c_str_v<char8_t>);
     pltxt2htm_test_assert_true(empty_string.capacity() == 0);
     empty_string.clear();
-    empty_string.assign<Contracts::quick_enforce>(U8StringView{});
-    empty_string.assign_characters<Contracts::quick_enforce>(0);
+    empty_string.assign(U8StringView{});
+    empty_string.assign_characters(0);
     U8String moved_empty_string{::std::move(empty_string)};
     U8String assigned_empty_string{u8"not empty"};
     assigned_empty_string = ::std::move(moved_empty_string);
@@ -229,54 +218,53 @@ int main() {
 
     U8String self_append{u8"abc"};
     while (self_append.size() < self_append.capacity()) {
-        self_append.push_back<Contracts::quick_enforce>(u8'x');
+        self_append.push_back(u8'x');
     }
     ::std::size_t const append_old_size{self_append.size()};
-    self_append.append<Contracts::quick_enforce>(U8StringView{self_append.data(), 3});
+    self_append.append(U8StringView{self_append.data(), 3});
     pltxt2htm_test_assert_true(self_append.size() == append_old_size + 3);
-    pltxt2htm_test_assert_true(self_append.index<Contracts::quick_enforce>(append_old_size) == u8'a');
-    pltxt2htm_test_assert_true(self_append.index<Contracts::quick_enforce>(append_old_size + 1) == u8'b');
-    pltxt2htm_test_assert_true(self_append.index<Contracts::quick_enforce>(append_old_size + 2) == u8'c');
+    pltxt2htm_test_assert_true(self_append.index(append_old_size) == u8'a');
+    pltxt2htm_test_assert_true(self_append.index(append_old_size + 1) == u8'b');
+    pltxt2htm_test_assert_true(self_append.index(append_old_size + 2) == u8'c');
 
     U8String self_insert_after_source{u8"abcdef"};
-    self_insert_after_source.reserve<Contracts::quick_enforce>(16);
-    self_insert_after_source.insert<Contracts::quick_enforce>(self_insert_after_source.begin() + 4,
-                                                              U8StringView{self_insert_after_source.data() + 1, 2});
+    self_insert_after_source.reserve(16);
+    self_insert_after_source.insert(self_insert_after_source.begin() + 4,
+                                    U8StringView{self_insert_after_source.data() + 1, 2});
     pltxt2htm_test_assert_true(self_insert_after_source == u8"abcdbcef");
 
     U8String self_insert_before_source{u8"abcdef"};
-    self_insert_before_source.reserve<Contracts::quick_enforce>(16);
-    self_insert_before_source.insert<Contracts::quick_enforce>(self_insert_before_source.begin() + 1,
-                                                               U8StringView{self_insert_before_source.data() + 3, 2});
+    self_insert_before_source.reserve(16);
+    self_insert_before_source.insert(self_insert_before_source.begin() + 1,
+                                     U8StringView{self_insert_before_source.data() + 3, 2});
     pltxt2htm_test_assert_true(self_insert_before_source == u8"adebcdef");
 
     U8String self_insert_overlapping{u8"abcdef"};
-    self_insert_overlapping.reserve<Contracts::quick_enforce>(16);
-    self_insert_overlapping.insert<Contracts::quick_enforce>(self_insert_overlapping.begin() + 3,
-                                                             U8StringView{self_insert_overlapping.data() + 1, 4});
+    self_insert_overlapping.reserve(16);
+    self_insert_overlapping.insert(self_insert_overlapping.begin() + 3,
+                                   U8StringView{self_insert_overlapping.data() + 1, 4});
     pltxt2htm_test_assert_true(self_insert_overlapping == u8"abcbcdedef");
 
     U8String self_assign{u8"abcdef"};
-    self_assign.assign<Contracts::quick_enforce>(U8StringView{self_assign.data() + 2, 3});
+    self_assign.assign(U8StringView{self_assign.data() + 2, 3});
     pltxt2htm_test_assert_true(self_assign == u8"cde");
 
     U8String self_insert_reallocate{u8"abc"};
     while (self_insert_reallocate.size() < self_insert_reallocate.capacity()) {
-        self_insert_reallocate.push_back<Contracts::quick_enforce>(u8'x');
+        self_insert_reallocate.push_back(u8'x');
     }
     ::std::size_t const insert_old_size{self_insert_reallocate.size()};
-    self_insert_reallocate.insert<Contracts::quick_enforce>(self_insert_reallocate.begin() + 1,
-                                                            U8StringView{self_insert_reallocate.data(), 3});
+    self_insert_reallocate.insert(self_insert_reallocate.begin() + 1, U8StringView{self_insert_reallocate.data(), 3});
     pltxt2htm_test_assert_true(self_insert_reallocate.size() == insert_old_size + 3);
-    pltxt2htm_test_assert_true(self_insert_reallocate.index<Contracts::quick_enforce>(0) == u8'a');
-    pltxt2htm_test_assert_true(self_insert_reallocate.index<Contracts::quick_enforce>(1) == u8'a');
-    pltxt2htm_test_assert_true(self_insert_reallocate.index<Contracts::quick_enforce>(2) == u8'b');
-    pltxt2htm_test_assert_true(self_insert_reallocate.index<Contracts::quick_enforce>(3) == u8'c');
-    pltxt2htm_test_assert_true(self_insert_reallocate.index<Contracts::quick_enforce>(4) == u8'b');
-    pltxt2htm_test_assert_true(self_insert_reallocate.index<Contracts::quick_enforce>(5) == u8'c');
+    pltxt2htm_test_assert_true(self_insert_reallocate.index(0) == u8'a');
+    pltxt2htm_test_assert_true(self_insert_reallocate.index(1) == u8'a');
+    pltxt2htm_test_assert_true(self_insert_reallocate.index(2) == u8'b');
+    pltxt2htm_test_assert_true(self_insert_reallocate.index(3) == u8'c');
+    pltxt2htm_test_assert_true(self_insert_reallocate.index(4) == u8'b');
+    pltxt2htm_test_assert_true(self_insert_reallocate.index(5) == u8'c');
 
     U8String reserved{u8"reserve keeps contents"};
-    reserved.reserve<Contracts::quick_enforce>(reserved.capacity() + 1024);
+    reserved.reserve(reserved.capacity() + 1024);
     pltxt2htm_test_assert_true(reserved == u8"reserve keeps contents");
     pltxt2htm_test_assert_true(reserved.c_str()[reserved.size()] == u8'\0');
 

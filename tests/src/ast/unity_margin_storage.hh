@@ -6,15 +6,14 @@
 #include <pltxt2htm/container/array.hh>
 
 TEST_SUITE("unity_margin_storage") {
-    constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
     using Margin = ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>>;
 
     [[nodiscard]]
-    constexpr auto make_unity_margin(Margin left, Margin right) noexcept -> ::pltxt2htm::UnityMargin<ndebug> {
-        return ::pltxt2htm::UnityMargin<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(left), ::std::move(right)};
+    constexpr auto make_unity_margin(Margin left, Margin right) noexcept -> ::pltxt2htm::UnityMargin {
+        return ::pltxt2htm::UnityMargin{::pltxt2htm::Ast{}, ::std::move(left), ::std::move(right)};
     }
 
-    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::UnityMargin<ndebug>) == 48);
+    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::UnityMargin) == 48);
 
     TEST_CASE("absent margins") {
         auto const margin_node = make_unity_margin(::pltxt2htm::container::nullopt, ::pltxt2htm::container::nullopt);
@@ -30,8 +29,8 @@ TEST_SUITE("unity_margin_storage") {
         };
         for (auto const margin : margins) {
             auto const margin_node = make_unity_margin(Margin{margin}, Margin{margin});
-            CHECK(margin_node.get_left().template value<ndebug>() == margin);
-            CHECK(margin_node.get_right().template value<ndebug>() == margin);
+            CHECK(margin_node.get_left().value() == margin);
+            CHECK(margin_node.get_right().value() == margin);
         }
     }
 

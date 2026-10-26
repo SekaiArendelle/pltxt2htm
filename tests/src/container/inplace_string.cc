@@ -4,13 +4,13 @@
 #include <type_traits>
 #include <utility>
 
-#include <pltxt2htm/contracts.hh>
+#include <pltxt2htm/details/contracts.hh>
 #include <pltxt2htm/details/inplace_string.hh>
 
 #include "precompile.hh"
 
-using CheckedU8String4 = ::pltxt2htm::details::U8InplaceString<4, ::pltxt2htm::Contracts::quick_enforce>;
-using CheckedU8String8 = ::pltxt2htm::details::U8InplaceString<8, ::pltxt2htm::Contracts::quick_enforce>;
+using CheckedU8String4 = ::pltxt2htm::details::U8InplaceString<4>;
+using CheckedU8String8 = ::pltxt2htm::details::U8InplaceString<8>;
 
 struct PotentiallyThrowingIterator {
     using value_type = char8_t;
@@ -37,9 +37,8 @@ struct PotentiallyThrowingIterator {
 };
 
 template<typename CharType, ::std::size_t extent = 4>
-concept can_form_basic_inplace_string = requires {
-    typename ::pltxt2htm::details::BasicInplaceString<CharType, extent, ::pltxt2htm::Contracts::quick_enforce>;
-};
+concept can_form_basic_inplace_string =
+    requires { typename ::pltxt2htm::details::BasicInplaceString<CharType, extent>; };
 
 static_assert(can_form_basic_inplace_string<char>);
 static_assert(can_form_basic_inplace_string<wchar_t>);

@@ -10,7 +10,7 @@
 #include <utility>
 
 #include "../container/deque.hh"
-#include "../contracts.hh"
+#include "contracts.hh"
 #include "push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -18,9 +18,9 @@ namespace pltxt2htm::details {
 /**
  * @brief Manually managed call stack used by iterative parsers and AST traversals.
  * @tparam Frame Nothrow-movable activation-record type.
- * @tparam ndebug Contract checking mode for stack operations.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  */
-template<::pltxt2htm::Contracts ndebug, typename Frame>
+template<typename Frame>
     requires ::std::is_nothrow_move_constructible_v<Frame>
 class CallStack {
 public:
@@ -38,13 +38,13 @@ public:
     [[nodiscard]]
     constexpr auto current_frame(this CallStack& self) noexcept -> reference {
         pltxt2htm_assert(self.empty() == false, u8"Accessing current frame but CallStack is empty");
-        return self.frames.template back<ndebug>();
+        return self.frames.back();
     }
 
     [[nodiscard]]
     constexpr auto current_frame(this CallStack const& self) noexcept -> const_reference {
         pltxt2htm_assert(self.empty() == false, u8"Accessing current frame but CallStack is empty");
-        return self.frames.template back<ndebug>();
+        return self.frames.back();
     }
 
     [[nodiscard]]
@@ -68,19 +68,19 @@ public:
     }
 
     constexpr void push_frame(this CallStack& self, frame_type&& frame) noexcept {
-        self.frames.template push_back<ndebug>(::std::move(frame));
+        self.frames.push_back(::std::move(frame));
     }
 
     constexpr void discard_current_frame(this CallStack& self) noexcept {
         pltxt2htm_assert(self.empty() == false, u8"Popping current frame but CallStack is empty");
-        self.frames.template pop_back<ndebug>();
+        self.frames.pop_back();
     }
 
     [[nodiscard]]
     constexpr auto pop_frame(this CallStack& self) noexcept -> frame_type {
         pltxt2htm_assert(self.empty() == false, u8"Popping current frame but CallStack is empty");
-        frame_type frame{::std::move(self.frames.template back<ndebug>())};
-        self.frames.template pop_back<ndebug>();
+        frame_type frame{::std::move(self.frames.back())};
+        self.frames.pop_back();
         return frame;
     }
 

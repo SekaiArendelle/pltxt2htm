@@ -98,8 +98,8 @@ TEST_SUITE("html_img_tag") {
 
     TEST_CASE("alt-invalid-utf8-replaced") {
         auto pltext = ::pltxt2htm::container::U8String{u8"<img src=\"https://example.com/image.png\" alt=\""};
-        pltext.push_back<::pltxt2htm::Contracts::quick_enforce>(char8_t{0x80});
-        pltext.append<::pltxt2htm::Contracts::quick_enforce>(u8"\">");
+        pltext.push_back(char8_t{0x80});
+        pltext.append(u8"\">");
         auto html =
             ::pltxt2htm_test::pltxt2fixedadv_htmld(::pltxt2htm::container::U8StringView{pltext.data(), pltext.size()});
         auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"�\">";

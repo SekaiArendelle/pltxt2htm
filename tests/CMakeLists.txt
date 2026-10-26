@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm-tests LANGUAGES CXX VERSION 0.27.0)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htm_contract_mode.cmake")
 
 enable_testing()
 
@@ -93,6 +94,7 @@ add_library(pltxt2htm_base INTERFACE)
 target_include_directories(pltxt2htm_base INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}/../include"
     "${CMAKE_CURRENT_SOURCE_DIR}")
+pltxt2htm_apply_contract_mode(pltxt2htm_base INTERFACE ENFORCE)
 
 if(PLTXT2HTM_USE_STACKTRACE)
     target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_ENABLE_STACKTRACE)

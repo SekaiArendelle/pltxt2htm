@@ -26,31 +26,6 @@ static_assert(can_call_is_empty<IntVector>);
 static_assert(!can_subscript<IntVector>);
 static_assert(!can_subscript<IntVector const>);
 
-template<typename T>
-concept can_reserve_without_contract = requires(T& values) { values.reserve(1); };
-
-static_assert(!can_reserve_without_contract<IntVector>);
-
-template<typename T>
-concept can_emplace_back_without_contract = requires(T& values) { values.emplace_back(1); };
-
-static_assert(!can_emplace_back_without_contract<IntVector>);
-
-template<typename T>
-concept can_push_back_without_contract = requires(T& values) { values.push_back(1); };
-
-static_assert(!can_push_back_without_contract<IntVector>);
-
-template<typename T>
-concept can_pop_back_without_contract = requires(T& values) { values.pop_back(); };
-
-static_assert(!can_pop_back_without_contract<IntVector>);
-
-template<typename T>
-concept can_append_range_without_contract = requires(T& values) { values.append_range(values); };
-
-static_assert(!can_append_range_without_contract<IntVector>);
-
 class TrackingRawAllocator {
     static inline constexpr ::std::size_t slot_count{4};
     static inline constexpr ::std::size_t additional_bytes{3 * sizeof(int)};
@@ -418,19 +393,14 @@ struct ThrowingMoveAssignment {
 };
 
 template<typename T>
-concept ReservableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) {
-    values.template reserve<::pltxt2htm::Contracts::quick_enforce>(1);
-};
+concept ReservableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.reserve(1); };
 
 template<typename T>
-concept IntEmplaceableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) {
-    values.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(1);
-};
+concept IntEmplaceableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.emplace_back(1); };
 
 template<typename T>
-concept CopyPushableVectorElement = requires(::pltxt2htm::container::Vector<T>& values, T const& value) {
-    values.template push_back<::pltxt2htm::Contracts::quick_enforce>(value);
-};
+concept CopyPushableVectorElement =
+    requires(::pltxt2htm::container::Vector<T>& values, T const& value) { values.push_back(value); };
 
 template<typename T>
 concept ErasableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.erase(values.begin()); };
@@ -440,9 +410,7 @@ concept EqualityComparableVectorElement = requires(::pltxt2htm::container::Vecto
                                                    ::pltxt2htm::container::Vector<T> const& right) { left == right; };
 
 template<typename R>
-concept AppendableIntRange = requires(IntVector& values, R&& range) {
-    values.template append_range<::pltxt2htm::Contracts::quick_enforce>(::std::forward<R>(range));
-};
+concept AppendableIntRange = requires(IntVector& values, R&& range) { values.append_range(::std::forward<R>(range)); };
 
 static_assert(::std::same_as<IntVector::allocator_type, ::fast_io::native_global_allocator>);
 static_assert(::std::same_as<IntVector::value_type, int>);
@@ -461,13 +429,11 @@ static_assert(!ErasableVectorElement<ThrowingMoveAssignment>);
 static_assert(!EqualityComparableVectorElement<ThrowingEquality>);
 static_assert(!EqualityComparableVectorElement<ThrowingBooleanEquality>);
 static_assert(!AppendableIntRange<ThrowingIncrementRange&>);
-static_assert(noexcept(::std::declval<IntVector&>().template reserve<::pltxt2htm::Contracts::quick_enforce>(1)));
-static_assert(noexcept(::std::declval<IntVector&>().template emplace_back<::pltxt2htm::Contracts::quick_enforce>(1)));
+static_assert(noexcept(::std::declval<IntVector&>().reserve(1)));
+static_assert(noexcept(::std::declval<IntVector&>().emplace_back(1)));
 static_assert(noexcept(::std::declval<IntVector&>().erase(::std::declval<IntVector::const_iterator>())));
-static_assert(noexcept(::std::declval<IntVector&>().template append_range<::pltxt2htm::Contracts::quick_enforce>(
-    ::std::declval<SinglePassIntRange&>())));
-static_assert(noexcept(::std::declval<IntVector&>().template append_range<::pltxt2htm::Contracts::quick_enforce>(
-    ::std::declval<CvSensitiveForwardRange&>())));
+static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<SinglePassIntRange&>())));
+static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<CvSensitiveForwardRange&>())));
 static_assert(noexcept(::std::declval<IntVector const&>() == ::std::declval<IntVector const&>()));
 
 consteval auto test_constexpr_vector() -> bool {
@@ -479,17 +445,15 @@ consteval auto test_constexpr_vector() -> bool {
         return false;
     }
 
-    values.template push_back<::pltxt2htm::Contracts::quick_enforce>(1);
-    values.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(2);
-    values.template reserve<::pltxt2htm::Contracts::quick_enforce>(8);
-    if (values.size() != 2 || values.capacity() < 8 ||
-        values.template front<::pltxt2htm::Contracts::quick_enforce>() != 1 ||
-        values.template index<::pltxt2htm::Contracts::quick_enforce>(1) != 2) {
+    values.push_back(1);
+    values.emplace_back(2);
+    values.reserve(8);
+    if (values.size() != 2 || values.capacity() < 8 || values.front() != 1 || values.index(1) != 2) {
         return false;
     }
 
     IntVector suffix{3, 4};
-    values.template append_range<::pltxt2htm::Contracts::quick_enforce>(::std::move(suffix));
+    values.append_range(::std::move(suffix));
     if (values != IntVector{1, 2, 3, 4}) {
         return false;
     }
@@ -497,7 +461,7 @@ consteval auto test_constexpr_vector() -> bool {
     int const sized_values[]{5, 6};
     auto sized_range = NonConstexprSizedForwardRange{sized_values, sized_values + ::std::size(sized_values)};
     IntVector sized_result{};
-    sized_result.template append_range<::pltxt2htm::Contracts::quick_enforce>(sized_range);
+    sized_result.append_range(sized_range);
     if (sized_result != IntVector{5, 6}) {
         return false;
     }
@@ -512,39 +476,36 @@ consteval auto test_constexpr_vector() -> bool {
         return false;
     }
     IntVector copy{values};
-    copy.template index<::pltxt2htm::Contracts::quick_enforce>(0) = 9;
+    copy.index(0) = 9;
     if (values != IntVector{1} || copy != IntVector{9}) {
         return false;
     }
 
     IntVector self_reference{};
-    self_reference.template reserve<::pltxt2htm::Contracts::quick_enforce>(1);
-    self_reference.template push_back<::pltxt2htm::Contracts::quick_enforce>(7);
+    self_reference.reserve(1);
+    self_reference.push_back(7);
     while (self_reference.size() != self_reference.capacity()) {
-        self_reference.template push_back<::pltxt2htm::Contracts::quick_enforce>(0);
+        self_reference.push_back(0);
     }
     auto const previous_size = self_reference.size();
-    self_reference.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(
-        self_reference.template front<::pltxt2htm::Contracts::quick_enforce>());
-    if (self_reference.size() != previous_size + 1 ||
-        self_reference.template index<::pltxt2htm::Contracts::quick_enforce>(previous_size) != 7) {
+    self_reference.emplace_back(self_reference.front());
+    if (self_reference.size() != previous_size + 1 || self_reference.index(previous_size) != 7) {
         return false;
     }
 
     IntVector self_append{};
-    self_append.template reserve<::pltxt2htm::Contracts::quick_enforce>(1);
-    self_append.template push_back<::pltxt2htm::Contracts::quick_enforce>(1);
+    self_append.reserve(1);
+    self_append.push_back(1);
     while (self_append.size() != self_append.capacity()) {
-        self_append.template push_back<::pltxt2htm::Contracts::quick_enforce>(static_cast<int>(self_append.size() + 1));
+        self_append.push_back(static_cast<int>(self_append.size() + 1));
     }
     auto const self_append_size = self_append.size();
-    self_append.template append_range<::pltxt2htm::Contracts::quick_enforce>(self_append);
+    self_append.append_range(self_append);
     if (self_append.size() != self_append_size * 2) {
         return false;
     }
     for (::std::size_t index{}; index < self_append_size; ++index) {
-        if (self_append.template index<::pltxt2htm::Contracts::quick_enforce>(index) !=
-            self_append.template index<::pltxt2htm::Contracts::quick_enforce>(self_append_size + index)) {
+        if (self_append.index(index) != self_append.index(self_append_size + index)) {
             return false;
         }
     }
@@ -557,7 +518,7 @@ int main() {
     TrackingRawAllocator::reset();
     {
         TrackingIntVector tracked{};
-        tracked.template push_back<::pltxt2htm::Contracts::quick_enforce>(1);
+        tracked.push_back(1);
         pltxt2htm_test_assert_true(TrackingRawAllocator::get_last_requested_bytes() == sizeof(int) * 2);
     }
     pltxt2htm_test_assert_true(!TrackingRawAllocator::has_deallocation_mismatch());
@@ -565,10 +526,10 @@ int main() {
     TrackingRawAllocator::reset();
     {
         TrackingIntVector tracked{};
-        tracked.template reserve<::pltxt2htm::Contracts::quick_enforce>(2);
+        tracked.reserve(2);
         pltxt2htm_test_assert_true(tracked.capacity() == 5);
-        tracked.template push_back<::pltxt2htm::Contracts::quick_enforce>(1);
-        tracked.template reserve<::pltxt2htm::Contracts::quick_enforce>(8);
+        tracked.push_back(1);
+        tracked.reserve(8);
         pltxt2htm_test_assert_true(tracked.size() == 1);
         pltxt2htm_test_assert_true(tracked.capacity() == 11);
         pltxt2htm_test_assert_true(TrackingRawAllocator::get_active_allocations() == 1);
@@ -589,7 +550,7 @@ int main() {
     IntVector original{1, 2, 3};
     IntVector copy{};
     copy = original;
-    copy.template index<::pltxt2htm::Contracts::quick_enforce>(0) = 4;
+    copy.index(0) = 4;
     pltxt2htm_test_assert_true(original == IntVector{1, 2, 3});
     pltxt2htm_test_assert_true(copy == IntVector{4, 2, 3});
 
@@ -597,21 +558,21 @@ int main() {
     moved = ::std::move(copy);
     pltxt2htm_test_assert_true(copy.is_empty());
     pltxt2htm_test_assert_true(moved == IntVector{4, 2, 3});
-    moved.template pop_back<::pltxt2htm::Contracts::quick_enforce>();
+    moved.pop_back();
     moved.clear();
     pltxt2htm_test_assert_true(moved.is_empty());
 
     int const single_pass_values[]{6, 7};
     auto single_pass_range = SinglePassIntRange{single_pass_values, single_pass_values + 2};
     IntVector single_pass_result{};
-    single_pass_result.template append_range<::pltxt2htm::Contracts::quick_enforce>(single_pass_range);
+    single_pass_result.append_range(single_pass_range);
     pltxt2htm_test_assert_true(single_pass_result == IntVector{6, 7});
 
     int const cv_sensitive_values[]{8, 9};
     auto cv_sensitive_range =
         CvSensitiveForwardRange{cv_sensitive_values, cv_sensitive_values + ::std::size(cv_sensitive_values)};
     IntVector cv_sensitive_result{};
-    cv_sensitive_result.template append_range<::pltxt2htm::Contracts::quick_enforce>(cv_sensitive_range);
+    cv_sensitive_result.append_range(cv_sensitive_range);
     pltxt2htm_test_assert_true(cv_sensitive_result == IntVector{8, 9});
 
     ::std::size_t sized_begin_call_count{};
@@ -621,62 +582,54 @@ int main() {
                                                      ::std::addressof(sized_begin_call_count),
                                                      ::std::addressof(sized_size_call_count)};
     IntVector sized_result{};
-    sized_result.template append_range<::pltxt2htm::Contracts::quick_enforce>(sized_range);
+    sized_result.append_range(sized_range);
     pltxt2htm_test_assert_true(sized_result == IntVector{10, 11});
     pltxt2htm_test_assert_true(sized_begin_call_count == 1);
     pltxt2htm_test_assert_true(sized_size_call_count == 1);
 
     ::pltxt2htm::container::Vector<ConstructionTrace> direct_construction{};
-    direct_construction.template reserve<::pltxt2htm::Contracts::quick_enforce>(1);
+    direct_construction.reserve(1);
     while (direct_construction.size() != direct_construction.capacity()) {
-        direct_construction.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(1);
+        direct_construction.emplace_back(1);
     }
     auto const direct_construction_size = direct_construction.size();
-    direct_construction.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(2);
-    pltxt2htm_test_assert_true(
-        direct_construction.template index<::pltxt2htm::Contracts::quick_enforce>(direct_construction_size)
-            .get_construction_kind() == 1);
+    direct_construction.emplace_back(2);
+    pltxt2htm_test_assert_true(direct_construction.index(direct_construction_size).get_construction_kind() == 1);
 
     ::pltxt2htm::container::Vector<ConstructionTrace> copy_source{};
-    copy_source.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(3);
+    copy_source.emplace_back(3);
     ::pltxt2htm::container::Vector<ConstructionTrace> copied_range{};
-    copied_range.template append_range<::pltxt2htm::Contracts::quick_enforce>(copy_source);
-    pltxt2htm_test_assert_true(
-        copied_range.template front<::pltxt2htm::Contracts::quick_enforce>().get_construction_kind() == 2);
+    copied_range.append_range(copy_source);
+    pltxt2htm_test_assert_true(copied_range.front().get_construction_kind() == 2);
 
     ::pltxt2htm::container::Vector<ConstructionTrace> move_source{};
-    move_source.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(4);
+    move_source.emplace_back(4);
     ::pltxt2htm::container::Vector<ConstructionTrace> moved_range{};
-    moved_range.template append_range<::pltxt2htm::Contracts::quick_enforce>(
-        ::std::span<ConstructionTrace>{move_source.data(), move_source.size()});
-    pltxt2htm_test_assert_true(
-        moved_range.template front<::pltxt2htm::Contracts::quick_enforce>().get_construction_kind() == 3);
+    moved_range.append_range(::std::span<ConstructionTrace>{move_source.data(), move_source.size()});
+    pltxt2htm_test_assert_true(moved_range.front().get_construction_kind() == 3);
 
     ::pltxt2htm::container::Vector<ConstructionTrace> self_move{};
-    self_move.template reserve<::pltxt2htm::Contracts::quick_enforce>(1);
-    self_move.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(5);
+    self_move.reserve(1);
+    self_move.emplace_back(5);
     while (self_move.size() != self_move.capacity()) {
-        self_move.template emplace_back<::pltxt2htm::Contracts::quick_enforce>(0);
+        self_move.emplace_back(0);
     }
     auto const self_move_size = self_move.size();
-    self_move.template push_back<::pltxt2htm::Contracts::quick_enforce>(
-        ::std::move(self_move.template front<::pltxt2htm::Contracts::quick_enforce>()));
-    pltxt2htm_test_assert_true(
-        self_move.template index<::pltxt2htm::Contracts::quick_enforce>(self_move_size).get_payload() == 5);
+    self_move.push_back(::std::move(self_move.front()));
+    pltxt2htm_test_assert_true(self_move.index(self_move_size).get_payload() == 5);
 
     IntVector overlap{};
-    overlap.template reserve<::pltxt2htm::Contracts::quick_enforce>(1);
-    overlap.template push_back<::pltxt2htm::Contracts::quick_enforce>(1);
+    overlap.reserve(1);
+    overlap.push_back(1);
     while (overlap.size() != overlap.capacity()) {
-        overlap.template push_back<::pltxt2htm::Contracts::quick_enforce>(static_cast<int>(overlap.size() + 1));
+        overlap.push_back(static_cast<int>(overlap.size() + 1));
     }
     auto const overlap_size = overlap.size();
     auto const overlap_source = ::std::span<int const>{overlap.data(), overlap_size};
-    overlap.template append_range<::pltxt2htm::Contracts::quick_enforce>(overlap_source);
+    overlap.append_range(overlap_source);
     pltxt2htm_test_assert_true(overlap.size() == overlap_size * 2);
     for (::std::size_t index{}; index < overlap_size; ++index) {
-        pltxt2htm_test_assert_true(overlap.template index<::pltxt2htm::Contracts::quick_enforce>(index) ==
-                                   overlap.template index<::pltxt2htm::Contracts::quick_enforce>(overlap_size + index));
+        pltxt2htm_test_assert_true(overlap.index(index) == overlap.index(overlap_size + index));
     }
 
     return 0;

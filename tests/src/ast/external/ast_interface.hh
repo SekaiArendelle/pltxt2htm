@@ -5,14 +5,14 @@
 #include <pltxt2htm/ast/ast.hh>
 
 TEST_SUITE("ast_interface") {
-    using Contracts = ::pltxt2htm::Contracts;
-    using Node = ::pltxt2htm::PlTxtNode<Contracts::quick_enforce>;
-    using Ast = ::pltxt2htm::Ast<Contracts::quick_enforce>;
+    using Node = ::pltxt2htm::PlTxtNode;
+    using Ast = ::pltxt2htm::Ast;
+    using AstBearingNode = ::pltxt2htm::Group;
     using BackingVector = ::pltxt2htm::container::Vector<Node>;
 
     [[nodiscard]]
     constexpr auto text_node(char8_t const code_unit) noexcept -> Node {
-        return Node::template emplace<::pltxt2htm::Text<Contracts::quick_enforce>>(code_unit);
+        return Node::template emplace<::pltxt2htm::Text>(code_unit);
     }
 
     // Ast wraps the backing vector without adding storage, and mirrors its types and value semantics.
@@ -21,6 +21,8 @@ TEST_SUITE("ast_interface") {
     static_assert(::std::is_nothrow_move_assignable_v<Ast>);
     static_assert(::std::is_nothrow_copy_constructible_v<Ast>);
     static_assert(::std::is_nothrow_copy_assignable_v<Ast>);
+    static_assert(::std::is_nothrow_copy_constructible_v<AstBearingNode>);
+    static_assert(::std::is_nothrow_copy_assignable_v<AstBearingNode>);
     static_assert(::std::is_nothrow_destructible_v<Ast>);
     static_assert(::std::is_same_v<Ast::allocator_type, BackingVector::allocator_type>);
     static_assert(::std::is_same_v<Ast::value_type, Node>);

@@ -13,7 +13,7 @@
 #include "../../container/string_view.hh"
 #include "../../container/optional.hh"
 #include "../utils.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../../ast/node_kind.hh"
 #include "table_ast.hh"
 #include "../push_macro.hh"
@@ -36,11 +36,10 @@ struct TryParseMdTableRowResult {
  * content rather than a column boundary.  Leading/trailing whitespace
  * is trimmed from each cell.
  *
- * @tparam ndebug Contract checking mode
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param line A single table-row line (e.g. `"| a | b | c |"`)
  * @return a vector of cell strings on success, nullopt if the line is not a valid table row
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::Optional<TryParseMdTableRowResult> {
@@ -51,13 +50,13 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
     ::std::size_t current_index{};
     // skip leading spaces
     for (; current_index < pltext_size; ++current_index) {
-        auto const chr = pltext.template index<ndebug>(current_index);
+        auto const chr = pltext.index(current_index);
         if (chr != u8' ' && chr != u8'\t') {
             break;
         }
     }
     // must start with |
-    if (current_index >= pltext_size || pltext.template index<ndebug>(current_index) != u8'|') {
+    if (current_index >= pltext_size || pltext.index(current_index) != u8'|') {
         return ::pltxt2htm::container::nullopt;
     }
     ++current_index; // skip the first |
@@ -67,7 +66,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
     while (current_index < pltext_size) {
         // skip spaces before cell content
         for (; current_index < pltext_size; ++current_index) {
-            auto const chr = pltext.template index<ndebug>(current_index);
+            auto const chr = pltext.index(current_index);
             if (chr != u8' ' && chr != u8'\t') {
                 break;
             }
@@ -76,7 +75,7 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
             break;
         }
         // end of row at \n
-        if (pltext.template index<ndebug>(current_index) == u8'\n') {
+        if (pltext.index(current_index) == u8'\n') {
             ++current_index;
             break;
         }
@@ -85,10 +84,10 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
         ::pltxt2htm::container::U8String cell{};
         bool prev_was_backslash{};
         for (; current_index < pltext_size; ++current_index) {
-            auto chr = pltext.template index<ndebug>(current_index);
+            auto chr = pltext.index(current_index);
             if (chr == u8'|') {
                 if (prev_was_backslash) {
-                    cell.template pop_back<ndebug>(); // remove the escape backslash
+                    cell.pop_back(); // remove the escape backslash
                     prev_was_backslash = false;
                     chr = u8'|';
                 }
@@ -99,15 +98,15 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
             if (chr == u8'\n') {
                 break;
             }
-            cell.push_back<ndebug>(chr);
+            cell.push_back(chr);
             prev_was_backslash = (chr == u8'\\') ? !prev_was_backslash : false;
         }
         // trim trailing spaces from cell
-        while (!cell.is_empty() && (cell.template back<ndebug>() == u8' ' || cell.template back<ndebug>() == u8'\t')) {
-            cell.template pop_back<ndebug>();
+        while (!cell.is_empty() && (cell.back() == u8' ' || cell.back() == u8'\t')) {
+            cell.pop_back();
         }
-        row.template push_back<ndebug>(::std::move(cell));
-        if (current_index < pltext_size && pltext.template index<ndebug>(current_index) == u8'|') {
+        row.push_back(::std::move(cell));
+        if (current_index < pltext_size && pltext.index(current_index) == u8'|') {
             has_trailing_pipe = true;
             ++current_index; // skip |
         }
@@ -130,11 +129,10 @@ constexpr auto try_parse_md_table_row(::pltxt2htm::container::U8StringView pltex
  *
  * A valid cell matches `:? -+ :?`.
  *
- * @tparam ndebug Contract checking mode
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param cell The delimiter cell text (e.g. `":---:"`)
  * @return The parsed alignment, or nullopt if the cell is invalid.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_table_align(::pltxt2htm::container::U8StringView cell) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::TableAlign> {
@@ -145,13 +143,13 @@ constexpr auto try_parse_table_align(::pltxt2htm::container::U8StringView cell) 
     ::std::size_t const cell_size{cell.size()};
     ::std::size_t current_index{};
     bool left{};
-    if (cell.template index<ndebug>(current_index) == u8':') {
+    if (cell.index(current_index) == u8':') {
         left = true;
         ++current_index;
     }
 
     bool has_dash{};
-    while (current_index < cell_size && cell.template index<ndebug>(current_index) == u8'-') {
+    while (current_index < cell_size && cell.index(current_index) == u8'-') {
         has_dash = true;
         ++current_index;
     }
@@ -160,7 +158,7 @@ constexpr auto try_parse_table_align(::pltxt2htm::container::U8StringView cell) 
     }
 
     bool right{};
-    if (current_index < cell_size && cell.template index<ndebug>(current_index) == u8':') {
+    if (current_index < cell_size && cell.index(current_index) == u8':') {
         right = true;
         ++current_index;
     }
@@ -179,11 +177,10 @@ constexpr auto try_parse_table_align(::pltxt2htm::container::U8StringView cell) 
 
 /**
  * @brief Result of try_parse_md_table_raw: raw AST and consumed character count.
- * @tparam ndebug Contract checking mode
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  */
-template<::pltxt2htm::Contracts ndebug>
 struct TryParseMdTableRawResult {
-    TableAstRaw<ndebug> raw_ast; ///< parsed table AST
+    TableAstRaw raw_ast; ///< parsed table AST
     ::std::size_t advance_count; ///< number of characters consumed from input
 };
 
@@ -195,48 +192,47 @@ struct TryParseMdTableRawResult {
  * exactly that many cells (strict enforcement).  Returns nullopt if
  * the input is not a valid table.
  *
- * @tparam ndebug Contract checking mode
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param pltext The pl-text input starting at the table
  * @return TryParseMdTableRawResult on success, nullopt if parsing fails
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltext) noexcept
-    -> ::pltxt2htm::container::Optional<TryParseMdTableRawResult<ndebug>> {
+    -> ::pltxt2htm::container::Optional<TryParseMdTableRawResult> {
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t current_index{};
 
     // parse header row
-    auto header_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(pltext);
+    auto header_opt = ::pltxt2htm::details::try_parse_md_table_row(pltext);
     if (header_opt.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto&& [header_row, header_forward] = header_opt.template value<ndebug>();
+    auto&& [header_row, header_forward] = header_opt.value();
     current_index += header_forward;
     ::std::size_t const num_cols{header_row.size()};
 
     // parse delimiter line (second line) & extract alignment in one pass
-    auto delim_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(
+    auto delim_opt = ::pltxt2htm::details::try_parse_md_table_row(
         ::pltxt2htm::container::U8StringView{pltext.data() + current_index, pltext_size - current_index});
     if (delim_opt.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto&& [delim_row, delim_forward] = delim_opt.template value<ndebug>();
+    auto&& [delim_row, delim_forward] = delim_opt.value();
     current_index += delim_forward;
     ::pltxt2htm::container::Vector<::pltxt2htm::TableAlign> aligns{};
     bool has_delimiter_content{};
     for (auto const& cell : delim_row) {
         auto const cell_view = ::pltxt2htm::container::U8StringView{cell};
         if (cell_view.is_empty()) {
-            aligns.template push_back<ndebug>(::pltxt2htm::TableAlign::left);
+            aligns.push_back(::pltxt2htm::TableAlign::left);
             continue;
         }
-        auto opt_align = ::pltxt2htm::details::try_parse_table_align<ndebug>(cell_view);
+        auto opt_align = ::pltxt2htm::details::try_parse_table_align(cell_view);
         if (opt_align.has_value() == false) {
             return ::pltxt2htm::container::nullopt;
         }
         has_delimiter_content = true;
-        aligns.template push_back<ndebug>(opt_align.template value<ndebug>());
+        aligns.push_back(opt_align.value());
     }
     if (has_delimiter_content == false) {
         return ::pltxt2htm::container::nullopt;
@@ -248,12 +244,12 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
     }
 
     // build raw header row (section=thead, cells marked as headers)
-    TableAstRaw<ndebug> raw_ast{};
+    TableAstRaw raw_ast{};
     TableRowRaw header_row_raw{.cells = {}, .section = TableRowSection::thead};
     for (::std::size_t col{}; col < num_cols; ++col) {
-        auto const align_val = aligns.template index<ndebug>(col);
-        header_row_raw.cells.template push_back<ndebug>(TableCellRaw{
-            .text = ::std::move(header_row.template index<ndebug>(col)),
+        auto const align_val = aligns.index(col);
+        header_row_raw.cells.push_back(TableCellRaw{
+            .text = ::std::move(header_row.index(col)),
             .align = align_val,
             .is_header = true,
         });
@@ -262,12 +258,12 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
 
     // parse data rows
     while (true) {
-        auto row_opt = ::pltxt2htm::details::try_parse_md_table_row<ndebug>(
+        auto row_opt = ::pltxt2htm::details::try_parse_md_table_row(
             ::pltxt2htm::container::U8StringView{pltext.data() + current_index, pltext_size - current_index});
         if (row_opt.has_value() == false) {
             break;
         }
-        auto&& [row, forward] = row_opt.template value<ndebug>();
+        auto&& [row, forward] = row_opt.value();
         current_index += forward;
 
         // each body row must have exactly num_cols cells
@@ -276,9 +272,9 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
         }
         TableRowRaw body_row_raw{.cells = {}, .section = TableRowSection::tbody};
         for (::std::size_t col{}; col < num_cols; ++col) {
-            auto const align_val = aligns.template index<ndebug>(col);
-            body_row_raw.cells.template push_back<ndebug>(TableCellRaw{
-                .text = ::std::move(row.template index<ndebug>(col)),
+            auto const align_val = aligns.index(col);
+            body_row_raw.cells.push_back(TableCellRaw{
+                .text = ::std::move(row.index(col)),
                 .align = align_val,
                 .is_header = false,
             });
@@ -286,7 +282,7 @@ constexpr auto try_parse_md_table_raw(::pltxt2htm::container::U8StringView pltex
         raw_ast.add_row(::std::move(body_row_raw));
     }
 
-    return TryParseMdTableRawResult<ndebug>{.raw_ast = ::std::move(raw_ast), .advance_count = current_index};
+    return TryParseMdTableRawResult{.raw_ast = ::std::move(raw_ast), .advance_count = current_index};
 }
 
 } // namespace pltxt2htm::details
