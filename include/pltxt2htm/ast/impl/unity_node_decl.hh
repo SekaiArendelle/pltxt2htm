@@ -28,10 +28,18 @@ class UnityColor {
 
 public:
     constexpr UnityColor(::pltxt2htm::Ast&& subast_, ::pltxt2htm::container::U8String&& color_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr UnityColor(::pltxt2htm::UnityColor const&) noexcept = delete;
+#else
     constexpr UnityColor(::pltxt2htm::UnityColor const&) noexcept = default;
+#endif
     constexpr UnityColor(::pltxt2htm::UnityColor&&) noexcept;
     constexpr ~UnityColor() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityColor const&) noexcept -> ::pltxt2htm::UnityColor& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::UnityColor const&) noexcept -> ::pltxt2htm::UnityColor& = delete;
+#else
+    constexpr auto operator=(this UnityColor& self, ::pltxt2htm::UnityColor const&) noexcept -> ::pltxt2htm::UnityColor& = default;
+#endif
     constexpr auto operator=(this UnityColor& self, ::pltxt2htm::UnityColor&&) noexcept -> ::pltxt2htm::UnityColor&;
 
     [[nodiscard]]
@@ -58,10 +66,18 @@ class UnityLink {
 
 public:
     constexpr UnityLink(::pltxt2htm::Ast&& subast_, ::pltxt2htm::Url&& url_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr UnityLink(::pltxt2htm::UnityLink const&) noexcept = delete;
+#else
     constexpr UnityLink(::pltxt2htm::UnityLink const&) noexcept = default;
+#endif
     constexpr UnityLink(::pltxt2htm::UnityLink&&) noexcept;
     constexpr ~UnityLink() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityLink const&) noexcept -> ::pltxt2htm::UnityLink& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::UnityLink const&) noexcept -> ::pltxt2htm::UnityLink& = delete;
+#else
+    constexpr auto operator=(this UnityLink& self, ::pltxt2htm::UnityLink const&) noexcept -> ::pltxt2htm::UnityLink& = default;
+#endif
     constexpr auto operator=(this UnityLink& self, ::pltxt2htm::UnityLink&&) noexcept -> ::pltxt2htm::UnityLink&;
 
     [[nodiscard]]
@@ -89,10 +105,18 @@ class UnitySize {
 
 public:
     constexpr UnitySize(::pltxt2htm::Ast&& subast_, ::pltxt2htm::ValueWithUnit<double> font_size_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr UnitySize(::pltxt2htm::UnitySize const&) noexcept = delete;
+#else
     constexpr UnitySize(::pltxt2htm::UnitySize const&) noexcept = default;
+#endif
     constexpr UnitySize(::pltxt2htm::UnitySize&&) noexcept;
     constexpr ~UnitySize() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnitySize const&) noexcept -> ::pltxt2htm::UnitySize& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::UnitySize const&) noexcept -> ::pltxt2htm::UnitySize& = delete;
+#else
+    constexpr auto operator=(this UnitySize& self, ::pltxt2htm::UnitySize const&) noexcept -> ::pltxt2htm::UnitySize& = default;
+#endif
     constexpr auto operator=(this UnitySize& self, ::pltxt2htm::UnitySize&&) noexcept -> ::pltxt2htm::UnitySize&;
 
     [[nodiscard]]
@@ -131,10 +155,18 @@ class UnityVoffset {
 
 public:
     constexpr UnityVoffset(::pltxt2htm::Ast&& subast_, ::pltxt2htm::ValueWithUnit<::std::ptrdiff_t> value_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr UnityVoffset(::pltxt2htm::UnityVoffset const&) noexcept = delete;
+#else
     constexpr UnityVoffset(::pltxt2htm::UnityVoffset const&) noexcept = default;
+#endif
     constexpr UnityVoffset(::pltxt2htm::UnityVoffset&&) noexcept;
     constexpr ~UnityVoffset() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityVoffset const&) noexcept -> ::pltxt2htm::UnityVoffset& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::UnityVoffset const&) noexcept -> ::pltxt2htm::UnityVoffset& = delete;
+#else
+    constexpr auto operator=(this UnityVoffset& self, ::pltxt2htm::UnityVoffset const&) noexcept -> ::pltxt2htm::UnityVoffset& = default;
+#endif
     constexpr auto operator=(this UnityVoffset& self, ::pltxt2htm::UnityVoffset&&) noexcept
         -> ::pltxt2htm::UnityVoffset&;
 
@@ -163,10 +195,18 @@ class UnityAlign {
 
 public:
     constexpr UnityAlign(::pltxt2htm::Ast&& subast_, ::pltxt2htm::TextAlign align_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr UnityAlign(::pltxt2htm::UnityAlign const&) noexcept = delete;
+#else
     constexpr UnityAlign(::pltxt2htm::UnityAlign const&) noexcept = default;
+#endif
     constexpr UnityAlign(::pltxt2htm::UnityAlign&&) noexcept;
     constexpr ~UnityAlign() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityAlign const&) noexcept -> ::pltxt2htm::UnityAlign& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::UnityAlign const&) noexcept -> ::pltxt2htm::UnityAlign& = delete;
+#else
+    constexpr auto operator=(this UnityAlign& self, ::pltxt2htm::UnityAlign const&) noexcept -> ::pltxt2htm::UnityAlign& = default;
+#endif
     constexpr auto operator=(this UnityAlign& self, ::pltxt2htm::UnityAlign&&) noexcept -> ::pltxt2htm::UnityAlign&;
 
     [[nodiscard]]
@@ -194,10 +234,18 @@ class UnityMark {
 
 public:
     constexpr UnityMark(::pltxt2htm::Ast&& subast_, ::pltxt2htm::container::U8String&& background_color_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr UnityMark(::pltxt2htm::UnityMark const&) noexcept = delete;
+#else
     constexpr UnityMark(::pltxt2htm::UnityMark const&) noexcept = default;
+#endif
     constexpr UnityMark(::pltxt2htm::UnityMark&&) noexcept;
     constexpr ~UnityMark() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityMark const&) noexcept -> ::pltxt2htm::UnityMark& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::UnityMark const&) noexcept -> ::pltxt2htm::UnityMark& = delete;
+#else
+    constexpr auto operator=(this UnityMark& self, ::pltxt2htm::UnityMark const&) noexcept -> ::pltxt2htm::UnityMark& = default;
+#endif
     constexpr auto operator=(this UnityMark& self, ::pltxt2htm::UnityMark&&) noexcept -> ::pltxt2htm::UnityMark&;
 
     [[nodiscard]]
@@ -283,10 +331,18 @@ public:
     constexpr UnityMargin(::pltxt2htm::Ast&& subast_,
                           ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> left_,
                           ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>> right_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr UnityMargin(::pltxt2htm::UnityMargin const&) noexcept = delete;
+#else
     constexpr UnityMargin(::pltxt2htm::UnityMargin const&) noexcept = default;
+#endif
     constexpr UnityMargin(::pltxt2htm::UnityMargin&&) noexcept;
     constexpr ~UnityMargin() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityMargin const&) noexcept -> ::pltxt2htm::UnityMargin& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::UnityMargin const&) noexcept -> ::pltxt2htm::UnityMargin& = delete;
+#else
+    constexpr auto operator=(this UnityMargin& self, ::pltxt2htm::UnityMargin const&) noexcept -> ::pltxt2htm::UnityMargin& = default;
+#endif
     constexpr auto operator=(this UnityMargin& self, ::pltxt2htm::UnityMargin&&) noexcept -> ::pltxt2htm::UnityMargin&;
 
     [[nodiscard]]
@@ -319,10 +375,18 @@ class UnityI {
 
 public:
     constexpr UnityI(::pltxt2htm::Ast&& subast_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr UnityI(::pltxt2htm::UnityI const&) noexcept = delete;
+#else
     constexpr UnityI(::pltxt2htm::UnityI const&) noexcept = default;
+#endif
     constexpr UnityI(::pltxt2htm::UnityI&&) noexcept;
     constexpr ~UnityI() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityI const&) noexcept -> ::pltxt2htm::UnityI& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::UnityI const&) noexcept -> ::pltxt2htm::UnityI& = delete;
+#else
+    constexpr auto operator=(this UnityI& self, ::pltxt2htm::UnityI const&) noexcept -> ::pltxt2htm::UnityI& = default;
+#endif
     constexpr auto operator=(this UnityI& self, ::pltxt2htm::UnityI&&) noexcept -> ::pltxt2htm::UnityI&;
 
     [[nodiscard]]
@@ -343,10 +407,18 @@ class UnityB {
 
 public:
     constexpr UnityB(::pltxt2htm::Ast&& subast_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr UnityB(::pltxt2htm::UnityB const&) noexcept = delete;
+#else
     constexpr UnityB(::pltxt2htm::UnityB const&) noexcept = default;
+#endif
     constexpr UnityB(::pltxt2htm::UnityB&&) noexcept;
     constexpr ~UnityB() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::UnityB const&) noexcept -> ::pltxt2htm::UnityB& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::UnityB const&) noexcept -> ::pltxt2htm::UnityB& = delete;
+#else
+    constexpr auto operator=(this UnityB& self, ::pltxt2htm::UnityB const&) noexcept -> ::pltxt2htm::UnityB& = default;
+#endif
     constexpr auto operator=(this UnityB& self, ::pltxt2htm::UnityB&&) noexcept -> ::pltxt2htm::UnityB&;
 
     [[nodiscard]]

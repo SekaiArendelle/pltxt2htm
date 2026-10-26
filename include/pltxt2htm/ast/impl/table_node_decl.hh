@@ -25,10 +25,18 @@ class Table {
 
 public:
     constexpr explicit Table(::pltxt2htm::Ast&& subast_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr Table(::pltxt2htm::Table const&) noexcept = delete;
+#else
     constexpr Table(::pltxt2htm::Table const&) noexcept = default;
+#endif
     constexpr Table(::pltxt2htm::Table&&) noexcept;
     constexpr ~Table() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::Table const&) noexcept -> ::pltxt2htm::Table& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::Table const&) noexcept -> ::pltxt2htm::Table& = delete;
+#else
+    constexpr auto operator=(this Table& self, ::pltxt2htm::Table const&) noexcept -> ::pltxt2htm::Table& = default;
+#endif
     constexpr auto operator=(this Table& self, ::pltxt2htm::Table&&) noexcept -> ::pltxt2htm::Table&;
 
     [[nodiscard]]
@@ -48,10 +56,18 @@ class TableTr {
 
 public:
     constexpr explicit TableTr(::pltxt2htm::Ast&& subast_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr TableTr(::pltxt2htm::TableTr const&) noexcept = delete;
+#else
     constexpr TableTr(::pltxt2htm::TableTr const&) noexcept = default;
+#endif
     constexpr TableTr(::pltxt2htm::TableTr&&) noexcept;
     constexpr ~TableTr() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableTr const&) noexcept -> ::pltxt2htm::TableTr& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::TableTr const&) noexcept -> ::pltxt2htm::TableTr& = delete;
+#else
+    constexpr auto operator=(this TableTr& self, ::pltxt2htm::TableTr const&) noexcept -> ::pltxt2htm::TableTr& = default;
+#endif
     constexpr auto operator=(this TableTr& self, ::pltxt2htm::TableTr&&) noexcept -> ::pltxt2htm::TableTr&;
 
     [[nodiscard]]
@@ -72,10 +88,18 @@ class TableTd {
 
 public:
     constexpr explicit TableTd(::pltxt2htm::Ast&& subast_, ::pltxt2htm::TableAlign align_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr TableTd(::pltxt2htm::TableTd const&) noexcept = delete;
+#else
     constexpr TableTd(::pltxt2htm::TableTd const&) noexcept = default;
+#endif
     constexpr TableTd(::pltxt2htm::TableTd&&) noexcept;
     constexpr ~TableTd() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableTd const&) noexcept -> ::pltxt2htm::TableTd& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::TableTd const&) noexcept -> ::pltxt2htm::TableTd& = delete;
+#else
+    constexpr auto operator=(this TableTd& self, ::pltxt2htm::TableTd const&) noexcept -> ::pltxt2htm::TableTd& = default;
+#endif
     constexpr auto operator=(this TableTd& self, ::pltxt2htm::TableTd&&) noexcept -> ::pltxt2htm::TableTd&;
 
     [[nodiscard]]
@@ -101,10 +125,18 @@ class TableTh {
 
 public:
     constexpr explicit TableTh(::pltxt2htm::Ast&& subast_, ::pltxt2htm::TableAlign align_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr TableTh(::pltxt2htm::TableTh const&) noexcept = delete;
+#else
     constexpr TableTh(::pltxt2htm::TableTh const&) noexcept = default;
+#endif
     constexpr TableTh(::pltxt2htm::TableTh&&) noexcept;
     constexpr ~TableTh() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableTh const&) noexcept -> ::pltxt2htm::TableTh& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::TableTh const&) noexcept -> ::pltxt2htm::TableTh& = delete;
+#else
+    constexpr auto operator=(this TableTh& self, ::pltxt2htm::TableTh const&) noexcept -> ::pltxt2htm::TableTh& = default;
+#endif
     constexpr auto operator=(this TableTh& self, ::pltxt2htm::TableTh&&) noexcept -> ::pltxt2htm::TableTh&;
 
     [[nodiscard]]
@@ -129,10 +161,18 @@ class TableThead {
 
 public:
     constexpr explicit TableThead(::pltxt2htm::Ast&& subast_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr TableThead(::pltxt2htm::TableThead const&) noexcept = delete;
+#else
     constexpr TableThead(::pltxt2htm::TableThead const&) noexcept = default;
+#endif
     constexpr TableThead(::pltxt2htm::TableThead&&) noexcept;
     constexpr ~TableThead() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableThead const&) noexcept -> ::pltxt2htm::TableThead& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::TableThead const&) noexcept -> ::pltxt2htm::TableThead& = delete;
+#else
+    constexpr auto operator=(this TableThead& self, ::pltxt2htm::TableThead const&) noexcept -> ::pltxt2htm::TableThead& = default;
+#endif
     constexpr auto operator=(this TableThead& self, ::pltxt2htm::TableThead&&) noexcept -> ::pltxt2htm::TableThead&;
 
     [[nodiscard]]
@@ -152,10 +192,18 @@ class TableTbody {
 
 public:
     constexpr explicit TableTbody(::pltxt2htm::Ast&& subast_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr TableTbody(::pltxt2htm::TableTbody const&) noexcept = delete;
+#else
     constexpr TableTbody(::pltxt2htm::TableTbody const&) noexcept = default;
+#endif
     constexpr TableTbody(::pltxt2htm::TableTbody&&) noexcept;
     constexpr ~TableTbody() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableTbody const&) noexcept -> ::pltxt2htm::TableTbody& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::TableTbody const&) noexcept -> ::pltxt2htm::TableTbody& = delete;
+#else
+    constexpr auto operator=(this TableTbody& self, ::pltxt2htm::TableTbody const&) noexcept -> ::pltxt2htm::TableTbody& = default;
+#endif
     constexpr auto operator=(this TableTbody& self, ::pltxt2htm::TableTbody&&) noexcept -> ::pltxt2htm::TableTbody&;
 
     [[nodiscard]]
@@ -175,10 +223,18 @@ class TableTfoot {
 
 public:
     constexpr explicit TableTfoot(::pltxt2htm::Ast&& subast_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr TableTfoot(::pltxt2htm::TableTfoot const&) noexcept = delete;
+#else
     constexpr TableTfoot(::pltxt2htm::TableTfoot const&) noexcept = default;
+#endif
     constexpr TableTfoot(::pltxt2htm::TableTfoot&&) noexcept;
     constexpr ~TableTfoot() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableTfoot const&) noexcept -> ::pltxt2htm::TableTfoot& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::TableTfoot const&) noexcept -> ::pltxt2htm::TableTfoot& = delete;
+#else
+    constexpr auto operator=(this TableTfoot& self, ::pltxt2htm::TableTfoot const&) noexcept -> ::pltxt2htm::TableTfoot& = default;
+#endif
     constexpr auto operator=(this TableTfoot& self, ::pltxt2htm::TableTfoot&&) noexcept -> ::pltxt2htm::TableTfoot&;
 
     [[nodiscard]]
@@ -198,10 +254,18 @@ class TableCaption {
 
 public:
     constexpr explicit TableCaption(::pltxt2htm::Ast&& subast_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr TableCaption(::pltxt2htm::TableCaption const&) noexcept = delete;
+#else
     constexpr TableCaption(::pltxt2htm::TableCaption const&) noexcept = default;
+#endif
     constexpr TableCaption(::pltxt2htm::TableCaption&&) noexcept;
     constexpr ~TableCaption() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableCaption const&) noexcept -> ::pltxt2htm::TableCaption& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::TableCaption const&) noexcept -> ::pltxt2htm::TableCaption& = delete;
+#else
+    constexpr auto operator=(this TableCaption& self, ::pltxt2htm::TableCaption const&) noexcept -> ::pltxt2htm::TableCaption& = default;
+#endif
     constexpr auto operator=(this TableCaption& self, ::pltxt2htm::TableCaption&&) noexcept
         -> ::pltxt2htm::TableCaption&;
 
@@ -222,10 +286,18 @@ class TableColgroup {
 
 public:
     constexpr explicit TableColgroup(::pltxt2htm::Ast&& subast_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr TableColgroup(::pltxt2htm::TableColgroup const&) noexcept = delete;
+#else
     constexpr TableColgroup(::pltxt2htm::TableColgroup const&) noexcept = default;
+#endif
     constexpr TableColgroup(::pltxt2htm::TableColgroup&&) noexcept;
     constexpr ~TableColgroup() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::TableColgroup const&) noexcept -> ::pltxt2htm::TableColgroup& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::TableColgroup const&) noexcept -> ::pltxt2htm::TableColgroup& = delete;
+#else
+    constexpr auto operator=(this TableColgroup& self, ::pltxt2htm::TableColgroup const&) noexcept -> ::pltxt2htm::TableColgroup& = default;
+#endif
     constexpr auto operator=(this TableColgroup& self, ::pltxt2htm::TableColgroup&&) noexcept
         -> ::pltxt2htm::TableColgroup&;
 

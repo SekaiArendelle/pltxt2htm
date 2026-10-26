@@ -22,10 +22,18 @@ class ListUl {
 
 public:
     constexpr explicit ListUl(::pltxt2htm::Ast&& subast_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr ListUl(::pltxt2htm::ListUl const&) noexcept = delete;
+#else
     constexpr ListUl(::pltxt2htm::ListUl const&) noexcept = default;
+#endif
     constexpr ListUl(::pltxt2htm::ListUl&&) noexcept;
     constexpr ~ListUl() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::ListUl const&) noexcept -> ::pltxt2htm::ListUl& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::ListUl const&) noexcept -> ::pltxt2htm::ListUl& = delete;
+#else
+    constexpr auto operator=(this ListUl& self, ::pltxt2htm::ListUl const&) noexcept -> ::pltxt2htm::ListUl& = default;
+#endif
     constexpr auto operator=(this ListUl& self, ::pltxt2htm::ListUl&&) noexcept -> ::pltxt2htm::ListUl&;
 
     [[nodiscard]]
@@ -48,10 +56,18 @@ class ListOl {
 
 public:
     constexpr ListOl(::pltxt2htm::Ast&& subast_, ::std::size_t start_ = 1) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr ListOl(::pltxt2htm::ListOl const&) noexcept = delete;
+#else
     constexpr ListOl(::pltxt2htm::ListOl const&) noexcept = default;
+#endif
     constexpr ListOl(::pltxt2htm::ListOl&&) noexcept;
     constexpr ~ListOl() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::ListOl const&) noexcept -> ::pltxt2htm::ListOl& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::ListOl const&) noexcept -> ::pltxt2htm::ListOl& = delete;
+#else
+    constexpr auto operator=(this ListOl& self, ::pltxt2htm::ListOl const&) noexcept -> ::pltxt2htm::ListOl& = default;
+#endif
     constexpr auto operator=(this ListOl& self, ::pltxt2htm::ListOl&&) noexcept -> ::pltxt2htm::ListOl&;
 
     [[nodiscard]]
@@ -76,10 +92,18 @@ class ListLi {
 
 public:
     constexpr explicit ListLi(::pltxt2htm::Ast&& subast_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr ListLi(::pltxt2htm::ListLi const&) noexcept = delete;
+#else
     constexpr ListLi(::pltxt2htm::ListLi const&) noexcept = default;
+#endif
     constexpr ListLi(::pltxt2htm::ListLi&&) noexcept;
     constexpr ~ListLi() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::ListLi const&) noexcept -> ::pltxt2htm::ListLi& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::ListLi const&) noexcept -> ::pltxt2htm::ListLi& = delete;
+#else
+    constexpr auto operator=(this ListLi& self, ::pltxt2htm::ListLi const&) noexcept -> ::pltxt2htm::ListLi& = default;
+#endif
     constexpr auto operator=(this ListLi& self, ::pltxt2htm::ListLi&&) noexcept -> ::pltxt2htm::ListLi&;
 
     [[nodiscard]]
@@ -100,10 +124,18 @@ class ListLiCheckbox {
 
 public:
     constexpr explicit ListLiCheckbox(::pltxt2htm::Ast&& subast_, bool checked_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr ListLiCheckbox(::pltxt2htm::ListLiCheckbox const&) noexcept = delete;
+#else
     constexpr ListLiCheckbox(::pltxt2htm::ListLiCheckbox const&) noexcept = default;
+#endif
     constexpr ListLiCheckbox(::pltxt2htm::ListLiCheckbox&&) noexcept;
     constexpr ~ListLiCheckbox() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::ListLiCheckbox const&) noexcept -> ::pltxt2htm::ListLiCheckbox& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::ListLiCheckbox const&) noexcept -> ::pltxt2htm::ListLiCheckbox& = delete;
+#else
+    constexpr auto operator=(this ListLiCheckbox& self, ::pltxt2htm::ListLiCheckbox const&) noexcept -> ::pltxt2htm::ListLiCheckbox& = default;
+#endif
     constexpr auto operator=(this ListLiCheckbox& self, ::pltxt2htm::ListLiCheckbox&&) noexcept
         -> ::pltxt2htm::ListLiCheckbox&;
 

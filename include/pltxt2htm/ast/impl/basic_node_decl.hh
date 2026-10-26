@@ -116,10 +116,18 @@ public:
      * @param subast The sub-AST to be contained.
      */
     constexpr Group(::pltxt2htm::Ast&& subast) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr Group(::pltxt2htm::Group const&) noexcept = delete;
+#else
     constexpr Group(::pltxt2htm::Group const&) noexcept = default;
+#endif
     constexpr Group(::pltxt2htm::Group&&) noexcept;
     constexpr ~Group() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::Group const&) noexcept -> ::pltxt2htm::Group& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::Group const&) noexcept -> ::pltxt2htm::Group& = delete;
+#else
+    constexpr auto operator=(this Group& self, ::pltxt2htm::Group const&) noexcept -> ::pltxt2htm::Group& = default;
+#endif
     constexpr auto operator=(this Group& self, ::pltxt2htm::Group&&) noexcept -> ::pltxt2htm::Group&;
 
     [[nodiscard]]
@@ -147,10 +155,18 @@ public:
      */
     constexpr explicit CodeFence(::pltxt2htm::Ast&& subast_,
                                  ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>&& lang_) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr CodeFence(::pltxt2htm::CodeFence const&) noexcept = delete;
+#else
     constexpr CodeFence(::pltxt2htm::CodeFence const&) noexcept = default;
+#endif
     constexpr CodeFence(::pltxt2htm::CodeFence&&) noexcept;
     constexpr ~CodeFence() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::CodeFence const&) noexcept -> ::pltxt2htm::CodeFence& = default;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::CodeFence const&) noexcept -> ::pltxt2htm::CodeFence& = delete;
+#else
+    constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence const&) noexcept -> ::pltxt2htm::CodeFence& = default;
+#endif
     constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence&&) noexcept -> ::pltxt2htm::CodeFence&;
 
     [[nodiscard]]
