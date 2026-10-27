@@ -9,9 +9,10 @@ header-only, so it needs entries from every sub-project that compiles the
 core headers, not just one.
 
 Usage:
-    python scripts/gen_compile_commands.py [subproject ...]
+    python scripts/gen_compile_commands.py [--compiler clang++] [subproject ...]
 """
 
+import argparse
 import json
 import os
 import shutil
@@ -26,7 +27,8 @@ DEFAULT_SUBPROJECTS = ["examples", "cmd", "c", "tests"]
 
 
 def find_compiler():
-    return os.environ.get("CXX") or shutil.which("clang++") or "clang++"
+    """Default when --compiler is omitted: clang++ on PATH."""
+    return shutil.which("clang++") or "clang++"
 
 
 def configure(subproject, compiler):
@@ -45,12 +47,21 @@ def configure(subproject, compiler):
 
 
 def main():
-    subprojects = sys.argv[1:] or DEFAULT_SUBPROJECTS
-    compiler = find_compiler()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--compiler", default=find_compiler(),
+        help="C++ compiler to configure with (default: clang++ on PATH)",
+    )
+    parser.add_argument(
+        "subprojects", nargs="*", default=DEFAULT_SUBPROJECTS,
+        help="sub-projects to configure (default: %(default)s)",
+    )
+    args = parser.parse_args()
+    compiler = args.compiler
     print(f"compiler: {compiler}")
 
     entries = []
-    for name in subprojects:
+    for name in args.subprojects:
         subproject = os.path.join(SCRIPT_DIR, name)
         if not os.path.isdir(subproject) or not os.path.isfile(
             os.path.join(subproject, "CMakeLists.txt")
