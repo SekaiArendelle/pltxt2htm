@@ -1,0 +1,161 @@
+#pragma once
+
+#include <compare>
+#include <concepts>
+#include <cstddef>
+#include <type_traits>
+#include <utility>
+
+#include <pltxt2htm/details/inplace_string.hh>
+
+#include "doctest_config.hh"
+
+using CheckedU8String4 = ::pltxt2htm::details::U8InplaceString<4>;
+using CheckedU8String8 = ::pltxt2htm::details::U8InplaceString<8>;
+
+struct PotentiallyThrowingIterator {
+    using value_type = char8_t;
+    using difference_type = ::std::ptrdiff_t;
+
+    char8_t const* pointer{};
+
+    [[nodiscard]]
+    constexpr auto operator*() const noexcept -> char8_t {
+        return *this->pointer;
+    }
+
+    constexpr auto operator++() -> PotentiallyThrowingIterator& {
+        ++this->pointer;
+        return *this;
+    }
+
+    constexpr void operator++(int) {
+        ++*this;
+    }
+
+    [[nodiscard]]
+    constexpr auto operator==(PotentiallyThrowingIterator const&) const noexcept -> bool = default;
+};
+
+template<typename CharType, ::std::size_t extent = 4>
+concept can_form_basic_inplace_string =
+    requires { typename ::pltxt2htm::details::BasicInplaceString<CharType, extent>; };
+
+static_assert(can_form_basic_inplace_string<char>);
+static_assert(can_form_basic_inplace_string<wchar_t>);
+static_assert(can_form_basic_inplace_string<char16_t>);
+static_assert(can_form_basic_inplace_string<char32_t>);
+static_assert(!can_form_basic_inplace_string<bool>);
+static_assert(!can_form_basic_inplace_string<int>);
+static_assert(!can_form_basic_inplace_string<char8_t, 0>);
+
+static_assert(requires(CheckedU8String4& value, CheckedU8String4 const& const_value, ::std::size_t position) {
+    value[position];
+    value[position] = u8'a';
+    const_value[position];
+});
+
+static_assert(!::std::is_trivially_copyable_v<CheckedU8String4>);
+static_assert(::std::is_nothrow_copy_constructible_v<CheckedU8String4>);
+static_assert(::std::is_nothrow_move_constructible_v<CheckedU8String4>);
+static_assert(::std::is_nothrow_copy_assignable_v<CheckedU8String4>);
+static_assert(::std::is_nothrow_move_assignable_v<CheckedU8String4>);
+static_assert(::std::is_standard_layout_v<CheckedU8String4>);
+static_assert(::std::same_as<CheckedU8String4::value_type, char8_t>);
+static_assert(::std::same_as<CheckedU8String4::iterator, char8_t*>);
+static_assert(::std::same_as<decltype(::std::declval<CheckedU8String4&>().push_back(char8_t{})), void>);
+static_assert(::std::input_iterator<PotentiallyThrowingIterator>);
+static_assert(::std::is_nothrow_constructible_v<CheckedU8String4, char8_t const*, char8_t const*>);
+static_assert(
+    !::std::is_nothrow_constructible_v<CheckedU8String4, PotentiallyThrowingIterator, PotentiallyThrowingIterator>);
+static_assert(noexcept(::std::declval<CheckedU8String4&>().append(::std::declval<char8_t const*>(),
+                                                                  ::std::declval<char8_t const*>())));
+static_assert(!noexcept(::std::declval<CheckedU8String4&>().append(::std::declval<PotentiallyThrowingIterator>(),
+                                                                   ::std::declval<PotentiallyThrowingIterator>())));
+static_assert(sizeof(CheckedU8String4) == 5);
+static_assert(CheckedU8String4::capacity() == 4);
+static_assert(CheckedU8String4::max_size() == 4);
+static_assert(CheckedU8String4::max_size_bytes() == 4);
+
+TEST_SUITE("inplace_string") {
+    consteval auto test_constexpr_inplace_string() -> bool {
+        CheckedU8String4 const empty{};
+        if (!empty.empty() || empty.size() != 0 || empty.data() == nullptr || empty.begin() != empty.end()) {
+            return false;
+        }
+
+        constexpr char8_t initial[]{u8'a', u8'\0', u8'b'};
+        auto value = CheckedU8String4{initial, initial + 3};
+        if (value.empty() || value.size() != 3 || value.size_bytes() != 3 || value[0] != u8'a' || value[1] != u8'\0' ||
+            value.front() != u8'a' || value.back() != u8'b') {
+            return false;
+        }
+
+        value[2] = u8'c';
+        if (!value.try_push_back(u8'd') || value.try_push_back(u8'e') || value.back() != u8'd') {
+            return false;
+        }
+
+        value.pop_back();
+        if (!value.try_push_back(u8'x') || value.size() != 4 || value[2] != u8'c' || value[3] != u8'x') {
+            return false;
+        }
+
+        value.clear();
+        value.push_back(u8'z');
+        value.push_back(u8'z');
+        if (value.size() != 2 || value[0] != u8'z' || value[1] != u8'z' || *value.rbegin() != u8'z') {
+            return false;
+        }
+
+        value.clear();
+        value.push_back(u8'q');
+        value.push_back(u8'q');
+        value.push_back(u8'q');
+        if (value.size() != 3 || value.front() != u8'q' || value.back() != u8'q') {
+            return false;
+        }
+
+        auto copy = value;
+        auto moved = ::std::move(copy);
+        copy = moved;
+        moved = ::std::move(copy);
+        if (moved.size() != 3 || moved.front() != u8'q' || moved.back() != u8'q') {
+            return false;
+        }
+
+        copy = moved;
+        copy.clear();
+        copy.append(initial, initial + 3);
+        auto const larger = CheckedU8String8{initial, initial + 3};
+        if (!(copy == larger) || (copy <=> larger) != ::std::strong_ordering::equal) {
+            return false;
+        }
+
+        copy[2] = u8'd';
+        if ((copy <=> larger) != ::std::strong_ordering::greater || value == copy) {
+            return false;
+        }
+
+        copy.assign(copy.begin(), copy.end());
+        if (copy.size() != 3 || copy[0] != u8'a' || copy[1] != u8'\0' || copy[2] != u8'd') {
+            return false;
+        }
+
+        copy.assign(copy.begin() + 1, copy.end());
+        return copy.size() == 2 && copy[0] == u8'\0' && copy[1] == u8'd';
+    }
+
+    static_assert(test_constexpr_inplace_string());
+
+    TEST_CASE("construction-and-accessors") {
+        constexpr char8_t source[]{u8't', u8'e', u8's', u8't'};
+        auto value = CheckedU8String4{source, source + 4};
+
+        CHECK(value.size() == 4);
+        CHECK(value.data() == value.begin());
+        CHECK(value.end() - value.begin() == 4);
+        CHECK(value.front() == u8't');
+        CHECK(value.back() == u8't');
+    }
+}

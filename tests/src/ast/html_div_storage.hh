@@ -6,16 +6,14 @@
 #include <pltxt2htm/container/array.hh>
 
 TEST_SUITE("html_div_storage") {
-    constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
     using Margin = ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<::std::size_t>>;
 
     [[nodiscard]]
-    constexpr auto make_html_div(Margin left, Margin right) noexcept -> ::pltxt2htm::HtmlDiv<ndebug> {
-        return ::pltxt2htm::HtmlDiv<ndebug>{::pltxt2htm::Ast<ndebug>{}, ::std::move(left), ::std::move(right)};
+    constexpr auto make_html_div(Margin left, Margin right) noexcept -> ::pltxt2htm::HtmlDiv {
+        return ::pltxt2htm::HtmlDiv{::pltxt2htm::Ast{}, ::std::move(left), ::std::move(right)};
     }
 
-    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlDiv<::pltxt2htm::Contracts::ignore>) == 48);
-    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlDiv<ndebug>) == 48);
+    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlDiv) == 48);
 
     TEST_CASE("absent margins") {
         auto const div = make_html_div(::pltxt2htm::container::nullopt, ::pltxt2htm::container::nullopt);
@@ -31,8 +29,8 @@ TEST_SUITE("html_div_storage") {
         };
         for (auto const margin : margins) {
             auto const div = make_html_div(Margin{margin}, Margin{margin});
-            CHECK(div.get_left().template value<ndebug>() == margin);
-            CHECK(div.get_right().template value<ndebug>() == margin);
+            CHECK(div.get_left().value() == margin);
+            CHECK(div.get_right().value() == margin);
         }
     }
 

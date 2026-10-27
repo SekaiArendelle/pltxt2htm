@@ -24,13 +24,7 @@
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
 PLTXT2HTM_C_NAME_MANGLING(common_parser)(char8_t const* const pltext) noexcept -> char8_t const* {
-    return ::pltxt2htm::common_parser<
-#if defined(NDEBUG)
-        ::pltxt2htm::Contracts::ignore
-#else
-        ::pltxt2htm::Contracts::quick_enforce
-#endif
-        >(pltext);
+    return ::pltxt2htm::common_parser(pltext);
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
@@ -38,26 +32,14 @@ PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char8_t const* const pltext, char8_t 
                                            char8_t const* const project, char8_t const* const visitor,
                                            char8_t const* const author, char8_t const* const coauthors) noexcept
     -> char8_t const* {
-    return ::pltxt2htm::fixedadv_parser<
-#if defined(NDEBUG)
-        ::pltxt2htm::Contracts::ignore
-#else
-        ::pltxt2htm::Contracts::quick_enforce
-#endif
-        >(pltext, host, project, visitor, author, coauthors);
+    return ::pltxt2htm::fixedadv_parser(pltext, host, project, visitor, author, coauthors);
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION
 PLTXT2HTM_C_NAME_MANGLING(plrichtext_parser)(char8_t const* const text, char8_t const* const project,
                                              char8_t const* const visitor, char8_t const* const author,
                                              char8_t const* const coauthors) noexcept -> char8_t const* {
-    return ::pltxt2htm::plrichtext_parser<
-#if defined(NDEBUG)
-        ::pltxt2htm::Contracts::ignore
-#else
-        ::pltxt2htm::Contracts::quick_enforce
-#endif
-        >(text, project, visitor, author, coauthors);
+    return ::pltxt2htm::plrichtext_parser(text, project, visitor, author, coauthors);
 }
 
 PLTXT2HTM_C_SRC_EXPORT_FUNCTION

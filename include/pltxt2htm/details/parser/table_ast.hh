@@ -19,7 +19,7 @@
 #include "../../container/vector.hh"
 #include "../../container/optional.hh"
 #include "../utils.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../../ast/ast.hh"
 #include "../../ast/node_kind.hh"
 #include "../push_macro.hh"
@@ -60,9 +60,8 @@ struct TableRowRaw {
  * column count.  Analogous to ListAst: raw text is re-parsed through the
  * inline parser when the table frame is processed.
  *
- * @tparam ndebug Contract checking mode
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  */
-template<::pltxt2htm::Contracts ndebug>
 class TableAstRaw {
     ::pltxt2htm::container::Vector<TableRowRaw> rows{};
     ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> caption_text{::pltxt2htm::container::nullopt};
@@ -71,14 +70,14 @@ class TableAstRaw {
 public:
     /// @return Whether a caption was recorded.
     [[nodiscard]]
-    constexpr auto has_caption(this TableAstRaw<ndebug> const& self) noexcept -> bool {
+    constexpr auto has_caption(this TableAstRaw const& self) noexcept -> bool {
         return self.caption_text.has_value();
     }
 
     /// @return Raw caption content (valid only when has_caption()).
     [[nodiscard]]
-    constexpr auto caption(this TableAstRaw<ndebug> const& self) noexcept -> ::pltxt2htm::container::U8StringView {
-        auto&& text = self.caption_text.template value<ndebug>();
+    constexpr auto caption(this TableAstRaw const& self) noexcept -> ::pltxt2htm::container::U8StringView {
+        auto&& text = self.caption_text.value();
         return ::pltxt2htm::container::U8StringView{text};
     }
 
@@ -114,7 +113,7 @@ public:
     /// @return Cells in row @p row (const/non-const reference).
     [[nodiscard]]
     constexpr auto row_cells(this auto&& self, ::std::size_t row) noexcept -> decltype(auto) {
-        return self.rows.template index<ndebug>(row).cells;
+        return self.rows[row].cells;
     }
 
     /// @param row Row index.
@@ -122,24 +121,24 @@ public:
     /// @return Cell at (@p row, @p col) (const/non-const reference).
     [[nodiscard]]
     constexpr auto cell_at(this auto&& self, ::std::size_t row, ::std::size_t col) noexcept -> decltype(auto) {
-        return self.rows.template index<ndebug>(row).cells.template index<ndebug>(col);
+        return self.rows[row].cells[col];
     }
 
     /// @param row Row index.
     /// @return Section tag of row @p row.
     [[nodiscard]]
-    constexpr auto row_section(this TableAstRaw<ndebug> const& self, ::std::size_t row) noexcept -> TableRowSection {
-        return self.rows.template index<ndebug>(row).section;
+    constexpr auto row_section(this TableAstRaw const& self, ::std::size_t row) noexcept -> TableRowSection {
+        return self.rows[row].section;
     }
 
     /// Append a row (its section tag is supplied by the scanner).
     constexpr void add_row(this TableAstRaw& self, TableRowRaw&& row) noexcept {
-        self.rows.template push_back<ndebug>(::std::move(row));
+        self.rows.push_back(::std::move(row));
     }
 
     /// Append a cell to the most recently added row.
     constexpr void add_cell_to_last_row(this TableAstRaw& self, TableCellRaw&& cell) noexcept {
-        self.rows.template index<ndebug>(self.rows.size() - 1).cells.template push_back<ndebug>(::std::move(cell));
+        self.rows[self.rows.size() - 1].cells.push_back(::std::move(cell));
     }
 };
 
@@ -158,28 +157,27 @@ enum class TableParsePhase : unsigned {
 
 /**
  * @brief Append a table section node (&lt;thead&gt;/&lt;tbody&gt;/&lt;tfoot&gt;) to a table AST.
- * @tparam ndebug Contract checking mode.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param table_ast AST of the owning table node.
  * @param section The row section tag (thead/tbody/tfoot, or none for no-op).
  * @param section_ast The section's sub-AST.
  */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void push_table_section_node(::pltxt2htm::Ast<ndebug>& table_ast, TableRowSection const section,
-                                       ::pltxt2htm::Ast<ndebug>&& section_ast) noexcept {
+constexpr void push_table_section_node(::pltxt2htm::Ast& table_ast, TableRowSection const section,
+                                       ::pltxt2htm::Ast&& section_ast) noexcept {
     switch (section) /* -Werror=switch */ {
     case TableRowSection::thead: {
-        table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableThead<ndebug>>(
-            ::std::move(section_ast)));
+        table_ast.push_back(
+            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableThead>(::std::move(section_ast)));
         return;
     }
     case TableRowSection::tbody: {
-        table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTbody<ndebug>>(
-            ::std::move(section_ast)));
+        table_ast.push_back(
+            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTbody>(::std::move(section_ast)));
         return;
     }
     case TableRowSection::tfoot: {
-        table_ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::TableTfoot<ndebug>>(
-            ::std::move(section_ast)));
+        table_ast.push_back(
+            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTfoot>(::std::move(section_ast)));
         return;
     }
     case TableRowSection::none: {

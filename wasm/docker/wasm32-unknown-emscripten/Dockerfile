@@ -2,6 +2,7 @@ FROM emscripten/emsdk:4.0.22
 
 WORKDIR /pltxt2htm
 COPY include/ /pltxt2htm/include/
+COPY cmake/ /pltxt2htm/cmake/
 COPY wasm/ /pltxt2htm/wasm/
 
 WORKDIR /pltxt2htm/wasm

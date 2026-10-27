@@ -14,7 +14,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <fast_io/fast_io.h>
-#include <pltxt2htm/pltxt2htm.hh>
+#include <pltxt2htm/pltxt2htm.h>
 #include <pltxt2htm/details/parser/html_parser.hh>
 
 #if defined(pltxt2htm_assert)
@@ -28,6 +28,9 @@
 #if defined(pltxt2htm_assert_context_branch)
     #error "Test fail: pltxt2htm_assert_context_branch is defined"
 #endif
+
+// Tests are built with ENFORCE, so verify the macro-to-enum mapping.
+static_assert(::pltxt2htm::details::contract_mode == ::pltxt2htm::details::Contracts::enforce);
 
 #if defined __GNUC__ || defined __clang__
     #if __has_attribute(visibility)
@@ -49,7 +52,7 @@ namespace pltxt2htm_test {
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_htmld(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
-    return ::pltxt2htm::pltxt2common_html<::pltxt2htm::Contracts::quick_enforce>(pltext);
+    return ::pltxt2htm::pltxt2common_html(pltext);
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)
@@ -60,9 +63,8 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2common_htmld(::pltxt2htm::container::U8S
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto inline_pltxt4unittest(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
-    auto ast = ::pltxt2htm::inline_parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(pltext);
-    return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
-                                                    ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
+    auto ast = ::pltxt2htm::inline_parse_pltxt(pltext);
+    return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
         ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
@@ -74,9 +76,8 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto inline_pltxt4unittest(::pltxt2htm::container::
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4htmlunittest(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
-    auto ast = ::pltxt2htm::details::parse_pltxt_html<::pltxt2htm::Contracts::quick_enforce>(pltext);
-    return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
-                                                    ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
+    auto ast = ::pltxt2htm::details::parse_pltxt_html(pltext);
+    return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
         ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
@@ -88,10 +89,9 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt4htmlunittest(::pltxt2htm::container::U8S
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2roundtrip_htmld(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
-    auto ast = ::pltxt2htm::parse_pltxt<::pltxt2htm::Contracts::quick_enforce>(pltext);
-    ::pltxt2htm::optimize_ast<::pltxt2htm::Contracts::quick_enforce>(ast);
-    return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::Contracts::quick_enforce,
-                                                    ::pltxt2htm::details::PlWebTextBackendMode::roundtrip>(
+    auto ast = ::pltxt2htm::parse_pltxt(pltext);
+    ::pltxt2htm::optimize_ast(ast);
+    return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::details::PlWebTextBackendMode::roundtrip>(
         ast, u8"_", u8"_", u8"_", u8"_", u8"_");
 }
 
@@ -103,8 +103,8 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2roundtrip_htmld(::pltxt2htm::container::
 #endif
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
-    return ::pltxt2htm::pltxt2fixedadv_html<::pltxt2htm::Contracts::quick_enforce>(
-        pltext, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
+    return ::pltxt2htm::pltxt2fixedadv_html(pltext, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
+                                            u8"$CO_AUTHORS");
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)
@@ -118,8 +118,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(
     ::pltxt2htm::container::U8StringView project, ::pltxt2htm::container::U8StringView visitor,
     ::pltxt2htm::container::U8StringView author, ::pltxt2htm::container::U8StringView coauthors) noexcept
     -> ::pltxt2htm::container::U8String {
-    return ::pltxt2htm::pltxt2fixedadv_html<::pltxt2htm::Contracts::quick_enforce>(pltext, host, project, visitor,
-                                                                                   author, coauthors);
+    return ::pltxt2htm::pltxt2fixedadv_html(pltext, host, project, visitor, author, coauthors);
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)
@@ -131,8 +130,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2fixedadv_htmld(
 PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(
     ::pltxt2htm::container::U8StringView pltext) noexcept
     -> ::pltxt2htm::container::U8String {
-    return ::pltxt2htm::pltxt2plunity_introduction<::pltxt2htm::Contracts::quick_enforce>(
-        pltext, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
+    return ::pltxt2htm::pltxt2plunity_introduction(pltext, u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)
@@ -146,8 +144,7 @@ PLTXT2HTM_VISIBILITY_DEFAULT auto pltxt2plunity_introduction(
     ::pltxt2htm::container::U8StringView visitor, ::pltxt2htm::container::U8StringView author,
     ::pltxt2htm::container::U8StringView coauthors) noexcept
     -> ::pltxt2htm::container::U8String {
-    return ::pltxt2htm::pltxt2plunity_introduction<::pltxt2htm::Contracts::quick_enforce>(pltext, project, visitor,
-                                                                                          author, coauthors);
+    return ::pltxt2htm::pltxt2plunity_introduction(pltext, project, visitor, author, coauthors);
 }
 
 #if __has_cpp_attribute(__gnu__::__used__)

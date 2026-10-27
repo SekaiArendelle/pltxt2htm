@@ -16,7 +16,7 @@
 #include "../../container/string_view.hh"
 #include "../../container/vector.hh"
 #include "../utils.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
@@ -32,7 +32,6 @@ enum class ListNodeType : unsigned {
 };
 
 // Forward declaration for recursive ListAst
-template<::pltxt2htm::Contracts ndebug>
 class ListBaseNode;
 
 /**
@@ -50,8 +49,7 @@ class ListBaseNode;
  *          output. The pre-built AST avoids this redundant work - each item is parsed
  *          exactly once.
  */
-template<::pltxt2htm::Contracts ndebug>
-using ListAst = ::pltxt2htm::container::Vector<ListBaseNode<ndebug>>;
+using ListAst = ::pltxt2htm::container::Vector<ListBaseNode>;
 
 /**
  * @brief Leaf list node that stores a single list-item text payload.
@@ -147,26 +145,24 @@ public:
 /**
  * @brief Internal unordered-list node containing nested list items.
  */
-template<::pltxt2htm::Contracts ndebug>
 class ListUlNode {
-    ListAst<ndebug> sublist;
+    ListAst sublist;
 
 public:
-    constexpr ListUlNode(ListAst<ndebug>&& sublist_) noexcept;
+    constexpr ListUlNode(ListAst&& sublist_) noexcept;
 
-    constexpr ListUlNode(ListUlNode<ndebug> const&) noexcept = delete;
+    constexpr ListUlNode(ListUlNode const&) noexcept = delete;
 
-    constexpr ListUlNode(ListUlNode<ndebug>&&) noexcept;
+    constexpr ListUlNode(ListUlNode&&) noexcept;
 
     constexpr ~ListUlNode() noexcept = default;
 
-    constexpr auto operator=(this ListUlNode<ndebug>& self, ListUlNode<ndebug> const& other) noexcept
-        -> ListUlNode<ndebug>& = delete;
+    constexpr auto operator=(this ListUlNode& self, ListUlNode const& other) noexcept -> ListUlNode& = delete;
 
-    constexpr auto operator=(this ListUlNode<ndebug>& self, ListUlNode<ndebug>&&) noexcept -> ListUlNode<ndebug>&;
+    constexpr auto operator=(this ListUlNode& self, ListUlNode&&) noexcept -> ListUlNode&;
 
     [[nodiscard]]
-    constexpr auto operator==(this ListUlNode<ndebug> const& self, ListUlNode<ndebug> const& other) noexcept -> bool;
+    constexpr auto operator==(this ListUlNode const& self, ListUlNode const& other) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_sublist(this auto&& self) noexcept -> decltype(auto) {
@@ -179,27 +175,25 @@ public:
 /**
  * @brief Internal ordered-list node containing nested list items.
  */
-template<::pltxt2htm::Contracts ndebug>
 class ListOlNode {
-    ListAst<ndebug> sublist;
+    ListAst sublist;
     ::std::size_t start;
 
 public:
-    constexpr ListOlNode(ListAst<ndebug>&& sublist_, ::std::size_t start_ = 1) noexcept;
+    constexpr ListOlNode(ListAst&& sublist_, ::std::size_t start_ = 1) noexcept;
 
-    constexpr ListOlNode(ListOlNode<ndebug> const&) noexcept = delete;
+    constexpr ListOlNode(ListOlNode const&) noexcept = delete;
 
-    constexpr ListOlNode(ListOlNode<ndebug>&&) noexcept;
+    constexpr ListOlNode(ListOlNode&&) noexcept;
 
     constexpr ~ListOlNode() noexcept = default;
 
-    constexpr auto operator=(this ListOlNode<ndebug>& self, ListOlNode<ndebug> const& other) noexcept
-        -> ListOlNode<ndebug>& = delete;
+    constexpr auto operator=(this ListOlNode& self, ListOlNode const& other) noexcept -> ListOlNode& = delete;
 
-    constexpr auto operator=(this ListOlNode<ndebug>& self, ListOlNode<ndebug>&&) noexcept -> ListOlNode<ndebug>&;
+    constexpr auto operator=(this ListOlNode& self, ListOlNode&&) noexcept -> ListOlNode&;
 
     [[nodiscard]]
-    constexpr auto operator==(this ListOlNode<ndebug> const& self, ListOlNode<ndebug> const& other) noexcept -> bool;
+    constexpr auto operator==(this ListOlNode const& self, ListOlNode const& other) noexcept -> bool;
 
     [[nodiscard]]
     constexpr auto get_sublist(this auto&& self) noexcept -> decltype(auto) {
@@ -217,13 +211,12 @@ public:
 /**
  * @brief Variant-style base type for all internal list nodes.
  */
-template<::pltxt2htm::Contracts ndebug>
 class ListBaseNode {
     union {
         ListLiNode li_node;
         ListLiCheckboxNode li_checkbox_node;
-        ListUlNode<ndebug> ul_node;
-        ListOlNode<ndebug> ol_node;
+        ListUlNode ul_node;
+        ListOlNode ol_node;
     };
 
     ListNodeType type;
@@ -239,19 +232,19 @@ public:
           type{ListNodeType::list_li_checkbox} {
     }
 
-    constexpr ListBaseNode(ListUlNode<ndebug>&& node) noexcept
+    constexpr ListBaseNode(ListUlNode&& node) noexcept
         : ul_node(::std::move(node)),
           type{ListNodeType::list_ul} {
     }
 
-    constexpr ListBaseNode(ListOlNode<ndebug>&& node) noexcept
+    constexpr ListBaseNode(ListOlNode&& node) noexcept
         : ol_node(::std::move(node)),
           type{ListNodeType::list_ol} {
     }
 
-    constexpr ListBaseNode(ListBaseNode<ndebug> const&) noexcept = delete;
+    constexpr ListBaseNode(ListBaseNode const&) noexcept = delete;
 
-    constexpr ListBaseNode(ListBaseNode<ndebug>&& other) noexcept
+    constexpr ListBaseNode(ListBaseNode&& other) noexcept
         : type(other.type) {
         switch (type) /* -Werror=switch */ {
         case ListNodeType::list_li: {
@@ -263,11 +256,11 @@ public:
             break;
         }
         case ListNodeType::list_ul: {
-            new (::std::addressof(ul_node)) ListUlNode<ndebug>(::std::move(other.ul_node));
+            new (::std::addressof(ul_node)) ListUlNode(::std::move(other.ul_node));
             break;
         }
         case ListNodeType::list_ol: {
-            new (::std::addressof(ol_node)) ListOlNode<ndebug>(::std::move(other.ol_node));
+            new (::std::addressof(ol_node)) ListOlNode(::std::move(other.ol_node));
             break;
         }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
@@ -290,11 +283,11 @@ public:
             break;
         }
         case ListNodeType::list_ul: {
-            ul_node.~ListUlNode<ndebug>();
+            ul_node.~ListUlNode();
             break;
         }
         case ListNodeType::list_ol: {
-            ol_node.~ListOlNode<ndebug>();
+            ol_node.~ListOlNode();
             break;
         }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
@@ -306,11 +299,9 @@ public:
         }
     }
 
-    constexpr auto operator=(this ListBaseNode<ndebug>& self, ListBaseNode<ndebug> const& other) noexcept
-        -> ListBaseNode<ndebug>& = delete;
+    constexpr auto operator=(this ListBaseNode& self, ListBaseNode const& other) noexcept -> ListBaseNode& = delete;
 
-    constexpr auto operator=(this ListBaseNode<ndebug>& self, ListBaseNode<ndebug>&& other) noexcept
-        -> ListBaseNode<ndebug>& {
+    constexpr auto operator=(this ListBaseNode& self, ListBaseNode&& other) noexcept -> ListBaseNode& {
         if (::std::addressof(other) != ::std::addressof(self)) {
             self.~ListBaseNode();
             ::std::construct_at(::std::addressof(self), ::std::move(other));
@@ -319,7 +310,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_type(this ListBaseNode<ndebug> const& self) noexcept -> ListNodeType {
+    constexpr auto get_type(this ListBaseNode const& self) noexcept -> ListNodeType {
         return self.type;
     }
 
@@ -343,8 +334,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_text_view(this ListBaseNode<ndebug> const& self) noexcept
-        -> ::pltxt2htm::container::U8StringView {
+    constexpr auto get_text_view(this ListBaseNode const& self) noexcept -> ::pltxt2htm::container::U8StringView {
         switch (self.type) /* -Werror=switch */ {
         case ListNodeType::list_li: {
             return self.li_node.get_text_view();
@@ -407,8 +397,7 @@ public:
     }
 
     [[nodiscard]]
-    friend constexpr auto operator==(ListBaseNode<ndebug> const& self, ListBaseNode<ndebug> const& other) noexcept
-        -> bool {
+    friend constexpr auto operator==(ListBaseNode const& self, ListBaseNode const& other) noexcept -> bool {
         if (self.type != other.type) {
             return false;
         }
@@ -439,67 +428,43 @@ public:
 
 // ---- ListUlNode member definitions (ListBaseNode is now complete) ----
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ListUlNode<ndebug>::ListUlNode(ListAst<ndebug>&& sublist_) noexcept
+constexpr ListUlNode::ListUlNode(ListAst&& sublist_) noexcept
     : sublist(::std::move(sublist_)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ListUlNode<ndebug>::ListUlNode(ListUlNode<ndebug>&&) noexcept = default;
+constexpr ListUlNode::ListUlNode(ListUlNode&&) noexcept = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ListUlNode<ndebug>::operator=(this ListUlNode<ndebug>& self, ListUlNode<ndebug>&& other) noexcept
-    -> ListUlNode<ndebug>& = default;
+constexpr auto ListUlNode::operator=(this ListUlNode& self, ListUlNode&& other) noexcept -> ListUlNode& = default;
 
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto ListUlNode<ndebug>::operator==(this ListUlNode<ndebug> const& self,
-                                              ListUlNode<ndebug> const& other) noexcept -> bool {
+constexpr auto ListUlNode::operator==(this ListUlNode const& self, ListUlNode const& other) noexcept -> bool {
     return self.sublist == other.sublist;
 }
 
 // ---- ListOlNode member definitions (ListBaseNode is now complete) ----
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ListOlNode<ndebug>::ListOlNode(ListAst<ndebug>&& sublist_, ::std::size_t start_) noexcept
+constexpr ListOlNode::ListOlNode(ListAst&& sublist_, ::std::size_t start_) noexcept
     : sublist(::std::move(sublist_)),
       start(start_) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ListOlNode<ndebug>::ListOlNode(ListOlNode<ndebug>&&) noexcept = default;
+constexpr ListOlNode::ListOlNode(ListOlNode&&) noexcept = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ListOlNode<ndebug>::operator=(this ListOlNode<ndebug>& self, ListOlNode<ndebug>&& other) noexcept
-    -> ListOlNode<ndebug>& = default;
+constexpr auto ListOlNode::operator=(this ListOlNode& self, ListOlNode&& other) noexcept -> ListOlNode& = default;
 
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
-constexpr auto ListOlNode<ndebug>::operator==(this ListOlNode<ndebug> const& self,
-                                              ListOlNode<ndebug> const& other) noexcept -> bool {
+constexpr auto ListOlNode::operator==(this ListOlNode const& self, ListOlNode const& other) noexcept -> bool {
     return self.sublist == other.sublist && self.start == other.start;
 }
-
-template<typename T>
-constexpr bool is_list_ul_node_ = false;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr bool is_list_ul_node_<ListUlNode<ndebug>> = true;
-
-template<typename T>
-constexpr bool is_list_ol_node_ = false;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr bool is_list_ol_node_<ListOlNode<ndebug>> = true;
 
 /**
  * @brief Concept matching the concrete node types stored in ListBaseNode.
  */
 template<typename T>
-concept is_list_node_type = ::std::is_same_v<::std::remove_cvref_t<T>, ListLiNode> ||
-                            ::std::is_same_v<::std::remove_cvref_t<T>, ListLiCheckboxNode> ||
-                            ::pltxt2htm::details::is_list_ul_node_<::std::remove_cvref_t<T>> ||
-                            ::pltxt2htm::details::is_list_ol_node_<::std::remove_cvref_t<T>>;
+concept is_list_node_type =
+    ::std::is_same_v<::std::remove_cvref_t<T>, ListLiNode> ||
+    ::std::is_same_v<::std::remove_cvref_t<T>, ListLiCheckboxNode> ||
+    ::std::is_same_v<::std::remove_cvref_t<T>, ListUlNode> || ::std::is_same_v<::std::remove_cvref_t<T>, ListOlNode>;
 
 } // namespace pltxt2htm::details
 

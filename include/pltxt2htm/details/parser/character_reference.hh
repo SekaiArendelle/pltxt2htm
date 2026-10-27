@@ -9,7 +9,7 @@
 #include "../../container/optional.hh"
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../utf8.hh"
 #include "html_named_character_references.hh"
 
@@ -138,24 +138,22 @@ struct TryDecodeCharacterReferenceResult {
  *          receive the legacy Windows-1252 mapping. Named references must exactly match
  *          an entry in HtmlNamedCharacterReferenceTable. This parser intentionally rejects
  *          the legacy semicolon-omission forms.
- * @tparam ndebug Contract checking mode used for input and table access.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param text Input view beginning with `&`.
  * @return Decoded code points and consumed size, or nullopt when no complete valid reference begins at `text`.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringView text) noexcept
     -> ::pltxt2htm::container::Optional<TryDecodeCharacterReferenceResult> {
     ::std::size_t const text_size{text.size()};
-    if (text_size < 3 || text.template index<ndebug>(0) != u8'&') {
+    if (text_size < 3 || text[0] != u8'&') {
         return ::pltxt2htm::container::nullopt;
     }
 
-    if (text.template index<ndebug>(1) == u8'#') {
+    if (text[1] == u8'#') {
         ::std::size_t index{2};
         bool hexadecimal{};
-        if (index < text_size &&
-            (text.template index<ndebug>(index) == u8'x' || text.template index<ndebug>(index) == u8'X')) {
+        if (index < text_size && (text[index] == u8'x' || text[index] == u8'X')) {
             hexadecimal = true;
             ++index;
         }
@@ -163,8 +161,8 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
         char32_t code_point{};
         bool out_of_range{};
         char32_t const base{hexadecimal ? char32_t{16} : char32_t{10}};
-        for (; index < text_size && text.template index<ndebug>(index) != u8';'; ++index) {
-            auto const chr = text.template index<ndebug>(index);
+        for (; index < text_size && text[index] != u8';'; ++index) {
+            auto const chr = text[index];
             char32_t digit{};
             if (u8'0' <= chr && chr <= u8'9') {
                 digit = static_cast<char32_t>(chr - u8'0');
@@ -202,8 +200,8 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
     }
 
     ::std::size_t index{1};
-    for (; index < text_size && text.template index<ndebug>(index) != u8';'; ++index) {
-        auto const chr = text.template index<ndebug>(index);
+    for (; index < text_size && text[index] != u8';'; ++index) {
+        auto const chr = text[index];
         bool const alphanumeric{(u8'A' <= chr && chr <= u8'Z') || (u8'a' <= chr && chr <= u8'z') ||
                                 (u8'0' <= chr && chr <= u8'9')};
         if (alphanumeric == false || index > 31) {
@@ -213,8 +211,8 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
     if (index == 1 || index >= text_size) {
         return ::pltxt2htm::container::nullopt;
     }
-    auto const name = text.template subview<ndebug>(1, index - 1);
-    auto const* const entity = ::pltxt2htm::details::HtmlNamedCharacterReferenceTable::try_find<ndebug>(name);
+    auto const name = text.subview(1, index - 1);
+    auto const* const entity = ::pltxt2htm::details::HtmlNamedCharacterReferenceTable::try_find(name);
     if (entity == nullptr) {
         return ::pltxt2htm::container::nullopt;
     }
@@ -227,50 +225,46 @@ constexpr auto try_decode_character_reference(::pltxt2htm::container::U8StringVi
  * @brief Append a decoded character-reference code point to a UTF-8 string.
  * @details ASCII controls are normalized to U+FFFD before encoding. Character-reference
  *          decoding guarantees that every other input is a Unicode scalar value.
- * @tparam ndebug Contract checking mode.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param[out] result Output string receiving the encoded code point.
  * @param code_point Decoded character-reference code point.
  */
-template<::pltxt2htm::Contracts ndebug>
 constexpr void append_character_reference_code_point(::pltxt2htm::container::U8String& result,
                                                      char32_t code_point) noexcept {
     if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
         code_point = char32_t{0xFFFD};
     }
-    ::pltxt2htm::details::append_utf8_code_point<ndebug>(result, code_point);
+    ::pltxt2htm::details::append_utf8_code_point(result, code_point);
 }
 
 /**
  * @brief Decode every supported HTML character reference in a string.
  * @details Unknown, malformed, and unterminated references are copied literally. Decoded
  *          ASCII controls are emitted as U+FFFD to match parser output normalization.
- * @tparam ndebug Contract checking mode used for input and reference-table access.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param text Input text that may contain character references.
  * @return UTF-8 text with all supported references decoded.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto decode_character_references(::pltxt2htm::container::U8StringView text) noexcept
     -> ::pltxt2htm::container::U8String {
     ::pltxt2htm::container::U8String result{};
     ::std::size_t const text_size{text.size()};
-    result.template reserve<ndebug>(text_size);
+    result.reserve(text_size);
     for (::std::size_t index{}; index < text_size;) {
-        if (text.template index<ndebug>(index) == u8'&') {
-            auto const decoded =
-                ::pltxt2htm::details::try_decode_character_reference<ndebug>(text.template subview<ndebug>(index));
+        if (text[index] == u8'&') {
+            auto const decoded = ::pltxt2htm::details::try_decode_character_reference(text.subview(index));
             if (decoded.has_value()) {
-                auto const& reference = decoded.template value<ndebug>();
-                ::pltxt2htm::details::append_character_reference_code_point<ndebug>(result, reference.first_code_point);
+                auto const& reference = decoded.value();
+                ::pltxt2htm::details::append_character_reference_code_point(result, reference.first_code_point);
                 if (reference.has_second_code_point()) {
-                    ::pltxt2htm::details::append_character_reference_code_point<ndebug>(result,
-                                                                                        reference.second_code_point);
+                    ::pltxt2htm::details::append_character_reference_code_point(result, reference.second_code_point);
                 }
                 index += reference.consumed_size;
                 continue;
             }
         }
-        result.push_back<ndebug>(text.template index<ndebug>(index));
+        result.push_back(text[index]);
         ++index;
     }
     return result;

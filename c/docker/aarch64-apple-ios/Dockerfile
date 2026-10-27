@@ -9,6 +9,7 @@ RUN wget -q "${IOS_SDK_URL}" -O /tmp/iphoneos-sdk.zip \
 
 WORKDIR /pltxt2htm
 COPY ../../../include /pltxt2htm/include/
+COPY ../../../cmake /pltxt2htm/cmake/
 COPY ../../../c /pltxt2htm/c/
 
 WORKDIR /pltxt2htm/c

@@ -6,11 +6,27 @@ platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64"]
 
 [activation.env]
 LD_LIBRARY_PATH = "$CONDA_PREFIX/lib"
+TEMP = "$PIXI_PROJECT_ROOT/.tmp"
+TMP = "$PIXI_PROJECT_ROOT/.tmp"
+TMPDIR = "$PIXI_PROJECT_ROOT/.tmp"
+
+[target.win-64.activation.env]
+# Activation env is expanded by the shell on POSIX, but pixi uses cmd-style
+# expansion on Windows, so the Windows override must use %VAR% here.
+TEMP = "%PIXI_PROJECT_ROOT%\\.tmp"
+TMP = "%PIXI_PROJECT_ROOT%\\.tmp"
+TMPDIR = "%PIXI_PROJECT_ROOT%\\.tmp"
 
 [dependencies]
 cmake = "*"
 ninja = "*"
 git = "*"
+
+[tasks]
+# TEMP/TMP/TMPDIR are activated globally; tasks only need to make sure
+# prepare-tmp runs before they invoke a tool that may use the temp directory.
+prepare-tmp = "cmake -E make_directory \"$PIXI_PROJECT_ROOT/.tmp\""
+clean-tmp = "cmake -E rm -rf \"$PIXI_PROJECT_ROOT/.tmp\""
 
 [feature.clang.dependencies]
 clangxx = ">=23"
@@ -19,41 +35,41 @@ clangxx = ">=23"
 CXXFLAGS = "$CXXFLAGS --gcc-toolchain=$CONDA_PREFIX"
 
 [feature.clang.tasks]
-configure-examples = "cmake -S examples -B examples/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++"
+configure-examples = { cmd = "cmake -S examples -B examples/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++", depends-on = ["prepare-tmp"] }
 build-examples = { cmd = "cmake --build examples/build-pixi-clang", depends-on = ["configure-examples"] }
 run-example = { cmd = "examples/build-pixi-clang/{{ example }}", args = ["example"], depends-on = ["build-examples"] }
-configure-cxxmodule-examples = "cmake -S cxxmodule/examples -B cxxmodule/examples/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++"
+configure-cxxmodule-examples = { cmd = "cmake -S cxxmodule/examples -B cxxmodule/examples/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++", depends-on = ["prepare-tmp"] }
 build-cxxmodule-examples = { cmd = "cmake --build cxxmodule/examples/build-pixi-clang", depends-on = ["configure-cxxmodule-examples"] }
 run-cxxmodule-example = { cmd = "cxxmodule/examples/build-pixi-clang/example", depends-on = ["build-cxxmodule-examples"] }
-configure-cmd = { cmd = "cmake -S cmd -B cmd/build-pixi-clang-{{ mode | lower }} -G Ninja -DCMAKE_BUILD_TYPE={{ mode | capitalize }} -DCMAKE_CXX_COMPILER=clang++", args = [{ arg = "mode", default = "debug" }] }
+configure-cmd = { cmd = "cmake -S cmd -B cmd/build-pixi-clang-{{ mode | lower }} -G Ninja -DCMAKE_BUILD_TYPE={{ mode | capitalize }} -DCMAKE_CXX_COMPILER=clang++", args = [{ arg = "mode", default = "debug" }], depends-on = ["prepare-tmp"] }
 build-cmd = { cmd = "cmake --build cmd/build-pixi-clang-{{ mode | lower }}", args = [{ arg = "mode", default = "debug" }], depends-on = [{ task = "configure-cmd", args = ["{{ mode }}"] }] }
 run-cmd = { cmd = "cmd/build-pixi-clang-{{ mode | lower }}/pltxt2htm {{ cli_args }}", args = [{ arg = "mode", default = "debug" }, { arg = "cli_args", default = "" }], depends-on = [{ task = "build-cmd", args = ["{{ mode }}"] }] }
-configure-tests-clang = "cmake -S tests -B tests/build-pixi-clang -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++"
-build-tests-clang = { cmd = "cmake --build tests/build-pixi-clang", depends-on = ["configure-tests-clang"] }
-test-clang = { cmd = "ctest --test-dir tests/build-pixi-clang --interactive-debug-mode 0 --output-on-failure", depends-on = ["build-tests-clang"] }
-configure-c-static = "cmake -S c -B c/build-pixi-clang-static -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=OFF"
+configure-tests-clang = { cmd = "cmake -S tests -B tests/build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }} -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DPLTXT2HTM_SANITIZER={{ sanitizer }}", args = [{ arg = "sanitizer", default = "" }], depends-on = ["prepare-tmp"] }
+build-tests-clang = { cmd = "cmake --build tests/build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }}", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "configure-tests-clang", args = ["{{ sanitizer }}"] }] }
+test-clang = { cmd = "ctest --test-dir tests/build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }} --interactive-debug-mode 0 --output-on-failure", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "build-tests-clang", args = ["{{ sanitizer }}"] }] }
+configure-c-static = { cmd = "cmake -S c -B c/build-pixi-clang-static -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=OFF", depends-on = ["prepare-tmp"] }
 build-c-static = { cmd = "cmake --build c/build-pixi-clang-static", depends-on = ["configure-c-static"] }
-configure-c-shared = "cmake -S c -B c/build-pixi-clang-shared -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=ON"
+configure-c-shared = { cmd = "cmake -S c -B c/build-pixi-clang-shared -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=ON", depends-on = ["prepare-tmp"] }
 build-c-shared = { cmd = "cmake --build c/build-pixi-clang-shared", depends-on = ["configure-c-shared"] }
 
 [feature.gcc.dependencies]
 gxx = ">=16"
 
 [feature.gcc.tasks]
-configure-tests-gcc = { cmd = "cmake -S tests -B tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++", env = { TEMP = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc", TMP = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc", TMPDIR = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc" } }
-build-tests-gcc = { cmd = "cmake --build tests/build-pixi-gcc", depends-on = ["configure-tests-gcc"], env = { TEMP = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc", TMP = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc", TMPDIR = "$PIXI_PROJECT_ROOT/tests/build-pixi-gcc" } }
-test-gcc = { cmd = "ctest --test-dir tests/build-pixi-gcc --interactive-debug-mode 0 --output-on-failure", depends-on = ["build-tests-gcc"] }
-configure-cxxmodule-tests = { cmd = "cmake -S cxxmodule/tests -B cxxmodule/tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++", env = { TEMP = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc", TMP = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc", TMPDIR = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc" } }
-build-cxxmodule-tests = { cmd = "cmake --build cxxmodule/tests/build-pixi-gcc", depends-on = ["configure-cxxmodule-tests"], env = { TEMP = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc", TMP = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc", TMPDIR = "$PIXI_PROJECT_ROOT/cxxmodule/tests/build-pixi-gcc" } }
+configure-tests-gcc = { cmd = "cmake -S tests -B tests/build-pixi-gcc{{ '-' ~ sanitizer if sanitizer != '' else '' }} -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++ -DPLTXT2HTM_SANITIZER={{ sanitizer }}", args = [{ arg = "sanitizer", default = "" }], depends-on = ["prepare-tmp"] }
+build-tests-gcc = { cmd = "cmake --build tests/build-pixi-gcc{{ '-' ~ sanitizer if sanitizer != '' else '' }}", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "configure-tests-gcc", args = ["{{ sanitizer }}"] }] }
+test-gcc = { cmd = "ctest --test-dir tests/build-pixi-gcc{{ '-' ~ sanitizer if sanitizer != '' else '' }} --interactive-debug-mode 0 --output-on-failure", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "build-tests-gcc", args = ["{{ sanitizer }}"] }] }
+configure-cxxmodule-tests = { cmd = "cmake -S cxxmodule/tests -B cxxmodule/tests/build-pixi-gcc -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++", depends-on = ["prepare-tmp"] }
+build-cxxmodule-tests = { cmd = "cmake --build cxxmodule/tests/build-pixi-gcc", depends-on = ["configure-cxxmodule-tests"] }
 test-cxxmodule = { cmd = "cxxmodule/tests/build-pixi-gcc/check_public_symbols", depends-on = ["build-cxxmodule-tests"] }
 
 [feature.rust.dependencies]
 rust = "*"
 
 [feature.rust.tasks]
-build-rust = { cmd = "cargo build --manifest-path rust/Cargo.toml --workspace", env = { CXX = "clang++" } }
-test-rust = { cmd = "cargo test --manifest-path rust/Cargo.toml --workspace", env = { CXX = "clang++" } }
-run-rust-example = { cmd = "cargo run --manifest-path rust/Cargo.toml -p {{ package }} --example {{ example }}", args = ["package", "example"], env = { CXX = "clang++" } }
+build-rust = { cmd = "cargo build --manifest-path rust/Cargo.toml --workspace", depends-on = ["prepare-tmp"], env = { CXX = "clang++" } }
+test-rust = { cmd = "cargo test --manifest-path rust/Cargo.toml --workspace", depends-on = ["prepare-tmp"], env = { CXX = "clang++" } }
+run-rust-example = { cmd = "cargo run --manifest-path rust/Cargo.toml -p {{ package }} --example {{ example }}", args = ["package", "example"], depends-on = ["prepare-tmp"], env = { CXX = "clang++" } }
 
 [feature.wasm.dependencies]
 emscripten = ">=4,<5"
@@ -64,7 +80,7 @@ EM_NODE_JS = "%CONDA_PREFIX%\\node.exe"
 
 [feature.wasm.tasks]
 # Emscripten 4.0.9 on conda-forge needs Binaryen 117, which cannot run its -O2+ wasm-opt flags.
-configure-wasm = { cmd = "emcmake cmake -S wasm -B wasm/build-pixi-{{ mode | lower }} -G Ninja -DCMAKE_BUILD_TYPE={{ mode | capitalize }} -DCMAKE_EXE_LINKER_FLAGS_RELEASE=-O1", args = [{ arg = "mode", default = "debug" }] }
+configure-wasm = { cmd = "emcmake cmake -S wasm -B wasm/build-pixi-{{ mode | lower }} -G Ninja -DCMAKE_BUILD_TYPE={{ mode | capitalize }} -DCMAKE_EXE_LINKER_FLAGS_RELEASE=-O1", args = [{ arg = "mode", default = "debug" }], depends-on = ["prepare-tmp"] }
 build-wasm = { cmd = "cmake --build wasm/build-pixi-{{ mode | lower }}", args = [{ arg = "mode", default = "debug" }], depends-on = [{ task = "configure-wasm", args = ["{{ mode }}"] }] }
 test-wasm = { cmd = "node wasm/examples/basic.mjs wasm/build-pixi-{{ mode | lower }}/pltxt2htm.js", args = [{ arg = "mode", default = "debug" }], depends-on = [{ task = "build-wasm", args = ["{{ mode }}"] }] }
 
@@ -79,7 +95,7 @@ run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration 
 run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration Debug --no-build", depends-on = ["build-csharp"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch", PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared;$PATH" } }
 
 [feature.py.tasks]
-configure-py = { cmd = "cmake -S py -B py/build-pixi-{{ pixi.environment.name }} -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++", args = [] }
+configure-py = { cmd = "cmake -S py -B py/build-pixi-{{ pixi.environment.name }} -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++", args = [], depends-on = ["prepare-tmp"] }
 build-py = { cmd = "cmake --build py/build-pixi-{{ pixi.environment.name }}", args = [], depends-on = ["configure-py"] }
 
 [feature.py37.dependencies]
@@ -109,6 +125,33 @@ python = ">=3.14,<3.15"
 [feature.py315.dependencies]
 python = ">=3.15,<3.16"
 
+[feature.scripts.dependencies]
+clangxx = ">=23"
+llvm-tools = ">=23"
+clang-tools = ">=23"
+python = ">=3.10"
+
+[feature.scripts.tasks]
+# One task per Python script in scripts/.
+gen-compile-commands = { cmd = "python scripts/gen_compile_commands.py --compiler clang++", depends-on = ["prepare-tmp"] }
+gen-dockerignore = "python scripts/gen_dockerignore.py"
+gen-format-ninja = "python scripts/gen_format_ninja.py"
+gen-html-named-character-references = "python scripts/gen_html_named_character_references.py"
+gen-version = "python scripts/gen_version.py"
+run-clang-tidy = "python scripts/run_clang_tidy.py"
+windows-symbols = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm"
+windows-symbols-check = "python scripts/gen_windows_symbols.py --clang clang++ --llvm-nm llvm-nm --check"
+git-clang-format-diff = "git-clang-format --diff main"
+git-clang-format = "git-clang-format --force main"
+
+# Full-tree formatting is discouraged; prefer the git-clang-format tasks for changed lines.
+format-all-cpp = { cmd = "ninja -f format_cpp.ninja", depends-on = ["gen-format-ninja"] }
+
+[feature.scripts.target.win-64.tasks]
+# The Windows launcher calls the system `py -3`; invoke the Pixi Python directly.
+git-clang-format-diff = { cmd = "cmd /c \"\"%CONDA_PREFIX%\\python.exe\" \"%CONDA_PREFIX%\\Library\\bin\\git-clang-format\" --diff main\"" }
+git-clang-format = { cmd = "cmd /c \"\"%CONDA_PREFIX%\\python.exe\" \"%CONDA_PREFIX%\\Library\\bin\\git-clang-format\" --force main\"" }
+
 [environments]
 default = []
 clang = ["clang"]
@@ -116,6 +159,7 @@ gcc = ["gcc"]
 rust = ["clang", "rust"]
 wasm = { features = ["wasm"], platforms = ["linux-64", "osx-64", "osx-arm64", "win-64"] }
 csharp = ["clang", "csharp"]
+scripts = ["scripts"]
 py37 = { features = ["clang", "py", "py37"], platforms = ["linux-64", "linux-aarch64", "osx-64", "win-64"] }
 py38 = ["clang", "py", "py38"]
 py39 = ["clang", "py", "py39"]

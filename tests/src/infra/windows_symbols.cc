@@ -11,9 +11,9 @@
     #define PLTXT2HTM_DETAIL_CDECL 14
     #define PLTXT2HTM_DETAIL_CDECL_ASM_NAME 15
 
-    #include <pltxt2htm/details/symbols/nt/ntdll.hh>
-    #include <pltxt2htm/details/symbols/win32/dbghelp.hh>
-    #include <pltxt2htm/details/symbols/win32/kernel32.hh>
+    #include <pltxt2htm/sys/nt/ntdll.hh>
+    #include <pltxt2htm/sys/win32/dbghelp.hh>
+    #include <pltxt2htm/sys/win32/kernel32.hh>
 
     #if PLTXT2HTM_DETAIL_DLLIMPORT != 11
         #error "dllimport macro was not restored"
@@ -37,8 +37,8 @@
     #undef PLTXT2HTM_DETAIL_CDECL
     #undef PLTXT2HTM_DETAIL_CDECL_ASM_NAME
 
-namespace nt = ::pltxt2htm::details::symbols::nt;
-namespace win32 = ::pltxt2htm::details::symbols::win32;
+namespace nt = ::pltxt2htm::sys_nt;
+namespace win32 = ::pltxt2htm::sys_win32;
 
 using ExpectedCaptureStackBackTrace = nt::Ushort(NTAPI*)(nt::Ulong, nt::Ulong, void**, nt::Ulong*) noexcept;
 using ExpectedTryAcquireSrwLockExclusive = nt::Boolean(NTAPI*)(nt::SrwLock*) noexcept;

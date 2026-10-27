@@ -53,9 +53,6 @@ using ::pltxt2htm::parse_pltxt;
 using ::pltxt2htm::inline_parse_pltxt;
 using ::pltxt2htm::optimize_ast;
 
-// contracts
-using ::pltxt2htm::Contracts;
-
 // exported constant global variables
 namespace version {
 

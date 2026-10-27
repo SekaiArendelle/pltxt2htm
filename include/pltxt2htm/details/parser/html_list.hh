@@ -19,7 +19,7 @@
 #include "../../container/string_view.hh"
 #include "../../container/optional.hh"
 #include "../utils.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "list_ast.hh"
 #include "try_parse.hh"
 #include "../push_macro.hh"
@@ -29,34 +29,32 @@ namespace pltxt2htm::details {
 /**
  * @brief Result of the HTML-list AST conversion attempt.
  */
-template<::pltxt2htm::Contracts ndebug>
 struct ToHtmlListAstResult {
-    ListBaseNode<ndebug> top_node;
+    ListBaseNode top_node;
     ::std::size_t advance_count;
 };
 
 /**
  * @brief Try to parse an HTML &lt;ul&gt;...&lt;/ul&gt; / &lt;ol&gt;...&lt;/ol&gt; block
  *        into an intermediate ListAst.
- * @tparam ndebug Contract checking mode.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param pltext Input text starting at the opening &lt;ul&gt;/&lt;ol&gt; tag.
  * @return Parsed list as the top-level ListUlNode/ListOlNode and the consumed byte count
  *         on success; nullopt if the text is not a well-formed HTML list.
  */
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView pltext) noexcept
-    -> ::pltxt2htm::container::Optional<ToHtmlListAstResult<ndebug>> {
+    -> ::pltxt2htm::container::Optional<ToHtmlListAstResult> {
     ::pltxt2htm::NodeKind item_kind{};
     ::std::size_t start{1};
     ::std::size_t current_index{};
-    if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<ul">(pltext); opt_len.has_value()) {
+    if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<u8"<ul">(pltext); opt_len.has_value()) {
         item_kind = ::pltxt2htm::NodeKind::list_ul;
-        current_index = opt_len.template value<ndebug>();
+        current_index = opt_len.value();
     }
-    else if (auto opt_ol_tag = ::pltxt2htm::details::try_parse_ol_tag<ndebug>(pltext); opt_ol_tag.has_value()) {
+    else if (auto opt_ol_tag = ::pltxt2htm::details::try_parse_ol_tag(pltext); opt_ol_tag.has_value()) {
         item_kind = ::pltxt2htm::NodeKind::list_ol;
-        auto&& [ol_len, ol_start] = opt_ol_tag.template value<ndebug>();
+        auto&& [ol_len, ol_start] = opt_ol_tag.value();
         current_index = ol_len;
         start = ol_start;
     }
@@ -64,13 +62,13 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         return ::pltxt2htm::container::nullopt;
     }
 
-    ListAst<ndebug> ast{};
+    ListAst ast{};
     ::std::size_t const pltext_size{pltext.size()};
 
     while (true) {
         // Skip whitespace between items.
         while (current_index < pltext_size) {
-            auto const chr = pltext.template index<ndebug>(current_index);
+            auto const chr = pltext[current_index];
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;
             }
@@ -84,30 +82,26 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         // with only whitespace but no items) is not a valid list today, so fall
         // back to literal text like any other malformed list instead of building
         // an empty list container.
-        if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</ul">(
-                pltext.template subview<ndebug>(current_index));
+        if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<u8"</ul">(pltext.subview(current_index));
             item_kind == ::pltxt2htm::NodeKind::list_ul && opt_len.has_value()) {
             if (ast.is_empty()) {
                 return ::pltxt2htm::container::nullopt;
             }
-            return ToHtmlListAstResult<ndebug>{.top_node = ListBaseNode<ndebug>{ListUlNode<ndebug>(::std::move(ast))},
-                                               .advance_count = current_index + opt_len.template value<ndebug>()};
+            return ToHtmlListAstResult{.top_node = ListBaseNode{ListUlNode(::std::move(ast))},
+                                       .advance_count = current_index + opt_len.value()};
         }
-        if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</ol">(
-                pltext.template subview<ndebug>(current_index));
+        if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<u8"</ol">(pltext.subview(current_index));
             item_kind == ::pltxt2htm::NodeKind::list_ol && opt_len.has_value()) {
             if (ast.is_empty()) {
                 return ::pltxt2htm::container::nullopt;
             }
-            return ToHtmlListAstResult<ndebug>{
-                .top_node = ListBaseNode<ndebug>{ListOlNode<ndebug>(::std::move(ast), start)},
-                .advance_count = current_index + opt_len.template value<ndebug>()};
+            return ToHtmlListAstResult{.top_node = ListBaseNode{ListOlNode(::std::move(ast), start)},
+                                       .advance_count = current_index + opt_len.value()};
         }
         // Only <li> elements are allowed inside <ul>/<ol>.
-        if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<li">(
-                pltext.template subview<ndebug>(current_index));
+        if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<u8"<li">(pltext.subview(current_index));
             opt_len.has_value()) {
-            current_index += opt_len.template value<ndebug>();
+            current_index += opt_len.value();
         }
         else {
             return ::pltxt2htm::container::nullopt;
@@ -116,7 +110,7 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         // Under the HTML block content model, leading whitespace/newlines inside an
         // item are just formatting for readability and are not rendered.
         while (current_index < pltext_size) {
-            auto const chr = pltext.template index<ndebug>(current_index);
+            auto const chr = pltext[current_index];
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;
             }
@@ -128,16 +122,15 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         // that inline occurrences of <input> stay literal text.
         bool checkbox{};
         bool checkbox_checked{};
-        if (auto opt_input = ::pltxt2htm::details::try_parse_input_checkbox_tag<ndebug>(
-                pltext.template subview<ndebug>(current_index));
+        if (auto opt_input = ::pltxt2htm::details::try_parse_input_checkbox_tag(pltext.subview(current_index));
             opt_input.has_value()) {
-            auto&& [input_len, checked] = opt_input.template value<ndebug>();
+            auto&& [input_len, checked] = opt_input.value();
             current_index += input_len;
             checkbox = true;
             checkbox_checked = checked;
             // Skip whitespace between the checkbox input and the item text.
             while (current_index < pltext_size) {
-                auto const chr = pltext.template index<ndebug>(current_index);
+                auto const chr = pltext[current_index];
                 if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                     break;
                 }
@@ -149,62 +142,58 @@ constexpr auto optionally_to_html_list_ast(::pltxt2htm::container::U8StringView 
         // parsed recursively into sibling sublist nodes (appended after the item), so the
         // item text itself never contains list markup and no inline recognition is needed.
         ::pltxt2htm::container::U8String text{};
-        ListAst<ndebug> pending_nested{};
+        ListAst pending_nested{};
         while (true) {
             if (current_index >= pltext_size) {
                 return ::pltxt2htm::container::nullopt;
             }
-            if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"</li">(
-                    pltext.template subview<ndebug>(current_index));
+            if (auto opt_len = ::pltxt2htm::details::try_parse_bare_tag<u8"</li">(pltext.subview(current_index));
                 opt_len.has_value()) {
-                current_index += opt_len.template value<ndebug>();
+                current_index += opt_len.value();
                 break;
             }
             ::pltxt2htm::NodeKind nested_list_kind{};
-            if (auto const opt_len = ::pltxt2htm::details::try_parse_bare_tag<ndebug, u8"<ul">(
-                    pltext.template subview<ndebug>(current_index));
+            if (auto const opt_len = ::pltxt2htm::details::try_parse_bare_tag<u8"<ul">(pltext.subview(current_index));
                 opt_len.has_value()) {
                 nested_list_kind = ::pltxt2htm::NodeKind::list_ul;
             }
-            else if (auto const opt_ol_tag =
-                         ::pltxt2htm::details::try_parse_ol_tag<ndebug>(pltext.template subview<ndebug>(current_index));
+            else if (auto const opt_ol_tag = ::pltxt2htm::details::try_parse_ol_tag(pltext.subview(current_index));
                      opt_ol_tag.has_value()) {
                 nested_list_kind = ::pltxt2htm::NodeKind::list_ol;
             }
             if (nested_list_kind == ::pltxt2htm::NodeKind::list_ul ||
                 nested_list_kind == ::pltxt2htm::NodeKind::list_ol) {
-                auto opt_nested = ::pltxt2htm::details::optionally_to_html_list_ast<ndebug>(
-                    pltext.template subview<ndebug>(current_index));
+                auto opt_nested = ::pltxt2htm::details::optionally_to_html_list_ast(pltext.subview(current_index));
                 if (opt_nested.has_value() == false) {
                     return ::pltxt2htm::container::nullopt;
                 }
-                auto&& [nested_node, nested_advance] = opt_nested.template value<ndebug>();
+                auto&& [nested_node, nested_advance] = opt_nested.value();
                 current_index += nested_advance;
-                pending_nested.template emplace_back<ndebug>(::std::move(nested_node));
+                pending_nested.emplace_back(::std::move(nested_node));
                 continue;
             }
             // Ordinary content character.
-            text.push_back<ndebug>(pltext.template index<ndebug>(current_index));
+            text.push_back(pltext[current_index]);
             ++current_index;
         }
         // Trailing whitespace/newlines are formatting as well (see the leading-skip above).
         while (text.is_empty() == false) {
-            auto const chr = text.template index<ndebug>(text.size() - 1);
+            auto const chr = text[text.size() - 1];
             if (chr != u8' ' && chr != u8'\t' && chr != u8'\n') {
                 break;
             }
-            text.template pop_back<ndebug>();
+            text.pop_back();
         }
         if (checkbox) {
-            ast.template emplace_back<ndebug>(ListLiCheckboxNode(::std::move(text), checkbox_checked));
+            ast.emplace_back(ListLiCheckboxNode(::std::move(text), checkbox_checked));
         }
         else {
-            ast.template emplace_back<ndebug>(ListLiNode(::std::move(text)));
+            ast.emplace_back(ListLiNode(::std::move(text)));
         }
         // Append the nested lists as siblings after the item (the Markdown sibling shape),
         // so the shared list frame handling and backends apply uniformly.
         for (auto& node : pending_nested) {
-            ast.template emplace_back<ndebug>(::std::move(node));
+            ast.emplace_back(::std::move(node));
         }
     }
 }

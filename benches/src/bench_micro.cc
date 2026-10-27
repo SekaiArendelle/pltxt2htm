@@ -5,13 +5,13 @@
 
 // -------------------------------------------------------------------
 // Micro-benchmarks — no data to prepare, everything created inline.
-// Fixture provides ndebug and consistent pattern with other bench files.
+// Keep the same fixture pattern used by the other benchmark files.
 // -------------------------------------------------------------------
 struct MicroFixture : ::benchmark::Fixture {};
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_Text)(benchmark::State& st) {
     for (auto _ : st) {
-        auto node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8'A');
+        auto node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
         ::benchmark::DoNotOptimize(node);
     }
 }
@@ -20,9 +20,9 @@ BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_Text);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_Group)(benchmark::State& st) {
     for (auto _ : st) {
-        ::pltxt2htm::Ast<ndebug> sub;
-        sub.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8'A'));
-        auto node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(sub));
+        ::pltxt2htm::Ast sub;
+        sub.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
+        auto node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(sub));
         ::benchmark::DoNotOptimize(node);
     }
 }
@@ -31,9 +31,9 @@ BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_Group);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_UnityColor)(benchmark::State& st) {
     for (auto _ : st) {
-        ::pltxt2htm::Ast<ndebug> sub;
-        sub.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8't'));
-        auto node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::UnityColor<ndebug>>(
+        ::pltxt2htm::Ast sub;
+        sub.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
+        auto node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
             ::std::move(sub), ::pltxt2htm::container::U8String{u8"red"});
         ::benchmark::DoNotOptimize(node);
     }
@@ -43,12 +43,12 @@ BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_UnityColor);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_HtmlSpan)(benchmark::State& st) {
     for (auto _ : st) {
-        ::pltxt2htm::Ast<ndebug> sub;
-        sub.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8't'));
-        auto node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlSpan<ndebug>>(
+        ::pltxt2htm::Ast sub;
+        sub.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8't'));
+        auto node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlSpan>(
             ::std::move(sub), ::pltxt2htm::container::U8String{u8"color:red;"},
             ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>{::pltxt2htm::container::nullopt},
-            ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>{::pltxt2htm::container::nullopt});
+            ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue>{::pltxt2htm::container::nullopt});
         ::benchmark::DoNotOptimize(node);
     }
 }
@@ -56,13 +56,13 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_HtmlSpan)(benchmark::State& st) {
 BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_HtmlSpan);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_MdLink)(benchmark::State& st) {
-    auto const valid_url = ::pltxt2htm::Url::try_make<ndebug>(u8"x.cc").value<ndebug>();
+    auto const valid_url = ::pltxt2htm::Url::try_make(u8"x.cc").value();
     for (auto _ : st) {
-        ::pltxt2htm::Ast<ndebug> text_sub;
-        text_sub.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8'L'));
+        ::pltxt2htm::Ast text_sub;
+        text_sub.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'L'));
         ::pltxt2htm::Url url{valid_url};
-        auto node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::MdLink<ndebug>>(::std::move(text_sub),
-                                                                                                  ::std::move(url));
+        auto node =
+            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdLink>(::std::move(text_sub), ::std::move(url));
         ::benchmark::DoNotOptimize(node);
     }
 }
@@ -70,9 +70,9 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeCreate_MdLink)(benchmark::State& st) {
 BENCHMARK_REGISTER_F(MicroFixture, NodeCreate_MdLink);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeMove_Trivial)(benchmark::State& st) {
-    auto src = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8'A');
+    auto src = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A');
     for (auto _ : st) {
-        ::pltxt2htm::PlTxtNode<ndebug> dst{::std::move(src)};
+        ::pltxt2htm::PlTxtNode dst{::std::move(src)};
         src = ::std::move(dst);
         ::benchmark::DoNotOptimize(src);
     }
@@ -81,12 +81,12 @@ BENCHMARK_DEFINE_F(MicroFixture, NodeMove_Trivial)(benchmark::State& st) {
 BENCHMARK_REGISTER_F(MicroFixture, NodeMove_Trivial);
 
 BENCHMARK_DEFINE_F(MicroFixture, NodeMove_WithSubAst)(benchmark::State& st) {
-    ::pltxt2htm::Ast<ndebug> nested;
-    nested.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8'A'));
-    nested.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8'B'));
-    auto src = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(nested));
+    ::pltxt2htm::Ast nested;
+    nested.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
+    nested.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'B'));
+    auto src = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(nested));
     for (auto _ : st) {
-        ::pltxt2htm::PlTxtNode<ndebug> dst{::std::move(src)};
+        ::pltxt2htm::PlTxtNode dst{::std::move(src)};
         src = ::std::move(dst);
         ::benchmark::DoNotOptimize(src);
     }
@@ -96,9 +96,9 @@ BENCHMARK_REGISTER_F(MicroFixture, NodeMove_WithSubAst);
 
 BENCHMARK_DEFINE_F(MicroFixture, AstAppend_1000_UnmergedTextNodes)(benchmark::State& st) {
     for (auto _ : st) {
-        ::pltxt2htm::Ast<ndebug> ast;
+        ::pltxt2htm::Ast ast;
         for (int i = 0; i < 1000; ++i) {
-            ast.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(u8'A'));
+            ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'A'));
         }
         ::benchmark::DoNotOptimize(ast);
     }
@@ -108,7 +108,7 @@ BENCHMARK_REGISTER_F(MicroFixture, AstAppend_1000_UnmergedTextNodes);
 
 BENCHMARK_DEFINE_F(MicroFixture, AstAppend_1000_MergedTextCodeUnits)(benchmark::State& st) {
     for (auto _ : st) {
-        ::pltxt2htm::Ast<ndebug> ast;
+        ::pltxt2htm::Ast ast;
         for (int i = 0; i < 1000; ++i) {
             ast.append_text(u8'A');
         }
@@ -122,9 +122,9 @@ BENCHMARK_DEFINE_F(MicroFixture, BasicStringAppend_Reserved)(benchmark::State& s
     constexpr ::std::size_t fragment_size{sizeof(u8"<span style=\"color:red;\">text</span>") / sizeof(char8_t) - 1};
     for (auto _ : st) {
         ::pltxt2htm::container::U8String s;
-        s.reserve<ndebug>(as_size(st) * fragment_size);
+        s.reserve(as_size(st) * fragment_size);
         for (::std::int64_t i = 0; i < st.range(0); ++i) {
-            s.append<ndebug>(u8"<span style=\"color:red;\">text</span>");
+            s.append(u8"<span style=\"color:red;\">text</span>");
         }
         ::benchmark::DoNotOptimize(s);
     }
@@ -150,7 +150,7 @@ BENCHMARK_DEFINE_F(MicroFixture, BasicStringAppend_NoReserve)(benchmark::State& 
     for (auto _ : st) {
         ::pltxt2htm::container::U8String s;
         for (::std::int64_t i = 0; i < st.range(0); ++i) {
-            s.append<ndebug>(u8"<span style=\"color:red;\">text</span>");
+            s.append(u8"<span style=\"color:red;\">text</span>");
         }
         ::benchmark::DoNotOptimize(s);
     }
@@ -173,9 +173,9 @@ BENCHMARK_REGISTER_F(MicroFixture, FastIoStringAppend_NoReserve)->Arg(10)->Arg(1
 BENCHMARK_DEFINE_F(MicroFixture, BasicStringPushBack_Reserved)(benchmark::State& st) {
     for (auto _ : st) {
         ::pltxt2htm::container::U8String s;
-        s.reserve<ndebug>(as_size(st));
+        s.reserve(as_size(st));
         for (::std::int64_t i = 0; i < st.range(0); ++i) {
-            s.push_back<ndebug>(u8'x');
+            s.push_back(u8'x');
         }
         ::benchmark::DoNotOptimize(s);
     }
@@ -200,7 +200,7 @@ BENCHMARK_DEFINE_F(MicroFixture, BasicStringPushBack_NoReserve)(benchmark::State
     for (auto _ : st) {
         ::pltxt2htm::container::U8String s;
         for (::std::int64_t i = 0; i < st.range(0); ++i) {
-            s.push_back<ndebug>(u8'x');
+            s.push_back(u8'x');
         }
         ::benchmark::DoNotOptimize(s);
     }
@@ -222,11 +222,11 @@ BENCHMARK_REGISTER_F(MicroFixture, FastIoStringPushBack_NoReserve)->Arg(1024)->A
 
 BENCHMARK_DEFINE_F(MicroFixture, BasicStringAssign)(benchmark::State& st) {
     ::pltxt2htm::container::U8String source{as_size(st)};
-    source.assign_characters<ndebug>(as_size(st), u8'x');
+    source.assign_characters(as_size(st), u8'x');
     ::pltxt2htm::container::U8String target;
-    target.reserve<ndebug>(as_size(st));
+    target.reserve(as_size(st));
     for (auto _ : st) {
-        target.assign<ndebug>(::pltxt2htm::container::U8StringView{source});
+        target.assign(::pltxt2htm::container::U8StringView{source});
         ::benchmark::DoNotOptimize(target);
     }
 }
