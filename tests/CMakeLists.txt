@@ -197,8 +197,7 @@ pltxt2htm_generate_cases(doctest_precompile_suites
 pltxt2htm_generate_cases(doctest_ast
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ast/*.hh")
 pltxt2htm_generate_cases(doctest_external_use
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/ast/external/*.hh"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/container/external/*.hh")
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ast/external/*.hh")
 pltxt2htm_generate_cases(doctest_container
     "${CMAKE_CURRENT_SOURCE_DIR}/src/container/*.hh")
 
