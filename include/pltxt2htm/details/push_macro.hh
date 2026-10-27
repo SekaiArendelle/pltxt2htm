@@ -9,8 +9,9 @@
  */
 
 #include <source_location>
-#include "contracts.hh"
-#include "panic.hh"
+#if !defined(PLTXT2HTM_CONTRACTS) || PLTXT2HTM_CONTRACTS == 0
+    #include "panic.hh"
+#endif
 #include "trap.hh"
 
 #pragma push_macro("pltxt2htm_assume")
