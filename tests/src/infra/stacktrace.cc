@@ -2,7 +2,7 @@
 #include <pltxt2htm/details/stacktrace/resolved_frame.hh>
 #include <pltxt2htm/details/stacktrace/format.hh>
 #if defined(_WIN32) && defined(PLTXT2HTM_ENABLE_STACKTRACE)
-    #include <pltxt2htm/details/symbols/win32/kernel32.hh>
+    #include <pltxt2htm/sys/win32/kernel32.hh>
 #endif
 #include <fast_io/fast_io_dsal/string.h>
 #include <cstring>
@@ -71,7 +71,8 @@ int main() {
     pltxt2htm_test_assert_true(single.size == 0 && !single.possibly_truncated);
 #endif
     static_assert(::std::random_access_iterator<trace::Stacktrace::const_iterator>);
-    static_assert(::std::same_as<decltype(::std::declval<trace::Stacktrace const&>()[0]), trace::StacktraceEntry const&>);
+    static_assert(
+        ::std::same_as<decltype(::std::declval<trace::Stacktrace const&>()[0]), trace::StacktraceEntry const&>);
     constexpr trace::StacktraceEntry empty_entry{};
     static_assert(!empty_entry && empty_entry.native_handle() == nullptr);
     pltxt2htm_test_assert_true(empty_entry.description().is_empty());
@@ -137,8 +138,8 @@ int main() {
     auto const captured = trace::capture(storage);
     auto const resolved = trace::resolve(captured.size != 0 ? storage[0] : nullptr);
 #if defined(_WIN32) && defined(PLTXT2HTM_ENABLE_STACKTRACE)
-    namespace nt = ::pltxt2htm::details::symbols::nt;
-    namespace win32 = ::pltxt2htm::details::symbols::win32;
+    namespace nt = ::pltxt2htm::sys_nt;
+    namespace win32 = ::pltxt2htm::sys_win32;
     auto& session = trace::get_symbol_session();
     pltxt2htm_test_assert_true(session.ready);
     pltxt2htm_test_assert_true((win32::SymGetOptions() & 0x00000010) != 0);

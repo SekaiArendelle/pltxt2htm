@@ -75,8 +75,8 @@ public:
     }
 
     [[nodiscard]]
-    friend constexpr auto operator<=>(StacktraceEntry const& left,
-                                      StacktraceEntry const& right) noexcept -> ::std::strong_ordering {
+    friend constexpr auto operator<=>(StacktraceEntry const& left, StacktraceEntry const& right) noexcept
+        -> ::std::strong_ordering {
         return ::std::compare_three_way{}(left.address_, right.address_);
     }
 };

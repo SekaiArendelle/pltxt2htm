@@ -77,7 +77,6 @@ public:
         self.size_ = size;
         return true;
     }
-
 };
 
 /** Resolver-owned text used below the pltxt2htm container layer. */

@@ -6,7 +6,7 @@
 #include <type_traits>
 #include <utility>
 #include "../../container/vector.hh"
-#include "../../contracts.hh"
+#include "../contracts.hh"
 #include "../trap.hh"
 #include "capture.hh"
 #include "stacktrace_entry.hh"
@@ -88,8 +88,8 @@ public:
     }
 
     [[nodiscard]]
-    static auto current(size_type skip, size_type max_depth,
-                        allocator_type const& alloc = {}) noexcept -> BasicStacktrace {
+    static auto current(size_type skip, size_type max_depth, allocator_type const& alloc = {}) noexcept
+        -> BasicStacktrace {
         BasicStacktrace result{alloc};
 #if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
         constexpr size_type native_limit = 65535;
@@ -103,9 +103,9 @@ public:
         ::pltxt2htm::container::Vector<void*, storage_allocator> addresses{};
         auto depth = limit < 64 ? limit : 64;
         for (;;) {
-            addresses.template reserve<::pltxt2htm::Contracts::ignore>(depth);
+            addresses.reserve(depth);
             while (addresses.size() < depth) {
-                addresses.template emplace_back<::pltxt2htm::Contracts::ignore>(nullptr);
+                addresses.emplace_back(nullptr);
             }
             result.captured_ = ::pltxt2htm::details::stacktrace::capture({addresses.data(), depth}, skip);
             if (!result.captured_.possibly_truncated || depth == limit) {
@@ -114,10 +114,10 @@ public:
             depth = depth > limit / 2 ? limit : depth * 2;
         }
         auto const size = result.captured_.size;
-        result.entries_.template reserve<::pltxt2htm::Contracts::ignore>(size);
+        result.entries_.reserve(size);
         for (size_type i = 0; i < size; ++i) {
-            auto& entry = result.entries_.template emplace_back<::pltxt2htm::Contracts::ignore>();
-            entry.address_ = addresses.template index<::pltxt2htm::Contracts::ignore>(i);
+            auto& entry = result.entries_.emplace_back();
+            entry.address_ = addresses[i];
         }
 #else
         (void)skip;
@@ -191,7 +191,7 @@ public:
 
     [[nodiscard]]
     constexpr auto operator[](this BasicStacktrace const& self, size_type index) noexcept -> const_reference {
-        return self.entries_.template index<::pltxt2htm::Contracts::ignore>(index);
+        return self.entries_[index];
     }
 
     [[nodiscard]]
@@ -215,8 +215,7 @@ public:
 
 template<typename Left, typename Right>
 [[nodiscard]]
-constexpr auto operator==(BasicStacktrace<Left> const& left,
-                          BasicStacktrace<Right> const& right) noexcept -> bool {
+constexpr auto operator==(BasicStacktrace<Left> const& left, BasicStacktrace<Right> const& right) noexcept -> bool {
     if (left.size() != right.size()) {
         return false;
     }
@@ -231,8 +230,8 @@ constexpr auto operator==(BasicStacktrace<Left> const& left,
 
 template<typename Left, typename Right>
 [[nodiscard]]
-constexpr auto operator<=>(BasicStacktrace<Left> const& left,
-                           BasicStacktrace<Right> const& right) noexcept -> ::std::strong_ordering {
+constexpr auto operator<=>(BasicStacktrace<Left> const& left, BasicStacktrace<Right> const& right) noexcept
+    -> ::std::strong_ordering {
     auto const size_order = left.size() <=> right.size();
     if (size_order != 0) {
         return size_order;

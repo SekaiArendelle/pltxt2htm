@@ -2,14 +2,14 @@
     #include <windows.h>
     #include <dbghelp.h>
     #include <cstddef>
-    #include <pltxt2htm/details/symbols/win32/dbghelp.hh>
-    #include <pltxt2htm/details/symbols/win32/kernel32.hh>
+    #include <pltxt2htm/sys/win32/dbghelp.hh>
+    #include <pltxt2htm/sys/win32/kernel32.hh>
     #include <type_traits>
 
 static_assert(sizeof(unsigned long) == sizeof(DWORD));
 static_assert(sizeof(unsigned short) == sizeof(USHORT));
 static_assert(sizeof(void*) == sizeof(SRWLOCK));
-namespace win32 = ::pltxt2htm::details::symbols::win32;
+namespace win32 = ::pltxt2htm::sys_win32;
 static_assert(sizeof(win32::SymbolInfo) == sizeof(SYMBOL_INFO));
 static_assert(alignof(win32::SymbolInfo) == alignof(SYMBOL_INFO));
 static_assert(offsetof(win32::SymbolInfo, name) == offsetof(SYMBOL_INFO, Name));

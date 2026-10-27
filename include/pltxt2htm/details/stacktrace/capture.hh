@@ -5,7 +5,7 @@
 #include <span>
 
 #if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
-    #include "../symbols/nt/ntdll.hh"
+    #include "../../sys/nt/ntdll.hh"
 #endif
 
 namespace pltxt2htm::details::stacktrace {
@@ -30,7 +30,7 @@ inline auto capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept 
         return {};
     }
     auto const capacity = frames.size() < 65535 ? frames.size() : 65535;
-    auto const count = ::pltxt2htm::details::symbols::nt::RtlCaptureStackBackTrace(
+    auto const count = ::pltxt2htm::sys_nt::RtlCaptureStackBackTrace(
         static_cast<unsigned long>(skip), static_cast<unsigned long>(capacity), frames.data(), nullptr);
     return {.size = count, .possibly_truncated = count == capacity};
 #else
