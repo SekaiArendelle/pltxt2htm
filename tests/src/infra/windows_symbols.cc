@@ -286,8 +286,8 @@ static_assert(sizeof(win32::FileTime) == sizeof(FILETIME));
 static_assert(sizeof(win32::SecurityAttributes) == sizeof(SECURITY_ATTRIBUTES));
 static_assert(sizeof(win32::Overlapped) == sizeof(OVERLAPPED));
 static_assert(offsetof(win32::Overlapped, internal) == offsetof(OVERLAPPED, Internal));
-static_assert(offsetof(win32::Overlapped, offset) == offsetof(OVERLAPPED, Offset));
-static_assert(offsetof(win32::Overlapped, pointer) == offsetof(OVERLAPPED, Pointer));
+static_assert(offsetof(win32::Overlapped, dummy_union_name.dummy_struct_name.offset) == offsetof(OVERLAPPED, Offset));
+static_assert(offsetof(win32::Overlapped, dummy_union_name.pointer) == offsetof(OVERLAPPED, Pointer));
 static_assert(offsetof(win32::Overlapped, event) == offsetof(OVERLAPPED, hEvent));
 static_assert(sizeof(win32::ByHandleFileInformation) == sizeof(BY_HANDLE_FILE_INFORMATION));
 static_assert(sizeof(win32::ProcessInformation) == sizeof(PROCESS_INFORMATION));
@@ -300,8 +300,9 @@ static_assert(offsetof(win32::StartupInfoW, standard_input) == offsetof(STARTUPI
 static_assert(sizeof(win32::SystemTime) == sizeof(SYSTEMTIME));
 static_assert(sizeof(win32::TimeZoneInformation) == sizeof(TIME_ZONE_INFORMATION));
 static_assert(sizeof(win32::SystemInfo) == sizeof(SYSTEM_INFO));
-static_assert(offsetof(win32::SystemInfo, oem_id) == offsetof(SYSTEM_INFO, dwOemId));
-static_assert(offsetof(win32::SystemInfo, processor_architecture) == offsetof(SYSTEM_INFO, wProcessorArchitecture));
+static_assert(offsetof(win32::SystemInfo, dummy_union_name.oem_id) == offsetof(SYSTEM_INFO, dwOemId));
+static_assert(offsetof(win32::SystemInfo, dummy_union_name.dummy_struct_name.processor_architecture)
+              == offsetof(SYSTEM_INFO, wProcessorArchitecture));
 static_assert(offsetof(win32::SystemInfo, page_size) == offsetof(SYSTEM_INFO, dwPageSize));
 static_assert(sizeof(win32::Win32FindDataA) == sizeof(WIN32_FIND_DATAA));
 static_assert(sizeof(win32::Win32FindDataW) == sizeof(WIN32_FIND_DATAW));
