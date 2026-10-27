@@ -19,6 +19,7 @@
 #include "../../ast/vertical_align_value.hh"
 #include "text_parsing.hh"
 #include "url_parsing.hh"
+#include "code/syntax.hh"
 #include "../push_macro.hh"
 
 /**
@@ -3023,6 +3024,73 @@ struct SimplyParsePLtextResult {
 };
 
 /**
+ * @brief Result of parsing one semantic PLText unit.
+ * @details `advance_count` is measured in source bytes, while `ascii` is the
+ *          normalized ASCII character used by code-fence lexers. Entity references,
+ *          invalid input, and non-ASCII code points use a zero `ascii` value.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
+ */
+class ParsedSimplePltextNode {
+public:
+    ::std::size_t advance_count{};
+    char8_t ascii{};
+};
+
+enum class SimplePltextParseMode : unsigned {
+    literal, ///< Preserve Markdown escapes and entity-reference spelling.
+    semantic, ///< Decode HTML character references but preserve backslashes.
+};
+
+template<SimplePltextParseMode mode = SimplePltextParseMode::literal>
+[[nodiscard]]
+constexpr auto parse_simple_pltext_node(::pltxt2htm::container::U8StringView pltext, ::pltxt2htm::Ast& ast) noexcept
+    -> ParsedSimplePltextNode {
+    char8_t const chr{pltext[0]};
+    if (chr == u8'\n') {
+        ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LineBreak>());
+        return {.advance_count = 1, .ascii = chr};
+    }
+    if (auto const opt_space_size = ::pltxt2htm::details::try_parse_space(pltext); opt_space_size.has_value()) {
+        auto const space_size = opt_space_size.value().get();
+        ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Space>());
+        return {.advance_count = space_size, .ascii = chr == u8' ' ? chr : char8_t{}};
+    }
+    if (chr == u8'&') {
+        if constexpr (mode != SimplePltextParseMode::literal) {
+            if (auto const opt_entity_len = ::pltxt2htm::details::try_append_character_reference(pltext, ast);
+                opt_entity_len.has_value()) {
+                auto const entity_len = opt_entity_len.value();
+                return {.advance_count = entity_len, .ascii = char8_t{}};
+            }
+        }
+        ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Ampersand>());
+        return {.advance_count = 1, .ascii = chr};
+    }
+    if (chr == u8'\'') {
+        ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::SingleQuote>());
+        return {.advance_count = 1, .ascii = chr};
+    }
+    if (chr == u8'\"') {
+        ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::DoubleQuote>());
+        return {.advance_count = 1, .ascii = chr};
+    }
+    if (chr == u8'>') {
+        ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::GreaterThan>());
+        return {.advance_count = 1, .ascii = chr};
+    }
+    if (chr == u8'\t') {
+        ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Tab>());
+        return {.advance_count = 1, .ascii = chr};
+    }
+    if (chr == u8'<') {
+        ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
+        return {.advance_count = 1, .ascii = chr};
+    }
+    auto const advance_count = ::pltxt2htm::details::parse_utf8_code_point(pltext, ast);
+    return {.advance_count = advance_count, .ascii = (chr & 0x80) == 0 && chr > 0x1f && chr != 0x7f ? chr : char8_t{}};
+}
+
+/**
  * @brief Result of parsing a plain text view up to a termination string.
  */
 struct SimplyParsePLtextUntilResult {
@@ -3118,7 +3186,7 @@ constexpr auto simply_parse_pltext_unit(::pltxt2htm::container::U8StringView plt
  *         `end_string` was found.
  * @note Special characters such as newline, space, ampersand, quotes,
  *       greater-than, and tab are converted to specific AST nodes.
- * @note Backslash escape sequences are processed and converted to their escaped equivalents.
+ * @note Backslashes and entity-reference spelling are preserved literally.
  * @note UTF-8 multi-byte characters are properly handled and appended to Text nodes.
  * @note The function consumes end_string and stops parsing immediately after it.
  * @note Use `simply_parse_pltext` to parse the whole input view.
@@ -3147,6 +3215,65 @@ constexpr auto simply_parse_pltext_until(::pltxt2htm::container::U8StringView pl
     }
     return {.advance_count = current_index, .ast = ::std::move(ast), .found_end = found_end};
 }
+
+[[nodiscard]]
+constexpr auto simply_parse_pltext_semantic(::pltxt2htm::container::U8StringView pltext) noexcept
+    -> ::pltxt2htm::details::SimplyParsePLtextResult {
+    ::pltxt2htm::Ast ast{};
+    ::std::size_t current_index{};
+    while (current_index != pltext.size()) {
+        auto const remaining = pltext.subview(current_index);
+        if (auto opt_escape = ::pltxt2htm::details::try_parse_md_escape(remaining); opt_escape.has_value()) {
+            auto const& escape_result = opt_escape.value();
+            ::pltxt2htm::details::append_md_escape_result(ast, escape_result);
+            current_index += escape_result.advance_count;
+            continue;
+        }
+        current_index += ::pltxt2htm::details::parse_simple_pltext_node<SimplePltextParseMode::semantic>(remaining, ast)
+                             .advance_count;
+    }
+    return {.advance_count = current_index, .ast = ::std::move(ast)};
+}
+
+/**
+ * @brief Parse plain text content into an AST until a termination string is encountered.
+ * @details Code-fence lexers need the literal spelling of Markdown escapes and entity
+ *          references, so backslashes are kept as literal text and entity references are
+ *          preserved instead of being decoded. Compare with @c simply_parse_pltext_until,
+ *          which decodes the same constructs for normal prose.
+ * @tparam end_string The exact non-empty string that marks the end of parsing.
+ * @param[in] pltext The input text to parse.
+ * @return A structure containing the parsed AST, the number of characters consumed, and whether
+ *         `end_string` was found.
+ */
+template<::pltxt2htm::details::U8LiteralString end_string>
+[[nodiscard]]
+constexpr auto simply_parse_literal(::pltxt2htm::container::U8StringView pltext) noexcept
+    -> ::pltxt2htm::details::SimplyParsePLtextUntilResult {
+    constexpr ::std::size_t end_size{end_string.size()};
+    static_assert(end_size != 0, "simply_parse_literal requires a non-empty end_string");
+    ::std::size_t const pltext_size{pltext.size()};
+    ::pltxt2htm::Ast ast{};
+    ::std::size_t current_index{};
+    bool found_end{false};
+
+    while (current_index < pltext_size) {
+        if (::pltxt2htm::details::is_prefix_match<end_string>(pltext.subview(current_index))) {
+            current_index += end_size;
+            found_end = true;
+            break;
+        }
+        current_index +=
+            ::pltxt2htm::details::parse_simple_pltext_node(pltext.subview(current_index), ast).advance_count;
+    }
+    return {.advance_count = current_index, .ast = ::std::move(ast), .found_end = found_end};
+}
+
+} // namespace pltxt2htm::details
+
+#include "code/parse.hh"
+
+namespace pltxt2htm::details {
 
 /**
  * @brief Parse plain text content into an AST until the end of the input view.
@@ -3186,17 +3313,112 @@ struct TryParseMdCodeFenceResult {
     ::std::size_t advance_count; ///< Number of characters consumed.
 };
 
+class ParsedHtmlCodeContent {
+public:
+    ::std::size_t advance_count{};
+    ::pltxt2htm::RenderedCodeAst ast{};
+    bool found_end{};
+};
+
+/**
+ * @brief Parse the restricted inline HTML emitted inside roundtrip code blocks.
+ *
+ * @details Code remains literal except for canonical `<span style="...">` elements
+ *          carrying color, font-size, or vertical-align. An explicit stack keeps
+ *          deeply nested spans from consuming the C++ call stack. Unterminated spans
+ *          are closed when the enclosing code block closes or reaches EOF.
+ */
+[[nodiscard]]
+constexpr auto parse_html_code_content(::pltxt2htm::container::U8StringView pltext) noexcept
+    -> ::pltxt2htm::details::ParsedHtmlCodeContent {
+    constexpr auto end_string = ::pltxt2htm::details::U8LiteralString{u8"</code></pre>"};
+    ::pltxt2htm::RenderedCodeAst ast{};
+    ast.reserve(pltext.size());
+    ::pltxt2htm::container::U8String text{};
+    ::std::size_t const pltext_size{pltext.size()};
+    ::std::size_t current_index{};
+    ::std::size_t open_style_count{};
+    bool found_end{};
+
+    while (current_index < pltext_size) {
+        char8_t const chr{pltext[current_index]};
+        if (chr == u8'<' && ::pltxt2htm::details::is_prefix_match<end_string>(pltext.subview(current_index))) {
+            current_index += end_string.size();
+            found_end = true;
+            break;
+        }
+
+        if (chr == u8'<') {
+            if (open_style_count != 0 && current_index + 2 < pltext_size && pltext[current_index + 1] == u8'/') {
+                if (auto opt_tag_len =
+                        ::pltxt2htm::details::try_parse_bare_tag<u8"span">(pltext.subview(current_index + 2));
+                    opt_tag_len.has_value()) {
+                    ast.append_text(::pltxt2htm::container::U8StringView{text.data(), text.size()});
+                    text.clear();
+                    ast.append_style_end();
+                    --open_style_count;
+                    current_index += opt_tag_len.value() + 2;
+                    continue;
+                }
+            }
+            if (current_index + 2 < pltext_size &&
+                (pltext[current_index + 1] == u8's' || pltext[current_index + 1] == u8'S')) {
+                if (auto opt_span_tag = ::pltxt2htm::details::try_parse_span_tag(pltext.subview(current_index + 2));
+                    opt_span_tag.has_value()) {
+                    auto&& [tag_len, color, font_size, vertical_align] = opt_span_tag.value();
+                    ::std::size_t const consumed{tag_len + 2};
+                    ast.append_text(::pltxt2htm::container::U8StringView{text.data(), text.size()});
+                    text.clear();
+                    ::std::size_t const style_index{
+                        ast.add_style(::std::move(color), font_size, ::std::move(vertical_align))};
+                    ast.append_style_begin(style_index);
+                    ++open_style_count;
+                    current_index += consumed;
+                    continue;
+                }
+            }
+        }
+
+        if (chr == u8'&') {
+            auto const remaining = pltext.subview(current_index);
+            if (auto const opt_entity = ::pltxt2htm::details::try_decode_character_reference(remaining);
+                opt_entity.has_value()) {
+                ast.append_text(::pltxt2htm::container::U8StringView{text.data(), text.size()});
+                text.clear();
+                ::std::size_t const entity_len{opt_entity.value().consumed_size};
+                ::pltxt2htm::container::U8String entity{remaining.data() + 1, remaining.data() + entity_len - 1};
+                ast.append_entity_reference(::pltxt2htm::container::U8StringView{entity.data(), entity.size()});
+                current_index += entity_len;
+                continue;
+            }
+        }
+
+        auto const remaining = pltext.subview(current_index);
+        auto const parsed = ::pltxt2htm::details::parse_code_syntax_unit(remaining, text);
+        current_index += parsed.advance_count;
+    }
+
+    ast.append_text(::pltxt2htm::container::U8StringView{text.data(), text.size()});
+    while (open_style_count != 0) {
+        ast.append_style_end();
+        --open_style_count;
+    }
+    return {.advance_count = current_index, .ast = ::std::move(ast), .found_end = found_end};
+}
+
 /**
  * @brief Parse a block-level HTML <pre><code>...</code></pre> code block into a CodeFence node.
  *
  * This function attempts to parse the full `<pre><code>` block: a bare `<pre>` tag,
- * optionally followed by spaces/tabs and a `<code>` tag (bare or with a
- * `class="language-..."` attribute). The content up to the matching `</code></pre>`
- * is parsed as plain text and stored in a ::pltxt2htm::CodeFence node.
+ * optionally followed by spaces/tabs and a bare `<code>` tag. The content up to
+ * the matching `</code></pre>` is parsed as literal code plus the restricted
+ * style spans emitted by the HTML backend and stored in a ::pltxt2htm::CodeFence node.
+ * Once the opening tags match, the block is committed and extends to the end of
+ * the input when the closing tags are missing.
  *
  * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param[in] pltext Input text starting at "<pre>".
- * @return The parsed CodeFence node and continuation index on success; nullopt on any deviation.
+ * @return The parsed CodeFence, or nullopt when the opening tags do not match.
  * @note The `<pre>` tag must be bare (no attributes) and `<code>` must immediately
  *       follow it (allowing only spaces/tabs in between).
  */
@@ -3216,45 +3438,19 @@ constexpr auto try_parse_html_pre_code_block(::pltxt2htm::container::U8StringVie
     while (pos < pltext_size && (pltext[pos] == u8' ' || pltext[pos] == u8'\t')) {
         ++pos;
     }
-    if (pos + 1 >= pltext_size) {
+    auto opt_code_tag_len = ::pltxt2htm::details::try_parse_bare_tag<u8"<code">(pltext.subview(pos));
+    if (opt_code_tag_len.has_value() == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    if (pltext[pos] != u8'<') {
-        return ::pltxt2htm::container::nullopt;
-    }
-    char8_t const code_first_chr{pltext[pos + 1]};
-    if (code_first_chr != u8'c' && code_first_chr != u8'C') {
-        return ::pltxt2htm::container::nullopt;
-    }
-    auto opt_code_tag = ::pltxt2htm::details::try_parse_code_tag(pltext.subview(pos + 2));
-    if (opt_code_tag.has_value() == false) {
-        return ::pltxt2htm::container::nullopt;
-    }
-    auto&& [code_tag_len, language] = opt_code_tag.value();
-    pos += 2 + code_tag_len;
+    pos += opt_code_tag_len.value();
 
     // parse content until the closing </code></pre>
-    constexpr auto end_string = ::pltxt2htm::details::U8LiteralString{u8"</code></pre>"};
-    auto&& [advance_count, ast, found_end] =
-        ::pltxt2htm::details::simply_parse_pltext_until<end_string, process_md_escape>(pltext.subview(pos));
-    if (found_end == false) {
-        // No closing </code></pre> in the input: treat the whole construct as literal
-        // text instead of an unterminated code block.
-        return ::pltxt2htm::container::nullopt;
-    }
-    pos += advance_count;
+    auto content_result = ::pltxt2htm::details::parse_html_code_content(pltext.subview(pos));
+    pos += content_result.advance_count;
 
-    // <code class="language-..."> stores the full class value; CodeFence stores only the suffix
-    // after the "language-" prefix (the backends prepend it again when rendering).
-    ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> opt_lang{::pltxt2htm::container::nullopt};
-    if (language.has_value()) {
-        auto const& full_language = language.value();
-        opt_lang =
-            ::pltxt2htm::container::U8String{full_language.data() + 9, full_language.data() + full_language.size()};
-    }
-    return TryParseMdCodeFenceResult{.node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                                         ::std::move(ast), ::std::move(opt_lang)),
-                                     .advance_count = pos};
+    return TryParseMdCodeFenceResult{
+        .node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(::std::move(content_result.ast)),
+        .advance_count = pos};
 }
 
 [[nodiscard]]
@@ -3429,29 +3625,25 @@ constexpr auto try_parse_md_code_fence_(::pltxt2htm::container::U8StringView plt
     }
 
     // parsing context of code fence
-    ::pltxt2htm::Ast ast{};
     ::pltxt2htm::container::U8StringView const content{pltext.subview(current_index)};
+    ::pltxt2htm::container::U8StringView code_content{};
     if (auto opt_fence_end = ::pltxt2htm::details::find_md_code_fence_end<is_backtick>(content);
         opt_fence_end.has_value()) {
         auto&& [content_end, consumed] = opt_fence_end.value();
-        auto&& [_, ast_] = ::pltxt2htm::details::simply_parse_pltext(content.subview(0, content_end));
-        ast = ::std::move(ast_);
+        code_content = content.subview(0, content_end);
         current_index += consumed;
     }
     else {
         // No valid closing fence: content runs to the end of the input.
-        auto&& [advance_count, ast_] = ::pltxt2htm::details::simply_parse_pltext(content);
-        ast = ::std::move(ast_);
-        current_index += advance_count;
+        code_content = content;
+        current_index += content.size();
     }
 
-    ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> opt_lang{::pltxt2htm::container::nullopt};
-    if (lang.is_empty() == false) {
-        opt_lang = ::std::move(lang);
-    }
-    return TryParseMdCodeFenceResult{.node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-                                         ::std::move(ast), ::std::move(opt_lang)),
-                                     .advance_count = current_index};
+    SyntaxLanguage const language{::pltxt2htm::details::resolve_syntax_language(lang)};
+    auto ast = ::pltxt2htm::details::parse_code_fence_syntax(code_content, language);
+    return TryParseMdCodeFenceResult{
+        .node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(::std::move(ast)),
+        .advance_count = current_index};
 }
 
 /**
@@ -3640,7 +3832,7 @@ constexpr auto try_parse_md_code_span(::pltxt2htm::container::U8StringView pltex
     }
 
     auto&& [advance_count, ast, found_end] =
-        ::pltxt2htm::details::simply_parse_pltext_until<embraced_string>(pltext.subview(embraced_size));
+        ::pltxt2htm::details::simply_parse_literal<embraced_string>(pltext.subview(embraced_size));
     if (found_end == false) {
         // The closing delimiter is missing: `advance_count` only reaches the end of the
         // input, so treating this as a code span would silently drop the unclosed backticks.

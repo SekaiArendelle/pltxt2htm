@@ -14,12 +14,128 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
+#include "code/for_plunity.hh"
 #include "html_escape.hh"
+#include "../parser/text_parsing.hh"
 #include "../utils.hh"
 #include "../contracts.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
+
+constexpr void append_character_reference_code_point_to_plunity_richtext(
+    char32_t code_point, ::pltxt2htm::container::U8String& out) noexcept {
+    if (::pltxt2htm::details::is_ascii_control_code_point(code_point)) {
+        code_point = char32_t{0xFFFD};
+    }
+    if (code_point == U'<') {
+        out.append(u8"<size=20>\uff1c</size>");
+        return;
+    }
+    if (code_point == U'>') {
+        out.append(u8"<size=20>\uff1e</size>");
+        return;
+    }
+    if (code_point == U' ') {
+        out.append(u8"\u00A0");
+        return;
+    }
+    auto const encoded = ::pltxt2htm::details::encode_utf8_code_point(code_point);
+    out.append(::pltxt2htm::container::U8StringView{encoded.code_units, encoded.size});
+}
+
+/**
+ * @brief Append an entity reference from a rendered code AST to Unity Rich Text output.
+ * @details Uses the same HTML character-reference rules as the parser, while escaping
+ *          decoded angle brackets so TextMeshPro cannot interpret them as tags.
+ */
+constexpr void append_entity_reference_to_plunity_richtext(::pltxt2htm::container::U8StringView const value_view,
+                                                           ::pltxt2htm::container::U8String& out) noexcept {
+    ::pltxt2htm::container::U8String reference{};
+    reference.reserve(value_view.size() + 2);
+    reference.push_back(u8'&');
+    reference.append(value_view);
+    reference.push_back(u8';');
+    auto const decoded =
+        ::pltxt2htm::details::try_decode_character_reference(::pltxt2htm::container::U8StringView{reference});
+    if (decoded.has_value() == false) {
+        out.push_back(u8'&');
+        out.append(value_view);
+        out.push_back(u8';');
+        return;
+    }
+    auto const& character_reference = decoded.value();
+    ::pltxt2htm::details::append_character_reference_code_point_to_plunity_richtext(
+        character_reference.first_code_point, out);
+    if (character_reference.has_second_code_point()) {
+        ::pltxt2htm::details::append_character_reference_code_point_to_plunity_richtext(
+            character_reference.second_code_point, out);
+    }
+}
+
+/**
+ * @brief Convert a simple (leaf-only) AST to Unity Rich Text with unescaping.
+ * @param ast The AST to convert (should only contain leaf/character-like nodes).
+ * @param[out] out Output buffer receiving the Unity Rich Text string.
+ */
+constexpr void convert_simple_pltxt_ast_to_plunity_richtext(::pltxt2htm::Ast const& ast,
+                                                            ::pltxt2htm::container::U8String& out) noexcept {
+    out.reserve(out.size() + ast.size() * 6);
+    for (auto&& node : ast) {
+        switch (node.get_node_kind()) {
+        case ::pltxt2htm::NodeKind::text: {
+            auto&& active_node = node.as_text();
+            out.append(active_node.begin(), active_node.end());
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
+            out.append(u8"\uFFFD");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::line_break: {
+            out.push_back(u8'\n');
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::space: {
+            out.append(u8"\u00A0");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::ampersand: {
+            out.push_back(u8'&');
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::single_quote: {
+            out.push_back(u8'\'');
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::double_quote: {
+            out.push_back(u8'\"');
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::less_than: {
+            out.push_back(u8'<');
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::greater_than: {
+            out.push_back(u8'>');
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::tab: {
+            out.push_back(u8'\t');
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::md_escape: {
+            auto&& active_node = node.as_md_escape();
+            out.push_back(active_node.get_character());
+            continue;
+        }
+        default:
+            [[unlikely]] {
+                pltxt2htm_unreachable(u8"Unexpected node kind in Unity text escaping");
+            }
+        }
+    }
+}
 
 /**
  * @brief Convert AST nodes to Unity Rich Text format.
@@ -1039,8 +1155,18 @@ entry:
             case ::pltxt2htm::NodeKind::code_fence: {
                 auto&& active_node = node.as_code_fence();
                 result.append(u8"<font=\"PhysicsLab-SarasaMonoSC SDF\">\n");
-                call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::code_fence));
-                goto entry;
+                switch (active_node.get_kind()) /* -Werror=switch */ {
+                case ::pltxt2htm::CodeFenceKind::highlighted: {
+                    ::pltxt2htm::details::append_plunity_code_ast(active_node.get_highlighted_ast(), result);
+                    break;
+                }
+                case ::pltxt2htm::CodeFenceKind::rendered: {
+                    ::pltxt2htm::details::append_plunity_code_ast(active_node.get_rendered_ast(), result);
+                    break;
+                }
+                }
+                result.append(u8"\n</font>");
+                continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_project: {
                 result.append(project);

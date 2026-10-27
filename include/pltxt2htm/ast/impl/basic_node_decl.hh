@@ -7,9 +7,10 @@
 #pragma once
 
 #include <utility>
-#include "../../container/string.hh"
-#include "../../container/optional.hh"
+
+#include "../code/ast.hh"
 #include "ast_decl.hh"
+#include "../../details/push_macro.hh"
 
 namespace pltxt2htm {
 
@@ -141,32 +142,44 @@ public:
 
 /**
  * @brief Markdown fenced code block
- * @details Contains code content and an optional language identifier.
+ * @details Contains either language-neutral highlighting IR or explicitly
+ *          rendered inline code.
  */
+enum class CodeFenceKind : unsigned {
+    highlighted = 0,
+    rendered,
+};
+
 class CodeFence {
-    ::pltxt2htm::Ast subast;
-    ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> lang;
+    ::pltxt2htm::CodeFenceKind kind;
+
+    union {
+        ::pltxt2htm::HighlightedCodeAst highlighted_ast;
+        ::pltxt2htm::RenderedCodeAst rendered_ast;
+    };
+
+    constexpr void destroy_active(this CodeFence& self) noexcept;
 
 public:
     /**
      * @brief Construct a fenced code block.
-     * @param subast The code content as an AST.
-     * @param lang Optional language string.
+     * @param ast_value The parsed code content.
      */
-    constexpr explicit CodeFence(::pltxt2htm::Ast&& subast_,
-                                 ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>&& lang_) noexcept;
+    constexpr explicit CodeFence(::pltxt2htm::HighlightedCodeAst&& ast_value) noexcept;
+    constexpr explicit CodeFence(::pltxt2htm::RenderedCodeAst&& ast_value) noexcept;
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr CodeFence(::pltxt2htm::CodeFence const&) noexcept = delete;
 #else
-    constexpr CodeFence(::pltxt2htm::CodeFence const&) noexcept = default;
+    constexpr CodeFence(::pltxt2htm::CodeFence const&) noexcept;
 #endif
     constexpr CodeFence(::pltxt2htm::CodeFence&&) noexcept;
-    constexpr ~CodeFence() noexcept = default;
+    constexpr ~CodeFence() noexcept;
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator=(::pltxt2htm::CodeFence const&) noexcept -> ::pltxt2htm::CodeFence& = delete;
-#else
     constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence const&) noexcept
-        -> ::pltxt2htm::CodeFence& = default;
+        -> ::pltxt2htm::CodeFence& = delete;
+#else
+    constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence const& other) noexcept
+        -> ::pltxt2htm::CodeFence&;
 #endif
     constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence&&) noexcept -> ::pltxt2htm::CodeFence&;
 
@@ -174,14 +187,39 @@ public:
     constexpr auto operator==(this CodeFence const& self, CodeFence const& other) noexcept -> bool;
 
     [[nodiscard]]
-    constexpr auto get_subast(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.subast);
+    constexpr auto get_kind(this CodeFence const& self) noexcept -> ::pltxt2htm::CodeFenceKind {
+        return self.kind;
     }
 
     [[nodiscard]]
-    constexpr auto get_language(this auto&& self) noexcept -> decltype(auto) {
-        return ::std::forward_like<decltype(self)>(self.lang);
+    constexpr auto get_highlighted_ast(this CodeFence& self) noexcept -> ::pltxt2htm::HighlightedCodeAst& {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::highlighted,
+                         u8"highlighted AST requested from rendered code fence");
+        return self.highlighted_ast;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_highlighted_ast(this CodeFence const& self) noexcept -> ::pltxt2htm::HighlightedCodeAst const& {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::highlighted,
+                         u8"highlighted AST requested from rendered code fence");
+        return self.highlighted_ast;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_rendered_ast(this CodeFence& self) noexcept -> ::pltxt2htm::RenderedCodeAst& {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::rendered,
+                         u8"rendered AST requested from highlighted code fence");
+        return self.rendered_ast;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_rendered_ast(this CodeFence const& self) noexcept -> ::pltxt2htm::RenderedCodeAst const& {
+        pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::rendered,
+                         u8"rendered AST requested from highlighted code fence");
+        return self.rendered_ast;
     }
 };
 
 } // namespace pltxt2htm
+
+#include "../../details/pop_macro.hh"

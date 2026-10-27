@@ -58,6 +58,12 @@ int main() noexcept {
             ::pltxt2htm::details::is_prefix_match<str>(::pltxt2htm::container::U8StringView{u8"TEST"}));
         pltxt2htm_test_assert_true(
             ::pltxt2htm::details::is_prefix_match<str>(::pltxt2htm::container::U8StringView{u8"kksk"}) == false);
+        pltxt2htm_test_assert_true(
+            ::pltxt2htm::details::is_exact_match<str>(::pltxt2htm::container::U8StringView{u8"TeSt"}));
+        pltxt2htm_test_assert_true(
+            ::pltxt2htm::details::is_exact_match<str>(::pltxt2htm::container::U8StringView{u8"test-extra"}) == false);
+        pltxt2htm_test_assert_true(
+            ::pltxt2htm::details::is_exact_match<str>(::pltxt2htm::container::U8StringView{u8"tes"}) == false);
     }
 
     {

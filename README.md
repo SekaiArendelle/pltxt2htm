@@ -39,7 +39,7 @@ Markdown extension based on [CommonMark](https://spec.commonmark.org/0.31.2/):
 | **Setext headers** | Not supported | |
 | **Escape characters** | Supported | Backslash escape for all ASCII punctuation |
 | **Indented code blocks** | Not supported | |
-| **Code fences** | Basic | ` ``` ` / `~~~` → `<pre><code>`. Optional language annotation. Fixed 3-delimiter only. |
+| **Code fences** | Basic | ` ``` ` / `~~~` → `<pre><code>`. Optional language annotation. Built-in, dependency-free C++ and Rust syntax highlighting for web and PLUnity rich-text output. Fixed 3-delimiter only. |
 | **Code spans** | Basic | Nested backticks not supported. |
 | **Emphasis** | Basic | `*`/`_` → `<em>`, `**`/`__` → `<strong>`, `***`/`___` → `<em><strong>`. No intra-word emphasis or delimiter-run rules. |
 | **Block quotes** | Basic | `>` lines → `<blockquote>`. Single-level only. No lazy continuation. |

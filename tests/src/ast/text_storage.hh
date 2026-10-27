@@ -15,7 +15,7 @@ TEST_SUITE("text_storage") {
     using Text = ::pltxt2htm::Text;
 
     static_assert(sizeof(void*) != 8 || Text::capacity() == 71);
-    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode) == 80);
+    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode) == 88);
     static_assert(::std::is_nothrow_constructible_v<Text, char8_t const*, char8_t const*>);
     static_assert(
         noexcept(::std::declval<Text&>().append(::std::declval<char8_t const*>(), ::std::declval<char8_t const*>())));

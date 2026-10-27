@@ -16,7 +16,7 @@ TEST_SUITE("html_span_storage") {
     }
 
     static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::HtmlSpan) == 72);
-    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode) == 80);
+    static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode) == 88);
 
     TEST_CASE("absent font size and vertical alignment") {
         auto const span = make_html_span(::pltxt2htm::container::nullopt, ::pltxt2htm::container::nullopt);

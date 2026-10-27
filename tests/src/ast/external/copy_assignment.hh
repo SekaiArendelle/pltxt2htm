@@ -96,16 +96,18 @@ TEST_SUITE("copy_assignment") {
         CHECK(assigned == original);
     }
 
-    // Assign a CodeFence including its optional language.
+    // Assign a highlighted markdown code fence.
     TEST_CASE("assign-code-fence") {
-        auto const original =
-            ::pltxt2htm::CodeFence(::pltxt2htm::Ast{::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'c')},
-                                   ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                       ::pltxt2htm::container::U8String{u8"cpp"}));
-        auto assigned =
-            ::pltxt2htm::CodeFence(::pltxt2htm::Ast{::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'd')},
-                                   ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                       ::pltxt2htm::container::U8String{u8"rust"}));
+        ::pltxt2htm::HighlightedCodeAst original_ast{};
+        ::pltxt2htm::container::U8String original_text{u8"c"};
+        original_ast.append(original_text, ::pltxt2htm::CodeHighlightKind::plain);
+        auto const original = ::pltxt2htm::CodeFence(::std::move(original_ast));
+
+        ::pltxt2htm::HighlightedCodeAst assigned_ast{};
+        ::pltxt2htm::container::U8String assigned_text{u8"d"};
+        assigned_ast.append(assigned_text, ::pltxt2htm::CodeHighlightKind::plain);
+        auto assigned = ::pltxt2htm::CodeFence(::std::move(assigned_ast));
+
         assigned = original;
         CHECK(assigned == original);
     }

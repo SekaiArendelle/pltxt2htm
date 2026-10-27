@@ -13,12 +13,79 @@
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
+#include "code/for_plweb.hh"
 #include "html_escape.hh"
 #include "../contracts.hh"
 #include "../utils.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
+
+/**
+ * @brief Convert a simple (leaf-only) AST to HTML text with proper escaping.
+ * @param ast The AST to convert (should only contain leaf/character-like nodes).
+ * @param[out] out Output buffer receiving the escaped HTML text.
+ */
+constexpr void convert_simple_pltxt_ast_to_plweb_text(::pltxt2htm::Ast const& ast,
+                                                      ::pltxt2htm::container::U8String& out) noexcept {
+    out.reserve(out.size() + ast.size() * 6);
+    ::std::size_t const ast_size{ast.size()};
+    for (::std::size_t index{}; index < ast_size; ++index) {
+        auto const& node = ast[index];
+        switch (node.get_node_kind()) {
+        case ::pltxt2htm::NodeKind::text: {
+            auto&& active_node = node.as_text();
+            out.append(active_node.begin(), active_node.end());
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::invalid_utf8: {
+            out.append(u8"\uFFFD");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::line_break: {
+            out.push_back(u8'\n');
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::space: {
+            out.append(u8"&nbsp;");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::ampersand: {
+            out.append(u8"&amp;");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::single_quote: {
+            out.append(u8"&apos;");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::double_quote: {
+            out.append(u8"&quot;");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::less_than: {
+            out.append(u8"&lt;");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::greater_than: {
+            out.append(u8"&gt;");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::tab: {
+            out.append(u8"&nbsp;&nbsp;&nbsp;&nbsp;");
+            continue;
+        }
+        case ::pltxt2htm::NodeKind::md_escape: {
+            auto&& active_node = node.as_md_escape();
+            ::pltxt2htm::details::append_html_escaped_character(out, active_node.get_character());
+            continue;
+        }
+        default:
+            [[unlikely]] {
+                pltxt2htm_unreachable(u8"Unexpected node kind in HTML escaping");
+            }
+        }
+    }
+}
 
 enum class PlWebTextBackendMode : unsigned {
     fixedadv_html = 0,
@@ -1042,19 +1109,19 @@ entry:
             }
             case ::pltxt2htm::NodeKind::code_fence: {
                 auto&& active_node = node.as_code_fence();
-                auto const& opt_language = active_node.get_language();
-                if (opt_language.has_value()) {
-                    auto const& language = opt_language.value();
-                    result.append(u8"<pre><code class=\"language-");
-                    ::pltxt2htm::details::append_html_escaped_attribute_value(
-                        result, ::pltxt2htm::container::U8StringView{language});
-                    result.append(u8"\">");
+                result.append(u8"<pre><code>");
+                switch (active_node.get_kind()) /* -Werror=switch */ {
+                case ::pltxt2htm::CodeFenceKind::highlighted: {
+                    ::pltxt2htm::details::append_plweb_code_ast(active_node.get_highlighted_ast(), result);
+                    break;
                 }
-                else {
-                    result.append(u8"<pre><code>");
+                case ::pltxt2htm::CodeFenceKind::rendered: {
+                    ::pltxt2htm::details::append_plweb_code_ast(active_node.get_rendered_ast(), result);
+                    break;
                 }
-                call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::code_fence));
-                goto entry;
+                }
+                result.append(u8"</code></pre>");
+                continue;
             }
             case ::pltxt2htm::NodeKind::pl_macro_project: {
                 ::pltxt2htm::details::append_html_escaped_attribute_value(result, project);

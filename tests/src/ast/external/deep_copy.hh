@@ -78,14 +78,13 @@ TEST_SUITE("deep_copy") {
         CHECK(original == copy);
     }
 
-    // Copy of a node with optional language (CodeFence)
-    TEST_CASE("copy-code-fence-with-optional-language") {
-        ::pltxt2htm::Ast ast{};
-        ast.emplace_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'x'));
+    // Copy of a highlighted markdown code fence
+    TEST_CASE("copy-markdown-code-fence") {
+        ::pltxt2htm::HighlightedCodeAst ast{};
+        ::pltxt2htm::container::U8String text{u8"x"};
+        ast.append(text, ::pltxt2htm::CodeHighlightKind::plain);
 
-        auto const original = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(
-            ::std::move(ast), ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>(
-                                  ::pltxt2htm::container::U8String{u8"cpp"}));
+        auto const original = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::CodeFence>(::std::move(ast));
 
         auto const copy = original;
         CHECK(original == copy);
