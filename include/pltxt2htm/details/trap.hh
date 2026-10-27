@@ -31,8 +31,9 @@ inline void trap() noexcept {
  * @brief Marks a code path as unreachable for the optimizer.
  * @details Pure optimizer hint with no diagnostic behavior in any contract mode.
  *          Prefer the pltxt2htm_unreachable macro (details/push_macro.hh), which
- *          panics with a message in enforce mode and only falls back to this
- *          function in ignore mode. Only use this function directly at call sites
+ *          panics with a message in enforce mode, traps without diagnostics in
+ *          quick_enforce mode, and only falls back to this function in ignore
+ *          mode. Only use this function directly at call sites
  *          whose unreachability is proven, or when the optimizer hint is the goal.
  */
 [[noreturn]]

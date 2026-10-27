@@ -120,7 +120,7 @@ entry:
                 result.append(u8"<span style=\"");
                 if (has_color) {
                     result.append(u8"color:");
-                    if constexpr (::pltxt2htm::details::contract_mode == ::pltxt2htm::details::Contracts::enforce) {
+                    if constexpr (::pltxt2htm::details::contract_mode != ::pltxt2htm::details::Contracts::ignore) {
                         ::pltxt2htm::container::U8String purified_color{};
                         ::pltxt2htm::details::append_html_escaped_attribute_value(
                             purified_color, ::pltxt2htm::container::U8StringView{span_color});
