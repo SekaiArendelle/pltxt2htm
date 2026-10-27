@@ -133,7 +133,7 @@ python = ">=3.10"
 
 [feature.scripts.tasks]
 # One task per Python script in scripts/.
-gen-compile-commands = { cmd = "python scripts/gen_compile_commands.py --compiler $CONDA_PREFIX/bin/clang++", depends-on = ["prepare-tmp"] }
+gen-compile-commands = { cmd = "python scripts/gen_compile_commands.py --compiler clang++", depends-on = ["prepare-tmp"] }
 gen-dockerignore = "python scripts/gen_dockerignore.py"
 gen-format-ninja = "python scripts/gen_format_ninja.py"
 gen-html-named-character-references = "python scripts/gen_html_named_character_references.py"
