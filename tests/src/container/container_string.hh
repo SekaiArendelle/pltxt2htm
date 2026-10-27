@@ -11,7 +11,7 @@
 #include <pltxt2htm/container/string.hh>
 
 #include "doctest_config.hh"
-#include "container/details/concepts.hh"
+#include "details/concepts.hh"
 
 using U8String = ::pltxt2htm::container::U8String;
 using U8StringView = ::pltxt2htm::container::U8StringView;

@@ -12,7 +12,7 @@
 #include <pltxt2htm/details/literal_string.hh>
 
 #include "doctest_config.hh"
-#include "container/details/concepts.hh"
+#include "details/concepts.hh"
 
 using U8StringView = ::pltxt2htm::container::U8StringView;
 using U8InplaceString = ::pltxt2htm::details::U8InplaceString<8>;

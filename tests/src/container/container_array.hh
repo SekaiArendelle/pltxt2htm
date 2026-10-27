@@ -8,7 +8,7 @@
 #include <pltxt2htm/container/array.hh>
 
 #include "doctest_config.hh"
-#include "container/details/concepts.hh"
+#include "details/concepts.hh"
 
 template<::std::size_t extent>
 concept can_form_array = requires { typename ::pltxt2htm::container::Array<int, extent>; };

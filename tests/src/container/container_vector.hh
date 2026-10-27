@@ -11,7 +11,7 @@
 #include <pltxt2htm/container/vector.hh>
 
 #include "doctest_config.hh"
-#include "container/details/concepts.hh"
+#include "details/concepts.hh"
 
 using IntVector = ::pltxt2htm::container::Vector<int>;
 
