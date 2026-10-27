@@ -29,8 +29,8 @@ TEST_SUITE("common_parser") {
         CHECK(html == answer);
     }
     TEST_CASE("nested-color-tags") {
-        auto html = ::pltxt2htm_test::pltxt2common_html(u8"<color=red><Color=#66CcFf>text</color></color>");
-        auto const& answer = u8"<span style=\"color:#66CcFf;\">text</span>";
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<color=red><Color=#66CcFf>text</color></color>");
+        auto const& answer = u8"<span style=\"color:red;\"><span style=\"color:#66CcFf;\">text</span></span>";
         CHECK(html == answer);
     }
     TEST_CASE("tag-inside-text") {
@@ -145,16 +145,18 @@ TEST_SUITE("common_parser") {
         auto const& answer = u8"<em>text</em>";
         CHECK(html == answer);
     }
-    TEST_CASE("identical-spans-merged") {
-        auto html = ::pltxt2htm_test::pltxt2common_html(
+    // This suite runs the production default (`optimize = false`), so nested markup is preserved as written; the
+    // optimizer's merging of identical spans is exercised by the fixedadv suites, which optimize.
+    TEST_CASE("identical-spans-kept") {
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(
             u8"<span style=\"font-size:12px\"><span style=\"font-size:12px\">text</span></span>");
-        auto const& answer = u8"<span style=\"font-size:12px;\">text</span>";
+        auto const& answer = u8"<span style=\"font-size:12px;\"><span style=\"font-size:12px;\">text</span></span>";
         CHECK(html == answer);
     }
-    TEST_CASE("span-and-color-merged") {
+    TEST_CASE("span-and-color-kept") {
         auto html =
-            ::pltxt2htm_test::pltxt2common_html(u8"<span style=\"font-size:12px\"><color=red>text</color></span>");
-        auto const& answer = u8"<span style=\"color:red;font-size:12px;\">text</span>";
+            ::pltxt2htm_test::pltxt2common_htmld(u8"<span style=\"font-size:12px\"><color=red>text</color></span>");
+        auto const& answer = u8"<span style=\"font-size:12px;\"><span style=\"color:red;\">text</span></span>";
         CHECK(html == answer);
     }
     TEST_CASE("strong-tag-kept") {
@@ -168,17 +170,17 @@ TEST_SUITE("common_parser") {
         CHECK(html == answer);
     }
     TEST_CASE("experiment-tag-unwrapped") {
-        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<experiment=id>text</experiment>");
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<experiment=642cf37a494746375aae306a>text</experiment>");
         auto const& answer = u8"text";
         CHECK(html == answer);
     }
     TEST_CASE("discussion-tag-unwrapped") {
-        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<discussion=id>text</discussion>");
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<discussion=642cf37a494746375aae306a>text</discussion>");
         auto const& answer = u8"text";
         CHECK(html == answer);
     }
     TEST_CASE("user-tag-unwrapped") {
-        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<user=id>text</user>");
+        auto html = ::pltxt2htm_test::pltxt2common_htmld(u8"<user=642cf37a494746375aae306a>text</user>");
         auto const& answer = u8"text";
         CHECK(html == answer);
     }

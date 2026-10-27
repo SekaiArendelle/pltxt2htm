@@ -1,0 +1,649 @@
+#pragma once
+
+#include <concepts>
+#include <iterator>
+#include <span>
+#include <type_traits>
+#include <utility>
+
+#include <fast_io/fast_io_core.h>
+
+#include <pltxt2htm/container/vector.hh>
+
+#include "doctest_config.hh"
+#include "details/concepts.hh"
+
+using IntVector = ::pltxt2htm::container::Vector<int>;
+
+static_assert(!can_call_empty<IntVector>);
+static_assert(requires(IntVector& vector, IntVector const& const_vector, ::std::size_t position) {
+    { vector[position] } noexcept -> ::std::same_as<int&>;
+    vector[position] = 1;
+    { const_vector[position] } noexcept -> ::std::same_as<int const&>;
+});
+
+class TrackingRawAllocator {
+    static inline constexpr ::std::size_t slot_count{4};
+    static inline constexpr ::std::size_t additional_bytes{3 * sizeof(int)};
+    static inline void* allocation_pointers[slot_count]{};
+    static inline ::std::size_t allocation_sizes[slot_count]{};
+    static inline ::std::size_t active_allocations{};
+    static inline ::std::size_t deallocation_count{};
+    static inline ::std::size_t last_requested_bytes{};
+    static inline bool deallocation_mismatch{};
+
+public:
+    [[nodiscard]]
+    static auto allocate_at_least(::std::size_t requested_bytes) noexcept -> ::fast_io::allocation_least_result {
+        last_requested_bytes = requested_bytes;
+        ::std::size_t const allocated_bytes{requested_bytes + additional_bytes};
+        void* const pointer{::fast_io::native_global_allocator::allocate(allocated_bytes)};
+        for (::std::size_t index{}; index != slot_count; ++index) {
+            if (allocation_pointers[index] == nullptr) {
+                allocation_pointers[index] = pointer;
+                allocation_sizes[index] = allocated_bytes;
+                ++active_allocations;
+                return {.ptr = pointer, .count = allocated_bytes};
+            }
+        }
+        ::fast_io::fast_terminate();
+    }
+
+    static void deallocate_n(void* pointer, ::std::size_t allocated_bytes) noexcept {
+        for (::std::size_t index{}; index != slot_count; ++index) {
+            if (allocation_pointers[index] != pointer) {
+                continue;
+            }
+            deallocation_mismatch = deallocation_mismatch || allocation_sizes[index] != allocated_bytes;
+            ::fast_io::native_global_allocator::deallocate_n(pointer, allocation_sizes[index]);
+            allocation_pointers[index] = nullptr;
+            allocation_sizes[index] = 0;
+            --active_allocations;
+            ++deallocation_count;
+            return;
+        }
+        deallocation_mismatch = true;
+        ::fast_io::native_global_allocator::deallocate_n(pointer, allocated_bytes);
+    }
+
+    static void reset() noexcept {
+        active_allocations = 0;
+        deallocation_count = 0;
+        last_requested_bytes = 0;
+        deallocation_mismatch = false;
+        for (::std::size_t index{}; index != slot_count; ++index) {
+            allocation_pointers[index] = nullptr;
+            allocation_sizes[index] = 0;
+        }
+    }
+
+    [[nodiscard]]
+    static auto get_active_allocations() noexcept -> ::std::size_t {
+        return active_allocations;
+    }
+
+    [[nodiscard]]
+    static auto get_deallocation_count() noexcept -> ::std::size_t {
+        return deallocation_count;
+    }
+
+    [[nodiscard]]
+    static auto get_last_requested_bytes() noexcept -> ::std::size_t {
+        return last_requested_bytes;
+    }
+
+    [[nodiscard]]
+    static auto has_deallocation_mismatch() noexcept -> bool {
+        return deallocation_mismatch;
+    }
+};
+
+using TrackingAllocator = ::fast_io::generic_allocator_adapter<TrackingRawAllocator>;
+using TrackingIntVector = ::pltxt2htm::container::Vector<int, TrackingAllocator>;
+
+class ConstructionTrace {
+    int payload{};
+    int construction_kind{};
+
+public:
+    constexpr explicit ConstructionTrace(int payload_) noexcept
+        : payload{payload_},
+          construction_kind{1} {
+    }
+
+    constexpr ConstructionTrace(ConstructionTrace const& other) noexcept
+        : payload{other.payload},
+          construction_kind{2} {
+    }
+
+    constexpr ConstructionTrace(ConstructionTrace&& other) noexcept
+        : payload{::std::exchange(other.payload, -1)},
+          construction_kind{3} {
+    }
+
+    constexpr auto operator=(this ConstructionTrace& self, ConstructionTrace const& other) noexcept
+        -> ConstructionTrace& {
+        self.payload = other.payload;
+        self.construction_kind = 2;
+        return self;
+    }
+
+    constexpr auto operator=(this ConstructionTrace& self, ConstructionTrace&& other) noexcept -> ConstructionTrace& {
+        self.payload = ::std::exchange(other.payload, -1);
+        self.construction_kind = 3;
+        return self;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_payload(this ConstructionTrace const& self) noexcept -> int {
+        return self.payload;
+    }
+
+    [[nodiscard]]
+    constexpr auto get_construction_kind(this ConstructionTrace const& self) noexcept -> int {
+        return self.construction_kind;
+    }
+
+    [[nodiscard]]
+    friend constexpr auto operator==(ConstructionTrace const&, ConstructionTrace const&) noexcept -> bool = default;
+};
+
+class SinglePassIntRange {
+public:
+    class Iterator {
+        int const* current{};
+
+    public:
+        using value_type = int;
+        using difference_type = ::std::ptrdiff_t;
+        using iterator_concept = ::std::input_iterator_tag;
+
+        constexpr Iterator() noexcept = default;
+
+        constexpr explicit Iterator(int const* current_) noexcept
+            : current{current_} {
+        }
+
+        [[nodiscard]]
+        constexpr auto operator*(this Iterator const& self) noexcept -> int const& {
+            return *self.current;
+        }
+
+        constexpr auto operator++(this Iterator& self) noexcept -> Iterator& {
+            ++self.current;
+            return self;
+        }
+
+        constexpr void operator++(this Iterator& self, int) noexcept {
+            ++self.current;
+        }
+
+        [[nodiscard]]
+        friend constexpr auto operator==(Iterator const&, Iterator const&) noexcept -> bool = default;
+    };
+
+private:
+    int const* first{};
+    int const* last{};
+
+public:
+    constexpr SinglePassIntRange(int const* first_, int const* last_) noexcept
+        : first{first_},
+          last{last_} {
+    }
+
+    [[nodiscard]]
+    constexpr auto begin(this SinglePassIntRange const& self) noexcept -> Iterator {
+        return Iterator{self.first};
+    }
+
+    [[nodiscard]]
+    constexpr auto end(this SinglePassIntRange const& self) noexcept -> Iterator {
+        return Iterator{self.last};
+    }
+};
+
+class ThrowingIncrementRange {
+public:
+    class Iterator {
+        int const* current{};
+
+    public:
+        using value_type = int;
+        using difference_type = ::std::ptrdiff_t;
+        using iterator_concept = ::std::input_iterator_tag;
+
+        constexpr Iterator() noexcept = default;
+
+        constexpr explicit Iterator(int const* current_) noexcept
+            : current{current_} {
+        }
+
+        [[nodiscard]]
+        constexpr auto operator*(this Iterator const& self) noexcept -> int const& {
+            return *self.current;
+        }
+
+        constexpr auto operator++(this Iterator& self) -> Iterator& {
+            ++self.current;
+            return self;
+        }
+
+        constexpr void operator++(this Iterator& self, int) {
+            ++self.current;
+        }
+
+        [[nodiscard]]
+        friend constexpr auto operator==(Iterator const&, Iterator const&) noexcept -> bool = default;
+    };
+
+    [[nodiscard]]
+    constexpr auto begin(this ThrowingIncrementRange const&) noexcept -> Iterator {
+        return Iterator{};
+    }
+
+    [[nodiscard]]
+    constexpr auto end(this ThrowingIncrementRange const&) noexcept -> Iterator {
+        return Iterator{};
+    }
+};
+
+class CvSensitiveForwardRange {
+public:
+    class Iterator {
+        int const* current{};
+
+    public:
+        using value_type = int;
+        using difference_type = ::std::ptrdiff_t;
+        using iterator_concept = ::std::forward_iterator_tag;
+
+        constexpr Iterator() noexcept = default;
+
+        constexpr explicit Iterator(int const* current_) noexcept
+            : current{current_} {
+        }
+
+        [[nodiscard]]
+        constexpr auto operator*(this Iterator const& self) noexcept -> int const& {
+            return *self.current;
+        }
+
+        constexpr auto operator++(this Iterator& self) noexcept -> Iterator& {
+            ++self.current;
+            return self;
+        }
+
+        constexpr auto operator++(this Iterator& self, int) noexcept -> Iterator {
+            Iterator const previous{self};
+            ++self.current;
+            return previous;
+        }
+
+        [[nodiscard]]
+        friend constexpr auto operator==(Iterator& left, Iterator& right) noexcept -> bool {
+            return left.current == right.current;
+        }
+
+        [[nodiscard]]
+        friend constexpr auto operator==(Iterator const& left, Iterator const& right) -> bool {
+            return left.current == right.current;
+        }
+    };
+
+private:
+    int const* first{};
+    int const* last{};
+
+public:
+    constexpr CvSensitiveForwardRange(int const* first_, int const* last_) noexcept
+        : first{first_},
+          last{last_} {
+    }
+
+    [[nodiscard]]
+    constexpr auto begin(this CvSensitiveForwardRange const& self) noexcept -> Iterator {
+        return Iterator{self.first};
+    }
+
+    [[nodiscard]]
+    constexpr auto end(this CvSensitiveForwardRange const& self) noexcept -> Iterator {
+        return Iterator{self.last};
+    }
+};
+
+class NonConstexprSizedForwardRange {
+    int const* first{};
+    int const* last{};
+    ::std::size_t* begin_call_count{};
+    ::std::size_t* size_call_count{};
+
+public:
+    constexpr NonConstexprSizedForwardRange(int const* first_, int const* last_,
+                                            ::std::size_t* begin_call_count_ = nullptr,
+                                            ::std::size_t* size_call_count_ = nullptr) noexcept
+        : first{first_},
+          last{last_},
+          begin_call_count{begin_call_count_},
+          size_call_count{size_call_count_} {
+    }
+
+    [[nodiscard]]
+    constexpr auto begin(this NonConstexprSizedForwardRange const& self) noexcept -> int const* {
+        if (self.begin_call_count != nullptr) {
+            ++*self.begin_call_count;
+        }
+        return self.first;
+    }
+
+    [[nodiscard]]
+    constexpr auto end(this NonConstexprSizedForwardRange const& self) noexcept -> int const* {
+        return self.last;
+    }
+
+    [[nodiscard]]
+    auto size(this NonConstexprSizedForwardRange const& self) noexcept -> ::std::size_t {
+        if (self.size_call_count != nullptr) {
+            ++*self.size_call_count;
+        }
+        return static_cast<::std::size_t>(self.last - self.first);
+    }
+};
+
+struct ThrowingMove {
+    ThrowingMove() noexcept = default;
+    ThrowingMove(ThrowingMove&&);
+};
+
+struct ThrowingEquality {
+    friend auto operator==(ThrowingEquality const&, ThrowingEquality const&) -> bool;
+};
+
+struct ThrowingBoolean {
+    explicit operator bool() const;
+};
+
+struct ThrowingBooleanEquality {
+    friend constexpr auto operator==(ThrowingBooleanEquality const&, ThrowingBooleanEquality const&) noexcept
+        -> ThrowingBoolean {
+        return {};
+    }
+};
+
+struct ThrowingConstruction {
+    ThrowingConstruction() noexcept = default;
+    explicit ThrowingConstruction(int);
+    ThrowingConstruction(ThrowingConstruction&&) noexcept = default;
+};
+
+struct ThrowingVectorCopy {
+    ThrowingVectorCopy() noexcept = default;
+    ThrowingVectorCopy(ThrowingVectorCopy const&);
+    ThrowingVectorCopy(ThrowingVectorCopy&&) noexcept = default;
+};
+
+struct ThrowingMoveAssignment {
+    ThrowingMoveAssignment() noexcept = default;
+    ThrowingMoveAssignment(ThrowingMoveAssignment&&) noexcept = default;
+    auto operator=(ThrowingMoveAssignment&&) -> ThrowingMoveAssignment&;
+};
+
+template<typename T>
+concept ReservableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.reserve(1); };
+
+template<typename T>
+concept IntEmplaceableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.emplace_back(1); };
+
+template<typename T>
+concept CopyPushableVectorElement =
+    requires(::pltxt2htm::container::Vector<T>& values, T const& value) { values.push_back(value); };
+
+template<typename T>
+concept ErasableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.erase(values.begin()); };
+
+template<typename T>
+concept EqualityComparableVectorElement = requires(::pltxt2htm::container::Vector<T> const& left,
+                                                   ::pltxt2htm::container::Vector<T> const& right) { left == right; };
+
+template<typename R>
+concept AppendableIntRange = requires(IntVector& values, R&& range) { values.append_range(::std::forward<R>(range)); };
+
+static_assert(::std::same_as<IntVector::allocator_type, ::fast_io::native_global_allocator>);
+static_assert(::std::same_as<IntVector::value_type, int>);
+static_assert(::std::same_as<IntVector::iterator, int*>);
+static_assert(::std::ranges::contiguous_range<IntVector>);
+static_assert(::std::ranges::contiguous_range<IntVector const>);
+static_assert(::std::ranges::input_range<SinglePassIntRange>);
+static_assert(!::std::ranges::forward_range<SinglePassIntRange>);
+static_assert(::std::ranges::forward_range<CvSensitiveForwardRange>);
+static_assert(::std::ranges::forward_range<NonConstexprSizedForwardRange>);
+static_assert(::std::ranges::sized_range<NonConstexprSizedForwardRange>);
+static_assert(!ReservableVectorElement<ThrowingMove>);
+static_assert(!IntEmplaceableVectorElement<ThrowingConstruction>);
+static_assert(!CopyPushableVectorElement<ThrowingVectorCopy>);
+static_assert(!ErasableVectorElement<ThrowingMoveAssignment>);
+static_assert(!EqualityComparableVectorElement<ThrowingEquality>);
+static_assert(!EqualityComparableVectorElement<ThrowingBooleanEquality>);
+static_assert(!AppendableIntRange<ThrowingIncrementRange&>);
+static_assert(noexcept(::std::declval<IntVector&>().reserve(1)));
+static_assert(noexcept(::std::declval<IntVector&>().emplace_back(1)));
+static_assert(noexcept(::std::declval<IntVector&>().erase(::std::declval<IntVector::const_iterator>())));
+static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<SinglePassIntRange&>())));
+static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<CvSensitiveForwardRange&>())));
+static_assert(noexcept(::std::declval<IntVector const&>() == ::std::declval<IntVector const&>()));
+
+TEST_SUITE("container_vector") {
+    consteval auto test_constexpr_vector() -> bool {
+        IntVector values{};
+        if (!values.is_empty() || values.size() != 0 || values.capacity() != 0 || values.data() != nullptr) {
+            return false;
+        }
+        if (values.erase(values.begin(), values.end()) != values.end()) {
+            return false;
+        }
+
+        values.push_back(1);
+        values.emplace_back(2);
+        values.reserve(8);
+        if (values.size() != 2 || values.capacity() < 8 || values.front() != 1 || values[1] != 2) {
+            return false;
+        }
+
+        IntVector suffix{3, 4};
+        values.append_range(::std::move(suffix));
+        if (values != IntVector{1, 2, 3, 4}) {
+            return false;
+        }
+
+        int const sized_values[]{5, 6};
+        auto sized_range = NonConstexprSizedForwardRange{sized_values, sized_values + ::std::size(sized_values)};
+        IntVector sized_result{};
+        sized_result.append_range(sized_range);
+        if (sized_result != IntVector{5, 6}) {
+            return false;
+        }
+
+        values.erase(values.begin() + 1);
+        if (values != IntVector{1, 3, 4}) {
+            return false;
+        }
+
+        values.erase(values.begin() + 1, values.end());
+        if (values.erase(values.begin(), values.begin()) != values.begin()) {
+            return false;
+        }
+        IntVector copy{values};
+        copy[0] = 9;
+        if (values != IntVector{1} || copy != IntVector{9}) {
+            return false;
+        }
+
+        IntVector self_reference{};
+        self_reference.reserve(1);
+        self_reference.push_back(7);
+        while (self_reference.size() != self_reference.capacity()) {
+            self_reference.push_back(0);
+        }
+        auto const previous_size = self_reference.size();
+        self_reference.emplace_back(self_reference.front());
+        if (self_reference.size() != previous_size + 1 || self_reference[previous_size] != 7) {
+            return false;
+        }
+
+        IntVector self_append{};
+        self_append.reserve(1);
+        self_append.push_back(1);
+        while (self_append.size() != self_append.capacity()) {
+            self_append.push_back(static_cast<int>(self_append.size() + 1));
+        }
+        auto const self_append_size = self_append.size();
+        self_append.append_range(self_append);
+        if (self_append.size() != self_append_size * 2) {
+            return false;
+        }
+        for (::std::size_t index{}; index < self_append_size; ++index) {
+            if (self_append[index] != self_append[self_append_size + index]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static_assert(test_constexpr_vector());
+
+    TEST_CASE("tracking-allocator-growth") {
+        TrackingRawAllocator::reset();
+        {
+            TrackingIntVector tracked{};
+            tracked.push_back(1);
+            CHECK(TrackingRawAllocator::get_last_requested_bytes() == sizeof(int) * 2);
+        }
+        CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
+    }
+
+    TEST_CASE("reserve-and-relocation") {
+        TrackingRawAllocator::reset();
+        {
+            TrackingIntVector tracked{};
+            tracked.reserve(2);
+            CHECK(tracked.capacity() == 5);
+            tracked.push_back(1);
+            tracked.reserve(8);
+            CHECK(tracked.size() == 1);
+            CHECK(tracked.capacity() == 11);
+            CHECK(TrackingRawAllocator::get_active_allocations() == 1);
+            CHECK(TrackingRawAllocator::get_deallocation_count() == 1);
+            CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
+
+            TrackingIntVector moved{::std::move(tracked)};
+            TrackingIntVector swapped{};
+            swapped.swap(moved);
+            CHECK(tracked.capacity() == 0);
+            CHECK(moved.capacity() == 0);
+            CHECK(swapped.capacity() == 11);
+        }
+        CHECK(TrackingRawAllocator::get_active_allocations() == 0);
+        CHECK(TrackingRawAllocator::get_deallocation_count() == 2);
+        CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
+    }
+
+    TEST_CASE("copy-and-move-assignment") {
+        IntVector original{1, 2, 3};
+        IntVector copy{};
+        copy = original;
+        copy[0] = 4;
+        CHECK(original == IntVector{1, 2, 3});
+        CHECK(copy == IntVector{4, 2, 3});
+
+        IntVector moved{};
+        moved = ::std::move(copy);
+        CHECK(copy.is_empty());
+        CHECK(moved == IntVector{4, 2, 3});
+        moved.pop_back();
+        moved.clear();
+        CHECK(moved.is_empty());
+    }
+
+    TEST_CASE("append-single-pass-range") {
+        int const values[]{6, 7};
+        auto range = SinglePassIntRange{values, values + 2};
+        IntVector result{};
+        result.append_range(range);
+        CHECK(result == IntVector{6, 7});
+    }
+
+    TEST_CASE("append-cv-sensitive-range") {
+        int const values[]{8, 9};
+        auto range = CvSensitiveForwardRange{values, values + ::std::size(values)};
+        IntVector result{};
+        result.append_range(range);
+        CHECK(result == IntVector{8, 9});
+    }
+
+    TEST_CASE("append-sized-range") {
+        ::std::size_t begin_call_count{};
+        ::std::size_t size_call_count{};
+        int const values[]{10, 11};
+        auto range =
+            NonConstexprSizedForwardRange{values, values + ::std::size(values), ::std::addressof(begin_call_count),
+                                          ::std::addressof(size_call_count)};
+        IntVector result{};
+        result.append_range(range);
+        CHECK(result == IntVector{10, 11});
+        CHECK(begin_call_count == 1);
+        CHECK(size_call_count == 1);
+    }
+
+    TEST_CASE("emplace-construction") {
+        ::pltxt2htm::container::Vector<ConstructionTrace> direct_construction{};
+        direct_construction.reserve(1);
+        while (direct_construction.size() != direct_construction.capacity()) {
+            direct_construction.emplace_back(1);
+        }
+        auto const direct_construction_size = direct_construction.size();
+        direct_construction.emplace_back(2);
+        CHECK(direct_construction[direct_construction_size].get_construction_kind() == 1);
+    }
+
+    TEST_CASE("append-range-construction") {
+        ::pltxt2htm::container::Vector<ConstructionTrace> copy_source{};
+        copy_source.emplace_back(3);
+        ::pltxt2htm::container::Vector<ConstructionTrace> copied_range{};
+        copied_range.append_range(copy_source);
+        CHECK(copied_range.front().get_construction_kind() == 2);
+
+        ::pltxt2htm::container::Vector<ConstructionTrace> move_source{};
+        move_source.emplace_back(4);
+        ::pltxt2htm::container::Vector<ConstructionTrace> moved_range{};
+        moved_range.append_range(::std::span<ConstructionTrace>{move_source.data(), move_source.size()});
+        CHECK(moved_range.front().get_construction_kind() == 3);
+    }
+
+    TEST_CASE("self-move-construction") {
+        ::pltxt2htm::container::Vector<ConstructionTrace> self_move{};
+        self_move.reserve(1);
+        self_move.emplace_back(5);
+        while (self_move.size() != self_move.capacity()) {
+            self_move.emplace_back(0);
+        }
+        auto const self_move_size = self_move.size();
+        self_move.push_back(::std::move(self_move.front()));
+        CHECK(self_move[self_move_size].get_payload() == 5);
+    }
+
+    TEST_CASE("append-overlapping-range") {
+        IntVector overlap{};
+        overlap.reserve(1);
+        overlap.push_back(1);
+        while (overlap.size() != overlap.capacity()) {
+            overlap.push_back(static_cast<int>(overlap.size() + 1));
+        }
+        auto const overlap_size = overlap.size();
+        auto const overlap_source = ::std::span<int const>{overlap.data(), overlap_size};
+        overlap.append_range(overlap_source);
+        REQUIRE(overlap.size() == overlap_size * 2);
+        for (::std::size_t index{}; index < overlap_size; ++index) {
+            CHECK(overlap[index] == overlap[overlap_size + index]);
+        }
+    }
+}

@@ -11,7 +11,6 @@
 
 namespace pltxt2htm::details {
 
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto code_style_color(::pltxt2htm::CodeHighlightKind const kind) noexcept
     -> ::pltxt2htm::container::U8StringView {

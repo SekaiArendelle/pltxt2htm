@@ -9,20 +9,14 @@ dist/
 **/__pycache__/
 **/*.pyc
 
-# Reasonix
-**/.reasonix
-
-# xmake
-**/.xmake/
-
 # vscode
 .vscode/
 
 # release dir, $target-pltxt2htm-[debug|release]
 **/*-pltxt2htm*/
 
-# lcov
-tests/lcov-report/
+# lcov coverage report (extracted pltxt2htm-codecov.tar.xz)
+/codecov/
 
 # archive
 **/*.7z
@@ -33,6 +27,9 @@ tests/lcov-report/
 
 # my temporary file
 *.ignore*
+
+# project-wide compiler temp (created by `pixi run prepare-tmp`)
+.tmp/
 
 # Windows
 *.lnk
@@ -87,6 +84,9 @@ format_cpp.ninja
 
 # pixi
 **/.pixi
+
+# Reasonix
+**/.reasonix
 
 # OpenCode
 .opencode

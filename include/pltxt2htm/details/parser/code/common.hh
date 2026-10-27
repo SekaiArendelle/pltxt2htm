@@ -18,23 +18,21 @@ public:
     char8_t ascii{};
 };
 
-template<::pltxt2htm::Contracts ndebug>
 constexpr void append_invalid_code_point(::pltxt2htm::container::U8String& destination) noexcept {
-    destination.template append<ndebug>(u8"\uFFFD");
+    destination.append(u8"\uFFFD");
 }
 
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto parse_code_syntax_unit(::pltxt2htm::container::U8StringView const input,
                                       ::pltxt2htm::container::U8String& destination) noexcept -> ParsedCodeSyntaxUnit {
     ::std::size_t const input_size{input.size()};
-    char8_t const chr{input.template index<ndebug>(0)};
+    char8_t const chr{input.operator[](0)};
     if (chr == u8'\n' || chr == u8'\t' || (chr > 0x1f && chr != 0x7f && (chr & 0x80) == 0)) {
-        destination.template push_back<ndebug>(chr);
+        destination.push_back(chr);
         return {.advance_count = 1, .ascii = chr};
     }
     if (chr <= 0x1f || chr == 0x7f) {
-        ::pltxt2htm::details::append_invalid_code_point<ndebug>(destination);
+        append_invalid_code_point(destination);
         return {.advance_count = 1, .ascii = char8_t{}};
     }
 
@@ -57,13 +55,13 @@ constexpr auto parse_code_syntax_unit(::pltxt2htm::container::U8StringView const
         minimum = 0x10000;
     }
     else {
-        ::pltxt2htm::details::append_invalid_code_point<ndebug>(destination);
+        append_invalid_code_point(destination);
         return {.advance_count = 1, .ascii = char8_t{}};
     }
 
     ::std::size_t consumed{1};
     while (consumed != count && consumed != input_size) {
-        char8_t const continuation{input.template index<ndebug>(consumed)};
+        char8_t const continuation{input.operator[](consumed)};
         if ((continuation & 0xC0) != 0x80) {
             break;
         }
@@ -71,19 +69,18 @@ constexpr auto parse_code_syntax_unit(::pltxt2htm::container::U8StringView const
         ++consumed;
     }
     if (consumed != count || value < minimum || value > 0x10FFFF || (0xD800 <= value && value <= 0xDFFF)) {
-        ::pltxt2htm::details::append_invalid_code_point<ndebug>(destination);
+        append_invalid_code_point(destination);
         return {.advance_count = consumed, .ascii = char8_t{}};
     }
     for (::std::size_t index{}; index != count; ++index) {
-        destination.template push_back<ndebug>(input.template index<ndebug>(index));
+        destination.push_back(input.operator[](index));
     }
     return {.advance_count = count, .ascii = char8_t{}};
 }
 
-template<::pltxt2htm::Contracts ndebug>
 constexpr void append_code_syntax_text(::pltxt2htm::container::U8String& source,
                                        ::pltxt2htm::container::U8String& destination) noexcept {
-    destination.template append<ndebug>(source);
+    destination.append(source);
     source.clear();
 }
 

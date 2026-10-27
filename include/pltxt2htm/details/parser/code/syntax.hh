@@ -8,7 +8,7 @@
 #include <cstddef>
 #include "../../../ast/code/node.hh"
 #include "../../../container/string_view.hh"
-#include "../../../contracts.hh"
+#include "../../contracts.hh"
 #include "../../utils.hh"
 
 namespace pltxt2htm::details {
@@ -71,95 +71,94 @@ constexpr auto syntax_highlight_kind(SyntaxTokenKind const kind) noexcept -> ::p
         return ::pltxt2htm::CodeHighlightKind::preprocessor;
     }
     }
-    ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>();
+    ::pltxt2htm::details::unreachable();
 }
 
-template<::pltxt2htm::Contracts ndebug>
 [[nodiscard]]
 constexpr auto resolve_syntax_language(::pltxt2htm::container::U8StringView const language) noexcept -> SyntaxLanguage {
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"bash">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"sh">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"shell">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"zsh">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"bash">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"sh">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"shell">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"zsh">(language)) {
         return SyntaxLanguage::bash;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"c">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"h">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"c23">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"c">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"h">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"c23">(language)) {
         return SyntaxLanguage::c;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"cpp">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"c++">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"cc">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"cxx">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"hpp">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"h++">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"cpp">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"c++">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"cc">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"cxx">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"hpp">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"h++">(language)) {
         return SyntaxLanguage::cpp;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"cs">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"csharp">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"c#">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"cs">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"csharp">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"c#">(language)) {
         return SyntaxLanguage::csharp;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"css">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"css">(language)) {
         return SyntaxLanguage::css;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"go">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"golang">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"go">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"golang">(language)) {
         return SyntaxLanguage::go;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"html">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"htm">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"html">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"htm">(language)) {
         return SyntaxLanguage::html;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"java">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"java">(language)) {
         return SyntaxLanguage::java;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"js">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"javascript">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"mjs">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"cjs">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"js">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"javascript">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"mjs">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"cjs">(language)) {
         return SyntaxLanguage::javascript;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"json">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"json">(language)) {
         return SyntaxLanguage::json;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"kotlin">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"kt">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"kts">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"kotlin">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"kt">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"kts">(language)) {
         return SyntaxLanguage::kotlin;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"rust">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"rs">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"rust">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"rs">(language)) {
         return SyntaxLanguage::rust;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"lua">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"lua">(language)) {
         return SyntaxLanguage::lua;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"py">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"python">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"python3">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"py">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"python">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"python3">(language)) {
         return SyntaxLanguage::python;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"sql">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"sql">(language)) {
         return SyntaxLanguage::sql;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"toml">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"toml">(language)) {
         return SyntaxLanguage::toml;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"ts">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"typescript">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"mts">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"cts">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"ts">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"typescript">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"mts">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"cts">(language)) {
         return SyntaxLanguage::typescript;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"yaml">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"yml">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"yaml">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"yml">(language)) {
         return SyntaxLanguage::yaml;
     }
-    if (::pltxt2htm::details::is_exact_match<ndebug, u8"xml">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"xhtml">(language) ||
-        ::pltxt2htm::details::is_exact_match<ndebug, u8"svg">(language)) {
+    if (::pltxt2htm::details::is_exact_match<u8"xml">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"xhtml">(language) ||
+        ::pltxt2htm::details::is_exact_match<u8"svg">(language)) {
         return SyntaxLanguage::xml;
     }
     return SyntaxLanguage::plain;
@@ -462,9 +461,9 @@ constexpr auto syntax_is_keyword_case_insensitive(
         }
         bool equal{true};
         for (::std::size_t index{}; index != identifier.size(); ++index) {
-            char8_t const chr{identifier.template index<::pltxt2htm::Contracts::ignore>(index)};
+            char8_t const chr{identifier[index]};
             char8_t const folded{chr >= u8'A' && chr <= u8'Z' ? static_cast<char8_t>(chr + (u8'a' - u8'A')) : chr};
-            if (folded != keyword.template index<::pltxt2htm::Contracts::ignore>(index)) {
+            if (folded != keyword[index]) {
                 equal = false;
                 break;
             }

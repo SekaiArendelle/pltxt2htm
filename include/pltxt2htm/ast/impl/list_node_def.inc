@@ -1,75 +1,48 @@
 #pragma once
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListUl<ndebug>::ListUl(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+constexpr ::pltxt2htm::ListUl::ListUl(::pltxt2htm::Ast&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListUl<ndebug>::ListUl(::pltxt2htm::ListUl<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListUl<ndebug>::ListUl(::pltxt2htm::ListUl<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::ListUl<ndebug>::operator=(this ListUl<ndebug>& self, ::pltxt2htm::ListUl<ndebug>&&) noexcept
-    -> ::pltxt2htm::ListUl<ndebug>& = default;
+constexpr ::pltxt2htm::ListUl::ListUl(::pltxt2htm::ListUl&&) noexcept = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::ListUl<ndebug>::operator==(this ListUl<ndebug> const&,
-                                                       ::pltxt2htm::ListUl<ndebug> const&) noexcept -> bool = default;
+constexpr auto ::pltxt2htm::ListUl::operator=(this ListUl & self, ::pltxt2htm::ListUl&&) noexcept
+    -> ::pltxt2htm::ListUl& = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListOl<ndebug>::ListOl(::pltxt2htm::Ast<ndebug>&& subast_, ::std::size_t start_) noexcept
+constexpr auto ::pltxt2htm::ListUl::operator==(this ListUl const&, ::pltxt2htm::ListUl const&) noexcept
+    -> bool = default;
+
+constexpr ::pltxt2htm::ListOl::ListOl(::pltxt2htm::Ast&& subast_, ::std::size_t start_) noexcept
     : subast(::std::move(subast_)),
       start(start_) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListOl<ndebug>::ListOl(::pltxt2htm::ListOl<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListOl<ndebug>::ListOl(::pltxt2htm::ListOl<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::ListOl<ndebug>::operator=(this ListOl<ndebug>& self, ::pltxt2htm::ListOl<ndebug>&&) noexcept
-    -> ::pltxt2htm::ListOl<ndebug>& = default;
+constexpr ::pltxt2htm::ListOl::ListOl(::pltxt2htm::ListOl&&) noexcept = default;
+constexpr auto ::pltxt2htm::ListOl::operator=(this ListOl & self, ::pltxt2htm::ListOl&&) noexcept
+    -> ::pltxt2htm::ListOl& = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::ListOl<ndebug>::operator==(this ListOl<ndebug> const&,
-                                                       ::pltxt2htm::ListOl<ndebug> const&) noexcept -> bool = default;
+constexpr auto ::pltxt2htm::ListOl::operator==(this ListOl const&, ::pltxt2htm::ListOl const&) noexcept
+    -> bool = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListLi<ndebug>::ListLi(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+constexpr ::pltxt2htm::ListLi::ListLi(::pltxt2htm::Ast&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListLi<ndebug>::ListLi(::pltxt2htm::ListLi<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListLi<ndebug>::ListLi(::pltxt2htm::ListLi<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::ListLi<ndebug>::operator=(this ListLi<ndebug>& self, ::pltxt2htm::ListLi<ndebug>&&) noexcept
-    -> ::pltxt2htm::ListLi<ndebug>& = default;
+constexpr ::pltxt2htm::ListLi::ListLi(::pltxt2htm::ListLi&&) noexcept = default;
+constexpr auto ::pltxt2htm::ListLi::operator=(this ListLi & self, ::pltxt2htm::ListLi&&) noexcept
+    -> ::pltxt2htm::ListLi& = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::ListLi<ndebug>::operator==(this ListLi<ndebug> const&,
-                                                       ::pltxt2htm::ListLi<ndebug> const&) noexcept -> bool = default;
+constexpr auto ::pltxt2htm::ListLi::operator==(this ListLi const&, ::pltxt2htm::ListLi const&) noexcept
+    -> bool = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListLiCheckbox<ndebug>::ListLiCheckbox(::pltxt2htm::Ast<ndebug>&& subast_,
-                                                              bool checked_) noexcept
+constexpr ::pltxt2htm::ListLiCheckbox::ListLiCheckbox(::pltxt2htm::Ast&& subast_, bool checked_) noexcept
     : subast(::std::move(subast_)),
       checked(checked_) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListLiCheckbox<ndebug>::ListLiCheckbox(::pltxt2htm::ListLiCheckbox<ndebug> const&) noexcept =
-    default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::ListLiCheckbox<ndebug>::ListLiCheckbox(::pltxt2htm::ListLiCheckbox<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::ListLiCheckbox<ndebug>::operator=(this ListLiCheckbox<ndebug>& self,
-                                                              ::pltxt2htm::ListLiCheckbox<ndebug>&&) noexcept
-    -> ::pltxt2htm::ListLiCheckbox<ndebug>& = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::ListLiCheckbox<ndebug>::operator==(this ListLiCheckbox<ndebug> const&,
-                                                               ::pltxt2htm::ListLiCheckbox<ndebug> const&) noexcept
-    -> bool = default;
+constexpr ::pltxt2htm::ListLiCheckbox::ListLiCheckbox(::pltxt2htm::ListLiCheckbox&&) noexcept = default;
+constexpr auto ::pltxt2htm::ListLiCheckbox::operator=(this ListLiCheckbox & self,
+                                                      ::pltxt2htm::ListLiCheckbox&&) noexcept
+    -> ::pltxt2htm::ListLiCheckbox& = default;
+constexpr auto ::pltxt2htm::ListLiCheckbox::operator==(this ListLiCheckbox const&,
+                                                       ::pltxt2htm::ListLiCheckbox const&) noexcept -> bool = default;

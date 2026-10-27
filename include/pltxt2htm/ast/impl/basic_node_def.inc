@@ -1,39 +1,28 @@
 #pragma once
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::Group<ndebug>::Group(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+constexpr ::pltxt2htm::Group::Group(::pltxt2htm::Ast&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::Group<ndebug>::Group(::pltxt2htm::Group<ndebug> const&) noexcept = default;
+constexpr ::pltxt2htm::Group::Group(::pltxt2htm::Group&& other) noexcept = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::Group<ndebug>::Group(::pltxt2htm::Group<ndebug>&& other) noexcept = default;
+constexpr auto ::pltxt2htm::Group::operator=(this Group & self, ::pltxt2htm::Group && other) noexcept
+    -> ::pltxt2htm::Group& = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Group<ndebug>::operator=(this Group<ndebug>& self,
-                                                     ::pltxt2htm::Group<ndebug>&& other) noexcept
-    -> ::pltxt2htm::Group<ndebug>& = default;
+constexpr auto ::pltxt2htm::Group::operator==(this Group const&, ::pltxt2htm::Group const&) noexcept -> bool = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Group<ndebug>::operator==(this Group<ndebug> const&,
-                                                      ::pltxt2htm::Group<ndebug> const&) noexcept -> bool = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::HighlightedCodeAst<ndebug>&& ast_value) noexcept
+constexpr ::pltxt2htm::CodeFence::CodeFence(::pltxt2htm::HighlightedCodeAst&& ast_value) noexcept
     : kind(::pltxt2htm::CodeFenceKind::highlighted),
       highlighted_ast(::std::move(ast_value)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::RenderedCodeAst<ndebug>&& ast_value) noexcept
+constexpr ::pltxt2htm::CodeFence::CodeFence(::pltxt2htm::RenderedCodeAst&& ast_value) noexcept
     : kind(::pltxt2htm::CodeFenceKind::rendered),
       rendered_ast(::std::move(ast_value)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::CodeFence<ndebug> const& other) noexcept
+#if !defined(PLTXT2HTM_INTERNAL_USE)
+constexpr ::pltxt2htm::CodeFence::CodeFence(::pltxt2htm::CodeFence const& other) noexcept
     : kind(other.kind) {
     switch (kind) /* -Werror=switch */ {
     case ::pltxt2htm::CodeFenceKind::highlighted: {
@@ -45,10 +34,10 @@ constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::CodeFence<ndebu
         return;
     }
     }
-    ::pltxt2htm::details::unreachable<ndebug>();
+    ::pltxt2htm::details::unreachable();
 }
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::CodeFence<ndebug>&& other) noexcept
+#endif
+constexpr ::pltxt2htm::CodeFence::CodeFence(::pltxt2htm::CodeFence&& other) noexcept
     : kind(other.kind) {
     switch (kind) /* -Werror=switch */ {
     case ::pltxt2htm::CodeFenceKind::highlighted: {
@@ -60,10 +49,10 @@ constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::CodeFence<ndebu
         return;
     }
     }
-    ::pltxt2htm::details::unreachable<ndebug>();
+    ::pltxt2htm::details::unreachable();
 }
-template<::pltxt2htm::Contracts ndebug>
-constexpr void ::pltxt2htm::CodeFence<ndebug>::destroy_active(this CodeFence& self) noexcept {
+
+constexpr void ::pltxt2htm::CodeFence::destroy_active(this CodeFence& self) noexcept {
     switch (self.kind) /* -Werror=switch */ {
     case ::pltxt2htm::CodeFenceKind::highlighted: {
         ::std::destroy_at(::std::addressof(self.highlighted_ast));
@@ -74,18 +63,16 @@ constexpr void ::pltxt2htm::CodeFence<ndebug>::destroy_active(this CodeFence& se
         return;
     }
     }
-    ::pltxt2htm::details::unreachable<ndebug>();
+    ::pltxt2htm::details::unreachable();
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::CodeFence<ndebug>::~CodeFence() noexcept {
+constexpr ::pltxt2htm::CodeFence::~CodeFence() noexcept {
     destroy_active();
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator=(this CodeFence<ndebug>& self,
-                                                         ::pltxt2htm::CodeFence<ndebug> const& other) noexcept
-    -> ::pltxt2htm::CodeFence<ndebug>& {
+#if !defined(PLTXT2HTM_INTERNAL_USE)
+constexpr auto ::pltxt2htm::CodeFence::operator=(this CodeFence & self, ::pltxt2htm::CodeFence const& other) noexcept
+    -> ::pltxt2htm::CodeFence& {
     if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
         return self;
     }
@@ -101,13 +88,12 @@ constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator=(this CodeFence<ndebug>&
         return self;
     }
     }
-    ::pltxt2htm::details::unreachable<ndebug>();
+    ::pltxt2htm::details::unreachable();
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator=(this CodeFence<ndebug>& self,
-                                                         ::pltxt2htm::CodeFence<ndebug>&& other) noexcept
-    -> ::pltxt2htm::CodeFence<ndebug>& {
+#endif
+constexpr auto ::pltxt2htm::CodeFence::operator=(this CodeFence & self, ::pltxt2htm::CodeFence && other) noexcept
+    -> ::pltxt2htm::CodeFence& {
     if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
         return self;
     }
@@ -123,13 +109,11 @@ constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator=(this CodeFence<ndebug>&
         return self;
     }
     }
-    ::pltxt2htm::details::unreachable<ndebug>();
+    ::pltxt2htm::details::unreachable();
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator==(this CodeFence<ndebug> const& self,
-                                                          ::pltxt2htm::CodeFence<ndebug> const& other) noexcept
-    -> bool {
+constexpr auto ::pltxt2htm::CodeFence::operator==(this CodeFence const& self,
+                                                  ::pltxt2htm::CodeFence const& other) noexcept -> bool {
     if (self.kind != other.kind) {
         return false;
     }
@@ -141,5 +125,5 @@ constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator==(this CodeFence<ndebug>
         return self.rendered_ast == other.rendered_ast;
     }
     }
-    ::pltxt2htm::details::unreachable<ndebug>();
+    ::pltxt2htm::details::unreachable();
 }

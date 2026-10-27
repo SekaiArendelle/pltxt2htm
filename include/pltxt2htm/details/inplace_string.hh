@@ -15,7 +15,7 @@
 #include <type_traits>
 #include <utility>
 
-#include "../contracts.hh"
+#include "contracts.hh"
 #include "concepts.hh"
 #include "push_macro.hh"
 
@@ -25,12 +25,12 @@ namespace pltxt2htm::details {
  * @brief A variable-length string with fixed compile-time capacity and inline storage.
  * @tparam CharType Character code-unit type.
  * @tparam extent Nonzero maximum number of code units. No terminator is reserved.
- * @tparam ndebug Contract policy used by checked operations.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  *
  * BasicInplaceString never allocates and does not reserve space for a null terminator.
  * Embedded null code units are ordinary elements.
  */
-template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent, ::pltxt2htm::Contracts ndebug>
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent>
     requires (extent != 0)
 class BasicInplaceString {
     static_assert(extent <= ::std::numeric_limits<::std::size_t>::max() / sizeof(CharType),
@@ -110,11 +110,17 @@ public:
         this->size_storage = other.size_storage;
     }
 
+    /// @pre Internal callers must not assign the string to itself.
     constexpr auto operator=(this BasicInplaceString& self, BasicInplaceString const& other) noexcept
         -> BasicInplaceString& {
+#if defined(PLTXT2HTM_INTERNAL_USE)
+        pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
+                         u8"Internal self-assignment is not allowed");
+#else
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
+#endif
         auto const count = other.size();
         ::std::copy_n(other.storage, count, self.storage);
         self.size_storage = other.size_storage;
@@ -270,72 +276,31 @@ public:
         return self.storage;
     }
 
-    [[nodiscard]]
-    constexpr auto index(this BasicInplaceString& self, size_type position) noexcept -> reference {
-        pltxt2htm_assert(position < self.size(), u8"Index of BasicInplaceString out of bound");
-        return self.storage[position];
-    }
-
-    [[nodiscard]]
-    constexpr auto index(this BasicInplaceString const& self, size_type position) noexcept -> const_reference {
-        pltxt2htm_assert(position < self.size(), u8"Index of BasicInplaceString out of bound");
-        return self.storage[position];
-    }
-
     /**
-     * @brief Unchecked element access, provided to downstream users only.
-     *
-     * Contract-bearing access stays on index(); this overload is external-only:
-     * while pltxt2htm itself is being built (PLTXT2HTM_INTERNAL_USE) it stays
-     * deleted, so implementation code must name a Contracts policy.
-     * @param position Zero-based character position.
-     * @return Mutable reference to the requested character.
-     * @pre position < size(); otherwise the behavior is undefined.
+     * @brief Indexed element access, bounds-checked according to the
+     * build-wide contract setting.
+     * @param position Zero-based element position.
+     * @return Mutable reference to the requested element.
+     * @pre position is a valid element position.
      */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this BasicInplaceString&, size_type) noexcept -> reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
+    [[nodiscard]]
     constexpr auto operator[](this BasicInplaceString& self, size_type position) noexcept -> reference {
+        pltxt2htm_assert(position < self.size(), u8"Index of BasicInplaceString out of bound");
         return self.storage[position];
     }
-#endif
 
     /**
-     * @brief Unchecked read-only element access, provided to downstream users only.
-     * @param position Zero-based character position.
-     * @return Read-only reference to the requested character.
-     * @pre position < size(); otherwise the behavior is undefined.
-     * @note External-only, mirroring the mutable overload above.
+     * @brief Indexed element access, read-only, bounds-checked according to the
+     * build-wide contract setting.
+     * @param position Zero-based element position.
+     * @return Read-only reference to the requested element.
+     * @pre position is a valid element position.
      */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this BasicInplaceString const&, size_type) noexcept -> const_reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
+    [[nodiscard]]
     constexpr auto operator[](this BasicInplaceString const& self, size_type position) noexcept -> const_reference {
+        pltxt2htm_assert(position < self.size(), u8"Index of BasicInplaceString out of bound");
         return self.storage[position];
     }
-#endif
 
     [[nodiscard]]
     constexpr auto front(this BasicInplaceString& self) noexcept -> reference {
@@ -390,37 +355,35 @@ public:
     }
 };
 
-template<::pltxt2htm::details::is_char_type CharType, ::std::size_t left_extent, ::pltxt2htm::Contracts left_ndebug,
-         ::std::size_t right_extent, ::pltxt2htm::Contracts right_ndebug>
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t left_extent, ::std::size_t right_extent>
 [[nodiscard]]
-constexpr auto operator==(BasicInplaceString<CharType, left_extent, left_ndebug> const& left,
-                          BasicInplaceString<CharType, right_extent, right_ndebug> const& right) noexcept -> bool {
+constexpr auto operator==(BasicInplaceString<CharType, left_extent> const& left,
+                          BasicInplaceString<CharType, right_extent> const& right) noexcept -> bool {
     return left.size() == right.size() && ::std::equal(left.begin(), left.end(), right.begin());
 }
 
-template<::pltxt2htm::details::is_char_type CharType, ::std::size_t left_extent, ::pltxt2htm::Contracts left_ndebug,
-         ::std::size_t right_extent, ::pltxt2htm::Contracts right_ndebug>
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t left_extent, ::std::size_t right_extent>
 [[nodiscard]]
-constexpr auto operator<=>(BasicInplaceString<CharType, left_extent, left_ndebug> const& left,
-                           BasicInplaceString<CharType, right_extent, right_ndebug> const& right) noexcept {
+constexpr auto operator<=>(BasicInplaceString<CharType, left_extent> const& left,
+                           BasicInplaceString<CharType, right_extent> const& right) noexcept {
     return ::std::lexicographical_compare_three_way(left.begin(), left.end(), right.begin(), right.end(),
                                                     ::std::compare_three_way{});
 }
 
-template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
-using InplaceString = BasicInplaceString<char, extent, ndebug>;
+template<::std::size_t extent>
+using InplaceString = BasicInplaceString<char, extent>;
 
-template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
-using WInplaceString = BasicInplaceString<wchar_t, extent, ndebug>;
+template<::std::size_t extent>
+using WInplaceString = BasicInplaceString<wchar_t, extent>;
 
-template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
-using U8InplaceString = BasicInplaceString<char8_t, extent, ndebug>;
+template<::std::size_t extent>
+using U8InplaceString = BasicInplaceString<char8_t, extent>;
 
-template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
-using U16InplaceString = BasicInplaceString<char16_t, extent, ndebug>;
+template<::std::size_t extent>
+using U16InplaceString = BasicInplaceString<char16_t, extent>;
 
-template<::std::size_t extent, ::pltxt2htm::Contracts ndebug>
-using U32InplaceString = BasicInplaceString<char32_t, extent, ndebug>;
+template<::std::size_t extent>
+using U32InplaceString = BasicInplaceString<char32_t, extent>;
 
 } // namespace pltxt2htm::details
 

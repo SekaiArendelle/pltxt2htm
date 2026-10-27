@@ -8,19 +8,13 @@ namespace pltxt2htm_test {
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
-auto pltxt4unittest(::pltxt2htm::container::U8StringView) noexcept -> ::pltxt2htm::container::U8String;
+auto inline_pltxt4unittest(::pltxt2htm::container::U8StringView) noexcept -> ::pltxt2htm::container::U8String;
 
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)
 [[__gnu__::__pure__]]
 #endif
 auto pltxt4htmlunittest(::pltxt2htm::container::U8StringView) noexcept -> ::pltxt2htm::container::U8String;
-
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-auto pltxt2common_html(::pltxt2htm::container::U8StringView) noexcept -> ::pltxt2htm::container::U8String;
 
 [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__pure__)

@@ -10,7 +10,7 @@ TEST_SUITE("tab") {
     }
 
     TEST_CASE("tab-then-text") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"\ta");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"\ta");
         auto const& answer = u8"&nbsp;&nbsp;&nbsp;&nbsp;a";
         CHECK(html == answer);
     }

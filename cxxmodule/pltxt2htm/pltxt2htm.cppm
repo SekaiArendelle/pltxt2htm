@@ -8,6 +8,7 @@ export namespace pltxt2htm {
 
 namespace container {
 
+using ::pltxt2htm::container::Deque;
 using ::pltxt2htm::container::BasicString;
 using ::pltxt2htm::container::String;
 using ::pltxt2htm::container::WString;
@@ -27,13 +28,9 @@ using ::pltxt2htm::container::scan_alias_define;
 using ::pltxt2htm::container::scan_context_define;
 using ::pltxt2htm::container::scan_context_eof_define;
 using ::pltxt2htm::container::scan_context_type;
-using ::pltxt2htm::container::Expected;
-using ::pltxt2htm::container::Unexpected;
 using ::pltxt2htm::container::Optional;
 using ::pltxt2htm::container::NulloptType;
 using ::pltxt2htm::container::nullopt;
-using ::pltxt2htm::container::is_expected;
-using ::pltxt2htm::container::is_unexpected;
 using ::pltxt2htm::container::is_optional;
 using ::pltxt2htm::container::NonZero;
 using ::pltxt2htm::container::NonZeroU8;
@@ -55,9 +52,6 @@ using ::pltxt2htm::pltxt2plunity_introduction;
 using ::pltxt2htm::parse_pltxt;
 using ::pltxt2htm::inline_parse_pltxt;
 using ::pltxt2htm::optimize_ast;
-
-// contracts
-using ::pltxt2htm::Contracts;
 
 // exported constant global variables
 namespace version {
@@ -94,6 +88,7 @@ using ::pltxt2htm::InvalidUtf8;
 using ::pltxt2htm::Group;
 using ::pltxt2htm::CodeFence;
 using ::pltxt2htm::Url;
+using ::pltxt2htm::PlainText;
 
 // fenced-code highlighting IR
 using ::pltxt2htm::CodeFenceKind;
@@ -190,6 +185,7 @@ using ::pltxt2htm::MdLatexBlock;
 
 // physics_lab_node
 using ::pltxt2htm::PlA;
+using ::pltxt2htm::PlObjectId;
 using ::pltxt2htm::PlExperiment;
 using ::pltxt2htm::PlExperiments;
 using ::pltxt2htm::PlDiscussion;

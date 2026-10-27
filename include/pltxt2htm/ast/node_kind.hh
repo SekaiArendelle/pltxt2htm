@@ -46,8 +46,8 @@ enum class NodeKind : unsigned {
     unity_mark, ///< Unity text highlight: &lt;mark=Xxx&gt;...&lt;/mark&gt;
     unity_margin, ///< Unity text margin: &lt;margin left=v right=v&gt;...&lt;/margin&gt;
     unity_link, ///< Unity link: &lt;link=&quot;url&quot;&gt;...&lt;/link&gt;
-    unity_b, ///< Unity bold text: &lt;b&gt;...&lt;/b&gt;; also used for Markdown and HTML strong emphasis
-    unity_i, ///< Unity italic text: &lt;i&gt;...&lt;/i&gt;; also used for Markdown and HTML emphasis
+    unity_b, ///< Unity/HTML bold text: &lt;b&gt;...&lt;/b&gt;
+    unity_i, ///< Unity/HTML italic text: &lt;i&gt;...&lt;/i&gt;
 
     // Physics-Lab-specific tags
     pl_a, ///< Physics-Lab anchor tag: &lt;a&gt;...&lt;/a&gt; (styled like a link)
@@ -170,12 +170,38 @@ enum class NodeKind : unsigned {
 
 namespace details {
 
+/**
+ * @brief Whether the node kind is an equals-sign tag whose value the parser stores as text.
+ * @details Together with `is_object_id_tag_type` this is the disjoint split of
+ *          `is_equal_sign_tag_type`: a `<tag=value>` tag carries either text or a parsed
+ *          ::pltxt2htm::PlObjectId, never both, so each parser frame payload selects exactly one
+ *          of the two groups by a single predicate.
+ */
+[[nodiscard]]
+constexpr auto is_equal_sign_tag_text_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::unity_color || node_type == ::pltxt2htm::NodeKind::pl_experiments ||
+           node_type == ::pltxt2htm::NodeKind::pl_discussions || node_type == ::pltxt2htm::NodeKind::pl_trigger ||
+           node_type == ::pltxt2htm::NodeKind::pl_internal;
+}
+
+/**
+ * @brief Whether the node kind is an equals-sign tag whose value is a Physics-Lab ObjectId.
+ * @details The parser stores a parsed ::pltxt2htm::PlObjectId for these tags instead of text.
+ */
+[[nodiscard]]
+constexpr auto is_object_id_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
+    return node_type == ::pltxt2htm::NodeKind::pl_experiment || node_type == ::pltxt2htm::NodeKind::pl_discussion ||
+           node_type == ::pltxt2htm::NodeKind::pl_user;
+}
+
+/**
+ * @brief Whether the node kind is any `&lt;tag=value&gt;` tag.
+ * @details The union of the two payload groups above; callers that only care about the tag syntax,
+ *          such as the optimizer, which keeps the value as a plain view, use this.
+ */
 [[nodiscard]]
 constexpr auto is_equal_sign_tag_type(::pltxt2htm::NodeKind const node_type) noexcept -> bool {
-    return node_type == ::pltxt2htm::NodeKind::unity_color || node_type == ::pltxt2htm::NodeKind::pl_experiment ||
-           node_type == ::pltxt2htm::NodeKind::pl_discussion || node_type == ::pltxt2htm::NodeKind::pl_experiments ||
-           node_type == ::pltxt2htm::NodeKind::pl_discussions || node_type == ::pltxt2htm::NodeKind::pl_user ||
-           node_type == ::pltxt2htm::NodeKind::pl_trigger || node_type == ::pltxt2htm::NodeKind::pl_internal;
+    return is_equal_sign_tag_text_type(node_type) || is_object_id_tag_type(node_type);
 }
 
 [[nodiscard]]

@@ -3,9 +3,18 @@
 #include "doctest_config.hh"
 
 TEST_SUITE("md_image") {
+    TEST_CASE("alt-tab-preserved") {
+        auto const& source = u8"![a\tb](https://example.com/image.png)";
+        auto const html = ::pltxt2htm_test::pltxt2fixedadv_htmld(source);
+        auto const& expected = u8"<img src=\"https://example.com/image.png\" alt=\"a&nbsp;&nbsp;&nbsp;&nbsp;b\">";
+        CHECK(html == expected);
+        auto const unity = ::pltxt2htm_test::pltxt2plunity_introduction(source);
+        CHECK(unity == u8"![a\tb](https://example.com/image.png)");
+    }
+
     TEST_CASE("basic") {
         auto const& pltext = u8"![alt text](https://example.com/image.png)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"alt&nbsp;text\">";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -13,9 +22,28 @@ TEST_SUITE("md_image") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
+    TEST_CASE("roundtrip-alt-space") {
+        auto const first_pass = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"![ alt](https://example.com/image.png)");
+        auto const& expected = u8"<img src=\"https://example.com/image.png\" alt=\"&nbsp;alt\">";
+        CHECK(first_pass == expected);
+        auto const second_pass = ::pltxt2htm_test::pltxt4htmlunittest(
+            ::pltxt2htm::container::U8StringView{first_pass.data(), first_pass.size()});
+        CHECK(second_pass == first_pass);
+    }
+
+    TEST_CASE("alt-invalid-utf8-replaced") {
+        auto pltext = ::pltxt2htm::container::U8String{u8"!["};
+        pltext.push_back(char8_t{0x80});
+        pltext.append(u8"](https://example.com/image.png)");
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(::pltxt2htm::container::U8StringView{pltext.data(), pltext.size()});
+        auto const& answer = u8"<img src=\"https://example.com/image.png\" alt=\"�\">";
+        CHECK(html == answer);
+    }
+
     TEST_CASE("relative-path-rejected") {
         auto const& pltext = u8"![logo](/images/logo.jpg)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"![logo](/images/logo.jpg)";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -25,7 +53,7 @@ TEST_SUITE("md_image") {
 
     TEST_CASE("unknown-tld-rejected") {
         auto const& pltext = u8"![alt](https://example.com/image.wtf)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<img src=\"https://example.com/image.wtf\" alt=\"alt\">";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -35,7 +63,7 @@ TEST_SUITE("md_image") {
 
     TEST_CASE("empty-alt") {
         auto const& pltext = u8"![](https://example.com)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<img src=\"https://example.com\" alt=\"\">";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -45,7 +73,7 @@ TEST_SUITE("md_image") {
 
     TEST_CASE("space-in-alt") {
         auto const& pltext = u8"![text with spaces](image.gif)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"![text&nbsp;with&nbsp;spaces](image.gif)";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -55,7 +83,7 @@ TEST_SUITE("md_image") {
 
     TEST_CASE("space-in-url-encoded") {
         auto const& pltext = u8"![special](https://example.com/path with spaces.jpg)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<img src=\"https://example.com/path%20with%20spaces.jpg\" alt=\"special\">";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -65,7 +93,7 @@ TEST_SUITE("md_image") {
 
     TEST_CASE("already-encoded") {
         auto const& pltext = u8"![special](https://example.com/path%20with%20spaces.jpg)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<img src=\"https://example.com/path%20with%20spaces.jpg\" alt=\"special\">";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -75,7 +103,7 @@ TEST_SUITE("md_image") {
 
     TEST_CASE("unclosed-paren") {
         auto const& pltext = u8"![text](url";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"![text](url";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -85,7 +113,7 @@ TEST_SUITE("md_image") {
 
     TEST_CASE("unclosed-bracket") {
         auto const& pltext = u8"![text";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"![text";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -95,7 +123,7 @@ TEST_SUITE("md_image") {
 
     TEST_CASE("empty-both") {
         auto const& pltext = u8"![]()";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"![]()";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -106,7 +134,7 @@ TEST_SUITE("md_image") {
     TEST_CASE("xss-alt-escaped") {
         // Avoid XSS Attack
         auto const& pltext = u8"![x\" onerror=\"alert('XSS')](example.com/image.jpg)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer =
             u8"<img src=\"example.com/image.jpg\" alt=\"x&quot;&nbsp;onerror=&quot;alert(&apos;XSS&apos;)\">";
         CHECK(html == answer);
@@ -118,7 +146,7 @@ TEST_SUITE("md_image") {
     TEST_CASE("alt-html-escaped") {
         // Escape HTML-sensitive characters in alt text.
         auto const& pltext = u8"![a&\"'<>](example.com/image.jpg)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<img src=\"example.com/image.jpg\" alt=\"a&amp;&quot;&apos;&lt;&gt;\">";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -130,7 +158,7 @@ TEST_SUITE("md_image") {
         // Cover all markdown backslash escapes in alt text.
         auto const& pltext =
             u8R"(![\\\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\]\^\_\`\{\|\}\~](example.com/image.jpg))";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer =
             u8"<img src=\"example.com/image.jpg\" alt=\"\\!&quot;#$%&amp;&apos;()*+,-./:;&lt;=&gt;?@[]^_`{|}~\">";
         CHECK(html == answer);
@@ -141,7 +169,7 @@ TEST_SUITE("md_image") {
 
     TEST_CASE("surrounded-by-text") {
         auto const& pltext = u8"text![text](example.com/image.jpg)text";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"text<img src=\"example.com/image.jpg\" alt=\"text\">text";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -152,7 +180,7 @@ TEST_SUITE("md_image") {
     TEST_CASE("newline-in-alt") {
         // test linkbreak inside alt text
         auto const& pltext = u8"![line\nbreak](example.com/image.jpg)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"![line<br>break](example.com/image.jpg)";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -162,7 +190,7 @@ TEST_SUITE("md_image") {
 
     TEST_CASE("query-and-ampersand") {
         auto const& pltext = u8"![img](example.com/a.png?x=1&y=2)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<img src=\"example.com/a.png?x=1&amp;y=2\" alt=\"img\">";
         CHECK(html == answer);
     }
@@ -170,7 +198,7 @@ TEST_SUITE("md_image") {
     TEST_CASE("cjk-path-encoded") {
         // Chinese characters in URL path are percent-encoded
         auto const& pltext = u8"![alt](https://example.com/中文路径)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<img src=\"https://example.com/%E4%B8%AD%E6%96%87%E8%B7%AF%E5%BE%84\" alt=\"alt\">";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -180,7 +208,7 @@ TEST_SUITE("md_image") {
 
     TEST_CASE("port-accepted") {
         auto const& pltext = u8"![alt](https://www.example.com:65535/image.png)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<img src=\"https://www.example.com:65535/image.png\" alt=\"alt\">";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -190,7 +218,7 @@ TEST_SUITE("md_image") {
 
     TEST_CASE("entity-in-query") {
         auto const& pltext = u8"![alt](example.com/image.png?x=1&amp;y=2)";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<img src=\"example.com/image.png?x=1&amp;y=2\" alt=\"alt\">";
         CHECK(html == answer);
     }

@@ -1,13 +1,13 @@
-# AGENTS.md — Developer Guide for `pltxt2htm`
+# AGENTS.md - Developer Guide for `pltxt2htm`
 
 This file is the entry point for AI coding agents. It contains the development workflow, build/format/lint/test commands, and coding conventions. Human-facing contribution policy (pull requests, issues, license) lives in [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Mandatory rules
 
 - **Do NOT run git write operations without explicit human instruction.** An agent must not run `git add`, `git commit`, `git push`, open a **Pull Request**, open an **Issue**, or perform any other write operation to the repository or remote unless the human explicitly asks for it.
-- **Treat the git index as human-owned shared state.** The human may stage files by hand at any time, and often does while reviewing your work. Unexpected staged changes are not your mistake — never undo them, leave the index alone, and mention them in your summary instead of stopping or asking.
-- After changing code, run the affected tests (commands below). If `git-clang-format` is available, format your changes with it so the diff stays limited to the lines you touched; if it is not installed, skip formatting (see [Code formatting](#code-formatting)). Static analysis (`clang-tidy`) is run in full by CI and does **not** need to be run locally for every change.
-- **Stop and report when the request appears misguided.** If the agent believes the user's prompt is based on a false premise, points in the wrong direction, or would lead to an incorrect or harmful change, the agent must stop, explain the problem with concrete evidence (file paths, code excerpts, test results), and propose the corrected direction — rather than silently complying or silently "fixing" the intent. Do not use this rule to avoid difficult tasks: when the direction is sound and only the approach is unclear, proceed or ask a focused question instead.
+- **Treat the git index as human-owned shared state.** The human may stage files by hand at any time, and often does while reviewing your work. Unexpected staged changes are not your mistake - never undo them, leave the index alone, and mention them in your summary instead of stopping or asking.
+- After changing code, run the affected tests (commands below) and follow [Code formatting](#code-formatting). Static analysis (`clang-tidy`) is run in full by CI and does **not** need to be run locally for every change.
+- **Stop and report when the request appears misguided.** If the agent believes the user's prompt is based on a false premise, points in the wrong direction, or would lead to an incorrect or harmful change, the agent must stop, explain the problem with concrete evidence (file paths, code excerpts, test results), and propose the corrected direction - rather than silently complying or silently "fixing" the intent. Do not use this rule to avoid difficult tasks: when the direction is sound and only the approach is unclear, proceed or ask a focused question instead.
 
 ## Project layout
 
@@ -16,15 +16,15 @@ Header-only C++23 library converting Physics-Lab text to HTML, with bindings and
 | Path | Purpose |
 |------|---------|
 | `include/pltxt2htm/` | Core headers (the library) |
-| `cmd/` | CLI — see [cmd/README.md](./cmd/README.md) |
-| `tests/` | Test suites — see [tests/README.md](./tests/README.md) |
-| `py/` | Python binding — see [py/README.md](./py/README.md) |
-| `c/` | C API — see [c/README.md](./c/README.md) |
-| `rust/` | Rust binding — see [rust/README.md](./rust/README.md) |
-| `csharp/` | C# binding — see [csharp/README.md](./csharp/README.md) |
-| `wasm/` | WASM — see [wasm/README.md](./wasm/README.md) |
-| `benches/` | Benchmarks — see [benches/README.md](./benches/README.md) |
-| `fuzzing/` | Fuzzing — see [fuzzing/README.md](./fuzzing/README.md) |
+| `cmd/` | CLI - see [cmd/README.md](./cmd/README.md) |
+| `tests/` | Test suites - see [tests/README.md](./tests/README.md) |
+| `py/` | Python binding - see [py/README.md](./py/README.md) |
+| `c/` | C API - see [c/README.md](./c/README.md) |
+| `rust/` | Rust binding - see [rust/README.md](./rust/README.md) |
+| `csharp/` | C# binding - see [csharp/README.md](./csharp/README.md) |
+| `wasm/` | WASM - see [wasm/README.md](./wasm/README.md) |
+| `benches/` | Benchmarks - see [benches/README.md](./benches/README.md) |
+| `fuzzing/` | Fuzzing - see [fuzzing/README.md](./fuzzing/README.md) |
 | `scripts/` | Dev tooling scripts |
 | `Dockerfile` | Dev container |
 
@@ -37,7 +37,7 @@ Local tools:
 - C++23 compiler (clang / gcc / MSVC)
 - CMake
 - Python 3
-- clang-format / git-clang-format (used for formatting when available — see [Code formatting](#code-formatting)). clang-tidy is optional locally — CI runs the full pass.
+- clang-format / git-clang-format (used for formatting when available - see [Code formatting](#code-formatting)). clang-tidy is optional locally - CI runs the full pass.
 
 Docker alternative:
 
@@ -49,20 +49,20 @@ docker exec -it pltxt2htm-dev bash
 
 The source directory is mounted into the container, so edits are shared both ways.
 
-Each sub-project is independently built with CMake — see the respective `README.md`.
+Each sub-project is independently built with CMake - see the respective `README.md`.
 
 ## Workflow
 
 1. **Locate** – Read the relevant sub-project README to understand which module to modify.
 2. **Code** – Follow the [Coding conventions](#coding-conventions) below.
-3. **Format** – If `git-clang-format` is available, run the [formatting](#code-formatting) command, which only touches the lines your change adds or modifies; if it is not installed, skip this step rather than installing it. Static analysis is handled by CI, not as a local step.
+3. **Format** – Follow the [Code formatting](#code-formatting) instructions.
 4. **Test** – Run the tests for the module you touched, then the full suite.
 5. **Review** – After a substantive code change, ask a subagent to perform the [independent read-only review](#independent-read-only-review) when subagents are available. Validate its findings, fix confirmed issues, and rerun the affected checks.
 6. **Submit** – Do NOT run any git write operations (such as `git add`, `git commit`, `git push`) or open a PR/Issue without explicit human instruction. Present a patch file or a sketch of the approach instead (see [CONTRIBUTING.md](./CONTRIBUTING.md)).
 
 ## Commit messages
 
-Commits follow the shape `<type>(<scope>): <subject>`, with an optional body explaining *why* and optional footers. The full rules — the accepted `type` list, `scope` values, and limits — are in [CONTRIBUTING.md](./CONTRIBUTING.md#commit-messages). A concise reference template is in [`.gitmessage`](./.gitmessage).
+Commits follow the shape `<type>(<scope>): <subject>`, with an optional body explaining *why* and optional footers. The full rules - the accepted `type` list, `scope` values, and limits - are in [CONTRIBUTING.md](./CONTRIBUTING.md#commit-messages). A concise reference template is in [`.gitmessage`](./.gitmessage).
 
 When a commit contains material produced by a model, follow the [attribution policy](./CONTRIBUTING.md#attribution) and add the applicable attribution trailer. Omit model-attribution trailers when the committed material was written entirely by humans. This does not relax the rule above: never run a git write operation without explicit human instruction.
 
@@ -83,83 +83,88 @@ The implementing agent remains responsible for the final result. It must validat
 
 ### Code formatting
 
-Formatting is **not enforced by CI**. When `git-clang-format` is available, use it instead of formatting the whole tree — it reformats only the lines your change touches, which keeps diffs and merges small. When it is not installed, skip formatting rather than installing it.
+Formatting is **not enforced by CI**. Use the Pixi tasks below to preview and apply `git-clang-format` to changed lines relative to `main`. They run in the project `scripts` environment, which supplies `git-clang-format`, Python, and `clang-format`.
 
 `.clang-format` at the project root is the single source of truth for style.
 
 ```sh
-git-clang-format main      # reformat only what this branch changed, relative to main
-git-clang-format --diff    # preview the result without writing anything
+pixi run -e scripts git-clang-format-diff  # preview formatting without writing changes
+pixi run -e scripts git-clang-format       # apply formatting to changed lines
 ```
 
 Notes:
 
-- Untracked (brand-new) files are ignored by `git-clang-format`. Format them directly instead — every line in them is new anyway:
+- Untracked (brand-new) files are ignored by `git-clang-format`. Format them directly instead - every line in them is new anyway:
 ```sh
-clang-format -i path/to/new_file.cc
+pixi run -e scripts clang-format -i path/to/new_file.cc
 ```
-- Unstaged edits are refused by default: pass `--force` (`git-clang-format --force main`) or stage the changes first.
-- If the toolchain only ships a versioned launcher (for example `git-clang-format-20`), use that one so the result matches `.clang-format`.
+- The apply task passes `--force`, so it also handles unstaged edits in changed files.
 - Do not reformat code you did not touch. Unrelated reformatting makes review harder and causes merge conflicts.
-- A one-off sweep over the whole tree is still possible when it is actually wanted:
-```sh
-python scripts/gen_format_ninja.py
-ninja -f format_cpp.ninja
-```
-This writes a locally generated `format_cpp.ninja`, which is **not tracked by git** (see `.gitignore`); the script above exists only to produce it.
-
 ### Static analysis
 
-Run in full by CI: the `x86_64-linux-gnu-clang-tidy` job in [`.github/workflows/test.yml`](./.github/workflows/test.yml) builds `tests/docker/x86_64-linux-gnu-clang-tidy/Dockerfile`, which invokes the script below. **Do not run clang-tidy locally as part of the normal edit loop** — it is slow, and CI covers every translation unit anyway.
+Run in full by CI: the `x86_64-linux-gnu-clang-tidy` job in [`.github/workflows/test.yml`](./.github/workflows/test.yml) builds `tests/docker/x86_64-linux-gnu-clang-tidy/Dockerfile`, which invokes the script below. **Do not run clang-tidy locally as part of the normal edit loop** - it is slow, and CI covers every translation unit anyway.
 
 If you do need it locally (for example, when CI keeps failing on a specific file):
 ```sh
-python scripts/run_clang_tidy.py
+pixi run -e scripts run-clang-tidy
 ```
 
 Configuration is in `.clang-tidy` at the project root. The script configures each sub-project (`examples`, `cmd`, `c`, or as given) into `<sub>/build-tidy` with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON` and runs clang-tidy on every translation unit in the resulting compile database, so the flags match the real build. Re-run after adding source files; pass `--refresh` to force a re-configure (e.g. after editing `CMakeLists.txt`). Machine-specific flags go through the standard `CXXFLAGS` environment variable, for example:
 
 ```sh
-CXXFLAGS=-stdlib=libc++ python scripts/run_clang_tidy.py
+CXXFLAGS=-stdlib=libc++ pixi run -e scripts run-clang-tidy
 ```
 
 ### Running tests
 
-Full suite:
+Run the Clang or GCC test suite with Pixi:
 
 ```sh
-python ./tests/run_all_tests.py
+pixi run -e clang test-clang
+pixi run -e gcc test-gcc
 ```
 
-Or with CMake:
+For custom compilers or CMake options, configure `tests/` directly - see [tests/README.md](./tests/README.md).
+
+Pass a sanitizer name as a positional argument, for example `pixi run -e clang test-clang address` (or `pixi run -e gcc test-gcc address`); `undefined` and `memory` are accepted where the compiler supports them.
+
+Coverage - see [tests/docker/codecov/README.md](./tests/docker/codecov/README.md) for the container image that builds an lcov + genhtml report with GCC. For a local run, configure a GCC build with `-DPLTXT2HTM_ENABLE_COVERAGE=ON` and capture it with the same tools.
+
+**Command cost note:** The coverage image is the full, slowest check; a forced clean rebuild (deleting the build tree first) is also slower than the incremental default. For quick iteration, use the relevant Pixi task or test only the module you changed. The expected local check before submitting is the test suite; clang-tidy does not need to be run locally.
+
+### Windows symbol generation
+
+After editing the symbol manifest, regenerate the files and re-run the check:
 
 ```sh
-cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug
-cmake --build tests/build
-ctest --test-dir tests/build --interactive-debug-mode 0
+pixi run -e scripts windows-symbols
+pixi run -e scripts windows-symbols-check
 ```
 
-Sanitizer examples:
+For a quick check of one DLL, pass `--library kernel32` (or `ntdll` / `dbghelp`); the default checks every library:
 
 ```sh
-# ASan
-cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=address
-cmake --build tests/build
-ctest --test-dir tests/build --interactive-debug-mode 0
-
-# MSan
-cmake -S tests -B tests/build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=memory
-cmake --build tests/build
-ctest --test-dir tests/build --interactive-debug-mode 0
+pixi run -e scripts python scripts/gen_windows_symbols.py --library kernel32 --check
 ```
 
-Coverage:
+The CI job uses a dedicated Docker image; see [scripts/docker/windows-symbols/README.md](./scripts/docker/windows-symbols/README.md) for the Docker commands and image details.
+
+### Generated files
+
+Regenerate the version files and the HTML named-character-reference table:
 
 ```sh
-python ./tests/codecov.py
+pixi run -e scripts gen-version
+pixi run -e scripts gen-html-named-character-references
 ```
 
-**Command cost note:** `run_all_tests.py` and `codecov.py` are the full, slowest checks. For quick iteration, build and test only the module you changed via its CMake config or README. The expected local check before submitting is the test suite (CMake + `ctest`, above); clang-tidy does not need to be run locally.
+### Ignore files
+
+`.gitignore` is the source of truth. `.dockerignore` is **generated** from it - never edit it by hand. Regenerate it after every `.gitignore` change:
+
+```sh
+pixi run -e scripts gen-dockerignore
+```
 
 ## Coding conventions
 
@@ -178,14 +183,14 @@ Follow the existing low-runtime, cross-platform style used in core headers:
   - Files under `include/pltxt2htm/` must contain only ASCII characters.
   - Represent non-ASCII characters in string and character literals with universal character names such as `\uXXXX` or `\UXXXXXXXX`.
 - **Use relative paths for internal includes:**
-  - In files under `include/pltxt2htm/`, include other `pltxt2htm` headers with quoted paths relative to the including file, for example `#include "../contracts.hh"`; do not use project-root angle-bracket includes such as `#include <pltxt2htm/details/push_macro.hh>` there.
+  - In files under `include/pltxt2htm/`, include other `pltxt2htm` headers with quoted paths relative to the including file, for example `#include "../details/contracts.hh"`; do not use project-root angle-bracket includes such as `#include <pltxt2htm/details/push_macro.hh>` there.
   - Continue to use angle brackets for standard-library and external dependency headers.
 - **Do not name lambdas:**
   - Never write `auto name = [](...) { ... };` and call by name later.
   - If a callable needs a name, extract it as a normal `constexpr` function.
   - Immediately invoked lambda expressions (`[]() { ... }()`) are acceptable only when necessary to compute a `constexpr` value in a context where `if constexpr` is not directly usable (e.g., inside a function with non-`constexpr` scope rules).
 - **Avoid the redundant `(string_view, offset)` parameter pair:**
-  - A `string_view` already carries both a pointer and a length, so a signature like `parse_value(::pltxt2htm::container::U8StringView s, ::std::size_t pos)` is redundant — the offset is implicit in the view.
+  - A `string_view` already carries both a pointer and a length, so a signature like `parse_value(::pltxt2htm::container::U8StringView s, ::std::size_t pos)` is redundant - the offset is implicit in the view.
   - This keeps each parser "parse the given view from the start", avoids offset arithmetic and empty-check (`pos == 0`) inside helpers, and keeps the call sites' intent explicit.
 - **Keep side effects separated from algorithms:**
   - Put pure algorithmic logic in headers under `include/` whenever practical.

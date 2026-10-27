@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
-project(pltxt2htm-fuzzing LANGUAGES CXX VERSION 0.26.0)
+project(pltxt2htm-fuzzing LANGUAGES CXX VERSION 0.27.0)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htm_contract_mode.cmake")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -28,6 +29,7 @@ endif()
 
 foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roundtrip)
     add_executable(${FUZZER_SRC} src/${FUZZER_SRC}.cc)
+    pltxt2htm_apply_contract_mode(${FUZZER_SRC} PRIVATE)
     target_include_directories(${FUZZER_SRC} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
     target_compile_features(${FUZZER_SRC} PRIVATE cxx_std_23)
 
@@ -47,7 +49,6 @@ foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roun
     )
     target_link_options(${FUZZER_SRC} PRIVATE
         -fsanitize=fuzzer
-        -fuse-ld=lld
     )
 
     if(PLTXT2HTM_SANITIZER STREQUAL "asan")

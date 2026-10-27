@@ -3,12 +3,14 @@
 #include <cassert>
 #include <utility>
 #include <fast_io/fast_io.h>
+#include <fast_io/fast_io_dsal/string.h>
 // fast_io only ships a runtime install-path backend for these platforms; the
 // banner reports `<unknown>` where there is none (e.g. wasm32-wasip1).
 #if defined(__linux__) || defined(_WIN32) || defined(__APPLE__)
     #include <fast_io/fast_io_driver/install_path.h>
 #endif
 #include <pltxt2htm/pltxt2htm.hh>
+#include <pltxt2htm/details/push_macro.hh>
 
 enum class TargetType : unsigned {
     indeterminate = 0,
@@ -338,61 +340,30 @@ int main(int argc, char const* const* const argv) noexcept {
 
         ::pltxt2htm::container::U8String html;
         if (target_type == ::TargetType::html4unittest) {
-#ifdef NDEBUG
-            constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-#else
-            constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-#endif
-            auto ast = ::pltxt2htm::parse_pltxt<ndebug>(::pltxt2htm::container::U8StringView{input_text});
-            ::pltxt2htm::optimize_ast<ndebug>(ast);
-            html = ::pltxt2htm::details::plweb_text_backend<ndebug,
-                                                            ::pltxt2htm::details::PlWebTextBackendMode::pltxt4unittest>(
-                ast, u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR", u8"$CO_AUTHORS");
+            html = ::pltxt2htm::pltxt2fixedadv_html(::pltxt2htm::container::U8StringView{input_text},
+                                                    u8"localhost:5173", u8"$PROJECT", u8"$VISITOR", u8"$AUTHOR",
+                                                    u8"$CO_AUTHORS");
         }
         else if (target_type == ::TargetType::common_html) {
-            html = ::pltxt2htm::pltxt2common_html<
-#ifdef NDEBUG
-                ::pltxt2htm::Contracts::ignore
-#else
-                ::pltxt2htm::Contracts::quick_enforce
-#endif
-                >(::pltxt2htm::container::U8StringView{input_text});
+            html = ::pltxt2htm::pltxt2common_html(::pltxt2htm::container::U8StringView{input_text});
         }
         else if (target_type == ::TargetType::fixedadv_html) {
-            html = ::pltxt2htm::pltxt2fixedadv_html<
-#ifdef NDEBUG
-                ::pltxt2htm::Contracts::ignore
-#else
-                ::pltxt2htm::Contracts::quick_enforce
-#endif
-                >(::pltxt2htm::container::U8StringView{input_text},
-                  ::pltxt2htm::container::U8StringView::from_c_str(host),
-                  ::pltxt2htm::container::U8StringView::from_c_str(project),
-                  ::pltxt2htm::container::U8StringView::from_c_str(visitor),
-                  ::pltxt2htm::container::U8StringView::from_c_str(author),
-                  ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
+            html = ::pltxt2htm::pltxt2fixedadv_html(::pltxt2htm::container::U8StringView{input_text},
+                                                    ::pltxt2htm::container::U8StringView::from_c_str(host),
+                                                    ::pltxt2htm::container::U8StringView::from_c_str(project),
+                                                    ::pltxt2htm::container::U8StringView::from_c_str(visitor),
+                                                    ::pltxt2htm::container::U8StringView::from_c_str(author),
+                                                    ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
         }
         else if (target_type == ::TargetType::plunity_text) {
-            html = ::pltxt2htm::pltxt2plunity_introduction<
-#ifdef NDEBUG
-                ::pltxt2htm::Contracts::ignore
-#else
-                ::pltxt2htm::Contracts::quick_enforce
-#endif
-                >(::pltxt2htm::container::U8StringView{input_text},
-                  ::pltxt2htm::container::U8StringView::from_c_str(project),
-                  ::pltxt2htm::container::U8StringView::from_c_str(visitor),
-                  ::pltxt2htm::container::U8StringView::from_c_str(author),
-                  ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
+            html = ::pltxt2htm::pltxt2plunity_introduction(::pltxt2htm::container::U8StringView{input_text},
+                                                           ::pltxt2htm::container::U8StringView::from_c_str(project),
+                                                           ::pltxt2htm::container::U8StringView::from_c_str(visitor),
+                                                           ::pltxt2htm::container::U8StringView::from_c_str(author),
+                                                           ::pltxt2htm::container::U8StringView::from_c_str(coauthors));
         }
         else [[unlikely]] {
-            ::pltxt2htm::details::unreachable<
-#ifdef NDEBUG
-                ::pltxt2htm::Contracts::ignore
-#else
-                ::pltxt2htm::Contracts::quick_enforce
-#endif
-                >();
+            pltxt2htm_unreachable(u8"Unexpected target type in the CLI conversion dispatch");
         }
         if (output_file_path == nullptr) {
             ::fast_io::println(::fast_io::u8c_stdout(), html);
@@ -414,3 +385,5 @@ int main(int argc, char const* const* const argv) noexcept {
 
     return 0;
 }
+
+#include <pltxt2htm/details/pop_macro.hh>

@@ -6,7 +6,7 @@
 // Fixtures — direct AST construction (no parse overhead)
 // -------------------------------------------------------------------
 struct NestedColorOptFixture : ::benchmark::Fixture {
-    ::pltxt2htm::Ast<ndebug> ast;
+    ::pltxt2htm::Ast ast;
 
     void SetUp(::benchmark::State& state) override {
         ast = build_nested_color_ast(as_size(state));
@@ -14,7 +14,7 @@ struct NestedColorOptFixture : ::benchmark::Fixture {
 };
 
 struct AdjacentColorOptFixture : ::benchmark::Fixture {
-    ::pltxt2htm::Ast<ndebug> ast;
+    ::pltxt2htm::Ast ast;
 
     void SetUp(::benchmark::State& state) override {
         ast = build_adjacent_color_ast(as_size(state));
@@ -22,7 +22,7 @@ struct AdjacentColorOptFixture : ::benchmark::Fixture {
 };
 
 struct MixedRedundantOptFixture : ::benchmark::Fixture {
-    ::pltxt2htm::Ast<ndebug> ast;
+    ::pltxt2htm::Ast ast;
 
     void SetUp(::benchmark::State& state) override {
         ast = build_mixed_redundant_ast(as_size(state));
@@ -30,7 +30,7 @@ struct MixedRedundantOptFixture : ::benchmark::Fixture {
 };
 
 struct HtmlSpanOptFixture : ::benchmark::Fixture {
-    ::pltxt2htm::Ast<ndebug> ast;
+    ::pltxt2htm::Ast ast;
 
     void SetUp(::benchmark::State& state) override {
         ast = build_html_span_ast(as_size(state));
@@ -42,56 +42,56 @@ struct HtmlSpanOptFixture : ::benchmark::Fixture {
 // -------------------------------------------------------------------
 struct PlainTextPipelineFixture : ::benchmark::Fixture {
     ::pltxt2htm::container::U8String input;
-    ::pltxt2htm::Ast<ndebug> ast;
+    ::pltxt2htm::Ast ast;
 
     void SetUp(::benchmark::State& state) override {
         input = make_plain_text(as_size(state));
         auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
-        ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
+        ast = ::pltxt2htm::parse_pltxt(sv);
     }
 };
 
 struct RedundantColorPipelineFixture : ::benchmark::Fixture {
     ::pltxt2htm::container::U8String input;
-    ::pltxt2htm::Ast<ndebug> ast;
+    ::pltxt2htm::Ast ast;
 
     void SetUp(::benchmark::State& state) override {
         input = make_redundant_color_nesting(as_size(state));
         auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
-        ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
+        ast = ::pltxt2htm::parse_pltxt(sv);
     }
 };
 
 struct MixedRedundantPipelineFixture : ::benchmark::Fixture {
     ::pltxt2htm::container::U8String input;
-    ::pltxt2htm::Ast<ndebug> ast;
+    ::pltxt2htm::Ast ast;
 
     void SetUp(::benchmark::State& state) override {
         input = make_mixed_redundant(as_size(state));
         auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
-        ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
+        ast = ::pltxt2htm::parse_pltxt(sv);
     }
 };
 
 struct AdjacentTextPipelineFixture : ::benchmark::Fixture {
     ::pltxt2htm::container::U8String input;
-    ::pltxt2htm::Ast<ndebug> ast;
+    ::pltxt2htm::Ast ast;
 
     void SetUp(::benchmark::State& state) override {
         input = make_adjacent_text_nodes(as_size(state));
         auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
-        ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
+        ast = ::pltxt2htm::parse_pltxt(sv);
     }
 };
 
 struct HtmlSpanAttrsPipelineFixture : ::benchmark::Fixture {
     ::pltxt2htm::container::U8String input;
-    ::pltxt2htm::Ast<ndebug> ast;
+    ::pltxt2htm::Ast ast;
 
     void SetUp(::benchmark::State& state) override {
         input = make_html_span_attrs(as_size(state));
         auto sv = ::pltxt2htm::container::U8StringView{input.data(), input.size()};
-        ast = ::pltxt2htm::parse_pltxt<ndebug>(sv);
+        ast = ::pltxt2htm::parse_pltxt(sv);
     }
 };
 
@@ -101,7 +101,7 @@ struct HtmlSpanAttrsPipelineFixture : ::benchmark::Fixture {
 BENCHMARK_DEFINE_F(NestedColorOptFixture, Optimize)(benchmark::State& st) {
     for (auto _ : st) {
         auto copy = ast;
-        ::pltxt2htm::optimize_ast<ndebug>(copy);
+        ::pltxt2htm::optimize_ast(copy);
         ::benchmark::DoNotOptimize(copy);
     }
 }
@@ -111,7 +111,7 @@ BENCHMARK_REGISTER_F(NestedColorOptFixture, Optimize)->Arg(100)->Arg(200)->Arg(5
 BENCHMARK_DEFINE_F(AdjacentColorOptFixture, Optimize)(benchmark::State& st) {
     for (auto _ : st) {
         auto copy = ast;
-        ::pltxt2htm::optimize_ast<ndebug>(copy);
+        ::pltxt2htm::optimize_ast(copy);
         ::benchmark::DoNotOptimize(copy);
     }
 }
@@ -121,7 +121,7 @@ BENCHMARK_REGISTER_F(AdjacentColorOptFixture, Optimize)->Arg(200)->Arg(500)->Arg
 BENCHMARK_DEFINE_F(MixedRedundantOptFixture, Optimize)(benchmark::State& st) {
     for (auto _ : st) {
         auto copy = ast;
-        ::pltxt2htm::optimize_ast<ndebug>(copy);
+        ::pltxt2htm::optimize_ast(copy);
         ::benchmark::DoNotOptimize(copy);
     }
 }
@@ -131,7 +131,7 @@ BENCHMARK_REGISTER_F(MixedRedundantOptFixture, Optimize)->Arg(50)->Arg(100)->Arg
 BENCHMARK_DEFINE_F(HtmlSpanOptFixture, Optimize)(benchmark::State& st) {
     for (auto _ : st) {
         auto copy = ast;
-        ::pltxt2htm::optimize_ast<ndebug>(copy);
+        ::pltxt2htm::optimize_ast(copy);
         ::benchmark::DoNotOptimize(copy);
     }
 }
@@ -144,7 +144,7 @@ BENCHMARK_REGISTER_F(HtmlSpanOptFixture, Optimize)->Arg(100)->Arg(300)->Arg(500)
 BENCHMARK_DEFINE_F(PlainTextPipelineFixture, Optimize)(benchmark::State& st) {
     for (auto _ : st) {
         auto copy = ast;
-        ::pltxt2htm::optimize_ast<ndebug>(copy);
+        ::pltxt2htm::optimize_ast(copy);
         ::benchmark::DoNotOptimize(copy);
     }
     st.SetBytesProcessed(input.size() * st.iterations());
@@ -155,7 +155,7 @@ BENCHMARK_REGISTER_F(PlainTextPipelineFixture, Optimize)->Arg(50)->Arg(200)->Arg
 BENCHMARK_DEFINE_F(RedundantColorPipelineFixture, Optimize)(benchmark::State& st) {
     for (auto _ : st) {
         auto copy = ast;
-        ::pltxt2htm::optimize_ast<ndebug>(copy);
+        ::pltxt2htm::optimize_ast(copy);
         ::benchmark::DoNotOptimize(copy);
     }
     st.SetBytesProcessed(input.size() * st.iterations());
@@ -166,7 +166,7 @@ BENCHMARK_REGISTER_F(RedundantColorPipelineFixture, Optimize)->Arg(100)->Arg(200
 BENCHMARK_DEFINE_F(MixedRedundantPipelineFixture, Optimize)(benchmark::State& st) {
     for (auto _ : st) {
         auto copy = ast;
-        ::pltxt2htm::optimize_ast<ndebug>(copy);
+        ::pltxt2htm::optimize_ast(copy);
         ::benchmark::DoNotOptimize(copy);
     }
     st.SetBytesProcessed(input.size() * st.iterations());
@@ -177,7 +177,7 @@ BENCHMARK_REGISTER_F(MixedRedundantPipelineFixture, Optimize)->Arg(50)->Arg(100)
 BENCHMARK_DEFINE_F(AdjacentTextPipelineFixture, Optimize)(benchmark::State& st) {
     for (auto _ : st) {
         auto copy = ast;
-        ::pltxt2htm::optimize_ast<ndebug>(copy);
+        ::pltxt2htm::optimize_ast(copy);
         ::benchmark::DoNotOptimize(copy);
     }
     st.SetBytesProcessed(input.size() * st.iterations());
@@ -188,7 +188,7 @@ BENCHMARK_REGISTER_F(AdjacentTextPipelineFixture, Optimize)->Arg(200)->Arg(500)-
 BENCHMARK_DEFINE_F(HtmlSpanAttrsPipelineFixture, Optimize)(benchmark::State& st) {
     for (auto _ : st) {
         auto copy = ast;
-        ::pltxt2htm::optimize_ast<ndebug>(copy);
+        ::pltxt2htm::optimize_ast(copy);
         ::benchmark::DoNotOptimize(copy);
     }
     st.SetBytesProcessed(input.size() * st.iterations());

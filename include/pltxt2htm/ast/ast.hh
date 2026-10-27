@@ -10,8 +10,10 @@
 
 #include <memory>
 
-#include "../contracts.hh"
+#include "../details/contracts.hh"
+#include "../details/utf8.hh"
 #include "node_kind.hh"
+#include "plain_text.hh"
 
 #include "impl/basic_node_decl.hh"
 #include "impl/url_node_decl.hh"
@@ -31,11 +33,10 @@ namespace pltxt2htm {
  * @brief Tagged-union AST node for Physics-Lab, Unity rich-text, Markdown, and HTML elements.
  * @details Dispatched by ::pltxt2htm::NodeKind. Holds exactly one of the concrete
  *          node types (basic, HTML, Markdown, Physics-Lab, Unity rich text) in a type-safe union.
- * @tparam ndebug Contract checking mode.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  */
-template<::pltxt2htm::Contracts ndebug>
 class PlTxtNode {
-    using Storage = ::pltxt2htm::details::PlTxtNodeStorage<ndebug>;
+    using Storage = ::pltxt2htm::details::PlTxtNodeStorage;
 
     Storage storage{};
     ::pltxt2htm::NodeKind node_kind{};
@@ -50,13 +51,12 @@ public:
      * @return A ::pltxt2htm::PlTxtNode containing the constructed node.
      */
     template<typename Node, typename... Args>
-        requires (::pltxt2htm::details::PlTxtNodeConcept<ndebug, Node> &&
-                  ::std::is_nothrow_constructible_v<Node, Args...>)
+        requires (::pltxt2htm::details::PlTxtNodeConcept<Node> && ::std::is_nothrow_constructible_v<Node, Args...>)
     [[nodiscard]]
-    static constexpr auto emplace(Args&&... args) noexcept -> ::pltxt2htm::PlTxtNode<ndebug> {
-        using Traits = ::pltxt2htm::details::PlTxtNodeTraits<ndebug, Node>;
+    static constexpr auto emplace(Args&&... args) noexcept -> ::pltxt2htm::PlTxtNode {
+        using Traits = ::pltxt2htm::details::PlTxtNodeTraits<Node>;
 
-        auto result = ::pltxt2htm::PlTxtNode<ndebug>{};
+        auto result = ::pltxt2htm::PlTxtNode{};
         ::std::construct_at(::std::addressof(result.storage.*Traits::member), ::std::forward<Args>(args)...);
         result.node_kind = Traits::kind;
         return result;
@@ -68,13 +68,13 @@ public:
      *        silently pay for a deep copy (PLTXT2HTM_INTERNAL_USE).
      */
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept = delete;
+    constexpr PlTxtNode(::pltxt2htm::PlTxtNode const&) noexcept = delete;
 #else
-    constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
+    constexpr PlTxtNode(::pltxt2htm::PlTxtNode const& other) noexcept
         : node_kind(other.node_kind) {
         switch (node_kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::text: {
-            new (::std::addressof(storage.text_node))::pltxt2htm::Text<ndebug>(other.storage.text_node);
+            new (::std::addressof(storage.text_node))::pltxt2htm::Text(other.storage.text_node);
             break;
         }
         case ::pltxt2htm::NodeKind::invalid_utf8: {
@@ -90,7 +90,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::pl_a: {
-            new (::std::addressof(storage.pl_a_node))::pltxt2htm::PlA<ndebug>(other.storage.pl_a_node);
+            new (::std::addressof(storage.pl_a_node))::pltxt2htm::PlA(other.storage.pl_a_node);
             break;
         }
         case ::pltxt2htm::NodeKind::pl_experiment: {
@@ -295,7 +295,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::html_a: {
-            new (::std::addressof(storage.html_a_node))::pltxt2htm::HtmlA<ndebug>(other.storage.html_a_node);
+            new (::std::addressof(storage.html_a_node))::pltxt2htm::HtmlA(other.storage.html_a_node);
             break;
         }
         case ::pltxt2htm::NodeKind::list_ul: {
@@ -401,8 +401,7 @@ public:
             break;
         }
         case ::pltxt2htm::NodeKind::code_fence: {
-            new (::std::addressof(storage.code_fence_node))::pltxt2htm::CodeFence<ndebug>(
-                other.storage.code_fence_node);
+            new (::std::addressof(storage.code_fence_node))::pltxt2htm::CodeFence(other.storage.code_fence_node);
             break;
         }
         case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
@@ -491,7 +490,7 @@ public:
     }
 #endif
 
-    constexpr PlTxtNode(::pltxt2htm::PlTxtNode<ndebug>&& other) noexcept
+    constexpr PlTxtNode(::pltxt2htm::PlTxtNode&& other) noexcept
         : node_kind(other.node_kind) {
         switch (node_kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::text: {
@@ -1321,10 +1320,9 @@ public:
      *        because the assignment destroys the destination before reconstructing it.
      */
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator=(::pltxt2htm::PlTxtNode<ndebug> const&) noexcept -> PlTxtNode& = delete;
+    constexpr auto operator=(::pltxt2htm::PlTxtNode const&) noexcept -> PlTxtNode& = delete;
 #else
-    constexpr auto operator=(this PlTxtNode<ndebug>& self, ::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
-        -> PlTxtNode& {
+    constexpr auto operator=(this PlTxtNode& self, ::pltxt2htm::PlTxtNode const& other) noexcept -> PlTxtNode& {
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
@@ -1334,8 +1332,7 @@ public:
     }
 #endif
 
-    constexpr auto operator=(this PlTxtNode<ndebug>& self, ::pltxt2htm::PlTxtNode<ndebug>&& other) noexcept
-        -> PlTxtNode& {
+    constexpr auto operator=(this PlTxtNode& self, ::pltxt2htm::PlTxtNode&& other) noexcept -> PlTxtNode& {
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"self assignment is not allowed");
         ::std::destroy_at(::std::addressof(self));
         ::std::construct_at(::std::addressof(self), ::std::move(other));
@@ -1343,8 +1340,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto operator==(this PlTxtNode<ndebug> const& self, ::pltxt2htm::PlTxtNode<ndebug> const& other) noexcept
-        -> bool {
+    constexpr auto operator==(this PlTxtNode const& self, ::pltxt2htm::PlTxtNode const& other) noexcept -> bool {
         if (self.node_kind != other.node_kind) {
             return false;
         }
@@ -2238,58 +2234,9 @@ public:
     }
 };
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr void Ast<ndebug>::append_text(this Ast& self, char8_t code_unit) noexcept {
-    if (self.is_empty() == false) {
-        auto&& last_node = self.index(self.size() - 1);
-        if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text && last_node.as_text().try_push_back(code_unit)) {
-            return;
-        }
-    }
-    self.push_back(::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(code_unit));
-}
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr void Ast<ndebug>::append_text(this Ast& self, ::pltxt2htm::container::U8StringView text) noexcept {
-    auto current = text.begin();
-    auto const end = text.end();
-    if (current == end) {
-        return;
-    }
-
-    constexpr auto text_capacity = ::pltxt2htm::Text<ndebug>::capacity();
-    if (self.is_empty() == false) {
-        auto&& last_node = self.index(self.size() - 1);
-        if (last_node.get_node_kind() == ::pltxt2htm::NodeKind::text) {
-            auto&& last_text = last_node.as_text();
-            auto const available = text_capacity - last_text.size();
-            auto const remaining = static_cast<::std::size_t>(end - current);
-            auto const append_size = remaining < available ? remaining : available;
-            last_text.append(current, current + append_size);
-            current += append_size;
-            if (current == end) {
-                return;
-            }
-        }
-    }
-
-    auto const remaining = static_cast<::std::size_t>(end - current);
-    auto const additional_nodes =
-        remaining / text_capacity + static_cast<::std::size_t>(remaining % text_capacity != 0);
-    pltxt2htm_assert(additional_nodes <= self.max_size() - self.size(), u8"AST size exceeds max_size");
-    self.reserve(self.size() + additional_nodes);
-
-    while (current != end) {
-        auto const remaining_size = static_cast<::std::size_t>(end - current);
-        auto const node_size = remaining_size < text_capacity ? remaining_size : text_capacity;
-        self.push_back(
-            ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Text<ndebug>>(current, current + node_size));
-        current += node_size;
-    }
-}
-
 } // namespace pltxt2htm
 
+#include "impl/ast_def.inc"
 #include "../details/pop_macro.hh"
 #include "impl/basic_node_def.inc"
 #include "impl/html_node_def.inc"

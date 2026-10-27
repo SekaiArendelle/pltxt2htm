@@ -10,7 +10,7 @@ TEST_SUITE("html_hr_tag") {
 )";
 
     TEST_CASE("newline-br-escaped-forms") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(text);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(text);
         auto const& answer =
             u8R"(<br>文本1&lt;hR&nbsp;&nbsp;&nbsp;/&gt;文本2&lt;hr/&gt;文本3&lt;hr&nbsp;&nbsp;&nbsp;&gt;文本4&lt;HR&nbsp;&nbsp;&nbsp;&nbsp;/<br>文本5&lt;hr&lt;hr&gt;<br>)";
         CHECK(html == answer);
@@ -32,21 +32,21 @@ TEST_SUITE("html_hr_tag") {
 
     TEST_CASE("lone-tag-passthrough") {
         auto const& pltext = u8"<hr>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<hr>";
         CHECK(html == answer);
     }
 
     TEST_CASE("heading-after-rule-preserved") {
         auto const& pltext = u8"<hr><h1>text</h1>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<hr><h1>text</h1>";
         CHECK(html == answer);
     }
 
     TEST_CASE("rule-between-paragraphs") {
         auto const& pltext = u8"<p>text</p><hr><p>text</p>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<p style=\"text-align:left\">text</p><hr><p style=\"text-align:left\">text</p>";
         CHECK(html == answer);
     }

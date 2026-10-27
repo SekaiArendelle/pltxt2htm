@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
-project(pltxt2htm LANGUAGES CXX VERSION 0.26.0)
+project(pltxt2htm LANGUAGES CXX VERSION 0.27.0)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htm_contract_mode.cmake")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,6 +12,7 @@ endif()
 option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
 
 add_library(pltxt2htm src/pltxt2htm.cc)
+pltxt2htm_apply_contract_mode(pltxt2htm PRIVATE)
 
 target_include_directories(pltxt2htm PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
@@ -53,16 +55,15 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
-    find_program(LLD_LD ld.lld)
-    if(LLD_LD)
-        target_link_options(pltxt2htm PRIVATE -fuse-ld=lld)
-        if(CMAKE_BUILD_TYPE STREQUAL "Release")
-            target_link_options(pltxt2htm PRIVATE -flto)
-        endif()
-    endif()
-
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         target_compile_options(pltxt2htm PRIVATE -fno-ident)
+        if(BUILD_SHARED_LIBS)
+            include(CheckIPOSupported)
+            check_ipo_supported(RESULT _pltxt2htm_ipo_supported LANGUAGES CXX)
+            if(_pltxt2htm_ipo_supported)
+                set_property(TARGET pltxt2htm PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+            endif()
+        endif()
     endif()
 endif()
 

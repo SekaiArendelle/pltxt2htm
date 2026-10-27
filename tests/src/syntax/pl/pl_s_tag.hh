@@ -4,75 +4,75 @@
 
 TEST_SUITE("pl_s_tag") {
     TEST_CASE("basic-strikethrough") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<s>text</s>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<s>text</s>");
         auto const& answer = u8"<s>text</s>";
         CHECK(html == answer);
     }
 
     TEST_CASE("case-insensitive-extra-spaces") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<S    >text</S  >");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<S    >text</S  >");
         auto const& answer = u8"<s>text</s>";
         CHECK(html == answer);
     }
 
     TEST_CASE("nested-color-inside") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<s><color=red>text</color></s>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<s><color=red>text</color></s>");
         auto const& answer = u8"<s><span style=\"color:red;\">text</span></s>";
         CHECK(html == answer);
     }
 
     TEST_CASE("close-order-mismatch") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<s><color=red>text</s></color>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<s><color=red>text</s></color>");
         auto const& answer = u8"<s><span style=\"color:red;\">text&lt;/s&gt;</span></s>";
         CHECK(html == answer);
     }
 
     TEST_CASE("nested-same-tag-flattened") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<s>text<s>text</s></s>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<s>text<s>text</s></s>");
         auto const& answer = u8"<s>texttext</s>";
         CHECK(html == answer);
     }
 
     TEST_CASE("inside-bold") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<b><s>text</s></b>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<b><s>text</s></b>");
         auto const& answer = u8"<strong><s>text</s></strong>";
         CHECK(html == answer);
     }
 
     TEST_CASE("lone-open-tag-dropped") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<s>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<s>");
         auto const& answer = u8"";
         CHECK(html == answer);
     }
 
     TEST_CASE("incomplete-tag-literal") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<s");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<s");
         auto const& answer = u8"&lt;s";
         CHECK(html == answer);
     }
 
     TEST_CASE("empty-element-dropped") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<s></s>t");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"t<s></s>t");
         auto const& answer = u8"tt";
         CHECK(html == answer);
     }
 
     TEST_CASE("unclosed-tag-auto-closed") {
         // unclosed <s> tag
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<s>text");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<s>text");
         auto const& answer = u8"<s>text</s>";
         CHECK(html == answer);
     }
 
     TEST_CASE("nested-markdown-del") {
         // strikethrough tags from different syntaxes can nest
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<s>t1<del>t2</del>t3</s>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<s>t1<del>t2</del>t3</s>");
         auto const& answer = u8"<s>t1<del>t2</del>t3</s>";
         CHECK(html == answer);
     }
 
     TEST_CASE("del-wrapping-s-tag") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"~~t1<s>t2</s>t3~~");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"~~t1<s>t2</s>t3~~");
         auto const& answer = u8"<del>t1<s>t2</s>t3</del>";
         CHECK(html == answer);
     }

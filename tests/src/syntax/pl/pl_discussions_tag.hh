@@ -8,7 +8,7 @@ TEST_SUITE("pl_discussions_tag") {
         auto const& pltext =
             u8"<discussions=UserID/123/UserName/\u5C0F\u660E/Sort/Popularity>\u66F4\u591A\u8BA8\u8BBA"
             u8"</discussions>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer =
             u8"&lt;discussions=UserID/123/UserName/\u5C0F\u660E/Sort/Popularity&gt;\u66F4\u591A\u8BA8\u8BBA"
             u8"&lt;/discussions&gt;";
@@ -21,7 +21,7 @@ TEST_SUITE("pl_discussions_tag") {
     }
 
     TEST_CASE("web-escapes-multibyte-id") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<discussions=UserID/abc/UserName/\u5C0F\u660E>\u66F4\u591A"
             u8"\u8BA8\u8BBA</discussions>");
         auto const& answer =
@@ -32,48 +32,48 @@ TEST_SUITE("pl_discussions_tag") {
 
     // comma-separated multi-values are allowed
     TEST_CASE("comma-separated-value") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussions=Tags/a,b,c>list</discussions>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussions=Tags/a,b,c>list</discussions>");
         auto const& answer = u8"&lt;discussions=Tags/a,b,c&gt;list&lt;/discussions&gt;";
         CHECK(html == answer);
     }
 
     // case-insensitive tag name
     TEST_CASE("case-insensitive-tag") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<DiScUsSiOnS=abc      >list</DISCUSSIONS      >");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<DiScUsSiOnS=abc      >list</DISCUSSIONS      >");
         auto const& answer = u8"&lt;discussions=abc&gt;list&lt;/discussions&gt;";
         CHECK(html == answer);
     }
 
     // empty content is removed by the optimizer
     TEST_CASE("empty-content-dropped") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<discussions=abc></discussions>t");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"t<discussions=abc></discussions>t");
         auto const& answer = u8"tt";
         CHECK(html == answer);
     }
 
     // unmatched closing tag is tolerated
     TEST_CASE("unclosed-tag-escaped") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussions=abc>list");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussions=abc>list");
         auto const& answer = u8"&lt;discussions=abc&gt;list&lt;/discussions&gt;";
         CHECK(html == answer);
     }
 
     // value characters that could enable XSS are escaped on output
     TEST_CASE("xss-value-escaped") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussions=<>>test</discussions>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussions=<>>test</discussions>");
         auto const& answer = u8"&lt;discussions=&lt;&gt;&gt;test&lt;/discussions&gt;";
         CHECK(html == answer);
     }
 
     // non-nestable mutual exclusion with singular tags: inner equal-sign tag is literal
     TEST_CASE("non-nestable-inner-literal") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussions=a>t<discussion=b>ex</discussion>t</discussions>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussions=a>t<discussion=b>ex</discussion>t</discussions>");
         auto const& answer = u8"&lt;discussions=a&gt;t&lt;discussion=b&gt;ex&lt;/discussion&gt;t&lt;/discussions&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("non-nestable-experiment-literal") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<discussions=a>t<experiment=b>ex</experiment>t</discussions>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<discussions=a>t<experiment=b>ex</experiment>t</discussions>");
         auto const& answer = u8"&lt;discussions=a&gt;t&lt;experiment=b&gt;ex&lt;/experiment&gt;t&lt;/discussions&gt;";
         CHECK(html == answer);
     }

@@ -4,84 +4,84 @@
 
 TEST_SUITE("html_table") {
     TEST_CASE("two-cell-row-passthrough") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td>cell1</td><td>cell2</td></tr></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><td>cell1</td><td>cell2</td></tr></table>");
         auto const& answer = u8"<table><tr><td>cell1</td><td>cell2</td></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("thead-header-row-passthrough") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><thead><tr><th>h1</th><th>h2</th></tr></thead></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><thead><tr><th>h1</th><th>h2</th></tr></thead></table>");
         auto const& answer = u8"<table><thead><tr><th>h1</th><th>h2</th></tr></thead></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("two-row-grid-passthrough") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>");
         auto const& answer = u8"<table><tr><td>a</td><td>b</td></tr><tr><td>c</td><td>d</td></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("uppercase-tag-lowercased") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<TABLE><TR><TD>CELL</TD></TR></TABLE>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<TABLE><TR><TD>CELL</TD></TR></TABLE>");
         auto const& answer = u8"<table><tr><td>CELL</td></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("caption-with-header-row") {
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><caption>caption</caption><tr><th>header</th></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><caption>caption</caption><tr><th>header</th></tr></table>");
         auto const& answer = u8"<table><caption>caption</caption><tr><th>header</th></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("colgroup-col-passthrough") {
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><colgroup><col></colgroup><tr><td>text</td></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><colgroup><col></colgroup><tr><td>text</td></tr></table>");
         auto const& answer = u8"<table><colgroup><col></colgroup><tr><td>text</td></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("nested-color-in-cell") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td><color=red>red</color></td></tr></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><td><color=red>red</color></td></tr></table>");
         auto const& answer = u8"<table><tr><td><span style=\"color:red;\">red</span></td></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("tbody-section-passthrough") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tbody><tr><td>body</td></tr></tbody></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tbody><tr><td>body</td></tr></tbody></table>");
         auto const& answer = u8"<table><tbody><tr><td>body</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("tfoot-section-passthrough") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tfoot><tr><td>foot</td></tr></tfoot></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tfoot><tr><td>foot</td></tr></tfoot></table>");
         auto const& answer = u8"<table><tfoot><tr><td>foot</td></tr></tfoot></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("unterminated-table-literal") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table>");
         auto const& answer = u8"&lt;table&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("table-mid-text-literal") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"t<table></table>t");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"t<table></table>t");
         auto const& answer = u8"t&lt;table&gt;&lt;/table&gt;t";
         CHECK(html == answer);
     }
 
     TEST_CASE("col-outside-table-literal") {
         // <col> outside <table>/<colgroup> is treated as literal text
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<col>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<col>");
         auto const& answer = u8"&lt;col&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("plunity-escape-output") {
         auto const& pltext = u8"<table><tr><td>cell</td></tr></table>";
-        auto html = ::pltxt2htm_test::pltxt4unittest(pltext);
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
         auto const& answer = u8"<table><tr><td>cell</td></tr></table>";
         CHECK(html == answer);
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
@@ -97,91 +97,91 @@ TEST_SUITE("html_table") {
 
     TEST_CASE("top-level-tr-literal") {
         // <tr> at top level -> literal text
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<tr>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<tr>");
         auto const& answer = u8"&lt;tr&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("top-level-td-literal") {
         // <td> at top level -> literal text
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<td>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<td>");
         auto const& answer = u8"&lt;td&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("top-level-th-literal") {
         // <th> at top level -> literal text
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<th>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<th>");
         auto const& answer = u8"&lt;th&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("top-level-thead-literal") {
         // <thead> at top level -> literal text
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<thead>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<thead>");
         auto const& answer = u8"&lt;thead&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("top-level-tbody-literal") {
         // <tbody> at top level -> literal text
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<tbody>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<tbody>");
         auto const& answer = u8"&lt;tbody&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("top-level-tfoot-literal") {
         // <tfoot> at top level -> literal text
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<tfoot>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<tfoot>");
         auto const& answer = u8"&lt;tfoot&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("top-level-caption-literal") {
         // <caption> at top level -> literal text
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<caption>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<caption>");
         auto const& answer = u8"&lt;caption&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("top-level-colgroup-literal") {
         // <colgroup> at top level -> literal text
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<colgroup>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<colgroup>");
         auto const& answer = u8"&lt;colgroup&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("top-level-uppercase-tr") {
         // uppercase <TR> at top level -> literal text
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<TR>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<TR>");
         auto const& answer = u8"&lt;TR&gt;";
         CHECK(html == answer);
     }
 
     TEST_CASE("thead-context-accepted") {
         // <thead> inside <table> is valid
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><thead><tr><th>x</th></tr></thead></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><thead><tr><th>x</th></tr></thead></table>");
         auto const& answer = u8"<table><thead><tr><th>x</th></tr></thead></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("tbody-context-accepted") {
         // <tbody> inside <table> is valid
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tbody><tr><td>x</td></tr></tbody></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tbody><tr><td>x</td></tr></tbody></table>");
         auto const& answer = u8"<table><tbody><tr><td>x</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("tfoot-context-accepted") {
         // <tfoot> inside <table> is valid
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tfoot><tr><td>x</td></tr></tfoot></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tfoot><tr><td>x</td></tr></tfoot></table>");
         auto const& answer = u8"<table><tfoot><tr><td>x</td></tr></tfoot></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("bare-row-after-tbody") {
         // <tr> directly in <table> AFTER </tbody> must NOT be merged into the section
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><tbody><tr><td>b1</td></tr></tbody><tr><td>b2</td></tr></table>");
         auto const& answer = u8"<table><tbody><tr><td>b1</td></tr></tbody><tr><td>b2</td></tr></table>";
         CHECK(html == answer);
@@ -189,7 +189,7 @@ TEST_SUITE("html_table") {
 
     TEST_CASE("bare-row-after-thead") {
         // <tr> directly in <table> AFTER </thead> must NOT be merged into the section
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><thead><tr><th>h1</th></tr></thead><tr><td>b2</td></tr></table>");
         auto const& answer = u8"<table><thead><tr><th>h1</th></tr></thead><tr><td>b2</td></tr></table>";
         CHECK(html == answer);
@@ -198,14 +198,14 @@ TEST_SUITE("html_table") {
     TEST_CASE("bare-row-after-tfoot") {
         // <tr> directly in <table> AFTER </tfoot> must NOT be merged into the section
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tfoot><tr><td>f</td></tr></tfoot><tr><td>b2</td></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tfoot><tr><td>f</td></tr></tfoot><tr><td>b2</td></tr></table>");
         auto const& answer = u8"<table><tfoot><tr><td>f</td></tr></tfoot><tr><td>b2</td></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("multiple-bare-rows-kept") {
         // multiple bare rows after a section: none merges, none is dropped
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><tbody><tr><td>b1</td></tr></tbody><tr><td>b2</td></tr><tr><td>b3</td></tr></table>");
         auto const& answer =
             u8"<table><tbody><tr><td>b1</td></tr></tbody><tr><td>b2</td></tr>"
@@ -215,7 +215,7 @@ TEST_SUITE("html_table") {
 
     TEST_CASE("post-bare-section-independent") {
         // section -> bare <tr> -> re-opened section: the section after the bare row is independent
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><tbody><tr><td>a</td></tr></tbody><tr><td>b</td></tr>"
             u8"<tbody><tr><td>c</td></tr></tbody></table>");
         auto const& answer =
@@ -225,70 +225,70 @@ TEST_SUITE("html_table") {
     }
 
     TEST_CASE("caption-only-table") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><caption>title</caption></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><caption>title</caption></table>");
         auto const& answer = u8"<table><caption>title</caption></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("empty-caption-preserved") {
         // empty <caption> is still an authored caption node (presence != content)
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><caption></caption><tr><td>x</td></tr></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><caption></caption><tr><td>x</td></tr></table>");
         auto const& answer = u8"<table><caption></caption><tr><td>x</td></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("empty-colgroup-dropped") {
         // empty <colgroup> without any <col> is not recorded (scanner only tracks <col>)
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><colgroup></colgroup><tr><td>x</td></tr></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><colgroup></colgroup><tr><td>x</td></tr></table>");
         auto const& answer = u8"<table><tr><td>x</td></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("colgroup-context-accepted") {
         // <colgroup> inside <table> is valid
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><colgroup><col></colgroup></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><colgroup><col></colgroup></table>");
         auto const& answer = u8"<table><colgroup><col></colgroup></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("multiple-cols-in-colgroup") {
         // <col> inside <colgroup> inside <table> is valid (multiple cols)
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><colgroup><col><col></colgroup></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><colgroup><col><col></colgroup></table>");
         auto const& answer = u8"<table><colgroup><col><col></colgroup></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("row-directly-in-table") {
         // <tr> directly in <table> is valid
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td>x</td></tr></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><td>x</td></tr></table>");
         auto const& answer = u8"<table><tr><td>x</td></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("row-inside-thead") {
         // <tr> in <thead> is valid
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><thead><tr><th>x</th></tr></thead></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><thead><tr><th>x</th></tr></thead></table>");
         auto const& answer = u8"<table><thead><tr><th>x</th></tr></thead></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("row-inside-tbody") {
         // <tr> in <tbody> is valid
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tbody><tr><td>x</td></tr></tbody></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tbody><tr><td>x</td></tr></tbody></table>");
         auto const& answer = u8"<table><tbody><tr><td>x</td></tr></tbody></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("th-and-td-in-row") {
         // <td> and <th> in <tr> is valid
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th>h</th><td>b</td></tr></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><th>h</th><td>b</td></tr></table>");
         auto const& answer = u8"<table><tr><th>h</th><td>b</td></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("row-inside-caption-rejected") {
         // <tr> inside <caption> -> <tr> is rejected (wrong context)
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><caption><tr>x</tr></caption></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><caption><tr>x</tr></caption></table>");
         auto const& answer = u8"<table><caption>&lt;tr&gt;x&lt;/tr&gt;</caption></table>";
         CHECK(html == answer);
     }
@@ -298,7 +298,7 @@ TEST_SUITE("html_table") {
     TEST_CASE("td-align-center") {
         // <td style="text-align:center">
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:center\">cell</td></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><td style=\"text-align:center\">cell</td></tr></table>");
         auto const& answer = u8"<table><tr><td style=\"text-align:center\">cell</td></tr></table>";
         CHECK(html == answer);
     }
@@ -306,7 +306,7 @@ TEST_SUITE("html_table") {
     TEST_CASE("td-align-right") {
         // <td style="text-align:right">
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:right\">cell</td></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><td style=\"text-align:right\">cell</td></tr></table>");
         auto const& answer = u8"<table><tr><td style=\"text-align:right\">cell</td></tr></table>";
         CHECK(html == answer);
     }
@@ -314,13 +314,13 @@ TEST_SUITE("html_table") {
     TEST_CASE("td-align-left-default") {
         // <td style="text-align:left"> -> accepted (valid), default align -> no style attr
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:left\">cell</td></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><td style=\"text-align:left\">cell</td></tr></table>");
         auto const& answer = u8"<table><tr><td>cell</td></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("broken-style-decls-ignored") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><tr><td style=\" ; broken ; :ignored ; text-align \t : \t center \t ; ; "
             u8"\">cell</td></tr></table>");
         auto const& answer = u8"<table><tr><td style=\"text-align:center\">cell</td></tr></table>";
@@ -329,7 +329,7 @@ TEST_SUITE("html_table") {
 
     TEST_CASE("td-unknown-attrs-rejected") {
         // <td> with multiple attributes — unknown attributes (class, id) -> whole table rejected, escaped
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><tr><td class=\"foo\" style=\"text-align:center\" id=\"bar\">cell</td></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;class=&quot;foo&quot;&nbsp;style=&quot;text-align:center&quot;&nbsp;"
@@ -340,7 +340,7 @@ TEST_SUITE("html_table") {
 
     TEST_CASE("td-unknown-css-rejected") {
         // <td style="color:red;text-align:center"> -> unknown CSS -> whole table rejected, escaped
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><tr><td style=\"color:red;text-align:center\">cell</td></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;style=&quot;color:red;text-align:center&quot;&gt;cell&lt;/td&gt;&lt;/"
@@ -350,7 +350,7 @@ TEST_SUITE("html_table") {
 
     TEST_CASE("td-align-plus-color-rejected") {
         // <td style="text-align:center;color:red"> -> unknown CSS -> whole table rejected, escaped
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><tr><td style=\"text-align:center;color:red\">cell</td></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;style=&quot;text-align:center;color:red&quot;&gt;cell&lt;/td&gt;&lt;"
@@ -363,7 +363,7 @@ TEST_SUITE("html_table") {
     TEST_CASE("td-uppercase-left-rejected") {
         // <td style="text-align:LEFT"> -> uppercase -> whole table rejected, escaped
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:LEFT\">cell</td></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><td style=\"text-align:LEFT\">cell</td></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;style=&quot;text-align:LEFT&quot;&gt;cell&lt;/td&gt;&lt;/tr&gt;&lt;/"
             u8"table&gt;";
@@ -373,7 +373,7 @@ TEST_SUITE("html_table") {
     TEST_CASE("td-mixedcase-left-rejected") {
         // <td style="text-align:Left"> -> mixed case -> whole table rejected, escaped
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:Left\">cell</td></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><td style=\"text-align:Left\">cell</td></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;style=&quot;text-align:Left&quot;&gt;cell&lt;/td&gt;&lt;/tr&gt;&lt;/"
             u8"table&gt;";
@@ -382,14 +382,14 @@ TEST_SUITE("html_table") {
 
     TEST_CASE("th-no-style-attr") {
         // <th> without style -> no style attribute
-        auto html = ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th>header</th></tr></table>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><th>header</th></tr></table>");
         auto const& answer = u8"<table><tr><th>header</th></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("th-align-center") {
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>");
         auto const& answer = u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>";
         CHECK(html == answer);
     }
@@ -397,7 +397,7 @@ TEST_SUITE("html_table") {
     TEST_CASE("th-align-right") {
         // <th style="text-align:right">
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:right\">header</th></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><th style=\"text-align:right\">header</th></tr></table>");
         auto const& answer = u8"<table><tr><th style=\"text-align:right\">header</th></tr></table>";
         CHECK(html == answer);
     }
@@ -405,7 +405,7 @@ TEST_SUITE("html_table") {
     TEST_CASE("align-whitespace-normalized") {
         // <th style="text-align: center"> -> whitespace after colon accepted and normalized
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align: center\">header</th></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><th style=\"text-align: center\">header</th></tr></table>");
         auto const& answer = u8"<table><tr><th style=\"text-align:center\">header</th></tr></table>";
         CHECK(html == answer);
     }
@@ -413,14 +413,14 @@ TEST_SUITE("html_table") {
     TEST_CASE("th-align-left-default") {
         // <th style="text-align:left"> -> accepted, default align -> no style attr
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:left\">header</th></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><th style=\"text-align:left\">header</th></tr></table>");
         auto const& answer = u8"<table><tr><th>header</th></tr></table>";
         CHECK(html == answer);
     }
 
     TEST_CASE("th-unknown-attrs-rejected") {
         // <th> with multiple attributes — unknown ones (class, id) -> whole table rejected, escaped
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><tr><th class=\"foo\" style=\"text-align:center\" id=\"bar\">header</th></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;class=&quot;foo&quot;&nbsp;style=&quot;text-align:center&quot;&nbsp;"
@@ -431,7 +431,7 @@ TEST_SUITE("html_table") {
 
     TEST_CASE("th-unknown-css-rejected") {
         // <th style="color:red;text-align:center"> -> unknown CSS -> whole table rejected, escaped
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><tr><th style=\"color:red;text-align:center\">header</th></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;style=&quot;color:red;text-align:center&quot;&gt;header&lt;/"
@@ -442,7 +442,7 @@ TEST_SUITE("html_table") {
 
     TEST_CASE("th-align-plus-color-rejected") {
         // <th style="text-align:center;color:red"> -> unknown CSS -> whole table rejected, escaped
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><tr><th style=\"text-align:center;color:red\">header</th></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;style=&quot;text-align:center;color:red&quot;&gt;header&lt;/"
@@ -456,7 +456,7 @@ TEST_SUITE("html_table") {
     TEST_CASE("th-uppercase-left-rejected") {
         // <th style="text-align:LEFT"> -> uppercase -> whole table rejected, escaped
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:LEFT\">header</th></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><th style=\"text-align:LEFT\">header</th></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;style=&quot;text-align:LEFT&quot;&gt;header&lt;/th&gt;&lt;/"
             u8"tr&gt;&lt;/"
@@ -467,7 +467,7 @@ TEST_SUITE("html_table") {
     TEST_CASE("th-mixedcase-left-rejected") {
         // <th style="text-align:Left"> -> mixed case -> whole table rejected, escaped
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:Left\">header</th></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><th style=\"text-align:Left\">header</th></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;style=&quot;text-align:Left&quot;&gt;header&lt;/th&gt;&lt;/"
             u8"tr&gt;&lt;/"
@@ -478,7 +478,7 @@ TEST_SUITE("html_table") {
     TEST_CASE("th-uppercase-center-rejected") {
         // <th style="text-align:CENTER"> -> uppercase -> whole table rejected, escaped
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:CENTER\">header</th></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><th style=\"text-align:CENTER\">header</th></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;style=&quot;text-align:CENTER&quot;&gt;header&lt;/th&gt;&lt;/"
             u8"tr&gt;&lt;"
@@ -489,7 +489,7 @@ TEST_SUITE("html_table") {
     TEST_CASE("th-mixedcase-right-rejected") {
         // <th style="text-align:Right"> -> mixed case -> whole table rejected, escaped
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><th style=\"text-align:Right\">header</th></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><th style=\"text-align:Right\">header</th></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;th&nbsp;style=&quot;text-align:Right&quot;&gt;header&lt;/th&gt;&lt;/"
             u8"tr&gt;&lt;"
@@ -501,7 +501,7 @@ TEST_SUITE("html_table") {
 
     TEST_CASE("mixed-align-in-row") {
         // <th> and <td> with different alignments in same row
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><tr><th style=\"text-align:center\">h</th><td style=\"text-align:right\">d</td></tr></table>");
         auto const& answer =
             u8"<table><tr><th style=\"text-align:center\">h</th><td style=\"text-align:right\">d</td></tr></table>";
@@ -511,7 +511,7 @@ TEST_SUITE("html_table") {
     TEST_CASE("td-uppercase-right-rejected") {
         // <td style="text-align:Right"> -> uppercase -> whole table rejected, escaped
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"text-align:Right\">cell</td></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><td style=\"text-align:Right\">cell</td></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;style=&quot;text-align:Right&quot;&gt;cell&lt;/td&gt;&lt;/tr&gt;&lt;/"
             u8"table&gt;";
@@ -520,7 +520,7 @@ TEST_SUITE("html_table") {
 
     TEST_CASE("capital-style-attr-rejected") {
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td Style=\"text-align:center\">cell</td></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><td Style=\"text-align:center\">cell</td></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;Style=&quot;text-align:center&quot;&gt;cell&lt;/td&gt;&lt;/"
             u8"tr&gt;&lt;/"
@@ -530,7 +530,7 @@ TEST_SUITE("html_table") {
 
     TEST_CASE("capitalized-property-rejected") {
         auto html =
-            ::pltxt2htm_test::pltxt4unittest(u8"<table><tr><td style=\"Text-align:center\">cell</td></tr></table>");
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<table><tr><td style=\"Text-align:center\">cell</td></tr></table>");
         auto const& answer =
             u8"&lt;table&gt;&lt;tr&gt;&lt;td&nbsp;style=&quot;Text-align:center&quot;&gt;cell&lt;/td&gt;&lt;/"
             u8"tr&gt;&lt;/"
@@ -579,7 +579,7 @@ TEST_SUITE("html_table") {
 
     // ── caption/cell text is parsed with the inline-only parser ──
     TEST_CASE("inline-only-cell-parser") {
-        auto html = ::pltxt2htm_test::pltxt4unittest(
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
             u8"<table><caption>cap\n# **title**</caption><tr><th>head\n<h1>x</h1></th><td>body\n- "
             u8"*item*</td></tr></table>");
         auto const& answer =

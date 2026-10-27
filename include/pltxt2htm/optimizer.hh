@@ -19,7 +19,7 @@
 #include "ast/ast.hh"
 #include "ast/value_unit.hh"
 #include "ast/vertical_align_value.hh"
-#include "contracts.hh"
+#include "details/contracts.hh"
 #include "details/utils.hh"
 #include "details/push_macro.hh"
 
@@ -59,20 +59,17 @@ public:
 /**
  * @brief Context for optimizer html_span frames, remembers color, font-size and vertical-align.
  */
-template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextWithHtmlSpanInfo {
 public:
     ::pltxt2htm::container::U8StringView color{};
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size{::pltxt2htm::container::nullopt};
-    ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{
-        ::pltxt2htm::container::nullopt};
+    ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> vertical_align{::pltxt2htm::container::nullopt};
 };
 
 /**
  * @brief Context for optimizer frames that remember a background-color.
  * @details Shared data structure for the HTML &lt;mark&gt; frame and the Unity TMP &lt;mark&gt; frame.
  */
-template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextWithBackgroundColorInfo {
 public:
     ::pltxt2htm::container::U8StringView background_color{};
@@ -84,7 +81,6 @@ public:
  *          NodeKind values with identical payload requirements share one data-structure-driven context type, union
  *          member, and switch body.
  */
-template<::pltxt2htm::Contracts ndebug>
 class OptimizerContextVariant {
 public:
     union {
@@ -92,8 +88,8 @@ public:
         OptimizerContextWithEqualSignTagInfo equal_sign_tag;
         OptimizerContextWithUnitySizeTagInfo unity_size_tag;
         OptimizerContextWithUnityVoffsetTagInfo unity_voffset_tag;
-        OptimizerContextWithHtmlSpanInfo<ndebug> html_span_info;
-        OptimizerContextWithBackgroundColorInfo<ndebug> background_color_info;
+        OptimizerContextWithHtmlSpanInfo html_span_info;
+        OptimizerContextWithBackgroundColorInfo background_color_info;
     };
 
     ::pltxt2htm::NodeKind kind; ///< Type of the current nested tag context
@@ -119,20 +115,20 @@ public:
           kind{::pltxt2htm::NodeKind::unity_voffset} {
     }
 
-    constexpr OptimizerContextVariant(OptimizerContextWithHtmlSpanInfo<ndebug>&& html_span_context) noexcept
+    constexpr OptimizerContextVariant(OptimizerContextWithHtmlSpanInfo&& html_span_context) noexcept
         : html_span_info{::std::move(html_span_context)},
           kind{::pltxt2htm::NodeKind::html_span} {
     }
 
-    constexpr OptimizerContextVariant(OptimizerContextWithBackgroundColorInfo<ndebug>&& background_color_info_context,
+    constexpr OptimizerContextVariant(OptimizerContextWithBackgroundColorInfo&& background_color_info_context,
                                       ::pltxt2htm::NodeKind const kind_) noexcept
         : background_color_info{::std::move(background_color_info_context)},
           kind{kind_} {
     }
 
-    constexpr OptimizerContextVariant(OptimizerContextVariant<ndebug> const&) noexcept = delete;
+    constexpr OptimizerContextVariant(OptimizerContextVariant const&) noexcept = delete;
 
-    constexpr OptimizerContextVariant(OptimizerContextVariant<ndebug>&& other) noexcept
+    constexpr OptimizerContextVariant(OptimizerContextVariant&& other) noexcept
         : kind{other.kind} {
         switch (this->kind) /* -Werror=switch */ {
         case ::pltxt2htm::NodeKind::unity_color:
@@ -358,11 +354,10 @@ public:
 
     constexpr ~OptimizerContextVariant() noexcept = default;
 
-    constexpr auto operator=(OptimizerContextVariant<ndebug> const&) noexcept
-        -> OptimizerContextVariant<ndebug>& = delete;
+    constexpr auto operator=(OptimizerContextVariant const&) noexcept -> OptimizerContextVariant& = delete;
 
-    constexpr auto operator=(this OptimizerContextVariant<ndebug>& self,
-                             OptimizerContextVariant<ndebug>&& other) noexcept -> OptimizerContextVariant<ndebug>& {
+    constexpr auto operator=(this OptimizerContextVariant& self, OptimizerContextVariant&& other) noexcept
+        -> OptimizerContextVariant& {
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"can not assign to self");
         self.~OptimizerContextVariant();
         ::std::construct_at(::std::addressof(self), ::std::move(other));
@@ -376,14 +371,14 @@ public:
  *          into the AST being processed. Manually managed on a call-stack to
  *          avoid stack overflow on deeply nested input.
  * @tparam Iter Forward-iterator type over the AST (typically Ast::iterator).
- * @tparam ndebug Contract checking mode.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  */
-template<::std::forward_iterator Iter, ::pltxt2htm::Contracts ndebug>
+template<::std::forward_iterator Iter>
 class OptimizerFrame {
-    OptimizerContextVariant<ndebug> context_data;
+    OptimizerContextVariant context_data;
 
 public:
-    ::pltxt2htm::Ast<ndebug>* ast; ///< Pointer to the AST being optimized
+    ::pltxt2htm::Ast* ast; ///< Pointer to the AST being optimized
 
 #if __has_cpp_attribute(no_unique_address)
     [[no_unique_address]]
@@ -392,61 +387,61 @@ public:
 #endif
     Iter iter; ///< Iterator pointing to the current position in the AST
 
-    constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, ::pltxt2htm::NodeKind const nested_tag_type_,
+    constexpr OptimizerFrame(::pltxt2htm::Ast* ast_, ::pltxt2htm::NodeKind const nested_tag_type_,
                              Iter&& iter_) noexcept
         : context_data{nested_tag_type_},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, ::pltxt2htm::NodeKind const nested_tag_type_, Iter&& iter_,
+    constexpr OptimizerFrame(::pltxt2htm::Ast* ast_, ::pltxt2htm::NodeKind const nested_tag_type_, Iter&& iter_,
                              OptimizerContextWithEqualSignTagInfo equal_sign_tag_context_) noexcept
         : context_data{equal_sign_tag_context_, nested_tag_type_},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
+    constexpr OptimizerFrame(::pltxt2htm::Ast* ast_, Iter&& iter_,
                              OptimizerContextWithUnitySizeTagInfo unity_size_tag_context_) noexcept
         : context_data{::std::move(unity_size_tag_context_)},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
+    constexpr OptimizerFrame(::pltxt2htm::Ast* ast_, Iter&& iter_,
                              OptimizerContextWithUnityVoffsetTagInfo unity_voffset_tag_context_) noexcept
         : context_data{::std::move(unity_voffset_tag_context_)},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_,
-                             OptimizerContextWithHtmlSpanInfo<ndebug>&& html_span_context_) noexcept
+    constexpr OptimizerFrame(::pltxt2htm::Ast* ast_, Iter&& iter_,
+                             OptimizerContextWithHtmlSpanInfo&& html_span_context_) noexcept
         : context_data{::std::move(html_span_context_)},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrame(::pltxt2htm::Ast<ndebug>* ast_, Iter&& iter_, ::pltxt2htm::NodeKind const nested_tag_type_,
-                             OptimizerContextWithBackgroundColorInfo<ndebug>&& background_color_info_context_) noexcept
+    constexpr OptimizerFrame(::pltxt2htm::Ast* ast_, Iter&& iter_, ::pltxt2htm::NodeKind const nested_tag_type_,
+                             OptimizerContextWithBackgroundColorInfo&& background_color_info_context_) noexcept
         : context_data{::std::move(background_color_info_context_), nested_tag_type_},
           ast(ast_),
           iter{iter_} {
     }
 
-    constexpr OptimizerFrame(OptimizerFrame<Iter, ndebug> const&) noexcept = delete;
+    constexpr OptimizerFrame(OptimizerFrame<Iter> const&) noexcept = delete;
 
-    constexpr OptimizerFrame(OptimizerFrame<Iter, ndebug>&&) noexcept = default;
+    constexpr OptimizerFrame(OptimizerFrame<Iter>&&) noexcept = default;
 
     constexpr ~OptimizerFrame() noexcept = default;
 
-    constexpr OptimizerFrame<Iter, ndebug>& operator=(OptimizerFrame<Iter, ndebug> const&) noexcept = delete;
+    constexpr OptimizerFrame<Iter>& operator=(OptimizerFrame<Iter> const&) noexcept = delete;
 
-    constexpr OptimizerFrame<Iter, ndebug>& operator=(this OptimizerFrame<Iter, ndebug>& self,
-                                                      OptimizerFrame<Iter, ndebug>&&) noexcept = default;
+    constexpr OptimizerFrame<Iter>& operator=(this OptimizerFrame<Iter>& self,
+                                              OptimizerFrame<Iter>&&) noexcept = default;
 
     [[nodiscard]]
-    constexpr auto get_nested_tag_type(this OptimizerFrame<Iter, ndebug> const& self) noexcept {
+    constexpr auto get_nested_tag_type(this OptimizerFrame<Iter> const& self) noexcept {
         return self.context_data.kind;
     }
 
@@ -490,7 +485,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_html_span_vertical_align(this auto const& self) noexcept
-        -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> {
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
         return context_data_ref.html_span_info.vertical_align;
@@ -525,8 +520,7 @@ public:
  *
  *          The optimization uses a manual stack-based approach to handle deeply nested
  *          structures without risking stack overflow.
- * @tparam ndebug Contract checking mode. Use `::pltxt2htm::Contracts::quick_enforce` to enforce checks or
- * `::pltxt2htm::Contracts::ignore` to skip them.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
  * @param[in,out] ast_init The AST to optimize (modified in-place)
  * @note This function modifies the input AST directly - the original structure is lost
  * @warning The optimization process is recursive and uses manual stack management
@@ -534,18 +528,16 @@ public:
  * @warning Some optimizations may change the semantic meaning of the output
  * @see pltxt2htm::details::OptimizerContext for the optimization context structure
  */
-template<::pltxt2htm::Contracts ndebug>
-constexpr void optimize_ast(::pltxt2htm::Ast<ndebug>& ast_init) noexcept {
-    ::pltxt2htm::details::CallStack<
-        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>>
+constexpr void optimize_ast(::pltxt2htm::Ast& ast_init) noexcept {
+    ::pltxt2htm::details::CallStack<::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>>
         call_stack{};
-    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>{
+    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>{
         ::std::addressof(ast_init), ::pltxt2htm::NodeKind::group, ast_init.begin()});
 
 entry:
     while (true) {
-        auto&& ast = *(call_stack.template current_frame<ndebug>().ast);
-        auto&& current_iter = call_stack.template current_frame<ndebug>().iter;
+        auto&& ast = *(call_stack.current_frame().ast);
+        auto&& current_iter = call_stack.current_frame().iter;
         while (current_iter != ast.end()) {
             auto&& node = *current_iter;
 
@@ -567,7 +559,7 @@ entry:
                     ast.erase(next_iter);
                     continue;
                 }
-                auto remaining_text = ::pltxt2htm::Text<ndebug>{transferred_end, next_text.end()};
+                auto remaining_text = ::pltxt2htm::Text{transferred_end, next_text.end()};
                 ::std::destroy_at(::std::addressof(next_text));
                 ::std::construct_at(::std::addressof(next_text), ::std::move(remaining_text));
                 ++current_iter;
@@ -604,9 +596,8 @@ entry:
             case ::pltxt2htm::NodeKind::group: {
                 auto&& active_node = node.as_group();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::group, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::group, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_color: {
@@ -639,16 +630,16 @@ entry:
                 }
 
                 ::pltxt2htm::NodeKind const nested_tag_type{
-                    call_stack.template current_frame<ndebug>().get_nested_tag_type()};
+                    call_stack.current_frame().get_nested_tag_type()};
                 // Optimization: If this color matches the parent color, flatten the nesting
                 // <color=red>text<color=red>text</color>test</color> -> <color=red>texttexttext</color>
                 auto const is_different_tag = bool{[nested_tag_type, &call_stack, &active_node] constexpr noexcept {
                     if (nested_tag_type == ::pltxt2htm::NodeKind::unity_color) {
                         return active_node.get_color() !=
-                               call_stack.template current_frame<ndebug>().get_equal_sign_tag_id();
+                               call_stack.current_frame().get_equal_sign_tag_id();
                     }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
-                        static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
+                        static constexpr auto anchor_color_literal = ::pltxt2htm::PlA::get_color_literal();
                         static constexpr auto anchor_color = ::pltxt2htm::container::U8StringView{anchor_color_literal};
                         return active_node.get_color() != anchor_color;
                     }
@@ -660,16 +651,14 @@ entry:
                         continue;
                     }
                     auto const& equal_sign_tag_id = active_node.get_color();
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_color, subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
-                                ::pltxt2htm::container::U8StringView{equal_sign_tag_id}}));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_color, subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
+                            ::pltxt2htm::container::U8StringView{equal_sign_tag_id}}));
                     goto entry;
                 }
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
-                node =
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(subast));
+                node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
                 continue;
             }
@@ -696,23 +685,23 @@ entry:
                         ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> merged_fs{
                             ::pltxt2htm::container::nullopt};
                         if (inner_fs.has_value()) {
-                            merged_fs = inner_fs.template value<ndebug>();
+                            merged_fs = inner_fs.value();
                         }
                         else if (outer_fs.has_value()) {
-                            merged_fs = outer_fs.template value<ndebug>();
+                            merged_fs = outer_fs.value();
                         }
-                        ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> merged_va{
+                        ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> merged_va{
                             ::pltxt2htm::container::nullopt};
                         if (inner_va.has_value()) {
-                            merged_va = inner_va.template value<ndebug>();
+                            merged_va = inner_va.value();
                         }
                         else if (outer_va.has_value()) {
-                            merged_va = outer_va.template value<ndebug>();
+                            merged_va = outer_va.value();
                         }
                         // SAFETY: Move inner's subast to a temporary first to break aliasing.
                         // `subnode` is a reference into `node.get_subast()`.
                         auto inner_subast = ::std::move(active_subnode.get_subast());
-                        node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlSpan<ndebug>>(
+                        node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlSpan>(
                             ::std::move(inner_subast), ::std::move(merged_color), ::std::move(merged_fs),
                             ::std::move(merged_va));
                         continue;
@@ -723,11 +712,11 @@ entry:
                         ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> merged_fs{
                             ::pltxt2htm::container::nullopt};
                         if (outer_fs.has_value()) {
-                            merged_fs = outer_fs.template value<ndebug>();
+                            merged_fs = outer_fs.value();
                         }
                         auto inner_subast = ::std::move(subnode.as_unity_color().get_subast());
                         auto const& inner_color = subnode.as_unity_color().get_color();
-                        node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::HtmlSpan<ndebug>>(
+                        node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlSpan>(
                             ::std::move(inner_subast), ::pltxt2htm::container::U8String{inner_color},
                             ::std::move(merged_fs), ::std::move(outer_va));
                         continue;
@@ -749,9 +738,9 @@ entry:
                 // <color=red>a<span style="color:red">b</span>c</color>
                 // -> <span style="color:red">abc</span>
                 ::pltxt2htm::NodeKind const nested_tag_type{
-                    call_stack.template current_frame<ndebug>().get_nested_tag_type()};
+                    call_stack.current_frame().get_nested_tag_type()};
                 if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
-                    auto const& parent_frame = call_stack.template current_frame<ndebug>();
+                    auto const& parent_frame = call_stack.current_frame();
                     auto const& node_color = active_node.get_color();
                     ::pltxt2htm::container::U8StringView const node_color_view{node_color};
                     auto const& node_fs = active_node.get_font_size();
@@ -760,34 +749,34 @@ entry:
                     bool const same_vertical_align = node_va == parent_frame.get_html_span_vertical_align();
                     if (node_color_view == parent_frame.get_html_span_color() && same_font_size &&
                         same_vertical_align) {
-                        node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(
+                        node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
                             ::std::move(active_node.get_subast()));
                         ++current_iter;
                         continue;
                     }
                 }
                 if (nested_tag_type == ::pltxt2htm::NodeKind::unity_color) {
-                    auto const& parent_color_id = call_stack.template current_frame<ndebug>().get_equal_sign_tag_id();
+                    auto const& parent_color_id = call_stack.current_frame().get_equal_sign_tag_id();
                     auto const& node_color = active_node.get_color();
                     ::pltxt2htm::container::U8StringView const node_color_view{node_color};
                     auto const& node_fs = active_node.get_font_size();
                     auto const& node_va = active_node.get_vertical_align();
                     if (node_color_view == parent_color_id && !node_fs.has_value() && !node_va.has_value()) {
-                        node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(
+                        node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
                             ::std::move(active_node.get_subast()));
                         ++current_iter;
                         continue;
                     }
                 }
                 if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
-                    static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
+                    static constexpr auto anchor_color_literal = ::pltxt2htm::PlA::get_color_literal();
                     static constexpr auto anchor_color = ::pltxt2htm::container::U8StringView{anchor_color_literal};
                     auto const& node_color = active_node.get_color();
                     ::pltxt2htm::container::U8StringView const node_color_view{node_color};
                     auto const& node_fs = active_node.get_font_size();
                     auto const& node_va = active_node.get_vertical_align();
                     if (node_color_view == anchor_color && !node_fs.has_value() && !node_va.has_value()) {
-                        node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(
+                        node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(
                             ::std::move(active_node.get_subast()));
                         ++current_iter;
                         continue;
@@ -797,19 +786,19 @@ entry:
                 auto const& span_color = active_node.get_color();
                 auto const span_font_size = active_node.get_font_size();
                 auto const span_vertical_align = active_node.get_vertical_align();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), subast.begin(),
-                        ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo<ndebug>{
-                            ::pltxt2htm::container::U8StringView{span_color}, span_font_size, span_vertical_align}));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), subast.begin(),
+                    ::pltxt2htm::details::OptimizerContextWithHtmlSpanInfo{
+                        .color = ::pltxt2htm::container::U8StringView{span_color},
+                        .font_size = span_font_size,
+                        .vertical_align = span_vertical_align}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_a: {
                 auto&& active_node = node.as_html_a();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_a, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_a, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_a: {
@@ -837,20 +826,20 @@ entry:
                 }
 
                 ::pltxt2htm::NodeKind const nested_tag_type{
-                    call_stack.template current_frame<ndebug>().get_nested_tag_type()};
+                    call_stack.current_frame().get_nested_tag_type()};
                 // Optimization: If this color matches the parent color, flatten the nesting
                 // <a>text<a>text</a>text</a> -> <a>texttexttext</a>
                 auto const is_different_tag = bool{[nested_tag_type, &call_stack] constexpr noexcept {
-                    static constexpr auto anchor_color_literal = ::pltxt2htm::PlA<ndebug>::get_color_literal();
+                    static constexpr auto anchor_color_literal = ::pltxt2htm::PlA::get_color_literal();
                     static constexpr auto anchor_color = ::pltxt2htm::container::U8StringView{anchor_color_literal};
                     if (nested_tag_type == ::pltxt2htm::NodeKind::pl_a) {
                         return false;
                     }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::unity_color) {
-                        return anchor_color != call_stack.template current_frame<ndebug>().get_equal_sign_tag_id();
+                        return anchor_color != call_stack.current_frame().get_equal_sign_tag_id();
                     }
                     if (nested_tag_type == ::pltxt2htm::NodeKind::html_span) {
-                        return anchor_color != call_stack.template current_frame<ndebug>().get_html_span_color();
+                        return anchor_color != call_stack.current_frame().get_html_span_color();
                     }
                     return true; // Different tag types, so not the same
                 }()};
@@ -859,14 +848,12 @@ entry:
                         ast.erase(current_iter);
                         continue;
                     }
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_a, subast.begin()));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_a, subast.begin()));
                     goto entry;
                 }
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
-                node =
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(subast));
+                node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
                 continue;
             }
@@ -905,23 +892,23 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                auto const& equal_sign_tag_id = [&]() -> decltype(auto) {
+                auto const& equal_sign_tag_id = [&]() -> ::pltxt2htm::container::U8StringView {
                     switch (node.get_node_kind()) {
                     case ::pltxt2htm::NodeKind::pl_experiment: {
                         auto&& active_node = node.as_pl_experiment();
-                        return active_node.get_id();
+                        return ::pltxt2htm::container::U8StringView{active_node.get_id().as_string()};
                     }
                     case ::pltxt2htm::NodeKind::pl_experiments: {
                         auto&& active_node = node.as_pl_experiments();
-                        return active_node.get_value();
+                        return ::pltxt2htm::container::U8StringView{active_node.get_value()};
                     }
                     case ::pltxt2htm::NodeKind::pl_discussion: {
                         auto&& active_node = node.as_pl_discussion();
-                        return active_node.get_id();
+                        return ::pltxt2htm::container::U8StringView{active_node.get_id().as_string()};
                     }
                     case ::pltxt2htm::NodeKind::pl_discussions: {
                         auto&& active_node = node.as_pl_discussions();
-                        return active_node.get_value();
+                        return ::pltxt2htm::container::U8StringView{active_node.get_value()};
                     }
                     default:
                         [[unlikely]] {
@@ -929,11 +916,10 @@ entry:
                         }
                     }
                 }();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), node.get_node_kind(), subast.begin(),
-                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
-                            ::pltxt2htm::container::U8StringView{equal_sign_tag_id}}));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), node.get_node_kind(), subast.begin(),
+                    ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
+                        ::pltxt2htm::container::U8StringView{equal_sign_tag_id}}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_user: {
@@ -959,22 +945,20 @@ entry:
                         node = ::std::move(tmp);
                     }
                 }
-                auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.current_frame().get_nested_tag_type();
                 // Optimization: If the user is the same as the parent node, then ignore the nested tag.
-                auto const& equal_sign_tag_id = active_node.get_id();
+                ::pltxt2htm::container::U8StringView const equal_sign_tag_id{active_node.get_id().as_string()};
                 bool const is_different_tag =
                     nested_tag_type != ::pltxt2htm::NodeKind::pl_user ||
-                    equal_sign_tag_id != call_stack.template current_frame<ndebug>().get_equal_sign_tag_id();
+                    equal_sign_tag_id != call_stack.current_frame().get_equal_sign_tag_id();
                 if (is_different_tag) {
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_user, subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
-                                ::pltxt2htm::container::U8StringView{equal_sign_tag_id}}));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_user, subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
+                            ::pltxt2htm::container::U8StringView{equal_sign_tag_id}}));
                     goto entry;
                 }
-                node =
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(subast));
+                node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
                 continue;
             }
@@ -986,11 +970,10 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), node.get_node_kind(), subast.begin(),
-                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::pltxt2htm::container::U8StringView{
-                            active_node.get_value().data(), active_node.get_value().size()}}));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), node.get_node_kind(), subast.begin(),
+                    ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::pltxt2htm::container::U8StringView{
+                        active_node.get_value().data(), active_node.get_value().size()}}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_internal: {
@@ -1001,11 +984,10 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), node.get_node_kind(), subast.begin(),
-                        ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::pltxt2htm::container::U8StringView{
-                            active_node.get_value().data(), active_node.get_value().size()}}));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), node.get_node_kind(), subast.begin(),
+                    ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::pltxt2htm::container::U8StringView{
+                        active_node.get_value().data(), active_node.get_value().size()}}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::pl_external: {
@@ -1016,9 +998,8 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_external, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_external, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_link: {
@@ -1029,9 +1010,8 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_link, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_link, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_size: {
@@ -1057,19 +1037,17 @@ entry:
                         node = ::std::move(tmp);
                     }
                 }
-                auto&& frame = call_stack.template current_frame<ndebug>();
+                auto&& frame = call_stack.current_frame();
                 // Optimization: If the size (value and unit) is the same as the parent node, ignore the nested tag.
                 bool const is_different_tag = frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::unity_size ||
                                               active_node.get_font_size() != frame.get_unity_size_tag_value();
                 if (is_different_tag) {
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithUnitySizeTagInfo{active_node.get_font_size()}));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithUnitySizeTagInfo{active_node.get_font_size()}));
                     goto entry;
                 }
-                node =
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(subast));
+                node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
                 continue;
             }
@@ -1096,36 +1074,32 @@ entry:
                         node = ::std::move(tmp);
                     }
                 }
-                auto&& frame = call_stack.template current_frame<ndebug>();
+                auto&& frame = call_stack.current_frame();
                 // Optimization: If the offset is the same as the parent node, ignore the nested tag.
                 bool const is_different_tag = frame.get_nested_tag_type() != ::pltxt2htm::NodeKind::unity_voffset ||
                                               active_node.get_value() != frame.get_unity_voffset_tag_value();
                 if (is_different_tag) {
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), subast.begin(),
-                            ::pltxt2htm::details::OptimizerContextWithUnityVoffsetTagInfo{active_node.get_value()}));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), subast.begin(),
+                        ::pltxt2htm::details::OptimizerContextWithUnityVoffsetTagInfo{active_node.get_value()}));
                     goto entry;
                 }
-                node =
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(subast));
+                node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::unity_align: {
                 auto&& active_node = node.as_unity_align();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_align, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_align, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_margin: {
                 auto&& active_node = node.as_unity_margin();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_margin, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_margin, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
@@ -1135,9 +1109,9 @@ entry:
             case ::pltxt2htm::NodeKind::html_strong:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::unity_b: {
-                auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.current_frame().get_nested_tag_type();
                 bool const is_different_tag{!::pltxt2htm::details::is_strong_like(nested_tag_type)};
-                auto&& subast = [&]() -> ::pltxt2htm::Ast<ndebug>& {
+                auto&& subast = [&]() -> ::pltxt2htm::Ast& {
                     switch (node.get_node_kind()) {
                     case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
                         auto&& active_node = node.as_md_double_emphasis_underscore();
@@ -1166,30 +1140,26 @@ entry:
                         ast.erase(current_iter);
                         continue;
                     }
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), node.get_node_kind(), subast.begin()));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), node.get_node_kind(), subast.begin()));
                     goto entry;
                 }
-                node =
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(subast));
+                node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_p: {
                 auto&& active_node = node.as_html_p();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_p, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_p, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_div: {
                 auto&& active_node = node.as_html_div();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_div, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_div, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::line_break:
@@ -1209,104 +1179,92 @@ entry:
             case ::pltxt2htm::NodeKind::html_h1: {
                 auto&& active_node = node.as_html_h1();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h1, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h1, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h1: {
                 auto&& active_node = node.as_md_atx_h1();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h1, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h1, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h2: {
                 auto&& active_node = node.as_html_h2();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h2, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h2, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h2: {
                 auto&& active_node = node.as_md_atx_h2();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h2, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h2, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h3: {
                 auto&& active_node = node.as_html_h3();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h3, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h3, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h3: {
                 auto&& active_node = node.as_md_atx_h3();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h3, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h3, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h4: {
                 auto&& active_node = node.as_html_h4();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h4, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h4, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h4: {
                 auto&& active_node = node.as_md_atx_h4();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h4, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h4, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h5: {
                 auto&& active_node = node.as_html_h5();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h5, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h5, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h5: {
                 auto&& active_node = node.as_md_atx_h5();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h5, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h5, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_h6: {
                 auto&& active_node = node.as_html_h6();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h6, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h6, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h6: {
                 auto&& active_node = node.as_md_atx_h6();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h6, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h6, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_del:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_del: {
-                auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
-                auto&& subast = [&]() -> ::pltxt2htm::Ast<ndebug>& {
+                auto&& nested_tag_type = call_stack.current_frame().get_nested_tag_type();
+                auto&& subast = [&]() -> ::pltxt2htm::Ast& {
                     switch (node.get_node_kind()) {
                     case ::pltxt2htm::NodeKind::md_del: {
                         auto&& active_node = node.as_md_del();
@@ -1329,19 +1287,17 @@ entry:
                         ast.erase(current_iter);
                         continue;
                     }
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::html_del, subast.begin()));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_del, subast.begin()));
                     goto entry;
                 }
-                node =
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(subast));
+                node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_code: {
                 auto&& active_node = node.as_html_code();
-                auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.current_frame().get_nested_tag_type();
                 auto&& subast = active_node.get_subast();
                 bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_code};
                 if (is_different_tag) {
@@ -1349,19 +1305,17 @@ entry:
                         ast.erase(current_iter);
                         continue;
                     }
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::html_code, subast.begin()));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_code, subast.begin()));
                     goto entry;
                 }
-                node =
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(subast));
+                node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_mark: {
                 auto&& active_node = node.as_html_mark();
-                auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.current_frame().get_nested_tag_type();
                 auto&& subast = active_node.get_subast();
                 auto const& node_background_color = active_node.get_background_color();
                 ::pltxt2htm::container::U8StringView const node_background_color_view{node_background_color};
@@ -1370,19 +1324,16 @@ entry:
                         ast.erase(current_iter);
                         continue;
                     }
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::html_mark,
-                            ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo<ndebug>{
-                                node_background_color_view}));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::html_mark,
+                        ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo{node_background_color_view}));
                     goto entry;
                 }
                 // Optimization: same-tag mark with an identical background-color is flattened.
                 // <mark style="background-color:yellow">a<mark style="background-color:yellow">b</mark>c</mark>
                 // -> <mark style="background-color:yellow">abc</mark>
-                if (node_background_color_view == call_stack.template current_frame<ndebug>().get_background_color()) {
-                    node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(
-                        ::std::move(subast));
+                if (node_background_color_view == call_stack.current_frame().get_background_color()) {
+                    node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                     ++current_iter;
                     continue;
                 }
@@ -1391,16 +1342,14 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::html_mark,
-                        ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo<ndebug>{
-                            node_background_color_view}));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::html_mark,
+                    ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo{node_background_color_view}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::unity_mark: {
                 auto&& active_node = node.as_unity_mark();
-                auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.current_frame().get_nested_tag_type();
                 auto&& subast = active_node.get_subast();
                 auto const& node_background_color = active_node.get_background_color();
                 ::pltxt2htm::container::U8StringView const node_background_color_view{node_background_color};
@@ -1409,19 +1358,16 @@ entry:
                         ast.erase(current_iter);
                         continue;
                     }
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::unity_mark,
-                            ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo<ndebug>{
-                                node_background_color_view}));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::unity_mark,
+                        ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo{node_background_color_view}));
                     goto entry;
                 }
                 // Optimization: same-tag unity_mark with an identical background color is flattened.
                 // <mark=yellow>a<mark=yellow>b</mark>c</mark>
                 // -> <mark=yellow>abc</mark>
-                if (node_background_color_view == call_stack.template current_frame<ndebug>().get_background_color()) {
-                    node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(
-                        ::std::move(subast));
+                if (node_background_color_view == call_stack.current_frame().get_background_color()) {
+                    node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                     ++current_iter;
                     continue;
                 }
@@ -1430,16 +1376,14 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::unity_mark,
-                        ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo<ndebug>{
-                            node_background_color_view}));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::unity_mark,
+                    ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo{node_background_color_view}));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_u: {
                 auto&& active_node = node.as_html_u();
-                auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.current_frame().get_nested_tag_type();
                 auto&& subast = active_node.get_subast();
                 bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_u};
                 if (is_different_tag) {
@@ -1447,19 +1391,17 @@ entry:
                         ast.erase(current_iter);
                         continue;
                     }
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::html_u, subast.begin()));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_u, subast.begin()));
                     goto entry;
                 }
-                node =
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(subast));
+                node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
                 continue;
             }
             case ::pltxt2htm::NodeKind::html_s: {
                 auto&& active_node = node.as_html_s();
-                auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.current_frame().get_nested_tag_type();
                 auto&& subast = active_node.get_subast();
                 bool const is_different_tag{nested_tag_type != ::pltxt2htm::NodeKind::html_s};
                 if (is_different_tag) {
@@ -1467,13 +1409,11 @@ entry:
                         ast.erase(current_iter);
                         continue;
                     }
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), ::pltxt2htm::NodeKind::html_s, subast.begin()));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_s, subast.begin()));
                     goto entry;
                 }
-                node =
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(subast));
+                node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
                 continue;
             }
@@ -1485,9 +1425,8 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_sup, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_sup, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_sub: {
@@ -1498,9 +1437,8 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_sub, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_sub, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
@@ -1510,9 +1448,9 @@ entry:
             case ::pltxt2htm::NodeKind::unity_i:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_em: {
-                auto&& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto&& nested_tag_type = call_stack.current_frame().get_nested_tag_type();
                 bool const is_different_tag{!::pltxt2htm::details::is_em_like(nested_tag_type)};
-                auto&& subast = [&]() -> ::pltxt2htm::Ast<ndebug>& {
+                auto&& subast = [&]() -> ::pltxt2htm::Ast& {
                     switch (node.get_node_kind()) {
                     case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
                         auto&& active_node = node.as_md_single_emphasis_underscore();
@@ -1541,13 +1479,11 @@ entry:
                         ast.erase(current_iter);
                         continue;
                     }
-                    call_stack.push_frame(
-                        ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                            ::std::addressof(subast), node.get_node_kind(), subast.begin()));
+                    call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                        ::std::addressof(subast), node.get_node_kind(), subast.begin()));
                     goto entry;
                 }
-                node =
-                    ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(::std::move(subast));
+                node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
                 continue;
             }
@@ -1558,144 +1494,127 @@ entry:
             case ::pltxt2htm::NodeKind::list_ul: {
                 auto&& active_node = node.as_list_ul();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::list_ul, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::list_ul, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_ol: {
                 auto&& active_node = node.as_list_ol();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::list_ol, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::list_ol, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_li_checkbox: {
                 auto&& active_node = node.as_list_li_checkbox();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::list_li_checkbox, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::list_li_checkbox, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::list_li: {
                 auto&& active_node = node.as_list_li();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::list_li, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::list_li, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
                 auto&& active_node = node.as_md_code_span_1_backtick();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_code_span_1_backtick, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_code_span_1_backtick, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
                 auto&& active_node = node.as_md_code_span_2_backtick();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_code_span_2_backtick, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_code_span_2_backtick, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
                 auto&& active_node = node.as_md_code_span_3_backtick();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::md_code_span_3_backtick, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::md_code_span_3_backtick, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::html_blockquote: {
                 auto&& active_node = node.as_html_blockquote();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::html_blockquote, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::html_blockquote, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table: {
                 auto&& active_node = node.as_table();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::table, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_caption: {
                 auto&& active_node = node.as_table_caption();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_caption, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::table_caption, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_colgroup: {
                 auto&& active_node = node.as_table_colgroup();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_colgroup, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::table_colgroup, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_thead: {
                 auto&& active_node = node.as_table_thead();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_thead, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::table_thead, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_tbody: {
                 auto&& active_node = node.as_table_tbody();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_tbody, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::table_tbody, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_tfoot: {
                 auto&& active_node = node.as_table_tfoot();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_tfoot, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::table_tfoot, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_tr: {
                 auto&& active_node = node.as_table_tr();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_tr, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::table_tr, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_th: {
                 auto&& active_node = node.as_table_th();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_th, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::table_th, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_td: {
                 auto&& active_node = node.as_table_td();
                 auto&& subast = active_node.get_subast();
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), ::pltxt2htm::NodeKind::table_td, subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), ::pltxt2htm::NodeKind::table_td, subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
                 ::pltxt2htm::NodeKind const node_kind{node.get_node_kind()};
-                auto&& subast = [&]() -> ::pltxt2htm::Ast<ndebug>& {
+                auto&& subast = [&]() -> ::pltxt2htm::Ast& {
                     switch (node_kind) {
                     case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
                         auto&& active_node = node.as_md_triple_emphasis_underscore();
@@ -1712,23 +1631,23 @@ entry:
                     }
                 }();
                 pltxt2htm_assert(!subast.is_empty(), u8"md_triple_emphasis subast must not be empty");
-                auto const& nested_tag_type = call_stack.template current_frame<ndebug>().get_nested_tag_type();
+                auto const& nested_tag_type = call_stack.current_frame().get_nested_tag_type();
                 if (nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk ||
                     nested_tag_type == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore) {
-                    node = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<::pltxt2htm::Group<ndebug>>(
-                        ::std::move(subast));
+                    node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                     ++current_iter;
                     continue;
                 }
                 if (::pltxt2htm::details::is_em_like(nested_tag_type)) {
                     auto tmp = ::std::move(subast);
                     if (node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore) {
-                        *current_iter = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<
-                            ::pltxt2htm::MdDoubleEmphasisUnderscore<ndebug>>(::std::move(tmp));
+                        *current_iter =
+                            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdDoubleEmphasisUnderscore>(
+                                ::std::move(tmp));
                     }
                     else if (node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk) {
-                        *current_iter = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<
-                            ::pltxt2htm::MdDoubleEmphasisAsterisk<ndebug>>(::std::move(tmp));
+                        *current_iter = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdDoubleEmphasisAsterisk>(
+                            ::std::move(tmp));
                     }
                     else [[unlikely]] {
                         pltxt2htm_unreachable(u8"Unexpected node kind");
@@ -1738,12 +1657,13 @@ entry:
                 if (::pltxt2htm::details::is_strong_like(nested_tag_type)) {
                     auto tmp = ::std::move(subast);
                     if (node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_underscore) {
-                        *current_iter = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<
-                            ::pltxt2htm::MdSingleEmphasisUnderscore<ndebug>>(::std::move(tmp));
+                        *current_iter =
+                            ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdSingleEmphasisUnderscore>(
+                                ::std::move(tmp));
                     }
                     else if (node_kind == ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk) {
-                        *current_iter = ::pltxt2htm::PlTxtNode<ndebug>::template emplace<
-                            ::pltxt2htm::MdSingleEmphasisAsterisk<ndebug>>(::std::move(tmp));
+                        *current_iter = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdSingleEmphasisAsterisk>(
+                            ::std::move(tmp));
                     }
                     else [[unlikely]] {
                         pltxt2htm_unreachable(u8"Unexpected node kind");
@@ -1754,9 +1674,8 @@ entry:
                     ast.erase(current_iter);
                     continue;
                 }
-                call_stack.push_frame(
-                    ::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast<ndebug>::iterator, ndebug>(
-                        ::std::addressof(subast), node.get_node_kind(), subast.begin()));
+                call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
+                    ::std::addressof(subast), node.get_node_kind(), subast.begin()));
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::table_col:
@@ -1802,9 +1721,9 @@ entry:
         }
 
         bool const has_parent{call_stack.has_parent()};
-        call_stack.template discard_current_frame<ndebug>();
+        call_stack.discard_current_frame();
         if (has_parent) {
-            ++(call_stack.template current_frame<ndebug>().iter);
+            ++(call_stack.current_frame().iter);
             goto entry;
         }
         return;

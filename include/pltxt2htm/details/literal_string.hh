@@ -45,6 +45,10 @@ concept is_literal_string = ::pltxt2htm::details::details::is_literal_string_<::
 template<typename CharType, ::std::size_t N>
 class BasicLiteralString {
 public:
+    // A zero-length literal string would need a zero-length array member, which is a
+    // non-standard extension, and its empty prefix would vacuously match every input.
+    static_assert(N != 0, "BasicLiteralString must hold at least one character");
+
     using value_type = CharType;
     using size_type = ::std::size_t;
     using difference_type = ::std::ptrdiff_t;
@@ -61,7 +65,7 @@ public:
 
     template<::std::size_t M>
     constexpr BasicLiteralString(CharType const (&str)[M]) noexcept {
-        static_assert(N > 0 && N + 1 == M);
+        static_assert(N + 1 == M);
         for (::std::size_t i{}; i < N; ++i) {
             this->storage[i] = str[i];
         }
@@ -139,15 +143,22 @@ consteval auto shrink_string_literal_impl() noexcept {
     }
 }
 
+/**
+ * @brief Render a non-negative integer as its decimal digits, least significant digit first.
+ * @param[in] number The value to render; zero yields a single `'0'` digit.
+ * @return The digits, least significant first; the remaining elements are value-initialized to
+ *         `char8_t{0}`, the terminator that `shrink_string_literal_impl` scans for.
+ * @note The caller is expected to shrink the result with `shrink_string_literal_impl`.
+ */
 [[nodiscard]]
 consteval auto uint_to_literal_string_impl(unsigned number) noexcept {
     using result_type = U8LiteralString<::std::numeric_limits<decltype(number)>::digits10 + 2>;
     auto result = result_type{};
     ::std::size_t index{};
-    while (number) {
+    do {
         result[index++] = static_cast<char8_t>(number % 10 + '0');
         number /= 10;
-    }
+    } while (number);
     return result;
 }
 

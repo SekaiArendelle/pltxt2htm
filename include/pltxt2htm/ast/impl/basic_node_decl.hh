@@ -105,25 +105,31 @@ public:
 };
 
 /**
- * @brief ::pltxt2htm::Group<ndebug> container node
+ * @brief ::pltxt2htm::Group container node
  * @details Holds a sub-AST representing text content and inline formatting.
  */
-template<::pltxt2htm::Contracts ndebug>
 class Group {
-    ::pltxt2htm::Ast<ndebug> subast;
+    ::pltxt2htm::Ast subast;
 
 public:
     /**
-     * @brief Construct a ::pltxt2htm::Group<ndebug> node with a sub-AST.
+     * @brief Construct a ::pltxt2htm::Group node with a sub-AST.
      * @param subast The sub-AST to be contained.
      */
-    constexpr Group(::pltxt2htm::Ast<ndebug>&& subast) noexcept;
-    constexpr Group(::pltxt2htm::Group<ndebug> const&) noexcept;
-    constexpr Group(::pltxt2htm::Group<ndebug>&&) noexcept;
+    constexpr Group(::pltxt2htm::Ast&& subast) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr Group(::pltxt2htm::Group const&) noexcept = delete;
+#else
+    constexpr Group(::pltxt2htm::Group const&) noexcept = default;
+#endif
+    constexpr Group(::pltxt2htm::Group&&) noexcept;
     constexpr ~Group() noexcept = default;
-    constexpr auto operator=(::pltxt2htm::Group<ndebug> const&) noexcept -> ::pltxt2htm::Group<ndebug>& = default;
-    constexpr auto operator=(this Group<ndebug>& self, ::pltxt2htm::Group<ndebug>&&) noexcept
-        -> ::pltxt2htm::Group<ndebug>&;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(::pltxt2htm::Group const&) noexcept -> ::pltxt2htm::Group& = delete;
+#else
+    constexpr auto operator=(this Group& self, ::pltxt2htm::Group const&) noexcept -> ::pltxt2htm::Group& = default;
+#endif
+    constexpr auto operator=(this Group& self, ::pltxt2htm::Group&&) noexcept -> ::pltxt2htm::Group&;
 
     [[nodiscard]]
     constexpr auto operator==(this Group const&, Group const&) noexcept -> bool;
@@ -144,12 +150,12 @@ enum class CodeFenceKind : unsigned {
     rendered,
 };
 
-template<::pltxt2htm::Contracts ndebug>
 class CodeFence {
     ::pltxt2htm::CodeFenceKind kind;
+
     union {
-        ::pltxt2htm::HighlightedCodeAst<ndebug> highlighted_ast;
-        ::pltxt2htm::RenderedCodeAst<ndebug> rendered_ast;
+        ::pltxt2htm::HighlightedCodeAst highlighted_ast;
+        ::pltxt2htm::RenderedCodeAst rendered_ast;
     };
 
     constexpr void destroy_active(this CodeFence& self) noexcept;
@@ -159,15 +165,23 @@ public:
      * @brief Construct a fenced code block.
      * @param ast_value The parsed code content.
      */
-    constexpr explicit CodeFence(::pltxt2htm::HighlightedCodeAst<ndebug>&& ast_value) noexcept;
-    constexpr explicit CodeFence(::pltxt2htm::RenderedCodeAst<ndebug>&& ast_value) noexcept;
-    constexpr CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept;
-    constexpr CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept;
+    constexpr explicit CodeFence(::pltxt2htm::HighlightedCodeAst&& ast_value) noexcept;
+    constexpr explicit CodeFence(::pltxt2htm::RenderedCodeAst&& ast_value) noexcept;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr CodeFence(::pltxt2htm::CodeFence const&) noexcept = delete;
+#else
+    constexpr CodeFence(::pltxt2htm::CodeFence const&) noexcept;
+#endif
+    constexpr CodeFence(::pltxt2htm::CodeFence&&) noexcept;
     constexpr ~CodeFence() noexcept;
-    constexpr auto operator=(this CodeFence<ndebug>& self, ::pltxt2htm::CodeFence<ndebug> const& other) noexcept
-        -> ::pltxt2htm::CodeFence<ndebug>&;
-    constexpr auto operator=(this CodeFence<ndebug>& self, ::pltxt2htm::CodeFence<ndebug>&&) noexcept
-        -> ::pltxt2htm::CodeFence<ndebug>&;
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence const&) noexcept
+        -> ::pltxt2htm::CodeFence& = delete;
+#else
+    constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence const& other) noexcept
+        -> ::pltxt2htm::CodeFence&;
+#endif
+    constexpr auto operator=(this CodeFence& self, ::pltxt2htm::CodeFence&&) noexcept -> ::pltxt2htm::CodeFence&;
 
     [[nodiscard]]
     constexpr auto operator==(this CodeFence const& self, CodeFence const& other) noexcept -> bool;
@@ -178,30 +192,28 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_highlighted_ast(this CodeFence& self) noexcept -> ::pltxt2htm::HighlightedCodeAst<ndebug>& {
+    constexpr auto get_highlighted_ast(this CodeFence& self) noexcept -> ::pltxt2htm::HighlightedCodeAst& {
         pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::highlighted,
                          u8"highlighted AST requested from rendered code fence");
         return self.highlighted_ast;
     }
 
     [[nodiscard]]
-    constexpr auto get_highlighted_ast(this CodeFence const& self) noexcept
-        -> ::pltxt2htm::HighlightedCodeAst<ndebug> const& {
+    constexpr auto get_highlighted_ast(this CodeFence const& self) noexcept -> ::pltxt2htm::HighlightedCodeAst const& {
         pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::highlighted,
                          u8"highlighted AST requested from rendered code fence");
         return self.highlighted_ast;
     }
 
     [[nodiscard]]
-    constexpr auto get_rendered_ast(this CodeFence& self) noexcept -> ::pltxt2htm::RenderedCodeAst<ndebug>& {
+    constexpr auto get_rendered_ast(this CodeFence& self) noexcept -> ::pltxt2htm::RenderedCodeAst& {
         pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::rendered,
                          u8"rendered AST requested from highlighted code fence");
         return self.rendered_ast;
     }
 
     [[nodiscard]]
-    constexpr auto get_rendered_ast(this CodeFence const& self) noexcept
-        -> ::pltxt2htm::RenderedCodeAst<ndebug> const& {
+    constexpr auto get_rendered_ast(this CodeFence const& self) noexcept -> ::pltxt2htm::RenderedCodeAst const& {
         pltxt2htm_assert(self.kind == ::pltxt2htm::CodeFenceKind::rendered,
                          u8"rendered AST requested from highlighted code fence");
         return self.rendered_ast;

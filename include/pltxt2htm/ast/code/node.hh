@@ -6,9 +6,11 @@
 #pragma once
 
 #include <cstddef>
-#include "../../contracts.hh"
 
 namespace pltxt2htm {
+
+class HighlightedCodeAst;
+class RenderedCodeAst;
 
 /**
  * @brief Semantic highlighting roles emitted by language-specific parsers.
@@ -39,7 +41,6 @@ class CodeNode {
     ::std::size_t end{};
     ::pltxt2htm::CodeHighlightKind kind{};
 
-    template<::pltxt2htm::Contracts>
     friend class HighlightedCodeAst;
 
     constexpr CodeNode(::std::size_t const begin_value, ::std::size_t const end_value,
@@ -75,7 +76,6 @@ class RenderedCodeNode {
     ::std::size_t metadata{};
     ::pltxt2htm::RenderedCodeNodeKind kind{};
 
-    template<::pltxt2htm::Contracts>
     friend class RenderedCodeAst;
 
     constexpr RenderedCodeNode(::std::size_t const begin_value, ::std::size_t const end_value,

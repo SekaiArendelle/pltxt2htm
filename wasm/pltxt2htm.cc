@@ -35,13 +35,7 @@ extern "C"
     char8_t const* fixedadv_parser(char8_t const* const text, char8_t const* const host, char8_t const* const project,
                                    char8_t const* const visitor, char8_t const* const author,
                                    char8_t const* const coauthors) noexcept {
-    return ::pltxt2htm::fixedadv_parser<
-#ifdef NDEBUG
-        ::pltxt2htm::Contracts::ignore
-#else
-        ::pltxt2htm::Contracts::quick_enforce
-#endif
-        >(text, host, project, visitor, author, coauthors);
+    return ::pltxt2htm::fixedadv_parser(text, host, project, visitor, author, coauthors);
 }
 
 extern "C"
@@ -49,11 +43,5 @@ extern "C"
     [[__gnu__::__used__]]
 #endif
     char8_t const* common_parser(char8_t const* text) noexcept {
-    return ::pltxt2htm::common_parser<
-#ifdef NDEBUG
-        ::pltxt2htm::Contracts::ignore
-#else
-        ::pltxt2htm::Contracts::quick_enforce
-#endif
-        >(text);
+    return ::pltxt2htm::common_parser(text);
 }

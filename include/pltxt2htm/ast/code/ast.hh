@@ -12,7 +12,6 @@
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
 #include "../../container/vector.hh"
-#include "../../contracts.hh"
 #include "../value_unit.hh"
 #include "../vertical_align_value.hh"
 #include "node.hh"
@@ -20,12 +19,10 @@
 
 namespace pltxt2htm {
 
-template<::pltxt2htm::Contracts ndebug>
 class RenderedCodeStyle {
     ::pltxt2htm::container::U8String color;
     ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size{::pltxt2htm::container::nullopt};
-    ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> vertical_align{
-        ::pltxt2htm::container::nullopt};
+    ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> vertical_align{::pltxt2htm::container::nullopt};
 
 public:
     constexpr RenderedCodeStyle() noexcept = default;
@@ -33,7 +30,7 @@ public:
     constexpr RenderedCodeStyle(
         ::pltxt2htm::container::U8String&& color_value,
         ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size_value,
-        ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>&& vertical_align_value) noexcept
+        ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue>&& vertical_align_value) noexcept
         : color(::std::move(color_value)),
           font_size(font_size_value),
           vertical_align(::std::move(vertical_align_value)) {
@@ -62,7 +59,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_vertical_align(this RenderedCodeStyle const& self) noexcept
-        -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>> const& {
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> const& {
         return self.vertical_align;
     }
 };
@@ -70,7 +67,6 @@ public:
 /**
  * @brief Language-neutral syntax-highlighting IR.
  */
-template<::pltxt2htm::Contracts ndebug>
 class HighlightedCodeAst {
     ::pltxt2htm::container::U8String source;
     ::pltxt2htm::container::Vector<::pltxt2htm::CodeNode> nodes;
@@ -81,7 +77,8 @@ public:
     constexpr HighlightedCodeAst(HighlightedCodeAst&&) noexcept = default;
     constexpr ~HighlightedCodeAst() noexcept = default;
 
-    constexpr auto operator=(this HighlightedCodeAst& self, HighlightedCodeAst const& other) noexcept -> HighlightedCodeAst& {
+    constexpr auto operator=(this HighlightedCodeAst& self, HighlightedCodeAst const& other) noexcept
+        -> HighlightedCodeAst& {
         if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
             return self;
         }
@@ -89,13 +86,14 @@ public:
         return self;
     }
 
-    constexpr auto operator=(this HighlightedCodeAst& self, HighlightedCodeAst&& other) noexcept -> HighlightedCodeAst& = default;
+    constexpr auto operator=(this HighlightedCodeAst& self, HighlightedCodeAst&& other) noexcept
+        -> HighlightedCodeAst& = default;
 
     [[nodiscard]]
     constexpr auto operator==(this HighlightedCodeAst const&, HighlightedCodeAst const&) noexcept -> bool = default;
 
     constexpr void reserve(this HighlightedCodeAst& self, ::std::size_t const source_size) noexcept {
-        self.source.template reserve<ndebug>(source_size);
+        self.source.reserve(source_size);
     }
 
     constexpr void append(this HighlightedCodeAst& self, ::pltxt2htm::container::U8StringView const text,
@@ -104,16 +102,16 @@ public:
             return;
         }
         ::std::size_t const begin{self.source.size()};
-        self.source.template append<ndebug>(text);
+        self.source.append(text);
         ::std::size_t const end{self.source.size()};
         if (self.nodes.is_empty() == false) {
-            auto& last = self.nodes.template index<ndebug>(self.nodes.size() - 1);
+            auto& last = self.nodes.operator[](self.nodes.size() - 1);
             if (last.kind == kind && last.end == begin) {
                 last.end = end;
                 return;
             }
         }
-        self.nodes.template push_back<ndebug>(::pltxt2htm::CodeNode{begin, end, kind});
+        self.nodes.push_back(::pltxt2htm::CodeNode{begin, end, kind});
     }
 
     constexpr void append(this HighlightedCodeAst& self, ::pltxt2htm::container::U8String& text,
@@ -140,11 +138,10 @@ public:
 /**
  * @brief IR for code that already carries explicit inline presentation.
  */
-template<::pltxt2htm::Contracts ndebug>
 class RenderedCodeAst {
     ::pltxt2htm::container::U8String source;
     ::pltxt2htm::container::Vector<::pltxt2htm::RenderedCodeNode> nodes;
-    ::pltxt2htm::container::Vector<::pltxt2htm::RenderedCodeStyle<ndebug>> styles;
+    ::pltxt2htm::container::Vector<::pltxt2htm::RenderedCodeStyle> styles;
 
     constexpr void append(this RenderedCodeAst& self, ::pltxt2htm::container::U8StringView const text,
                           ::pltxt2htm::RenderedCodeNodeKind const kind) noexcept {
@@ -152,16 +149,16 @@ class RenderedCodeAst {
             return;
         }
         ::std::size_t const begin{self.source.size()};
-        self.source.template append<ndebug>(text);
+        self.source.append(text);
         ::std::size_t const end{self.source.size()};
         if (kind == ::pltxt2htm::RenderedCodeNodeKind::text && self.nodes.is_empty() == false) {
-            auto& last = self.nodes.template index<ndebug>(self.nodes.size() - 1);
+            auto& last = self.nodes.operator[](self.nodes.size() - 1);
             if (last.kind == kind && last.metadata == 0 && last.end == begin) {
                 last.end = end;
                 return;
             }
         }
-        self.nodes.template push_back<ndebug>(::pltxt2htm::RenderedCodeNode{begin, end, 0, kind});
+        self.nodes.push_back(::pltxt2htm::RenderedCodeNode{begin, end, 0, kind});
     }
 
 public:
@@ -185,35 +182,33 @@ public:
     constexpr auto operator==(this RenderedCodeAst const&, RenderedCodeAst const&) noexcept -> bool = default;
 
     constexpr void reserve(this RenderedCodeAst& self, ::std::size_t const source_size) noexcept {
-        self.source.template reserve<ndebug>(source_size);
+        self.source.reserve(source_size);
     }
 
     constexpr auto add_style(
         this RenderedCodeAst& self, ::pltxt2htm::container::U8String&& color,
         ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> const font_size,
-        ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue<ndebug>>&& vertical_align) noexcept
-        -> ::std::size_t {
+        ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue>&& vertical_align) noexcept -> ::std::size_t {
         ::std::size_t const index{self.styles.size()};
-        self.styles.template push_back<ndebug>(
-            ::pltxt2htm::RenderedCodeStyle<ndebug>{::std::move(color), font_size, ::std::move(vertical_align)});
+        self.styles.push_back(
+            ::pltxt2htm::RenderedCodeStyle{::std::move(color), font_size, ::std::move(vertical_align)});
         return index;
     }
 
     constexpr void append_style_begin(this RenderedCodeAst& self, ::std::size_t const style_index) noexcept {
         pltxt2htm_assert(style_index < self.styles.size(), u8"rendered style index out of bounds");
         ::std::size_t const position{self.source.size()};
-        self.nodes.template push_back<ndebug>(::pltxt2htm::RenderedCodeNode{
-            position, position, style_index, ::pltxt2htm::RenderedCodeNodeKind::style_begin});
+        self.nodes.push_back(::pltxt2htm::RenderedCodeNode{position, position, style_index,
+                                                           ::pltxt2htm::RenderedCodeNodeKind::style_begin});
     }
 
     constexpr void append_style_end(this RenderedCodeAst& self) noexcept {
         ::std::size_t const position{self.source.size()};
-        self.nodes.template push_back<ndebug>(::pltxt2htm::RenderedCodeNode{
-            position, position, 0, ::pltxt2htm::RenderedCodeNodeKind::style_end});
+        self.nodes.push_back(
+            ::pltxt2htm::RenderedCodeNode{position, position, 0, ::pltxt2htm::RenderedCodeNodeKind::style_end});
     }
 
-    constexpr void append_text(this RenderedCodeAst& self,
-                               ::pltxt2htm::container::U8StringView const text) noexcept {
+    constexpr void append_text(this RenderedCodeAst& self, ::pltxt2htm::container::U8StringView const text) noexcept {
         self.append(text, ::pltxt2htm::RenderedCodeNodeKind::text);
     }
 
@@ -249,9 +244,9 @@ public:
 
     [[nodiscard]]
     constexpr auto get_style(this RenderedCodeAst const& self, ::pltxt2htm::RenderedCodeNode const& node) noexcept
-        -> ::pltxt2htm::RenderedCodeStyle<ndebug> const& {
+        -> ::pltxt2htm::RenderedCodeStyle const& {
         pltxt2htm_assert(node.metadata < self.styles.size(), u8"rendered style index out of bounds");
-        return self.styles.template index<ndebug>(node.metadata);
+        return self.styles.operator[](node.metadata);
     }
 };
 
