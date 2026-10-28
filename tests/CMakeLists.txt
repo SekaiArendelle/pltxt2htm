@@ -131,7 +131,11 @@ endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_compile_options(pltxt2htm_base INTERFACE /utf-8 /EHsc)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(pltxt2htm_base INTERFACE -finput-charset=utf-8 -fexec-charset=utf-8 -fexceptions)
+    target_compile_options(pltxt2htm_base INTERFACE
+        -finput-charset=utf-8 -fexec-charset=utf-8 -fexceptions
+        -Wall -Wextra -Wshadow -Werror=pedantic
+        -Werror=return-type -Werror=switch -Werror=implicit-fallthrough
+    )
 endif()
 if(CMAKE_CXX_STANDARD STREQUAL "26"
    AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
@@ -144,10 +148,7 @@ if(WIN32)
     target_link_libraries(precompile PUBLIC ntdll)
 endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(precompile PRIVATE
-        -g -Wall -Wextra -Wshadow
-        -Werror=return-type -Werror=switch -Werror=implicit-fallthrough
-    )
+    target_compile_options(precompile PRIVATE -g)
 endif()
 
 # Each .cc under src/ becomes a test executable. Header-only cases are collected below.
@@ -204,7 +205,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
         target_compile_definitions(${TEST_NAME} PRIVATE PLTXT2HTM_INTERNAL_USE)
     endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        target_compile_options(${TEST_NAME} PRIVATE -g -Werror=switch)
+        target_compile_options(${TEST_NAME} PRIVATE -g)
     endif()
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endforeach()
