@@ -9,7 +9,7 @@
 
 #include "../sys/win32/dbghelp.hh"
 
-namespace pltxt2htm::stacktrace {
+namespace pltxt2htm::stacktrace::details {
 // One session per linked image. This lock only coordinates our own calls;
 // hosts using DbgHelp elsewhere must coordinate those users, because panic
 // diagnostics resolve symbols here. A distinct session handle does not make
@@ -72,7 +72,7 @@ inline auto get_symbol_session() noexcept -> DbgHelpSession& {
 [[nodiscard]]
 inline auto shutdown_symbols() noexcept -> bool {
     namespace nt = ::pltxt2htm::sys_nt;
-    auto& session = ::pltxt2htm::stacktrace::get_symbol_session();
+    auto& session = details::get_symbol_session();
     if (!nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {
         return false;
     }
@@ -136,13 +136,13 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession& session,
 [[nodiscard]]
 inline auto resolve_native(void* address) noexcept -> ResolvedFrame {
     ResolvedFrame result{.address = address};
-    auto& session = ::pltxt2htm::stacktrace::get_symbol_session();
+    auto& session = details::get_symbol_session();
     if (!::pltxt2htm::sys_nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {
         return result;
     }
     if (session.try_initialize()) {
         auto const native_address = static_cast<::std::uint64_t>(reinterpret_cast<::std::uintptr_t>(address));
-        ::pltxt2htm::stacktrace::resolve_description(result, session, native_address);
+        details::resolve_description(result, session, native_address);
         // File/line lookup is independent of function-name lookup.
         ::pltxt2htm::sys_win32::ImageHlpLine64 line{};
         line.size_of_struct = sizeof(line);
@@ -157,4 +157,4 @@ inline auto resolve_native(void* address) noexcept -> ResolvedFrame {
     ::pltxt2htm::sys_nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
     return result;
 }
-} // namespace pltxt2htm::stacktrace
+} // namespace pltxt2htm::stacktrace::details

@@ -13,7 +13,7 @@
     #include "../sys/nt/ntdll.hh"
 #endif
 
-namespace pltxt2htm::stacktrace {
+namespace pltxt2htm::stacktrace::details {
 struct CaptureResult {
     ::std::size_t size{};
     bool possibly_truncated{};
@@ -43,4 +43,4 @@ inline auto capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept 
     return {};
 #endif
 }
-} // namespace pltxt2htm::stacktrace
+} // namespace pltxt2htm::stacktrace::details

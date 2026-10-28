@@ -50,20 +50,20 @@ __declspec(noinline)
 int main() {
     namespace trace = ::pltxt2htm::stacktrace;
     void* storage[8]{};
-    auto const empty = trace::capture({});
+    auto const empty = trace::details::capture({});
     pltxt2htm_test_assert_true(empty.size == 0 && !empty.possibly_truncated);
-    auto const skipped = trace::capture(storage, (::std::numeric_limits<::std::size_t>::max)());
+    auto const skipped = trace::details::capture(storage, (::std::numeric_limits<::std::size_t>::max)());
     pltxt2htm_test_assert_true(skipped.size == 0);
     void* guarded[3]{nullptr, nullptr, reinterpret_cast<void*>(1)};
-    auto const single = trace::capture({guarded, 1});
+    auto const single = trace::details::capture({guarded, 1});
     pltxt2htm_test_assert_true(guarded[1] == nullptr && guarded[2] == reinterpret_cast<void*>(1));
 #if defined(_WIN32)
     pltxt2htm_test_assert_true(single.size == 1 && single.possibly_truncated);
     pltxt2htm_test_assert_true(guarded[0] != nullptr);
     // Capacity is the number retained after skipping.
-    auto const after_skip = trace::capture({guarded, 1}, 1);
+    auto const after_skip = trace::details::capture({guarded, 1}, 1);
     pltxt2htm_test_assert_true(after_skip.size == 1 && guarded[1] == nullptr);
-    auto const full = trace::capture(storage);
+    auto const full = trace::details::capture(storage);
     pltxt2htm_test_assert_true(full.size > 0 && full.size <= 8);
 #else
     pltxt2htm_test_assert_true(single.size == 0 && !single.possibly_truncated);
@@ -160,7 +160,7 @@ int main() {
 #if defined(_WIN32)
     namespace nt = ::pltxt2htm::sys_nt;
     namespace win32 = ::pltxt2htm::sys_win32;
-    auto& session = trace::get_symbol_session();
+    auto& session = trace::details::get_symbol_session();
     pltxt2htm_test_assert_true(session.ready);
     pltxt2htm_test_assert_true((win32::SymGetOptions() & 0x00000010) != 0);
     // Resolve a module loaded after DbgHelp initialized its module list.
@@ -175,14 +175,14 @@ int main() {
     nt::RtlAcquireSRWLockExclusive(::std::addressof(session.lock));
     auto const busy = trace::resolve(storage[0]);
     pltxt2htm_test_assert_true(busy.address == storage[0] && busy.description.empty());
-    pltxt2htm_test_assert_true(!trace::shutdown_symbols());
+    pltxt2htm_test_assert_true(!trace::details::shutdown_symbols());
     nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
     auto const invalid = trace::resolve(nullptr);
     pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.empty());
-    pltxt2htm_test_assert_true(trace::shutdown_symbols());
+    pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
     pltxt2htm_test_assert_true(!session.ready && session.process == nullptr);
     auto const again = trace::resolve(storage[0]);
     pltxt2htm_test_assert_true(again.address == storage[0] && session.ready);
-    pltxt2htm_test_assert_true(trace::shutdown_symbols());
+    pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
 #endif
 }

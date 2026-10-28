@@ -18,7 +18,7 @@
 
 #include <fast_io/fast_io_core.h>
 
-namespace pltxt2htm::stacktrace {
+namespace pltxt2htm::stacktrace::details {
 
 /**
  * @brief Contiguous owning array for stacktrace internals.
@@ -200,4 +200,4 @@ constexpr void swap(Buffer<T, Allocator>& left, Buffer<T, Allocator>& right) noe
     left.swap(right);
 }
 
-} // namespace pltxt2htm::stacktrace
+} // namespace pltxt2htm::stacktrace::details

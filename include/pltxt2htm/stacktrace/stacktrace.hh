@@ -33,8 +33,8 @@ namespace pltxt2htm::stacktrace {
 template<typename Allocator = ::fast_io::native_global_allocator>
 class BasicStacktrace {
     static_assert(::std::is_empty_v<Allocator>, "stacktrace requires a stateless fast_io allocator");
-    Buffer<StacktraceEntry, Allocator> entries{};
-    CaptureResult captured{};
+    details::Buffer<StacktraceEntry, Allocator> entries{};
+    details::CaptureResult captured{};
 
 public:
     using value_type = StacktraceEntry;
@@ -109,14 +109,14 @@ public:
         if (limit == 0) {
             return result;
         }
-        Buffer<void*, allocator_type> addresses{};
+        details::Buffer<void*, allocator_type> addresses{};
         auto depth = limit < 64 ? limit : 64;
         for (;;) {
             addresses.reserve(depth);
             while (addresses.size() < depth) {
                 addresses.emplace_back(nullptr);
             }
-            result.captured = ::pltxt2htm::stacktrace::capture({addresses.data(), depth}, skip);
+            result.captured = ::pltxt2htm::stacktrace::details::capture({addresses.data(), depth}, skip);
             if (!result.captured.possibly_truncated || depth == limit) {
                 break;
             }
@@ -190,7 +190,7 @@ public:
 
     [[nodiscard]]
     constexpr auto max_size(this BasicStacktrace const&) noexcept -> size_type {
-        return Buffer<StacktraceEntry, Allocator>::max_size();
+        return details::Buffer<StacktraceEntry, Allocator>::max_size();
     }
 
     [[nodiscard]]
