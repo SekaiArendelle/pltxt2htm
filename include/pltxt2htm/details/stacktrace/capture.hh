@@ -45,20 +45,11 @@ inline auto capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept 
  * deliberately has no contract checks and avoids pltxt2htm containers, so
  * panic printing does not depend on the pltxt2htm container layer. Printing
  * itself lives in the panic path, not here. */
-class CapturedAddresses {
+struct CapturedAddresses {
     void** data_{};
     ::std::size_t size_{};
     bool possibly_truncated_{};
 
-    constexpr CapturedAddresses(void** addresses, ::std::size_t captured_size, bool truncated) noexcept
-        : data_{addresses},
-          size_{captured_size},
-          possibly_truncated_{truncated} {
-    }
-
-    friend auto capture_current_trace() noexcept -> CapturedAddresses;
-
-public:
     constexpr CapturedAddresses() noexcept = default;
     CapturedAddresses(CapturedAddresses const&) = delete;
 
@@ -125,7 +116,11 @@ inline auto capture_current_trace() noexcept -> CapturedAddresses {
         }
         depth *= 2;
     }
-    return CapturedAddresses{addresses, captured.size, captured.possibly_truncated};
+    auto result = CapturedAddresses{};
+    result.data_ = addresses;
+    result.size_ = captured.size;
+    result.possibly_truncated_ = captured.possibly_truncated;
+    return result;
 #else
     return {};
 #endif
