@@ -21,8 +21,6 @@ struct DbgHelpSession {
 
     [[nodiscard]]
     auto try_initialize(this DbgHelpSession& self) noexcept -> bool {
-        namespace nt = ::pltxt2htm::sys_nt;
-        namespace win32 = ::pltxt2htm::sys_win32;
         if (self.attempted) {
             return self.ready;
         }
@@ -30,13 +28,13 @@ struct DbgHelpSession {
         auto const current_process = reinterpret_cast<void*>(static_cast<::std::intptr_t>(-1));
         // A distinct real handle lets DbgHelp enumerate this process without
         // sharing the GetCurrentProcess() pseudo-handle session with the host.
-        if (nt::NtDuplicateObject(current_process, current_process, current_process, ::std::addressof(self.process), 0,
+        if (::pltxt2htm::sys_nt::NtDuplicateObject(current_process, current_process, current_process, ::std::addressof(self.process), 0,
                                   0, 2) < 0) {
             return false;
         }
         constexpr unsigned long symopt_load_lines = 0x00000010;
-        (void)win32::SymSetOptions(win32::SymGetOptions() | symopt_load_lines);
-        self.ready = win32::SymInitialize(self.process, nullptr, 1) != 0;
+        (void)::pltxt2htm::sys_win32::SymSetOptions(::pltxt2htm::sys_win32::SymGetOptions() | symopt_load_lines);
+        self.ready = ::pltxt2htm::sys_win32::SymInitialize(self.process, nullptr, 1) != 0;
         return self.ready;
     }
 
@@ -82,8 +80,7 @@ inline auto shutdown_symbols() noexcept -> bool {
 
 inline void resolve_description(NativeResolvedFrame& result, DbgHelpSession& session,
                                 ::std::uint64_t native_address) noexcept {
-    namespace win32 = ::pltxt2htm::sys_win32;
-    constexpr auto name_offset = offsetof(win32::SymbolInfo, name);
+    constexpr auto name_offset = offsetof(::pltxt2htm::sys_win32::SymbolInfo, name);
     ::std::size_t capacity{2000}; // DbgHelp MAX_SYM_NAME
     bool refreshed{};
     for (;;) {
@@ -98,11 +95,11 @@ inline void resolve_description(NativeResolvedFrame& result, DbgHelpSession& ses
             result.text_truncated = true;
             return;
         }
-        auto* info = reinterpret_cast<win32::SymbolInfo*>(storage);
-        info->size_of_struct = sizeof(win32::SymbolInfo);
+        auto* info = reinterpret_cast<::pltxt2htm::sys_win32::SymbolInfo*>(storage);
+        info->size_of_struct = sizeof(::pltxt2htm::sys_win32::SymbolInfo);
         info->max_name_len = static_cast<unsigned long>(capacity);
         auto const found =
-            win32::SymFromAddr(session.process, native_address, ::std::addressof(result.displacement), info) != 0;
+            ::pltxt2htm::sys_win32::SymFromAddr(session.process, native_address, ::std::addressof(result.displacement), info) != 0;
         auto const name_size = static_cast<::std::size_t>(info->name_len);
         if (name_size >= capacity) {
             ::std::free(storage);
@@ -119,7 +116,7 @@ inline void resolve_description(NativeResolvedFrame& result, DbgHelpSession& ses
         }
         if (!found) {
             ::std::free(storage);
-            if (!refreshed && win32::SymRefreshModuleList(session.process)) {
+            if (!refreshed && ::pltxt2htm::sys_win32::SymRefreshModuleList(session.process)) {
                 refreshed = true;
                 continue;
             }
@@ -135,10 +132,9 @@ inline void resolve_description(NativeResolvedFrame& result, DbgHelpSession& ses
 
 [[nodiscard]]
 inline auto resolve_native(void* address) noexcept -> NativeResolvedFrame {
-    namespace nt = ::pltxt2htm::sys_nt;
     NativeResolvedFrame result{.address = address};
     auto& session = ::pltxt2htm::details::stacktrace::get_symbol_session();
-    if (!nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {
+    if (!::pltxt2htm::sys_nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {
         return result;
     }
     if (session.try_initialize()) {
@@ -157,7 +153,7 @@ inline auto resolve_native(void* address) noexcept -> NativeResolvedFrame {
             result.source_line = line.line_number;
         }
     }
-    nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
+    ::pltxt2htm::sys_nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
     return result;
 }
 } // namespace pltxt2htm::details::stacktrace
