@@ -13,7 +13,7 @@ namespace pltxt2htm::details::stacktrace {
 // PLTXT2HTM_ENABLE_STACKTRACE. A distinct session handle does not make concurrent
 // DbgHelp calls safe. Source lookup enables the process-wide LOAD_LINES option;
 // hosts must coordinate option changes and all other DbgHelp calls.
-struct alignas(void*) DbgHelpSession {
+struct DbgHelpSession {
     ::pltxt2htm::sys_nt::SrwLock lock{};
     void* process{};
     bool attempted{};
