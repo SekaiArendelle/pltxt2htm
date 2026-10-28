@@ -48,7 +48,10 @@ TEST_SUITE("copy_assignment") {
     TEST_CASE("self-assignment") {
         auto const original = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Text>(u8'S');
         auto assigned = original;
-        assigned = assigned;
+        // Route through an alias so this exercises the real self-assignment guard in PlTxtNode's copy
+        // assignment without tripping clang's -Wself-assign-overloaded.
+        auto const& self = assigned;
+        assigned = self;
         CHECK(assigned == original);
     }
 
