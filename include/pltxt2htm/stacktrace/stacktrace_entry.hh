@@ -5,14 +5,10 @@
 
 #pragma once
 
-#include <compare>
 #include <cstdint>
 #include "resolve.hh"
 
 namespace pltxt2htm::stacktrace {
-template<typename Allocator>
-class BasicStacktrace;
-
 /** A saved native address. Queries resolve that address without recapturing.
  * Text queries return independently owned `stacktrace::Text` values, like
  * `std::stacktrace_entry`. Use resolved() when several fields are needed, so the
@@ -84,14 +80,14 @@ public:
     }
 
     [[nodiscard]]
-    friend constexpr auto operator==(StacktraceEntry const& left, StacktraceEntry const& right) noexcept -> bool {
-        return left.address == right.address;
+    constexpr auto operator==(this StacktraceEntry const& self, StacktraceEntry const& other) noexcept -> bool {
+        return self.address == other.address;
     }
 
     [[nodiscard]]
-    friend constexpr auto operator<=>(StacktraceEntry const& left, StacktraceEntry const& right) noexcept
+    constexpr auto operator<=>(this StacktraceEntry const& self, StacktraceEntry const& other) noexcept
         -> ::std::strong_ordering {
-        return ::std::compare_three_way{}(left.address, right.address);
+        return self.address <=> other.address;
     }
 };
 } // namespace pltxt2htm::stacktrace

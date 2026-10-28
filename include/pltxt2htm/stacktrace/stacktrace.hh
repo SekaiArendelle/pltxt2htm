@@ -3,8 +3,8 @@
  * @brief Native stacktrace capture and symbol resolution.
  * @warning This subtree is included by the panic path, so it must stay below the
  *          `container/` and `details/push_macro.hh` layers: never include
- *          `container/*`, `details/panic.hh`, or `details/push_macro.hh` from
- *          `pltxt2htm/stacktrace/`.
+ *          `container/` headers, `details/panic.hh`, or `details/push_macro.hh`
+ *          from `pltxt2htm/stacktrace/`.
  */
 
 #pragma once

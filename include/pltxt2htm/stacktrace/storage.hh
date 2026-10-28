@@ -4,7 +4,7 @@
  * @details Mirrors only the subset of `container::Vector` that stacktrace needs,
  *          so the panic path can include stacktrace headers without pulling in
  *          the container layer (which includes the assert/panic machinery).
- * @warning Never include `container/*` or `details/push_macro.hh` from
+ * @warning Never include `container/` headers or `details/push_macro.hh` from
  *          `pltxt2htm/stacktrace/`; that would recreate the include cycle.
  */
 
