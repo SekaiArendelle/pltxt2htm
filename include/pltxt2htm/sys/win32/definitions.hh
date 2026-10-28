@@ -90,10 +90,10 @@ struct Overlapped {
         struct {
             Dword offset;
             Dword offset_high;
-        };
+        } dummy_struct_name;
 
         void* pointer;
-    };
+    } dummy_union_name;
 
     Handle event;
 };
@@ -217,8 +217,8 @@ struct SystemInfo {
         struct {
             Word processor_architecture;
             Word reserved;
-        };
-    };
+        } dummy_struct_name;
+    } dummy_union_name;
 
     Dword page_size;
     void* minimum_application_address;

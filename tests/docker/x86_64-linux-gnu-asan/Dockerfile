@@ -4,6 +4,7 @@ RUN apt update && apt install -y --no-install-recommends g++ cmake ninja-build g
 
 WORKDIR /pltxt2htm
 COPY include/ /pltxt2htm/include/
+COPY cmake/ /pltxt2htm/cmake/
 COPY tests/ /pltxt2htm/tests/
 
 RUN cmake -S tests -B build -GNinja -DCMAKE_BUILD_TYPE=Debug -DPLTXT2HTM_SANITIZER=address -DCMAKE_CXX_COMPILER=g++ \

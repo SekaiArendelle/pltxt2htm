@@ -9,8 +9,9 @@
  */
 
 #include <source_location>
-#include "../contracts.hh"
-#include "panic.hh"
+#if !defined(PLTXT2HTM_CONTRACTS) || PLTXT2HTM_CONTRACTS == 0
+    #include "panic.hh"
+#endif
 #include "trap.hh"
 
 #pragma push_macro("pltxt2htm_assume")
@@ -26,7 +27,7 @@
     #define pltxt2htm_assume(condition) \
         do { \
             if ((condition) == false) [[unlikely]] { \
-                ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>(); \
+                ::pltxt2htm::details::unreachable(); \
             } \
         } while (0)
 #endif
@@ -37,10 +38,12 @@
  *
  * This macro evaluates the given condition and if it evaluates to false,
  * it will call panic() to terminate the program with diagnostic information.
- * The assertion is active for contract modes other than
- * `::pltxt2htm::Contracts::ignore` (for example, `quick_enforce`) and is
- * replaced with an optimizer assumption when
- * `ndebug == ::pltxt2htm::Contracts::ignore`.
+ * The mode is selected at preprocessing time from the `PLTXT2HTM_CONTRACTS`
+ * macro: enforce (default or `0`) panics with diagnostics, quick_enforce
+ * (`2`) traps without diagnostics, and ignore (`1`) replaces the assertion
+ * with an optimizer assumption. Invalid macro values are rejected by the
+ * `#error` in `contracts.hh`, which this header includes first, so the
+ * dispatch below needs no fallback branch.
  *
  * @param condition The condition expression to evaluate
  * @param message A descriptive error message to display if the assertion fails
@@ -52,9 +55,9 @@
  */
 #pragma push_macro("pltxt2htm_assert")
 #undef pltxt2htm_assert
-#define pltxt2htm_assert(condition, message) \
-    do { \
-        if constexpr (ndebug != ::pltxt2htm::Contracts::ignore) { \
+#if !defined(PLTXT2HTM_CONTRACTS) || PLTXT2HTM_CONTRACTS == 0
+    #define pltxt2htm_assert(condition, message) \
+        do { \
             if ((condition) == false) [[unlikely]] { \
                 constexpr auto source_location = ::std::source_location::current(); \
                 ::pltxt2htm::details::panic< \
@@ -62,29 +65,43 @@
                     ::pltxt2htm::details::U8LiteralString{u8"" __FILE__}, source_location.line(), \
                     source_location.column(), pltxt2htm::details::U8LiteralString{message}>(); \
             } \
-        } \
-        else { \
-            pltxt2htm_assume(condition); \
-        } \
-    } while (0)
+        } while (0)
+#elif PLTXT2HTM_CONTRACTS == 2
+    #define pltxt2htm_assert(condition, message) \
+        do { \
+            if ((condition) == false) [[unlikely]] { \
+                ::pltxt2htm::details::trap(); \
+            } \
+        } while (0)
+#elif PLTXT2HTM_CONTRACTS == 1
+    #define pltxt2htm_assert(condition, message) pltxt2htm_assume(condition)
+#else
+    #error "PLTXT2HTM_CONTRACTS must be 0 (enforce), 1 (ignore), or 2 (quick_enforce)"
+#endif
 
 /**
- * @brief Mark a code path as unreachable; calls panic or unreachable builtin.
+ * @brief Mark a code path as unreachable; calls panic, trap, or unreachable builtin.
  * @param message Diagnostic message string literal.
- * @note In quick_enforce mode invokes ::pltxt2htm::details::panic.
- *       In ignore mode uses ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>().
+ * @note The mode is selected at preprocessing time from the `PLTXT2HTM_CONTRACTS`
+ *       macro, see the pltxt2htm_assert documentation. In enforce mode this invokes
+ *       ::pltxt2htm::details::panic; in quick_enforce mode it calls
+ *       ::pltxt2htm::details::trap without diagnostics; in ignore mode it uses
+ *       ::pltxt2htm::details::unreachable().
  */
 #pragma push_macro("pltxt2htm_unreachable")
 #undef pltxt2htm_unreachable
-#define pltxt2htm_unreachable(message) \
-    do { \
-        if constexpr (ndebug != ::pltxt2htm::Contracts::ignore) { \
+#if !defined(PLTXT2HTM_CONTRACTS) || PLTXT2HTM_CONTRACTS == 0
+    #define pltxt2htm_unreachable(message) \
+        do { \
             constexpr auto source_location = ::std::source_location::current(); \
             ::pltxt2htm::details::panic<::pltxt2htm::details::U8LiteralString{u8"unreachable code reached"}, \
                                         ::pltxt2htm::details::U8LiteralString{u8"" __FILE__}, source_location.line(), \
                                         source_location.column(), ::pltxt2htm::details::U8LiteralString{message}>(); \
-        } \
-        else { \
-            ::pltxt2htm::details::unreachable<::pltxt2htm::Contracts::ignore>(); \
-        } \
-    } while (0)
+        } while (0)
+#elif PLTXT2HTM_CONTRACTS == 2
+    #define pltxt2htm_unreachable(message) ::pltxt2htm::details::trap()
+#elif PLTXT2HTM_CONTRACTS == 1
+    #define pltxt2htm_unreachable(message) ::pltxt2htm::details::unreachable()
+#else
+    #error "PLTXT2HTM_CONTRACTS must be 0 (enforce), 1 (ignore), or 2 (quick_enforce)"
+#endif

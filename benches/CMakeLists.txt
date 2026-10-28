@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(pltxt2htm-benches LANGUAGES CXX VERSION 0.22.0)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htm_contract_mode.cmake")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -18,6 +19,7 @@ set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googlebenchmark)
 
 add_library(pltxt2htm_bench_base INTERFACE)
+pltxt2htm_apply_contract_mode(pltxt2htm_bench_base INTERFACE)
 target_include_directories(pltxt2htm_bench_base INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}/../include"
     "${CMAKE_CURRENT_SOURCE_DIR}/include"

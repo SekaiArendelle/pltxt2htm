@@ -93,11 +93,7 @@ TEST_SUITE("md_code_span") {
         CHECK(html == answer);
     }
 
-    // Regression: an opening delimiter without a matching closing delimiter must not be
-    // accepted as a code span. Before the fix, the 2-backtick branch in the inline parser
-    // subtracted the delimiters from the consumed count and underflowed to a huge size_t,
-    // terminating (quick_enforce) or forming an out-of-bounds subview (ignore). See
-    // fixedadv_fuzzer_crash_analysis.md. Delimiter lengths 1, 2, 3 at top level.
+    // Regression: an opening delimiter without a matching closing delimiter must not be accepted as a code span.
     TEST_CASE("lone-backtick") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"`");
         auto const& answer = u8"`";

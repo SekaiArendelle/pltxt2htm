@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 project(pltxt2htm-cxxmodule-tests LANGUAGES CXX)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../cmake/pltxt2htm_contract_mode.cmake")
 
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,6 +12,7 @@ add_executable(check_public_symbols
     header_symbols.cc
     module_symbols.cc
 )
+pltxt2htm_apply_contract_mode(check_public_symbols PRIVATE ENFORCE)
 
 target_include_directories(check_public_symbols PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/../../include"

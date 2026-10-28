@@ -1,43 +1,24 @@
 #pragma once
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::Group<ndebug>::Group(::pltxt2htm::Ast<ndebug>&& subast_) noexcept
+constexpr ::pltxt2htm::Group::Group(::pltxt2htm::Ast&& subast_) noexcept
     : subast(::std::move(subast_)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::Group<ndebug>::Group(::pltxt2htm::Group<ndebug> const&) noexcept = default;
+constexpr ::pltxt2htm::Group::Group(::pltxt2htm::Group&& other) noexcept = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::Group<ndebug>::Group(::pltxt2htm::Group<ndebug>&& other) noexcept = default;
+constexpr auto ::pltxt2htm::Group::operator=(this Group & self, ::pltxt2htm::Group && other) noexcept
+    -> ::pltxt2htm::Group& = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Group<ndebug>::operator=(this Group<ndebug>& self,
-                                                     ::pltxt2htm::Group<ndebug>&& other) noexcept
-    -> ::pltxt2htm::Group<ndebug>& = default;
+constexpr auto ::pltxt2htm::Group::operator==(this Group const&, ::pltxt2htm::Group const&) noexcept -> bool = default;
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::Group<ndebug>::operator==(this Group<ndebug> const&,
-                                                      ::pltxt2htm::Group<ndebug> const&) noexcept -> bool = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(
-    ::pltxt2htm::Ast<ndebug>&& subast_,
-    ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>&& lang_) noexcept
+constexpr ::pltxt2htm::CodeFence::CodeFence(
+    ::pltxt2htm::Ast&& subast_, ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String>&& lang_) noexcept
     : subast(::std::move(subast_)),
       lang(::std::move(lang_)) {
 }
 
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::CodeFence<ndebug> const&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr ::pltxt2htm::CodeFence<ndebug>::CodeFence(::pltxt2htm::CodeFence<ndebug>&&) noexcept = default;
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator=(this CodeFence<ndebug>& self,
-                                                         ::pltxt2htm::CodeFence<ndebug>&&) noexcept
-    -> ::pltxt2htm::CodeFence<ndebug>& = default;
-
-template<::pltxt2htm::Contracts ndebug>
-constexpr auto ::pltxt2htm::CodeFence<ndebug>::operator==(this CodeFence<ndebug> const&,
-                                                          ::pltxt2htm::CodeFence<ndebug> const&) noexcept
+constexpr ::pltxt2htm::CodeFence::CodeFence(::pltxt2htm::CodeFence&&) noexcept = default;
+constexpr auto ::pltxt2htm::CodeFence::operator=(this CodeFence & self, ::pltxt2htm::CodeFence&&) noexcept
+    -> ::pltxt2htm::CodeFence& = default;
+constexpr auto ::pltxt2htm::CodeFence::operator==(this CodeFence const&, ::pltxt2htm::CodeFence const&) noexcept
     -> bool = default;

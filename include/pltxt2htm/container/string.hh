@@ -15,7 +15,7 @@
 
 #include <fast_io/fast_io_core.h>
 
-#include "../contracts.hh"
+#include "../details/contracts.hh"
 #include "../details/concepts.hh"
 #include "../details/literal_string.hh"
 #include "string_view.hh"
@@ -147,12 +147,8 @@ private:
      * character instead.
      */
     constexpr void construct_zero(this BasicString& self, size_type count) noexcept {
-        // Work around constructors being unable to receive an explicitly selected Contracts template argument.
-#ifndef NDEBUG
-        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
         pltxt2htm_assert(count != 0, u8"BasicString capacity can not be zero");
         pltxt2htm_assert(count < self.max_size(), u8"BasicString capacity is too large");
-#endif
         if consteval {
             auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(count + 1);
             self.start_lifetime(new_pointer, allocated_size);
@@ -182,11 +178,7 @@ private:
             self.reset();
             return;
         }
-        // Constructors cannot receive an explicitly selected Contracts template argument.
-#ifndef NDEBUG
-        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
         pltxt2htm_assert(count < self.max_size(), u8"BasicString capacity is too large");
-#endif
         auto [new_pointer, allocated_size] = typed_allocator_type::allocate_at_least(count + 1);
         self.start_lifetime(new_pointer, allocated_size);
         ::std::copy_n(first, count, new_pointer);
@@ -250,7 +242,7 @@ private:
 
     /**
      * @brief Appends through a newly allocated buffer while preserving source aliases.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param source First source character; it may point into self.
      * @param count Number of characters to append.
      *
@@ -258,7 +250,6 @@ private:
      * old allocation. This ordering keeps self-append valid without a preliminary
      * linear alias scan.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void append_reallocate(this BasicString& self, const_pointer source, size_type count) noexcept {
         size_type const old_size{self.size()};
         pltxt2htm_assert(count < self.max_size() - old_size, u8"BasicString capacity is too large");
@@ -277,7 +268,7 @@ private:
 
     /**
      * @brief Inserts through a newly allocated buffer while preserving source aliases.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param position_index Offset at which to insert.
      * @param string Characters to insert; the view may refer to self.
      * @return Iterator to the first inserted character.
@@ -285,7 +276,6 @@ private:
      * Prefix, inserted sequence, and suffix are assembled before the old allocation
      * is released, so no temporary BasicString is required for self-insertion.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto insert_reallocate(this BasicString& self, size_type position_index, string_view_type string) noexcept
         -> iterator {
         size_type const old_size{self.size()};
@@ -308,22 +298,21 @@ private:
 
     /**
      * @brief Ensures that at least required_capacity characters can be stored.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param required_capacity Minimum logical capacity, excluding the terminator.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void ensure_capacity(this BasicString& self, size_type required_capacity) noexcept {
         if (required_capacity <= self.capacity()) {
             return;
         }
         pltxt2htm_assert(required_capacity < self.max_size(), u8"BasicString capacity is too large");
 
-        self.reserve<ndebug>(self.grown_capacity(required_capacity));
+        self.reserve(self.grown_capacity(required_capacity));
     }
 
     /**
      * @brief Replaces the contents with a counted character sequence.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param source First source character; it may point into self.
      * @param count Number of characters to assign.
      *
@@ -331,14 +320,13 @@ private:
      * length is bounded by self.size(). Once capacity is sufficient, the runtime
      * path uses overlap-safe copying and therefore needs no alias scan.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void assign_impl(this BasicString& self, const_pointer source, size_type count) noexcept {
         if (count == 0) {
             self.clear();
             return;
         }
         if (count > self.capacity()) {
-            self.template reserve<ndebug>(count);
+            self.reserve(count);
         }
 
         if consteval {
@@ -458,11 +446,6 @@ public:
      * @pre Internal callers must not assign the string to itself.
      */
     constexpr auto operator=(this BasicString& self, BasicString const& other) noexcept -> BasicString& {
-#ifdef NDEBUG
-        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-#else
-        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-#endif
 #if defined(PLTXT2HTM_INTERNAL_USE)
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
                          u8"Internal self-assignment is not allowed");
@@ -471,7 +454,7 @@ public:
             return self;
         }
 #endif
-        self.template assign_impl<ndebug>(other.data(), other.size());
+        self.assign_impl(other.data(), other.size());
         return self;
     }
 
@@ -486,11 +469,6 @@ public:
      */
     constexpr auto operator=(this BasicString& self, BasicString&& other) noexcept -> BasicString& {
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    #ifdef NDEBUG
-        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-    #else
-        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-    #endif
         pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
                          u8"Internal self-move-assignment is not allowed");
 #else
@@ -512,12 +490,7 @@ public:
      * @return self.
      */
     constexpr auto operator=(this BasicString& self, string_view_type string) noexcept -> BasicString& {
-#ifdef NDEBUG
-        constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-#else
-        constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-#endif
-        self.template assign_impl<ndebug>(string.data(), string.size());
+        self.assign_impl(string.data(), string.size());
         return self;
     }
 
@@ -722,121 +695,59 @@ public:
     }
 
     /**
-     * @brief Returns a mutable character with contract-controlled bounds checking.
-     * @tparam ndebug Contract policy used when position is out of bounds.
-     * @param position Zero-based character position.
-     * @return Reference to the requested character.
-     * @pre position < size().
+     * @brief Indexed element access, bounds-checked according to the
+     * build-wide contract setting.
+     * @param position Zero-based element position.
+     * @return Mutable reference to the requested element.
+     * @pre position is a valid element position.
      */
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
-    constexpr auto index(this BasicString& self, size_type position) noexcept -> reference {
-        pltxt2htm_assert(position < self.size(), u8"Index of BasicString out of bound");
-        return self.begin_pointer[position];
-    }
-
-    /**
-     * @brief Returns a read-only character with contract-controlled bounds checking.
-     * @tparam ndebug Contract policy used when position is out of bounds.
-     * @param position Zero-based character position.
-     * @return Read-only reference to the requested character.
-     * @pre position < size().
-     */
-    template<::pltxt2htm::Contracts ndebug>
-    [[nodiscard]]
-    constexpr auto index(this BasicString const& self, size_type position) noexcept -> const_reference {
-        pltxt2htm_assert(position < self.size(), u8"Index of BasicString out of bound");
-        return self.begin_pointer[position];
-    }
-
-    /**
-     * @brief Unchecked element access, provided to downstream users only.
-     *
-     * A templated operator[] would require the awkward explicit spelling
-     * `string.template operator[]<policy>(position)`, so contract-bearing access
-     * stays on index(). This overload is therefore deliberately unchecked, and it
-     * is external-only: while pltxt2htm itself is being built
-     * (PLTXT2HTM_INTERNAL_USE) it stays deleted, so implementation code cannot
-     * silently index a character without naming a Contracts policy.
-     * @param position Zero-based character position.
-     * @return Mutable reference to the requested character.
-     * @pre position < size(); otherwise the behavior is undefined.
-     */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this BasicString& self, size_type position) noexcept -> reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
     constexpr auto operator[](this BasicString& self, size_type position) noexcept -> reference {
+        pltxt2htm_assert(position < self.size(), u8"Index of BasicString out of bound");
         return self.begin_pointer[position];
     }
-#endif
+
     /**
-     * @brief Unchecked read-only element access, provided to downstream users only.
-     * @param position Zero-based character position.
-     * @return Read-only reference to the requested character.
-     * @pre position < size(); otherwise the behavior is undefined.
-     * @note External-only, mirroring the mutable overload above.
+     * @brief Indexed element access, read-only, bounds-checked according to the
+     * build-wide contract setting.
+     * @param position Zero-based element position.
+     * @return Read-only reference to the requested element.
+     * @pre position is a valid element position.
      */
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    constexpr auto operator[](this BasicString const& self, size_type position) noexcept -> const_reference = delete
-    #if __cpp_deleted_function >= 202403L
-        #if defined __clang__
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wc++26-extensions"
-        #endif
-        ("operator[] is external-only; use index<ndebug>() inside pltxt2htm")
-        #if defined __clang__
-            #pragma clang diagnostic pop
-        #endif
-    #endif
-        ;
-#else
+    [[nodiscard]]
     constexpr auto operator[](this BasicString const& self, size_type position) noexcept -> const_reference {
+        pltxt2htm_assert(position < self.size(), u8"Index of BasicString out of bound");
         return self.begin_pointer[position];
     }
-#endif
 
     /**
      * @brief Returns the first character.
-     * @tparam ndebug Contract policy used for the empty-string check.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @return Mutable reference to the first character.
      * @pre The string is not empty.
      */
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this BasicString& self) noexcept -> reference {
-        return self.index<ndebug>(0);
+        return self[0];
     }
 
     /**
      * @brief Returns the first character.
-     * @tparam ndebug Contract policy used for the empty-string check.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @return Read-only reference to the first character.
      * @pre The string is not empty.
      */
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto front(this BasicString const& self) noexcept -> const_reference {
-        return self.index<ndebug>(0);
+        return self[0];
     }
 
     /**
      * @brief Returns the last character.
-     * @tparam ndebug Contract policy used for the empty-string check.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @return Mutable reference to the last character.
      * @pre The string is not empty.
      */
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this BasicString& self) noexcept -> reference {
         pltxt2htm_assert(!self.is_empty(), u8"back() called on empty BasicString");
@@ -845,11 +756,10 @@ public:
 
     /**
      * @brief Returns the last character.
-     * @tparam ndebug Contract policy used for the empty-string check.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @return Read-only reference to the last character.
      * @pre The string is not empty.
      */
-    template<::pltxt2htm::Contracts ndebug>
     [[nodiscard]]
     constexpr auto back(this BasicString const& self) noexcept -> const_reference {
         pltxt2htm_assert(!self.is_empty(), u8"back() called on empty BasicString");
@@ -872,7 +782,7 @@ public:
 
     /**
      * @brief Ensures storage for at least requested_capacity logical characters.
-     * @tparam ndebug Contract policy used to reject an unrepresentable capacity.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param requested_capacity Minimum capacity, excluding the trailing-null slot.
      *
      * Has no effect when requested_capacity <= capacity(). At runtime the allocator's
@@ -881,7 +791,6 @@ public:
      * and iterators are invalidated whenever capacity grows, even if the allocator
      * happens to extend the allocation in place.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void reserve(this BasicString& self, size_type requested_capacity) noexcept {
         if (requested_capacity <= self.capacity()) {
             return;
@@ -925,45 +834,42 @@ public:
 
     /**
      * @brief Replaces the contents with a view.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param string Source view, which may refer to self.
      *
      * Existing capacity is retained and reused when sufficient.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void assign(this BasicString& self, string_view_type string) noexcept {
-        self.template assign_impl<ndebug>(string.data(), string.size());
+        self.assign_impl(string.data(), string.size());
     }
 
     /**
      * @brief Replaces the contents with the half-open range `[first, last)`.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param first First source character.
      * @param last One past the last source character.
      * @pre first and last describe one valid contiguous range, with first <= last.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void assign(this BasicString& self, const_pointer first, const_pointer last) noexcept {
-        self.template assign_impl<ndebug>(first, static_cast<size_type>(last - first));
+        self.assign_impl(first, static_cast<size_type>(last - first));
     }
 
     /**
      * @brief Replaces the contents with repeated copies of one character.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param count Number of logical characters to store.
      * @param character Character value; defaults to the null character.
      *
      * Existing capacity is retained and reused when sufficient. A zero count is
      * equivalent to clear().
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void assign_characters(this BasicString& self, size_type count,
                                      value_type character = value_type{}) noexcept {
         if (count == 0) {
             self.clear();
             return;
         }
-        self.ensure_capacity<ndebug>(count);
+        self.ensure_capacity(count);
         ::std::fill_n(self.begin_pointer, count, character);
         self.current_pointer = self.begin_pointer + count;
         *self.current_pointer = value_type{};
@@ -971,16 +877,15 @@ public:
 
     /**
      * @brief Appends one character.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param character Character value to append.
      *
      * The hot path only advances current_pointer and rewrites the terminator.
      * Pointers, references, and iterators remain valid unless capacity growth occurs.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void push_back(this BasicString& self, value_type character) noexcept {
         if (self.current_pointer == self.end_pointer) {
-            self.ensure_capacity<ndebug>(self.size() + 1);
+            self.ensure_capacity(self.size() + 1);
         }
         *self.current_pointer++ = character;
         *self.current_pointer = value_type{};
@@ -988,10 +893,9 @@ public:
 
     /**
      * @brief Removes the final character.
-     * @tparam ndebug Contract policy used for the empty-string check.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @pre The string is not empty.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void pop_back(this BasicString& self) noexcept {
         pltxt2htm_assert(!self.is_empty(), u8"pop_back() called on empty BasicString");
         --self.current_pointer;
@@ -1000,7 +904,7 @@ public:
 
     /**
      * @brief Appends the half-open range `[first, last)`.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param first First source character.
      * @param last One past the last source character.
      * @pre first and last describe one valid contiguous range, with first <= last.
@@ -1010,7 +914,6 @@ public:
      * the old allocation. Pointers, references, and iterators are invalidated when
      * growth occurs.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void append(this BasicString& self, const_pointer first, const_pointer last) noexcept {
         size_type const count{static_cast<size_type>(last - first)};
         if (count == 0) {
@@ -1018,7 +921,7 @@ public:
         }
         size_type const old_size{self.size()};
         if (count > static_cast<size_type>(self.end_pointer - self.current_pointer)) {
-            self.append_reallocate<ndebug>(first, count);
+            self.append_reallocate(first, count);
             return;
         }
         if consteval {
@@ -1035,63 +938,60 @@ public:
 
     /**
      * @brief Appends a counted character sequence.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param first First source character.
      * @param count Number of characters to append.
      * @pre `[first, first + count)` is a valid contiguous range.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void append(this BasicString& self, const_pointer first, size_type count) noexcept {
-        self.append<ndebug>(first, first + count);
+        self.append(first, first + count);
     }
 
     /**
      * @brief Appends a BasicStringView.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param string Source view, which may refer to self.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void append(this BasicString& self, string_view_type string) noexcept {
-        self.append<ndebug>(string.data(), string.data() + string.size());
+        self.append(string.data(), string.data() + string.size());
     }
 
     /**
      * @brief Appends another BasicString.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param string Source string. Passing self is supported.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr void append(this BasicString& self, BasicString const& string) noexcept {
-        self.append<ndebug>(string.data(), string.data() + string.size());
+        self.append(string.data(), string.data() + string.size());
     }
 
     /**
      * @brief Appends a null-terminated character array without its final null.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @tparam size_with_null Array extent including the final null character.
      * @param string Source array.
      */
-    template<::pltxt2htm::Contracts ndebug, ::std::size_t size_with_null>
+    template<::std::size_t size_with_null>
     constexpr void append(this BasicString& self, value_type const (&string)[size_with_null]) noexcept {
         static_assert(size_with_null != 0);
-        self.append<ndebug>(string, string + size_with_null - 1);
+        self.append(string, string + size_with_null - 1);
     }
 
     /**
      * @brief Appends a compile-time literal string wrapper.
-     * @tparam ndebug Contract policy used for capacity validation.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @tparam size Logical number of characters in the literal wrapper.
      * @param string Source literal string.
      */
-    template<::pltxt2htm::Contracts ndebug, ::std::size_t size>
+    template<::std::size_t size>
     constexpr void append(this BasicString& self,
                           ::pltxt2htm::details::BasicLiteralString<value_type, size> const& string) noexcept {
-        self.append<ndebug>(string.data(), string.data() + string.size());
+        self.append(string.data(), string.data() + string.size());
     }
 
     /**
      * @brief Inserts a view before position.
-     * @tparam ndebug Contract policy used to validate position and capacity.
+     * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param position Iterator identifying the insertion point.
      * @param string Characters to insert; the view may refer to self.
      * @return Iterator to the first inserted character, or position when string is empty.
@@ -1102,7 +1002,6 @@ public:
      * required, prefix, source, and suffix are assembled in a new allocation before
      * the old one is released. Any growth invalidates all previous iterators.
      */
-    template<::pltxt2htm::Contracts ndebug>
     constexpr auto insert(this BasicString& self, const_iterator position, string_view_type string) noexcept
         -> iterator {
         pltxt2htm_assert(position >= self.begin_pointer && position <= self.current_pointer,
@@ -1113,7 +1012,7 @@ public:
         }
 
         if (string.size() > static_cast<size_type>(self.end_pointer - self.current_pointer)) {
-            return self.insert_reallocate<ndebug>(position_index, string);
+            return self.insert_reallocate(position_index, string);
         }
         size_type const old_size{self.size()};
         size_type const source_index{self.source_offset(string.data())};
@@ -1228,11 +1127,6 @@ template<bool noskipws, bool line, ::pltxt2htm::details::is_char_type CharType, 
 constexpr auto scan_context_define_basic_string(bool& copying, CharType const* first, CharType const* last,
                                                 BasicString<CharType, Allocator>& string_) noexcept
     -> ::fast_io::parse_result<CharType const*> {
-#ifdef NDEBUG
-    constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-#else
-    constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-#endif
     auto iterator = first;
     if constexpr (!noskipws && !line) {
         if (!copying) {
@@ -1255,15 +1149,15 @@ constexpr auto scan_context_define_basic_string(bool& copying, CharType const* f
 
     if constexpr (noskipws || line) {
         if (!copying) {
-            string_.template assign<ndebug>(iterator, end_iterator);
+            string_.assign(iterator, end_iterator);
             copying = true;
         }
         else {
-            string_.template append<ndebug>(iterator, end_iterator);
+            string_.append(iterator, end_iterator);
         }
     }
     else {
-        string_.template append<ndebug>(iterator, end_iterator);
+        string_.append(iterator, end_iterator);
     }
 
     if (end_iterator == last) {
@@ -1279,17 +1173,12 @@ template<::pltxt2htm::details::is_char_type CharType, typename Allocator>
 constexpr auto scan_context_define_whole_basic_string(bool& copying, CharType const* first, CharType const* last,
                                                       BasicString<CharType, Allocator>& string_) noexcept
     -> ::fast_io::parse_result<CharType const*> {
-#ifdef NDEBUG
-    constexpr auto ndebug = ::pltxt2htm::Contracts::ignore;
-#else
-    constexpr auto ndebug = ::pltxt2htm::Contracts::quick_enforce;
-#endif
     if (!copying) {
-        string_.template assign<ndebug>(first, last);
+        string_.assign(first, last);
         copying = true;
     }
     else {
-        string_.template append<ndebug>(first, last);
+        string_.append(first, last);
     }
     return {last, ::fast_io::parse_code::partial};
 }

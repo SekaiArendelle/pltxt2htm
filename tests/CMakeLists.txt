@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm-tests LANGUAGES CXX VERSION 0.27.0)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htm_contract_mode.cmake")
 
 enable_testing()
 
@@ -93,6 +94,7 @@ add_library(pltxt2htm_base INTERFACE)
 target_include_directories(pltxt2htm_base INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}/../include"
     "${CMAKE_CURRENT_SOURCE_DIR}")
+pltxt2htm_apply_contract_mode(pltxt2htm_base INTERFACE ENFORCE)
 
 if(PLTXT2HTM_USE_STACKTRACE)
     target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_ENABLE_STACKTRACE)
@@ -110,6 +112,27 @@ if(PLTXT2HTM_SANITIZER)
     if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         message(FATAL_ERROR "PLTXT2HTM_SANITIZER is not supported on MSVC (use clang or gcc instead)")
     endif()
+    # Sanitizers and the MSVC debug CRT cannot share a process. With _DEBUG defined, the debug CRT
+    # itself (ucrtbased/MSVCP140D internals) and the _DEBUG-only allocator paths in code
+    # (fast_io's wincrt_malloc_dbg_allocator, which routes allocations through _malloc_dbg)
+    # allocate in the debug heap, which the sanitizer runtime does not track, and their free paths
+    # cross into the sanitizer-detoured free, so most tests abort with a bogus "attempting free on
+    # address which was not malloc()-ed" even when the _DEBUG-only allocator paths are removed.
+    # CMAKE_BUILD_TYPE=Debug selects that CRT (MultiThreadedDebugDLL), so request the release one
+    # instead while keeping the Debug optimization level and contract checks.
+    # CMAKE_CXX_SIMULATE_ID covers clang targeting the MSVC ABI, where `MSVC` itself is not set.
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
+        if(CMAKE_MSVC_RUNTIME_LIBRARY MATCHES "[Dd]ebug")
+            message(FATAL_ERROR
+                "PLTXT2HTM_SANITIZER cannot use \"${CMAKE_MSVC_RUNTIME_LIBRARY}\", because the debug heap is "
+                "not tracked by the sanitizer runtime.")
+        endif()
+        if(NOT CMAKE_MSVC_RUNTIME_LIBRARY)
+            set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+        endif()
+        message(STATUS
+            "PLTXT2HTM_SANITIZER: MSVC runtime library ${CMAKE_MSVC_RUNTIME_LIBRARY} (the debug CRT is incompatible with sanitizers)")
+    endif()
     target_compile_options(pltxt2htm_base INTERFACE -fsanitize=${PLTXT2HTM_SANITIZER})
     target_link_options(pltxt2htm_base INTERFACE -fsanitize=${PLTXT2HTM_SANITIZER})
 endif()
@@ -125,7 +148,11 @@ endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     target_compile_options(pltxt2htm_base INTERFACE /utf-8 /EHsc)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(pltxt2htm_base INTERFACE -finput-charset=utf-8 -fexec-charset=utf-8 -fexceptions)
+    target_compile_options(pltxt2htm_base INTERFACE
+        -finput-charset=utf-8 -fexec-charset=utf-8 -fexceptions
+        -Wall -Wextra -Wshadow -Werror=pedantic
+        -Werror=return-type -Werror=switch -Werror=implicit-fallthrough
+    )
 endif()
 if(CMAKE_CXX_STANDARD STREQUAL "26"
    AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
@@ -138,10 +165,7 @@ if(WIN32)
     target_link_libraries(precompile PUBLIC ntdll)
 endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(precompile PRIVATE
-        -g -Wall -Wextra -Wshadow
-        -Werror=return-type -Werror=switch -Werror=implicit-fallthrough
-    )
+    target_compile_options(precompile PRIVATE -g)
 endif()
 
 # Each .cc under src/ becomes a test executable. Header-only cases are collected below.
@@ -174,8 +198,9 @@ pltxt2htm_generate_cases(doctest_precompile_suites
 pltxt2htm_generate_cases(doctest_ast
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ast/*.hh")
 pltxt2htm_generate_cases(doctest_external_use
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/ast/external/*.hh"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/container/external/*.hh")
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ast/external/*.hh")
+pltxt2htm_generate_cases(doctest_container
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/container/*.hh")
 
 foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
@@ -186,7 +211,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     endif()
     # The doctest runners consume their generated include lists.
     if(TEST_NAME STREQUAL "doctest_precompile_suites" OR TEST_NAME STREQUAL "doctest_ast"
-       OR TEST_NAME STREQUAL "doctest_external_use")
+       OR TEST_NAME STREQUAL "doctest_external_use" OR TEST_NAME STREQUAL "doctest_container")
         target_include_directories(${TEST_NAME} PRIVATE
             "${CMAKE_CURRENT_BINARY_DIR}/generated"
             "${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -197,7 +222,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
         target_compile_definitions(${TEST_NAME} PRIVATE PLTXT2HTM_INTERNAL_USE)
     endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        target_compile_options(${TEST_NAME} PRIVATE -g -Werror=switch)
+        target_compile_options(${TEST_NAME} PRIVATE -g)
     endif()
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endforeach()

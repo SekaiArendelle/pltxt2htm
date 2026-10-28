@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(pltxt2htm-examples LANGUAGES CXX VERSION 0.27.0)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htm_contract_mode.cmake")
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -17,6 +18,7 @@ file(GLOB EXAMPLE_SOURCES LIST_DIRECTORIES FALSE "${CMAKE_CURRENT_SOURCE_DIR}/*.
 foreach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
     get_filename_component(EXAMPLE_NAME ${EXAMPLE_SOURCE} NAME_WE)
     add_executable(${EXAMPLE_NAME} ${EXAMPLE_SOURCE})
+    pltxt2htm_apply_contract_mode(${EXAMPLE_NAME} PRIVATE)
     target_include_directories(${EXAMPLE_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
     target_compile_features(${EXAMPLE_NAME} PRIVATE cxx_std_23)
 
