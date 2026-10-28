@@ -6,8 +6,10 @@
 
 #pragma once
 
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE)
-    #include "stacktrace/dump.hh"
+#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+    #include <fast_io/fast_io.h>
+    #include "stacktrace/capture.hh"
+    #include "stacktrace/windows.hh"
 #endif
 #include <cstdio>
 #include "literal_string.hh"
@@ -51,9 +53,35 @@ inline void panic() noexcept {
     ::std::fwrite(to_be_printed.cdata(), sizeof(typename decltype(to_be_printed)::value_type), to_be_printed.size(),
                   stderr);
 
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE)
+#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
     ::std::fflush(stderr);
-    ::pltxt2htm::details::stacktrace::dump_current_stacktrace();
+    ::fast_io::io::perr("* stack trace:\n");
+    auto captured = ::pltxt2htm::details::stacktrace::capture_current_trace();
+    for (::std::size_t i = 0; i < captured.size(); ++i) {
+        auto const frame = ::pltxt2htm::details::stacktrace::resolve_native(captured[i]);
+        ::fast_io::io::perr("[", i, "] ");
+        if (!frame.description.empty()) {
+            ::fast_io::io::perr(
+                ::fast_io::basic_io_scatter_t<char>{.base = frame.description.data(), .len = frame.description.size()});
+        }
+        else {
+            ::fast_io::io::perr(::fast_io::mnp::hex0x(reinterpret_cast<::std::uintptr_t>(frame.address)));
+        }
+        if (frame.displacement != 0) {
+            ::fast_io::io::perr(" + ", ::fast_io::mnp::hex0x(frame.displacement));
+        }
+        if (!frame.source_file.empty()) {
+            ::fast_io::io::perr(" at ", ::fast_io::basic_io_scatter_t<char>{.base = frame.source_file.data(),
+                                                                            .len = frame.source_file.size()});
+            if (frame.source_line != 0) {
+                ::fast_io::io::perr(":", frame.source_line);
+            }
+        }
+        if (frame.text_truncated) {
+            ::fast_io::io::perr(" <text truncated>");
+        }
+        ::fast_io::io::perr("\n");
+    }
 #endif
     ::std::fflush(stderr);
 

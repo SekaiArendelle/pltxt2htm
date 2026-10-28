@@ -1,11 +1,9 @@
 #include <pltxt2htm/details/stacktrace/stacktrace.hh>
 #include <pltxt2htm/details/stacktrace/resolved_frame.hh>
-#include <pltxt2htm/details/stacktrace/format.hh>
 #if defined(_WIN32) && defined(PLTXT2HTM_ENABLE_STACKTRACE)
     #include <pltxt2htm/sys/win32/kernel32.hh>
 #endif
 #include <fast_io/fast_io_dsal/string.h>
-#include <cstring>
 #include "precompile.hh"
 #include <limits>
 #include <memory>
@@ -126,17 +124,12 @@ int main() {
     auto const one_entry = trace::Stacktrace::current(0, 1);
     pltxt2htm_test_assert_true(one_entry.size() == 1 && one_entry.possibly_truncated() && one_entry[0]);
     pltxt2htm_test_assert_true((one_entry <=> deep) < 0);
-    // Entry queries and formatting use the saved address, not a new capture.
+    // Entry queries use the saved address, not a new capture.
     auto const description = one_entry[0].description();
     auto const file = one_entry[0].source_file();
     (void)one_entry[0].source_line();
-    auto const entry_text = ::fast_io::concat_fast_io(one_entry[0]);
-    auto const resolved_text = ::fast_io::concat_fast_io(trace::resolve(one_entry[0].native_handle()));
-    pltxt2htm_test_assert_true(entry_text == resolved_text);
     pltxt2htm_test_assert_true(one_entry.max_size() >= one_entry.size());
 #endif
-    auto const captured = trace::capture(storage);
-    auto const resolved = trace::resolve(captured.size != 0 ? storage[0] : nullptr);
 #if defined(_WIN32) && defined(PLTXT2HTM_ENABLE_STACKTRACE)
     namespace nt = ::pltxt2htm::sys_nt;
     namespace win32 = ::pltxt2htm::sys_win32;
@@ -161,23 +154,21 @@ int main() {
     pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.is_empty());
     pltxt2htm_test_assert_true(trace::shutdown_symbols());
     pltxt2htm_test_assert_true(!session.ready && session.process == nullptr);
-    // Saved data survives resolver teardown; printing must not reinitialize it.
-    auto const saved_text = ::fast_io::concat_fast_io(resolved);
-    auto const repeated = ::fast_io::concat_fast_io(resolved);
-    pltxt2htm_test_assert_true(saved_text == repeated);
-    pltxt2htm_test_assert_true(!session.attempted);
     auto const again = trace::resolve(storage[0]);
     pltxt2htm_test_assert_true(again.address == storage[0] && session.ready);
     pltxt2htm_test_assert_true(trace::shutdown_symbols());
 #endif
-    // Formatting consumes the exact supplied data, not the current call stack.
-    trace::ResolvedFrame synthetic{};
-    synthetic.address = reinterpret_cast<void*>(1);
-    synthetic.displacement = 42;
-    synthetic.source_line = 7;
-    synthetic.description = ::pltxt2htm::container::String{"saved_function"};
-    synthetic.source_file = ::pltxt2htm::container::String{"saved.cc"};
-    auto const formatted = ::fast_io::concat_fast_io("[3] ", synthetic, "\n");
-    constexpr char expected[] = "[3] saved_function + 0x2a at saved.cc:7\n";
-    pltxt2htm_test_assert_true(::std::strcmp(formatted.c_str(), expected) == 0);
+#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+    // Panic-path dynamic capture: malloc-backed RAII without pltxt2htm containers.
+    auto addresses = trace::capture_current_trace();
+    pltxt2htm_test_assert_true(addresses.size() > 0 && !addresses.possibly_truncated());
+    for (::std::size_t i = 0; i < addresses.size(); ++i) {
+        pltxt2htm_test_assert_true(addresses[i] != nullptr);
+    }
+    auto const captured_size = addresses.size();
+    auto moved_addresses = ::std::move(addresses);
+    pltxt2htm_test_assert_true(addresses.size() == 0 && moved_addresses.size() == captured_size);
+    moved_addresses = ::std::move(moved_addresses);
+    pltxt2htm_test_assert_true(moved_addresses.size() == captured_size);
+#endif
 }
