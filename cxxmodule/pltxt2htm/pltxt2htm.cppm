@@ -45,6 +45,17 @@ using ::pltxt2htm::container::swap;
 
 } // namespace container
 
+namespace memory {
+
+using ::pltxt2htm::memory::allocator;
+using ::pltxt2htm::memory::stateless_allocator;
+using ::pltxt2htm::memory::AllocationLeastResult;
+using ::pltxt2htm::memory::GenericAllocatorAdapter;
+using ::pltxt2htm::memory::NativeGlobalAllocator;
+using ::pltxt2htm::memory::TypedGenericAllocatorAdapter;
+
+} // namespace memory
+
 // exported functions
 using ::pltxt2htm::pltxt2common_html;
 using ::pltxt2htm::pltxt2fixedadv_html;

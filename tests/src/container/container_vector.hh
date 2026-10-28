@@ -34,10 +34,11 @@ class TrackingRawAllocator {
 
 public:
     [[nodiscard]]
-    static auto allocate_at_least(::std::size_t requested_bytes) noexcept -> ::fast_io::allocation_least_result {
+    static auto allocate_at_least(::std::size_t requested_bytes) noexcept
+        -> ::pltxt2htm::memory::AllocationLeastResult {
         last_requested_bytes = requested_bytes;
         ::std::size_t const allocated_bytes{requested_bytes + additional_bytes};
-        void* const pointer{::fast_io::native_global_allocator::allocate(allocated_bytes)};
+        void* const pointer{::pltxt2htm::memory::NativeGlobalAllocator::allocate(allocated_bytes)};
         for (::std::size_t index{}; index != slot_count; ++index) {
             if (allocation_pointers[index] == nullptr) {
                 allocation_pointers[index] = pointer;
@@ -55,7 +56,7 @@ public:
                 continue;
             }
             deallocation_mismatch = deallocation_mismatch || allocation_sizes[index] != allocated_bytes;
-            ::fast_io::native_global_allocator::deallocate_n(pointer, allocation_sizes[index]);
+            ::pltxt2htm::memory::NativeGlobalAllocator::deallocate_n(pointer, allocation_sizes[index]);
             allocation_pointers[index] = nullptr;
             allocation_sizes[index] = 0;
             --active_allocations;
@@ -63,7 +64,7 @@ public:
             return;
         }
         deallocation_mismatch = true;
-        ::fast_io::native_global_allocator::deallocate_n(pointer, allocated_bytes);
+        ::pltxt2htm::memory::NativeGlobalAllocator::deallocate_n(pointer, allocated_bytes);
     }
 
     static void reset() noexcept {
@@ -98,7 +99,7 @@ public:
     }
 };
 
-using TrackingAllocator = ::fast_io::generic_allocator_adapter<TrackingRawAllocator>;
+using TrackingAllocator = ::pltxt2htm::memory::GenericAllocatorAdapter<TrackingRawAllocator>;
 using TrackingIntVector = ::pltxt2htm::container::Vector<int, TrackingAllocator>;
 
 class ConstructionTrace {
@@ -408,7 +409,7 @@ concept EqualityComparableVectorElement = requires(::pltxt2htm::container::Vecto
 template<typename R>
 concept AppendableIntRange = requires(IntVector& values, R&& range) { values.append_range(::std::forward<R>(range)); };
 
-static_assert(::std::same_as<IntVector::allocator_type, ::fast_io::native_global_allocator>);
+static_assert(::std::same_as<IntVector::allocator_type, ::pltxt2htm::memory::NativeGlobalAllocator>);
 static_assert(::std::same_as<IntVector::value_type, int>);
 static_assert(::std::same_as<IntVector::iterator, int*>);
 static_assert(::std::ranges::contiguous_range<IntVector>);
