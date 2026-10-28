@@ -40,7 +40,7 @@
  * it will call panic() to terminate the program with diagnostic information.
  * The mode is selected at preprocessing time from the `PLTXT2HTM_CONTRACTS`
  * macro: enforce (default or `0`) panics with diagnostics, quick_enforce
- * (`2`) traps without diagnostics, and ignore (`1`) replaces the assertion
+ * (`1`) traps without diagnostics, and ignore (`2`) replaces the assertion
  * with an optimizer assumption. Invalid macro values are rejected by the
  * `#error` in `contracts.hh`, which this header includes first, so the
  * dispatch below needs no fallback branch.
@@ -66,17 +66,17 @@
                     source_location.column(), pltxt2htm::details::U8LiteralString{message}>(); \
             } \
         } while (0)
-#elif PLTXT2HTM_CONTRACTS == 2
+#elif PLTXT2HTM_CONTRACTS == 1
     #define pltxt2htm_assert(condition, message) \
         do { \
             if ((condition) == false) [[unlikely]] { \
                 ::pltxt2htm::details::trap(); \
             } \
         } while (0)
-#elif PLTXT2HTM_CONTRACTS == 1
+#elif PLTXT2HTM_CONTRACTS == 2
     #define pltxt2htm_assert(condition, message) pltxt2htm_assume(condition)
 #else
-    #error "PLTXT2HTM_CONTRACTS must be 0 (enforce), 1 (ignore), or 2 (quick_enforce)"
+    #error "PLTXT2HTM_CONTRACTS must be 0 (enforce), 1 (quick_enforce), or 2 (ignore)"
 #endif
 
 /**
@@ -98,10 +98,10 @@
                                         ::pltxt2htm::details::U8LiteralString{u8"" __FILE__}, source_location.line(), \
                                         source_location.column(), ::pltxt2htm::details::U8LiteralString{message}>(); \
         } while (0)
-#elif PLTXT2HTM_CONTRACTS == 2
-    #define pltxt2htm_unreachable(message) ::pltxt2htm::details::trap()
 #elif PLTXT2HTM_CONTRACTS == 1
+    #define pltxt2htm_unreachable(message) ::pltxt2htm::details::trap()
+#elif PLTXT2HTM_CONTRACTS == 2
     #define pltxt2htm_unreachable(message) ::pltxt2htm::details::unreachable()
 #else
-    #error "PLTXT2HTM_CONTRACTS must be 0 (enforce), 1 (ignore), or 2 (quick_enforce)"
+    #error "PLTXT2HTM_CONTRACTS must be 0 (enforce), 1 (quick_enforce), or 2 (ignore)"
 #endif
