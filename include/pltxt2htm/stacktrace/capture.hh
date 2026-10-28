@@ -26,7 +26,7 @@ struct CaptureResult {
  * Not async-signal-safe.
  */
 [[nodiscard]]
-inline auto capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept -> CaptureResult {
+inline auto capture(::std::span<void*> frames, [[maybe_unused]] ::std::size_t skip = 0) noexcept -> CaptureResult {
     if (frames.empty()) {
         return {};
     }
@@ -39,7 +39,6 @@ inline auto capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept 
         static_cast<unsigned long>(skip), static_cast<unsigned long>(capacity), frames.data(), nullptr);
     return {.size = count, .possibly_truncated = count == capacity};
 #else
-    (void)skip;
     return {};
 #endif
 }

@@ -97,8 +97,8 @@ public:
     }
 
     [[nodiscard]]
-    static auto current(size_type skip, size_type max_depth, allocator_type const& alloc = {}) noexcept
-        -> BasicStacktrace {
+    static auto current([[maybe_unused]] size_type skip, [[maybe_unused]] size_type max_depth,
+                        allocator_type const& alloc = {}) noexcept -> BasicStacktrace {
         BasicStacktrace result{alloc};
 #if defined(_WIN32)
         constexpr size_type native_limit = 65535;
@@ -128,9 +128,6 @@ public:
             auto& entry = result.entries.emplace_back();
             entry.address = addresses[i];
         }
-#else
-        (void)skip;
-        (void)max_depth;
 #endif
         return result;
     }
