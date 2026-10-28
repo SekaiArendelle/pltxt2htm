@@ -12,7 +12,7 @@ class BasicStacktrace;
  * Text queries return independently owned strings, like std::stacktrace_entry.
  */
 class StacktraceEntry {
-    void* address_{};
+    void* address{};
     template<typename Allocator>
     friend class BasicStacktrace;
 
@@ -24,23 +24,23 @@ public:
     constexpr StacktraceEntry(StacktraceEntry&&) noexcept = default;
 
     constexpr StacktraceEntry& operator=(this StacktraceEntry& self, StacktraceEntry const& other) noexcept {
-        self.address_ = other.address_;
+        self.address = other.address;
         return self;
     }
 
     constexpr StacktraceEntry& operator=(this StacktraceEntry& self, StacktraceEntry&& other) noexcept {
-        self.address_ = other.address_;
+        self.address = other.address;
         return self;
     }
 
     [[nodiscard]]
     constexpr auto native_handle(this StacktraceEntry const& self) noexcept -> native_handle_type {
-        return self.address_;
+        return self.address;
     }
 
     [[nodiscard]]
     constexpr explicit operator bool(this StacktraceEntry const& self) noexcept {
-        return self.address_ != nullptr;
+        return self.address != nullptr;
     }
 
     [[nodiscard]]
@@ -48,7 +48,7 @@ public:
         if (!self) {
             return {};
         }
-        auto const frame = ::pltxt2htm::details::stacktrace::resolve(self.address_);
+        auto const frame = ::pltxt2htm::details::stacktrace::resolve(self.address);
         return frame.description;
     }
 
@@ -57,7 +57,7 @@ public:
         if (!self) {
             return {};
         }
-        auto const frame = ::pltxt2htm::details::stacktrace::resolve(self.address_);
+        auto const frame = ::pltxt2htm::details::stacktrace::resolve(self.address);
         return frame.source_file;
     }
 
@@ -66,18 +66,18 @@ public:
         if (!self) {
             return 0;
         }
-        return ::pltxt2htm::details::stacktrace::resolve(self.address_).source_line;
+        return ::pltxt2htm::details::stacktrace::resolve(self.address).source_line;
     }
 
     [[nodiscard]]
     friend constexpr auto operator==(StacktraceEntry const& left, StacktraceEntry const& right) noexcept -> bool {
-        return left.address_ == right.address_;
+        return left.address == right.address;
     }
 
     [[nodiscard]]
     friend constexpr auto operator<=>(StacktraceEntry const& left, StacktraceEntry const& right) noexcept
         -> ::std::strong_ordering {
-        return ::std::compare_three_way{}(left.address_, right.address_);
+        return ::std::compare_three_way{}(left.address, right.address);
     }
 };
 } // namespace pltxt2htm::details::stacktrace

@@ -24,8 +24,8 @@ template<typename Allocator = ::fast_io::native_global_allocator>
 class BasicStacktrace {
     static_assert(::std::is_empty_v<Allocator>, "stacktrace requires a stateless fast_io allocator");
     using storage_allocator = ::fast_io::generic_allocator_adapter<Allocator>;
-    ::pltxt2htm::container::Vector<StacktraceEntry, storage_allocator> entries_{};
-    CaptureResult captured_{};
+    ::pltxt2htm::container::Vector<StacktraceEntry, storage_allocator> entries{};
+    CaptureResult captured{};
 
 public:
     using value_type = StacktraceEntry;
@@ -46,13 +46,13 @@ public:
     }
 
     constexpr BasicStacktrace(BasicStacktrace const& other, allocator_type const&) noexcept
-        : entries_{other.entries_},
-          captured_{other.captured_} {
+        : entries{other.entries},
+          captured{other.captured} {
     }
 
     constexpr BasicStacktrace(BasicStacktrace&& other) noexcept
-        : entries_{::std::move(other.entries_)},
-          captured_{::std::exchange(other.captured_, {})} {
+        : entries{::std::move(other.entries)},
+          captured{::std::exchange(other.captured, {})} {
     }
 
     constexpr BasicStacktrace(BasicStacktrace&& other, allocator_type const&) noexcept
@@ -63,8 +63,8 @@ public:
         if (::std::addressof(self) == ::std::addressof(other)) {
             return self;
         }
-        self.entries_ = other.entries_;
-        self.captured_ = other.captured_;
+        self.entries = other.entries;
+        self.captured = other.captured;
         return self;
     }
 
@@ -72,8 +72,8 @@ public:
         if (::std::addressof(self) == ::std::addressof(other)) {
             return self;
         }
-        self.entries_ = ::std::move(other.entries_);
-        self.captured_ = ::std::exchange(other.captured_, {});
+        self.entries = ::std::move(other.entries);
+        self.captured = ::std::exchange(other.captured, {});
         return self;
     }
 
@@ -107,17 +107,17 @@ public:
             while (addresses.size() < depth) {
                 addresses.emplace_back(nullptr);
             }
-            result.captured_ = ::pltxt2htm::details::stacktrace::capture({addresses.data(), depth}, skip);
-            if (!result.captured_.possibly_truncated || depth == limit) {
+            result.captured = ::pltxt2htm::details::stacktrace::capture({addresses.data(), depth}, skip);
+            if (!result.captured.possibly_truncated || depth == limit) {
                 break;
             }
             depth = depth > limit / 2 ? limit : depth * 2;
         }
-        auto const size = result.captured_.size;
-        result.entries_.reserve(size);
+        auto const size = result.captured.size;
+        result.entries.reserve(size);
         for (size_type i = 0; i < size; ++i) {
-            auto& entry = result.entries_.emplace_back();
-            entry.address_ = addresses[i];
+            auto& entry = result.entries.emplace_back();
+            entry.address = addresses[i];
         }
 #else
         (void)skip;
@@ -133,15 +133,15 @@ public:
 
     [[nodiscard]]
     constexpr auto begin(this BasicStacktrace const& self) noexcept -> const_iterator {
-        return self.entries_.data();
+        return self.entries.data();
     }
 
     [[nodiscard]]
     constexpr auto end(this BasicStacktrace const& self) noexcept -> const_iterator {
-        if (self.captured_.size == 0) {
-            return self.entries_.data();
+        if (self.captured.size == 0) {
+            return self.entries.data();
         }
-        return self.entries_.data() + self.captured_.size;
+        return self.entries.data() + self.captured.size;
     }
 
     [[nodiscard]]
@@ -176,7 +176,7 @@ public:
 
     [[nodiscard]]
     constexpr auto size(this BasicStacktrace const& self) noexcept -> size_type {
-        return self.captured_.size;
+        return self.captured.size;
     }
 
     [[nodiscard]]
@@ -191,7 +191,7 @@ public:
 
     [[nodiscard]]
     constexpr auto operator[](this BasicStacktrace const& self, size_type index) noexcept -> const_reference {
-        return self.entries_[index];
+        return self.entries[index];
     }
 
     [[nodiscard]]
@@ -203,13 +203,13 @@ public:
     }
 
     constexpr void swap(this BasicStacktrace& self, BasicStacktrace& other) noexcept {
-        self.entries_.swap(other.entries_);
-        ::std::swap(self.captured_, other.captured_);
+        self.entries.swap(other.entries);
+        ::std::swap(self.captured, other.captured);
     }
 
     [[nodiscard]]
     constexpr auto possibly_truncated(this BasicStacktrace const& self) noexcept -> bool {
-        return self.captured_.possibly_truncated;
+        return self.captured.possibly_truncated;
     }
 };
 

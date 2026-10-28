@@ -46,17 +46,17 @@ inline auto capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept 
  * panic printing does not depend on the pltxt2htm container layer. Printing
  * itself lives in the panic path, not here. */
 struct CapturedAddresses {
-    void** data_{};
-    ::std::size_t size_{};
-    bool possibly_truncated_{};
+    void** addresses{};
+    ::std::size_t count{};
+    bool truncated{};
 
     constexpr CapturedAddresses() noexcept = default;
     CapturedAddresses(CapturedAddresses const&) = delete;
 
     constexpr CapturedAddresses(CapturedAddresses&& other) noexcept
-        : data_{::std::exchange(other.data_, nullptr)},
-          size_{::std::exchange(other.size_, 0)},
-          possibly_truncated_{::std::exchange(other.possibly_truncated_, false)} {
+        : addresses{::std::exchange(other.addresses, nullptr)},
+          count{::std::exchange(other.count, 0)},
+          truncated{::std::exchange(other.truncated, false)} {
     }
 
     CapturedAddresses& operator=(CapturedAddresses const&) = delete;
@@ -65,30 +65,30 @@ struct CapturedAddresses {
         if (::std::addressof(self) == ::std::addressof(other)) {
             return self;
         }
-        ::std::free(self.data_);
-        self.data_ = ::std::exchange(other.data_, nullptr);
-        self.size_ = ::std::exchange(other.size_, 0);
-        self.possibly_truncated_ = ::std::exchange(other.possibly_truncated_, false);
+        ::std::free(self.addresses);
+        self.addresses = ::std::exchange(other.addresses, nullptr);
+        self.count = ::std::exchange(other.count, 0);
+        self.truncated = ::std::exchange(other.truncated, false);
         return self;
     }
 
     constexpr ~CapturedAddresses() {
-        ::std::free(data_);
+        ::std::free(addresses);
     }
 
     [[nodiscard]]
     constexpr auto size(this CapturedAddresses const& self) noexcept -> ::std::size_t {
-        return self.size_;
+        return self.count;
     }
 
     [[nodiscard]]
     constexpr auto possibly_truncated(this CapturedAddresses const& self) noexcept -> bool {
-        return self.possibly_truncated_;
+        return self.truncated;
     }
 
     [[nodiscard]]
     constexpr auto operator[](this CapturedAddresses const& self, ::std::size_t index) noexcept -> void* {
-        return self.data_[index];
+        return self.addresses[index];
     }
 };
 
@@ -117,9 +117,9 @@ inline auto capture_current_trace() noexcept -> CapturedAddresses {
         depth *= 2;
     }
     auto result = CapturedAddresses{};
-    result.data_ = addresses;
-    result.size_ = captured.size;
-    result.possibly_truncated_ = captured.possibly_truncated;
+    result.addresses = addresses;
+    result.count = captured.size;
+    result.truncated = captured.possibly_truncated;
     return result;
 #else
     return {};
