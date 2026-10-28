@@ -131,7 +131,7 @@ int main() {
     {
         TrackingAllocator const alloc{};
         using TrackedTrace = trace::BasicStacktrace<TrackingAllocator>;
-        auto tracked = TrackedTrace::current(0, 8, alloc);
+        auto tracked = TrackedTrace::current(0, 8);
         TrackedTrace copy{tracked, alloc};
         TrackedTrace moved_copy{::std::move(copy), alloc};
         pltxt2htm_test_assert_true(tracked == moved_copy && copy.empty());

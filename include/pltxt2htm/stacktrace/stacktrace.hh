@@ -87,19 +87,19 @@ public:
     }
 
     [[nodiscard]]
-    static auto current(allocator_type const& alloc = {}) noexcept -> BasicStacktrace {
-        return BasicStacktrace::current(0, (::std::numeric_limits<size_type>::max)(), alloc);
+    static auto current() noexcept -> BasicStacktrace {
+        return BasicStacktrace::current(0, (::std::numeric_limits<size_type>::max)());
     }
 
     [[nodiscard]]
-    static auto current(size_type skip, allocator_type const& alloc = {}) noexcept -> BasicStacktrace {
-        return BasicStacktrace::current(skip, (::std::numeric_limits<size_type>::max)(), alloc);
+    static auto current(size_type skip) noexcept -> BasicStacktrace {
+        return BasicStacktrace::current(skip, (::std::numeric_limits<size_type>::max)());
     }
 
     [[nodiscard]]
-    static auto current([[maybe_unused]] size_type skip, [[maybe_unused]] size_type max_depth,
-                        allocator_type const& alloc = {}) noexcept -> BasicStacktrace {
-        BasicStacktrace result{alloc};
+    static auto current([[maybe_unused]] size_type skip, [[maybe_unused]] size_type max_depth) noexcept
+        -> BasicStacktrace {
+        BasicStacktrace result{};
 #if defined(_WIN32)
         constexpr size_type native_limit = 65535;
         if (skip > (::std::numeric_limits<unsigned long>::max)()) {
