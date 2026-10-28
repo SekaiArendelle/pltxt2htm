@@ -1,15 +1,22 @@
+/**
+ * @file stacktrace_entry.hh
+ * @brief Saved native frame address and the text resolved from it.
+ */
+
 #pragma once
 
 #include <compare>
-#include <functional>
-#include "resolved_frame.hh"
+#include <cstdint>
+#include "resolve.hh"
 
 namespace pltxt2htm::details::stacktrace {
 template<typename Allocator>
 class BasicStacktrace;
 
 /** A saved native address. Queries resolve that address without recapturing.
- * Text queries return independently owned strings, like std::stacktrace_entry.
+ * Text queries return independently owned `stacktrace::Text` values, like
+ * `std::stacktrace_entry`. Use resolved() when several fields are needed, so the
+ * address is looked up only once.
  */
 class StacktraceEntry {
     void* address{};
@@ -44,21 +51,19 @@ public:
     }
 
     [[nodiscard]]
-    auto description(this StacktraceEntry const& self) noexcept -> ::pltxt2htm::container::String {
+    auto description(this StacktraceEntry const& self) noexcept -> Text {
         if (!self) {
             return {};
         }
-        auto const frame = ::pltxt2htm::details::stacktrace::resolve(self.address);
-        return frame.description;
+        return ::pltxt2htm::details::stacktrace::resolve(self.address).description;
     }
 
     [[nodiscard]]
-    auto source_file(this StacktraceEntry const& self) noexcept -> ::pltxt2htm::container::String {
+    auto source_file(this StacktraceEntry const& self) noexcept -> Text {
         if (!self) {
             return {};
         }
-        auto const frame = ::pltxt2htm::details::stacktrace::resolve(self.address);
-        return frame.source_file;
+        return ::pltxt2htm::details::stacktrace::resolve(self.address).source_file;
     }
 
     [[nodiscard]]
@@ -66,7 +71,16 @@ public:
         if (!self) {
             return 0;
         }
-        return ::pltxt2htm::details::stacktrace::resolve(self.address).source_line;
+        return static_cast<::std::uint_least32_t>(::pltxt2htm::details::stacktrace::resolve(self.address).source_line);
+    }
+
+    /** Resolve every field with a single lookup. */
+    [[nodiscard]]
+    auto resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame {
+        if (!self) {
+            return {};
+        }
+        return ::pltxt2htm::details::stacktrace::resolve(self.address);
     }
 
     [[nodiscard]]

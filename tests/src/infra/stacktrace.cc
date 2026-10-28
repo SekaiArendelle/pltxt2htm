@@ -1,5 +1,5 @@
 #include <pltxt2htm/details/stacktrace/stacktrace.hh>
-#include <pltxt2htm/details/stacktrace/resolved_frame.hh>
+#include <pltxt2htm/details/stacktrace/resolve.hh>
 #if defined(_WIN32)
     #include <pltxt2htm/sys/win32/kernel32.hh>
 #endif
@@ -73,8 +73,32 @@ int main() {
         ::std::same_as<decltype(::std::declval<trace::Stacktrace const&>()[0]), trace::StacktraceEntry const&>);
     constexpr trace::StacktraceEntry empty_entry{};
     static_assert(!empty_entry && empty_entry.native_handle() == nullptr);
-    pltxt2htm_test_assert_true(empty_entry.description().is_empty());
-    pltxt2htm_test_assert_true(empty_entry.source_file().is_empty() && empty_entry.source_line() == 0);
+    pltxt2htm_test_assert_true(empty_entry.description().empty());
+    pltxt2htm_test_assert_true(empty_entry.source_file().empty() && empty_entry.source_line() == 0);
+    {
+        auto const empty_frame = empty_entry.resolved();
+        pltxt2htm_test_assert_true(empty_frame.address == nullptr && empty_frame.description.empty() &&
+                                   empty_frame.source_file.empty() && empty_frame.source_line == 0 &&
+                                   !empty_frame.text_truncated && empty_frame.displacement == 0);
+    }
+    {
+        trace::Text text{};
+        pltxt2htm_test_assert_true(text.empty() && text.size() == 0 && text.data()[0] == '\0');
+        pltxt2htm_test_assert_true(text.assign("alpha", 5) && text.size() == 5 && text.data()[0] == 'a');
+        text.clear();
+        pltxt2htm_test_assert_true(text.empty() && text.data()[0] == '\0');
+        pltxt2htm_test_assert_true(text.assign(nullptr) && text.empty());
+        pltxt2htm_test_assert_true(text.assign("a\0b", 3) && text.size() == 3 && text.data()[1] == '\0');
+        // Assigning from the text's own storage must not read freed memory.
+        pltxt2htm_test_assert_true(text.assign(text.data(), 3) && text.size() == 3 && text.data()[0] == 'a');
+        auto moved = ::std::move(text);
+        pltxt2htm_test_assert_true(text.empty() && moved.size() == 3);
+        text = ::std::move(moved);
+        pltxt2htm_test_assert_true(moved.empty() && text.size() == 3);
+        auto& text_alias = text;
+        text = ::std::move(text_alias);
+        pltxt2htm_test_assert_true(text.size() == 3);
+    }
     auto const snapshot = trace::Stacktrace::current(0, 8);
     auto const copied_snapshot = snapshot;
     pltxt2htm_test_assert_true(snapshot.size() == copied_snapshot.size());
@@ -111,9 +135,12 @@ int main() {
         TrackedTrace copy{tracked, alloc};
         TrackedTrace moved_copy{::std::move(copy), alloc};
         pltxt2htm_test_assert_true(tracked == moved_copy && copy.empty());
-        tracked = tracked;
+        // Route through an alias so these exercise self-assignment and self-move without
+        // tripping clang's -Wself-assign-overloaded / -Wself-move.
+        auto& tracked_alias = tracked;
+        tracked = tracked_alias;
         pltxt2htm_test_assert_true(tracked == moved_copy);
-        tracked = ::std::move(tracked);
+        tracked = ::std::move(tracked_alias);
         pltxt2htm_test_assert_true(tracked == moved_copy);
     }
     pltxt2htm_test_assert_true(TrackingAllocator::outstanding == 0);
@@ -142,33 +169,20 @@ int main() {
     auto const late_function = win32::GetProcAddress(late_module, "PlaySoundW");
     pltxt2htm_test_assert_true(late_function != nullptr);
     auto const late_frame = trace::resolve(reinterpret_cast<void*>(late_function));
-    pltxt2htm_test_assert_true(!late_frame.description.is_empty());
+    pltxt2htm_test_assert_true(!late_frame.description.empty());
     (void)win32::FreeLibrary(late_module);
     // Exercise contention fallback without depending on another thread's timing.
     nt::RtlAcquireSRWLockExclusive(::std::addressof(session.lock));
     auto const busy = trace::resolve(storage[0]);
-    pltxt2htm_test_assert_true(busy.address == storage[0] && busy.description.is_empty());
+    pltxt2htm_test_assert_true(busy.address == storage[0] && busy.description.empty());
     pltxt2htm_test_assert_true(!trace::shutdown_symbols());
     nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
     auto const invalid = trace::resolve(nullptr);
-    pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.is_empty());
+    pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.empty());
     pltxt2htm_test_assert_true(trace::shutdown_symbols());
     pltxt2htm_test_assert_true(!session.ready && session.process == nullptr);
     auto const again = trace::resolve(storage[0]);
     pltxt2htm_test_assert_true(again.address == storage[0] && session.ready);
     pltxt2htm_test_assert_true(trace::shutdown_symbols());
-#endif
-#if defined(_WIN32)
-    // Panic-path dynamic capture: malloc-backed RAII without pltxt2htm containers.
-    auto addresses = trace::capture_current_trace();
-    pltxt2htm_test_assert_true(addresses.size() > 0 && !addresses.possibly_truncated());
-    for (::std::size_t i = 0; i < addresses.size(); ++i) {
-        pltxt2htm_test_assert_true(addresses[i] != nullptr);
-    }
-    auto const captured_size = addresses.size();
-    auto moved_addresses = ::std::move(addresses);
-    pltxt2htm_test_assert_true(addresses.size() == 0 && moved_addresses.size() == captured_size);
-    moved_addresses = ::std::move(moved_addresses);
-    pltxt2htm_test_assert_true(moved_addresses.size() == captured_size);
 #endif
 }

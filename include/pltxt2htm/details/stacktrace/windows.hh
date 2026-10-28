@@ -1,8 +1,10 @@
 #pragma once
 
 #include <cstdint>
+#include <cstdlib>
+#include <limits>
 #include <memory>
-#include "native_frame.hh"
+#include "resolved_frame.hh"
 #include "../../sys/nt/ntdll.hh"
 
 #include "../../sys/win32/dbghelp.hh"
@@ -79,7 +81,7 @@ inline auto shutdown_symbols() noexcept -> bool {
     return true;
 }
 
-inline void resolve_description(NativeResolvedFrame& result, DbgHelpSession& session,
+inline void resolve_description(ResolvedFrame& result, DbgHelpSession& session,
                                 ::std::uint64_t native_address) noexcept {
     constexpr auto name_offset = offsetof(::pltxt2htm::sys_win32::SymbolInfo, name);
     ::std::size_t capacity{2000}; // DbgHelp MAX_SYM_NAME
@@ -132,8 +134,8 @@ inline void resolve_description(NativeResolvedFrame& result, DbgHelpSession& ses
 }
 
 [[nodiscard]]
-inline auto resolve_native(void* address) noexcept -> NativeResolvedFrame {
-    NativeResolvedFrame result{.address = address};
+inline auto resolve_native(void* address) noexcept -> ResolvedFrame {
+    ResolvedFrame result{.address = address};
     auto& session = ::pltxt2htm::details::stacktrace::get_symbol_session();
     if (!::pltxt2htm::sys_nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {
         return result;
@@ -148,9 +150,7 @@ inline auto resolve_native(void* address) noexcept -> NativeResolvedFrame {
         if (::pltxt2htm::sys_win32::SymGetLineFromAddr64(session.process, native_address,
                                                          ::std::addressof(line_displacement), ::std::addressof(line)) &&
             line.file_name != nullptr) {
-            result.text_truncated =
-                !::pltxt2htm::details::stacktrace::assign_text(result.source_file, line.file_name) ||
-                result.text_truncated;
+            result.text_truncated = !result.source_file.assign(line.file_name) || result.text_truncated;
             result.source_line = line.line_number;
         }
     }

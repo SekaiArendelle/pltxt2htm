@@ -7,9 +7,9 @@
 #pragma once
 
 #if defined(_WIN32)
+    #include <cstdint>
     #include <fast_io/fast_io.h>
-    #include "stacktrace/capture.hh"
-    #include "stacktrace/windows.hh"
+    #include "stacktrace/stacktrace.hh"
 #endif
 #include <cstdio>
 #include "literal_string.hh"
@@ -55,10 +55,10 @@ inline void panic() noexcept {
 
 #if defined(_WIN32)
     ::std::fflush(stderr);
+    auto const trace = ::pltxt2htm::details::stacktrace::Stacktrace::current(1, 128);
     ::fast_io::io::perr("* stack trace:\n");
-    auto captured = ::pltxt2htm::details::stacktrace::capture_current_trace();
-    for (::std::size_t i = 0; i < captured.size(); ++i) {
-        auto const frame = ::pltxt2htm::details::stacktrace::resolve_native(captured[i]);
+    for (::std::size_t i = 0; i < trace.size(); ++i) {
+        auto const frame = trace[i].resolved();
         ::fast_io::io::perr("[", i, "] ");
         if (!frame.description.empty()) {
             ::fast_io::io::perr(
@@ -81,6 +81,9 @@ inline void panic() noexcept {
             ::fast_io::io::perr(" <text truncated>");
         }
         ::fast_io::io::perr("\n");
+    }
+    if (trace.possibly_truncated()) {
+        ::fast_io::io::perr("* stack trace truncated\n");
     }
 #endif
     ::std::fflush(stderr);

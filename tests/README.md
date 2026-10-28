@@ -60,9 +60,11 @@ Unlike the standard library, `skip` counts native frames including implementatio
 helpers. Forwarding `current()` overloads can add frames in unoptimized builds;
 their prefixes need not match `current(skip, max_depth)`. Inlining and tail calls
 also affect frame identity, as in the low-level capture API.
-Entry text queries return owning `pltxt2htm::container::String` values. Resolution remains
-explicit through those queries (or `resolve(entry.native_handle())`), and copying
-or iterating a snapshot does not capture or resolve it again. `at()` terminates
+Entry text queries return owning `stacktrace::Text` values, which are move-only and
+independent of the pltxt2htm container layer. Resolution remains explicit through
+those queries (or `resolve(entry.native_handle())`); `entry.resolved()` looks the
+address up once and returns every field. Copying or iterating a snapshot does not
+capture or resolve it again. `at()` terminates
 on an invalid index rather than throwing; allocator failure also terminates.
 The low-level `capture`, `resolve` and `ResolvedFrame` APIs remain available for
 caller-bounded capture and one-time resolution. Resolved symbol and path text is

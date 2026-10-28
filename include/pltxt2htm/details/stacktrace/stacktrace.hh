@@ -1,30 +1,30 @@
 #pragma once
 
-#include <algorithm>
 #include <iterator>
 #include <limits>
+#include <memory>
 #include <type_traits>
 #include <utility>
-#include "../../container/vector.hh"
-#include "../contracts.hh"
 #include "../trap.hh"
 #include "capture.hh"
 #include "stacktrace_entry.hh"
+#include "storage.hh"
 
 namespace pltxt2htm::details::stacktrace {
 /** Dynamic counterpart of std::basic_stacktrace. Iterators and indexing
  * expose immutable entries. Capturing is explicit; queries never unwind again.
+ * Storage and resolved text are owned by the stacktrace implementation rather
+ * than the pltxt2htm container layer, so the panic path can use this API.
  * Uses a stateless fast_io allocator. Allocation failure terminates, as with
- * fast_io containers; at() traps on invalid indices. Native capture
- * depends on inlining and tail calls.
+ * fast_io containers; at() traps on invalid indices. Native capture depends on
+ * inlining and tail calls.
  * Unlike std::stacktrace, skip counts native frames including implementation
  * helpers. Forwarding current() overloads can add frames in unoptimized builds.
  */
 template<typename Allocator = ::fast_io::native_global_allocator>
 class BasicStacktrace {
     static_assert(::std::is_empty_v<Allocator>, "stacktrace requires a stateless fast_io allocator");
-    using storage_allocator = ::fast_io::generic_allocator_adapter<Allocator>;
-    ::pltxt2htm::container::Vector<StacktraceEntry, storage_allocator> entries{};
+    Buffer<StacktraceEntry, Allocator> entries{};
     CaptureResult captured{};
 
 public:
@@ -100,7 +100,7 @@ public:
         if (limit == 0) {
             return result;
         }
-        ::pltxt2htm::container::Vector<void*, storage_allocator> addresses{};
+        Buffer<void*, allocator_type> addresses{};
         auto depth = limit < 64 ? limit : 64;
         for (;;) {
             addresses.reserve(depth);
@@ -181,7 +181,7 @@ public:
 
     [[nodiscard]]
     constexpr auto max_size(this BasicStacktrace const&) noexcept -> size_type {
-        return ::pltxt2htm::container::Vector<StacktraceEntry, storage_allocator>::max_size();
+        return Buffer<StacktraceEntry, Allocator>::max_size();
     }
 
     [[nodiscard]]
