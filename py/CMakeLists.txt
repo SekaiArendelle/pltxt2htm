@@ -5,8 +5,6 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htm_contract_mode.cmake")
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(PLTXT2HTM_ENABLE_STACKTRACE OFF CACHE BOOL "Enable native stacktrace")
-
 # Python include dir and extension suffix — can be passed externally (e.g. cross-compile in docker),
 # or auto-detected from the python on PATH
 set(PYTHON_INCLUDE_DIR "" CACHE PATH "Python include dir (auto-detected if empty)")
@@ -78,23 +76,22 @@ target_include_directories(pltxt2htm PRIVATE
 
 target_compile_features(pltxt2htm PRIVATE cxx_std_23)
 
-if(PLTXT2HTM_ENABLE_STACKTRACE)
-    if(NOT WIN32)
-        message(FATAL_ERROR "Native stacktrace currently supports Windows only")
-    endif()
-    target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
-    target_link_libraries(pltxt2htm PRIVATE ntdll dbghelp)
-endif()
-
 # Compile/link flags for GCC/Clang-style toolchains
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     target_compile_options(pltxt2htm PRIVATE
         -fno-rtti
-        $<$<NOT:$<BOOL:${PLTXT2HTM_ENABLE_STACKTRACE}>>:-fno-unwind-tables>
-        $<$<NOT:$<BOOL:${PLTXT2HTM_ENABLE_STACKTRACE}>>:-fno-asynchronous-unwind-tables>
         -fvisibility=hidden
         -fvisibility-inlines-hidden
     )
+    # Only enforce builds print panic diagnostics, so the other modes can drop the
+    # unwind tables that native stack capture needs.
+    pltxt2htm_resolve_contract_mode(_pltxt2htm_contract_mode)
+    if(NOT _pltxt2htm_contract_mode STREQUAL "ENFORCE")
+        target_compile_options(pltxt2htm PRIVATE
+            -fno-unwind-tables
+            -fno-asynchronous-unwind-tables
+        )
+    endif()
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         target_compile_options(pltxt2htm PRIVATE -fno-ident)
@@ -112,8 +109,8 @@ if(WIN32)
         target_link_directories(pltxt2htm PRIVATE "${PYTHON_PREFIX}/libs")
     endif()
     if(PYTHON_LIB)
-        target_link_libraries(pltxt2htm PRIVATE ntdll "${PYTHON_LIB}")
+        target_link_libraries(pltxt2htm PRIVATE ntdll dbghelp "${PYTHON_LIB}")
     else()
-        target_link_libraries(pltxt2htm PRIVATE ntdll)
+        target_link_libraries(pltxt2htm PRIVATE ntdll dbghelp)
     endif()
 endif()

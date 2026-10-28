@@ -9,8 +9,6 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
     set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 endif()
 
-option(PLTXT2HTM_ENABLE_STACKTRACE "Enable native stacktrace" OFF)
-
 add_executable(pltxt2htm pltxt2htm.cc)
 pltxt2htm_apply_contract_mode(pltxt2htm PRIVATE)
 
@@ -18,27 +16,27 @@ target_include_directories(pltxt2htm PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../inc
 
 target_compile_features(pltxt2htm PRIVATE cxx_std_23)
 
-if(PLTXT2HTM_ENABLE_STACKTRACE)
-    if(NOT WIN32)
-        message(FATAL_ERROR "Native stacktrace currently supports Windows only")
-    endif()
-    target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
-    target_link_libraries(pltxt2htm PRIVATE ntdll dbghelp)
-endif()
-
 if(WIN32 OR MINGW OR CMAKE_CXX_COMPILER_TARGET MATCHES "windows-msvc$")
-    target_link_libraries(pltxt2htm PRIVATE ntdll)
+    # Panic diagnostics resolve symbols through DbgHelp and capture through ntdll.
+    target_link_libraries(pltxt2htm PRIVATE ntdll dbghelp)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         target_compile_options(pltxt2htm PRIVATE
             -fno-rtti
-            $<$<NOT:$<BOOL:${PLTXT2HTM_ENABLE_STACKTRACE}>>:-fno-unwind-tables>
-            $<$<NOT:$<BOOL:${PLTXT2HTM_ENABLE_STACKTRACE}>>:-fno-asynchronous-unwind-tables>
             -fno-ident
             -fno-exceptions
         )
+        # Only enforce builds print panic diagnostics, so the other modes can drop the
+        # unwind tables that native stack capture needs.
+        pltxt2htm_resolve_contract_mode(_pltxt2htm_contract_mode)
+        if(NOT _pltxt2htm_contract_mode STREQUAL "ENFORCE")
+            target_compile_options(pltxt2htm PRIVATE
+                -fno-unwind-tables
+                -fno-asynchronous-unwind-tables
+            )
+        endif()
         include(CheckIPOSupported)
         check_ipo_supported(RESULT _pltxt2htm_ipo_supported LANGUAGES CXX)
         if(_pltxt2htm_ipo_supported)

@@ -32,47 +32,8 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
     set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 endif()
 
-set(PLTXT2HTM_ENABLE_STACKTRACE "AUTO" CACHE STRING
-    "Enable native stacktrace: AUTO (detect), ON (require), OFF (disable)")
-set_property(CACHE PLTXT2HTM_ENABLE_STACKTRACE PROPERTY STRINGS AUTO ON OFF)
 option(PLTXT2HTM_ENABLE_COVERAGE "Enable code coverage" OFF)
 set(PLTXT2HTM_SANITIZER "" CACHE STRING "Sanitizer: address, undefined, memory")
-
-if(NOT PLTXT2HTM_ENABLE_STACKTRACE MATCHES "^(AUTO|ON|OFF)$")
-    message(FATAL_ERROR "PLTXT2HTM_ENABLE_STACKTRACE must be AUTO, ON, or OFF")
-endif()
-
-include(CheckCXXSourceCompiles)
-set(PLTXT2HTM_USE_STACKTRACE FALSE)
-if(NOT PLTXT2HTM_ENABLE_STACKTRACE STREQUAL "OFF")
-    set(_pltxt2htm_saved_required_libs "${CMAKE_REQUIRED_LIBRARIES}")
-    set(_pltxt2htm_saved_required_includes "${CMAKE_REQUIRED_INCLUDES}")
-    set(_pltxt2htm_saved_required_definitions "${CMAKE_REQUIRED_DEFINITIONS}")
-    set(CMAKE_REQUIRED_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/../include")
-    set(CMAKE_REQUIRED_DEFINITIONS -DPLTXT2HTM_ENABLE_STACKTRACE)
-    if(WIN32)
-        set(CMAKE_REQUIRED_LIBRARIES ntdll dbghelp)
-        set(_pltxt2htm_native_available TRUE)
-    else()
-        set(_pltxt2htm_native_available FALSE)
-    endif()
-    if(_pltxt2htm_native_available)
-        check_cxx_source_compiles("#include <pltxt2htm/details/stacktrace/capture.hh>
-            #include <pltxt2htm/details/stacktrace/resolved_frame.hh>
-            int main() { void* frames[1];
-                (void)pltxt2htm::details::stacktrace::resolve(nullptr);
-                return pltxt2htm::details::stacktrace::capture(frames).size == 0; }"
-            _pltxt2htm_native_stacktrace_ok)
-        set(PLTXT2HTM_USE_STACKTRACE ${_pltxt2htm_native_stacktrace_ok})
-    endif()
-    set(CMAKE_REQUIRED_LIBRARIES "${_pltxt2htm_saved_required_libs}")
-    set(CMAKE_REQUIRED_INCLUDES "${_pltxt2htm_saved_required_includes}")
-    set(CMAKE_REQUIRED_DEFINITIONS "${_pltxt2htm_saved_required_definitions}")
-    if(NOT PLTXT2HTM_USE_STACKTRACE AND PLTXT2HTM_ENABLE_STACKTRACE STREQUAL "ON")
-        message(FATAL_ERROR "Native stacktrace backend unavailable")
-    endif()
-endif()
-message(STATUS "PLTXT2HTM_ENABLE_STACKTRACE: ${PLTXT2HTM_USE_STACKTRACE}")
 
 add_library(pltxt2htm_base INTERFACE)
 # Include tests/ so nested tests can use "precompile.hh" directly.
@@ -81,8 +42,8 @@ target_include_directories(pltxt2htm_base INTERFACE
     "${CMAKE_CURRENT_SOURCE_DIR}")
 pltxt2htm_apply_contract_mode(pltxt2htm_base INTERFACE ENFORCE)
 
-if(PLTXT2HTM_USE_STACKTRACE)
-    target_compile_definitions(pltxt2htm_base INTERFACE PLTXT2HTM_ENABLE_STACKTRACE)
+if(WIN32)
+    # Panic diagnostics resolve symbols through DbgHelp and capture through ntdll.
     target_link_libraries(pltxt2htm_base INTERFACE ntdll dbghelp)
 endif()
 

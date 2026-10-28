@@ -157,6 +157,12 @@ fn main() {
     let target = std::env::var("TARGET").unwrap_or_default();
     println!("cargo:rustc-link-lib=static={}", static_lib_name(&target));
 
+    if target.contains("windows") {
+        // The panic path captures through ntdll and resolves symbols through DbgHelp.
+        println!("cargo:rustc-link-lib=ntdll");
+        println!("cargo:rustc-link-lib=dbghelp");
+    }
+
     if target.contains("msvc") {
         return;
     }

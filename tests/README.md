@@ -30,9 +30,13 @@ pixi run -e gcc test-gcc address
 | Option | Description |
 |---|---|
 | `CMAKE_CXX_STANDARD` | C++ standard: `23` or `26`; when unset, GCC 16+ uses C++26 and other compilers use C++23 |
-| `PLTXT2HTM_ENABLE_STACKTRACE` | Enable native stack capture: `AUTO` (default, Windows compile/link detection), `ON` (require Windows support), `OFF` (disable). Windows links ntdll and dbghelp. Other platforms return empty traces with `AUTO`; `ON` fails configuration. |
 | `PLTXT2HTM_SANITIZER` | Sanitizer: `address`, `undefined`, `memory` |
 | `PLTXT2HTM_ENABLE_COVERAGE` | Enable code coverage |
+
+Native capture is selected by the target platform at compile time: Windows desktop captures through
+ntdll and resolves symbols with DbgHelp, while other targets return empty traces. There is no build
+option to switch it off; the contract mode decides whether panic diagnostics print a trace at all,
+because only `enforce` builds keep the panic path.
 
 The native stacktrace API follows the C++23 stacktrace interface:
 

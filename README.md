@@ -12,6 +12,10 @@ This repository is a sub-project of [Physics-Lab-Web2](https://github.com/NetLog
 ## Usage
 C++ APIs are in [include/pltxt2htm](include/pltxt2htm/). [Click here](examples) to see a simple example.
 
+On Windows, panic diagnostics capture a native stack trace and resolve it with DbgHelp, so `enforce`
+builds link `ntdll` and `dbghelp`; the CMake projects in this repository do that automatically, while
+direct header consumers must add both libraries to their link line.
+
 You can also use `pltxt2htm` in console (cmd/README.md), browser (wasm/README.md), python (py/README.md), c (c/README.md), rust (rust/README.md) and csharp (csharp/README.md).
 
 C++20 module example is in [cxxmodule/examples/example.cc](cxxmodule/examples/example.cc)

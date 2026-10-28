@@ -9,10 +9,11 @@
 
 namespace pltxt2htm::details::stacktrace {
 // One session per linked image. This lock only coordinates our own calls;
-// Hosts using DbgHelp elsewhere must coordinate those users when enabling
-// PLTXT2HTM_ENABLE_STACKTRACE. A distinct session handle does not make concurrent
-// DbgHelp calls safe. Source lookup enables the process-wide LOAD_LINES option;
-// hosts must coordinate option changes and all other DbgHelp calls.
+// hosts using DbgHelp elsewhere must coordinate those users, because panic
+// diagnostics resolve symbols here. A distinct session handle does not make
+// concurrent DbgHelp calls safe. Source lookup enables the process-wide
+// LOAD_LINES option; hosts must coordinate option changes and all other
+// DbgHelp calls.
 struct DbgHelpSession {
     ::pltxt2htm::sys_nt::SrwLock lock{};
     void* process{};

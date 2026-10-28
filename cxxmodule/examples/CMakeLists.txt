@@ -7,8 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 
-option(PLTXT2HTM_ENABLE_STACKTRACE "Enable native stacktrace" OFF)
-
 add_executable(example example.cc)
 pltxt2htm_apply_contract_mode(example PRIVATE)
 
@@ -20,14 +18,6 @@ target_include_directories(example PRIVATE
 
 target_compile_features(example PRIVATE cxx_std_23)
 
-if(PLTXT2HTM_ENABLE_STACKTRACE)
-    if(NOT WIN32)
-        message(FATAL_ERROR "Native stacktrace currently supports Windows only")
-    endif()
-    target_compile_definitions(example PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
-    target_link_libraries(example PRIVATE ntdll dbghelp)
-endif()
-
 # Register C++20 module sources
 target_sources(example PRIVATE
     FILE_SET CXX_MODULES
@@ -38,5 +28,6 @@ target_sources(example PRIVATE
 )
 
 if(WIN32 OR MINGW)
-    target_link_libraries(example PRIVATE ntdll)
+    # Panic diagnostics resolve symbols through DbgHelp and capture through ntdll.
+    target_link_libraries(example PRIVATE ntdll dbghelp)
 endif()

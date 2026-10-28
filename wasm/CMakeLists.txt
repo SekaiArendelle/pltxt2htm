@@ -9,22 +9,12 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
     set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 endif()
 
-option(PLTXT2HTM_ENABLE_STACKTRACE "Enable native stacktrace" OFF)
-
 add_executable(pltxt2htm pltxt2htm.cc)
 pltxt2htm_apply_contract_mode(pltxt2htm PRIVATE)
 
 target_include_directories(pltxt2htm PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 
 target_compile_features(pltxt2htm PRIVATE cxx_std_23)
-
-if(PLTXT2HTM_ENABLE_STACKTRACE)
-    if(NOT WIN32)
-        message(FATAL_ERROR "Native stacktrace currently supports Windows only")
-    endif()
-    target_compile_definitions(pltxt2htm PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
-    target_link_libraries(pltxt2htm PRIVATE ntdll dbghelp)
-endif()
 
 # Emscripten-specific: output .js with a .wasm side module
 set_target_properties(pltxt2htm PROPERTIES SUFFIX ".js")

@@ -14,10 +14,6 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-option(PLTXT2HTM_ENABLE_STACKTRACE "Enable native stacktrace" OFF)
-if(PLTXT2HTM_ENABLE_STACKTRACE AND NOT WIN32)
-    message(FATAL_ERROR "Native stacktrace currently supports Windows only")
-endif()
 set(PLTXT2HTM_SANITIZER "" CACHE STRING "Sanitizer to enable: asan, msan, ubsan, or empty")
 set_property(CACHE PLTXT2HTM_SANITIZER PROPERTY STRINGS "" asan msan ubsan)
 
@@ -35,11 +31,6 @@ foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roun
     pltxt2htm_apply_contract_mode(${FUZZER_SRC} PRIVATE)
     target_include_directories(${FUZZER_SRC} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
     target_compile_features(${FUZZER_SRC} PRIVATE cxx_std_23)
-
-    if(PLTXT2HTM_ENABLE_STACKTRACE)
-        target_compile_definitions(${FUZZER_SRC} PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
-        target_link_libraries(${FUZZER_SRC} PRIVATE ntdll dbghelp)
-    endif()
 
     set_target_properties(${FUZZER_SRC} PROPERTIES
         CXX_EXTENSIONS OFF

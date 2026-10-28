@@ -91,7 +91,7 @@ public:
     static auto current(size_type skip, size_type max_depth, allocator_type const& alloc = {}) noexcept
         -> BasicStacktrace {
         BasicStacktrace result{alloc};
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+#if defined(_WIN32)
         constexpr size_type native_limit = 65535;
         if (skip > (::std::numeric_limits<unsigned long>::max)()) {
             return result;

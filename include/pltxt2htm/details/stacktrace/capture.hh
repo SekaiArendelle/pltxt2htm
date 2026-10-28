@@ -6,7 +6,7 @@
 #include <span>
 #include <utility>
 
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+#if defined(_WIN32)
     #include "../../sys/nt/ntdll.hh"
 #endif
 
@@ -27,7 +27,7 @@ inline auto capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept 
     if (frames.empty()) {
         return {};
     }
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+#if defined(_WIN32)
     if (skip > (::std::numeric_limits<unsigned long>::max)()) {
         return {};
     }
@@ -97,7 +97,7 @@ struct CapturedAddresses {
  * own frame. Not async-signal-safe. */
 [[nodiscard]]
 inline auto capture_current_trace() noexcept -> CapturedAddresses {
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+#if defined(_WIN32)
     ::std::size_t depth{64};
     void** addresses{};
     CaptureResult captured{};

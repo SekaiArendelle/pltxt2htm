@@ -6,7 +6,7 @@
 
 #pragma once
 
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+#if defined(_WIN32)
     #include <fast_io/fast_io.h>
     #include "stacktrace/capture.hh"
     #include "stacktrace/windows.hh"
@@ -53,7 +53,7 @@ inline void panic() noexcept {
     ::std::fwrite(to_be_printed.cdata(), sizeof(typename decltype(to_be_printed)::value_type), to_be_printed.size(),
                   stderr);
 
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+#if defined(_WIN32)
     ::std::fflush(stderr);
     ::fast_io::io::perr("* stack trace:\n");
     auto captured = ::pltxt2htm::details::stacktrace::capture_current_trace();

@@ -1,6 +1,6 @@
 #include <pltxt2htm/details/stacktrace/stacktrace.hh>
 #include <pltxt2htm/details/stacktrace/resolved_frame.hh>
-#if defined(_WIN32) && defined(PLTXT2HTM_ENABLE_STACKTRACE)
+#if defined(_WIN32)
     #include <pltxt2htm/sys/win32/kernel32.hh>
 #endif
 #include <fast_io/fast_io_dsal/string.h>
@@ -57,7 +57,7 @@ int main() {
     void* guarded[3]{nullptr, nullptr, reinterpret_cast<void*>(1)};
     auto const single = trace::capture({guarded, 1});
     pltxt2htm_test_assert_true(guarded[1] == nullptr && guarded[2] == reinterpret_cast<void*>(1));
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+#if defined(_WIN32)
     pltxt2htm_test_assert_true(single.size == 1 && single.possibly_truncated);
     pltxt2htm_test_assert_true(guarded[0] != nullptr);
     // Capacity is the number retained after skipping.
@@ -117,7 +117,7 @@ int main() {
         pltxt2htm_test_assert_true(tracked == moved_copy);
     }
     pltxt2htm_test_assert_true(TrackingAllocator::outstanding == 0);
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+#if defined(_WIN32)
     pltxt2htm_test_assert_true(TrackingAllocator::allocations > 0);
     auto const deep = ::deep_trace(96);
     pltxt2htm_test_assert_true(deep.size() > 64 && !deep.possibly_truncated());
@@ -130,7 +130,7 @@ int main() {
     (void)one_entry[0].source_line();
     pltxt2htm_test_assert_true(one_entry.max_size() >= one_entry.size());
 #endif
-#if defined(_WIN32) && defined(PLTXT2HTM_ENABLE_STACKTRACE)
+#if defined(_WIN32)
     namespace nt = ::pltxt2htm::sys_nt;
     namespace win32 = ::pltxt2htm::sys_win32;
     auto& session = trace::get_symbol_session();
@@ -158,7 +158,7 @@ int main() {
     pltxt2htm_test_assert_true(again.address == storage[0] && session.ready);
     pltxt2htm_test_assert_true(trace::shutdown_symbols());
 #endif
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+#if defined(_WIN32)
     // Panic-path dynamic capture: malloc-backed RAII without pltxt2htm containers.
     auto addresses = trace::capture_current_trace();
     pltxt2htm_test_assert_true(addresses.size() > 0 && !addresses.possibly_truncated());

@@ -3,7 +3,7 @@
 #include <cstdint>
 #include "../../container/string.hh"
 #include "native_frame.hh"
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+#if defined(_WIN32)
     #include "windows.hh"
 #endif
 
@@ -31,14 +31,14 @@ constexpr auto own_frame(NativeResolvedFrame const& frame) noexcept -> ResolvedF
 }
 
 /** Resolve an already captured address without unwinding or printing.
- * PLTXT2HTM_ENABLE_STACKTRACE enables Windows DbgHelp resolution and benefits
- * from matching PDBs. Resolution may allocate, load libraries, and perform
- * file I/O, so it is not suitable for signal/loader callbacks or reliable
- * diagnostics after heap corruption. Failure retains the address.
+ * Windows DbgHelp resolution benefits from matching PDBs. Resolution may
+ * allocate, load libraries, and perform file I/O, so it is not suitable for
+ * signal/loader callbacks or reliable diagnostics after heap corruption.
+ * Failure retains the address.
  */
 [[nodiscard]]
 inline auto resolve(void* address) noexcept -> ResolvedFrame {
-#if defined(PLTXT2HTM_ENABLE_STACKTRACE) && defined(_WIN32)
+#if defined(_WIN32)
     return ::pltxt2htm::details::stacktrace::own_frame(::pltxt2htm::details::stacktrace::resolve_native(address));
 #else
     return {.address = address};
