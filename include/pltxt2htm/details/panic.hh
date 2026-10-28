@@ -9,7 +9,7 @@
 #if defined(_WIN32)
     #include <cstdint>
     #include <fast_io/fast_io.h>
-    #include "stacktrace/stacktrace.hh"
+    #include "../stacktrace/stacktrace.hh"
 #endif
 #include <cstdio>
 #include "literal_string.hh"
@@ -55,7 +55,7 @@ inline void panic() noexcept {
 
 #if defined(_WIN32)
     ::std::fflush(stderr);
-    auto const trace = ::pltxt2htm::details::stacktrace::Stacktrace::current(1, 128);
+    auto const trace = ::pltxt2htm::stacktrace::Stacktrace::current(1, 128);
     ::fast_io::io::perr("* stack trace:\n");
     for (::std::size_t i = 0; i < trace.size(); ++i) {
         auto const frame = trace[i].resolved();

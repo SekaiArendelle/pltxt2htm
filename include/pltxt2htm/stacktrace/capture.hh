@@ -10,10 +10,10 @@
 #include <span>
 
 #if defined(_WIN32)
-    #include "../../sys/nt/ntdll.hh"
+    #include "../sys/nt/ntdll.hh"
 #endif
 
-namespace pltxt2htm::details::stacktrace {
+namespace pltxt2htm::stacktrace {
 struct CaptureResult {
     ::std::size_t size{};
     bool possibly_truncated{};
@@ -43,4 +43,4 @@ inline auto capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept 
     return {};
 #endif
 }
-} // namespace pltxt2htm::details::stacktrace
+} // namespace pltxt2htm::stacktrace

@@ -8,7 +8,7 @@
 #include <cstdint>
 #include "text.hh"
 
-namespace pltxt2htm::details::stacktrace {
+namespace pltxt2htm::stacktrace {
 
 /** Owning symbol data exposed by the pltxt2htm stacktrace API. */
 struct ResolvedFrame {
@@ -20,4 +20,4 @@ struct ResolvedFrame {
     bool text_truncated{};
 };
 
-} // namespace pltxt2htm::details::stacktrace
+} // namespace pltxt2htm::stacktrace

@@ -1,5 +1,5 @@
-#include <pltxt2htm/details/stacktrace/stacktrace.hh>
-#include <pltxt2htm/details/stacktrace/resolve.hh>
+#include <pltxt2htm/stacktrace/stacktrace.hh>
+#include <pltxt2htm/stacktrace/resolve.hh>
 #if defined(_WIN32)
     #include <pltxt2htm/sys/win32/kernel32.hh>
 #endif
@@ -35,9 +35,9 @@ __declspec(noinline)
 #elif defined(__GNUC__)
 [[gnu::noinline]]
 #endif
-::pltxt2htm::details::stacktrace::Stacktrace deep_trace(::std::size_t depth) noexcept {
+::pltxt2htm::stacktrace::Stacktrace deep_trace(::std::size_t depth) noexcept {
     if (depth == 0) {
-        return ::pltxt2htm::details::stacktrace::Stacktrace::current();
+        return ::pltxt2htm::stacktrace::Stacktrace::current();
     }
     auto result = ::deep_trace(depth - 1);
     // Keep work after recursion so optimized builds cannot use a tail call.
@@ -48,7 +48,7 @@ __declspec(noinline)
 }
 
 int main() {
-    namespace trace = ::pltxt2htm::details::stacktrace;
+    namespace trace = ::pltxt2htm::stacktrace;
     void* storage[8]{};
     auto const empty = trace::capture({});
     pltxt2htm_test_assert_true(empty.size == 0 && !empty.possibly_truncated);

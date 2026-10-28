@@ -9,7 +9,7 @@
 #include <cstdint>
 #include "resolve.hh"
 
-namespace pltxt2htm::details::stacktrace {
+namespace pltxt2htm::stacktrace {
 template<typename Allocator>
 class BasicStacktrace;
 
@@ -55,7 +55,7 @@ public:
         if (!self) {
             return {};
         }
-        return ::pltxt2htm::details::stacktrace::resolve(self.address).description;
+        return ::pltxt2htm::stacktrace::resolve(self.address).description;
     }
 
     [[nodiscard]]
@@ -63,7 +63,7 @@ public:
         if (!self) {
             return {};
         }
-        return ::pltxt2htm::details::stacktrace::resolve(self.address).source_file;
+        return ::pltxt2htm::stacktrace::resolve(self.address).source_file;
     }
 
     [[nodiscard]]
@@ -71,7 +71,7 @@ public:
         if (!self) {
             return 0;
         }
-        return static_cast<::std::uint_least32_t>(::pltxt2htm::details::stacktrace::resolve(self.address).source_line);
+        return static_cast<::std::uint_least32_t>(::pltxt2htm::stacktrace::resolve(self.address).source_line);
     }
 
     /** Resolve every field with a single lookup. */
@@ -80,7 +80,7 @@ public:
         if (!self) {
             return {};
         }
-        return ::pltxt2htm::details::stacktrace::resolve(self.address);
+        return ::pltxt2htm::stacktrace::resolve(self.address);
     }
 
     [[nodiscard]]
@@ -94,4 +94,4 @@ public:
         return ::std::compare_three_way{}(left.address, right.address);
     }
 };
-} // namespace pltxt2htm::details::stacktrace
+} // namespace pltxt2htm::stacktrace

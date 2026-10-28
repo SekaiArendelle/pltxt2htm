@@ -4,6 +4,8 @@
  * @details Mirrors only the subset of `container::Vector` that stacktrace needs,
  *          so the panic path can include stacktrace headers without pulling in
  *          the container layer (which includes the assert/panic machinery).
+ * @warning Never include `container/*` or `details/push_macro.hh` from
+ *          `pltxt2htm/stacktrace/`; that would recreate the include cycle.
  */
 
 #pragma once
@@ -16,7 +18,7 @@
 
 #include <fast_io/fast_io_core.h>
 
-namespace pltxt2htm::details::stacktrace {
+namespace pltxt2htm::stacktrace {
 
 /**
  * @brief Contiguous owning array for stacktrace internals.
@@ -198,4 +200,4 @@ constexpr void swap(Buffer<T, Allocator>& left, Buffer<T, Allocator>& right) noe
     left.swap(right);
 }
 
-} // namespace pltxt2htm::details::stacktrace
+} // namespace pltxt2htm::stacktrace

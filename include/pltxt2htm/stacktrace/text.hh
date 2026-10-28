@@ -5,6 +5,8 @@
  *          path includes stacktrace headers while container headers include the
  *          panic machinery, so stacktrace text cannot depend on
  *          `container::String`.
+ * @warning Never include `container/*` or `details/push_macro.hh` from
+ *          `pltxt2htm/stacktrace/`; that would recreate the include cycle.
  */
 
 #pragma once
@@ -17,7 +19,7 @@
 
 #include <fast_io/fast_io_core.h>
 
-namespace pltxt2htm::details::stacktrace {
+namespace pltxt2htm::stacktrace {
 
 /**
  * @brief Move-only text owned by fast_io's native global allocator.
@@ -116,4 +118,4 @@ public:
     }
 };
 
-} // namespace pltxt2htm::details::stacktrace
+} // namespace pltxt2htm::stacktrace

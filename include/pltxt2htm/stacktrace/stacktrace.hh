@@ -1,3 +1,12 @@
+/**
+ * @file stacktrace.hh
+ * @brief Native stacktrace capture and symbol resolution.
+ * @warning This subtree is included by the panic path, so it must stay below the
+ *          `container/` and `details/push_macro.hh` layers: never include
+ *          `container/*`, `details/panic.hh`, or `details/push_macro.hh` from
+ *          `pltxt2htm/stacktrace/`.
+ */
+
 #pragma once
 
 #include <iterator>
@@ -5,12 +14,12 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
-#include "../trap.hh"
+#include "../details/trap.hh"
 #include "capture.hh"
 #include "stacktrace_entry.hh"
 #include "storage.hh"
 
-namespace pltxt2htm::details::stacktrace {
+namespace pltxt2htm::stacktrace {
 /** Dynamic counterpart of std::basic_stacktrace. Iterators and indexing
  * expose immutable entries. Capturing is explicit; queries never unwind again.
  * Storage and resolved text are owned by the stacktrace implementation rather
@@ -107,7 +116,7 @@ public:
             while (addresses.size() < depth) {
                 addresses.emplace_back(nullptr);
             }
-            result.captured = ::pltxt2htm::details::stacktrace::capture({addresses.data(), depth}, skip);
+            result.captured = ::pltxt2htm::stacktrace::capture({addresses.data(), depth}, skip);
             if (!result.captured.possibly_truncated || depth == limit) {
                 break;
             }
@@ -252,4 +261,4 @@ constexpr void swap(BasicStacktrace<Allocator>& left, BasicStacktrace<Allocator>
 }
 
 using Stacktrace = BasicStacktrace<>;
-} // namespace pltxt2htm::details::stacktrace
+} // namespace pltxt2htm::stacktrace
