@@ -10,21 +10,25 @@
 #pragma once
 
 #include <cstddef>
-#include <cstdlib>
 #include <cstring>
 #include <limits>
 #include <memory>
 #include <utility>
 
+#include <fast_io/fast_io_core.h>
+
 namespace pltxt2htm::details::stacktrace {
 
 /**
- * @brief Move-only malloc-owned text; allocation failure leaves an empty value.
+ * @brief Move-only text owned by fast_io's native global allocator.
  * @details Only the operations used by stacktrace are provided. Copies are
  *          rejected so the owning semantics stay explicit; callers move values
- *          out of resolved frames instead of duplicating them.
+ *          out of resolved frames instead of duplicating them. Allocation
+ *          failure terminates, as with the pltxt2htm container layer.
  */
 class Text {
+    using text_allocator = ::fast_io::native_global_allocator;
+
     char* pointer{};
     ::std::size_t length{};
 
@@ -43,14 +47,18 @@ public:
         if (::std::addressof(self) == ::std::addressof(other)) {
             return self;
         }
-        ::std::free(self.pointer);
+        if (self.pointer != nullptr) {
+            text_allocator::deallocate(self.pointer);
+        }
         self.pointer = ::std::exchange(other.pointer, nullptr);
         self.length = ::std::exchange(other.length, 0);
         return self;
     }
 
     constexpr ~Text() {
-        ::std::free(pointer);
+        if (pointer != nullptr) {
+            text_allocator::deallocate(pointer);
+        }
     }
 
     [[nodiscard]]
@@ -75,24 +83,23 @@ public:
         }
     }
 
-    /** Replace the contents; false means the allocation failed and the value is unchanged.
+    /** Replace the contents; false means the size is unrepresentable and the value is unchanged.
      * @note `source` may alias the current buffer; the new allocation is filled before the
-     *       old one is released.
+     *       old one is released. Allocation failure terminates through the allocator.
      */
     [[nodiscard]]
     auto assign(this Text& self, char const* source, ::std::size_t size) noexcept -> bool {
         if (size == (::std::numeric_limits<::std::size_t>::max)()) {
             return false;
         }
-        auto* allocation = static_cast<char*>(::std::malloc(size + 1));
-        if (allocation == nullptr) {
-            return false;
-        }
+        auto* allocation = static_cast<char*>(text_allocator::allocate(size + 1));
         if (size != 0) {
             ::std::memcpy(allocation, source, size);
         }
         allocation[size] = '\0';
-        ::std::free(self.pointer);
+        if (self.pointer != nullptr) {
+            text_allocator::deallocate(self.pointer);
+        }
         self.pointer = allocation;
         self.length = size;
         return true;
