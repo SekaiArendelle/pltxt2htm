@@ -2,9 +2,9 @@
  * @file vector_decl.hh
  * @brief Declarations for container::Vector.
  * @details Contract-checked members are declared here and defined in
- *          vector_def.inc. Including only this header is not enough to call
- *          those members; the same translation unit must also include
- *          vector_def.inc or container/vector.hh.
+ *          vector_def.inc. Members defined inline that call those members also
+ *          need vector_def.inc in the same translation unit; include
+ *          container/vector.hh for the complete API.
  */
 
 #pragma once

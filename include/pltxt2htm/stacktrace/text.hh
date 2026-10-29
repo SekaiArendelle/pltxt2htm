@@ -5,10 +5,12 @@
  *          path includes stacktrace headers while container headers include the
  *          panic machinery, so stacktrace text cannot depend on
  *          `container::String`.
- * @warning `stacktrace/` may include declaration-only container headers, but
- *          contract-checked container definitions may only be included at the
- *          end of stacktrace.hh; including `container/*.hh` or
- *          `details/push_macro.hh` here would recreate the include cycle.
+ * @warning This subtree may include only the declaration-only headers under
+ *          `container/impl/` (for example `vector_decl.hh`). Do not include
+ *          `container/vector.hh`, `container/string.hh`, `vector_def.inc`,
+ *          `string_def.inc`, or `details/push_macro.hh` here; the
+ *          contract-checked definitions are included at the end of
+ *          stacktrace.hh.
  */
 
 #pragma once
