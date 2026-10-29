@@ -103,7 +103,7 @@ public:
         other.current_capacity = 0;
     }
 
-    constexpr ~Buffer() {
+    constexpr ~Buffer() noexcept {
         release();
     }
 
