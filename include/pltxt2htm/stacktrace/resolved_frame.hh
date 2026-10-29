@@ -16,7 +16,7 @@ struct ResolvedFrame {
     Text description{};
     Text source_file{};
     ::std::uint64_t displacement{};
-    unsigned long source_line{};
+    ::std::uint32_t source_line{};
     bool text_truncated{};
 };
 

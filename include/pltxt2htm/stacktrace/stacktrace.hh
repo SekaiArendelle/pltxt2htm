@@ -102,7 +102,7 @@ public:
         BasicStacktrace result{};
 #if defined(_WIN32)
         constexpr size_type native_limit = 65535;
-        if (skip > (::std::numeric_limits<unsigned long>::max)()) {
+        if (skip > (::std::numeric_limits<::pltxt2htm::sys_nt::Ulong>::max)()) {
             return result;
         }
         auto const limit = max_depth < native_limit ? max_depth : native_limit;

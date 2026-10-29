@@ -63,11 +63,11 @@ public:
     }
 
     [[nodiscard]]
-    auto source_line(this StacktraceEntry const& self) noexcept -> ::std::uint_least32_t {
+    auto source_line(this StacktraceEntry const& self) noexcept -> ::std::uint32_t {
         if (!self) {
             return 0;
         }
-        return static_cast<::std::uint_least32_t>(::pltxt2htm::stacktrace::resolve(self.address).source_line);
+        return ::pltxt2htm::stacktrace::resolve(self.address).source_line;
     }
 
     /** Resolve every field with a single lookup. */

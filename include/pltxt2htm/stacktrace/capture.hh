@@ -31,12 +31,13 @@ inline auto capture(::std::span<void*> frames, [[maybe_unused]] ::std::size_t sk
         return {};
     }
 #if defined(_WIN32)
-    if (skip > (::std::numeric_limits<unsigned long>::max)()) {
+    if (skip > (::std::numeric_limits<::pltxt2htm::sys_nt::Ulong>::max)()) {
         return {};
     }
     auto const capacity = frames.size() < 65535 ? frames.size() : 65535;
-    auto const count = ::pltxt2htm::sys_nt::RtlCaptureStackBackTrace(
-        static_cast<unsigned long>(skip), static_cast<unsigned long>(capacity), frames.data(), nullptr);
+    auto const count = ::pltxt2htm::sys_nt::RtlCaptureStackBackTrace(static_cast<::pltxt2htm::sys_nt::Ulong>(skip),
+                                                                     static_cast<::pltxt2htm::sys_nt::Ulong>(capacity),
+                                                                     frames.data(), nullptr);
     return {.size = count, .possibly_truncated = count == capacity};
 #else
     return {};

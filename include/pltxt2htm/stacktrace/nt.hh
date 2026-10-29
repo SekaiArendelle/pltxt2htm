@@ -31,11 +31,11 @@ struct DbgHelpSession {
         auto const current_process = reinterpret_cast<void*>(static_cast<::std::intptr_t>(-1));
         // A distinct real handle lets DbgHelp enumerate this process without
         // sharing the GetCurrentProcess() pseudo-handle session with the host.
-        if (::pltxt2htm::sys_nt::NtDuplicateObject(current_process, current_process, current_process, ::std::addressof(self.process), 0,
-                                  0, 2) < 0) {
+        if (::pltxt2htm::sys_nt::NtDuplicateObject(current_process, current_process, current_process,
+                                                   ::std::addressof(self.process), 0, 0, 2) < 0) {
             return false;
         }
-        constexpr unsigned long symopt_load_lines = 0x00000010;
+        constexpr ::pltxt2htm::sys_win32::Dword symopt_load_lines = 0x00000010;
         (void)::pltxt2htm::sys_win32::SymSetOptions(::pltxt2htm::sys_win32::SymGetOptions() | symopt_load_lines);
         self.ready = ::pltxt2htm::sys_win32::SymInitialize(self.process, nullptr, 1) != 0;
         return self.ready;
@@ -87,7 +87,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession& session,
     ::std::size_t capacity{2000}; // DbgHelp MAX_SYM_NAME
     bool refreshed{};
     for (;;) {
-        if (capacity > (::std::numeric_limits<unsigned long>::max)() ||
+        if (capacity > (::std::numeric_limits<::pltxt2htm::sys_win32::Dword>::max)() ||
             capacity > (::std::numeric_limits<::std::size_t>::max)() - name_offset) {
             result.text_truncated = true;
             return;
@@ -100,9 +100,9 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession& session,
         }
         auto* info = reinterpret_cast<::pltxt2htm::sys_win32::SymbolInfo*>(storage);
         info->size_of_struct = sizeof(::pltxt2htm::sys_win32::SymbolInfo);
-        info->max_name_len = static_cast<unsigned long>(capacity);
-        auto const found =
-            ::pltxt2htm::sys_win32::SymFromAddr(session.process, native_address, ::std::addressof(result.displacement), info) != 0;
+        info->max_name_len = static_cast<::pltxt2htm::sys_win32::Dword>(capacity);
+        auto const found = ::pltxt2htm::sys_win32::SymFromAddr(session.process, native_address,
+                                                               ::std::addressof(result.displacement), info) != 0;
         auto const name_size = static_cast<::std::size_t>(info->name_len);
         if (name_size >= capacity) {
             ::std::free(storage);
@@ -146,7 +146,7 @@ inline auto resolve_nt(void* address) noexcept -> ResolvedFrame {
         // File/line lookup is independent of function-name lookup.
         ::pltxt2htm::sys_win32::ImageHlpLine64 line{};
         line.size_of_struct = sizeof(line);
-        unsigned long line_displacement{};
+        ::pltxt2htm::sys_win32::Dword line_displacement{};
         if (::pltxt2htm::sys_win32::SymGetLineFromAddr64(session.process, native_address,
                                                          ::std::addressof(line_displacement), ::std::addressof(line)) &&
             line.file_name != nullptr) {
