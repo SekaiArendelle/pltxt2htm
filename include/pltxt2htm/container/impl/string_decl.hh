@@ -175,7 +175,23 @@ private:
      * classification entirely.
      */
     [[nodiscard]]
-    constexpr auto source_offset(this BasicString const& self, const_pointer source) noexcept -> size_type;
+    constexpr auto source_offset(this BasicString const& self, const_pointer source) noexcept -> size_type {
+        if consteval {
+            for (size_type index{}; index <= self.size(); ++index) {
+                if (source == self.begin_pointer + index) {
+                    return index;
+                }
+            }
+            return self.npos;
+        }
+        else {
+            ::std::less<const_pointer> const less{};
+            if (!less(source, self.begin_pointer) && !less(self.current_pointer, source)) {
+                return static_cast<size_type>(source - self.begin_pointer);
+            }
+            return self.npos;
+        }
+    }
 
     /**
      * @brief Computes the geometric-growth capacity for a required size.
@@ -183,7 +199,20 @@ private:
      * @return A capacity at least as large as required_capacity without overflow.
      */
     [[nodiscard]]
-    constexpr auto grown_capacity(this BasicString const& self, size_type required_capacity) noexcept -> size_type;
+    constexpr auto grown_capacity(this BasicString const& self, size_type required_capacity) noexcept -> size_type {
+        size_type new_capacity{self.capacity()};
+        if (new_capacity == 0) {
+            new_capacity = 1;
+        }
+        while (new_capacity < required_capacity) {
+            size_type const remaining{self.max_size() - new_capacity};
+            if (new_capacity > remaining) {
+                return required_capacity;
+            }
+            new_capacity *= 2;
+        }
+        return new_capacity;
+    }
 
     /**
      * @brief Appends through a newly allocated buffer while preserving source aliases.
@@ -227,7 +256,26 @@ private:
      * length is bounded by self.size(). Once capacity is sufficient, the runtime
      * path uses overlap-safe copying and therefore needs no alias scan.
      */
-    constexpr void assign_impl(this BasicString& self, const_pointer source, size_type count) noexcept;
+    constexpr void assign_impl(this BasicString& self, const_pointer source, size_type count) noexcept {
+        if (count == 0) {
+            self.clear();
+            return;
+        }
+        if (count > self.capacity()) {
+            self.reserve(count);
+        }
+
+        if consteval {
+            for (size_type index{}; index != count; ++index) {
+                self.begin_pointer[index] = source[index];
+            }
+        }
+        else {
+            ::fast_io::freestanding::overlapped_copy_n(source, count, self.begin_pointer);
+        }
+        self.current_pointer = self.begin_pointer + count;
+        *self.current_pointer = value_type{};
+    }
 
 public:
     /// Sentinel used by APIs and internal helpers to represent no position.
@@ -650,7 +698,9 @@ public:
      *
      * Existing capacity is retained and reused when sufficient.
      */
-    constexpr void assign(this BasicString& self, string_view_type string) noexcept;
+    constexpr void assign(this BasicString& self, string_view_type string) noexcept {
+        self.assign_impl(string.data(), string.size());
+    }
 
     /**
      * @brief Replaces the contents with the half-open range `[first, last)`.
@@ -659,7 +709,9 @@ public:
      * @param last One past the last source character.
      * @pre first and last describe one valid contiguous range, with first <= last.
      */
-    constexpr void assign(this BasicString& self, const_pointer first, const_pointer last) noexcept;
+    constexpr void assign(this BasicString& self, const_pointer first, const_pointer last) noexcept {
+        self.assign_impl(first, static_cast<size_type>(last - first));
+    }
 
     /**
      * @brief Replaces the contents with repeated copies of one character.
@@ -671,7 +723,16 @@ public:
      * equivalent to clear().
      */
     constexpr void assign_characters(this BasicString& self, size_type count,
-                                     value_type character = value_type{}) noexcept;
+                                     value_type character = value_type{}) noexcept {
+        if (count == 0) {
+            self.clear();
+            return;
+        }
+        self.ensure_capacity(count);
+        ::std::fill_n(self.begin_pointer, count, character);
+        self.current_pointer = self.begin_pointer + count;
+        *self.current_pointer = value_type{};
+    }
 
     /**
      * @brief Appends one character.
@@ -708,7 +769,27 @@ public:
      * the old allocation. Pointers, references, and iterators are invalidated when
      * growth occurs.
      */
-    constexpr void append(this BasicString& self, const_pointer first, const_pointer last) noexcept;
+    constexpr void append(this BasicString& self, const_pointer first, const_pointer last) noexcept {
+        size_type const count{static_cast<size_type>(last - first)};
+        if (count == 0) {
+            return;
+        }
+        size_type const old_size{self.size()};
+        if (count > static_cast<size_type>(self.end_pointer - self.current_pointer)) {
+            self.append_reallocate(first, count);
+            return;
+        }
+        if consteval {
+            for (size_type index{}; index != count; ++index) {
+                self.current_pointer[index] = first[index];
+            }
+        }
+        else {
+            ::fast_io::freestanding::overlapped_copy_n(first, count, self.current_pointer);
+        }
+        self.current_pointer = self.begin_pointer + old_size + count;
+        *self.current_pointer = value_type{};
+    }
 
     /**
      * @brief Appends a counted character sequence.
@@ -717,21 +798,27 @@ public:
      * @param count Number of characters to append.
      * @pre `[first, first + count)` is a valid contiguous range.
      */
-    constexpr void append(this BasicString& self, const_pointer first, size_type count) noexcept;
+    constexpr void append(this BasicString& self, const_pointer first, size_type count) noexcept {
+        self.append(first, first + count);
+    }
 
     /**
      * @brief Appends a BasicStringView.
      * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param string Source view, which may refer to self.
      */
-    constexpr void append(this BasicString& self, string_view_type string) noexcept;
+    constexpr void append(this BasicString& self, string_view_type string) noexcept {
+        self.append(string.data(), string.data() + string.size());
+    }
 
     /**
      * @brief Appends another BasicString.
      * Contract mode follows PLTXT2HTM_CONTRACTS.
      * @param string Source string. Passing self is supported.
      */
-    constexpr void append(this BasicString& self, BasicString const& string) noexcept;
+    constexpr void append(this BasicString& self, BasicString const& string) noexcept {
+        self.append(string.data(), string.data() + string.size());
+    }
 
     /**
      * @brief Appends a null-terminated character array without its final null.
@@ -740,17 +827,22 @@ public:
      * @param string Source array.
      */
     template<::std::size_t size_with_null>
-    constexpr void append(this BasicString& self, value_type const (&string)[size_with_null]) noexcept;
+    constexpr void append(this BasicString& self, value_type const (&string)[size_with_null]) noexcept {
+        static_assert(size_with_null != 0);
+        self.append(string, string + size_with_null - 1);
+    }
 
     /**
      * @brief Appends a compile-time literal string wrapper.
      * Contract mode follows PLTXT2HTM_CONTRACTS.
-     * @tparam literal_size Logical number of characters in the literal wrapper.
+     * @tparam size Logical number of characters in the literal wrapper.
      * @param string Source literal string.
      */
-    template<::std::size_t literal_size>
+    template<::std::size_t size>
     constexpr void append(this BasicString& self,
-                          ::pltxt2htm::details::BasicLiteralString<value_type, literal_size> const& string) noexcept;
+                          ::pltxt2htm::details::BasicLiteralString<value_type, size> const& string) noexcept {
+        self.append(string.data(), string.data() + string.size());
+    }
 
     /**
      * @brief Inserts a view before position.
