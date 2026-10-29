@@ -134,7 +134,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession& session,
 }
 
 [[nodiscard]]
-inline auto resolve_native(void* address) noexcept -> ResolvedFrame {
+inline auto resolve_nt(void* address) noexcept -> ResolvedFrame {
     ResolvedFrame result{.address = address};
     auto& session = details::get_symbol_session();
     if (!::pltxt2htm::sys_nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {

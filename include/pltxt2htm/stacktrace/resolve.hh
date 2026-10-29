@@ -20,7 +20,7 @@ namespace pltxt2htm::stacktrace {
 [[nodiscard]]
 inline auto resolve(void* address) noexcept -> ResolvedFrame {
 #if defined(_WIN32)
-    return details::resolve_native(address);
+    return details::resolve_nt(address);
 #else
     return {.address = address};
 #endif
