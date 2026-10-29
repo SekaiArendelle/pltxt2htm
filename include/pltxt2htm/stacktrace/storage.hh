@@ -70,7 +70,7 @@ private:
             return required_capacity < 2 ? 2 : required_capacity;
         }
         auto const limit = max_size();
-        size_type new_capacity = old_capacity <= limit / 2 ? old_capacity * 2 : limit;
+        size_type const new_capacity = old_capacity <= limit / 2 ? old_capacity * 2 : limit;
         return new_capacity < required_capacity ? required_capacity : new_capacity;
     }
 

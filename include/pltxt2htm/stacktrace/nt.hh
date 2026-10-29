@@ -81,7 +81,7 @@ inline auto shutdown_symbols() noexcept -> bool {
     return true;
 }
 
-inline void resolve_description(ResolvedFrame& result, DbgHelpSession& session,
+inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& session,
                                 ::std::uint64_t native_address) noexcept {
     constexpr auto name_offset = offsetof(::pltxt2htm::sys_win32::SymbolInfo, name);
     ::std::size_t capacity{2000}; // DbgHelp MAX_SYM_NAME
