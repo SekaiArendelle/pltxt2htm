@@ -60,7 +60,6 @@ else()
     message(STATUS "Python: INC=${PYTHON_INCLUDE_DIR} SUFFIX=${PYTHON_EXT_SUFFIX} PREFIX=${PYTHON_PREFIX} LIB=${PYTHON_LIB}")
 endif()
 
-
 add_library(pltxt2htm MODULE pltxt2htm.cc)
 pltxt2htm_apply_contract_mode(pltxt2htm PRIVATE)
 
