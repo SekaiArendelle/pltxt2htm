@@ -10,7 +10,6 @@
 #pragma once
 
 #include <iterator>
-#include <limits>
 #include <memory>
 #include <type_traits>
 #include <utility>
@@ -93,38 +92,21 @@ public:
      * @brief Capture the current native call stack.
      * @param skip Native frames to skip, including the capture machinery's own
      *             frames.
-     * @return Captured frames; empty when skip is unrepresentable.
-     * @note Capture grows until the stack is complete or the native 65535 frame
-     *       cap is reached; only the latter sets possibly_truncated().
+     * @return Captured frames; empty when the platform has no capture backend
+     *         or skip is unrepresentable.
+     * @note Capture grows until the stack is complete or the backend limit is
+     *       reached; only the latter sets possibly_truncated().
      */
     [[nodiscard]]
-    static auto current([[maybe_unused]] size_type skip = 0) noexcept -> BasicStacktrace {
+    static auto current(size_type skip = 0) noexcept -> BasicStacktrace {
         BasicStacktrace result{};
-#if defined(_WIN32)
-        constexpr size_type native_limit = 65535;
-        if (skip > (::std::numeric_limits<::pltxt2htm::sys_nt::Ulong>::max)()) {
-            return result;
-        }
-        details::Buffer<void*, allocator_type> addresses{};
-        size_type depth{64};
-        while (true) {
-            addresses.reserve(depth);
-            while (addresses.size() < depth) {
-                addresses.emplace_back(nullptr);
-            }
-            result.captured = ::pltxt2htm::stacktrace::details::capture({addresses.data(), depth}, skip);
-            if (!result.captured.possibly_truncated || depth == native_limit) {
-                break;
-            }
-            depth = depth > native_limit / 2 ? native_limit : depth * 2;
-        }
-        auto const size = result.captured.size;
-        result.entries.reserve(size);
-        for (size_type i = 0; i < size; ++i) {
+        auto frames = details::capture_all<allocator_type>(skip);
+        result.captured = frames.result;
+        result.entries.reserve(frames.result.size);
+        for (size_type index{}; index < frames.result.size; ++index) {
             auto& entry = result.entries.emplace_back();
-            entry.address = addresses[i];
+            entry.address = frames.addresses[index];
         }
-#endif
         return result;
     }
 

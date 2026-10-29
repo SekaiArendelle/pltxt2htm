@@ -1,23 +1,26 @@
 /**
  * @file capture.hh
- * @brief Native return-address capture for the stacktrace implementation.
+ * @brief Platform-independent native return-address capture.
+ * @details Selects the capture backend for the current platform and grows
+ *          storage until the stack is complete or the backend limit is reached.
  */
 
 #pragma once
 
 #include <cstddef>
-#include <limits>
 #include <span>
+#include "capture_common.hh"
+#include "storage.hh"
 
 #if defined(_WIN32)
-    #include "../../sys/nt/ntdll.hh"
+    #include "capture_nt.hh"
+#else
+    #include "capture_null.hh"
 #endif
 
 namespace pltxt2htm::stacktrace::details {
-struct CaptureResult {
-    ::std::size_t size{};
-    bool possibly_truncated{};
-};
+static_assert(!capture_backend::supported || capture_backend::max_depth >= 1,
+              "supported capture backends need a positive max_depth");
 
 /**
  * @brief Capture native return addresses into caller-owned storage.
@@ -29,21 +32,49 @@ struct CaptureResult {
  *          tail-call optimization. Not async-signal-safe.
  */
 [[nodiscard]]
-inline auto capture(::std::span<void*> frames, [[maybe_unused]] ::std::size_t skip = 0) noexcept -> CaptureResult {
-    if (frames.empty()) {
+inline auto capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept -> CaptureResult {
+    return capture_backend::capture(frames, skip);
+}
+
+template<typename Allocator>
+struct CapturedFrames {
+    Buffer<void*, Allocator> addresses{};
+    CaptureResult result{};
+};
+
+/**
+ * @brief Capture the complete native stack into growable storage.
+ * @param skip Native frames to skip, including the capture machinery's own
+ *             frames.
+ * @return Captured addresses and the capture result; empty when the platform
+ *         has no backend or skip exceeds the backend's maximum.
+ * @details Grows the buffer by doubling until the backend reports that the
+ *          stack is complete or the backend limit is reached.
+ */
+template<typename Allocator>
+[[nodiscard]]
+auto capture_all(::std::size_t skip) noexcept -> CapturedFrames<Allocator> {
+    if constexpr (!capture_backend::supported) {
         return {};
     }
-#if defined(_WIN32)
-    if (skip > (::std::numeric_limits<::pltxt2htm::sys_nt::Ulong>::max)()) {
-        return {};
+    else {
+        if (skip > capture_backend::max_skip) {
+            return {};
+        }
+        CapturedFrames<Allocator> frames{};
+        auto depth = capture_backend::max_depth < 64 ? capture_backend::max_depth : 64;
+        for (;;) {
+            frames.addresses.reserve(depth);
+            while (frames.addresses.size() < depth) {
+                frames.addresses.emplace_back(nullptr);
+            }
+            frames.result = capture_backend::capture({frames.addresses.data(), depth}, skip);
+            if (!frames.result.possibly_truncated || depth == capture_backend::max_depth) {
+                break;
+            }
+            depth = depth > capture_backend::max_depth / 2 ? capture_backend::max_depth : depth * 2;
+        }
+        return frames;
     }
-    auto const capacity = frames.size() < 65535 ? frames.size() : 65535;
-    auto const count = ::pltxt2htm::sys_nt::RtlCaptureStackBackTrace(static_cast<::pltxt2htm::sys_nt::Ulong>(skip),
-                                                                     static_cast<::pltxt2htm::sys_nt::Ulong>(capacity),
-                                                                     frames.data(), nullptr);
-    return {.size = count, .possibly_truncated = count == capacity};
-#else
-    return {};
-#endif
 }
 } // namespace pltxt2htm::stacktrace::details
