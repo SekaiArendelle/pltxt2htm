@@ -29,8 +29,7 @@ namespace pltxt2htm::stacktrace {
  *          failure terminates through the stateless fast_io allocator.
  * @note Native capture depends on inlining and tail calls. Unlike
  *       std::stacktrace, skip counts native frames including implementation
- *       helpers, and forwarding current() overloads can add frames in
- *       unoptimized builds. Out-of-range operator[] is a contract violation.
+ *       helpers. Out-of-range operator[] is a contract violation.
  */
 template<typename Allocator = ::fast_io::native_global_allocator>
 class BasicStacktrace {
@@ -90,41 +89,34 @@ public:
         return self;
     }
 
+    /**
+     * @brief Capture the current native call stack.
+     * @param skip Native frames to skip, including the capture machinery's own
+     *             frames.
+     * @return Captured frames; empty when skip is unrepresentable.
+     * @note Capture grows until the stack is complete or the native 65535 frame
+     *       cap is reached; only the latter sets possibly_truncated().
+     */
     [[nodiscard]]
-    static auto current() noexcept -> BasicStacktrace {
-        return BasicStacktrace::current(0, (::std::numeric_limits<size_type>::max)());
-    }
-
-    [[nodiscard]]
-    static auto current(size_type skip) noexcept -> BasicStacktrace {
-        return BasicStacktrace::current(skip, (::std::numeric_limits<size_type>::max)());
-    }
-
-    [[nodiscard]]
-    static auto current([[maybe_unused]] size_type skip, [[maybe_unused]] size_type max_depth) noexcept
-        -> BasicStacktrace {
+    static auto current([[maybe_unused]] size_type skip = 0) noexcept -> BasicStacktrace {
         BasicStacktrace result{};
 #if defined(_WIN32)
         constexpr size_type native_limit = 65535;
         if (skip > (::std::numeric_limits<::pltxt2htm::sys_nt::Ulong>::max)()) {
             return result;
         }
-        auto const limit = max_depth < native_limit ? max_depth : native_limit;
-        if (limit == 0) {
-            return result;
-        }
         details::Buffer<void*, allocator_type> addresses{};
-        auto depth = limit < 64 ? limit : 64;
+        size_type depth{64};
         while (true) {
             addresses.reserve(depth);
             while (addresses.size() < depth) {
                 addresses.emplace_back(nullptr);
             }
             result.captured = ::pltxt2htm::stacktrace::details::capture({addresses.data(), depth}, skip);
-            if (!result.captured.possibly_truncated || depth == limit) {
+            if (!result.captured.possibly_truncated || depth == native_limit) {
                 break;
             }
-            depth = depth > limit / 2 ? limit : depth * 2;
+            depth = depth > native_limit / 2 ? native_limit : depth * 2;
         }
         auto const size = result.captured.size;
         result.entries.reserve(size);

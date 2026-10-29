@@ -97,7 +97,7 @@ int main() {
         pltxt2htm_test_assert_true(moved.empty() && text.size() == 3);
         pltxt2htm_test_assert_true(text.size() == 3);
     }
-    auto const snapshot = trace::Stacktrace::current(0, 8);
+    auto const snapshot = trace::Stacktrace::current(0);
     auto const copied_snapshot = snapshot;
     pltxt2htm_test_assert_true(snapshot.size() == copied_snapshot.size());
     for (::std::size_t i = 0; i < snapshot.size(); ++i) {
@@ -112,7 +112,6 @@ int main() {
         pltxt2htm_test_assert_true(*reverse == snapshot[i - 1]);
     }
     pltxt2htm_test_assert_true(reverse == snapshot.rend());
-    pltxt2htm_test_assert_true(trace::Stacktrace::current(0, 0).empty());
     pltxt2htm_test_assert_true(trace::Stacktrace::current((::std::numeric_limits<::std::size_t>::max)()).empty());
     auto moved_source = snapshot;
     auto moved = ::std::move(moved_source);
@@ -129,7 +128,7 @@ int main() {
     {
         TrackingAllocator const alloc{};
         using TrackedTrace = trace::BasicStacktrace<TrackingAllocator>;
-        auto tracked = TrackedTrace::current(0, 8);
+        auto tracked = TrackedTrace::current(0);
         TrackedTrace copy{tracked, alloc};
         TrackedTrace moved_copy{::std::move(copy), alloc};
         pltxt2htm_test_assert_true(tracked == moved_copy && copy.empty());
@@ -141,14 +140,13 @@ int main() {
     pltxt2htm_test_assert_true(TrackingAllocator::allocations > 0);
     auto const deep = ::deep_trace(96);
     pltxt2htm_test_assert_true(deep.size() > 64 && !deep.possibly_truncated());
-    auto const one_entry = trace::Stacktrace::current(0, 1);
-    pltxt2htm_test_assert_true(one_entry.size() == 1 && one_entry.possibly_truncated() && one_entry[0]);
-    pltxt2htm_test_assert_true((one_entry <=> deep) < 0);
+    pltxt2htm_test_assert_true((trace::Stacktrace{} <=> deep) < 0);
+    pltxt2htm_test_assert_true(!deep.empty() && deep[0]);
     // Entry queries use the saved address, not a new capture.
-    auto const description = one_entry[0].description();
-    auto const file = one_entry[0].source_file();
-    (void)one_entry[0].source_line();
-    pltxt2htm_test_assert_true(one_entry.max_size() >= one_entry.size());
+    [[maybe_unused]] auto const description = deep[0].description();
+    [[maybe_unused]] auto const file = deep[0].source_file();
+    (void)deep[0].source_line();
+    pltxt2htm_test_assert_true(deep.max_size() >= deep.size());
 #endif
 #if defined(_WIN32)
     namespace nt = ::pltxt2htm::sys_nt;

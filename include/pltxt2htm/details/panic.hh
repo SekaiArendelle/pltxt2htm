@@ -55,9 +55,11 @@ inline void panic() noexcept {
 
 #if defined(_WIN32)
     ::std::fflush(stderr);
-    auto const trace = ::pltxt2htm::stacktrace::Stacktrace::current(1, 128);
+    auto const trace = ::pltxt2htm::stacktrace::Stacktrace::current(1);
+    constexpr ::std::size_t max_printed{128};
+    auto const printed = trace.size() < max_printed ? trace.size() : max_printed;
     ::fast_io::io::perr("* stack trace:\n");
-    for (::std::size_t i = 0; i < trace.size(); ++i) {
+    for (::std::size_t i = 0; i < printed; ++i) {
         auto const frame = trace[i].resolved();
         ::fast_io::io::perr("[", i, "] ");
         if (!frame.description.empty()) {
@@ -82,7 +84,7 @@ inline void panic() noexcept {
         }
         ::fast_io::io::perr("\n");
     }
-    if (trace.possibly_truncated()) {
+    if (trace.size() > printed) {
         ::fast_io::io::perr("* stack trace truncated\n");
     }
 #endif
