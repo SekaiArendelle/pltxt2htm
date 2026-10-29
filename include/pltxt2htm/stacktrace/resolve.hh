@@ -7,7 +7,7 @@
 
 #include "resolved_frame.hh"
 #if defined(_WIN32)
-    #include "windows.hh"
+    #include "nt.hh"
 #endif
 
 namespace pltxt2htm::stacktrace {
