@@ -6,11 +6,6 @@
 
 #pragma once
 
-#if defined(_WIN32)
-    #include <cstdint>
-    #include <fast_io/fast_io.h>
-    #include "../stacktrace/stacktrace.hh"
-#endif
 #include <cstdio>
 #include "literal_string.hh"
 #include "trap.hh"
@@ -32,6 +27,20 @@ template<U8LiteralString expression, U8LiteralString file_name, unsigned line, u
 #if __has_cpp_attribute(__gnu__::__cold__)
 [[__gnu__::__cold__]] // Mark as cold path for compiler optimization
 #endif
+[[noreturn]]
+inline void panic() noexcept;
+
+} // namespace pltxt2htm::details
+
+#if defined(_WIN32)
+    #include <cstdint>
+    #include <fast_io/fast_io.h>
+    #include "../stacktrace/stacktrace.hh"
+#endif
+
+namespace pltxt2htm::details {
+
+template<U8LiteralString expression, U8LiteralString file_name, unsigned line, unsigned column, U8LiteralString msg>
 [[noreturn]]
 inline void panic() noexcept {
     constexpr auto to_be_printed = ::pltxt2htm::details::concat(

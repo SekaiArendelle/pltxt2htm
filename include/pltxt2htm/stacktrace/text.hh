@@ -5,8 +5,10 @@
  *          path includes stacktrace headers while container headers include the
  *          panic machinery, so stacktrace text cannot depend on
  *          `container::String`.
- * @warning Never include `container/` headers or `details/push_macro.hh` from
- *          `pltxt2htm/stacktrace/`; that would recreate the include cycle.
+ * @warning `stacktrace/` may include declaration-only container headers, but
+ *          contract-checked container definitions may only be included at the
+ *          end of stacktrace.hh; including `container/*.hh` or
+ *          `details/push_macro.hh` here would recreate the include cycle.
  */
 
 #pragma once
