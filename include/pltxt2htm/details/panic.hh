@@ -32,7 +32,7 @@ namespace pltxt2htm::details {
 template<U8LiteralString expression, U8LiteralString file_name, unsigned line, unsigned column,
          U8LiteralString msg>
 #if __has_cpp_attribute(__gnu__::__cold__)
-[[__gnu__::__cold__]] // Mark as cold path for compiler optimization
+[[__gnu__::__cold__]]
 #endif
 [[noreturn]]
 inline void panic() noexcept {
