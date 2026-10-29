@@ -19,11 +19,14 @@ struct CaptureResult {
     bool possibly_truncated{};
 };
 
-/** Capture native return addresses into caller-owned storage.
- * skip counts entries in the captured native trace, including this helper when
- * it has a physical frame. No exact caller-frame identity is promised under
- * inlining/tail-call optimization. Capacity limits returned entries after skip.
- * Not async-signal-safe.
+/**
+ * @brief Capture native return addresses into caller-owned storage.
+ * @param frames Destination storage; its size limits the returned entries.
+ * @param skip Entries to skip in the native trace, including this helper when
+ *             it has a physical frame.
+ * @return Captured count and whether the capacity limit truncated the trace.
+ * @details No exact caller-frame identity is promised under inlining or
+ *          tail-call optimization. Not async-signal-safe.
  */
 [[nodiscard]]
 inline auto capture(::std::span<void*> frames, [[maybe_unused]] ::std::size_t skip = 0) noexcept -> CaptureResult {

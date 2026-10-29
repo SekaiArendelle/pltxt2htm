@@ -1,3 +1,10 @@
+/**
+ * @file nt.hh
+ * @brief Windows DbgHelp symbol resolution for the stacktrace implementation.
+ * @details The resolver is process-wide and lazily initialized; hosts using
+ *          DbgHelp directly must coordinate with it.
+ */
+
 #pragma once
 
 #include <cstdint>
@@ -10,12 +17,15 @@
 #include "../../sys/win32/dbghelp.hh"
 
 namespace pltxt2htm::stacktrace::details {
-// One session per linked image. This lock only coordinates our own calls;
-// hosts using DbgHelp elsewhere must coordinate those users, because panic
-// diagnostics resolve symbols here. A distinct session handle does not make
-// concurrent DbgHelp calls safe. Source lookup enables the process-wide
-// LOAD_LINES option; hosts must coordinate option changes and all other
-// DbgHelp calls.
+/**
+ * @brief One DbgHelp session per linked image.
+ * @details This lock only coordinates our own calls; hosts using DbgHelp
+ *          elsewhere must coordinate those users, because panic diagnostics
+ *          resolve symbols here. A distinct session handle does not make
+ *          concurrent DbgHelp calls safe. Source lookup enables the
+ *          process-wide LOAD_LINES option; hosts must coordinate option
+ *          changes and all other DbgHelp calls.
+ */
 struct DbgHelpSession {
     ::pltxt2htm::sys_nt::SrwLock lock{};
     void* process{};
@@ -41,8 +51,12 @@ struct DbgHelpSession {
         return self.ready;
     }
 
-    // Explicit cleanup avoids invoking DbgHelp while a DLL is unloading under
-    // the loader lock. Call only while holding this session's lock.
+    /**
+     * @brief Release the session's handle and DbgHelp state.
+     * @details Explicit cleanup avoids invoking DbgHelp while a DLL is
+     *          unloading under the loader lock. Call only while holding this
+     *          session's lock.
+     */
     void reset(this DbgHelpSession& self) noexcept {
         namespace nt = ::pltxt2htm::sys_nt;
         namespace win32 = ::pltxt2htm::sys_win32;
@@ -58,16 +72,22 @@ struct DbgHelpSession {
     }
 };
 
-// Trivial destruction: retain the resolver until explicit shutdown or process
-// exit, so panic during static destruction remains usable.
+/**
+ * @brief Access the lazily initialized process-wide DbgHelp session.
+ * @return The session singleton.
+ * @details Trivial destruction retains the resolver until explicit shutdown or
+ *          process exit, so panics during static destruction remain usable.
+ */
 [[nodiscard]]
 inline auto get_symbol_session() noexcept -> DbgHelpSession& {
     static constinit DbgHelpSession session{};
     return session;
 }
 
-/** Release the resolver before unloading a consumer DLL. The host
- * must also coordinate external DbgHelp users. False means a lookup is active.
+/**
+ * @brief Release the resolver before unloading a consumer DLL.
+ * @return false when a lookup is active and cleanup did not run.
+ * @details The host must also coordinate external DbgHelp users.
  */
 [[nodiscard]]
 inline auto shutdown_symbols() noexcept -> bool {

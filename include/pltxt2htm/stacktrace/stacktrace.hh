@@ -20,15 +20,17 @@
 #include "stacktrace_entry.hh"
 
 namespace pltxt2htm::stacktrace {
-/** Dynamic counterpart of std::basic_stacktrace. Iterators and indexing
- * expose immutable entries. Capturing is explicit; queries never unwind again.
- * Storage and resolved text are owned by the stacktrace implementation rather
- * than the pltxt2htm container layer, so the panic path can use this API.
- * Uses a stateless fast_io allocator. Allocation failure terminates, as with
- * fast_io containers; out-of-range operator[] is a contract violation. Native
- * capture depends on inlining and tail calls.
- * Unlike std::stacktrace, skip counts native frames including implementation
- * helpers. Forwarding current() overloads can add frames in unoptimized builds.
+/**
+ * @brief Dynamic counterpart of std::basic_stacktrace.
+ * @details Iterators and indexing expose immutable entries. Capturing is
+ *          explicit; queries never unwind again. Storage and resolved text are
+ *          owned by the stacktrace implementation rather than the pltxt2htm
+ *          container layer, so the panic path can use this API. Allocation
+ *          failure terminates through the stateless fast_io allocator.
+ * @note Native capture depends on inlining and tail calls. Unlike
+ *       std::stacktrace, skip counts native frames including implementation
+ *       helpers, and forwarding current() overloads can add frames in
+ *       unoptimized builds. Out-of-range operator[] is a contract violation.
  */
 template<typename Allocator = ::fast_io::native_global_allocator>
 class BasicStacktrace {

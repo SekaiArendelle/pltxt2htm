@@ -12,12 +12,15 @@
 #endif
 
 namespace pltxt2htm::stacktrace {
-/** Resolve an already captured address without unwinding or printing.
- * A null address resolves to an empty frame without touching the backend.
- * Windows DbgHelp resolution benefits from matching PDBs. Resolution may
- * allocate, load libraries, and perform file I/O, so it is not suitable for
- * signal/loader callbacks or reliable diagnostics after heap corruption.
- * Failure retains the address.
+/**
+ * @brief Resolve an already captured address without unwinding or printing.
+ * @param address Native frame address; null resolves to an empty frame without
+ *                touching the backend.
+ * @return Resolved symbol data; the address is retained on failure.
+ * @details Windows DbgHelp resolution benefits from matching PDBs. Resolution
+ *          may allocate, load libraries, and perform file I/O, so it is not
+ *          suitable for signal/loader callbacks or reliable diagnostics after
+ *          heap corruption.
  */
 [[nodiscard]]
 inline auto resolve(void* address) noexcept -> ResolvedFrame {
@@ -31,10 +34,12 @@ inline auto resolve(void* address) noexcept -> ResolvedFrame {
 #endif
 }
 
-/** A saved native address. Queries resolve that address without recapturing.
- * Text queries return independently owned `stacktrace::Text` values, like
- * `std::stacktrace_entry`. Use resolved() when several fields are needed, so the
- * address is looked up only once.
+/**
+ * @brief A saved native address.
+ * @details Queries resolve the address without recapturing. Text queries return
+ *          independently owned `stacktrace::Text` values, like
+ *          `std::stacktrace_entry`. Use resolved() when several fields are
+ *          needed, so the address is looked up only once.
  */
 class StacktraceEntry {
     void* address{};
@@ -83,7 +88,6 @@ public:
         return ::pltxt2htm::stacktrace::resolve(self.address).source_line;
     }
 
-    /** Resolve every field with a single lookup. */
     [[nodiscard]]
     auto resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame {
         return ::pltxt2htm::stacktrace::resolve(self.address);

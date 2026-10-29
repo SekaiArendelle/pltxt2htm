@@ -94,11 +94,16 @@ public:
         }
     }
 
-    /** Replace the contents; false means the size is unrepresentable and the value is unchanged.
-     * @note `source` may alias the current buffer; the new allocation is filled before the
-     *       old one is released. Allocation failure terminates through the allocator.
-     *       Constant evaluation constructs each character explicitly because the evaluator
-     *       tracks object lifetimes; the runtime path copies with `memcpy`.
+    /**
+     * @brief Replace the contents from a sized character range.
+     * @param source New contents; may point into the current buffer.
+     * @param size Number of characters to copy.
+     * @return false when size is unrepresentable; the value is then unchanged.
+     * @note The new allocation is filled before the old one is released.
+     *       Allocation failure terminates through the allocator. Constant
+     *       evaluation constructs each character explicitly because the
+     *       evaluator tracks object lifetimes; the runtime path copies with
+     *       `memcpy`.
      */
     [[nodiscard]]
     constexpr auto assign(this Text& self, char const* source, ::std::size_t size) noexcept -> bool {
@@ -126,7 +131,11 @@ public:
         return true;
     }
 
-    /** Replace the contents from a NUL-terminated string; nullptr clears it. */
+    /**
+     * @brief Replace the contents from a NUL-terminated string.
+     * @param source NUL-terminated text; nullptr clears the value.
+     * @return false when the length is unrepresentable; the value is then unchanged.
+     */
     [[nodiscard]]
     constexpr auto assign(this Text& self, char const* source) noexcept -> bool {
         if (source == nullptr) {

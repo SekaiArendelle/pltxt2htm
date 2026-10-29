@@ -10,7 +10,6 @@
 
 namespace pltxt2htm::stacktrace {
 
-/** Owning symbol data exposed by the pltxt2htm stacktrace API. */
 struct ResolvedFrame {
     void* address{};
     Text description{};

@@ -13,7 +13,6 @@
 #include "../../details/trap.hh"
 
 namespace pltxt2htm::stacktrace::details {
-/** Terminate or mark the path unreachable according to the contract mode. */
 [[noreturn]]
 inline void contract_violation() noexcept {
     if constexpr (::pltxt2htm::details::contract_mode == ::pltxt2htm::details::Contracts::ignore) {
