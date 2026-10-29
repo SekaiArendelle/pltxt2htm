@@ -18,6 +18,8 @@
 
 #include <fast_io/fast_io_core.h>
 
+#include "contract.hh"
+
 namespace pltxt2htm::stacktrace::details {
 
 /**
@@ -93,9 +95,12 @@ public:
     }
 
     constexpr Buffer(Buffer&& other) noexcept
-        : begin_pointer{::std::exchange(other.begin_pointer, nullptr)},
-          current_size{::std::exchange(other.current_size, 0)},
-          current_capacity{::std::exchange(other.current_capacity, 0)} {
+        : begin_pointer{other.begin_pointer},
+          current_size{other.current_size},
+          current_capacity{other.current_capacity} {
+        other.begin_pointer = nullptr;
+        other.current_size = 0;
+        other.current_capacity = 0;
     }
 
     constexpr ~Buffer() {
@@ -103,8 +108,8 @@ public:
     }
 
     constexpr auto operator=(this Buffer& self, Buffer const& other) noexcept -> Buffer& {
-        if (::std::addressof(self) == ::std::addressof(other)) {
-            return self;
+        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
+            contract_violation();
         }
         Buffer temporary{other};
         self.swap(temporary);
@@ -112,13 +117,16 @@ public:
     }
 
     constexpr auto operator=(this Buffer& self, Buffer&& other) noexcept -> Buffer& {
-        if (::std::addressof(self) == ::std::addressof(other)) {
-            return self;
+        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
+            contract_violation();
         }
         self.release();
-        self.begin_pointer = ::std::exchange(other.begin_pointer, nullptr);
-        self.current_size = ::std::exchange(other.current_size, 0);
-        self.current_capacity = ::std::exchange(other.current_capacity, 0);
+        self.begin_pointer = other.begin_pointer;
+        self.current_size = other.current_size;
+        self.current_capacity = other.current_capacity;
+        other.begin_pointer = nullptr;
+        other.current_size = 0;
+        other.current_capacity = 0;
         return self;
     }
 
@@ -189,9 +197,15 @@ public:
     }
 
     constexpr void swap(this Buffer& self, Buffer& other) noexcept {
-        ::std::swap(self.begin_pointer, other.begin_pointer);
-        ::std::swap(self.current_size, other.current_size);
-        ::std::swap(self.current_capacity, other.current_capacity);
+        auto const pointer = self.begin_pointer;
+        auto const size = self.current_size;
+        auto const capacity = self.current_capacity;
+        self.begin_pointer = other.begin_pointer;
+        self.current_size = other.current_size;
+        self.current_capacity = other.current_capacity;
+        other.begin_pointer = pointer;
+        other.current_size = size;
+        other.current_capacity = capacity;
     }
 };
 

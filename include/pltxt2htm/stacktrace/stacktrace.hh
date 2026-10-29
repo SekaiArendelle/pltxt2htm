@@ -14,8 +14,8 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
-#include "../details/trap.hh"
 #include "details/capture.hh"
+#include "details/contract.hh"
 #include "details/storage.hh"
 #include "stacktrace_entry.hh"
 
@@ -25,8 +25,8 @@ namespace pltxt2htm::stacktrace {
  * Storage and resolved text are owned by the stacktrace implementation rather
  * than the pltxt2htm container layer, so the panic path can use this API.
  * Uses a stateless fast_io allocator. Allocation failure terminates, as with
- * fast_io containers; at() traps on invalid indices. Native capture depends on
- * inlining and tail calls.
+ * fast_io containers; out-of-range operator[] is a contract violation. Native
+ * capture depends on inlining and tail calls.
  * Unlike std::stacktrace, skip counts native frames including implementation
  * helpers. Forwarding current() overloads can add frames in unoptimized builds.
  */
@@ -61,7 +61,8 @@ public:
 
     constexpr BasicStacktrace(BasicStacktrace&& other) noexcept
         : entries{::std::move(other.entries)},
-          captured{::std::exchange(other.captured, {})} {
+          captured{other.captured} {
+        other.captured = {};
     }
 
     constexpr BasicStacktrace(BasicStacktrace&& other, allocator_type const&) noexcept
@@ -69,8 +70,8 @@ public:
     }
 
     constexpr auto operator=(this BasicStacktrace& self, BasicStacktrace const& other) noexcept -> BasicStacktrace& {
-        if (::std::addressof(self) == ::std::addressof(other)) {
-            return self;
+        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
+            details::contract_violation();
         }
         self.entries = other.entries;
         self.captured = other.captured;
@@ -78,11 +79,12 @@ public:
     }
 
     constexpr auto operator=(this BasicStacktrace& self, BasicStacktrace&& other) noexcept -> BasicStacktrace& {
-        if (::std::addressof(self) == ::std::addressof(other)) {
-            return self;
+        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
+            details::contract_violation();
         }
         self.entries = ::std::move(other.entries);
-        self.captured = ::std::exchange(other.captured, {});
+        self.captured = other.captured;
+        other.captured = {};
         return self;
     }
 
@@ -197,20 +199,17 @@ public:
 
     [[nodiscard]]
     constexpr auto operator[](this BasicStacktrace const& self, size_type index) noexcept -> const_reference {
-        return self.entries[index];
-    }
-
-    [[nodiscard]]
-    constexpr auto at(this BasicStacktrace const& self, size_type index) noexcept -> const_reference {
         if (index >= self.size()) [[unlikely]] {
-            ::pltxt2htm::details::trap();
+            details::contract_violation();
         }
-        return self[index];
+        return self.entries[index];
     }
 
     constexpr void swap(this BasicStacktrace& self, BasicStacktrace& other) noexcept {
         self.entries.swap(other.entries);
-        ::std::swap(self.captured, other.captured);
+        auto const captured = self.captured;
+        self.captured = other.captured;
+        other.captured = captured;
     }
 
     [[nodiscard]]

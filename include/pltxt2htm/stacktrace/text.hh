@@ -18,7 +18,7 @@
 
 #include <fast_io/fast_io_core.h>
 
-#include "../details/trap.hh"
+#include "details/contract.hh"
 
 namespace pltxt2htm::stacktrace {
 
@@ -50,12 +50,8 @@ public:
     constexpr Text& operator=(Text const&) noexcept = delete;
 
     constexpr auto operator=(this Text& self, Text&& other) noexcept -> Text& {
-        if (::std::addressof(self) == ::std::addressof(other)) {
-#if defined(PLTXT2HTM_CONTRACTS) && PLTXT2HTM_CONTRACTS == 2 // contract mode: ignore
-            ::pltxt2htm::details::unreachable();
-#else
-            ::pltxt2htm::details::trap();
-#endif
+        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
+            details::contract_violation();
         }
         self.swap(other);
         return self;

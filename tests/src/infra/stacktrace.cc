@@ -102,7 +102,7 @@ int main() {
     pltxt2htm_test_assert_true(snapshot.size() == copied_snapshot.size());
     for (::std::size_t i = 0; i < snapshot.size(); ++i) {
         pltxt2htm_test_assert_true(snapshot[i].native_handle() == copied_snapshot[i].native_handle());
-        pltxt2htm_test_assert_true(snapshot.at(i) == copied_snapshot[i]);
+        pltxt2htm_test_assert_true(snapshot[i] == copied_snapshot[i]);
     }
     pltxt2htm_test_assert_true(snapshot == copied_snapshot && (snapshot <=> copied_snapshot) == 0);
     pltxt2htm_test_assert_true(snapshot.cbegin() == snapshot.begin() && snapshot.cend() == snapshot.end());
@@ -133,13 +133,8 @@ int main() {
         TrackedTrace copy{tracked, alloc};
         TrackedTrace moved_copy{::std::move(copy), alloc};
         pltxt2htm_test_assert_true(tracked == moved_copy && copy.empty());
-        // Route through an alias so these exercise self-assignment and self-move without
-        // tripping clang's -Wself-assign-overloaded / -Wself-move.
-        auto& tracked_alias = tracked;
-        tracked = tracked_alias;
-        pltxt2htm_test_assert_true(tracked == moved_copy);
-        tracked = ::std::move(tracked_alias);
-        pltxt2htm_test_assert_true(tracked == moved_copy);
+        // Self-assignment and self-move are contract violations; testing them
+        // requires a trap death harness, which this file does not have.
     }
     pltxt2htm_test_assert_true(TrackingAllocator::outstanding == 0);
 #if defined(_WIN32)
