@@ -4,10 +4,10 @@
 #include <cstdlib>
 #include <limits>
 #include <memory>
-#include "resolved_frame.hh"
-#include "../sys/nt/ntdll.hh"
+#include "../resolved_frame.hh"
+#include "../../sys/nt/ntdll.hh"
 
-#include "../sys/win32/dbghelp.hh"
+#include "../../sys/win32/dbghelp.hh"
 
 namespace pltxt2htm::stacktrace::details {
 // One session per linked image. This lock only coordinates our own calls;

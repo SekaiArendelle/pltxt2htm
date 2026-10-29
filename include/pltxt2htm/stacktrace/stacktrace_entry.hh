@@ -8,7 +8,7 @@
 #include <cstdint>
 #include "resolved_frame.hh"
 #if defined(_WIN32)
-    #include "nt.hh"
+    #include "details/nt.hh"
 #endif
 
 namespace pltxt2htm::stacktrace {

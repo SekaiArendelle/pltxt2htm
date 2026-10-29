@@ -10,7 +10,7 @@
 #include <span>
 
 #if defined(_WIN32)
-    #include "../sys/nt/ntdll.hh"
+    #include "../../sys/nt/ntdll.hh"
 #endif
 
 namespace pltxt2htm::stacktrace::details {

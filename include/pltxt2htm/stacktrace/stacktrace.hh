@@ -15,9 +15,9 @@
 #include <type_traits>
 #include <utility>
 #include "../details/trap.hh"
-#include "capture.hh"
+#include "details/capture.hh"
+#include "details/storage.hh"
 #include "stacktrace_entry.hh"
-#include "storage.hh"
 
 namespace pltxt2htm::stacktrace {
 /** Dynamic counterpart of std::basic_stacktrace. Iterators and indexing
