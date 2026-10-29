@@ -115,7 +115,7 @@ public:
         }
         details::Buffer<void*, allocator_type> addresses{};
         auto depth = limit < 64 ? limit : 64;
-        for (;;) {
+        while (true) {
             addresses.reserve(depth);
             while (addresses.size() < depth) {
                 addresses.emplace_back(nullptr);
