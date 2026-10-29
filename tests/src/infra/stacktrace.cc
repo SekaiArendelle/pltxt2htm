@@ -95,8 +95,6 @@ int main() {
         pltxt2htm_test_assert_true(text.empty() && moved.size() == 3);
         text = ::std::move(moved);
         pltxt2htm_test_assert_true(moved.empty() && text.size() == 3);
-        auto& text_alias = text;
-        text = ::std::move(text_alias);
         pltxt2htm_test_assert_true(text.size() == 3);
     }
     auto const snapshot = trace::Stacktrace::current(0, 8);

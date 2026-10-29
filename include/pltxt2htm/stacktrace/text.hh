@@ -15,9 +15,10 @@
 #include <cstring>
 #include <limits>
 #include <memory>
-#include <utility>
 
 #include <fast_io/fast_io_core.h>
+
+#include "../details/trap.hh"
 
 namespace pltxt2htm::stacktrace {
 
@@ -36,31 +37,43 @@ class Text {
 
 public:
     constexpr Text() noexcept = default;
-    Text(Text const&) = delete;
+
+    constexpr Text(Text const&) noexcept = delete;
 
     constexpr Text(Text&& other) noexcept
-        : pointer{::std::exchange(other.pointer, nullptr)},
-          length{::std::exchange(other.length, 0)} {
+        : pointer{other.pointer},
+          length{other.length} {
+        other.pointer = nullptr;
+        other.length = 0;
     }
 
-    Text& operator=(Text const&) = delete;
+    constexpr Text& operator=(Text const&) noexcept = delete;
 
     constexpr auto operator=(this Text& self, Text&& other) noexcept -> Text& {
         if (::std::addressof(self) == ::std::addressof(other)) {
-            return self;
+#if defined(PLTXT2HTM_CONTRACTS) && PLTXT2HTM_CONTRACTS == 2 // contract mode: ignore
+            ::pltxt2htm::details::unreachable();
+#else
+            ::pltxt2htm::details::trap();
+#endif
         }
-        if (self.pointer != nullptr) {
-            text_allocator::deallocate(self.pointer);
-        }
-        self.pointer = ::std::exchange(other.pointer, nullptr);
-        self.length = ::std::exchange(other.length, 0);
+        self.swap(other);
         return self;
     }
 
-    constexpr ~Text() {
+    constexpr ~Text() noexcept {
         if (pointer != nullptr) {
             text_allocator::deallocate(pointer);
         }
+    }
+
+    constexpr void swap(this Text& self, Text& other) noexcept {
+        auto tmp_pointer = self.pointer;
+        auto tmp_length = self.length;
+        self.pointer = other.pointer;
+        self.length = other.length;
+        other.pointer = tmp_pointer;
+        other.length = tmp_length;
     }
 
     [[nodiscard]]
@@ -114,7 +127,7 @@ public:
             self.clear();
             return true;
         }
-        return self.assign(source, ::std::strlen(source));
+        return self.assign(source, ::fast_io::cstr_len(source));
     }
 };
 
