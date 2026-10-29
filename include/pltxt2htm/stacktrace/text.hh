@@ -30,7 +30,7 @@ namespace pltxt2htm::stacktrace {
  *          failure terminates, as with the pltxt2htm container layer.
  */
 class Text {
-    using text_allocator = ::fast_io::native_global_allocator;
+    using text_allocator = ::fast_io::typed_generic_allocator_adapter<::fast_io::native_global_allocator, char>;
 
     char* pointer{};
     ::std::size_t length{};
@@ -68,8 +68,8 @@ public:
     }
 
     constexpr void swap(this Text& self, Text& other) noexcept {
-        auto tmp_pointer = self.pointer;
-        auto tmp_length = self.length;
+        auto const tmp_pointer = self.pointer;
+        auto const tmp_length = self.length;
         self.pointer = other.pointer;
         self.length = other.length;
         other.pointer = tmp_pointer;
@@ -101,28 +101,38 @@ public:
     /** Replace the contents; false means the size is unrepresentable and the value is unchanged.
      * @note `source` may alias the current buffer; the new allocation is filled before the
      *       old one is released. Allocation failure terminates through the allocator.
+     *       Constant evaluation constructs each character explicitly because the evaluator
+     *       tracks object lifetimes; the runtime path copies with `memcpy`.
      */
     [[nodiscard]]
-    auto assign(this Text& self, char const* source, ::std::size_t size) noexcept -> bool {
+    constexpr auto assign(this Text& self, char const* source, ::std::size_t size) noexcept -> bool {
         if (size == (::std::numeric_limits<::std::size_t>::max)()) {
             return false;
         }
-        auto* allocation = static_cast<char*>(text_allocator::allocate(size + 1));
-        if (size != 0) {
-            ::std::memcpy(allocation, source, size);
+        auto const allocation = text_allocator::allocate_at_least(size + 1);
+        if consteval {
+            for (::std::size_t index{}; index < size; ++index) {
+                ::std::construct_at(allocation.ptr + index, source[index]);
+            }
+            ::std::construct_at(allocation.ptr + size, '\0');
         }
-        allocation[size] = '\0';
+        else {
+            if (size != 0) {
+                ::std::memcpy(allocation.ptr, source, size);
+            }
+            allocation.ptr[size] = '\0';
+        }
         if (self.pointer != nullptr) {
             text_allocator::deallocate(self.pointer);
         }
-        self.pointer = allocation;
+        self.pointer = allocation.ptr;
         self.length = size;
         return true;
     }
 
     /** Replace the contents from a NUL-terminated string; nullptr clears it. */
     [[nodiscard]]
-    auto assign(this Text& self, char const* source) noexcept -> bool {
+    constexpr auto assign(this Text& self, char const* source) noexcept -> bool {
         if (source == nullptr) {
             self.clear();
             return true;
