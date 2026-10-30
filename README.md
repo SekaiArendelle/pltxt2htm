@@ -3,9 +3,12 @@
 ![language](https://img.shields.io/badge/language-C++23-blue.svg)
 ![license](https://img.shields.io/badge/License-GPL-green.svg)
 
-This repository is a sub-project of [Physics-Lab-Web2](https://github.com/NetLogo-Mobile/plweb2)
+**header-only** C++23 library for converting Quantum-Physics (aka Physics-Lab) text format to HTML and Unity TextMeshPro (TMP) rich text, with support for markdown and latex as much as possible (see the Features section below). Requires g++ >= 14, clang++ >= 20 or MSVC >= VS2026. Built without C++ RTTI and exceptions for maximum cross-platform compatibility.
 
-**header-only** C++23 library for converting Quantum-Physics (aka Physics-Lab) text format to HTML, with support for markdown and latex as much as possible (see the Features section below). Requires g++ >= 14, clang++ >= 20 or MSVC >= VS2026. Built without C++ RTTI and exceptions for maximum cross-platform compatibility.
+pltxt2htm serves two consumers:
+
+* [Physics-Lab-Web2](https://github.com/NetLogo-Mobile/plweb2), the original consumer, which renders the generated HTML;
+* [Physics-Lab](https://www.turtlesim.com/products/physics-lab/) itself, which renders text through the Unity TMP backend.
 
 > Note: MSVC support is still experimental
 
