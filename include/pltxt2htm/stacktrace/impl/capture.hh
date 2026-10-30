@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <span>
 #include "capture_common.hh"
-#include "storage.hh"
+#include "../../container/impl/vector_decl.hh"
 
 #if defined(_WIN32)
     #include "capture_nt.hh"
@@ -38,7 +38,7 @@ inline auto capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept 
 
 template<typename Allocator>
 struct CapturedFrames {
-    Buffer<void*, Allocator> addresses{};
+    ::pltxt2htm::container::Vector<void*, ::fast_io::generic_allocator_adapter<Allocator>> addresses{};
     CaptureResult result{};
 };
 

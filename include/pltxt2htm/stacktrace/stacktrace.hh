@@ -15,19 +15,20 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
+#include "../container/impl/vector_decl.hh"
 #include "impl/capture.hh"
 #include "impl/contract.hh"
-#include "impl/storage.hh"
 #include "impl/stacktrace_entry.hh"
 
 namespace pltxt2htm::stacktrace {
 /**
  * @brief Dynamic counterpart of std::basic_stacktrace.
  * @details Iterators and indexing expose immutable entries. Capturing is
- *          explicit; queries never unwind again. Storage and resolved text are
- *          owned by the stacktrace implementation rather than the pltxt2htm
- *          container layer, so the panic path can use this API. Allocation
- *          failure terminates through the stateless fast_io allocator.
+ *          explicit; queries never unwind again. Storage uses
+ *          `container::Vector` and resolved text uses `container::String`;
+ *          their checked definitions are included at the end of this header so
+ *          the panic path can use this API. Allocation failure terminates
+ *          through the stateless fast_io allocator.
  * @note Native capture depends on inlining and tail calls. Unlike
  *       std::stacktrace, skip counts native frames including implementation
  *       helpers. Out-of-range operator[] is a contract violation.
@@ -35,7 +36,9 @@ namespace pltxt2htm::stacktrace {
 template<typename Allocator = ::fast_io::native_global_allocator>
 class BasicStacktrace {
     static_assert(::std::is_empty_v<Allocator>, "stacktrace requires a stateless fast_io allocator");
-    details::Buffer<StacktraceEntry, Allocator> entries{};
+    using entries_type =
+        ::pltxt2htm::container::Vector<StacktraceEntry, ::fast_io::generic_allocator_adapter<Allocator>>;
+    entries_type entries{};
     details::CaptureResult captured{};
 
 public:
@@ -167,7 +170,7 @@ public:
 
     [[nodiscard]]
     constexpr auto max_size(this BasicStacktrace const&) noexcept -> size_type {
-        return details::Buffer<StacktraceEntry, Allocator>::max_size();
+        return entries_type::max_size();
     }
 
     [[nodiscard]]
