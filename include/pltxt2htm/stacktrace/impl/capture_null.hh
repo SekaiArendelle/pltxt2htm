@@ -10,7 +10,7 @@
 #include "capture_common.hh"
 
 namespace pltxt2htm::stacktrace::details {
-struct capture_backend {
+struct CaptureBackend {
     static constexpr bool supported = false;
     static constexpr ::std::size_t max_skip = 0;
     static constexpr ::std::size_t max_depth = 0;

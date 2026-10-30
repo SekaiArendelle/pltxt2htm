@@ -12,7 +12,7 @@
 #include "../../sys/nt/ntdll.hh"
 
 namespace pltxt2htm::stacktrace::details {
-struct capture_backend {
+struct CaptureBackend {
     static constexpr bool supported = true;
     static constexpr ::std::size_t max_skip = (::std::numeric_limits<::pltxt2htm::sys_nt::Ulong>::max)();
     static constexpr ::std::size_t max_depth = 65535;

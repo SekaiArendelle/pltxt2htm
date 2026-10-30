@@ -19,7 +19,7 @@
 #endif
 
 namespace pltxt2htm::stacktrace::details {
-static_assert(!capture_backend::supported || capture_backend::max_depth >= 1,
+static_assert(!CaptureBackend::supported || CaptureBackend::max_depth >= 1,
               "supported capture backends need a positive max_depth");
 
 /**
@@ -33,7 +33,7 @@ static_assert(!capture_backend::supported || capture_backend::max_depth >= 1,
  */
 [[nodiscard]]
 inline auto capture(::std::span<void*> frames, ::std::size_t skip = 0) noexcept -> CaptureResult {
-    return capture_backend::capture(frames, skip);
+    return CaptureBackend::capture(frames, skip);
 }
 
 template<typename Allocator>
@@ -54,25 +54,25 @@ struct CapturedFrames {
 template<typename Allocator>
 [[nodiscard]]
 auto capture_all(::std::size_t skip) noexcept -> CapturedFrames<Allocator> {
-    if constexpr (!capture_backend::supported) {
+    if constexpr (!CaptureBackend::supported) {
         return {};
     }
     else {
-        if (skip > capture_backend::max_skip) {
+        if (skip > CaptureBackend::max_skip) {
             return {};
         }
         CapturedFrames<Allocator> frames{};
-        auto depth = capture_backend::max_depth < 64 ? capture_backend::max_depth : 64;
+        auto depth = CaptureBackend::max_depth < 64 ? CaptureBackend::max_depth : 64;
         for (;;) {
             frames.addresses.reserve(depth);
             while (frames.addresses.size() < depth) {
                 frames.addresses.emplace_back(nullptr);
             }
-            frames.result = capture_backend::capture({frames.addresses.data(), depth}, skip);
-            if (!frames.result.possibly_truncated || depth == capture_backend::max_depth) {
+            frames.result = CaptureBackend::capture({frames.addresses.data(), depth}, skip);
+            if (!frames.result.possibly_truncated || depth == CaptureBackend::max_depth) {
                 break;
             }
-            depth = depth > capture_backend::max_depth / 2 ? capture_backend::max_depth : depth * 2;
+            depth = depth > CaptureBackend::max_depth / 2 ? CaptureBackend::max_depth : depth * 2;
         }
         return frames;
     }
