@@ -70,7 +70,7 @@ inline void panic() noexcept {
     for (::std::size_t i = 0; i < printed; ++i) {
         auto const frame = trace[i].resolved();
         ::fast_io::io::perr("[", i, "] ");
-        if (!frame.description.empty()) {
+        if (!frame.description.is_empty()) {
             ::fast_io::io::perr(
                 ::fast_io::basic_io_scatter_t<char>{.base = frame.description.data(), .len = frame.description.size()});
         }
@@ -80,7 +80,7 @@ inline void panic() noexcept {
         if (frame.displacement != 0) {
             ::fast_io::io::perr(" + ", ::fast_io::mnp::hex0x(frame.displacement));
         }
-        if (!frame.source_file.empty()) {
+        if (!frame.source_file.is_empty()) {
             ::fast_io::io::perr(" at ", ::fast_io::basic_io_scatter_t<char>{.base = frame.source_file.data(),
                                                                             .len = frame.source_file.size()});
             if (frame.source_line != 0) {

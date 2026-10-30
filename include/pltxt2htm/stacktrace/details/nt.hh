@@ -11,6 +11,9 @@
 #include <cstdlib>
 #include <limits>
 #include <memory>
+
+#include <fast_io/fast_io_core.h>
+
 #include "../resolved_frame.hh"
 #include "../../sys/nt/ntdll.hh"
 
@@ -145,9 +148,8 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
             }
             return;
         }
-        if (!result.description.assign(reinterpret_cast<char const*>(storage + name_offset), name_size)) {
-            result.text_truncated = true;
-        }
+        auto const* const name = reinterpret_cast<char const*>(storage + name_offset);
+        result.description.assign(name, name + name_size);
         ::std::free(storage);
         return;
     }
@@ -170,7 +172,8 @@ inline auto resolve_nt(void* address) noexcept -> ResolvedFrame {
         if (::pltxt2htm::sys_win32::SymGetLineFromAddr64(session.process, native_address,
                                                          ::std::addressof(line_displacement), ::std::addressof(line)) &&
             line.file_name != nullptr) {
-            result.text_truncated = !result.source_file.assign(line.file_name) || result.text_truncated;
+            auto const* const file_name = line.file_name;
+            result.source_file.assign(file_name, file_name + ::fast_io::cstr_len(file_name));
             result.source_line = line.line_number;
         }
     }

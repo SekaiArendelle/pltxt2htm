@@ -2,10 +2,11 @@
  * @file stacktrace.hh
  * @brief Native stacktrace capture and symbol resolution.
  * @warning This subtree is included by the panic path. It may include the
- *          declaration-only `container/impl/vector_decl.hh`, but the
- *          contract-checked container definitions must stay at the end of this
- *          header (and of `container/vector.hh`) so the panic/stacktrace include
- *          cycle stays broken.
+ *          declaration-only `container/impl/vector_decl.hh` and
+ *          `container/impl/string_decl.hh`, but the contract-checked container
+ *          definitions must stay at the end of this header (and of
+ *          `container/vector.hh` / `container/string.hh`) so the
+ *          panic/stacktrace include cycle stays broken.
  */
 
 #pragma once
@@ -237,3 +238,4 @@ using Stacktrace = BasicStacktrace<>;
 } // namespace pltxt2htm::stacktrace
 
 #include "../container/impl/vector_def.inc"
+#include "../container/impl/string_def.inc"

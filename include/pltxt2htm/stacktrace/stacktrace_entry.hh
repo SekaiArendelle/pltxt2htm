@@ -1,12 +1,17 @@
 /**
  * @file stacktrace_entry.hh
  * @brief Saved native frame address and the text resolved from it.
+ * @note This header is declaration-only for the resolved text. Include
+ *       `stacktrace.hh` (or `container/string.hh`) in translation units that
+ *       copy or assign the returned `container::String` values.
  */
 
 #pragma once
 
 #include <cstdint>
+
 #include "resolved_frame.hh"
+
 #if defined(_WIN32)
     #include "details/nt.hh"
 #endif
@@ -37,7 +42,7 @@ inline auto resolve(void* address) noexcept -> ResolvedFrame {
 /**
  * @brief A saved native address.
  * @details Queries resolve the address without recapturing. Text queries return
- *          independently owned `stacktrace::Text` values, like
+ *          independently owned `container::String` values, like
  *          `std::stacktrace_entry`. Use resolved() when several fields are
  *          needed, so the address is looked up only once.
  */
@@ -74,12 +79,12 @@ public:
     }
 
     [[nodiscard]]
-    auto description(this StacktraceEntry const& self) noexcept -> Text {
+    auto description(this StacktraceEntry const& self) noexcept -> ::pltxt2htm::container::String {
         return ::pltxt2htm::stacktrace::resolve(self.address).description;
     }
 
     [[nodiscard]]
-    auto source_file(this StacktraceEntry const& self) noexcept -> Text {
+    auto source_file(this StacktraceEntry const& self) noexcept -> ::pltxt2htm::container::String {
         return ::pltxt2htm::stacktrace::resolve(self.address).source_file;
     }
 
