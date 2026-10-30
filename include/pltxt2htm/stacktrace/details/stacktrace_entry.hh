@@ -1,9 +1,8 @@
 /**
  * @file stacktrace_entry.hh
  * @brief Saved native frame address and the text resolved from it.
- * @note This header is declaration-only for the resolved text. Include
- *       `stacktrace.hh` (or `container/string.hh`) in translation units that
- *       copy or assign the returned `container::String` values.
+ * @note Internal declaration header. Include `stacktrace.hh` for the complete
+ *       public API and the `container::String` definitions.
  */
 
 #pragma once
@@ -13,7 +12,7 @@
 #include "resolved_frame.hh"
 
 #if defined(_WIN32)
-    #include "details/nt.hh"
+    #include "nt.hh"
 #endif
 
 namespace pltxt2htm::stacktrace {

@@ -14,7 +14,7 @@
 
 #include <fast_io/fast_io_core.h>
 
-#include "../resolved_frame.hh"
+#include "resolved_frame.hh"
 #include "../../sys/nt/ntdll.hh"
 
 #include "../../sys/win32/dbghelp.hh"

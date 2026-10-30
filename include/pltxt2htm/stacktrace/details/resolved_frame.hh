@@ -1,16 +1,15 @@
 /**
  * @file resolved_frame.hh
  * @brief Owning resolved frame data for the stacktrace implementation.
- * @note This header is declaration-only for the text fields. Include
- *       `stacktrace.hh` (or `container/string.hh`) in translation units that
- *       copy or assign them.
+ * @note Internal declaration header. Include `stacktrace.hh` for the complete
+ *       public API and the `container::String` definitions.
  */
 
 #pragma once
 
 #include <cstdint>
 
-#include "../container/impl/string_decl.hh"
+#include "../../container/impl/string_decl.hh"
 
 namespace pltxt2htm::stacktrace {
 

@@ -1,5 +1,4 @@
 #include <pltxt2htm/stacktrace/stacktrace.hh>
-#include <pltxt2htm/stacktrace/stacktrace_entry.hh>
 #if defined(_WIN32)
     #include <pltxt2htm/sys/win32/kernel32.hh>
 #endif

@@ -18,7 +18,7 @@
 #include "details/capture.hh"
 #include "details/contract.hh"
 #include "details/storage.hh"
-#include "stacktrace_entry.hh"
+#include "details/stacktrace_entry.hh"
 
 namespace pltxt2htm::stacktrace {
 /**
