@@ -180,31 +180,31 @@ public:
     {
         ::std::swap_ranges(self.begin(), self.end(), other.begin());
     }
+
+    template<::std::size_t right_extent>
+        requires (::std::equality_comparable<T> && right_extent != 0)
+    [[nodiscard]]
+    constexpr auto operator==(this Array const& self, Array<T, right_extent> const& right) -> bool {
+        if constexpr (extent != right_extent) {
+            return false;
+        }
+        else {
+            return ::std::equal(self.begin(), self.end(), right.begin());
+        }
+    }
+
+    template<::std::size_t right_extent>
+        requires (::std::three_way_comparable<T> && right_extent != 0)
+    [[nodiscard]]
+    constexpr auto operator<=>(this Array const& self, Array<T, right_extent> const& right) {
+        return ::std::lexicographical_compare_three_way(self.begin(), self.end(), right.begin(), right.end(),
+                                                        ::std::compare_three_way{});
+    }
 };
 
 template<typename T, typename... U>
     requires (::std::constructible_from<T, U> && ...)
 Array(T, U...) -> Array<T, 1 + sizeof...(U)>;
-
-template<typename T, ::std::size_t left_extent, ::std::size_t right_extent>
-    requires (::std::equality_comparable<T> && left_extent != 0 && right_extent != 0)
-[[nodiscard]]
-constexpr auto operator==(Array<T, left_extent> const& left, Array<T, right_extent> const& right) -> bool {
-    if constexpr (left_extent != right_extent) {
-        return false;
-    }
-    else {
-        return ::std::equal(left.begin(), left.end(), right.begin());
-    }
-}
-
-template<typename T, ::std::size_t left_extent, ::std::size_t right_extent>
-    requires (::std::three_way_comparable<T> && left_extent != 0 && right_extent != 0)
-[[nodiscard]]
-constexpr auto operator<=>(Array<T, left_extent> const& left, Array<T, right_extent> const& right) {
-    return ::std::lexicographical_compare_three_way(left.begin(), left.end(), right.begin(), right.end(),
-                                                    ::std::compare_three_way{});
-}
 
 template<typename T, ::std::size_t extent>
     requires (extent != 0 && ::std::is_swappable_v<T>)
