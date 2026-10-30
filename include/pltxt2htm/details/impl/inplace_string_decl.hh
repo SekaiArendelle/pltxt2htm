@@ -1,0 +1,320 @@
+/**
+ * @file inplace_string_decl.hh
+ * @brief Declarations for details::BasicInplaceString.
+ * @details Contract-checked members are declared here and defined in
+ *          inplace_string_def.inc. Members defined inline that call those
+ *          members also need inplace_string_def.inc in the same translation
+ *          unit; include details/inplace_string.hh for the complete API.
+ */
+
+#pragma once
+
+#include <algorithm>
+#include <compare>
+#include <concepts>
+#include <cstddef>
+#include <iterator>
+#include <limits>
+#include <memory>
+#include <type_traits>
+#include <utility>
+
+#include "../contracts.hh"
+#include "../concepts.hh"
+
+namespace pltxt2htm::details {
+
+/**
+ * @brief A variable-length string with fixed compile-time capacity and inline storage.
+ * @tparam CharType Character code-unit type.
+ * @tparam extent Nonzero maximum number of code units. No terminator is reserved.
+ * Contract mode follows PLTXT2HTM_CONTRACTS.
+ *
+ * BasicInplaceString never allocates and does not reserve space for a null terminator.
+ * Embedded null code units are ordinary elements.
+ */
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent>
+    requires (extent != 0)
+class BasicInplaceString {
+    static_assert(extent <= ::std::numeric_limits<::std::size_t>::max() / sizeof(CharType),
+                  "inplace string capacity is too large");
+
+    using StoredSize = ::std::conditional_t<
+        extent <= ::std::numeric_limits<unsigned char>::max(), unsigned char,
+        ::std::conditional_t<
+            extent <= ::std::numeric_limits<unsigned short>::max(), unsigned short,
+            ::std::conditional_t<extent <= ::std::numeric_limits<unsigned>::max(), unsigned, ::std::size_t>>>;
+
+public:
+    using value_type = CharType;
+    using size_type = ::std::size_t;
+    using difference_type = ::std::ptrdiff_t;
+    using reference = value_type&;
+    using const_reference = value_type const&;
+    using pointer = value_type*;
+    using const_pointer = value_type const*;
+    using iterator = pointer;
+    using const_iterator = const_pointer;
+    using reverse_iterator = ::std::reverse_iterator<iterator>;
+    using const_reverse_iterator = ::std::reverse_iterator<const_iterator>;
+
+private:
+    // Runtime constructors leave the inactive suffix untouched; special members must copy only the active prefix.
+    value_type storage[extent];
+    StoredSize size_storage{};
+
+    constexpr void initialize_storage_for_constant_evaluation(this BasicInplaceString& self) noexcept {
+        if consteval {
+            ::std::fill_n(self.storage, extent, value_type{});
+        }
+    }
+
+    template<typename InputIterator, typename Sentinel>
+    [[nodiscard]]
+    static consteval auto is_nothrow_range_iteration() noexcept -> bool {
+        constexpr bool is_nothrow_iteration =
+            noexcept(static_cast<bool>(::std::declval<InputIterator&>() != ::std::declval<Sentinel&>())) &&
+            noexcept(++::std::declval<InputIterator&>()) &&
+            noexcept(static_cast<value_type>(*::std::declval<InputIterator&>()));
+        if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
+            return is_nothrow_iteration &&
+                   noexcept(static_cast<size_type>(::std::declval<Sentinel&>() - ::std::declval<InputIterator&>()));
+        }
+        else {
+            return is_nothrow_iteration;
+        }
+    }
+
+public:
+    constexpr BasicInplaceString() noexcept {
+        this->initialize_storage_for_constant_evaluation();
+    }
+
+    constexpr explicit BasicInplaceString(value_type value) noexcept {
+        this->initialize_storage_for_constant_evaluation();
+        this->push_back(value);
+    }
+
+    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
+        requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
+                  ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
+    constexpr BasicInplaceString(InputIterator first,
+                                 Sentinel last) noexcept(::std::is_nothrow_move_constructible_v<InputIterator> &&
+                                                         ::std::is_nothrow_move_constructible_v<Sentinel> &&
+                                                         is_nothrow_range_iteration<InputIterator, Sentinel>()) {
+        this->initialize_storage_for_constant_evaluation();
+        this->append(::std::move(first), ::std::move(last));
+    }
+
+    constexpr BasicInplaceString(BasicInplaceString const& other) noexcept {
+        this->initialize_storage_for_constant_evaluation();
+        auto const count = other.size();
+        ::std::copy_n(other.storage, count, this->storage);
+        this->size_storage = other.size_storage;
+    }
+
+    /// @pre Internal callers must not assign the string to itself.
+    constexpr auto operator=(this BasicInplaceString& self, BasicInplaceString const& other) noexcept
+        -> BasicInplaceString&;
+
+    constexpr ~BasicInplaceString() noexcept = default;
+
+    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
+        requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
+                  ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
+    constexpr void assign(this BasicInplaceString& self, InputIterator first,
+                          Sentinel last) noexcept(::std::is_nothrow_move_constructible_v<InputIterator> &&
+                                                  ::std::is_nothrow_move_constructible_v<Sentinel> &&
+                                                  is_nothrow_range_iteration<InputIterator, Sentinel>());
+
+    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
+        requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
+                  ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
+    constexpr void append(this BasicInplaceString& self, InputIterator first,
+                          Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>());
+
+    [[nodiscard]]
+    constexpr auto begin(this BasicInplaceString& self) noexcept -> iterator {
+        return self.storage;
+    }
+
+    [[nodiscard]]
+    constexpr auto begin(this BasicInplaceString const& self) noexcept -> const_iterator {
+        return self.storage;
+    }
+
+    [[nodiscard]]
+    constexpr auto cbegin(this BasicInplaceString const& self) noexcept -> const_iterator {
+        return self.storage;
+    }
+
+    [[nodiscard]]
+    constexpr auto end(this BasicInplaceString& self) noexcept -> iterator {
+        return self.storage + self.size();
+    }
+
+    [[nodiscard]]
+    constexpr auto end(this BasicInplaceString const& self) noexcept -> const_iterator {
+        return self.storage + self.size();
+    }
+
+    [[nodiscard]]
+    constexpr auto cend(this BasicInplaceString const& self) noexcept -> const_iterator {
+        return self.storage + self.size();
+    }
+
+    [[nodiscard]]
+    constexpr auto rbegin(this BasicInplaceString& self) noexcept -> reverse_iterator {
+        return reverse_iterator{self.end()};
+    }
+
+    [[nodiscard]]
+    constexpr auto rbegin(this BasicInplaceString const& self) noexcept -> const_reverse_iterator {
+        return const_reverse_iterator{self.end()};
+    }
+
+    [[nodiscard]]
+    constexpr auto crbegin(this BasicInplaceString const& self) noexcept -> const_reverse_iterator {
+        return const_reverse_iterator{self.end()};
+    }
+
+    [[nodiscard]]
+    constexpr auto rend(this BasicInplaceString& self) noexcept -> reverse_iterator {
+        return reverse_iterator{self.begin()};
+    }
+
+    [[nodiscard]]
+    constexpr auto rend(this BasicInplaceString const& self) noexcept -> const_reverse_iterator {
+        return const_reverse_iterator{self.begin()};
+    }
+
+    [[nodiscard]]
+    constexpr auto crend(this BasicInplaceString const& self) noexcept -> const_reverse_iterator {
+        return const_reverse_iterator{self.begin()};
+    }
+
+    [[nodiscard]]
+    constexpr auto empty(this BasicInplaceString const& self) noexcept -> bool {
+        return self.size() == 0;
+    }
+
+    [[nodiscard]]
+    constexpr auto size(this BasicInplaceString const& self) noexcept -> size_type {
+        return self.size_storage;
+    }
+
+    [[nodiscard]]
+    constexpr auto size_bytes(this BasicInplaceString const& self) noexcept -> size_type {
+        return self.size() * sizeof(value_type);
+    }
+
+    [[nodiscard]]
+    static constexpr auto max_size() noexcept -> size_type {
+        return extent;
+    }
+
+    [[nodiscard]]
+    static constexpr auto max_size_bytes() noexcept -> size_type {
+        return extent * sizeof(value_type);
+    }
+
+    [[nodiscard]]
+    static constexpr auto capacity() noexcept -> size_type {
+        return extent;
+    }
+
+    [[nodiscard]]
+    constexpr auto data(this BasicInplaceString& self) noexcept -> pointer {
+        return self.storage;
+    }
+
+    [[nodiscard]]
+    constexpr auto data(this BasicInplaceString const& self) noexcept -> const_pointer {
+        return self.storage;
+    }
+
+    /**
+     * @brief Indexed element access, bounds-checked according to the
+     * build-wide contract setting.
+     * @param position Zero-based element position.
+     * @return Mutable reference to the requested element.
+     * @pre position is a valid element position.
+     */
+    [[nodiscard]]
+    constexpr auto operator[](this BasicInplaceString& self, size_type position) noexcept -> reference;
+
+    /**
+     * @brief Indexed element access, read-only, bounds-checked according to the
+     * build-wide contract setting.
+     * @param position Zero-based element position.
+     * @return Read-only reference to the requested element.
+     * @pre position is a valid element position.
+     */
+    [[nodiscard]]
+    constexpr auto operator[](this BasicInplaceString const& self, size_type position) noexcept -> const_reference;
+
+    [[nodiscard]]
+    constexpr auto front(this BasicInplaceString& self) noexcept -> reference;
+
+    [[nodiscard]]
+    constexpr auto front(this BasicInplaceString const& self) noexcept -> const_reference;
+
+    [[nodiscard]]
+    constexpr auto back(this BasicInplaceString& self) noexcept -> reference;
+
+    [[nodiscard]]
+    constexpr auto back(this BasicInplaceString const& self) noexcept -> const_reference;
+
+    /**
+     * @return true when the character was appended; false when the string was full.
+     */
+    [[nodiscard]]
+    constexpr auto try_push_back(this BasicInplaceString& self, value_type value) noexcept -> bool {
+        if (self.size() == extent) {
+            return false;
+        }
+        self.storage[self.size_storage] = value;
+        ++self.size_storage;
+        return true;
+    }
+
+    constexpr void push_back(this BasicInplaceString& self, value_type value) noexcept;
+
+    constexpr void pop_back(this BasicInplaceString& self) noexcept;
+
+    constexpr void clear(this BasicInplaceString& self) noexcept {
+        self.size_storage = StoredSize{};
+    }
+};
+
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t left_extent, ::std::size_t right_extent>
+[[nodiscard]]
+constexpr auto operator==(BasicInplaceString<CharType, left_extent> const& left,
+                          BasicInplaceString<CharType, right_extent> const& right) noexcept -> bool {
+    return left.size() == right.size() && ::std::equal(left.begin(), left.end(), right.begin());
+}
+
+template<::pltxt2htm::details::is_char_type CharType, ::std::size_t left_extent, ::std::size_t right_extent>
+[[nodiscard]]
+constexpr auto operator<=>(BasicInplaceString<CharType, left_extent> const& left,
+                           BasicInplaceString<CharType, right_extent> const& right) noexcept {
+    return ::std::lexicographical_compare_three_way(left.begin(), left.end(), right.begin(), right.end(),
+                                                    ::std::compare_three_way{});
+}
+
+template<::std::size_t extent>
+using InplaceString = BasicInplaceString<char, extent>;
+
+template<::std::size_t extent>
+using WInplaceString = BasicInplaceString<wchar_t, extent>;
+
+template<::std::size_t extent>
+using U8InplaceString = BasicInplaceString<char8_t, extent>;
+
+template<::std::size_t extent>
+using U16InplaceString = BasicInplaceString<char16_t, extent>;
+
+template<::std::size_t extent>
+using U32InplaceString = BasicInplaceString<char32_t, extent>;
+
+} // namespace pltxt2htm::details

@@ -6,18 +6,9 @@
 #pragma once
 
 #include "string_view_decl.hh"
-#include "../../details/inplace_string.hh"
 #include "../../details/push_macro.hh"
 
 namespace pltxt2htm::container {
-
-template<::pltxt2htm::details::is_char_type CharType>
-template<::std::size_t extent>
-constexpr BasicStringView<CharType>::BasicStringView(
-    ::pltxt2htm::details::BasicInplaceString<value_type, extent> const& string) noexcept
-    : pointer{string.data()},
-      length{string.size()} {
-}
 
 template<::pltxt2htm::details::is_char_type CharType>
 constexpr auto BasicStringView<CharType>::operator[](this BasicStringView const& self, size_type position) noexcept

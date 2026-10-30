@@ -18,12 +18,7 @@
 #include "../../details/contracts.hh"
 #include "../../details/concepts.hh"
 #include "../../details/literal_string.hh"
-
-namespace pltxt2htm::details {
-template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent>
-    requires (extent != 0)
-class BasicInplaceString;
-}
+#include "../../details/impl/inplace_string_decl.hh"
 
 namespace pltxt2htm::container {
 
@@ -115,7 +110,10 @@ public:
         ;
 
     template<::std::size_t extent>
-    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent> const& string) noexcept;
+    constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent> const& string) noexcept
+        : pointer{string.data()},
+          length{string.size()} {
+    }
 
     template<::std::size_t extent>
     constexpr BasicStringView(::pltxt2htm::details::BasicInplaceString<value_type, extent>&&) = delete
