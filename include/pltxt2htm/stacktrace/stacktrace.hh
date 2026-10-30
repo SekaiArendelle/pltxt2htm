@@ -15,10 +15,10 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
-#include "details/capture.hh"
-#include "details/contract.hh"
-#include "details/storage.hh"
-#include "details/stacktrace_entry.hh"
+#include "impl/capture.hh"
+#include "impl/contract.hh"
+#include "impl/storage.hh"
+#include "impl/stacktrace_entry.hh"
 
 namespace pltxt2htm::stacktrace {
 /**
