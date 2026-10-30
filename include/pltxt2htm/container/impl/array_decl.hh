@@ -248,4 +248,3 @@ constexpr auto to_array(T (&&source)[extent]) noexcept(::std::is_nothrow_move_co
 }
 
 } // namespace pltxt2htm::container
-

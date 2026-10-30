@@ -19,8 +19,7 @@ constexpr auto Array<T, extent>::operator[](this Array& self, size_type position
 
 template<typename T, ::std::size_t extent>
     requires (extent != 0)
-constexpr auto Array<T, extent>::operator[](this Array const& self, size_type position) noexcept
-    -> const_reference {
+constexpr auto Array<T, extent>::operator[](this Array const& self, size_type position) noexcept -> const_reference {
     pltxt2htm_assert(position < extent, u8"Index of array out of bound");
     return self.element[position];
 }

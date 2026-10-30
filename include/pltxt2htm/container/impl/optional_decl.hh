@@ -392,7 +392,7 @@ public:
 
     template<typename U = non_reference_value_type>
         requires (!::std::is_reference_v<T> && ::std::is_copy_constructible_v<non_reference_value_type> &&
-                  ::std::is_convertible_v<U &&, non_reference_value_type>)
+                  ::std::is_convertible_v<U&&, non_reference_value_type>)
     [[nodiscard]]
     constexpr auto value_or(this Optional<T> const& self, U&& value) noexcept(
         noexcept(static_cast<non_reference_value_type>(self.storage.value())) &&
@@ -405,7 +405,7 @@ public:
 
     template<typename U = non_reference_value_type>
         requires (!::std::is_reference_v<T> && ::std::is_move_constructible_v<non_reference_value_type> &&
-                  ::std::is_convertible_v<U &&, non_reference_value_type>)
+                  ::std::is_convertible_v<U&&, non_reference_value_type>)
     [[nodiscard]]
     constexpr auto value_or(this Optional<T>&& self, U&& value) noexcept(
         noexcept(static_cast<non_reference_value_type>(::std::move(self.storage).value())) &&
@@ -477,4 +477,3 @@ public:
 };
 
 } // namespace pltxt2htm::container
-

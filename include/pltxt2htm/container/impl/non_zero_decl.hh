@@ -98,4 +98,3 @@ using NonZeroU64 = ::pltxt2htm::container::NonZero<::std::uint64_t>;
 using NonZeroUsize = ::pltxt2htm::container::NonZero<::std::size_t>;
 
 } // namespace pltxt2htm::container
-

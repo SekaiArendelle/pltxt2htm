@@ -685,7 +685,8 @@ public:
     template<typename... Args>
     constexpr auto emplace(this Deque& self, const_iterator position, Args&&... args) noexcept -> iterator
         requires (::std::is_nothrow_constructible_v<value_type, Args...> &&
-                  ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>);
+                  ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
+    ;
 
     constexpr auto insert(this Deque& self, const_iterator position, const_reference value) noexcept -> iterator
         requires (::std::is_nothrow_copy_constructible_v<value_type> &&
@@ -704,7 +705,8 @@ public:
     constexpr auto insert(this Deque& self, const_iterator position, InputIterator first, Sentinel last) noexcept
         -> iterator
         requires (is_nothrow_input_range<InputIterator, Sentinel>() &&
-                  ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>);
+                  ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
+    ;
 
     constexpr auto insert(this Deque& self, const_iterator position,
                           ::std::initializer_list<value_type> values) noexcept -> iterator
@@ -782,4 +784,3 @@ constexpr void swap(Deque<T, Allocator>& left, Deque<T, Allocator>& right) noexc
 }
 
 } // namespace pltxt2htm::container
-

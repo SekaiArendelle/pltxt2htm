@@ -65,8 +65,7 @@ constexpr auto Deque<T, Allocator>::operator=(this Deque& self, Deque const& oth
     requires ::std::is_nothrow_copy_constructible_v<value_type>
 {
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
-                     u8"Internal self-assignment is not allowed");
+    pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"Internal self-assignment is not allowed");
 #else
     if (::std::addressof(self) == ::std::addressof(other)) {
         return self;
@@ -80,8 +79,7 @@ constexpr auto Deque<T, Allocator>::operator=(this Deque& self, Deque const& oth
 template<typename T, typename Allocator>
 constexpr auto Deque<T, Allocator>::operator=(this Deque& self, Deque&& other) noexcept -> Deque& {
 #if defined(PLTXT2HTM_INTERNAL_USE)
-    pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other),
-                     u8"Internal self-assignment is not allowed");
+    pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"Internal self-assignment is not allowed");
 #else
     if (::std::addressof(self) == ::std::addressof(other)) {
         return self;
@@ -98,8 +96,7 @@ constexpr auto Deque<T, Allocator>::operator[](this Deque& self, size_type posit
 }
 
 template<typename T, typename Allocator>
-constexpr auto Deque<T, Allocator>::operator[](this Deque const& self, size_type position) noexcept
-    -> const_reference {
+constexpr auto Deque<T, Allocator>::operator[](this Deque const& self, size_type position) noexcept -> const_reference {
     pltxt2htm_assert(position < self.element_count, u8"Index of Deque out of bound");
     return *self.pointer_at(position);
 }
@@ -150,8 +147,7 @@ constexpr auto Deque<T, Allocator>::emplace_back(this Deque& self, Args&&... arg
         }
         if (map_index == self.map_capacity) {
             if (new_block != nullptr) {
-                ::std::copy(self.blocks + first_block, self.blocks + self.map_capacity,
-                            self.blocks + first_block - 1);
+                ::std::copy(self.blocks + first_block, self.blocks + self.map_capacity, self.blocks + first_block - 1);
                 self.start_offset -= elements_per_block;
                 --map_index;
             }
@@ -303,8 +299,8 @@ template<typename T, typename Allocator>
 template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
 constexpr auto Deque<T, Allocator>::insert(this Deque& self, const_iterator position, InputIterator first,
                                            Sentinel last) noexcept -> iterator
-    requires (is_nothrow_input_range<InputIterator, Sentinel>() &&
-              ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
+    requires (is_nothrow_input_range<InputIterator, Sentinel>() && ::std::is_nothrow_move_constructible_v<value_type> &&
+              ::std::is_nothrow_move_assignable_v<value_type>)
 {
     size_type const index{static_cast<size_type>(position - self.cbegin())};
     pltxt2htm_assert(index <= self.element_count, u8"Insertion position of Deque out of bound");
