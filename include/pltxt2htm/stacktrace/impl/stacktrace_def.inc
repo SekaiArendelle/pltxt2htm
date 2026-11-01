@@ -1,11 +1,10 @@
 /**
  * @file stacktrace_def.inc
  * @brief Out-of-line contract-checked definitions for BasicStacktrace.
- * @details Declarations live in `stacktrace.hh`, which this file includes so it
- *          stays usable on its own. The assert machinery included here reaches
- *          the panic definition, which names `Stacktrace`, so the class must be
- *          declared first; that is why `stacktrace.hh` includes this file only
- *          after the class definition.
+ * @details Declarations live in `stacktrace.hh`, which includes this file after
+ *          the class definition. The assert machinery included here reaches the
+ *          panic definition, which names `Stacktrace`, so this file must not be
+ *          included before the class is declared.
  */
 
 #pragma once
