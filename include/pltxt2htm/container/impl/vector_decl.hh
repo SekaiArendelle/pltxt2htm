@@ -22,7 +22,6 @@
 #include <fast_io/fast_io_core.h>
 
 #include "../../details/concepts.hh"
-#include "../../details/contracts.hh"
 
 namespace pltxt2htm::container {
 
