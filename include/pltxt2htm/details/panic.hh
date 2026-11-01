@@ -60,9 +60,9 @@ inline void panic() noexcept {
 
     ::std::fwrite(to_be_printed.cdata(), sizeof(typename decltype(to_be_printed)::value_type), to_be_printed.size(),
                   stderr);
+    ::std::fflush(stderr);
 
 #if defined(_WIN32)
-    ::std::fflush(stderr);
     auto const trace = ::pltxt2htm::stacktrace::Stacktrace::current(1);
     constexpr ::std::size_t max_printed{128};
     auto const printed = trace.size() < max_printed ? trace.size() : max_printed;
@@ -95,8 +95,8 @@ inline void panic() noexcept {
     if (trace.size() > printed) {
         ::fast_io::io::perr("* stack trace truncated\n");
     }
-#endif
     ::std::fflush(stderr);
+#endif
 
     ::pltxt2htm::details::trap();
 }
