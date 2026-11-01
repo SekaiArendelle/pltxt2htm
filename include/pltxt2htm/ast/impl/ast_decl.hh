@@ -9,8 +9,7 @@
  *          implementation detail. Its public container operations mirror the backing vector,
  *          while their contract checking mode is fixed by Ast's build-wide contract setting. Ast
  *          also owns AST-specific operations such as appending text while coalescing adjacent
- *          text nodes. When container/vector.hh gains or changes a public member, mirror it here
- *          as well.
+ *          text nodes.
  *
  * @note Ast is a distinct type rather than an alias, so the two are no longer interchangeable:
  *       an Ast does not convert implicitly to
