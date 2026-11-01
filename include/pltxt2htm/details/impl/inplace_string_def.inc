@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "inplace_string_decl.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::details {
