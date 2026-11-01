@@ -7,8 +7,6 @@
 
 #pragma once
 
-#include <cstdint>
-
 #include "resolved_frame.hh"
 
 #if defined(_WIN32)
@@ -40,10 +38,10 @@ inline auto resolve(void* address) noexcept -> ResolvedFrame {
 
 /**
  * @brief A saved native address.
- * @details Queries resolve the address without recapturing. Text queries return
- *          independently owned `container::String` values, like
- *          `std::stacktrace_entry`. Use resolved() when several fields are
- *          needed, so the address is looked up only once.
+ * @details resolved() looks the saved address up without recapturing; each call
+ *          performs a full lookup (see resolve()), so resolve once and reuse the
+ *          frame. The text fields are independently owned `container::String`
+ *          values.
  */
 class StacktraceEntry {
     void* address{};
@@ -77,21 +75,10 @@ public:
         return self.address != nullptr;
     }
 
-    [[nodiscard]]
-    auto description(this StacktraceEntry const& self) noexcept -> ::pltxt2htm::container::String {
-        return ::pltxt2htm::stacktrace::resolve(self.address).description;
-    }
-
-    [[nodiscard]]
-    auto source_file(this StacktraceEntry const& self) noexcept -> ::pltxt2htm::container::String {
-        return ::pltxt2htm::stacktrace::resolve(self.address).source_file;
-    }
-
-    [[nodiscard]]
-    auto source_line(this StacktraceEntry const& self) noexcept -> ::std::uint32_t {
-        return ::pltxt2htm::stacktrace::resolve(self.address).source_line;
-    }
-
+    /**
+     * @brief Resolve the saved address into owned text and source location.
+     * @return The resolved frame; the address is retained on lookup failure.
+     */
     [[nodiscard]]
     auto resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame {
         return ::pltxt2htm::stacktrace::resolve(self.address);

@@ -71,8 +71,6 @@ int main() {
         ::std::same_as<decltype(::std::declval<trace::Stacktrace const&>()[0]), trace::StacktraceEntry const&>);
     constexpr trace::StacktraceEntry empty_entry{};
     static_assert(!empty_entry && empty_entry.native_handle() == nullptr);
-    pltxt2htm_test_assert_true(empty_entry.description().is_empty());
-    pltxt2htm_test_assert_true(empty_entry.source_file().is_empty() && empty_entry.source_line() == 0);
     {
         auto const empty_frame = empty_entry.resolved();
         pltxt2htm_test_assert_true(empty_frame.address == nullptr && empty_frame.description.is_empty() &&
@@ -125,9 +123,11 @@ int main() {
     pltxt2htm_test_assert_true((trace::Stacktrace{} <=> deep) < 0);
     pltxt2htm_test_assert_true(!deep.empty() && deep[0]);
     // Entry queries use the saved address, not a new capture.
-    [[maybe_unused]] auto const description = deep[0].description();
-    [[maybe_unused]] auto const file = deep[0].source_file();
-    (void)deep[0].source_line();
+    auto const first_frame = deep[0].resolved();
+    auto const expected_frame = trace::resolve(deep[0].native_handle());
+    pltxt2htm_test_assert_true(
+        first_frame.address == deep[0].native_handle() && first_frame.description == expected_frame.description &&
+        first_frame.source_file == expected_frame.source_file && first_frame.source_line == expected_frame.source_line);
     pltxt2htm_test_assert_true(deep.max_size() >= deep.size());
 #endif
 #if defined(_WIN32)
