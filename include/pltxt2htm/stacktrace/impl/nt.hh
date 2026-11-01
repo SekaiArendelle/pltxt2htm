@@ -119,13 +119,11 @@ struct DbgHelpSession {
      *          session's lock.
      */
     void reset(this DbgHelpSession& self) noexcept {
-        namespace nt = ::pltxt2htm::sys_nt;
-        namespace win32 = ::pltxt2htm::sys_win32;
         if (self.state == State::ready) {
-            (void)win32::SymCleanup(self.process);
+            (void)::pltxt2htm::sys_win32::SymCleanup(self.process);
         }
         if (self.process != nullptr) {
-            (void)nt::NtClose(self.process);
+            (void)::pltxt2htm::sys_nt::NtClose(self.process);
         }
         self.process = nullptr;
         self.state = State::uninitialized;

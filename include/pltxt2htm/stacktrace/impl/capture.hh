@@ -19,6 +19,7 @@
 #endif
 
 namespace pltxt2htm::stacktrace::details {
+
 static_assert(!CaptureBackend::supported || CaptureBackend::max_depth >= 1,
               "supported capture backends need a positive max_depth");
 

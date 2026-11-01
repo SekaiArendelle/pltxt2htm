@@ -12,6 +12,7 @@
 #include "../../sys/nt/ntdll.hh"
 
 namespace pltxt2htm::stacktrace::details {
+
 struct CaptureBackend {
     static constexpr bool supported = true;
     static constexpr ::std::size_t max_skip = (::std::numeric_limits<::pltxt2htm::sys_nt::Ulong>::max)();
@@ -29,4 +30,5 @@ struct CaptureBackend {
         return {.size = count, .possibly_truncated = count == capacity};
     }
 };
+
 } // namespace pltxt2htm::stacktrace::details

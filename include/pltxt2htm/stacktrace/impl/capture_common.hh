@@ -13,8 +13,10 @@
 #include <cstddef>
 
 namespace pltxt2htm::stacktrace::details {
+
 struct CaptureResult {
     ::std::size_t size{};
     bool possibly_truncated{};
 };
+
 } // namespace pltxt2htm::stacktrace::details
