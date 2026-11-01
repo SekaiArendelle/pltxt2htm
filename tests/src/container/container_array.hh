@@ -70,6 +70,26 @@ struct ArrayThrowingBooleanEquality {
     }
 };
 
+struct ArrayThrowingNegationEquality {
+    struct Result {
+        operator bool() const noexcept;
+        bool operator!() const;
+    };
+
+    friend constexpr auto operator==(ArrayThrowingNegationEquality const&,
+                                     ArrayThrowingNegationEquality const&) noexcept -> Result {
+        return {};
+    }
+
+    friend constexpr auto operator!=(ArrayThrowingNegationEquality const&,
+                                     ArrayThrowingNegationEquality const&) noexcept -> Result {
+        return {};
+    }
+};
+
+static_assert(can_compare_array_with<ArrayThrowingNegationEquality>);
+static_assert(!nothrow_comparable_array_element<ArrayThrowingNegationEquality>);
+
 struct ArrayThrowingThreeWay {
     friend constexpr auto operator==(ArrayThrowingThreeWay const&, ArrayThrowingThreeWay const&) noexcept -> bool {
         return true;

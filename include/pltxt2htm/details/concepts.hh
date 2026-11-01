@@ -14,14 +14,18 @@ concept is_char_type = ::std::same_as<T, char> || ::std::same_as<T, wchar_t> || 
                        ::std::same_as<T, char16_t> || ::std::same_as<T, char32_t>;
 
 /**
- * @brief Equality that reports its result without throwing.
- * @details The `static_cast<bool>` also requires the result-to-bool conversion
- * to be non-throwing, because standard algorithms consume the comparison
- * result through a boolean test.
+ * @brief The equality test performed by container comparisons is nothrow.
+ * @details Checks the element `==` together with both boolean tests applied to
+ * its result: `static_cast<bool>`, which Vector's operator== uses, and `!`,
+ * which std::equal applies inside Array's and Deque's operator== and which may
+ * dispatch to the result type's own `operator!`. The element `!=` is not part
+ * of the test: container `a != b` is rewritten from `a == b`, and no
+ * comparison body compares with `!=`.
  */
 template<typename T>
 concept nothrow_equality_comparable = requires(T const& left, T const& right) {
     { static_cast<bool>(left == right) } noexcept -> ::std::same_as<bool>;
+    { !(left == right) } noexcept;
 };
 
 /**
