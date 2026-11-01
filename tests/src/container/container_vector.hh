@@ -388,6 +388,20 @@ struct ThrowingMoveAssignment {
     auto operator=(ThrowingMoveAssignment&&) -> ThrowingMoveAssignment&;
 };
 
+struct NoDefaultVectorElement {
+    explicit NoDefaultVectorElement(int) noexcept {
+    }
+
+    NoDefaultVectorElement(NoDefaultVectorElement const&) noexcept = default;
+    NoDefaultVectorElement(NoDefaultVectorElement&&) noexcept = default;
+};
+
+struct ThrowingMoveCopyable {
+    ThrowingMoveCopyable() noexcept = default;
+    ThrowingMoveCopyable(ThrowingMoveCopyable const&) noexcept = default;
+    ThrowingMoveCopyable(ThrowingMoveCopyable&&);
+};
+
 template<typename T>
 concept ReservableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.reserve(1); };
 
@@ -403,6 +417,10 @@ concept ErasableVectorElement = requires(::pltxt2htm::container::Vector<T>& valu
 
 template<typename T>
 concept ResizableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.resize(1); };
+
+template<typename T>
+concept FillResizableVectorElement =
+    requires(::pltxt2htm::container::Vector<T>& values, T const& value) { values.resize(1, value); };
 
 template<typename T>
 concept EqualityComparableVectorElement = requires(::pltxt2htm::container::Vector<T> const& left,
@@ -427,11 +445,17 @@ static_assert(!CopyPushableVectorElement<ThrowingVectorCopy>);
 static_assert(!ErasableVectorElement<ThrowingMoveAssignment>);
 static_assert(!ResizableVectorElement<ThrowingMove>);
 static_assert(ResizableVectorElement<ThrowingVectorCopy>);
+static_assert(!ResizableVectorElement<NoDefaultVectorElement>);
+static_assert(FillResizableVectorElement<int>);
+static_assert(FillResizableVectorElement<NoDefaultVectorElement>);
+static_assert(!FillResizableVectorElement<ThrowingVectorCopy>);
+static_assert(!FillResizableVectorElement<ThrowingMoveCopyable>);
 static_assert(!EqualityComparableVectorElement<ThrowingEquality>);
 static_assert(!EqualityComparableVectorElement<ThrowingBooleanEquality>);
 static_assert(!AppendableIntRange<ThrowingIncrementRange&>);
 static_assert(noexcept(::std::declval<IntVector&>().reserve(1)));
 static_assert(noexcept(::std::declval<IntVector&>().resize(1)));
+static_assert(noexcept(::std::declval<IntVector&>().resize(1, 1)));
 static_assert(noexcept(::std::declval<IntVector&>().emplace_back(1)));
 static_assert(noexcept(::std::declval<IntVector&>().erase(::std::declval<IntVector::const_iterator>())));
 static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<SinglePassIntRange&>())));
@@ -532,6 +556,23 @@ TEST_SUITE("container_vector") {
         if (!resized.is_empty()) {
             return false;
         }
+
+        IntVector filled{};
+        filled.resize(2, 5);
+        if (filled != IntVector{5, 5}) {
+            return false;
+        }
+        // Constant evaluation is the deterministic guard for the aliasing path:
+        // a relocated read fails to compile here, while a runtime test can read
+        // a freed slot that still happens to hold the expected value.
+        filled.resize(4, filled[0]);
+        if (filled != IntVector{5, 5, 5, 5}) {
+            return false;
+        }
+        filled.resize(1, 9);
+        if (filled != IntVector{5}) {
+            return false;
+        }
         return true;
     }
 
@@ -612,6 +653,83 @@ TEST_SUITE("container_vector") {
         CHECK(values.is_empty());
         values.resize(0);
         CHECK(values.is_empty());
+    }
+
+    TEST_CASE("resize-with-value") {
+        IntVector values{1, 2, 3};
+        values.resize(5, 7);
+        CHECK(values.size() == 5);
+        CHECK(values[0] == 1);
+        CHECK(values[2] == 3);
+        CHECK(values[3] == 7);
+        CHECK(values[4] == 7);
+
+        values.resize(2, 9);
+        CHECK(values.size() == 2);
+        CHECK(values[1] == 2);
+        values.resize(2, 9);
+        CHECK(values.size() == 2);
+        CHECK(values[0] == 1);
+        CHECK(values[1] == 2);
+
+        // A fill value destroyed by the shrink is never read.
+        IntVector shrinking{1, 2, 3, 4, 5};
+        shrinking.resize(1, shrinking[4]);
+        CHECK(shrinking.size() == 1);
+        CHECK(shrinking[0] == 1);
+
+        // The fill value may refer to an element that growth relocates.
+        IntVector relocating{};
+        relocating.push_back(4);
+        relocating.push_back(5);
+        auto const forced_size = relocating.capacity() + 1;
+        relocating.resize(forced_size, relocating[1]);
+        CHECK(relocating.size() == forced_size);
+        CHECK(relocating[1] == 5);
+        CHECK(relocating[forced_size - 1] == 5);
+
+        // ... or to an element that stays in place.
+        IntVector stable{};
+        stable.reserve(8);
+        stable.push_back(6);
+        stable.resize(3, stable[0]);
+        CHECK(stable.size() == 3);
+        CHECK(stable[1] == 6);
+        CHECK(stable[2] == 6);
+    }
+
+    TEST_CASE("resize-with-value-allocation") {
+        TrackingRawAllocator::reset();
+        {
+            TrackingIntVector tracked{};
+            tracked.resize(2, 7);
+            CHECK(tracked.size() == 2);
+            CHECK(tracked[1] == 7);
+            CHECK(tracked.capacity() == 5);
+            CHECK(TrackingRawAllocator::get_active_allocations() == 1);
+            CHECK(TrackingRawAllocator::get_deallocation_count() == 0);
+
+            tracked.resize(4, 9);
+            CHECK(tracked.size() == 4);
+            CHECK(tracked[2] == 9);
+            CHECK(TrackingRawAllocator::get_active_allocations() == 1);
+            CHECK(TrackingRawAllocator::get_deallocation_count() == 0);
+
+            tracked.resize(1, 9);
+            CHECK(tracked.size() == 1);
+            CHECK(TrackingRawAllocator::get_active_allocations() == 1);
+            CHECK(TrackingRawAllocator::get_deallocation_count() == 0);
+
+            auto const capacity_before_growth = tracked.capacity();
+            tracked.resize(10, 9);
+            CHECK(tracked.size() == 10);
+            CHECK(tracked.capacity() > capacity_before_growth);
+            CHECK(TrackingRawAllocator::get_active_allocations() == 1);
+            CHECK(TrackingRawAllocator::get_deallocation_count() == 1);
+        }
+        CHECK(TrackingRawAllocator::get_active_allocations() == 0);
+        CHECK(TrackingRawAllocator::get_deallocation_count() == 2);
+        CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
     }
 
     TEST_CASE("resize-single-allocation") {
