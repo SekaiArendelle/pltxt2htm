@@ -11,6 +11,13 @@
 
 #include "doctest_config.hh"
 
+// windows.h defines min and max as function-like macros, which would expand
+// inside std::numeric_limits<...>::max(). Keep them undefined in this file.
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 template<typename T>
 concept can_form_non_zero = requires { typename ::pltxt2htm::container::NonZero<T>; };
 
@@ -73,8 +80,8 @@ static_assert(has_zero_overhead_representation<::std::size_t>());
 consteval auto test_constexpr_non_zero() noexcept -> bool {
     auto const value = NonZeroUsize::from(42);
     auto const equal_value = NonZeroUsize::from(42);
-    auto const maximum = NonZeroUsize::from((::std::numeric_limits<::std::size_t>::max)());
-    auto const u8_maximum = ::pltxt2htm::container::NonZeroU8::from((::std::numeric_limits<::std::uint8_t>::max)());
+    auto const maximum = NonZeroUsize::from(::std::numeric_limits<::std::size_t>::max());
+    auto const u8_maximum = ::pltxt2htm::container::NonZeroU8::from(::std::numeric_limits<::std::uint8_t>::max());
 
     return value.get() == 42 && value == equal_value && value == 42 && 42 == value && value == 42U && 42U == value &&
            value != 41 && 41 != value && value != -1 && -1 != value && maximum != -1 && -1 != maximum &&
@@ -83,3 +90,6 @@ consteval auto test_constexpr_non_zero() noexcept -> bool {
 }
 
 static_assert(test_constexpr_non_zero());
+
+#pragma pop_macro("max")
+#pragma pop_macro("min")
