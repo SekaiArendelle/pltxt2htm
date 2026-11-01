@@ -35,7 +35,7 @@ namespace pltxt2htm::details {
  *       include this header or the stacktrace backends that use it.
  */
 [[nodiscard]]
-inline auto demangle_symbol_name(char const* name) noexcept -> char* {
+inline auto demangle_symbol_name([[maybe_unused]] char const* name) noexcept -> char* {
 #if defined(__GXX_ABI_VERSION) && !defined(_MSC_VER) && __has_include(<cxxabi.h>)
     int status{};
     auto* demangled = ::abi::__cxa_demangle(name, nullptr, nullptr, ::std::addressof(status));
@@ -54,7 +54,6 @@ inline auto demangle_symbol_name(char const* name) noexcept -> char* {
     ::std::free(prefixed);
     return status == 0 ? demangled : nullptr;
 #else
-    (void)name;
     return nullptr;
 #endif
 }
