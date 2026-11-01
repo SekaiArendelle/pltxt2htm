@@ -66,6 +66,9 @@ int main() {
 #else
     pltxt2htm_test_assert_true(single.size == 0 && !single.possibly_truncated);
 #endif
+    // The capture front-end trims the address buffer to the reported count.
+    auto const grown = trace::details::capture_all<::fast_io::native_global_allocator>(0);
+    pltxt2htm_test_assert_true(grown.addresses.size() == grown.result.size);
     static_assert(::std::random_access_iterator<trace::Stacktrace::const_iterator>);
     static_assert(
         ::std::same_as<decltype(::std::declval<trace::Stacktrace const&>()[0]), trace::StacktraceEntry const&>);
