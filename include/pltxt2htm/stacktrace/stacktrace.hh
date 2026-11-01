@@ -16,6 +16,7 @@
 #pragma once
 
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <type_traits>
 #include <utility>
@@ -32,9 +33,9 @@ namespace pltxt2htm::stacktrace {
  *          their checked definitions are included at the end of this header so
  *          the panic path can use this API. Allocation failure terminates
  *          through the stateless fast_io allocator.
- * @note Native capture depends on inlining and tail calls. Unlike
- *       std::stacktrace, skip counts native frames including implementation
- *       helpers. Out-of-range operator[] is a contract violation.
+ * @note The capture machinery marks the frames it hides as noinline, so skip
+ *       counts stacktrace entries starting with the caller of current(), as
+ *       for std::stacktrace. Out-of-range operator[] is a contract violation.
  */
 template<typename Allocator = ::fast_io::native_global_allocator>
 class BasicStacktrace {
@@ -83,17 +84,31 @@ public:
 
     /**
      * @brief Capture the current native call stack.
-     * @param skip Native frames to skip, including the capture machinery's own
-     *             frames.
+     * @param skip Stacktrace entries to skip, starting with the caller of
+     *             current().
      * @return Captured frames; empty when the platform has no capture backend
      *         or skip is unrepresentable.
+     * @details The frames of the capture machinery and of current() itself are
+     *          hidden, so entry zero corresponds to the caller of current(), as
+     *          for std::stacktrace.
      * @note Capture grows until the stack is complete or the backend limit is
      *       reached; only the latter sets possibly_truncated().
      */
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__noinline__)
+    [[__gnu__::__noinline__]]
+#elif defined(_MSC_VER)
+    __declspec(noinline)
+#endif
     static auto current(size_type skip = 0) noexcept -> BasicStacktrace {
         BasicStacktrace result{};
-        auto frames = details::capture_all<allocator_type>(skip);
+        // CaptureBackend::capture, capture_all and current are noinline, so
+        // their frames are stable and can be hidden here.
+        constexpr size_type hidden_machinery_frames{3};
+        if (skip > (::std::numeric_limits<size_type>::max)() - hidden_machinery_frames) {
+            return result;
+        }
+        auto frames = details::capture_all<allocator_type>(skip + hidden_machinery_frames);
         result.entries.reserve(frames.addresses.size());
         for (auto* const address : frames.addresses) {
             result.entries.emplace_back().address = address;

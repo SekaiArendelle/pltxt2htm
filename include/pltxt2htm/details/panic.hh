@@ -29,7 +29,14 @@ template<U8LiteralString expression, U8LiteralString file_name, unsigned line, u
 [[__gnu__::__cold__]]
 #endif
 [[noreturn]]
-inline void panic() noexcept;
+// panic is a template, so its specializations need no inline for the ODR; the
+// keyword is omitted because GCC rejects inline combined with noinline.
+#if __has_cpp_attribute(__gnu__::__noinline__)
+[[__gnu__::__noinline__]]
+#elif defined(_MSC_VER)
+__declspec(noinline)
+#endif
+void panic() noexcept;
 
 } // namespace pltxt2htm::details
 
@@ -43,7 +50,7 @@ namespace pltxt2htm::details {
 
 template<U8LiteralString expression, U8LiteralString file_name, unsigned line, unsigned column, U8LiteralString msg>
 [[noreturn]]
-inline void panic() noexcept {
+void panic() noexcept {
     constexpr auto to_be_printed = ::pltxt2htm::details::concat(
         U8LiteralString{u8"Program panicked because "}, expression,
         U8LiteralString{
@@ -64,6 +71,8 @@ inline void panic() noexcept {
                   stderr);
     ::std::fflush(stderr);
 
+    // Hide current() and panic() itself so the first entry is normally the call
+    // site that reported the problem; a sibling call at that site would hide it.
     auto const trace = ::pltxt2htm::stacktrace::Stacktrace::current(1);
     if (!trace.empty()) {
         constexpr ::std::size_t max_printed{128};

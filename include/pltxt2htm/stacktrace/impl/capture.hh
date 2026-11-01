@@ -38,8 +38,7 @@ struct CapturedFrames {
 
 /**
  * @brief Capture the complete native stack into growable storage.
- * @param skip Native frames to skip, including the capture machinery's own
- *             frames.
+ * @param skip Native frames to skip, starting with the backend capture frame.
  * @return Captured addresses and whether the backend limit truncated them;
  *         empty when the platform has no backend or skip is unrepresentable.
  * @details Grows the buffer by doubling until the backend writes fewer
@@ -47,6 +46,11 @@ struct CapturedFrames {
  */
 template<typename Allocator>
 [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__noinline__)
+[[__gnu__::__noinline__]]
+#elif defined(_MSC_VER)
+__declspec(noinline)
+#endif
 auto capture_all(::std::size_t skip) noexcept -> CapturedFrames<Allocator> {
     if constexpr (!CaptureBackend::supported) {
         return {};

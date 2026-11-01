@@ -13,6 +13,7 @@
 #include <concepts>
 #include <iterator>
 #include <memory>
+#include <string_view>
 #include <utility>
 
 struct TrackingAllocator {
@@ -49,6 +50,16 @@ __declspec(noinline)
         return {};
     }
     return result;
+}
+
+[[nodiscard]]
+#if defined(_MSC_VER)
+__declspec(noinline)
+#elif defined(__GNUC__)
+[[gnu::noinline]]
+#endif
+::pltxt2htm::stacktrace::Stacktrace trace_from_named_frame(::std::size_t skip) noexcept {
+    return ::pltxt2htm::stacktrace::Stacktrace::current(skip);
 }
 
 int main() {
@@ -143,6 +154,15 @@ int main() {
     // DbgHelp must reach the image's symbols (PDB or, for GNU-ABI builds, the
     // export table) for frames inside the test executable.
     pltxt2htm_test_assert_true(!first_frame.description.is_empty());
+    // std::stacktrace semantics: entry zero of current(0) is the caller of
+    // current(), and skip shifts the trace by exactly one entry.
+    auto const from_here = ::trace_from_named_frame(0);
+    auto const one_skipped = ::trace_from_named_frame(1);
+    pltxt2htm_test_assert_true(from_here.size() > 1);
+    pltxt2htm_test_assert_true(one_skipped.size() + 1 == from_here.size());
+    auto const from_here_name = from_here[0].resolved().description;
+    auto const from_here_view = ::std::string_view{from_here_name.data(), from_here_name.size()};
+    pltxt2htm_test_assert_true(from_here_view.find("trace_from_named_frame") != ::std::string_view::npos);
     #if defined(__GXX_ABI_VERSION) && !defined(_MSC_VER) && __has_include(<cxxabi.h>)
     // GNU-ABI builds receive Itanium-mangled export names, which DbgHelp reports
     // without the leading underscore; the demangler must turn deep_trace's name

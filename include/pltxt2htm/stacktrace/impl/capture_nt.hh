@@ -18,9 +18,15 @@ struct CaptureBackend {
 
     /**
      * @brief Write up to frames.size() return addresses into frames.
+     * @param skip Native frames to skip, starting with this function's frame.
      * @return Number of addresses written; a full buffer may have more frames.
      */
     [[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__noinline__)
+    [[__gnu__::__noinline__]]
+#elif defined(_MSC_VER)
+    __declspec(noinline)
+#endif
     static auto capture(::std::span<void*> frames, ::std::size_t skip) noexcept -> ::std::size_t {
         // A skip wider than ULONG is unrepresentable, so report no frames
         // instead of letting the cast wrap into a different offset.
