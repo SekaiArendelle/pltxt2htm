@@ -18,6 +18,7 @@
 #include <type_traits>
 #include <utility>
 
+#include "../../details/concepts.hh"
 #include "../../details/contracts.hh"
 
 namespace pltxt2htm::container {
@@ -184,7 +185,8 @@ public:
     template<::std::size_t right_extent>
         requires (::std::equality_comparable<T> && right_extent != 0)
     [[nodiscard]]
-    constexpr auto operator==(this Array const& self, Array<T, right_extent> const& right) -> bool {
+    constexpr auto operator==(this Array const& self, Array<T, right_extent> const& right) noexcept(
+        ::pltxt2htm::details::nothrow_equality_comparable<T>) -> bool {
         if constexpr (extent != right_extent) {
             return false;
         }
@@ -196,7 +198,8 @@ public:
     template<::std::size_t right_extent>
         requires (::std::three_way_comparable<T> && right_extent != 0)
     [[nodiscard]]
-    constexpr auto operator<=>(this Array const& self, Array<T, right_extent> const& right) {
+    constexpr auto operator<=>(this Array const& self, Array<T, right_extent> const& right) noexcept(
+        ::pltxt2htm::details::nothrow_three_way_comparable<T>) {
         return ::std::lexicographical_compare_three_way(self.begin(), self.end(), right.begin(), right.end(),
                                                         ::std::compare_three_way{});
     }
