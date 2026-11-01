@@ -47,28 +47,31 @@ __declspec(noinline)
 
 int main() {
     namespace trace = ::pltxt2htm::stacktrace;
-    void* storage[8]{};
-    auto const empty = trace::details::capture({});
-    pltxt2htm_test_assert_true(empty.size == 0 && !empty.possibly_truncated);
-    auto const skipped = trace::details::capture(storage, (::std::numeric_limits<::std::size_t>::max)());
-    pltxt2htm_test_assert_true(skipped.size == 0);
-    void* guarded[3]{nullptr, nullptr, reinterpret_cast<void*>(1)};
-    auto const single = trace::details::capture({guarded, 1});
-    pltxt2htm_test_assert_true(guarded[1] == nullptr && guarded[2] == reinterpret_cast<void*>(1));
+    [[maybe_unused]] void* storage[8]{};
 #if defined(_WIN32)
-    pltxt2htm_test_assert_true(single.size == 1 && single.possibly_truncated);
-    pltxt2htm_test_assert_true(guarded[0] != nullptr);
+    // Backend contract: capacity-bounded writes, skip handling, written count.
+    pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({}, 0) == 0);
+    pltxt2htm_test_assert_true(
+        trace::details::CaptureBackend::capture(storage, (::std::numeric_limits<::std::size_t>::max)()) == 0);
+    void* guarded[3]{nullptr, nullptr, reinterpret_cast<void*>(1)};
+    pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({guarded, 1}, 0) == 1);
+    pltxt2htm_test_assert_true(guarded[0] != nullptr && guarded[1] == nullptr);
+    pltxt2htm_test_assert_true(guarded[2] == reinterpret_cast<void*>(1));
     // Capacity is the number retained after skipping.
-    auto const after_skip = trace::details::capture({guarded, 1}, 1);
-    pltxt2htm_test_assert_true(after_skip.size == 1 && guarded[1] == nullptr);
-    auto const full = trace::details::capture(storage);
-    pltxt2htm_test_assert_true(full.size > 0 && full.size <= 8);
-#else
-    pltxt2htm_test_assert_true(single.size == 0 && !single.possibly_truncated);
-#endif
-    // The capture front-end trims the address buffer to the reported count.
+    pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({guarded, 1}, 1) == 1);
+    pltxt2htm_test_assert_true(guarded[1] == nullptr);
+    auto const written = trace::details::CaptureBackend::capture(storage, 0);
+    pltxt2htm_test_assert_true(written > 0 && written <= 8);
+    // The front-end stores exactly the addresses the backend reported.
     auto const grown = trace::details::capture_all<::fast_io::native_global_allocator>(0);
-    pltxt2htm_test_assert_true(grown.addresses.size() == grown.result.size);
+    pltxt2htm_test_assert_true(!grown.addresses.is_empty());
+    for (void* address : grown.addresses) {
+        pltxt2htm_test_assert_true(address != nullptr);
+    }
+#else
+    auto const unsupported = trace::details::capture_all<::fast_io::native_global_allocator>(0);
+    pltxt2htm_test_assert_true(unsupported.addresses.is_empty() && !unsupported.possibly_truncated);
+#endif
     static_assert(::std::random_access_iterator<trace::Stacktrace::const_iterator>);
     static_assert(
         ::std::same_as<decltype(::std::declval<trace::Stacktrace const&>()[0]), trace::StacktraceEntry const&>);

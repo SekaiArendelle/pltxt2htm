@@ -39,7 +39,7 @@ class BasicStacktrace {
     using entries_type =
         ::pltxt2htm::container::Vector<StacktraceEntry, ::fast_io::generic_allocator_adapter<Allocator>>;
     entries_type entries{};
-    details::CaptureResult captured{};
+    bool truncated{};
 
 public:
     using value_type = StacktraceEntry;
@@ -61,13 +61,13 @@ public:
 
     constexpr BasicStacktrace(BasicStacktrace const& other, allocator_type const&) noexcept
         : entries{other.entries},
-          captured{other.captured} {
+          truncated{other.truncated} {
     }
 
     constexpr BasicStacktrace(BasicStacktrace&& other) noexcept
         : entries{::std::move(other.entries)},
-          captured{other.captured} {
-        other.captured = {};
+          truncated{other.truncated} {
+        other.truncated = false;
     }
 
     constexpr BasicStacktrace(BasicStacktrace&& other, allocator_type const&) noexcept
@@ -79,7 +79,7 @@ public:
             details::contract_violation();
         }
         self.entries = other.entries;
-        self.captured = other.captured;
+        self.truncated = other.truncated;
         return self;
     }
 
@@ -88,8 +88,8 @@ public:
             details::contract_violation();
         }
         self.entries = ::std::move(other.entries);
-        self.captured = other.captured;
-        other.captured = {};
+        self.truncated = other.truncated;
+        other.truncated = false;
         return self;
     }
 
@@ -106,12 +106,11 @@ public:
     static auto current(size_type skip = 0) noexcept -> BasicStacktrace {
         BasicStacktrace result{};
         auto frames = details::capture_all<allocator_type>(skip);
-        result.captured = frames.result;
-        result.entries.reserve(frames.result.size);
-        for (size_type index{}; index < frames.result.size; ++index) {
-            auto& entry = result.entries.emplace_back();
-            entry.address = frames.addresses[index];
+        result.entries.reserve(frames.addresses.size());
+        for (auto* const address : frames.addresses) {
+            result.entries.emplace_back().address = address;
         }
+        result.truncated = frames.possibly_truncated;
         return result;
     }
 
@@ -127,10 +126,11 @@ public:
 
     [[nodiscard]]
     constexpr auto end(this BasicStacktrace const& self) noexcept -> const_iterator {
-        if (self.captured.size == 0) {
+        auto const count = self.entries.size();
+        if (count == 0) {
             return self.entries.data();
         }
-        return self.entries.data() + self.captured.size;
+        return self.entries.data() + count;
     }
 
     [[nodiscard]]
@@ -165,7 +165,7 @@ public:
 
     [[nodiscard]]
     constexpr auto size(this BasicStacktrace const& self) noexcept -> size_type {
-        return self.captured.size;
+        return self.entries.size();
     }
 
     [[nodiscard]]
@@ -188,14 +188,14 @@ public:
 
     constexpr void swap(this BasicStacktrace& self, BasicStacktrace& other) noexcept {
         self.entries.swap(other.entries);
-        auto const captured = self.captured;
-        self.captured = other.captured;
-        other.captured = captured;
+        auto const truncated = self.truncated;
+        self.truncated = other.truncated;
+        other.truncated = truncated;
     }
 
     [[nodiscard]]
     constexpr auto possibly_truncated(this BasicStacktrace const& self) noexcept -> bool {
-        return self.captured.possibly_truncated;
+        return self.truncated;
     }
 };
 

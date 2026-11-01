@@ -7,18 +7,19 @@
 
 #include <cstddef>
 #include <span>
-#include "capture_common.hh"
 
 namespace pltxt2htm::stacktrace::details {
 
 struct CaptureBackend {
     static constexpr bool supported = false;
-    static constexpr ::std::size_t max_skip = 0;
     static constexpr ::std::size_t max_depth = 0;
 
+    /**
+     * @brief Unused backend entry point, kept so the shared front-end compiles.
+     */
     [[nodiscard]]
-    static auto capture(::std::span<void*>, ::std::size_t) noexcept -> CaptureResult {
-        return {};
+    static auto capture(::std::span<void*>, ::std::size_t) noexcept -> ::std::size_t {
+        return 0;
     }
 };
 
