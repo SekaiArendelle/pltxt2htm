@@ -75,8 +75,8 @@ struct DbgHelpSession {
      *          failed attempt so it is not repeated; `ready` means the duplicate
      *          handle is initialized and must be cleaned up before release.
      */
-    enum class State : unsigned char {
-        uninitialized,
+    enum class State : unsigned {
+        uninitialized = 0,
         unavailable,
         ready,
     };
