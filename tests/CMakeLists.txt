@@ -150,6 +150,12 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
     add_executable(${TEST_NAME} ${TEST_SOURCE})
     target_link_libraries(${TEST_NAME} PRIVATE precompile doctest::doctest)
+    # GNU-ABI Windows toolchains emit no PDB, so export every global symbol and
+    # let DbgHelp resolve crash frames through the export table. Limit this to
+    # executables: exporting symbols from a shared library changes its ABI.
+    if(WIN32 AND NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" AND NOT CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
+        target_link_options(${TEST_NAME} PRIVATE "-Wl,--export-all-symbols")
+    endif()
     if(WIN32 AND TEST_NAME MATCHES "^windows_symbols")
         target_link_libraries(${TEST_NAME} PRIVATE dbghelp)
     endif()
@@ -167,6 +173,11 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     endif()
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_compile_options(${TEST_NAME} PRIVATE -g)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        # DbgHelp can only name frames from a module that has a PDB, so keep
+        # debug information even for single-config builds without a build type.
+        target_compile_options(${TEST_NAME} PRIVATE /Zi)
+        target_link_options(${TEST_NAME} PRIVATE /DEBUG)
     endif()
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endforeach()

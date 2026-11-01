@@ -12,6 +12,7 @@
 #include <limits>
 #include <concepts>
 #include <iterator>
+#include <memory>
 #include <utility>
 
 struct TrackingAllocator {
@@ -139,6 +140,17 @@ int main() {
     pltxt2htm_test_assert_true(
         first_frame.address == deep[0].native_handle() && first_frame.description == expected_frame.description &&
         first_frame.source_file == expected_frame.source_file && first_frame.source_line == expected_frame.source_line);
+    // DbgHelp must reach the image's symbols (PDB or, for GNU-ABI builds, the
+    // export table) for frames inside the test executable.
+    pltxt2htm_test_assert_true(!first_frame.description.is_empty());
+    #if defined(__GXX_ABI_VERSION) && !defined(_MSC_VER) && __has_include(<cxxabi.h>)
+    // GNU-ABI builds receive Itanium-mangled export names, which DbgHelp reports
+    // without the leading underscore; the demangler must turn deep_trace's name
+    // into readable text instead of the raw "Z10deep_trace..." spelling.
+    auto const named = trace::resolve(reinterpret_cast<void*>(::std::addressof(::deep_trace)));
+    pltxt2htm_test_assert_true(!named.description.is_empty());
+    pltxt2htm_test_assert_true(named.description.data()[0] != u8'Z');
+    #endif
     pltxt2htm_test_assert_true(deep.max_size() >= deep.size());
 #endif
 #if defined(_WIN32)

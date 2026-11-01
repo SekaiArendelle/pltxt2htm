@@ -15,11 +15,12 @@
 #include <fast_io/fast_io_core.h>
 
 #include "resolved_frame.hh"
+#include "../../details/demangle.hh"
 #include "../../sys/nt/ntdll.hh"
-
 #include "../../sys/win32/dbghelp.hh"
 
 namespace pltxt2htm::stacktrace::details {
+
 /**
  * @brief Scoped exclusive ownership of a session's SRW lock.
  * @details The guard releases the lock when it leaves scope, so early returns
@@ -211,6 +212,12 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
             return;
         }
         auto const* const name = reinterpret_cast<char const*>(storage + name_offset);
+        if (auto* const demangled = ::pltxt2htm::details::demangle_symbol_name(name)) {
+            result.description.assign(demangled, demangled + ::fast_io::cstr_len(demangled));
+            ::std::free(demangled);
+            ::std::free(storage);
+            return;
+        }
         result.description.assign(name, name + name_size);
         ::std::free(storage);
         return;
