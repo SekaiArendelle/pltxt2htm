@@ -21,6 +21,45 @@
 
 namespace pltxt2htm::stacktrace::details {
 /**
+ * @brief Scoped exclusive ownership of a session's SRW lock.
+ * @details The guard releases the lock when it leaves scope, so early returns
+ *          cannot unbalance the acquire/release pair. An unheld guard is the
+ *          failure result of try_acquire().
+ */
+class DbgHelpLock {
+    ::pltxt2htm::sys_nt::SrwLock* lock{};
+
+    constexpr explicit DbgHelpLock(::pltxt2htm::sys_nt::SrwLock* lock_) noexcept
+        : lock{lock_} {
+    }
+
+public:
+    constexpr DbgHelpLock(DbgHelpLock const&) noexcept = delete;
+    constexpr DbgHelpLock(DbgHelpLock&&) noexcept = delete;
+    constexpr auto operator=(DbgHelpLock const&) noexcept -> DbgHelpLock& = delete;
+    constexpr auto operator=(DbgHelpLock&&) noexcept -> DbgHelpLock& = delete;
+
+    ~DbgHelpLock() noexcept {
+        if (lock != nullptr) {
+            ::pltxt2htm::sys_nt::RtlReleaseSRWLockExclusive(lock);
+        }
+    }
+
+    [[nodiscard]]
+    static auto try_acquire(::pltxt2htm::sys_nt::SrwLock& lock_) noexcept -> DbgHelpLock {
+        if (::pltxt2htm::sys_nt::RtlTryAcquireSRWLockExclusive(::std::addressof(lock_)) == 0) {
+            return DbgHelpLock{nullptr};
+        }
+        return DbgHelpLock{::std::addressof(lock_)};
+    }
+
+    [[nodiscard]]
+    constexpr explicit operator bool(this DbgHelpLock const& self) noexcept {
+        return self.lock != nullptr;
+    }
+};
+
+/**
  * @brief One DbgHelp session per linked image.
  * @details This lock only coordinates our own calls; hosts using DbgHelp
  *          elsewhere must coordinate those users, because panic diagnostics
@@ -30,17 +69,33 @@ namespace pltxt2htm::stacktrace::details {
  *          changes and all other DbgHelp calls.
  */
 struct DbgHelpSession {
+    /**
+     * @brief Initialization state of the session.
+     * @details `uninitialized` allows another attempt; `unavailable` records a
+     *          failed attempt so it is not repeated; `ready` means the duplicate
+     *          handle is initialized and must be cleaned up before release.
+     */
+    enum class State : unsigned char {
+        uninitialized,
+        unavailable,
+        ready,
+    };
+
     ::pltxt2htm::sys_nt::SrwLock lock{};
     void* process{};
-    bool attempted{};
-    bool ready{};
+    State state{State::uninitialized};
+
+    [[nodiscard]]
+    constexpr auto is_ready(this DbgHelpSession const& self) noexcept -> bool {
+        return self.state == State::ready;
+    }
 
     [[nodiscard]]
     auto try_initialize(this DbgHelpSession& self) noexcept -> bool {
-        if (self.attempted) {
-            return self.ready;
+        if (self.state != State::uninitialized) {
+            return self.state == State::ready;
         }
-        self.attempted = true;
+        self.state = State::unavailable;
         auto const current_process = reinterpret_cast<void*>(static_cast<::std::intptr_t>(-1));
         // A distinct real handle lets DbgHelp enumerate this process without
         // sharing the GetCurrentProcess() pseudo-handle session with the host.
@@ -50,8 +105,11 @@ struct DbgHelpSession {
         }
         constexpr ::pltxt2htm::sys_win32::Dword symopt_load_lines = 0x00000010;
         (void)::pltxt2htm::sys_win32::SymSetOptions(::pltxt2htm::sys_win32::SymGetOptions() | symopt_load_lines);
-        self.ready = ::pltxt2htm::sys_win32::SymInitialize(self.process, nullptr, 1) != 0;
-        return self.ready;
+        if (::pltxt2htm::sys_win32::SymInitialize(self.process, nullptr, 1) == 0) {
+            return false;
+        }
+        self.state = State::ready;
+        return true;
     }
 
     /**
@@ -63,15 +121,28 @@ struct DbgHelpSession {
     void reset(this DbgHelpSession& self) noexcept {
         namespace nt = ::pltxt2htm::sys_nt;
         namespace win32 = ::pltxt2htm::sys_win32;
-        if (self.ready) {
+        if (self.state == State::ready) {
             (void)win32::SymCleanup(self.process);
         }
         if (self.process != nullptr) {
             (void)nt::NtClose(self.process);
         }
         self.process = nullptr;
-        self.ready = false;
-        self.attempted = false;
+        self.state = State::uninitialized;
+    }
+
+    /**
+     * @brief Acquire the session's lock exclusively, then release the session.
+     * @return false when a lookup is active, so nothing was released.
+     */
+    [[nodiscard]]
+    auto try_shutdown(this DbgHelpSession& self) noexcept -> bool {
+        auto held = DbgHelpLock::try_acquire(self.lock);
+        if (!held) {
+            return false;
+        }
+        self.reset();
+        return true;
     }
 };
 
@@ -94,13 +165,7 @@ inline auto get_symbol_session() noexcept -> DbgHelpSession& {
  */
 [[nodiscard]]
 inline auto shutdown_symbols() noexcept -> bool {
-    auto& session = details::get_symbol_session();
-    if (!::pltxt2htm::sys_nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {
-        return false;
-    }
-    session.reset();
-    ::pltxt2htm::sys_nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
-    return true;
+    return details::get_symbol_session().try_shutdown();
 }
 
 inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& session,
@@ -158,7 +223,8 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
 inline auto resolve_nt(void* address) noexcept -> ResolvedFrame {
     ResolvedFrame result{.address = address};
     auto& session = details::get_symbol_session();
-    if (!::pltxt2htm::sys_nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {
+    auto held = DbgHelpLock::try_acquire(session.lock);
+    if (!held) {
         return result;
     }
     if (session.try_initialize()) {
@@ -176,7 +242,6 @@ inline auto resolve_nt(void* address) noexcept -> ResolvedFrame {
             result.source_line = line.line_number;
         }
     }
-    ::pltxt2htm::sys_nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
     return result;
 }
 } // namespace pltxt2htm::stacktrace::details

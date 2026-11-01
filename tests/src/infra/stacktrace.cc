@@ -5,7 +5,6 @@
 #include <fast_io/fast_io_dsal/string.h>
 #include "precompile.hh"
 #include <limits>
-#include <memory>
 #include <concepts>
 #include <iterator>
 #include <utility>
@@ -132,10 +131,9 @@ int main() {
     pltxt2htm_test_assert_true(deep.max_size() >= deep.size());
 #endif
 #if defined(_WIN32)
-    namespace nt = ::pltxt2htm::sys_nt;
     namespace win32 = ::pltxt2htm::sys_win32;
     auto& session = trace::details::get_symbol_session();
-    pltxt2htm_test_assert_true(session.ready);
+    pltxt2htm_test_assert_true(session.is_ready());
     pltxt2htm_test_assert_true((win32::SymGetOptions() & 0x00000010) != 0);
     // Resolve a module loaded after DbgHelp initialized its module list.
     auto* late_module = win32::LoadLibraryExW(L"winmm.dll", nullptr, 0x00000800);
@@ -146,17 +144,26 @@ int main() {
     pltxt2htm_test_assert_true(!late_frame.description.is_empty());
     (void)win32::FreeLibrary(late_module);
     // Exercise contention fallback without depending on another thread's timing.
-    nt::RtlAcquireSRWLockExclusive(::std::addressof(session.lock));
-    auto const busy = trace::resolve(storage[0]);
-    pltxt2htm_test_assert_true(busy.address == storage[0] && busy.description.is_empty());
-    pltxt2htm_test_assert_true(!trace::details::shutdown_symbols());
-    nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
+    {
+        auto held = trace::details::DbgHelpLock::try_acquire(session.lock);
+        pltxt2htm_test_assert_true(static_cast<bool>(held));
+        auto const busy = trace::resolve(storage[0]);
+        pltxt2htm_test_assert_true(busy.address == storage[0] && busy.description.is_empty());
+        pltxt2htm_test_assert_true(!trace::details::shutdown_symbols());
+        pltxt2htm_test_assert_true(session.is_ready() && session.process != nullptr);
+    }
     auto const invalid = trace::resolve(nullptr);
     pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.is_empty());
     pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
-    pltxt2htm_test_assert_true(!session.ready && session.process == nullptr);
+    pltxt2htm_test_assert_true(!session.is_ready() && session.process == nullptr);
     auto const again = trace::resolve(storage[0]);
-    pltxt2htm_test_assert_true(again.address == storage[0] && session.ready);
+    pltxt2htm_test_assert_true(again.address == storage[0] && session.is_ready());
+    pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
+    // A recorded initialization failure must not be retried by a later lookup.
+    session.state = trace::details::DbgHelpSession::State::unavailable;
+    auto const unavailable = trace::resolve(storage[0]);
+    pltxt2htm_test_assert_true(unavailable.address == storage[0] && unavailable.description.is_empty() &&
+                               session.process == nullptr && !session.is_ready());
     pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
 #endif
 }
