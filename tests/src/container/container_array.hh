@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 #include <pltxt2htm/container/array.hh>
 
 #include "doctest_config.hh"
@@ -27,6 +28,106 @@ static_assert(requires(IntArray& values, IntArray const& const_values, ::std::si
     values[position] = 1;
     const_values[position];
 });
+
+template<typename T>
+concept can_compare_array_with = requires(::pltxt2htm::container::Array<T, 1> const& left,
+                                          ::pltxt2htm::container::Array<T, 2> const& right) { left == right; };
+
+template<typename T>
+concept can_three_way_compare_array_with =
+    requires(::pltxt2htm::container::Array<T, 1> const& left, ::pltxt2htm::container::Array<T, 2> const& right) {
+        left <=> right;
+    };
+
+template<typename T>
+concept nothrow_comparable_array_element = noexcept(::std::declval<::pltxt2htm::container::Array<T, 1> const&>() ==
+                                                    ::std::declval<::pltxt2htm::container::Array<T, 2> const&>());
+
+template<typename T>
+concept nothrow_three_way_comparable_array_element =
+    noexcept(::std::declval<::pltxt2htm::container::Array<T, 1> const&>() <=>
+             ::std::declval<::pltxt2htm::container::Array<T, 2> const&>());
+
+struct ArrayWithoutEquality {};
+
+struct ArrayThrowingEquality {
+    friend auto operator==(ArrayThrowingEquality const&, ArrayThrowingEquality const&) -> bool;
+};
+
+struct ArrayThrowingBooleanEquality {
+    struct Result {
+        operator bool() const;
+    };
+
+    friend constexpr auto operator==(ArrayThrowingBooleanEquality const&, ArrayThrowingBooleanEquality const&) noexcept
+        -> Result {
+        return {};
+    }
+
+    friend constexpr auto operator!=(ArrayThrowingBooleanEquality const&, ArrayThrowingBooleanEquality const&) noexcept
+        -> Result {
+        return {};
+    }
+};
+
+struct ArrayThrowingNegationEquality {
+    struct Result {
+        operator bool() const noexcept;
+        bool operator!() const;
+    };
+
+    friend constexpr auto operator==(ArrayThrowingNegationEquality const&,
+                                     ArrayThrowingNegationEquality const&) noexcept -> Result {
+        return {};
+    }
+
+    friend constexpr auto operator!=(ArrayThrowingNegationEquality const&,
+                                     ArrayThrowingNegationEquality const&) noexcept -> Result {
+        return {};
+    }
+};
+
+static_assert(can_compare_array_with<ArrayThrowingNegationEquality>);
+static_assert(!nothrow_comparable_array_element<ArrayThrowingNegationEquality>);
+
+struct ArrayThrowingThreeWay {
+    friend constexpr auto operator==(ArrayThrowingThreeWay const&, ArrayThrowingThreeWay const&) noexcept -> bool {
+        return true;
+    }
+
+    friend auto operator<=>(ArrayThrowingThreeWay const&, ArrayThrowingThreeWay const&) -> ::std::strong_ordering;
+};
+
+struct ArrayThrowingEqualityNothrowThreeWay {
+    friend auto operator==(ArrayThrowingEqualityNothrowThreeWay const&, ArrayThrowingEqualityNothrowThreeWay const&)
+        -> bool;
+
+    friend constexpr auto operator<=>(ArrayThrowingEqualityNothrowThreeWay const&,
+                                      ArrayThrowingEqualityNothrowThreeWay const&) noexcept -> ::std::strong_ordering {
+        return ::std::strong_ordering::equal;
+    }
+};
+
+static_assert(!can_compare_array_with<ArrayWithoutEquality>);
+static_assert(!can_three_way_compare_array_with<ArrayWithoutEquality>);
+static_assert(can_compare_array_with<int>);
+static_assert(can_three_way_compare_array_with<int>);
+static_assert(nothrow_comparable_array_element<int>);
+static_assert(nothrow_three_way_comparable_array_element<int>);
+static_assert(can_compare_array_with<ArrayThrowingEquality>);
+static_assert(!nothrow_comparable_array_element<ArrayThrowingEquality>);
+static_assert(can_compare_array_with<ArrayThrowingBooleanEquality>);
+static_assert(!nothrow_comparable_array_element<ArrayThrowingBooleanEquality>);
+static_assert(can_compare_array_with<ArrayThrowingThreeWay>);
+static_assert(nothrow_comparable_array_element<ArrayThrowingThreeWay>);
+static_assert(can_three_way_compare_array_with<ArrayThrowingThreeWay>);
+static_assert(!nothrow_three_way_comparable_array_element<ArrayThrowingThreeWay>);
+static_assert(can_compare_array_with<ArrayThrowingEqualityNothrowThreeWay>);
+static_assert(!nothrow_comparable_array_element<ArrayThrowingEqualityNothrowThreeWay>);
+static_assert(can_three_way_compare_array_with<ArrayThrowingEqualityNothrowThreeWay>);
+static_assert(nothrow_three_way_comparable_array_element<ArrayThrowingEqualityNothrowThreeWay>);
+static_assert(noexcept(::std::declval<IntArray const&>() == ::std::declval<IntArray const&>()));
+static_assert(noexcept(::std::declval<IntArray const&>() <=> ::std::declval<IntArray const&>()));
 
 TEST_SUITE("container_array") {
     consteval auto test_constexpr_array() noexcept -> bool {

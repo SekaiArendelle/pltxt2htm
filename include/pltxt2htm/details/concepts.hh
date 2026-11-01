@@ -13,6 +13,29 @@ template<typename T>
 concept is_char_type = ::std::same_as<T, char> || ::std::same_as<T, wchar_t> || ::std::same_as<T, char8_t> ||
                        ::std::same_as<T, char16_t> || ::std::same_as<T, char32_t>;
 
+/**
+ * @brief The equality test performed by container comparisons is nothrow.
+ * @details Checks the element `==` together with both boolean tests applied to
+ * its result: `static_cast<bool>`, which Vector's operator== uses, and `!`,
+ * which std::equal applies inside Array's and Deque's operator== and which may
+ * dispatch to the result type's own `operator!`. The element `!=` is not part
+ * of the test: container `a != b` is rewritten from `a == b`, and no
+ * comparison body compares with `!=`.
+ */
+template<typename T>
+concept nothrow_equality_comparable = requires(T const& left, T const& right) {
+    { static_cast<bool>(left == right) } noexcept -> ::std::same_as<bool>;
+    { !(left == right) } noexcept;
+};
+
+/**
+ * @brief Three-way comparison that completes without throwing.
+ */
+template<typename T>
+concept nothrow_three_way_comparable = requires(T const& left, T const& right) {
+    { left <=> right } noexcept;
+};
+
 template<typename T, typename U>
 concept reference_constructs_from_temporary =
 #if __cpp_lib_reference_from_temporary >= 202202L

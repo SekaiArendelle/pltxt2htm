@@ -21,7 +21,7 @@
 
 #include <fast_io/fast_io_core.h>
 
-#include "../../details/contracts.hh"
+#include "../../details/concepts.hh"
 
 namespace pltxt2htm::container {
 
@@ -452,6 +452,41 @@ public:
     }
 
     /**
+     * @brief Change the element count, appending copies of a value when growing.
+     * @param count New element count.
+     * @param value Element copied into the appended positions; it may refer to
+     *              an element of this vector.
+     * @details Growth performs at most one allocation and otherwise follows the
+     *          container's geometric capacity growth; shrinking retains capacity.
+     * @pre count does not exceed max_size().
+     */
+    constexpr void resize(this Vector& self, size_type count, value_type const& value) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> &&
+                  ::std::is_nothrow_copy_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    {
+        if (count <= self.current_size) {
+            while (self.current_size > count) {
+                self.pop_back();
+            }
+            return;
+        }
+        if (count > self.capacity()) {
+            // Copy the fill value first: growth relocates the elements that it
+            // may refer to. Brace initialization keeps explicit copy
+            // constructors usable.
+            value_type const fill{value};
+            self.ensure_additional_capacity(count - self.current_size);
+            while (self.current_size < count) {
+                self.emplace_back(fill);
+            }
+            return;
+        }
+        while (self.current_size < count) {
+            self.emplace_back(value);
+        }
+    }
+
+    /**
      * @pre A single-pass input range must not reference elements in this Vector.
      */
     template<::std::ranges::input_range R>
@@ -533,9 +568,7 @@ public:
 
     [[nodiscard]]
     constexpr auto operator==(this Vector const& self, Vector const& other) noexcept -> bool
-        requires requires(const_reference left, const_reference right) {
-            { static_cast<bool>(left == right) } noexcept -> ::std::same_as<bool>;
-        }
+        requires ::pltxt2htm::details::nothrow_equality_comparable<T>
     {
         if (self.size() != other.size()) {
             return false;
