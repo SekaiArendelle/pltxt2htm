@@ -63,7 +63,7 @@ auto capture_all(::std::size_t skip) noexcept -> CapturedFrames<Allocator> {
         }
         CapturedFrames<Allocator> frames{};
         auto depth = CaptureBackend::max_depth < 64 ? CaptureBackend::max_depth : 64;
-        for (;;) {
+        while (true) {
             frames.addresses.reserve(depth);
             while (frames.addresses.size() < depth) {
                 frames.addresses.emplace_back(nullptr);

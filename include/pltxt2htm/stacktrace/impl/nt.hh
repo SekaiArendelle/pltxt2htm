@@ -94,13 +94,12 @@ inline auto get_symbol_session() noexcept -> DbgHelpSession& {
  */
 [[nodiscard]]
 inline auto shutdown_symbols() noexcept -> bool {
-    namespace nt = ::pltxt2htm::sys_nt;
     auto& session = details::get_symbol_session();
-    if (!nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {
+    if (!::pltxt2htm::sys_nt::RtlTryAcquireSRWLockExclusive(::std::addressof(session.lock))) {
         return false;
     }
     session.reset();
-    nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
+    ::pltxt2htm::sys_nt::RtlReleaseSRWLockExclusive(::std::addressof(session.lock));
     return true;
 }
 
@@ -109,7 +108,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
     constexpr auto name_offset = offsetof(::pltxt2htm::sys_win32::SymbolInfo, name);
     ::std::size_t capacity{2000}; // DbgHelp MAX_SYM_NAME
     bool refreshed{};
-    for (;;) {
+    while (true) {
         if (capacity > (::std::numeric_limits<::pltxt2htm::sys_win32::Dword>::max)() ||
             capacity > (::std::numeric_limits<::std::size_t>::max)() - name_offset) {
             result.text_truncated = true;
