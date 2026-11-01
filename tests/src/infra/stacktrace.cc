@@ -1,4 +1,9 @@
 #include <pltxt2htm/stacktrace/stacktrace.hh>
+
+#if defined(pltxt2htm_assert) || defined(pltxt2htm_assume) || defined(pltxt2htm_unreachable)
+    #error "stacktrace.hh must not leave the assertion macros defined"
+#endif
+
 #if defined(_WIN32)
     #include <pltxt2htm/sys/win32/kernel32.hh>
 #endif

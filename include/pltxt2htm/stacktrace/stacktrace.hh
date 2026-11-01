@@ -6,7 +6,11 @@
  *          `container/impl/string_decl.hh`, but the contract-checked container
  *          definitions must stay at the end of this header (and of
  *          `container/vector.hh` / `container/string.hh`) so the
- *          panic/stacktrace include cycle stays broken.
+ *          panic/stacktrace include cycle stays broken. `impl/stacktrace_def.inc`
+ *          defines members of the class and, in Windows enforce builds, pulls the
+ *          assert machinery and with it the panic definition, which names
+ *          `Stacktrace`; it must follow the class definition (any later position
+ *          is fine).
  */
 
 #pragma once
@@ -17,7 +21,6 @@
 #include <utility>
 #include "../container/impl/vector_decl.hh"
 #include "impl/capture.hh"
-#include "impl/contract.hh"
 #include "impl/stacktrace_entry.hh"
 
 namespace pltxt2htm::stacktrace {
@@ -74,24 +77,9 @@ public:
         : BasicStacktrace{::std::move(other)} {
     }
 
-    constexpr auto operator=(this BasicStacktrace& self, BasicStacktrace const& other) noexcept -> BasicStacktrace& {
-        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
-            details::contract_violation();
-        }
-        self.entries = other.entries;
-        self.truncated = other.truncated;
-        return self;
-    }
+    constexpr auto operator=(this BasicStacktrace& self, BasicStacktrace const& other) noexcept -> BasicStacktrace&;
 
-    constexpr auto operator=(this BasicStacktrace& self, BasicStacktrace&& other) noexcept -> BasicStacktrace& {
-        if (::std::addressof(self) == ::std::addressof(other)) [[unlikely]] {
-            details::contract_violation();
-        }
-        self.entries = ::std::move(other.entries);
-        self.truncated = other.truncated;
-        other.truncated = false;
-        return self;
-    }
+    constexpr auto operator=(this BasicStacktrace& self, BasicStacktrace&& other) noexcept -> BasicStacktrace&;
 
     /**
      * @brief Capture the current native call stack.
@@ -179,12 +167,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto operator[](this BasicStacktrace const& self, size_type index) noexcept -> const_reference {
-        if (index >= self.size()) [[unlikely]] {
-            details::contract_violation();
-        }
-        return self.entries[index];
-    }
+    constexpr auto operator[](this BasicStacktrace const& self, size_type index) noexcept -> const_reference;
 
     constexpr void swap(this BasicStacktrace& self, BasicStacktrace& other) noexcept {
         self.entries.swap(other.entries);
@@ -240,5 +223,6 @@ constexpr void swap(BasicStacktrace<Allocator>& left, BasicStacktrace<Allocator>
 using Stacktrace = BasicStacktrace<>;
 } // namespace pltxt2htm::stacktrace
 
+#include "impl/stacktrace_def.inc"
 #include "../container/impl/vector_def.inc"
 #include "../container/impl/string_def.inc"
