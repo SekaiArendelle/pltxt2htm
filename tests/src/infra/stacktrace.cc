@@ -16,6 +16,13 @@
 #include <string_view>
 #include <utility>
 
+// windows.h defines min and max as function-like macros, which would expand
+// inside std::numeric_limits<...>::max(). Keep them undefined in this file.
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 struct TrackingAllocator {
     static inline ::std::size_t allocations{};
     static inline ::std::size_t outstanding{};
@@ -71,7 +78,7 @@ int main() {
 #if defined(_WIN32)
         pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({}, 0) == 0);
         pltxt2htm_test_assert_true(
-            trace::details::CaptureBackend::capture(storage, (::std::numeric_limits<::std::size_t>::max)()) == 0);
+            trace::details::CaptureBackend::capture(storage, ::std::numeric_limits<::std::size_t>::max()) == 0);
         void* guarded[3]{nullptr, nullptr, reinterpret_cast<void*>(1)};
         pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({guarded, 1}, 0) == 1);
         pltxt2htm_test_assert_true(guarded[0] != nullptr && guarded[1] == nullptr);
@@ -128,7 +135,7 @@ int main() {
 
     {
         // A skip wider than the stack yields an empty trace.
-        pltxt2htm_test_assert_true(trace::Stacktrace::current((::std::numeric_limits<::std::size_t>::max)()).empty());
+        pltxt2htm_test_assert_true(trace::Stacktrace::current(::std::numeric_limits<::std::size_t>::max()).empty());
     }
 
     {
@@ -267,3 +274,6 @@ int main() {
     }
 #endif
 }
+
+#pragma pop_macro("max")
+#pragma pop_macro("min")

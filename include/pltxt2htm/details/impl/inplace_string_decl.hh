@@ -22,6 +22,13 @@
 #include "../contracts.hh"
 #include "../concepts.hh"
 
+// windows.h defines min and max as function-like macros, which would expand
+// inside std::numeric_limits<...>::max(). Keep them undefined in this header.
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 namespace pltxt2htm::details {
 
 /**
@@ -318,3 +325,6 @@ template<::std::size_t extent>
 using U32InplaceString = BasicInplaceString<char32_t, extent>;
 
 } // namespace pltxt2htm::details
+
+#pragma pop_macro("max")
+#pragma pop_macro("min")

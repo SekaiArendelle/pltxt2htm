@@ -24,6 +24,13 @@
 #include "../../details/literal_string.hh"
 #include "string_view_decl.hh"
 
+// windows.h defines min and max as function-like macros, which would expand
+// inside std::numeric_limits<...>::max(). Keep them undefined in this header.
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 namespace pltxt2htm::container {
 
 /**
@@ -1090,3 +1097,6 @@ constexpr auto whole_get(::pltxt2htm::container::BasicString<CharType, Allocator
 }
 
 } // namespace fast_io::manipulators
+
+#pragma pop_macro("max")
+#pragma pop_macro("min")

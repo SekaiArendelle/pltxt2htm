@@ -19,6 +19,13 @@
 
 #include "push_macro.hh"
 
+// windows.h defines min and max as function-like macros, which would expand
+// inside std::numeric_limits<...>::max(). Keep them undefined in this header.
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 namespace pltxt2htm::details {
 
 /**
@@ -506,3 +513,6 @@ constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8St
 } // namespace pltxt2htm::details
 
 #include "pop_macro.hh"
+
+#pragma pop_macro("max")
+#pragma pop_macro("min")

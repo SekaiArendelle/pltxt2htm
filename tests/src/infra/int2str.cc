@@ -5,6 +5,13 @@
 #include <pltxt2htm/details/utils.hh>
 #include "precompile.hh"
 
+// windows.h defines min and max as function-like macros, which would expand
+// inside std::numeric_limits<...>::max(). Keep them undefined in this file.
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 namespace {
 
 /**
@@ -102,7 +109,7 @@ consteval auto test_write_decimal_digits_backward() noexcept -> bool {
     }
     if constexpr (::std::numeric_limits<::std::uintmax_t>::digits10 == 19) {
         if (!buffer_matches(::pltxt2htm::details::write_decimal_digits_backward(
-                                (::std::numeric_limits<::std::uintmax_t>::max)(), end),
+                                ::std::numeric_limits<::std::uintmax_t>::max(), end),
                             end, u8"18446744073709551615")) {
             return false;
         }
@@ -182,23 +189,23 @@ int main() noexcept {
     // extremes, including the PTRDIFF_MIN path that relies on unsigned negation
     {
         if constexpr (sizeof(::std::size_t) == 8) {
-            pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str((::std::numeric_limits<::std::size_t>::max)()),
+            pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(::std::numeric_limits<::std::size_t>::max()),
                                         ::pltxt2htm::container::U8StringView{u8"18446744073709551615"});
             pltxt2htm_test_assert_equal(
-                ::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::max)()),
+                ::pltxt2htm::details::ptrdiff_t2str(::std::numeric_limits<::std::ptrdiff_t>::max()),
                 ::pltxt2htm::container::U8StringView{u8"9223372036854775807"});
             pltxt2htm_test_assert_equal(
-                ::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::min)()),
+                ::pltxt2htm::details::ptrdiff_t2str(::std::numeric_limits<::std::ptrdiff_t>::min()),
                 ::pltxt2htm::container::U8StringView{u8"-9223372036854775808"});
         }
         else {
-            pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str((::std::numeric_limits<::std::size_t>::max)()),
+            pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(::std::numeric_limits<::std::size_t>::max()),
                                         ::pltxt2htm::container::U8StringView{u8"4294967295"});
             pltxt2htm_test_assert_equal(
-                ::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::max)()),
+                ::pltxt2htm::details::ptrdiff_t2str(::std::numeric_limits<::std::ptrdiff_t>::max()),
                 ::pltxt2htm::container::U8StringView{u8"2147483647"});
             pltxt2htm_test_assert_equal(
-                ::pltxt2htm::details::ptrdiff_t2str((::std::numeric_limits<::std::ptrdiff_t>::min)()),
+                ::pltxt2htm::details::ptrdiff_t2str(::std::numeric_limits<::std::ptrdiff_t>::min()),
                 ::pltxt2htm::container::U8StringView{u8"-2147483648"});
         }
     }
@@ -213,3 +220,6 @@ int main() noexcept {
 
     return 0;
 }
+
+#pragma pop_macro("max")
+#pragma pop_macro("min")
