@@ -19,6 +19,13 @@
 #include "../../sys/nt/ntdll.hh"
 #include "../../sys/win32/dbghelp.hh"
 
+// windows.h defines min and max as function-like macros, which would expand
+// inside std::numeric_limits<...>::max(). Keep them undefined in this header.
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 namespace pltxt2htm::stacktrace::details {
 
 /**
@@ -173,8 +180,8 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
     ::std::size_t capacity{2000}; // DbgHelp MAX_SYM_NAME
     bool refreshed{};
     while (true) {
-        if (capacity > (::std::numeric_limits<::pltxt2htm::sys_win32::Dword>::max)() ||
-            capacity > (::std::numeric_limits<::std::size_t>::max)() - name_offset) {
+        if (capacity > ::std::numeric_limits<::pltxt2htm::sys_win32::Dword>::max() ||
+            capacity > ::std::numeric_limits<::std::size_t>::max() - name_offset) {
             result.text_truncated = true;
             return;
         }
@@ -192,7 +199,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
         auto const name_size = static_cast<::std::size_t>(info->name_len);
         if (name_size >= capacity) {
             ::std::free(storage);
-            auto const max_size = (::std::numeric_limits<::std::size_t>::max)();
+            auto const max_size = ::std::numeric_limits<::std::size_t>::max();
             auto const required = name_size == max_size ? name_size : name_size + 1;
             auto const doubled = capacity > max_size / 2 ? max_size : capacity * 2;
             auto const new_capacity = required > doubled ? required : doubled;
@@ -250,3 +257,6 @@ inline auto resolve_nt(void* address) noexcept -> ResolvedFrame {
     return result;
 }
 } // namespace pltxt2htm::stacktrace::details
+
+#pragma pop_macro("max")
+#pragma pop_macro("min")

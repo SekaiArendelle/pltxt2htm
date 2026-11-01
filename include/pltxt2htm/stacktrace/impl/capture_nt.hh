@@ -10,6 +10,14 @@
 #include <span>
 #include "../../sys/nt/ntdll.hh"
 
+// windows.h defines min and max as function-like macros, which would expand
+// inside std::numeric_limits<...>::max(). Hide them for this header, then
+// restore the caller's definitions at the end.
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 namespace pltxt2htm::stacktrace::details {
 
 struct CaptureBackend {
@@ -30,7 +38,7 @@ struct CaptureBackend {
     static auto capture(::std::span<void*> frames, ::std::size_t skip) noexcept -> ::std::size_t {
         // A skip wider than ULONG is unrepresentable, so report no frames
         // instead of letting the cast wrap into a different offset.
-        constexpr auto max_skip = (::std::numeric_limits<::pltxt2htm::sys_nt::Ulong>::max)();
+        constexpr auto max_skip = ::std::numeric_limits<::pltxt2htm::sys_nt::Ulong>::max();
         if (frames.empty() || skip > max_skip) {
             return 0;
         }
@@ -42,3 +50,6 @@ struct CaptureBackend {
 };
 
 } // namespace pltxt2htm::stacktrace::details
+
+#pragma pop_macro("max")
+#pragma pop_macro("min")

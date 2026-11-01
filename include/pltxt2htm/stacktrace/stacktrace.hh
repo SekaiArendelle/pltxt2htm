@@ -24,6 +24,13 @@
 #include "impl/capture.hh"
 #include "impl/stacktrace_entry.hh"
 
+// windows.h defines min and max as function-like macros, which would expand
+// inside std::numeric_limits<...>::max(). Keep them undefined in this header.
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 namespace pltxt2htm::stacktrace {
 /**
  * @brief Dynamic counterpart of std::basic_stacktrace.
@@ -105,7 +112,7 @@ public:
         // CaptureBackend::capture, capture_all and current are noinline, so
         // their frames are stable and can be hidden here.
         constexpr size_type hidden_machinery_frames{3};
-        if (skip > (::std::numeric_limits<size_type>::max)() - hidden_machinery_frames) {
+        if (skip > ::std::numeric_limits<size_type>::max() - hidden_machinery_frames) {
             return result;
         }
         auto frames = details::capture_all<allocator_type>(skip + hidden_machinery_frames);
@@ -241,3 +248,6 @@ using Stacktrace = BasicStacktrace<>;
 #include "impl/stacktrace_def.inc"
 #include "../container/impl/vector_def.inc"
 #include "../container/impl/string_def.inc"
+
+#pragma pop_macro("max")
+#pragma pop_macro("min")
