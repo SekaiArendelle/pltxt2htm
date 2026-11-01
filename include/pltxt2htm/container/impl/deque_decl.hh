@@ -750,6 +750,26 @@ public:
         other.start_offset = tmp_start_offset;
         other.element_count = tmp_element_count;
     }
+
+    template<typename RightAllocator>
+        requires requires(T const& left, T const& right) {
+            { static_cast<bool>(left == right) } noexcept -> ::std::same_as<bool>;
+        }
+    [[nodiscard]]
+    constexpr auto operator==(this Deque const& self, Deque<T, RightAllocator> const& right) noexcept -> bool {
+        return self.size() == right.size() && ::std::equal(self.begin(), self.end(), right.begin());
+    }
+
+    template<typename RightAllocator>
+        requires (::std::three_way_comparable<T> &&
+                  requires(T const& left, T const& right) {
+                      { ::std::compare_three_way{}(left, right) } noexcept;
+                  })
+    [[nodiscard]]
+    constexpr auto operator<=>(this Deque const& self, Deque<T, RightAllocator> const& right) noexcept {
+        return ::std::lexicographical_compare_three_way(self.begin(), self.end(), right.begin(), right.end(),
+                                                        ::std::compare_three_way{});
+    }
 };
 
 template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
@@ -757,26 +777,6 @@ Deque(InputIterator, Sentinel) -> Deque<::std::iter_value_t<InputIterator>>;
 
 template<typename T>
 Deque(::std::initializer_list<T>) -> Deque<T>;
-
-template<typename T, typename LeftAllocator, typename RightAllocator>
-    requires requires(T const& left, T const& right) {
-        { static_cast<bool>(left == right) } noexcept -> ::std::same_as<bool>;
-    }
-[[nodiscard]]
-constexpr auto operator==(Deque<T, LeftAllocator> const& left, Deque<T, RightAllocator> const& right) noexcept -> bool {
-    return left.size() == right.size() && ::std::equal(left.begin(), left.end(), right.begin());
-}
-
-template<typename T, typename LeftAllocator, typename RightAllocator>
-    requires (::std::three_way_comparable<T> &&
-              requires(T const& left, T const& right) {
-                  { ::std::compare_three_way{}(left, right) } noexcept;
-              })
-[[nodiscard]]
-constexpr auto operator<=>(Deque<T, LeftAllocator> const& left, Deque<T, RightAllocator> const& right) noexcept {
-    return ::std::lexicographical_compare_three_way(left.begin(), left.end(), right.begin(), right.end(),
-                                                    ::std::compare_three_way{});
-}
 
 template<typename T, typename Allocator>
 constexpr void swap(Deque<T, Allocator>& left, Deque<T, Allocator>& right) noexcept {
