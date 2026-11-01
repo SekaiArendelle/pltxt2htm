@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include "vector_decl.hh"
 #include "../../details/push_macro.hh"
 
 namespace pltxt2htm::container {
