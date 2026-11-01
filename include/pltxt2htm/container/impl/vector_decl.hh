@@ -430,6 +430,28 @@ public:
     }
 
     /**
+     * @brief Change the element count, growing with value-initialized elements.
+     * @param count New element count.
+     * @details Growth performs at most one allocation and otherwise follows the
+     *          container's geometric capacity growth; shrinking retains capacity.
+     * @pre count does not exceed max_size().
+     */
+    constexpr void resize(this Vector& self, size_type count) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> &&
+                  ::std::is_nothrow_default_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    {
+        if (count > self.current_size) {
+            self.ensure_additional_capacity(count - self.current_size);
+        }
+        while (self.current_size > count) {
+            self.pop_back();
+        }
+        while (self.current_size < count) {
+            self.emplace_back();
+        }
+    }
+
+    /**
      * @pre A single-pass input range must not reference elements in this Vector.
      */
     template<::std::ranges::input_range R>

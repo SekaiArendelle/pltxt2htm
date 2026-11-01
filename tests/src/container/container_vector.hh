@@ -402,6 +402,9 @@ template<typename T>
 concept ErasableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.erase(values.begin()); };
 
 template<typename T>
+concept ResizableVectorElement = requires(::pltxt2htm::container::Vector<T>& values) { values.resize(1); };
+
+template<typename T>
 concept EqualityComparableVectorElement = requires(::pltxt2htm::container::Vector<T> const& left,
                                                    ::pltxt2htm::container::Vector<T> const& right) { left == right; };
 
@@ -422,10 +425,13 @@ static_assert(!ReservableVectorElement<ThrowingMove>);
 static_assert(!IntEmplaceableVectorElement<ThrowingConstruction>);
 static_assert(!CopyPushableVectorElement<ThrowingVectorCopy>);
 static_assert(!ErasableVectorElement<ThrowingMoveAssignment>);
+static_assert(!ResizableVectorElement<ThrowingMove>);
+static_assert(ResizableVectorElement<ThrowingVectorCopy>);
 static_assert(!EqualityComparableVectorElement<ThrowingEquality>);
 static_assert(!EqualityComparableVectorElement<ThrowingBooleanEquality>);
 static_assert(!AppendableIntRange<ThrowingIncrementRange&>);
 static_assert(noexcept(::std::declval<IntVector&>().reserve(1)));
+static_assert(noexcept(::std::declval<IntVector&>().resize(1)));
 static_assert(noexcept(::std::declval<IntVector&>().emplace_back(1)));
 static_assert(noexcept(::std::declval<IntVector&>().erase(::std::declval<IntVector::const_iterator>())));
 static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<SinglePassIntRange&>())));
@@ -506,6 +512,26 @@ TEST_SUITE("container_vector") {
                 return false;
             }
         }
+
+        IntVector resized{};
+        resized.resize(3);
+        if (resized.size() != 3 || resized[0] != 0 || resized[1] != 0 || resized[2] != 0) {
+            return false;
+        }
+        resized[1] = 5;
+        resized.resize(2);
+        if (resized.size() != 2 || resized[1] != 5) {
+            return false;
+        }
+        resized.resize(4);
+        if (resized.size() != 4 || resized[1] != 5 || resized[2] != 0 || resized[3] != 0) {
+            return false;
+        }
+        resized.resize(4);
+        resized.resize(0);
+        if (!resized.is_empty()) {
+            return false;
+        }
         return true;
     }
 
@@ -562,6 +588,62 @@ TEST_SUITE("container_vector") {
         moved.pop_back();
         moved.clear();
         CHECK(moved.is_empty());
+    }
+
+    TEST_CASE("resize") {
+        IntVector values{};
+        values.resize(3);
+        CHECK(values.size() == 3);
+        CHECK(values[0] == 0);
+        CHECK(values[1] == 0);
+        CHECK(values[2] == 0);
+        values[1] = 7;
+        values.resize(2);
+        CHECK(values.size() == 2);
+        CHECK(values[1] == 7);
+        values.resize(6);
+        CHECK(values.size() == 6);
+        CHECK(values[1] == 7);
+        CHECK(values[2] == 0);
+        CHECK(values[5] == 0);
+        values.resize(6);
+        CHECK(values.size() == 6);
+        values.resize(0);
+        CHECK(values.is_empty());
+        values.resize(0);
+        CHECK(values.is_empty());
+    }
+
+    TEST_CASE("resize-single-allocation") {
+        TrackingRawAllocator::reset();
+        {
+            TrackingIntVector tracked{};
+            tracked.resize(2);
+            CHECK(tracked.size() == 2);
+            CHECK(tracked.capacity() == 5);
+            CHECK(TrackingRawAllocator::get_active_allocations() == 1);
+            CHECK(TrackingRawAllocator::get_deallocation_count() == 0);
+
+            tracked[1] = 7;
+            tracked.resize(10);
+            CHECK(tracked.size() == 10);
+            CHECK(tracked[1] == 7);
+            CHECK(tracked[9] == 0);
+            CHECK(tracked.capacity() >= 10);
+            CHECK(TrackingRawAllocator::get_active_allocations() == 1);
+            CHECK(TrackingRawAllocator::get_deallocation_count() == 1);
+
+            auto const capacity_before_shrink = tracked.capacity();
+            tracked.resize(3);
+            CHECK(tracked.size() == 3);
+            CHECK(tracked[1] == 7);
+            CHECK(tracked.capacity() == capacity_before_shrink);
+            CHECK(TrackingRawAllocator::get_active_allocations() == 1);
+            CHECK(TrackingRawAllocator::get_deallocation_count() == 1);
+        }
+        CHECK(TrackingRawAllocator::get_active_allocations() == 0);
+        CHECK(TrackingRawAllocator::get_deallocation_count() == 2);
+        CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
     }
 
     TEST_CASE("append-single-pass-range") {
