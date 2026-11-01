@@ -1,7 +1,9 @@
 /**
  * @file panic.hh
  * @brief Panic and error handling utilities for pltxt2htm
- * @details Provides panic functionality for assertion failures and critical errors
+ * @details Provides panic functionality for assertion failures and critical
+ *          errors. The stack trace section comes from the stacktrace subtree,
+ *          which prints nothing on platforms without a capture backend.
  */
 
 #pragma once
@@ -31,11 +33,11 @@ inline void panic() noexcept;
 
 } // namespace pltxt2htm::details
 
-#if defined(_WIN32)
-    #include <cstdint>
-    #include <fast_io/fast_io.h>
-    #include "../stacktrace/stacktrace.hh"
-#endif
+// The declaration above must precede these includes: the stacktrace definitions
+// pull the assert machinery, which reaches this header again.
+#include <cstdint>
+#include <fast_io/fast_io.h>
+#include "../stacktrace/stacktrace.hh"
 
 namespace pltxt2htm::details {
 
@@ -62,41 +64,40 @@ inline void panic() noexcept {
                   stderr);
     ::std::fflush(stderr);
 
-#if defined(_WIN32)
     auto const trace = ::pltxt2htm::stacktrace::Stacktrace::current(1);
-    constexpr ::std::size_t max_printed{128};
-    auto const printed = trace.size() < max_printed ? trace.size() : max_printed;
-    ::fast_io::io::perr("* stack trace:\n");
-    for (::std::size_t i = 0; i < printed; ++i) {
-        auto const frame = trace[i].resolved();
-        ::fast_io::io::perr("[", i, "] ");
-        if (!frame.description.is_empty()) {
-            ::fast_io::io::perr(
-                ::fast_io::basic_io_scatter_t<char>{.base = frame.description.data(), .len = frame.description.size()});
-        }
-        else {
-            ::fast_io::io::perr(::fast_io::mnp::hex0x(reinterpret_cast<::std::uintptr_t>(frame.address)));
-        }
-        if (frame.displacement != 0) {
-            ::fast_io::io::perr(" + ", ::fast_io::mnp::hex0x(frame.displacement));
-        }
-        if (!frame.source_file.is_empty()) {
-            ::fast_io::io::perr(" at ", ::fast_io::basic_io_scatter_t<char>{.base = frame.source_file.data(),
-                                                                            .len = frame.source_file.size()});
-            if (frame.source_line != 0) {
-                ::fast_io::io::perr(":", frame.source_line);
+    if (!trace.empty()) {
+        constexpr ::std::size_t max_printed{128};
+        auto const printed = trace.size() < max_printed ? trace.size() : max_printed;
+        ::fast_io::io::perr("* stack trace:\n");
+        for (::std::size_t i = 0; i < printed; ++i) {
+            auto const frame = trace[i].resolved();
+            ::fast_io::io::perr("[", i, "] ");
+            if (!frame.description.is_empty()) {
+                ::fast_io::io::perr(::fast_io::basic_io_scatter_t<char>{.base = frame.description.data(),
+                                                                        .len = frame.description.size()});
             }
+            else {
+                ::fast_io::io::perr(::fast_io::mnp::hex0x(reinterpret_cast<::std::uintptr_t>(frame.address)));
+            }
+            if (frame.displacement != 0) {
+                ::fast_io::io::perr(" + ", ::fast_io::mnp::hex0x(frame.displacement));
+            }
+            if (!frame.source_file.is_empty()) {
+                ::fast_io::io::perr(" at ", ::fast_io::basic_io_scatter_t<char>{.base = frame.source_file.data(),
+                                                                                .len = frame.source_file.size()});
+                if (frame.source_line != 0) {
+                    ::fast_io::io::perr(":", frame.source_line);
+                }
+            }
+            if (frame.text_truncated) {
+                ::fast_io::io::perr(" <text truncated>");
+            }
+            ::fast_io::io::perr("\n");
         }
-        if (frame.text_truncated) {
-            ::fast_io::io::perr(" <text truncated>");
+        if (trace.size() > printed) {
+            ::fast_io::io::perr("* stack trace truncated\n");
         }
-        ::fast_io::io::perr("\n");
     }
-    if (trace.size() > printed) {
-        ::fast_io::io::perr("* stack trace truncated\n");
-    }
-    ::std::fflush(stderr);
-#endif
 
     ::pltxt2htm::details::trap();
 }
