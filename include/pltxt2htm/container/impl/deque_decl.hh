@@ -22,6 +22,7 @@
 
 #include <fast_io/fast_io_core.h>
 
+#include "../../details/concepts.hh"
 #include "../../details/contracts.hh"
 
 namespace pltxt2htm::container {
@@ -752,19 +753,14 @@ public:
     }
 
     template<typename RightAllocator>
-        requires requires(T const& left, T const& right) {
-            { static_cast<bool>(left == right) } noexcept -> ::std::same_as<bool>;
-        }
+        requires ::pltxt2htm::details::nothrow_equality_comparable<T>
     [[nodiscard]]
     constexpr auto operator==(this Deque const& self, Deque<T, RightAllocator> const& right) noexcept -> bool {
         return self.size() == right.size() && ::std::equal(self.begin(), self.end(), right.begin());
     }
 
     template<typename RightAllocator>
-        requires (::std::three_way_comparable<T> &&
-                  requires(T const& left, T const& right) {
-                      { ::std::compare_three_way{}(left, right) } noexcept;
-                  })
+        requires (::std::three_way_comparable<T> && ::pltxt2htm::details::nothrow_three_way_comparable<T>)
     [[nodiscard]]
     constexpr auto operator<=>(this Deque const& self, Deque<T, RightAllocator> const& right) noexcept {
         return ::std::lexicographical_compare_three_way(self.begin(), self.end(), right.begin(), right.end(),

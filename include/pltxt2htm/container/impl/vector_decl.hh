@@ -21,6 +21,7 @@
 
 #include <fast_io/fast_io_core.h>
 
+#include "../../details/concepts.hh"
 #include "../../details/contracts.hh"
 
 namespace pltxt2htm::container {
@@ -568,9 +569,7 @@ public:
 
     [[nodiscard]]
     constexpr auto operator==(this Vector const& self, Vector const& other) noexcept -> bool
-        requires requires(const_reference left, const_reference right) {
-            { static_cast<bool>(left == right) } noexcept -> ::std::same_as<bool>;
-        }
+        requires ::pltxt2htm::details::nothrow_equality_comparable<T>
     {
         if (self.size() != other.size()) {
             return false;
