@@ -18,7 +18,6 @@
 #include <iterator>
 #include <limits>
 #include <memory>
-#include <span>
 #include <type_traits>
 #include <utility>
 #include "../container/impl/vector_decl.hh"
@@ -86,19 +85,6 @@ public:
     constexpr BasicStacktrace(BasicStacktrace&& other, allocator_type const&) noexcept
         : BasicStacktrace{::std::move(other)} {
     }
-
-#if defined(PLTXT2HTM_INTERNAL_USE)
-    /**
-     * @brief Build a trace from caller-provided entries for tests.
-     * @param entries_ Entries copied into the trace.
-     */
-    BasicStacktrace(::std::span<StacktraceEntry const> entries_) noexcept {
-        entries.reserve(entries_.size());
-        for (auto const& entry : entries_) {
-            entries.push_back(entry);
-        }
-    }
-#endif
 
     constexpr auto operator=(this BasicStacktrace& self, BasicStacktrace const& other) noexcept -> BasicStacktrace&;
 
