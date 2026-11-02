@@ -188,6 +188,10 @@ int main() {
         // Another allocator instance still yields an interchangeable empty trace.
         trace::BasicStacktrace<::fast_io::native_thread_local_allocator> alternate{};
         pltxt2htm_test_assert_true(alternate == trace::Stacktrace{});
+        // The comparison is symmetric, so either side may name the allocator.
+        pltxt2htm_test_assert_true(trace::Stacktrace{} == alternate);
+        pltxt2htm_test_assert_true((alternate <=> trace::Stacktrace{}) == 0);
+        pltxt2htm_test_assert_true((trace::Stacktrace{} <=> alternate) == 0);
         (void)alternate.get_allocator();
     }
 

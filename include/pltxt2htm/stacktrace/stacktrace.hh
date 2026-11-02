@@ -37,10 +37,6 @@
 #undef min
 #undef max
 
-static_assert(!::pltxt2htm::stacktrace::details::CaptureBackend::supported ||
-                  ::pltxt2htm::stacktrace::details::CaptureBackend::max_depth >= 1,
-              "supported capture backends need a positive max_depth");
-
 namespace pltxt2htm::stacktrace {
 /**
  * @brief Dynamic counterpart of std::basic_stacktrace.
@@ -133,6 +129,9 @@ public:
     __declspec(noinline)
 #endif
     static auto current(size_type skip = 0) noexcept -> BasicStacktrace {
+        static_assert(!::pltxt2htm::stacktrace::details::CaptureBackend::supported ||
+                          ::pltxt2htm::stacktrace::details::CaptureBackend::max_depth >= 1,
+                      "supported capture backends need a positive max_depth");
         BasicStacktrace result{};
         if constexpr (!details::CaptureBackend::supported) {
             return result;
@@ -258,40 +257,41 @@ public:
     constexpr auto possibly_truncated(this BasicStacktrace const& self) noexcept -> bool {
         return self.truncated;
     }
-};
 
-template<typename Left, typename Right>
-[[nodiscard]]
-constexpr auto operator==(BasicStacktrace<Left> const& left, BasicStacktrace<Right> const& right) noexcept -> bool {
-    if (left.size() != right.size()) {
-        return false;
-    }
-    auto const size = left.size();
-    for (::std::size_t i = 0; i < size; ++i) {
-        if (left[i] != right[i]) {
+    template<typename RightAllocator>
+    [[nodiscard]]
+    constexpr auto operator==(this BasicStacktrace const& self, BasicStacktrace<RightAllocator> const& other) noexcept
+        -> bool {
+        if (self.size() != other.size()) {
             return false;
         }
-    }
-    return true;
-}
-
-template<typename Left, typename Right>
-[[nodiscard]]
-constexpr auto operator<=>(BasicStacktrace<Left> const& left, BasicStacktrace<Right> const& right) noexcept
-    -> ::std::strong_ordering {
-    auto const size_order = left.size() <=> right.size();
-    if (size_order != 0) {
-        return size_order;
-    }
-    auto const size = left.size();
-    for (::std::size_t i = 0; i < size; ++i) {
-        auto const order = left[i] <=> right[i];
-        if (order != 0) {
-            return order;
+        auto const size = self.size();
+        for (::std::size_t i = 0; i < size; ++i) {
+            if (self[i] != other[i]) {
+                return false;
+            }
         }
+        return true;
     }
-    return ::std::strong_ordering::equal;
-}
+
+    template<typename RightAllocator>
+    [[nodiscard]]
+    constexpr auto operator<=>(this BasicStacktrace const& self, BasicStacktrace<RightAllocator> const& other) noexcept
+        -> ::std::strong_ordering {
+        auto const size_order = self.size() <=> other.size();
+        if (size_order != 0) {
+            return size_order;
+        }
+        auto const size = self.size();
+        for (::std::size_t i = 0; i < size; ++i) {
+            auto const order = self[i] <=> other[i];
+            if (order != 0) {
+                return order;
+            }
+        }
+        return ::std::strong_ordering::equal;
+    }
+};
 
 template<typename Allocator>
 constexpr void swap(BasicStacktrace<Allocator>& left, BasicStacktrace<Allocator>& right) noexcept {
