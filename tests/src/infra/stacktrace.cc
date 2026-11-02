@@ -53,7 +53,7 @@ __declspec(noinline)
     }
     auto result = ::deep_trace(depth - 1);
     // Keep work after recursion so optimized builds cannot use a tail call.
-    if (result.empty()) {
+    if (result.is_empty()) {
         return {};
     }
     return result;
@@ -135,7 +135,7 @@ int main() {
 
     {
         // A skip wider than the stack yields an empty trace.
-        pltxt2htm_test_assert_true(trace::Stacktrace::current(::std::numeric_limits<::std::size_t>::max()).empty());
+        pltxt2htm_test_assert_true(trace::Stacktrace::current(::std::numeric_limits<::std::size_t>::max()).is_empty());
     }
 
     {
@@ -143,11 +143,11 @@ int main() {
         auto const snapshot = trace::Stacktrace::current(0);
         auto moved_source = snapshot;
         auto moved = ::std::move(moved_source);
-        pltxt2htm_test_assert_true(moved == snapshot && moved_source.empty());
+        pltxt2htm_test_assert_true(moved == snapshot && moved_source.is_empty());
         moved_source = ::std::move(moved);
-        pltxt2htm_test_assert_true(moved_source == snapshot && moved.empty());
+        pltxt2htm_test_assert_true(moved_source == snapshot && moved.is_empty());
         moved_source.swap(moved);
-        pltxt2htm_test_assert_true(moved == snapshot && moved_source.empty());
+        pltxt2htm_test_assert_true(moved == snapshot && moved_source.is_empty());
         moved_source = snapshot;
         pltxt2htm_test_assert_true(moved_source == snapshot);
     }
@@ -166,7 +166,7 @@ int main() {
         auto tracked = TrackedTrace::current(0);
         TrackedTrace copy{tracked, alloc};
         TrackedTrace moved_copy{::std::move(copy), alloc};
-        pltxt2htm_test_assert_true(tracked == moved_copy && copy.empty());
+        pltxt2htm_test_assert_true(tracked == moved_copy && copy.is_empty());
         // Self-assignment and self-move are contract violations; testing them
         // requires a trap death harness, which this file does not have.
     }
@@ -184,7 +184,7 @@ int main() {
         auto const deep = ::deep_trace(96);
         pltxt2htm_test_assert_true(deep.size() > 64 && !deep.possibly_truncated());
         pltxt2htm_test_assert_true((trace::Stacktrace{} <=> deep) < 0);
-        pltxt2htm_test_assert_true(!deep.empty() && deep[0]);
+        pltxt2htm_test_assert_true(!deep.is_empty() && deep[0]);
         // Entry queries use the saved address, not a new capture.
         auto const first_frame = deep[0].resolved();
         auto const expected_frame = trace::resolve(deep[0].native_handle());

@@ -184,9 +184,29 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto empty(this BasicStacktrace const& self) noexcept -> bool {
+    constexpr auto is_empty(this BasicStacktrace const& self) noexcept -> bool {
         return self.size() == 0;
     }
+
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    constexpr auto empty(this BasicStacktrace const& self) noexcept -> bool = delete
+    #if __cpp_deleted_function >= 202403L
+        #if defined __clang__
+            #pragma clang diagnostic push
+            #pragma clang diagnostic ignored "-Wc++26-extensions"
+        #endif
+        ("empty() is external-only; use is_empty() inside pltxt2htm")
+        #if defined __clang__
+            #pragma clang diagnostic pop
+        #endif
+    #endif
+        ;
+#else
+    [[nodiscard]]
+    constexpr auto empty(this BasicStacktrace const& self) noexcept -> bool {
+        return self.is_empty();
+    }
+#endif
 
     [[nodiscard]]
     constexpr auto operator[](this BasicStacktrace const& self, size_type index) noexcept -> const_reference;
@@ -245,9 +265,9 @@ constexpr void swap(BasicStacktrace<Allocator>& left, BasicStacktrace<Allocator>
 using Stacktrace = BasicStacktrace<>;
 } // namespace pltxt2htm::stacktrace
 
+#pragma pop_macro("max")
+#pragma pop_macro("min")
+
 #include "impl/stacktrace_def.inc"
 #include "../container/impl/vector_def.inc"
 #include "../container/impl/string_def.inc"
-
-#pragma pop_macro("max")
-#pragma pop_macro("min")

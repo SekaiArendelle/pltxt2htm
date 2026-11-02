@@ -74,7 +74,7 @@ void panic() noexcept {
     // Hide current() and panic() itself so the first entry is normally the call
     // site that reported the problem; a sibling call at that site would hide it.
     auto const trace = ::pltxt2htm::stacktrace::Stacktrace::current(1);
-    if (!trace.empty()) {
+    if (!trace.is_empty()) {
         constexpr ::std::size_t max_printed{128};
         auto const printed = trace.size() < max_printed ? trace.size() : max_printed;
         ::fast_io::io::perr("* stack trace:\n");
