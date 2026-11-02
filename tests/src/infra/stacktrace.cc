@@ -69,27 +69,43 @@ __declspec(noinline)
     return ::pltxt2htm::stacktrace::Stacktrace::current(skip);
 }
 
+using test_frames =
+    ::pltxt2htm::container::Vector<::pltxt2htm::stacktrace::StacktraceEntry,
+                                   ::fast_io::generic_allocator_adapter<::fast_io::native_global_allocator>>;
+
+#if defined(_MSC_VER)
+__declspec(noinline)
+#elif defined(__GNUC__)
+[[gnu::noinline]]
+#endif
+void capture_from_shared_site(test_frames& frames, ::std::size_t skip) {
+    ::pltxt2htm::stacktrace::details::CaptureBackend::capture<::fast_io::native_global_allocator>(frames, skip);
+}
+
 int main() {
     namespace trace = ::pltxt2htm::stacktrace;
-    [[maybe_unused]] trace::StacktraceEntry storage[8]{};
+    [[maybe_unused]] trace::StacktraceEntry::native_handle_type sample_handle{};
 
     {
-        // Backend contract: capacity-bounded writes, skip handling, written count.
+        // Backend contract: append every captured entry, honor skip.
 #if defined(_WIN32)
-        pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({}, 0) == 0);
-        pltxt2htm_test_assert_true(
-            trace::details::CaptureBackend::capture(storage, ::std::numeric_limits<::std::size_t>::max()) == 0);
-        auto const sentinel = reinterpret_cast<trace::StacktraceEntry::native_handle_type>(1);
-        trace::StacktraceEntry guarded[3]{};
-        guarded[2] = trace::StacktraceEntry::from_native_handle(sentinel);
-        pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({guarded, 1}, 0) == 1);
-        pltxt2htm_test_assert_true(guarded[0].native_handle() != nullptr && guarded[1].native_handle() == nullptr);
-        pltxt2htm_test_assert_true(guarded[2].native_handle() == sentinel);
-        // Capacity is the number retained after skipping.
-        pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({guarded, 1}, 1) == 1);
-        pltxt2htm_test_assert_true(guarded[1].native_handle() == nullptr);
-        auto const written = trace::details::CaptureBackend::capture(storage, 0);
-        pltxt2htm_test_assert_true(written > 0 && written <= 8);
+        test_frames frames{};
+        trace::details::CaptureBackend::capture<::fast_io::native_global_allocator>(
+            frames, (::std::numeric_limits<::std::size_t>::max)());
+        pltxt2htm_test_assert_true(frames.is_empty());
+        trace::details::CaptureBackend::capture<::fast_io::native_global_allocator>(frames, 0);
+        pltxt2htm_test_assert_true(!frames.is_empty());
+        for (auto const& entry : frames) {
+            pltxt2htm_test_assert_true(entry.native_handle() != trace::StacktraceEntry::native_handle_type{});
+        }
+        sample_handle = frames[0].native_handle();
+        // skip shifts the capture by one frame from the same call site.
+        test_frames unskipped{};
+        test_frames skipped{};
+        capture_from_shared_site(unskipped, 0);
+        capture_from_shared_site(skipped, 1);
+        pltxt2htm_test_assert_true(unskipped.size() > 1);
+        pltxt2htm_test_assert_true(skipped[0].native_handle() == unskipped[1].native_handle());
         // The front-end stores exactly the handles the backend reported.
         auto const grown = trace::Stacktrace::current(0);
         pltxt2htm_test_assert_true(!grown.is_empty());
@@ -97,9 +113,8 @@ int main() {
             pltxt2htm_test_assert_true(entry.native_handle() != trace::StacktraceEntry::native_handle_type{});
         }
 #else
-        // Without a capture backend the front-end reports an empty capture.
-        auto const unsupported = trace::Stacktrace::current(0);
-        pltxt2htm_test_assert_true(unsupported.is_empty() && !unsupported.possibly_truncated());
+        // Without a capture backend the front-end reports an empty trace.
+        pltxt2htm_test_assert_true(trace::Stacktrace::current(0).is_empty());
 #endif
     }
 
@@ -131,18 +146,13 @@ int main() {
         pltxt2htm_test_assert_true(static_cast<bool>(first_entry));
         pltxt2htm_test_assert_true(!trace::StacktraceEntry{});
         trace::StacktraceEntry const constructed[2]{first_entry, second_entry};
-        auto const built = trace::Stacktrace{::std::span<trace::StacktraceEntry const>{constructed, 2}, true};
+        auto const built = trace::Stacktrace{::std::span<trace::StacktraceEntry const>{constructed, 2}};
         pltxt2htm_test_assert_true(built.size() == 2);
         pltxt2htm_test_assert_true(built[0] == first_entry && built[1] == second_entry);
-        pltxt2htm_test_assert_true(built.possibly_truncated());
-        auto const same = trace::Stacktrace{::std::span<trace::StacktraceEntry const>{constructed, 2}, true};
+        auto const same = trace::Stacktrace{::std::span<trace::StacktraceEntry const>{constructed, 2}};
         pltxt2htm_test_assert_true(built == same && (built <=> same) == 0);
-        auto const untruncated = trace::Stacktrace{::std::span<trace::StacktraceEntry const>{constructed, 2}, false};
-        pltxt2htm_test_assert_true(!untruncated.possibly_truncated());
-        // Equality compares entries only, not the truncation flag.
-        pltxt2htm_test_assert_true(untruncated == built);
-        auto const empty_built = trace::Stacktrace{::std::span<trace::StacktraceEntry const>{}, false};
-        pltxt2htm_test_assert_true(empty_built.is_empty() && !empty_built.possibly_truncated());
+        auto const empty_built = trace::Stacktrace{::std::span<trace::StacktraceEntry const>{}};
+        pltxt2htm_test_assert_true(empty_built.is_empty());
     }
 #endif
 
@@ -218,7 +228,7 @@ int main() {
     {
         // Deep capture: entries, comparison and saved addresses.
         auto const deep = ::deep_trace(96);
-        pltxt2htm_test_assert_true(deep.size() > 64 && !deep.possibly_truncated());
+        pltxt2htm_test_assert_true(deep.size() > 64);
         pltxt2htm_test_assert_true((trace::Stacktrace{} <=> deep) < 0);
         pltxt2htm_test_assert_true(!deep.is_empty() && deep[0]);
         // Entry queries use the saved address, not a new capture.
@@ -280,8 +290,8 @@ int main() {
         auto& session = trace::details::get_symbol_session();
         auto held = trace::details::DbgHelpLock::try_acquire(session.lock);
         pltxt2htm_test_assert_true(static_cast<bool>(held));
-        auto const busy = trace::StacktraceEntry::from_native_handle(storage[0].native_handle()).resolved();
-        pltxt2htm_test_assert_true(busy.address == storage[0].native_handle() && busy.description.is_empty());
+        auto const busy = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
+        pltxt2htm_test_assert_true(busy.address == sample_handle && busy.description.is_empty());
         pltxt2htm_test_assert_true(!trace::details::shutdown_symbols());
         pltxt2htm_test_assert_true(session.is_ready() && session.process != nullptr);
     }
@@ -294,8 +304,8 @@ int main() {
         pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.is_empty());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
         pltxt2htm_test_assert_true(!session.is_ready() && session.process == nullptr);
-        auto const again = trace::StacktraceEntry::from_native_handle(storage[0].native_handle()).resolved();
-        pltxt2htm_test_assert_true(again.address == storage[0].native_handle() && session.is_ready());
+        auto const again = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
+        pltxt2htm_test_assert_true(again.address == sample_handle && session.is_ready());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
     }
 
@@ -303,10 +313,9 @@ int main() {
         // A recorded initialization failure is not retried by later lookups.
         auto& session = trace::details::get_symbol_session();
         session.state = trace::details::DbgHelpSession::State::unavailable;
-        auto const unavailable = trace::StacktraceEntry::from_native_handle(storage[0].native_handle()).resolved();
-        pltxt2htm_test_assert_true(unavailable.address == storage[0].native_handle() &&
-                                   unavailable.description.is_empty() && session.process == nullptr &&
-                                   !session.is_ready());
+        auto const unavailable = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
+        pltxt2htm_test_assert_true(unavailable.address == sample_handle && unavailable.description.is_empty() &&
+                                   session.process == nullptr && !session.is_ready());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
     }
 #endif

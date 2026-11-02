@@ -7,9 +7,9 @@
 
 #include <cstddef>
 #include <limits>
-#include <span>
 #include <type_traits>
 #include "stacktrace_entry.hh"
+#include "../../../container/impl/vector_decl.hh"
 #include "../../../sys/nt/ntdll.hh"
 
 // windows.h defines min and max as function-like macros, which would expand
@@ -27,17 +27,22 @@ struct CaptureBackend {
     static constexpr ::std::size_t max_depth = 65535;
 
     /**
-     * @brief Write up to frames.size() captured entries into frames.
+     * @brief Append every captured entry to frames.
+     * @param frames Entry storage to append to.
      * @param skip Native frames to skip, starting with this function's frame.
-     * @return Number of entries written; a full buffer may have more frames.
+     * @details Grows the probe buffer by doubling until the unwinder writes
+     *          fewer entries than the buffer holds or the backend limit is
+     *          reached.
      */
-    [[nodiscard]]
+    template<typename Allocator>
 #if __has_cpp_attribute(__gnu__::__noinline__)
     [[__gnu__::__noinline__]]
 #elif defined(_MSC_VER)
     __declspec(noinline)
 #endif
-    static auto capture(::std::span<StacktraceEntry> frames, ::std::size_t skip) noexcept -> ::std::size_t {
+    static void capture(
+        ::pltxt2htm::container::Vector<StacktraceEntry, ::fast_io::generic_allocator_adapter<Allocator>>& frames,
+        ::std::size_t skip) noexcept {
         // StacktraceEntry is a standard-layout wrapper around exactly one native
         // handle, so the trace storage itself can be handed to the unwinder.
         static_assert(::std::is_standard_layout_v<StacktraceEntry>);
@@ -46,14 +51,23 @@ struct CaptureBackend {
         // A skip wider than ULONG is unrepresentable, so report no frames
         // instead of letting the cast wrap into a different offset.
         constexpr auto max_skip = ::std::numeric_limits<::pltxt2htm::sys_nt::Ulong>::max();
-        if (frames.empty() || skip > max_skip) {
-            return 0;
+        if (skip > max_skip) {
+            return;
         }
-        auto const capacity = frames.size() < max_depth ? frames.size() : max_depth;
-        auto* const handles = reinterpret_cast<StacktraceEntry::native_handle_type*>(frames.data());
-        return ::pltxt2htm::sys_nt::RtlCaptureStackBackTrace(static_cast<::pltxt2htm::sys_nt::Ulong>(skip),
-                                                             static_cast<::pltxt2htm::sys_nt::Ulong>(capacity), handles,
-                                                             nullptr);
+        auto const base = frames.size();
+        auto depth = max_depth < 64 ? max_depth : 64;
+        while (true) {
+            frames.resize(base + depth);
+            auto* const handles = reinterpret_cast<StacktraceEntry::native_handle_type*>(frames.data() + base);
+            auto const written = ::pltxt2htm::sys_nt::RtlCaptureStackBackTrace(
+                static_cast<::pltxt2htm::sys_nt::Ulong>(skip), static_cast<::pltxt2htm::sys_nt::Ulong>(depth), handles,
+                nullptr);
+            frames.resize(base + written);
+            if (written < depth || depth == max_depth) {
+                return;
+            }
+            depth = depth > max_depth / 2 ? max_depth : depth * 2;
+        }
     }
 };
 

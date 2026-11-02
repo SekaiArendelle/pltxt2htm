@@ -6,8 +6,8 @@
 #pragma once
 
 #include <cstddef>
-#include <span>
 #include "stacktrace_entry.hh"
+#include "../../../container/impl/vector_decl.hh"
 
 namespace pltxt2htm::stacktrace::details {
 
@@ -18,9 +18,10 @@ struct CaptureBackend {
     /**
      * @brief Unused backend entry point, kept so the shared front-end compiles.
      */
-    [[nodiscard]]
-    static auto capture(::std::span<StacktraceEntry>, ::std::size_t) noexcept -> ::std::size_t {
-        return 0;
+    template<typename Allocator>
+    static void capture(
+        ::pltxt2htm::container::Vector<StacktraceEntry, ::fast_io::generic_allocator_adapter<Allocator>>&,
+        ::std::size_t) noexcept {
     }
 };
 

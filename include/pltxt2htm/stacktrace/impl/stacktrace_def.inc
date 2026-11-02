@@ -18,7 +18,6 @@ constexpr auto BasicStacktrace<Allocator>::operator=(this BasicStacktrace& self,
     -> BasicStacktrace& {
     pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"Self-assignment is not allowed");
     self.entries = other.entries;
-    self.truncated = other.truncated;
     return self;
 }
 
@@ -27,8 +26,6 @@ constexpr auto BasicStacktrace<Allocator>::operator=(this BasicStacktrace& self,
     -> BasicStacktrace& {
     pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"Self-move-assignment is not allowed");
     self.entries = ::std::move(other.entries);
-    self.truncated = other.truncated;
-    other.truncated = false;
     return self;
 }
 

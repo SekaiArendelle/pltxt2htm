@@ -56,7 +56,6 @@ class BasicStacktrace {
     using entries_type =
         ::pltxt2htm::container::Vector<StacktraceEntry, ::fast_io::generic_allocator_adapter<Allocator>>;
     entries_type entries{};
-    bool truncated{};
 
 public:
     using value_type = StacktraceEntry;
@@ -77,14 +76,11 @@ public:
     }
 
     constexpr BasicStacktrace(BasicStacktrace const& other, allocator_type const&) noexcept
-        : entries{other.entries},
-          truncated{other.truncated} {
+        : entries{other.entries} {
     }
 
     constexpr BasicStacktrace(BasicStacktrace&& other) noexcept
-        : entries{::std::move(other.entries)},
-          truncated{other.truncated} {
-        other.truncated = false;
+        : entries{::std::move(other.entries)} {
     }
 
     constexpr BasicStacktrace(BasicStacktrace&& other, allocator_type const&) noexcept
@@ -95,14 +91,12 @@ public:
     /**
      * @brief Build a trace from caller-provided entries for tests.
      * @param entries_ Entries copied into the trace.
-     * @param truncated_ Value reported by possibly_truncated().
      */
-    BasicStacktrace(::std::span<StacktraceEntry const> entries_, bool truncated_) noexcept {
+    BasicStacktrace(::std::span<StacktraceEntry const> entries_) noexcept {
         entries.reserve(entries_.size());
         for (auto const& entry : entries_) {
             entries.push_back(entry);
         }
-        truncated = truncated_;
     }
 #endif
 
@@ -119,8 +113,6 @@ public:
      * @details The frames of the capture machinery and of current() itself are
      *          hidden, so entry zero corresponds to the caller of current(), as
      *          for std::stacktrace.
-     * @note Capture grows until the stack is complete or the backend limit is
-     *       reached; only the latter sets possibly_truncated().
      */
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__noinline__)
@@ -143,19 +135,8 @@ public:
             if (skip > ::std::numeric_limits<size_type>::max() - hidden_machinery_frames) {
                 return result;
             }
-            auto depth = details::CaptureBackend::max_depth < 64 ? details::CaptureBackend::max_depth : 64;
-            while (true) {
-                result.entries.resize(depth);
-                auto const written =
-                    details::CaptureBackend::capture({result.entries.data(), depth}, skip + hidden_machinery_frames);
-                result.entries.resize(written);
-                auto const possibly_truncated = written == depth;
-                if (!possibly_truncated || depth == details::CaptureBackend::max_depth) {
-                    result.truncated = possibly_truncated;
-                    return result;
-                }
-                depth = depth > details::CaptureBackend::max_depth / 2 ? details::CaptureBackend::max_depth : depth * 2;
-            }
+            details::CaptureBackend::capture<allocator_type>(result.entries, skip + hidden_machinery_frames);
+            return result;
         }
     }
 
@@ -248,14 +229,6 @@ public:
 
     constexpr void swap(this BasicStacktrace& self, BasicStacktrace& other) noexcept {
         self.entries.swap(other.entries);
-        auto const truncated = self.truncated;
-        self.truncated = other.truncated;
-        other.truncated = truncated;
-    }
-
-    [[nodiscard]]
-    constexpr auto possibly_truncated(this BasicStacktrace const& self) noexcept -> bool {
-        return self.truncated;
     }
 
     template<typename RightAllocator>
