@@ -12,4 +12,5 @@
 #if defined(_WIN32)
     #include "nt/resolve.hh"
 #else
+    #include "none/resolve.hh"
 #endif

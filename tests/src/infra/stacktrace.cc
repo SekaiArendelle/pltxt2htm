@@ -115,6 +115,36 @@ int main() {
                                    !empty_frame.text_truncated && empty_frame.displacement == 0);
     }
 
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    {
+        // Internal-use construction: entries from handles, traces from entries.
+        int first_object{};
+        int second_object{};
+        auto const first_handle =
+            reinterpret_cast<trace::StacktraceEntry::native_handle_type>(::std::addressof(first_object));
+        auto const second_handle =
+            reinterpret_cast<trace::StacktraceEntry::native_handle_type>(::std::addressof(second_object));
+        auto const first_entry = trace::StacktraceEntry::from_native_handle(first_handle);
+        auto const second_entry = trace::StacktraceEntry::from_native_handle(second_handle);
+        pltxt2htm_test_assert_true(first_entry.native_handle() == first_handle);
+        pltxt2htm_test_assert_true(static_cast<bool>(first_entry));
+        pltxt2htm_test_assert_true(!trace::StacktraceEntry{});
+        trace::StacktraceEntry const constructed[2]{first_entry, second_entry};
+        auto const built = trace::Stacktrace{::std::span<trace::StacktraceEntry const>{constructed, 2}, true};
+        pltxt2htm_test_assert_true(built.size() == 2);
+        pltxt2htm_test_assert_true(built[0] == first_entry && built[1] == second_entry);
+        pltxt2htm_test_assert_true(built.possibly_truncated());
+        auto const same = trace::Stacktrace{::std::span<trace::StacktraceEntry const>{constructed, 2}, true};
+        pltxt2htm_test_assert_true(built == same && (built <=> same) == 0);
+        auto const untruncated = trace::Stacktrace{::std::span<trace::StacktraceEntry const>{constructed, 2}, false};
+        pltxt2htm_test_assert_true(!untruncated.possibly_truncated());
+        // Equality compares entries only, not the truncation flag.
+        pltxt2htm_test_assert_true(untruncated == built);
+        auto const empty_built = trace::Stacktrace{::std::span<trace::StacktraceEntry const>{}, false};
+        pltxt2htm_test_assert_true(empty_built.is_empty() && !empty_built.possibly_truncated());
+    }
+#endif
+
     {
         // Copying, comparison and iteration order of a captured snapshot.
         auto const snapshot = trace::Stacktrace::current(0);

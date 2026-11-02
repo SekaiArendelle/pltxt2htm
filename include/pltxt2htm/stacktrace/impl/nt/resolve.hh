@@ -59,6 +59,17 @@ public:
         return self;
     }
 
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    /**
+     * @brief Build an entry from a native handle for tests.
+     * @param handle Native frame handle to wrap.
+     */
+    [[nodiscard]]
+    static constexpr auto from_native_handle(native_handle_type handle) noexcept -> StacktraceEntry {
+        return StacktraceEntry{handle};
+    }
+#endif
+
     [[nodiscard]]
     constexpr auto native_handle(this StacktraceEntry const& self) noexcept -> native_handle_type {
         return self.address;
