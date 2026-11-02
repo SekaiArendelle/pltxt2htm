@@ -131,7 +131,6 @@ int main() {
                                    !empty_frame.text_truncated && empty_frame.displacement == 0);
     }
 
-#if defined(PLTXT2HTM_INTERNAL_USE)
     {
         // Internal-use entry construction from native handles.
         int first_object{};
@@ -142,7 +141,6 @@ int main() {
         pltxt2htm_test_assert_true(static_cast<bool>(first_entry));
         pltxt2htm_test_assert_true(!trace::StacktraceEntry{});
     }
-#endif
 
     {
         // Copying, comparison and iteration order of a captured snapshot.
