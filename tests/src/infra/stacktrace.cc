@@ -41,6 +41,26 @@ struct TrackingAllocator {
     }
 };
 
+// Entries expose no handle storage to callers: a trace's entries stay
+// immutable, and only the capture backend fills them. The check lives in a
+// concept because this clang rejects a bare requires-expression on a concrete
+// type whose explicit object parameter does not bind.
+template<typename Entry>
+concept can_access_entry_storage = requires(Entry& entry) { entry.native_handle_storage(); };
+
+// Positive control: the concept must still detect an accessible accessor, so a
+// renamed or deleted member cannot make the assertions below vacuous.
+struct StorageProbe {
+    [[nodiscard]]
+    constexpr auto native_handle_storage(this StorageProbe& self) noexcept -> void* {
+        return ::std::addressof(self.value);
+    }
+
+    void* value{};
+};
+
+static_assert(can_access_entry_storage<StorageProbe>);
+
 [[nodiscard]]
 #if defined(_MSC_VER)
 __declspec(noinline)
@@ -123,6 +143,9 @@ int main() {
         static_assert(::std::random_access_iterator<trace::Stacktrace::const_iterator>);
         static_assert(
             ::std::same_as<decltype(::std::declval<trace::Stacktrace const&>()[0]), trace::StacktraceEntry const&>);
+        // Entries expose no handle storage to callers: only the capture backend
+        // may fill it.
+        static_assert(!can_access_entry_storage<trace::StacktraceEntry>);
         constexpr trace::StacktraceEntry empty_entry{};
         static_assert(!empty_entry && empty_entry.native_handle() == nullptr);
         auto const empty_frame = empty_entry.resolved();

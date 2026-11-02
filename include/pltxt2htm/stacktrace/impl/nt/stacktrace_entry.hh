@@ -28,6 +28,10 @@
 
 namespace pltxt2htm::stacktrace {
 
+namespace details {
+struct CaptureBackend;
+} // namespace details
+
 /**
  * @brief A saved native address.
  * @details resolved() looks the saved address up without recapturing; each call
@@ -41,7 +45,23 @@ public:
     using native_handle_type = void*;
 
 private:
+    friend struct ::pltxt2htm::stacktrace::details::CaptureBackend;
+
     native_handle_type address{};
+
+    /**
+     * @brief Stored native handle of this entry, by address.
+     * @return Pointer to the entry's handle member; writing through it replaces
+     *         the saved address.
+     * @details Only the capture backend calls this. A trace stores its entries
+     *          contiguously and an entry holds exactly one handle, so the
+     *          backend fills a run of entries by writing consecutive handles
+     *          from this address.
+     */
+    [[nodiscard]]
+    constexpr auto native_handle_storage(this StacktraceEntry& self) noexcept -> native_handle_type* {
+        return ::std::addressof(self.address);
+    }
 
 public:
     constexpr StacktraceEntry() noexcept = default;
@@ -78,7 +98,7 @@ public:
 
     [[nodiscard]]
     constexpr explicit operator bool(this StacktraceEntry const& self) noexcept {
-        return self.address != native_handle_type{};
+        return self.address != nullptr;
     }
 
     /**

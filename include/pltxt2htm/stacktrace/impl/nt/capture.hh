@@ -44,7 +44,8 @@ struct CaptureBackend {
         ::pltxt2htm::container::Vector<StacktraceEntry, ::fast_io::generic_allocator_adapter<Allocator>>& frames,
         ::std::size_t skip) noexcept {
         // StacktraceEntry is a standard-layout wrapper around exactly one native
-        // handle, so the trace storage itself can be handed to the unwinder.
+        // handle, and this backend may address that handle directly, so the trace
+        // storage itself can be handed to the unwinder.
         static_assert(::std::is_standard_layout_v<StacktraceEntry>);
         static_assert(sizeof(StacktraceEntry) == sizeof(StacktraceEntry::native_handle_type));
         static_assert(alignof(StacktraceEntry) == alignof(StacktraceEntry::native_handle_type));
@@ -58,7 +59,7 @@ struct CaptureBackend {
         auto depth = max_depth < 64 ? max_depth : 64;
         while (true) {
             frames.resize(base + depth);
-            auto* const handles = reinterpret_cast<StacktraceEntry::native_handle_type*>(frames.data() + base);
+            auto* const handles = frames[base].native_handle_storage();
             auto const written = ::pltxt2htm::sys_nt::RtlCaptureStackBackTrace(
                 static_cast<::pltxt2htm::sys_nt::Ulong>(skip), static_cast<::pltxt2htm::sys_nt::Ulong>(depth), handles,
                 nullptr);
