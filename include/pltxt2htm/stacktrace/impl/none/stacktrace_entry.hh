@@ -18,6 +18,8 @@ namespace pltxt2htm::stacktrace {
  * @details resolved() looks the saved address up without recapturing; each call
  *          performs a full lookup, so resolve once and reuse the frame. The
  *          text fields are independently owned `container::String` values.
+ * @note The class is a standard-layout wrapper around a single native handle;
+ *       the capture backend relies on that to fill trace storage directly.
  */
 class StacktraceEntry {
 public:

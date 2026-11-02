@@ -71,7 +71,7 @@ __declspec(noinline)
 
 int main() {
     namespace trace = ::pltxt2htm::stacktrace;
-    [[maybe_unused]] trace::StacktraceEntry::native_handle_type storage[8]{};
+    [[maybe_unused]] trace::StacktraceEntry storage[8]{};
 
     {
         // Backend contract: capacity-bounded writes, skip handling, written count.
@@ -79,14 +79,15 @@ int main() {
         pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({}, 0) == 0);
         pltxt2htm_test_assert_true(
             trace::details::CaptureBackend::capture(storage, ::std::numeric_limits<::std::size_t>::max()) == 0);
-        trace::StacktraceEntry::native_handle_type guarded[3]{
-            nullptr, nullptr, reinterpret_cast<trace::StacktraceEntry::native_handle_type>(1)};
+        auto const sentinel = reinterpret_cast<trace::StacktraceEntry::native_handle_type>(1);
+        trace::StacktraceEntry guarded[3]{};
+        guarded[2] = trace::StacktraceEntry::from_native_handle(sentinel);
         pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({guarded, 1}, 0) == 1);
-        pltxt2htm_test_assert_true(guarded[0] != nullptr && guarded[1] == nullptr);
-        pltxt2htm_test_assert_true(guarded[2] == reinterpret_cast<trace::StacktraceEntry::native_handle_type>(1));
+        pltxt2htm_test_assert_true(guarded[0].native_handle() != nullptr && guarded[1].native_handle() == nullptr);
+        pltxt2htm_test_assert_true(guarded[2].native_handle() == sentinel);
         // Capacity is the number retained after skipping.
         pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({guarded, 1}, 1) == 1);
-        pltxt2htm_test_assert_true(guarded[1] == nullptr);
+        pltxt2htm_test_assert_true(guarded[1].native_handle() == nullptr);
         auto const written = trace::details::CaptureBackend::capture(storage, 0);
         pltxt2htm_test_assert_true(written > 0 && written <= 8);
         // The front-end stores exactly the handles the backend reported.
@@ -275,8 +276,8 @@ int main() {
         auto& session = trace::details::get_symbol_session();
         auto held = trace::details::DbgHelpLock::try_acquire(session.lock);
         pltxt2htm_test_assert_true(static_cast<bool>(held));
-        auto const busy = trace::StacktraceEntry::from_native_handle(storage[0]).resolved();
-        pltxt2htm_test_assert_true(busy.address == storage[0] && busy.description.is_empty());
+        auto const busy = trace::StacktraceEntry::from_native_handle(storage[0].native_handle()).resolved();
+        pltxt2htm_test_assert_true(busy.address == storage[0].native_handle() && busy.description.is_empty());
         pltxt2htm_test_assert_true(!trace::details::shutdown_symbols());
         pltxt2htm_test_assert_true(session.is_ready() && session.process != nullptr);
     }
@@ -289,8 +290,8 @@ int main() {
         pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.is_empty());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
         pltxt2htm_test_assert_true(!session.is_ready() && session.process == nullptr);
-        auto const again = trace::StacktraceEntry::from_native_handle(storage[0]).resolved();
-        pltxt2htm_test_assert_true(again.address == storage[0] && session.is_ready());
+        auto const again = trace::StacktraceEntry::from_native_handle(storage[0].native_handle()).resolved();
+        pltxt2htm_test_assert_true(again.address == storage[0].native_handle() && session.is_ready());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
     }
 
@@ -298,9 +299,10 @@ int main() {
         // A recorded initialization failure is not retried by later lookups.
         auto& session = trace::details::get_symbol_session();
         session.state = trace::details::DbgHelpSession::State::unavailable;
-        auto const unavailable = trace::StacktraceEntry::from_native_handle(storage[0]).resolved();
-        pltxt2htm_test_assert_true(unavailable.address == storage[0] && unavailable.description.is_empty() &&
-                                   session.process == nullptr && !session.is_ready());
+        auto const unavailable = trace::StacktraceEntry::from_native_handle(storage[0].native_handle()).resolved();
+        pltxt2htm_test_assert_true(unavailable.address == storage[0].native_handle() &&
+                                   unavailable.description.is_empty() && session.process == nullptr &&
+                                   !session.is_ready());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
     }
 #endif

@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <span>
+#include "stacktrace_entry.hh"
 
 namespace pltxt2htm::stacktrace::details {
 
@@ -18,7 +19,7 @@ struct CaptureBackend {
      * @brief Unused backend entry point, kept so the shared front-end compiles.
      */
     [[nodiscard]]
-    static auto capture(::std::span<StacktraceEntry::native_handle_type>, ::std::size_t) noexcept -> ::std::size_t {
+    static auto capture(::std::span<StacktraceEntry>, ::std::size_t) noexcept -> ::std::size_t {
         return 0;
     }
 };

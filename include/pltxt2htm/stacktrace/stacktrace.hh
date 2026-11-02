@@ -144,21 +144,14 @@ public:
             if (skip > ::std::numeric_limits<size_type>::max() - hidden_machinery_frames) {
                 return result;
             }
-            using handles_type = ::pltxt2htm::container::Vector<StacktraceEntry::native_handle_type,
-                                                                ::fast_io::generic_allocator_adapter<allocator_type>>;
-            handles_type handles{};
             auto depth = details::CaptureBackend::max_depth < 64 ? details::CaptureBackend::max_depth : 64;
             while (true) {
-                handles.resize(depth);
+                result.entries.resize(depth);
                 auto const written =
-                    details::CaptureBackend::capture({handles.data(), depth}, skip + hidden_machinery_frames);
-                handles.resize(written);
+                    details::CaptureBackend::capture({result.entries.data(), depth}, skip + hidden_machinery_frames);
+                result.entries.resize(written);
                 auto const possibly_truncated = written == depth;
                 if (!possibly_truncated || depth == details::CaptureBackend::max_depth) {
-                    result.entries.reserve(handles.size());
-                    for (auto const handle : handles) {
-                        result.entries.push_back(StacktraceEntry{handle});
-                    }
                     result.truncated = possibly_truncated;
                     return result;
                 }
