@@ -90,15 +90,15 @@ int main() {
         auto const written = trace::details::CaptureBackend::capture(storage, 0);
         pltxt2htm_test_assert_true(written > 0 && written <= 8);
         // The front-end stores exactly the handles the backend reported.
-        auto const grown = trace::details::capture_all<::fast_io::native_global_allocator>(0);
-        pltxt2htm_test_assert_true(!grown.addresses.is_empty());
-        for (auto const handle : grown.addresses) {
-            pltxt2htm_test_assert_true(handle != trace::StacktraceEntry::native_handle_type{});
+        auto const grown = trace::Stacktrace::current(0);
+        pltxt2htm_test_assert_true(!grown.is_empty());
+        for (auto const& entry : grown) {
+            pltxt2htm_test_assert_true(entry.native_handle() != trace::StacktraceEntry::native_handle_type{});
         }
 #else
         // Without a capture backend the front-end reports an empty capture.
-        auto const unsupported = trace::details::capture_all<::fast_io::native_global_allocator>(0);
-        pltxt2htm_test_assert_true(unsupported.addresses.is_empty() && !unsupported.possibly_truncated);
+        auto const unsupported = trace::Stacktrace::current(0);
+        pltxt2htm_test_assert_true(unsupported.is_empty() && !unsupported.possibly_truncated());
 #endif
     }
 

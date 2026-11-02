@@ -22,8 +22,12 @@
 #include <type_traits>
 #include <utility>
 #include "../container/impl/vector_decl.hh"
-#include "impl/capture.hh"
 #include "impl/stacktrace_entry.hh"
+#if defined(_WIN32)
+    #include "impl/nt/capture.hh"
+#else
+    #include "impl/none/capture.hh"
+#endif
 
 // windows.h defines min and max as function-like macros, which would expand
 // inside std::numeric_limits<...>::max(). Keep them undefined in this header.
@@ -31,6 +35,10 @@
 #pragma push_macro("max")
 #undef min
 #undef max
+
+static_assert(!::pltxt2htm::stacktrace::details::CaptureBackend::supported ||
+                  ::pltxt2htm::stacktrace::details::CaptureBackend::max_depth >= 1,
+              "supported capture backends need a positive max_depth");
 
 namespace pltxt2htm::stacktrace {
 /**
@@ -125,19 +133,37 @@ public:
 #endif
     static auto current(size_type skip = 0) noexcept -> BasicStacktrace {
         BasicStacktrace result{};
-        // CaptureBackend::capture, capture_all and current are noinline, so
-        // their frames are stable and can be hidden here.
-        constexpr size_type hidden_machinery_frames{3};
-        if (skip > ::std::numeric_limits<size_type>::max() - hidden_machinery_frames) {
+        if constexpr (!details::CaptureBackend::supported) {
             return result;
         }
-        auto frames = details::capture_all<allocator_type>(skip + hidden_machinery_frames);
-        result.entries.reserve(frames.addresses.size());
-        for (auto const handle : frames.addresses) {
-            result.entries.push_back(StacktraceEntry{handle});
+        else {
+            // CaptureBackend::capture and current are noinline, so their frames
+            // are stable and can be hidden here.
+            constexpr size_type hidden_machinery_frames{2};
+            if (skip > ::std::numeric_limits<size_type>::max() - hidden_machinery_frames) {
+                return result;
+            }
+            using handles_type = ::pltxt2htm::container::Vector<StacktraceEntry::native_handle_type,
+                                                                ::fast_io::generic_allocator_adapter<allocator_type>>;
+            handles_type handles{};
+            auto depth = details::CaptureBackend::max_depth < 64 ? details::CaptureBackend::max_depth : 64;
+            while (true) {
+                handles.resize(depth);
+                auto const written =
+                    details::CaptureBackend::capture({handles.data(), depth}, skip + hidden_machinery_frames);
+                handles.resize(written);
+                auto const possibly_truncated = written == depth;
+                if (!possibly_truncated || depth == details::CaptureBackend::max_depth) {
+                    result.entries.reserve(handles.size());
+                    for (auto const handle : handles) {
+                        result.entries.push_back(StacktraceEntry{handle});
+                    }
+                    result.truncated = possibly_truncated;
+                    return result;
+                }
+                depth = depth > details::CaptureBackend::max_depth / 2 ? details::CaptureBackend::max_depth : depth * 2;
+            }
         }
-        result.truncated = frames.possibly_truncated;
-        return result;
     }
 
     [[nodiscard]]
