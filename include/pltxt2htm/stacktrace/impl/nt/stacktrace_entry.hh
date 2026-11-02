@@ -333,7 +333,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
 } // namespace details
 
 inline auto StacktraceEntry::resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame {
-    if (self.address == native_handle_type{}) {
+    if (self.address == nullptr) {
         return {};
     }
     ResolvedFrame result{.address = self.address};
