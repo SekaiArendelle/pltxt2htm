@@ -60,12 +60,7 @@ public:
     constexpr StacktraceEntry(StacktraceEntry const&) noexcept = default;
     constexpr StacktraceEntry(StacktraceEntry&&) noexcept = default;
 
-    constexpr StacktraceEntry& operator=(this StacktraceEntry& self, StacktraceEntry const& other) noexcept {
-        self.address = other.address;
-        return self;
-    }
-
-    constexpr StacktraceEntry& operator=(this StacktraceEntry& self, StacktraceEntry&& other) noexcept {
+    constexpr auto operator=(this StacktraceEntry& self, StacktraceEntry const& other) noexcept -> StacktraceEntry& {
         self.address = other.address;
         return self;
     }

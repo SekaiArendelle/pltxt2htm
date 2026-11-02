@@ -70,4 +70,5 @@ auto capture_all(::std::size_t skip) noexcept -> CapturedFrames<Allocator> {
         }
     }
 }
+
 } // namespace pltxt2htm::stacktrace::details
