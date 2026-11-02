@@ -218,11 +218,7 @@ int main() {
         pltxt2htm_test_assert_true(!deep.is_empty() && deep[0]);
         // Entry queries use the saved address, not a new capture.
         auto const first_frame = deep[0].resolved();
-        auto const expected_frame = trace::resolve(deep[0].native_handle());
-        pltxt2htm_test_assert_true(first_frame.address == deep[0].native_handle() &&
-                                   first_frame.description == expected_frame.description &&
-                                   first_frame.source_file == expected_frame.source_file &&
-                                   first_frame.source_line == expected_frame.source_line);
+        pltxt2htm_test_assert_true(first_frame.address == deep[0].native_handle());
         // DbgHelp must reach the image's symbols (PDB or, for GNU-ABI builds,
         // the export table) for frames inside the test executable.
         pltxt2htm_test_assert_true(!first_frame.description.is_empty());
@@ -246,7 +242,9 @@ int main() {
         // GNU-ABI builds receive Itanium-mangled export names, which DbgHelp
         // reports without the leading underscore; the demangler must turn
         // deep_trace's name into readable text instead of "Z10deep_trace...".
-        auto const named = trace::resolve(reinterpret_cast<void*>(::std::addressof(::deep_trace)));
+        auto const deep_trace_handle =
+            reinterpret_cast<trace::StacktraceEntry::native_handle_type>(::std::addressof(::deep_trace));
+        auto const named = trace::StacktraceEntry::from_native_handle(deep_trace_handle).resolved();
         pltxt2htm_test_assert_true(!named.description.is_empty());
         pltxt2htm_test_assert_true(named.description.data()[0] != u8'Z');
     }
@@ -265,7 +263,9 @@ int main() {
         pltxt2htm_test_assert_true(late_module != nullptr);
         auto const late_function = win32::GetProcAddress(late_module, "PlaySoundW");
         pltxt2htm_test_assert_true(late_function != nullptr);
-        auto const late_frame = trace::resolve(reinterpret_cast<void*>(late_function));
+        auto const late_frame = trace::StacktraceEntry::from_native_handle(
+                                    reinterpret_cast<trace::StacktraceEntry::native_handle_type>(late_function))
+                                    .resolved();
         pltxt2htm_test_assert_true(!late_frame.description.is_empty());
         (void)win32::FreeLibrary(late_module);
     }
@@ -275,7 +275,7 @@ int main() {
         auto& session = trace::details::get_symbol_session();
         auto held = trace::details::DbgHelpLock::try_acquire(session.lock);
         pltxt2htm_test_assert_true(static_cast<bool>(held));
-        auto const busy = trace::resolve(storage[0]);
+        auto const busy = trace::StacktraceEntry::from_native_handle(storage[0]).resolved();
         pltxt2htm_test_assert_true(busy.address == storage[0] && busy.description.is_empty());
         pltxt2htm_test_assert_true(!trace::details::shutdown_symbols());
         pltxt2htm_test_assert_true(session.is_ready() && session.process != nullptr);
@@ -285,11 +285,11 @@ int main() {
         // Invalid addresses stay unresolved; shutdown is followed by a lazy
         // re-initialization on the next lookup.
         auto& session = trace::details::get_symbol_session();
-        auto const invalid = trace::resolve(nullptr);
+        auto const invalid = trace::StacktraceEntry{}.resolved();
         pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.is_empty());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
         pltxt2htm_test_assert_true(!session.is_ready() && session.process == nullptr);
-        auto const again = trace::resolve(storage[0]);
+        auto const again = trace::StacktraceEntry::from_native_handle(storage[0]).resolved();
         pltxt2htm_test_assert_true(again.address == storage[0] && session.is_ready());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
     }
@@ -298,7 +298,7 @@ int main() {
         // A recorded initialization failure is not retried by later lookups.
         auto& session = trace::details::get_symbol_session();
         session.state = trace::details::DbgHelpSession::State::unavailable;
-        auto const unavailable = trace::resolve(storage[0]);
+        auto const unavailable = trace::StacktraceEntry::from_native_handle(storage[0]).resolved();
         pltxt2htm_test_assert_true(unavailable.address == storage[0] && unavailable.description.is_empty() &&
                                    session.process == nullptr && !session.is_ready());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());

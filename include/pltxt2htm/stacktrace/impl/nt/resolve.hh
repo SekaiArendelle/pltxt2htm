@@ -31,9 +31,8 @@ namespace pltxt2htm::stacktrace {
 /**
  * @brief A saved native address.
  * @details resolved() looks the saved address up without recapturing; each call
- *          performs a full lookup (see resolve()), so resolve once and reuse the
- *          frame. The text fields are independently owned `container::String`
- *          values.
+ *          performs a full lookup, so resolve once and reuse the frame. The
+ *          text fields are independently owned `container::String` values.
  */
 class StacktraceEntry {
 public:
@@ -83,6 +82,11 @@ public:
     /**
      * @brief Resolve the saved address into owned text and source location.
      * @return The resolved frame; the address is retained on lookup failure.
+     * @details Null addresses resolve to an empty frame without touching the
+     *          backend. DbgHelp resolution benefits from matching PDBs and may
+     *          allocate, load libraries, and perform file I/O, so it is not
+     *          suitable for signal/loader callbacks or reliable diagnostics
+     *          after heap corruption.
      */
     [[nodiscard]]
     auto resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame;
@@ -306,29 +310,18 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
 
 } // namespace details
 
-/**
- * @brief Resolve an already captured address without unwinding or printing.
- * @param address Native frame handle; null resolves to an empty frame without
- *                touching the backend.
- * @return Resolved symbol data; the address is retained on failure.
- * @details DbgHelp resolution benefits from matching PDBs. Resolution may
- *          allocate, load libraries, and perform file I/O, so it is not
- *          suitable for signal/loader callbacks or reliable diagnostics after
- *          heap corruption.
- */
-[[nodiscard]]
-inline auto resolve(StacktraceEntry::native_handle_type address) noexcept -> ResolvedFrame {
-    if (address == StacktraceEntry::native_handle_type{}) {
+inline auto StacktraceEntry::resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame {
+    if (self.address == native_handle_type{}) {
         return {};
     }
-    ResolvedFrame result{.address = address};
+    ResolvedFrame result{.address = self.address};
     auto& session = details::get_symbol_session();
     auto const held = details::DbgHelpLock::try_acquire(session.lock);
     if (!held) {
         return result;
     }
     if (session.try_initialize()) {
-        auto const native_address = static_cast<::std::uint64_t>(reinterpret_cast<::std::uintptr_t>(address));
+        auto const native_address = static_cast<::std::uint64_t>(reinterpret_cast<::std::uintptr_t>(self.address));
         details::resolve_description(result, session, native_address);
         // File/line lookup is independent of function-name lookup.
         ::pltxt2htm::sys_win32::ImageHlpLine64 line{};
@@ -343,10 +336,6 @@ inline auto resolve(StacktraceEntry::native_handle_type address) noexcept -> Res
         }
     }
     return result;
-}
-
-inline auto StacktraceEntry::resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame {
-    return ::pltxt2htm::stacktrace::resolve(self.address);
 }
 
 } // namespace pltxt2htm::stacktrace

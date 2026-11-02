@@ -16,9 +16,8 @@ namespace pltxt2htm::stacktrace {
 /**
  * @brief A saved native address.
  * @details resolved() looks the saved address up without recapturing; each call
- *          performs a full lookup (see resolve()), so resolve once and reuse the
- *          frame. The text fields are independently owned `container::String`
- *          values.
+ *          performs a full lookup, so resolve once and reuse the frame. The
+ *          text fields are independently owned `container::String` values.
  */
 class StacktraceEntry {
 public:
@@ -68,6 +67,8 @@ public:
     /**
      * @brief Resolve the saved address into owned text and source location.
      * @return The resolved frame; the address is retained on lookup failure.
+     * @details Null addresses resolve to an empty frame; without a resolver
+     *          only the address is kept.
      */
     [[nodiscard]]
     auto resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame;
@@ -84,21 +85,11 @@ public:
     }
 };
 
-/**
- * @brief Resolve an already captured address without unwinding or printing.
- * @param address Native frame handle; null resolves to an empty frame.
- * @return Resolved symbol data; without a resolver only the address is kept.
- */
-[[nodiscard]]
-inline auto resolve(StacktraceEntry::native_handle_type address) noexcept -> ResolvedFrame {
-    if (address == StacktraceEntry::native_handle_type{}) {
+inline auto StacktraceEntry::resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame {
+    if (self.address == native_handle_type{}) {
         return {};
     }
-    return {.address = address};
-}
-
-inline auto StacktraceEntry::resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame {
-    return ::pltxt2htm::stacktrace::resolve(self.address);
+    return {.address = self.address};
 }
 
 } // namespace pltxt2htm::stacktrace
