@@ -4,10 +4,11 @@
  * @details Selects the capture backend for the current platform and grows
  *          storage until the backend stops filling the probe buffer or the
  *          backend limit is reached. A backend provides `supported`,
- *          `max_depth`, and `capture(::std::span<void*>, ::std::size_t)`, which
- *          writes up to `frames.size()` addresses and returns how many it wrote;
- *          a filled buffer is treated as possibly truncated. A backend must
- *          return 0 for a skip it cannot represent.
+ *          `max_depth`, and
+ *          `capture(::std::span<StacktraceEntry::native_handle_type>,
+ *          ::std::size_t)`, which writes up to `frames.size()` handles and
+ *          returns how many it wrote; a filled buffer is treated as possibly
+ *          truncated. A backend must return 0 for a skip it cannot represent.
  */
 
 #pragma once
@@ -15,11 +16,12 @@
 #include <cstddef>
 #include <span>
 #include "../../container/impl/vector_decl.hh"
+#include "stacktrace_entry.hh"
 
 #if defined(_WIN32)
-    #include "capture_nt.hh"
+    #include "nt/capture.hh"
 #else
-    #include "capture_null.hh"
+    #include "none/capture.hh"
 #endif
 
 namespace pltxt2htm::stacktrace::details {
@@ -28,21 +30,23 @@ static_assert(!CaptureBackend::supported || CaptureBackend::max_depth >= 1,
               "supported capture backends need a positive max_depth");
 
 /**
- * @brief Captured native addresses and whether the backend limit cut them off.
+ * @brief Captured native frame handles and whether the backend limit cut them
+ *        off.
  */
 template<typename Allocator>
 struct CapturedFrames {
-    ::pltxt2htm::container::Vector<void*, ::fast_io::generic_allocator_adapter<Allocator>> addresses{};
+    ::pltxt2htm::container::Vector<StacktraceEntry::native_handle_type, ::fast_io::generic_allocator_adapter<Allocator>>
+        addresses{};
     bool possibly_truncated{};
 };
 
 /**
  * @brief Capture the complete native stack into growable storage.
  * @param skip Native frames to skip, starting with the backend capture frame.
- * @return Captured addresses and whether the backend limit truncated them;
+ * @return Captured handles and whether the backend limit truncated them;
  *         empty when the platform has no backend or skip is unrepresentable.
  * @details Grows the buffer by doubling until the backend writes fewer
- *          addresses than the buffer holds or the backend limit is reached.
+ *          handles than the buffer holds or the backend limit is reached.
  */
 template<typename Allocator>
 [[nodiscard]]

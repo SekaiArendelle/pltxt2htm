@@ -1,5 +1,5 @@
 /**
- * @file capture_nt.hh
+ * @file capture.hh
  * @brief Windows capture backend using RtlCaptureStackBackTrace.
  */
 
@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <limits>
 #include <span>
-#include "../../sys/nt/ntdll.hh"
+#include "../../../sys/nt/ntdll.hh"
 
 // windows.h defines min and max as function-like macros, which would expand
 // inside std::numeric_limits<...>::max(). Hide them for this header, then
@@ -25,9 +25,9 @@ struct CaptureBackend {
     static constexpr ::std::size_t max_depth = 65535;
 
     /**
-     * @brief Write up to frames.size() return addresses into frames.
+     * @brief Write up to frames.size() native handles into frames.
      * @param skip Native frames to skip, starting with this function's frame.
-     * @return Number of addresses written; a full buffer may have more frames.
+     * @return Number of handles written; a full buffer may have more frames.
      */
     [[nodiscard]]
 #if __has_cpp_attribute(__gnu__::__noinline__)
@@ -35,7 +35,8 @@ struct CaptureBackend {
 #elif defined(_MSC_VER)
     __declspec(noinline)
 #endif
-    static auto capture(::std::span<void*> frames, ::std::size_t skip) noexcept -> ::std::size_t {
+    static auto capture(::std::span<StacktraceEntry::native_handle_type> frames, ::std::size_t skip) noexcept
+        -> ::std::size_t {
         // A skip wider than ULONG is unrepresentable, so report no frames
         // instead of letting the cast wrap into a different offset.
         constexpr auto max_skip = ::std::numeric_limits<::pltxt2htm::sys_nt::Ulong>::max();

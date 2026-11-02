@@ -1,6 +1,6 @@
 /**
- * @file nt.hh
- * @brief Windows DbgHelp symbol resolution for the stacktrace implementation.
+ * @file resolve.hh
+ * @brief Windows StacktraceEntry and DbgHelp symbol resolution.
  * @details The resolver is process-wide and lazily initialized; hosts using
  *          DbgHelp directly must coordinate with it.
  */
@@ -14,10 +14,10 @@
 
 #include <fast_io/fast_io_core.h>
 
-#include "resolved_frame.hh"
-#include "../../details/demangle.hh"
-#include "../../sys/nt/ntdll.hh"
-#include "../../sys/win32/dbghelp.hh"
+#include "../resolved_frame.hh"
+#include "../../../details/demangle.hh"
+#include "../../../sys/nt/ntdll.hh"
+#include "../../../sys/win32/dbghelp.hh"
 
 // windows.h defines min and max as function-like macros, which would expand
 // inside std::numeric_limits<...>::max(). Keep them undefined in this header.
@@ -26,7 +26,69 @@
 #undef min
 #undef max
 
-namespace pltxt2htm::stacktrace::details {
+namespace pltxt2htm::stacktrace {
+
+/**
+ * @brief A saved native address.
+ * @details resolved() looks the saved address up without recapturing; each call
+ *          performs a full lookup (see resolve()), so resolve once and reuse the
+ *          frame. The text fields are independently owned `container::String`
+ *          values.
+ */
+class StacktraceEntry {
+public:
+    using native_handle_type = void*;
+
+private:
+    native_handle_type address{};
+
+    template<typename Allocator>
+    friend class BasicStacktrace;
+
+    constexpr StacktraceEntry(native_handle_type address_) noexcept
+        : address{address_} {
+    }
+
+public:
+    constexpr StacktraceEntry() noexcept = default;
+    constexpr StacktraceEntry(StacktraceEntry const&) noexcept = default;
+    constexpr StacktraceEntry(StacktraceEntry&&) noexcept = default;
+
+    constexpr auto operator=(this StacktraceEntry& self, StacktraceEntry const& other) noexcept -> StacktraceEntry& {
+        self.address = other.address;
+        return self;
+    }
+
+    [[nodiscard]]
+    constexpr auto native_handle(this StacktraceEntry const& self) noexcept -> native_handle_type {
+        return self.address;
+    }
+
+    [[nodiscard]]
+    constexpr explicit operator bool(this StacktraceEntry const& self) noexcept {
+        return self.address != native_handle_type{};
+    }
+
+    /**
+     * @brief Resolve the saved address into owned text and source location.
+     * @return The resolved frame; the address is retained on lookup failure.
+     */
+    [[nodiscard]]
+    auto resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame;
+
+    [[nodiscard]]
+    constexpr auto operator==(this StacktraceEntry const& self, StacktraceEntry const& other) noexcept -> bool {
+        return self.address == other.address;
+    }
+
+    [[nodiscard]]
+    constexpr auto operator<=>(this StacktraceEntry const& self, StacktraceEntry const& other) noexcept
+        -> ::std::strong_ordering {
+        return self.address <=> other.address;
+    }
+};
+
+namespace details {
 
 /**
  * @brief Scoped exclusive ownership of a session's SRW lock.
@@ -231,11 +293,26 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
     }
 }
 
+} // namespace details
+
+/**
+ * @brief Resolve an already captured address without unwinding or printing.
+ * @param address Native frame handle; null resolves to an empty frame without
+ *                touching the backend.
+ * @return Resolved symbol data; the address is retained on failure.
+ * @details DbgHelp resolution benefits from matching PDBs. Resolution may
+ *          allocate, load libraries, and perform file I/O, so it is not
+ *          suitable for signal/loader callbacks or reliable diagnostics after
+ *          heap corruption.
+ */
 [[nodiscard]]
-inline auto resolve_nt(void* address) noexcept -> ResolvedFrame {
+inline auto resolve(StacktraceEntry::native_handle_type address) noexcept -> ResolvedFrame {
+    if (address == StacktraceEntry::native_handle_type{}) {
+        return {};
+    }
     ResolvedFrame result{.address = address};
     auto& session = details::get_symbol_session();
-    auto const held = DbgHelpLock::try_acquire(session.lock);
+    auto const held = details::DbgHelpLock::try_acquire(session.lock);
     if (!held) {
         return result;
     }
@@ -256,7 +333,12 @@ inline auto resolve_nt(void* address) noexcept -> ResolvedFrame {
     }
     return result;
 }
-} // namespace pltxt2htm::stacktrace::details
+
+inline auto StacktraceEntry::resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame {
+    return ::pltxt2htm::stacktrace::resolve(self.address);
+}
+
+} // namespace pltxt2htm::stacktrace
 
 #pragma pop_macro("max")
 #pragma pop_macro("min")

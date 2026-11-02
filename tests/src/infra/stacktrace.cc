@@ -71,7 +71,7 @@ __declspec(noinline)
 
 int main() {
     namespace trace = ::pltxt2htm::stacktrace;
-    [[maybe_unused]] void* storage[8]{};
+    [[maybe_unused]] trace::StacktraceEntry::native_handle_type storage[8]{};
 
     {
         // Backend contract: capacity-bounded writes, skip handling, written count.
@@ -79,20 +79,21 @@ int main() {
         pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({}, 0) == 0);
         pltxt2htm_test_assert_true(
             trace::details::CaptureBackend::capture(storage, ::std::numeric_limits<::std::size_t>::max()) == 0);
-        void* guarded[3]{nullptr, nullptr, reinterpret_cast<void*>(1)};
+        trace::StacktraceEntry::native_handle_type guarded[3]{
+            nullptr, nullptr, reinterpret_cast<trace::StacktraceEntry::native_handle_type>(1)};
         pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({guarded, 1}, 0) == 1);
         pltxt2htm_test_assert_true(guarded[0] != nullptr && guarded[1] == nullptr);
-        pltxt2htm_test_assert_true(guarded[2] == reinterpret_cast<void*>(1));
+        pltxt2htm_test_assert_true(guarded[2] == reinterpret_cast<trace::StacktraceEntry::native_handle_type>(1));
         // Capacity is the number retained after skipping.
         pltxt2htm_test_assert_true(trace::details::CaptureBackend::capture({guarded, 1}, 1) == 1);
         pltxt2htm_test_assert_true(guarded[1] == nullptr);
         auto const written = trace::details::CaptureBackend::capture(storage, 0);
         pltxt2htm_test_assert_true(written > 0 && written <= 8);
-        // The front-end stores exactly the addresses the backend reported.
+        // The front-end stores exactly the handles the backend reported.
         auto const grown = trace::details::capture_all<::fast_io::native_global_allocator>(0);
         pltxt2htm_test_assert_true(!grown.addresses.is_empty());
-        for (void* address : grown.addresses) {
-            pltxt2htm_test_assert_true(address != nullptr);
+        for (auto const handle : grown.addresses) {
+            pltxt2htm_test_assert_true(handle != trace::StacktraceEntry::native_handle_type{});
         }
 #else
         // Without a capture backend the front-end reports an empty capture.

@@ -1,5 +1,5 @@
 /**
- * @file capture_null.hh
+ * @file capture.hh
  * @brief Capture backend for platforms without a supported unwinder.
  */
 
@@ -18,7 +18,7 @@ struct CaptureBackend {
      * @brief Unused backend entry point, kept so the shared front-end compiles.
      */
     [[nodiscard]]
-    static auto capture(::std::span<void*>, ::std::size_t) noexcept -> ::std::size_t {
+    static auto capture(::std::span<StacktraceEntry::native_handle_type>, ::std::size_t) noexcept -> ::std::size_t {
         return 0;
     }
 };
