@@ -45,8 +45,13 @@ inline auto resolve(void* address) noexcept -> ResolvedFrame {
  */
 class StacktraceEntry {
     void* address{};
+
     template<typename Allocator>
     friend class BasicStacktrace;
+
+    constexpr StacktraceEntry(void* address_) noexcept
+    : address{address_} {
+    }
 
 public:
     using native_handle_type = void*;

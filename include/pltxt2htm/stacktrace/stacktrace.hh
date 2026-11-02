@@ -118,7 +118,7 @@ public:
         auto frames = details::capture_all<allocator_type>(skip + hidden_machinery_frames);
         result.entries.reserve(frames.addresses.size());
         for (auto* const address : frames.addresses) {
-            result.entries.emplace_back().address = address;
+            result.entries.push_back(StacktraceEntry{address});
         }
         result.truncated = frames.possibly_truncated;
         return result;
