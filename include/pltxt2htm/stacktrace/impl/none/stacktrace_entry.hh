@@ -28,13 +28,6 @@ public:
 private:
     native_handle_type address{};
 
-    template<typename Allocator>
-    friend class BasicStacktrace;
-
-    constexpr StacktraceEntry(native_handle_type address_) noexcept
-        : address{address_} {
-    }
-
 public:
     constexpr StacktraceEntry() noexcept = default;
     constexpr StacktraceEntry(StacktraceEntry const&) noexcept = default;
@@ -46,6 +39,13 @@ public:
     }
 
 #if defined(PLTXT2HTM_INTERNAL_USE)
+
+private:
+    constexpr StacktraceEntry(native_handle_type address_) noexcept
+        : address{address_} {
+    }
+
+public:
     /**
      * @brief Build an entry from a native handle for tests.
      * @param handle Native frame handle to wrap.
