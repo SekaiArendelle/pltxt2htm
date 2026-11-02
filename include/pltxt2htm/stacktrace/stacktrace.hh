@@ -22,10 +22,11 @@
 #include <type_traits>
 #include <utility>
 #include "../container/impl/vector_decl.hh"
-#include "impl/stacktrace_entry.hh"
 #if defined(_WIN32)
+    #include "impl/nt/stacktrace_entry.hh"
     #include "impl/nt/capture.hh"
 #else
+    #include "impl/none/stacktrace_entry.hh"
     #include "impl/none/capture.hh"
 #endif
 

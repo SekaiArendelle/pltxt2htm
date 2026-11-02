@@ -1,5 +1,5 @@
 /**
- * @file resolve.hh
+ * @file stacktrace_entry.hh
  * @brief Windows StacktraceEntry and DbgHelp symbol resolution.
  * @details The resolver is process-wide and lazily initialized; hosts using
  *          DbgHelp directly must coordinate with it.

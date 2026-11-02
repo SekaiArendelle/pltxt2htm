@@ -1,5 +1,5 @@
 /**
- * @file resolve.hh
+ * @file stacktrace_entry.hh
  * @brief StacktraceEntry and address resolution for platforms without symbol
  *        resolution.
  * @details Without a resolver, resolved() reports the address and no text.
