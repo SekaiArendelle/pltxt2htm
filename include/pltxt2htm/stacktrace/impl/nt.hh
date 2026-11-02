@@ -143,7 +143,7 @@ struct DbgHelpSession {
      */
     [[nodiscard]]
     auto try_shutdown(this DbgHelpSession& self) noexcept -> bool {
-        auto held = DbgHelpLock::try_acquire(self.lock);
+        auto const held = DbgHelpLock::try_acquire(self.lock);
         if (!held) {
             return false;
         }
@@ -235,7 +235,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
 inline auto resolve_nt(void* address) noexcept -> ResolvedFrame {
     ResolvedFrame result{.address = address};
     auto& session = details::get_symbol_session();
-    auto held = DbgHelpLock::try_acquire(session.lock);
+    auto const held = DbgHelpLock::try_acquire(session.lock);
     if (!held) {
         return result;
     }
