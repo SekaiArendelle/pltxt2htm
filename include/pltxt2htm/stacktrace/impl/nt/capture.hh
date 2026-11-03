@@ -22,7 +22,7 @@
 
 namespace pltxt2htm::stacktrace::details {
 
-struct CaptureBackend {
+struct NtCaptureBackend {
     static constexpr bool supported = true;
     static constexpr ::std::size_t max_depth = 65535;
 
@@ -41,14 +41,14 @@ struct CaptureBackend {
     __declspec(noinline)
 #endif
     static void capture(
-        ::pltxt2htm::container::Vector<StacktraceEntry, ::fast_io::generic_allocator_adapter<Allocator>>& frames,
+        ::pltxt2htm::container::Vector<NtStacktraceEntry, ::fast_io::generic_allocator_adapter<Allocator>>& frames,
         ::std::size_t skip) noexcept {
-        // StacktraceEntry is a standard-layout wrapper around exactly one native
+        // NtStacktraceEntry is a standard-layout wrapper around exactly one native
         // handle, and this backend may address that handle directly, so the trace
         // storage itself can be handed to the unwinder.
-        static_assert(::std::is_standard_layout_v<StacktraceEntry>);
-        static_assert(sizeof(StacktraceEntry) == sizeof(StacktraceEntry::native_handle_type));
-        static_assert(alignof(StacktraceEntry) == alignof(StacktraceEntry::native_handle_type));
+        static_assert(::std::is_standard_layout_v<NtStacktraceEntry>);
+        static_assert(sizeof(NtStacktraceEntry) == sizeof(NtStacktraceEntry::native_handle_type));
+        static_assert(alignof(NtStacktraceEntry) == alignof(NtStacktraceEntry::native_handle_type));
         // A skip wider than ULONG is unrepresentable, so report no frames
         // instead of letting the cast wrap into a different offset.
         constexpr auto max_skip = ::std::numeric_limits<::pltxt2htm::sys_nt::Ulong>::max();

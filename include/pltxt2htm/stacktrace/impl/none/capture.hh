@@ -11,7 +11,7 @@
 
 namespace pltxt2htm::stacktrace::details {
 
-struct CaptureBackend {
+struct NoneCaptureBackend {
     static constexpr bool supported = false;
     static constexpr ::std::size_t max_depth = 0;
 
@@ -20,7 +20,7 @@ struct CaptureBackend {
      */
     template<typename Allocator>
     static void capture(
-        ::pltxt2htm::container::Vector<StacktraceEntry, ::fast_io::generic_allocator_adapter<Allocator>>&,
+        ::pltxt2htm::container::Vector<NoneStacktraceEntry, ::fast_io::generic_allocator_adapter<Allocator>>&,
         ::std::size_t) noexcept {
     }
 };

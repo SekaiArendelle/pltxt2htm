@@ -37,6 +37,24 @@
 #undef max
 
 namespace pltxt2htm::stacktrace {
+
+// Each platform backend names its concrete entry and capture types; bind the
+// public names here so the rest of this header stays platform-agnostic and one
+// translation unit can include both backends.
+namespace details {
+#if defined(_WIN32)
+using CaptureBackend = NtCaptureBackend;
+#else
+using CaptureBackend = NoneCaptureBackend;
+#endif
+} // namespace details
+
+#if defined(_WIN32)
+using StacktraceEntry = details::NtStacktraceEntry;
+#else
+using StacktraceEntry = details::NoneStacktraceEntry;
+#endif
+
 /**
  * @brief Dynamic counterpart of std::basic_stacktrace.
  * @details Iterators and indexing expose immutable entries. Capturing is

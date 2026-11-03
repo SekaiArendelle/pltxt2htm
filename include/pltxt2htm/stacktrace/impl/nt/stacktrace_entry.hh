@@ -1,6 +1,6 @@
 /**
  * @file stacktrace_entry.hh
- * @brief Windows StacktraceEntry and DbgHelp symbol resolution.
+ * @brief Windows NtStacktraceEntry and DbgHelp symbol resolution.
  * @details The resolver is process-wide and lazily initialized; hosts using
  *          DbgHelp directly must coordinate with it.
  */
@@ -26,11 +26,7 @@
 #undef min
 #undef max
 
-namespace pltxt2htm::stacktrace {
-
-namespace details {
-struct CaptureBackend;
-} // namespace details
+namespace pltxt2htm::stacktrace::details {
 
 /**
  * @brief A saved native address.
@@ -39,13 +35,15 @@ struct CaptureBackend;
  *          text fields are independently owned `container::String` values.
  * @note The class is a standard-layout wrapper around a single native handle;
  *       the capture backend relies on that to fill trace storage directly.
+ * @note This is the Windows implementation; the public `StacktraceEntry` name
+ *       in stacktrace.hh aliases it.
  */
-class StacktraceEntry {
+class NtStacktraceEntry {
 public:
     using native_handle_type = void*;
 
 private:
-    friend struct ::pltxt2htm::stacktrace::details::CaptureBackend;
+    friend struct NtCaptureBackend;
 
     native_handle_type address{};
 
@@ -59,16 +57,17 @@ private:
      *          from this address.
      */
     [[nodiscard]]
-    constexpr auto native_handle_storage(this StacktraceEntry& self) noexcept -> native_handle_type* {
+    constexpr auto native_handle_storage(this NtStacktraceEntry& self) noexcept -> native_handle_type* {
         return ::std::addressof(self.address);
     }
 
 public:
-    constexpr StacktraceEntry() noexcept = default;
-    constexpr StacktraceEntry(StacktraceEntry const&) noexcept = default;
-    constexpr StacktraceEntry(StacktraceEntry&&) noexcept = default;
+    constexpr NtStacktraceEntry() noexcept = default;
+    constexpr NtStacktraceEntry(NtStacktraceEntry const&) noexcept = default;
+    constexpr NtStacktraceEntry(NtStacktraceEntry&&) noexcept = default;
 
-    constexpr auto operator=(this StacktraceEntry& self, StacktraceEntry const& other) noexcept -> StacktraceEntry& {
+    constexpr auto operator=(this NtStacktraceEntry& self, NtStacktraceEntry const& other) noexcept
+        -> NtStacktraceEntry& {
         self.address = other.address;
         return self;
     }
@@ -76,7 +75,7 @@ public:
 #if defined(PLTXT2HTM_INTERNAL_USE)
 
 private:
-    constexpr StacktraceEntry(native_handle_type address_) noexcept
+    constexpr NtStacktraceEntry(native_handle_type address_) noexcept
         : address{address_} {
     }
 
@@ -86,18 +85,18 @@ public:
      * @param handle Native frame handle to wrap.
      */
     [[nodiscard]]
-    static constexpr auto from_native_handle(native_handle_type handle) noexcept -> StacktraceEntry {
-        return StacktraceEntry{handle};
+    static constexpr auto from_native_handle(native_handle_type handle) noexcept -> NtStacktraceEntry {
+        return NtStacktraceEntry{handle};
     }
 #endif
 
     [[nodiscard]]
-    constexpr auto native_handle(this StacktraceEntry const& self) noexcept -> native_handle_type {
+    constexpr auto native_handle(this NtStacktraceEntry const& self) noexcept -> native_handle_type {
         return self.address;
     }
 
     [[nodiscard]]
-    constexpr explicit operator bool(this StacktraceEntry const& self) noexcept {
+    constexpr explicit operator bool(this NtStacktraceEntry const& self) noexcept {
         return self.address != nullptr;
     }
 
@@ -111,21 +110,19 @@ public:
      *          after heap corruption.
      */
     [[nodiscard]]
-    auto resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame;
+    auto resolved(this NtStacktraceEntry const& self) noexcept -> ResolvedFrame;
 
     [[nodiscard]]
-    constexpr auto operator==(this StacktraceEntry const& self, StacktraceEntry const& other) noexcept -> bool {
+    constexpr auto operator==(this NtStacktraceEntry const& self, NtStacktraceEntry const& other) noexcept -> bool {
         return self.address == other.address;
     }
 
     [[nodiscard]]
-    constexpr auto operator<=>(this StacktraceEntry const& self, StacktraceEntry const& other) noexcept
+    constexpr auto operator<=>(this NtStacktraceEntry const& self, NtStacktraceEntry const& other) noexcept
         -> ::std::strong_ordering {
         return self.address <=> other.address;
     }
 };
-
-namespace details {
 
 /**
  * @brief Scoped exclusive ownership of a session's SRW lock.
@@ -330,21 +327,19 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
     }
 }
 
-} // namespace details
-
-inline auto StacktraceEntry::resolved(this StacktraceEntry const& self) noexcept -> ResolvedFrame {
+inline auto NtStacktraceEntry::resolved(this NtStacktraceEntry const& self) noexcept -> ResolvedFrame {
     if (self.address == nullptr) {
         return {};
     }
     ResolvedFrame result{.address = self.address};
-    auto& session = details::get_symbol_session();
-    auto const held = details::DbgHelpLock::try_acquire(session.lock);
+    auto& session = get_symbol_session();
+    auto const held = DbgHelpLock::try_acquire(session.lock);
     if (!held) {
         return result;
     }
     if (session.try_initialize()) {
         auto const native_address = static_cast<::std::uint64_t>(reinterpret_cast<::std::uintptr_t>(self.address));
-        details::resolve_description(result, session, native_address);
+        resolve_description(result, session, native_address);
         // File/line lookup is independent of function-name lookup.
         ::pltxt2htm::sys_win32::ImageHlpLine64 line{};
         line.size_of_struct = sizeof(line);
@@ -360,7 +355,7 @@ inline auto StacktraceEntry::resolved(this StacktraceEntry const& self) noexcept
     return result;
 }
 
-} // namespace pltxt2htm::stacktrace
+} // namespace pltxt2htm::stacktrace::details
 
 #pragma pop_macro("max")
 #pragma pop_macro("min")
