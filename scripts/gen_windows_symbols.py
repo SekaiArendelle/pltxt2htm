@@ -76,7 +76,7 @@ LIBRARIES = (
             Symbol(
                 "ZwDuplicateObject",
                 "NtStatus",
-                ("void *", "void *", "void *", "Handle *", "Ulong", "Ulong", "Ulong"),
+                ("Handle", "Handle", "Handle", "Handle *", "Ulong", "Ulong", "Ulong"),
                 nodiscard=True,
             ),
             Symbol(
@@ -88,7 +88,7 @@ LIBRARIES = (
             Symbol(
                 "ZwClose",
                 "NtStatus",
-                ("void *",),
+                ("Handle",),
                 nodiscard=True,
             ),
             Symbol(

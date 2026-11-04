@@ -315,8 +315,8 @@ int main() {
         pltxt2htm_test_assert_true(session.is_ready());
         pltxt2htm_test_assert_true((win32::SymGetOptions() & 0x00000010) != 0);
         // A module loaded after DbgHelp initialized its module list resolves.
-        auto* late_module = win32::LoadLibraryExW(L"winmm.dll", nullptr, 0x00000800);
-        pltxt2htm_test_assert_true(late_module != nullptr);
+        auto late_module = win32::LoadLibraryExW(L"winmm.dll", win32::Handle{}, 0x00000800);
+        pltxt2htm_test_assert_true(!late_module.is_null());
         auto const late_function = win32::GetProcAddress(late_module, "PlaySoundW");
         pltxt2htm_test_assert_true(late_function != nullptr);
         auto const late_frame = trace::StacktraceEntry::from_native_handle(
@@ -334,7 +334,7 @@ int main() {
         auto const busy = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
         pltxt2htm_test_assert_true(busy.address == sample_handle && busy.description.is_empty());
         pltxt2htm_test_assert_true(!trace::details::shutdown_symbols());
-        pltxt2htm_test_assert_true(session.is_ready() && session.process != nullptr);
+        pltxt2htm_test_assert_true(session.is_ready() && !session.process.is_null());
     }
 
     {
@@ -344,7 +344,7 @@ int main() {
         auto const invalid = trace::StacktraceEntry{}.resolved();
         pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.is_empty());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
-        pltxt2htm_test_assert_true(!session.is_ready() && session.process == nullptr);
+        pltxt2htm_test_assert_true(!session.is_ready() && session.process.is_null());
         auto const again = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
         pltxt2htm_test_assert_true(again.address == sample_handle && session.is_ready());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
@@ -356,7 +356,7 @@ int main() {
         session.state = trace::details::DbgHelpSession::State::unavailable;
         auto const unavailable = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
         pltxt2htm_test_assert_true(unavailable.address == sample_handle && unavailable.description.is_empty() &&
-                                   session.process == nullptr && !session.is_ready());
+                                   session.process.is_null() && !session.is_ready());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
     }
 #endif

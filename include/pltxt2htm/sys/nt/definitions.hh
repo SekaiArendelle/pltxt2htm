@@ -2,11 +2,12 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "../handle.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::sys_nt {
 using Boolean = unsigned char;
-using Handle = void*;
+using Handle = ::pltxt2htm::sys::Handle;
 using Long = long;
 using Long64 = long long;
 using NtStatus = long;
@@ -23,8 +24,8 @@ using Ushort = unsigned short;
  *          failure code rather than a handle.
  */
 [[nodiscard]]
-inline auto nt_current_process() noexcept -> Handle {
-    return reinterpret_cast<Handle>(static_cast<::std::intptr_t>(-1));
+constexpr auto nt_current_process() noexcept -> Handle {
+    return Handle{static_cast<::std::intptr_t>(-1)};
 }
 
 // Enum values adapted from include/fast_io/fast_io_hosted/platforms/nt/nt_definitions.h.
@@ -585,7 +586,7 @@ struct PsAttributeList {
 
 struct Curdir {
     UnicodeString dos_path;
-    void* handle;
+    Handle handle;
 };
 
 struct RtlDriveLetterCurdir {
@@ -604,11 +605,11 @@ struct RtlUserProcessParameters {
     Ulong flags;
     Ulong debug_flags;
 
-    void* console_handle;
+    Handle console_handle;
     Ulong console_flags;
-    void* standard_input;
-    void* standard_output;
-    void* standard_error;
+    Handle standard_input;
+    Handle standard_output;
+    Handle standard_error;
 
     Curdir current_directory;
     UnicodeString dll_path;
@@ -654,7 +655,7 @@ struct Peb {
     Uchar read_image_file_exec_options;
     Uchar being_debugged;
     Uchar spare_bool;
-    void* mutant;
+    Handle mutant;
     void* image_base_address;
     PebLdrData* ldr;
     RtlUserProcessParameters* process_parameters;
@@ -686,7 +687,7 @@ struct PsCreateInfo {
         } init_state;
 
         struct {
-            void* file_handle;
+            Handle file_handle;
         } fail_section;
 
         struct {
@@ -694,7 +695,7 @@ struct PsCreateInfo {
         } exe_format;
 
         struct {
-            void* ifeo_key;
+            Handle ifeo_key;
         } exe_name;
 
         struct {
@@ -713,8 +714,8 @@ struct PsCreateInfo {
                 } s2;
             } u2;
 
-            void* file_handle;
-            void* section_handle;
+            Handle file_handle;
+            Handle section_handle;
             Ulong64 user_process_parameters_native;
             Ulong user_process_parameters_wow64;
             Ulong current_parameter_flags;

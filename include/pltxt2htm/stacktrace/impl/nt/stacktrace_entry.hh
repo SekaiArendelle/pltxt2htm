@@ -90,7 +90,7 @@ struct DbgHelpSession {
     };
 
     ::pltxt2htm::sys_nt::SrwLock lock{};
-    void* process{nullptr};
+    ::pltxt2htm::sys_nt::Handle process{};
     State state{State::uninitialized};
 
     [[nodiscard]]
@@ -130,10 +130,10 @@ struct DbgHelpSession {
         if (self.state == State::ready) {
             (void)::pltxt2htm::sys_win32::SymCleanup(self.process);
         }
-        if (self.process != nullptr) {
+        if (!self.process.is_null()) {
             (void)::pltxt2htm::sys_nt::NtClose(self.process);
         }
-        self.process = nullptr;
+        self.process = {};
         self.state = State::uninitialized;
     }
 

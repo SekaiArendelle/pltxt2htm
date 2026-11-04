@@ -9,11 +9,11 @@ PLTXT2HTM_DETAIL_DLLIMPORT void PLTXT2HTM_DETAIL_STDCALL RtlReleaseSRWLockExclus
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtDuplicateObject(Handle, Handle, Handle, Handle*, Ulong, Ulong, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtDuplicateObject, 28);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwDuplicateObject(void *, void *, void *, Handle *, Ulong, Ulong, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwDuplicateObject, 28);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwDuplicateObject(Handle, Handle, Handle, Handle *, Ulong, Ulong, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwDuplicateObject, 28);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtClose(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtClose, 4);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwClose(void *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwClose, 4);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwClose(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwClose, 4);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Ulong PLTXT2HTM_DETAIL_STDCALL RtlNtStatusToDosError(Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(RtlNtStatusToDosError, 4);
 [[nodiscard]]

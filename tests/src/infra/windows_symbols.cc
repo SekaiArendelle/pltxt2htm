@@ -128,10 +128,14 @@ using ExpectedSymGetLineFromAddrW64 = win32::Bool(WINAPI*)(win32::Handle, win32:
                                                            win32::ImageHlpLineW64*) noexcept;
 using ExpectedUnDecorateSymbolNameW = win32::Dword(WINAPI*)(win32::WideChar const*, win32::WideChar*, win32::Dword,
                                                             win32::Dword) noexcept;
-using ExpectedTranslateAddressRoutine64 = DWORD64(WINAPI*)(HANDLE, HANDLE, win32::Address64*);
-using ExpectedStackWalk64 = BOOL(WINAPI*)(DWORD, HANDLE, HANDLE, win32::StackFrame64*, PVOID,
+using ExpectedTranslateAddressRoutine64 = DWORD64(WINAPI*)(win32::Handle, win32::Handle, win32::Address64*);
+using ExpectedStackWalk64 = BOOL(WINAPI*)(DWORD, win32::Handle, win32::Handle, win32::StackFrame64*, PVOID,
                                           win32::ReadProcessMemoryRoutine64, win32::FunctionTableAccessRoutine64,
                                           win32::GetModuleBaseRoutine64, win32::TranslateAddressRoutine64) noexcept;
+using ExpectedReadProcessMemoryRoutine64 = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64, void*, win32::Dword,
+                                                                win32::Dword*);
+using ExpectedFunctionTableAccessRoutine64 = void*(WINAPI*)(win32::Handle, win32::Dword64);
+using ExpectedGetModuleBaseRoutine64 = win32::Dword64(WINAPI*)(win32::Handle, win32::Dword64);
 
 static_assert(::std::is_same_v<decltype(&nt::RtlCaptureStackBackTrace), ExpectedCaptureStackBackTrace>);
 static_assert(::std::is_same_v<decltype(&nt::RtlTryAcquireSRWLockExclusive), ExpectedTryAcquireSrwLockExclusive>);
@@ -205,14 +209,20 @@ static_assert(::std::is_same_v<decltype(&win32::SymEnumSymbolsW), ExpectedSymEnu
 static_assert(::std::is_same_v<win32::SymEnumSymbolsCallbackW, ExpectedSymEnumSymbolsCallbackW>);
 static_assert(::std::is_same_v<decltype(&win32::SymGetLineFromAddrW64), ExpectedSymGetLineFromAddrW64>);
 static_assert(::std::is_same_v<decltype(&win32::UnDecorateSymbolNameW), ExpectedUnDecorateSymbolNameW>);
-static_assert(::std::is_same_v<win32::ReadProcessMemoryRoutine64, PREAD_PROCESS_MEMORY_ROUTINE64>);
-static_assert(::std::is_same_v<win32::FunctionTableAccessRoutine64, PFUNCTION_TABLE_ACCESS_ROUTINE64>);
-static_assert(::std::is_same_v<win32::GetModuleBaseRoutine64, PGET_MODULE_BASE_ROUTINE64>);
+static_assert(::std::is_same_v<win32::ReadProcessMemoryRoutine64, ExpectedReadProcessMemoryRoutine64>);
+static_assert(::std::is_same_v<win32::FunctionTableAccessRoutine64, ExpectedFunctionTableAccessRoutine64>);
+static_assert(::std::is_same_v<win32::GetModuleBaseRoutine64, ExpectedGetModuleBaseRoutine64>);
 static_assert(::std::is_same_v<win32::TranslateAddressRoutine64, ExpectedTranslateAddressRoutine64>);
 static_assert(::std::is_same_v<decltype(&win32::StackWalk64), ExpectedStackWalk64>);
 
 static_assert(::std::is_same_v<nt::Boolean, BOOLEAN>);
-static_assert(::std::is_same_v<nt::Handle, HANDLE>);
+// Handle is a distinct type, but it keeps the SDK handle's size, alignment, and
+// value semantics, so the imported declarations stay ABI-compatible.
+static_assert(sizeof(nt::Handle) == sizeof(HANDLE));
+static_assert(alignof(nt::Handle) == alignof(HANDLE));
+static_assert(::std::is_aggregate_v<nt::Handle>);
+static_assert(::std::is_standard_layout_v<nt::Handle>);
+static_assert(::std::is_trivially_copyable_v<nt::Handle>);
 static_assert(::std::is_same_v<nt::NtStatus, NTSTATUS>);
 static_assert(::std::is_same_v<nt::Long, LONG>);
 static_assert(::std::is_same_v<nt::Long64, LONGLONG>);
@@ -264,7 +274,11 @@ static_assert(::std::is_same_v<win32::Boolean, BOOLEAN>);
 static_assert(::std::is_same_v<win32::Char, CHAR>);
 static_assert(::std::is_same_v<win32::Dword, DWORD>);
 static_assert(::std::is_same_v<win32::Dword64, DWORD64>);
-static_assert(::std::is_same_v<win32::Handle, HANDLE>);
+static_assert(sizeof(win32::Handle) == sizeof(HANDLE));
+static_assert(alignof(win32::Handle) == alignof(HANDLE));
+static_assert(::std::is_aggregate_v<win32::Handle>);
+static_assert(::std::is_standard_layout_v<win32::Handle>);
+static_assert(::std::is_trivially_copyable_v<win32::Handle>);
 static_assert(::std::is_same_v<win32::IntPtr, INT_PTR>);
 static_assert(::std::is_same_v<win32::Procedure, FARPROC>);
 static_assert(::std::is_same_v<win32::Ulong, ULONG>);
@@ -301,8 +315,8 @@ static_assert(sizeof(win32::SystemTime) == sizeof(SYSTEMTIME));
 static_assert(sizeof(win32::TimeZoneInformation) == sizeof(TIME_ZONE_INFORMATION));
 static_assert(sizeof(win32::SystemInfo) == sizeof(SYSTEM_INFO));
 static_assert(offsetof(win32::SystemInfo, dummy_union_name.oem_id) == offsetof(SYSTEM_INFO, dwOemId));
-static_assert(offsetof(win32::SystemInfo, dummy_union_name.dummy_struct_name.processor_architecture)
-              == offsetof(SYSTEM_INFO, wProcessorArchitecture));
+static_assert(offsetof(win32::SystemInfo, dummy_union_name.dummy_struct_name.processor_architecture) ==
+              offsetof(SYSTEM_INFO, wProcessorArchitecture));
 static_assert(offsetof(win32::SystemInfo, page_size) == offsetof(SYSTEM_INFO, dwPageSize));
 static_assert(sizeof(win32::Win32FindDataA) == sizeof(WIN32_FIND_DATAA));
 static_assert(sizeof(win32::Win32FindDataW) == sizeof(WIN32_FIND_DATAW));
