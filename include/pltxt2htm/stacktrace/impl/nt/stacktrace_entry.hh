@@ -29,102 +29,6 @@
 namespace pltxt2htm::stacktrace::details {
 
 /**
- * @brief A saved native address.
- * @details resolved() looks the saved address up without recapturing; each call
- *          performs a full lookup, so resolve once and reuse the frame. The
- *          text fields are independently owned `container::String` values.
- * @note The class is a standard-layout wrapper around a single native handle;
- *       the capture backend relies on that to fill trace storage directly.
- * @note This is the Windows implementation; the public `StacktraceEntry` name
- *       in stacktrace.hh aliases it.
- */
-class NtStacktraceEntry {
-public:
-    using native_handle_type = void*;
-
-private:
-    friend struct NtCaptureBackend;
-
-    native_handle_type address{};
-
-    /**
-     * @brief Stored native handle of this entry, by address.
-     * @return Pointer to the entry's handle member; writing through it replaces
-     *         the saved address.
-     * @details Only the capture backend calls this. A trace stores its entries
-     *          contiguously and an entry holds exactly one handle, so the
-     *          backend fills a run of entries by writing consecutive handles
-     *          from this address.
-     */
-    [[nodiscard]]
-    constexpr auto native_handle_storage(this NtStacktraceEntry& self) noexcept -> native_handle_type* {
-        return ::std::addressof(self.address);
-    }
-
-public:
-    constexpr NtStacktraceEntry() noexcept = default;
-    constexpr NtStacktraceEntry(NtStacktraceEntry const&) noexcept = default;
-    constexpr NtStacktraceEntry(NtStacktraceEntry&&) noexcept = default;
-
-    constexpr auto operator=(this NtStacktraceEntry& self, NtStacktraceEntry const& other) noexcept
-        -> NtStacktraceEntry& {
-        self.address = other.address;
-        return self;
-    }
-
-#if defined(PLTXT2HTM_INTERNAL_USE)
-
-private:
-    constexpr NtStacktraceEntry(native_handle_type address_) noexcept
-        : address{address_} {
-    }
-
-public:
-    /**
-     * @brief Build an entry from a native handle for tests.
-     * @param handle Native frame handle to wrap.
-     */
-    [[nodiscard]]
-    static constexpr auto from_native_handle(native_handle_type handle) noexcept -> NtStacktraceEntry {
-        return NtStacktraceEntry{handle};
-    }
-#endif
-
-    [[nodiscard]]
-    constexpr auto native_handle(this NtStacktraceEntry const& self) noexcept -> native_handle_type {
-        return self.address;
-    }
-
-    [[nodiscard]]
-    constexpr explicit operator bool(this NtStacktraceEntry const& self) noexcept {
-        return self.address != nullptr;
-    }
-
-    /**
-     * @brief Resolve the saved address into owned text and source location.
-     * @return The resolved frame; the address is retained on lookup failure.
-     * @details Null addresses resolve to an empty frame without touching the
-     *          backend. DbgHelp resolution benefits from matching PDBs and may
-     *          allocate, load libraries, and perform file I/O, so it is not
-     *          suitable for signal/loader callbacks or reliable diagnostics
-     *          after heap corruption.
-     */
-    [[nodiscard]]
-    auto resolved(this NtStacktraceEntry const& self) noexcept -> ResolvedFrame;
-
-    [[nodiscard]]
-    constexpr auto operator==(this NtStacktraceEntry const& self, NtStacktraceEntry const& other) noexcept -> bool {
-        return self.address == other.address;
-    }
-
-    [[nodiscard]]
-    constexpr auto operator<=>(this NtStacktraceEntry const& self, NtStacktraceEntry const& other) noexcept
-        -> ::std::strong_ordering {
-        return self.address <=> other.address;
-    }
-};
-
-/**
  * @brief Scoped exclusive ownership of a session's SRW lock.
  * @details The guard releases the lock when it leaves scope, so early returns
  *          cannot unbalance the acquire/release pair. An unheld guard is the
@@ -269,6 +173,102 @@ inline auto get_symbol_session() noexcept -> DbgHelpSession& {
 inline auto shutdown_symbols() noexcept -> bool {
     return details::get_symbol_session().try_shutdown();
 }
+
+/**
+ * @brief A saved native address.
+ * @details resolved() looks the saved address up without recapturing; each call
+ *          performs a full lookup, so resolve once and reuse the frame. The
+ *          text fields are independently owned `container::String` values.
+ * @note The class is a standard-layout wrapper around a single native handle;
+ *       the capture backend relies on that to fill trace storage directly.
+ * @note This is the Windows implementation; the public `StacktraceEntry` name
+ *       in stacktrace.hh aliases it.
+ */
+class NtStacktraceEntry {
+public:
+    using native_handle_type = void*;
+
+private:
+    friend struct NtCaptureBackend;
+
+    native_handle_type address{};
+
+    /**
+     * @brief Stored native handle of this entry, by address.
+     * @return Pointer to the entry's handle member; writing through it replaces
+     *         the saved address.
+     * @details Only the capture backend calls this. A trace stores its entries
+     *          contiguously and an entry holds exactly one handle, so the
+     *          backend fills a run of entries by writing consecutive handles
+     *          from this address.
+     */
+    [[nodiscard]]
+    constexpr auto native_handle_storage(this NtStacktraceEntry& self) noexcept -> native_handle_type* {
+        return ::std::addressof(self.address);
+    }
+
+public:
+    constexpr NtStacktraceEntry() noexcept = default;
+    constexpr NtStacktraceEntry(NtStacktraceEntry const&) noexcept = default;
+    constexpr NtStacktraceEntry(NtStacktraceEntry&&) noexcept = default;
+
+    constexpr auto operator=(this NtStacktraceEntry& self, NtStacktraceEntry const& other) noexcept
+        -> NtStacktraceEntry& {
+        self.address = other.address;
+        return self;
+    }
+
+#if defined(PLTXT2HTM_INTERNAL_USE)
+
+private:
+    constexpr NtStacktraceEntry(native_handle_type address_) noexcept
+        : address{address_} {
+    }
+
+public:
+    /**
+     * @brief Build an entry from a native handle for tests.
+     * @param handle Native frame handle to wrap.
+     */
+    [[nodiscard]]
+    static constexpr auto from_native_handle(native_handle_type handle) noexcept -> NtStacktraceEntry {
+        return NtStacktraceEntry{handle};
+    }
+#endif
+
+    [[nodiscard]]
+    constexpr auto native_handle(this NtStacktraceEntry const& self) noexcept -> native_handle_type {
+        return self.address;
+    }
+
+    [[nodiscard]]
+    constexpr explicit operator bool(this NtStacktraceEntry const& self) noexcept {
+        return self.address != nullptr;
+    }
+
+    /**
+     * @brief Resolve the saved address into owned text and source location.
+     * @return The resolved frame; the address is retained on lookup failure.
+     * @details Null addresses resolve to an empty frame without touching the
+     *          backend. DbgHelp resolution benefits from matching PDBs and may
+     *          allocate, load libraries, and perform file I/O, so it is not
+     *          suitable for signal/loader callbacks or reliable diagnostics
+     *          after heap corruption.
+     */
+    [[nodiscard]]
+    auto resolved(this NtStacktraceEntry const& self) noexcept -> ResolvedFrame;
+
+    [[nodiscard]]
+    constexpr auto operator==(this NtStacktraceEntry const& self, NtStacktraceEntry const& other) noexcept -> bool {
+        return self.address == other.address;
+    }
+
+    [[nodiscard]]
+    constexpr auto operator<=>(this NtStacktraceEntry const& self, NtStacktraceEntry const& other) noexcept
+        -> ::std::strong_ordering {
+        return self.address <=> other.address;
+    }
+};
 
 inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& session,
                                 ::std::uint64_t native_address) noexcept {
