@@ -109,6 +109,15 @@ public:
                                               noexcept(::std::declval<First>() == ::std::declval<Last>()));
 
     /**
+     * @brief Builds a view of `count` elements starting at the contiguous iterator `first`.
+     * @pre The range starting at `first` has at least `count` elements, and
+     *      `count` equals Extent when Extent is not dynamic_extent.
+     */
+    template<::std::contiguous_iterator First>
+        requires (::std::is_convertible_v<::std::remove_reference_t<::std::iter_reference_t<First>> (*)[], T (*)[]>)
+    constexpr explicit(Extent != dynamic_extent) Span(First first, size_type count) noexcept;
+
+    /**
      * @brief Builds a view over a built-in array, including a string literal's terminator.
      */
     template<::std::size_t N>
@@ -119,7 +128,7 @@ public:
     }
 
     /**
-     * @brief Converts a view of a more qualified or derived element type.
+     * @brief Converts a view of a more qualified element type.
      * @details Converting between different statically known extents is rejected;
      *          converting a dynamically sized view to a statically sized one is
      *          explicit and checks the size at run time.

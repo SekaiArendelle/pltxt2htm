@@ -6,6 +6,7 @@
 #include <span>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 #include <pltxt2htm/container/array.hh>
 #include <pltxt2htm/container/deque.hh>
@@ -29,6 +30,26 @@ struct SpanTestDerived : SpanTestBase {
     int derived_value;
 };
 
+struct SpanTestSentinel {
+    int* base;
+    ::std::ptrdiff_t count;
+
+    [[nodiscard]]
+    friend constexpr auto operator==(int* position, SpanTestSentinel sentinel) noexcept -> bool {
+        return position == sentinel.base + sentinel.count;
+    }
+
+    [[nodiscard]]
+    friend constexpr auto operator-(SpanTestSentinel sentinel, int* position) noexcept -> ::std::ptrdiff_t {
+        return sentinel.count - (position - sentinel.base);
+    }
+
+    [[nodiscard]]
+    friend constexpr auto operator-(int* position, SpanTestSentinel sentinel) noexcept -> ::std::ptrdiff_t {
+        return (position - sentinel.base) - sentinel.count;
+    }
+};
+
 static_assert(::pltxt2htm::container::dynamic_extent == ::std::dynamic_extent);
 static_assert(::std::is_trivially_copyable_v<IntSpan>);
 static_assert(::std::is_standard_layout_v<IntSpan>);
@@ -47,7 +68,10 @@ static_assert(::pltxt2htm::container::is_span<StaticIntSpan const&>);
 static_assert(!::pltxt2htm::container::is_span<int>);
 static_assert(!::pltxt2htm::container::is_span<int*>);
 // A derived-to-base element conversion would make end() and pointer arithmetic
-// over a Derived[] array invalid, so no constructor may accept it.
+// over a Derived[] array invalid, so the iterator, range, and array constructors
+// reject it. The (pointer, size_type) constructor keeps std::span's behavior and
+// accepts the implicit Derived* -> Base* conversion, so callers of that
+// constructor must pass a buffer that really is an array of the element type.
 static_assert(
     !::std::is_constructible_v<::pltxt2htm::container::Span<SpanTestBase>, SpanTestDerived*, SpanTestDerived*>);
 static_assert(!::std::is_constructible_v<::pltxt2htm::container::Span<SpanTestBase>,
@@ -55,6 +79,7 @@ static_assert(!::std::is_constructible_v<::pltxt2htm::container::Span<SpanTestBa
 static_assert(!::std::is_constructible_v<::pltxt2htm::container::Span<SpanTestBase>,
                                          ::pltxt2htm::container::Vector<SpanTestDerived>&>);
 static_assert(!::std::is_constructible_v<::pltxt2htm::container::Span<SpanTestBase>, SpanTestDerived (&)[2]>);
+static_assert(::std::is_constructible_v<::pltxt2htm::container::Span<SpanTestBase>, SpanTestDerived*, ::std::size_t>);
 static_assert(::std::ranges::contiguous_range<IntSpan&>);
 static_assert(::std::ranges::sized_range<IntSpan&>);
 static_assert(::std::ranges::contiguous_range<IntSpan const&>);
@@ -82,6 +107,11 @@ static_assert(!can_call_empty<IntSpan>);
 static_assert(can_call_is_empty<IntSpan>);
 static_assert(::std::is_constructible_v<IntSpan, int*, ::std::size_t>);
 static_assert(::std::is_constructible_v<IntSpan, int*, int*>);
+static_assert(::std::is_constructible_v<IntSpan, int*, SpanTestSentinel>);
+static_assert(::std::is_nothrow_constructible_v<IntSpan, int*, SpanTestSentinel>);
+static_assert(::std::is_constructible_v<IntSpan, ::std::vector<int>::iterator, ::std::size_t>);
+static_assert(::std::is_constructible_v<ConstIntSpan, ::std::vector<int>::const_iterator, ::std::size_t>);
+static_assert(!::std::is_constructible_v<IntSpan, ::std::vector<int>::const_iterator, ::std::size_t>);
 static_assert(::std::is_constructible_v<IntSpan, int (&)[4]>);
 static_assert(::std::is_constructible_v<StaticIntSpan, int (&)[3]>);
 static_assert(!::std::is_constructible_v<StaticIntSpan, int (&)[4]>);
@@ -98,6 +128,8 @@ static_assert(::std::is_convertible_v<StaticIntSpan, IntSpan>);
 static_assert(!::std::is_convertible_v<IntSpan, StaticIntSpan>);
 static_assert(::std::is_constructible_v<StaticIntSpan, IntSpan>);
 static_assert(!::std::is_constructible_v<StaticIntSpan, ::pltxt2htm::container::Span<int, 4>>);
+static_assert(::std::is_constructible_v<::pltxt2htm::container::Span<int const, 3>, StaticIntSpan>);
+static_assert(!::std::is_constructible_v<StaticIntSpan, ::pltxt2htm::container::Span<int const, 3>>);
 static_assert(!::std::is_constructible_v<IntSpan, ::pltxt2htm::container::Span<long>>);
 
 TEST_SUITE("container_span") {
@@ -129,6 +161,24 @@ TEST_SUITE("container_span") {
         IntSpan const from_iterators{values + 1, values + 3};
         if (from_iterators.size() != 2 || from_iterators.data() != values + 1 || from_iterators[0] != 2 ||
             from_iterators[1] != 3) {
+            return false;
+        }
+
+        SpanTestSentinel const sentinel{values + 1, 2};
+        IntSpan const from_sentinel{values + 1, sentinel};
+        if (from_sentinel.size() != 2 || from_sentinel.data() != values + 1 || from_sentinel.back() != 3) {
+            return false;
+        }
+
+        ::pltxt2htm::container::Span<int, 0> const zero_extent{};
+        if (!zero_extent.is_empty() || zero_extent.size() != 0 || zero_extent.begin() != zero_extent.end() ||
+            !zero_extent.subspan(0).is_empty() || !zero_extent.first(0).is_empty() || !zero_extent.last(0).is_empty()) {
+            return false;
+        }
+
+        int zero_values[]{0};
+        ::pltxt2htm::container::Span<int, 0> const zero_from_pointer{zero_values, 0};
+        if (!zero_from_pointer.is_empty() || zero_from_pointer.data() != zero_values) {
             return false;
         }
 
@@ -232,6 +282,21 @@ TEST_SUITE("container_span") {
         CHECK(view.size_bytes() == text.size() * sizeof(char8_t));
         CHECK(view[0] == u8'p');
         CHECK(view.back() == u8'm');
+    }
+
+    TEST_CASE("construct-from-iterator-and-size") {
+        ::std::vector<int> values{1, 2, 3, 4};
+
+        IntSpan const view{values.begin(), 3};
+        CHECK(view.data() == values.data());
+        CHECK(view.size() == 3);
+        CHECK(view.front() == 1);
+        CHECK(view.back() == 3);
+
+        ConstIntSpan const read_only{values.cbegin(), 2};
+        CHECK(read_only.data() == values.data());
+        CHECK(read_only.size() == 2);
+        CHECK(read_only.back() == 2);
     }
 
     TEST_CASE("static-extent-view-from-array") {

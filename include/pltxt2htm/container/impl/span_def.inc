@@ -32,6 +32,17 @@ constexpr Span<T, Extent>::Span(First first,
 }
 
 template<typename T, ::std::size_t Extent>
+template<::std::contiguous_iterator First>
+    requires (::std::is_convertible_v<::std::remove_reference_t<::std::iter_reference_t<First>> (*)[], T (*)[]>)
+constexpr Span<T, Extent>::Span(First first, size_type count) noexcept
+    : data_pointer{::std::to_address(first)},
+      current_size{count} {
+    if constexpr (Extent != dynamic_extent) {
+        pltxt2htm_assert(count == Extent, u8"Span size does not match its static extent");
+    }
+}
+
+template<typename T, ::std::size_t Extent>
 template<typename U, ::std::size_t OtherExtent>
     requires (::std::is_convertible_v<U (*)[], T (*)[]> &&
               (Extent == dynamic_extent || OtherExtent == dynamic_extent || Extent == OtherExtent))
