@@ -90,7 +90,7 @@ struct DbgHelpSession {
     };
 
     ::pltxt2htm::sys_nt::SrwLock lock{};
-    void* process{};
+    void* process{nullptr};
     State state{State::uninitialized};
 
     [[nodiscard]]
@@ -104,14 +104,14 @@ struct DbgHelpSession {
             return self.state == State::ready;
         }
         self.state = State::unavailable;
-        auto const current_process = reinterpret_cast<void*>(static_cast<::std::intptr_t>(-1));
+        auto const current_process = reinterpret_cast<void*>(::std::intptr_t(-1));
         // A distinct real handle lets DbgHelp enumerate this process without
         // sharing the GetCurrentProcess() pseudo-handle session with the host.
         if (::pltxt2htm::sys_nt::NtDuplicateObject(current_process, current_process, current_process,
                                                    ::std::addressof(self.process), 0, 0, 2) < 0) {
             return false;
         }
-        constexpr ::pltxt2htm::sys_win32::Dword symopt_load_lines = 0x00000010;
+        constexpr ::pltxt2htm::sys_win32::Dword symopt_load_lines{0x00000010};
         (void)::pltxt2htm::sys_win32::SymSetOptions(::pltxt2htm::sys_win32::SymGetOptions() | symopt_load_lines);
         if (::pltxt2htm::sys_win32::SymInitialize(self.process, nullptr, 1) == 0) {
             return false;
@@ -332,14 +332,14 @@ inline auto NtStacktraceEntry::resolved(this NtStacktraceEntry const& self) noex
         return {};
     }
     ResolvedFrame result{.address = self.address};
-    auto& session = get_symbol_session();
+    auto& session = ::pltxt2htm::stacktrace::details::get_symbol_session();
     auto const held = DbgHelpLock::try_acquire(session.lock);
     if (!held) {
         return result;
     }
     if (session.try_initialize()) {
         auto const native_address = static_cast<::std::uint64_t>(reinterpret_cast<::std::uintptr_t>(self.address));
-        resolve_description(result, session, native_address);
+        ::pltxt2htm::stacktrace::details::resolve_description(result, session, native_address);
         // File/line lookup is independent of function-name lookup.
         ::pltxt2htm::sys_win32::ImageHlpLine64 line{};
         line.size_of_struct = sizeof(line);
