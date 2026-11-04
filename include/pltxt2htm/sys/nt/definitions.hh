@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include "../push_macro.hh"
 
 namespace pltxt2htm::sys_nt {
@@ -13,6 +14,18 @@ using Uchar = unsigned char;
 using Ulong = unsigned long;
 using Ulong64 = unsigned long long;
 using Ushort = unsigned short;
+
+/**
+ * @brief Pseudo-handle that refers to the current process.
+ * @details The kernel resolves this value directly instead of looking it up in
+ *          a handle table, so it is never opened and must never be closed. It
+ *          shares its representation with INVALID_HANDLE_VALUE, which is an API
+ *          failure code rather than a handle.
+ */
+[[nodiscard]]
+inline auto nt_current_process() noexcept -> Handle {
+    return reinterpret_cast<Handle>(static_cast<::std::intptr_t>(-1));
+}
 
 // Enum values adapted from include/fast_io/fast_io_hosted/platforms/nt/nt_definitions.h.
 enum class AlpcMessageInformationClass : int {
