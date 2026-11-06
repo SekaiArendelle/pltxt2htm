@@ -126,13 +126,17 @@ struct DbgHelpSession {
      * @details Explicit cleanup avoids invoking DbgHelp while a DLL is
      *          unloading under the loader lock. Call only while holding this
      *          session's lock.
+     * @details Cleanup is best-effort: at shutdown a failure is unrecoverable,
+     *          there is no retry or error path to take, and process exit reclaims
+     *          the resources regardless. The return values are therefore
+     *          deliberately uninspected.
      */
     void reset(this DbgHelpSession& self) noexcept {
         if (self.state == State::ready) {
-            (void)::pltxt2htm::sys_win32::SymCleanup(self.process);
+            [[maybe_unused]] auto const cleanup_ok = ::pltxt2htm::sys_win32::SymCleanup(self.process);
         }
         if (self.process.is_null() == false) {
-            (void)::pltxt2htm::sys_nt::NtClose(self.process);
+            [[maybe_unused]] auto const close_status = ::pltxt2htm::sys_nt::NtClose(self.process);
         }
         self.process = {};
         self.state = State::uninitialized;
