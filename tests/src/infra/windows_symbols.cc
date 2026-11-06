@@ -65,26 +65,26 @@ using ExpectedCreateUserProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Handle*,
                                                        nt::ObjectAttributes const*, nt::ObjectAttributes const*,
                                                        nt::Ulong, nt::Ulong, nt::RtlUserProcessParameters*,
                                                        nt::PsCreateInfo*, nt::PsAttributeList*) noexcept;
-using ExpectedCreateProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, void*,
-                                                   nt::Boolean, void*, void*, void*) noexcept;
-using ExpectedWaitForSingleObject = nt::NtStatus(NTAPI*)(void*, nt::Boolean, nt::Long64*) noexcept;
+using ExpectedCreateProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, nt::Handle,
+                                                   nt::Boolean, nt::Handle, nt::Handle, nt::Handle) noexcept;
+using ExpectedWaitForSingleObject = nt::NtStatus(NTAPI*)(nt::Handle, nt::Boolean, nt::Long64*) noexcept;
 using ExpectedDelayExecution = nt::NtStatus(NTAPI*)(nt::Boolean, nt::Long64*) noexcept;
-using ExpectedSetTimer = nt::NtStatus(NTAPI*)(void*, nt::Long64*, nt::TimerApcRoutine, void*, nt::Boolean, nt::Long,
-                                              nt::Boolean*) noexcept;
-using ExpectedMapViewOfSection = nt::NtStatus(NTAPI*)(void*, void*, void**, ::std::size_t, ::std::size_t, nt::Long64*,
-                                                      ::std::size_t*, nt::SectionInherit, nt::Ulong,
+using ExpectedSetTimer = nt::NtStatus(NTAPI*)(nt::Handle, nt::Long64*, nt::TimerApcRoutine, void*, nt::Boolean,
+                                              nt::Long, nt::Boolean*) noexcept;
+using ExpectedMapViewOfSection = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, void**, ::std::size_t, ::std::size_t,
+                                                      nt::Long64*, ::std::size_t*, nt::SectionInherit, nt::Ulong,
                                                       nt::Ulong) noexcept;
-using ExpectedEventState = nt::NtStatus(NTAPI*)(void*, nt::Long*) noexcept;
+using ExpectedEventState = nt::NtStatus(NTAPI*)(nt::Handle, nt::Long*) noexcept;
 using ExpectedAlpcConnectPort = nt::NtStatus(NTAPI*)(nt::Handle*, nt::UnicodeString const*, nt::ObjectAttributes*,
                                                      nt::AlpcPortAttributes*, nt::Ulong, void*, nt::PortMessage*,
                                                      ::std::size_t*, nt::AlpcMessageAttributes*,
                                                      nt::AlpcMessageAttributes*, nt::Long64*) noexcept;
 using ExpectedAlpcGetHeaderSize = nt::Ulong(NTAPI*)(nt::Ulong) noexcept;
-using ExpectedAlpcQueryInformationMessage = nt::NtStatus(NTAPI*)(void*, nt::PortMessage*,
+using ExpectedAlpcQueryInformationMessage = nt::NtStatus(NTAPI*)(nt::Handle, nt::PortMessage*,
                                                                  nt::AlpcMessageInformationClass, void*, nt::Ulong,
                                                                  nt::Ulong*) noexcept;
-using ExpectedControlFile = nt::NtStatus(NTAPI*)(void*, void*, nt::IoApcRoutine, void*, nt::IoStatusBlock*, nt::Ulong,
-                                                 void*, nt::Ulong, void*, nt::Ulong) noexcept;
+using ExpectedControlFile = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, nt::IoApcRoutine, void*, nt::IoStatusBlock*,
+                                                 nt::Ulong, void*, nt::Ulong, void*, nt::Ulong) noexcept;
 using ExpectedCreateFile = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, nt::IoStatusBlock*,
                                                 nt::Long64*, nt::Ulong, nt::Ulong, nt::Ulong, nt::Ulong, void*,
                                                 nt::Ulong) noexcept;
