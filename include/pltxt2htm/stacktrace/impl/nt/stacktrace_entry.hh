@@ -112,7 +112,8 @@ struct DbgHelpSession {
             return false;
         }
         constexpr ::pltxt2htm::sys_win32::Dword symopt_load_lines{0x00000010};
-        (void)::pltxt2htm::sys_win32::SymSetOptions(::pltxt2htm::sys_win32::SymGetOptions() | symopt_load_lines);
+        [[maybe_unused]] auto const previous =
+            ::pltxt2htm::sys_win32::SymSetOptions(::pltxt2htm::sys_win32::SymGetOptions() | symopt_load_lines);
         if (::pltxt2htm::sys_win32::SymInitialize(self.process, nullptr, 1) == 0) {
             return false;
         }
