@@ -131,7 +131,7 @@ struct DbgHelpSession {
         if (self.state == State::ready) {
             (void)::pltxt2htm::sys_win32::SymCleanup(self.process);
         }
-        if (!self.process.is_null()) {
+        if (self.process.is_null() == false) {
             (void)::pltxt2htm::sys_nt::NtClose(self.process);
         }
         self.process = {};
@@ -307,7 +307,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
             capacity = new_capacity;
             continue;
         }
-        if (!found) {
+        if (found == false) {
             ::std::free(storage);
             if (!refreshed && ::pltxt2htm::sys_win32::SymRefreshModuleList(session.process)) {
                 refreshed = true;
