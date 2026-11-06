@@ -367,7 +367,7 @@ inline auto NtStacktraceEntry::resolved(this NtStacktraceEntry const& self) noex
     if (self.address == nullptr) {
         return {};
     }
-    ResolvedFrame result{.address = self.address};
+    ResolvedFrame result{.address = reinterpret_cast<::std::uintptr_t>(self.address)};
     auto& session = ::pltxt2htm::stacktrace::details::get_symbol_session();
     auto const held = DbgHelpLock::try_acquire(session.srw_lock());
     if (!held) {

@@ -14,7 +14,7 @@
 namespace pltxt2htm::stacktrace {
 
 struct ResolvedFrame {
-    void* address{};
+    ::std::uintptr_t address{};
     ::pltxt2htm::container::String description{};
     ::pltxt2htm::container::String source_file{};
     ::std::uint64_t displacement{};

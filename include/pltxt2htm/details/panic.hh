@@ -86,7 +86,7 @@ void panic() noexcept {
                                                                         .len = frame.description.size()});
             }
             else {
-                ::fast_io::io::perr(::fast_io::mnp::hex0x(reinterpret_cast<::std::uintptr_t>(frame.address)));
+                ::fast_io::io::perr(::fast_io::mnp::hex0x(frame.address));
             }
             if (frame.displacement != 0) {
                 ::fast_io::io::perr(" + ", ::fast_io::mnp::hex0x(frame.displacement));

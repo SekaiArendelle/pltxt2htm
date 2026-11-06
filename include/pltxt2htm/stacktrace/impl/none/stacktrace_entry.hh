@@ -79,7 +79,7 @@ public:
         if (self.address == nullptr) {
             return {};
         }
-        return {.address = self.address};
+        return {.address = reinterpret_cast<::std::uintptr_t>(self.address)};
     }
 
     [[nodiscard]]
