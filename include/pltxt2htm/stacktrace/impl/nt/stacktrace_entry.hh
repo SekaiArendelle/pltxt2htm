@@ -210,16 +210,6 @@ inline auto get_symbol_session() noexcept -> DbgHelpSession& {
 }
 
 /**
- * @brief Release the resolver before unloading a consumer DLL.
- * @return false when a lookup is active and cleanup did not run.
- * @details The host must also coordinate external DbgHelp users.
- */
-[[nodiscard]]
-inline auto shutdown_symbols() noexcept -> bool {
-    return details::get_symbol_session().try_shutdown();
-}
-
-/**
  * @brief A saved native address.
  * @details resolved() looks the saved address up without recapturing; each call
  *          performs a full lookup, so resolve once and reuse the frame. The

@@ -333,7 +333,7 @@ int main() {
         pltxt2htm_test_assert_true(static_cast<bool>(held));
         auto const busy = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
         pltxt2htm_test_assert_true(busy.address == sample_handle && busy.description.is_empty());
-        pltxt2htm_test_assert_true(!trace::details::shutdown_symbols());
+        pltxt2htm_test_assert_true(!session.try_shutdown());
         pltxt2htm_test_assert_true(session.is_ready() && !session.process_handle().is_null());
     }
 
@@ -343,11 +343,11 @@ int main() {
         auto& session = trace::details::get_symbol_session();
         auto const invalid = trace::StacktraceEntry{}.resolved();
         pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.is_empty());
-        pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
+        pltxt2htm_test_assert_true(session.try_shutdown());
         pltxt2htm_test_assert_true(!session.is_ready() && session.process_handle().is_null());
         auto const again = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
         pltxt2htm_test_assert_true(again.address == sample_handle && session.is_ready());
-        pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
+        pltxt2htm_test_assert_true(session.try_shutdown());
     }
 
     {
@@ -357,7 +357,7 @@ int main() {
         auto const unavailable = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
         pltxt2htm_test_assert_true(unavailable.address == sample_handle && unavailable.description.is_empty() &&
                                    session.process_handle().is_null() && !session.is_ready());
-        pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
+        pltxt2htm_test_assert_true(session.try_shutdown());
     }
 #endif
 }
