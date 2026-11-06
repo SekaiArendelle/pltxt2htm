@@ -210,6 +210,9 @@ Follow the existing low-runtime, cross-platform style used in core headers:
     `clang-tidy` does not reliably diagnose every missing attribute, especially with C++23 explicit object parameters.
   - Do not add `[[nodiscard]]` mechanically to assignment operators or to mutating/fluent operations whose return
     value is intentionally optional.
+- **Prefer `[[maybe_unused]]` over `(void)` casts:**
+  - When a variable, parameter, or declaration must exist but is intentionally unused, mark it with `[[maybe_unused]]`
+    instead of suppressing the warning with a `(void)` cast.
 - **Use postfix `const`:**
   - Write the cv-qualifier after the type it qualifies (`int const`, `T const&`, `auto const`) rather than before it (`const int`, `const T&`, `const auto`).
   - `const` always binds to the declaration to its left, so postfix placement makes `int const*` (pointer to const int) vs `int* const` (const pointer to int) unambiguous at a glance.
