@@ -2,7 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include "../handle.hh"
+#include "../details/handle.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::sys_nt {

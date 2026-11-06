@@ -216,13 +216,18 @@ static_assert(::std::is_same_v<win32::TranslateAddressRoutine64, ExpectedTransla
 static_assert(::std::is_same_v<decltype(&win32::StackWalk64), ExpectedStackWalk64>);
 
 static_assert(::std::is_same_v<nt::Boolean, BOOLEAN>);
-// Handle is a distinct type, but it keeps the SDK handle's size, alignment, and
-// value semantics, so the imported declarations stay ABI-compatible.
-static_assert(sizeof(nt::Handle) == sizeof(HANDLE));
-static_assert(alignof(nt::Handle) == alignof(HANDLE));
+// `pltxt2htm::sys::Handle` is shared by the NT and Win32 layers. Core headers
+// cannot include <type_traits> (the Windows symbol probes build them with only
+// <cstddef> and <cstdint>), so its ABI-shape checks live here.
+static_assert(sizeof(nt::Handle) == sizeof(::std::intptr_t));
+static_assert(alignof(nt::Handle) == alignof(::std::intptr_t));
 static_assert(::std::is_aggregate_v<nt::Handle>);
 static_assert(::std::is_standard_layout_v<nt::Handle>);
 static_assert(::std::is_trivially_copyable_v<nt::Handle>);
+// The distinct type keeps the SDK handle's size and alignment, so the imported
+// declarations stay ABI-compatible.
+static_assert(sizeof(nt::Handle) == sizeof(HANDLE));
+static_assert(alignof(nt::Handle) == alignof(HANDLE));
 static_assert(::std::is_same_v<nt::NtStatus, NTSTATUS>);
 static_assert(::std::is_same_v<nt::Long, LONG>);
 static_assert(::std::is_same_v<nt::Long64, LONGLONG>);

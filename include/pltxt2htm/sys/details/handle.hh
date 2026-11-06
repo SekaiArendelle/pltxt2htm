@@ -31,16 +31,9 @@ struct Handle {
     }
 
     [[nodiscard]]
-    friend constexpr auto operator==(Handle lhs, Handle rhs) noexcept -> bool {
+    constexpr auto operator==(this Handle const& lhs, Handle rhs) noexcept -> bool {
         return lhs.value == rhs.value;
     }
 };
-
-// The Windows symbol probes compile these headers with only <cstddef> and
-// <cstdint>, so use builtins instead of <type_traits> here.
-static_assert(sizeof(Handle) == sizeof(::std::intptr_t));
-static_assert(alignof(Handle) == alignof(::std::intptr_t));
-static_assert(__is_standard_layout(Handle));
-static_assert(__is_trivially_copyable(Handle));
 
 } // namespace pltxt2htm::sys
