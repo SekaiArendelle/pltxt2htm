@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 
+#include "../details/handle.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::sys_win32 {
@@ -11,7 +12,7 @@ using Boolean = unsigned char;
 using Char = char;
 using Dword = unsigned long;
 using Dword64 = unsigned long long;
-using Handle = void*;
+using ::pltxt2htm::sys::details::Handle;
 using IntPtr = ::std::intptr_t;
 using Long = long;
 using Long64 = long long;
