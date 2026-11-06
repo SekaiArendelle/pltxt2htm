@@ -104,7 +104,7 @@ struct DbgHelpSession {
             return self.state == State::ready;
         }
         self.state = State::unavailable;
-        auto const current_process = ::pltxt2htm::sys_nt::nt_current_process();
+        constexpr auto current_process = ::pltxt2htm::sys_nt::nt_current_process();
         // A distinct real handle lets DbgHelp enumerate this process without
         // sharing the GetCurrentProcess() pseudo-handle session with the host.
         if (::pltxt2htm::sys_nt::NtDuplicateObject(current_process, current_process, current_process,
