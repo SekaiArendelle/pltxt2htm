@@ -65,7 +65,7 @@ public:
 
     [[nodiscard]]
     constexpr explicit operator bool(this NoneStacktraceEntry const& self) noexcept {
-        return self.address != native_handle_type{};
+        return self.address != nullptr;
     }
 
     /**
@@ -75,7 +75,12 @@ public:
      *          only the address is kept.
      */
     [[nodiscard]]
-    auto resolved(this NoneStacktraceEntry const& self) noexcept -> ResolvedFrame;
+    auto resolved(this NoneStacktraceEntry const& self) noexcept -> ResolvedFrame {
+        if (self.address == nullptr) {
+            return {};
+        }
+        return {.address = self.address};
+    }
 
     [[nodiscard]]
     constexpr auto operator==(this NoneStacktraceEntry const& self, NoneStacktraceEntry const& other) noexcept -> bool {
@@ -88,12 +93,5 @@ public:
         return self.address <=> other.address;
     }
 };
-
-inline auto NoneStacktraceEntry::resolved(this NoneStacktraceEntry const& self) noexcept -> ResolvedFrame {
-    if (self.address == native_handle_type{}) {
-        return {};
-    }
-    return {.address = self.address};
-}
 
 } // namespace pltxt2htm::stacktrace::details
