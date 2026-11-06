@@ -329,12 +329,12 @@ int main() {
     {
         // A held lock makes resolution fall back instead of blocking.
         auto& session = trace::details::get_symbol_session();
-        auto held = trace::details::DbgHelpLock::try_acquire(session.lock);
+        auto held = trace::details::DbgHelpLock::try_acquire(session.srw_lock());
         pltxt2htm_test_assert_true(static_cast<bool>(held));
         auto const busy = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
         pltxt2htm_test_assert_true(busy.address == sample_handle && busy.description.is_empty());
         pltxt2htm_test_assert_true(!trace::details::shutdown_symbols());
-        pltxt2htm_test_assert_true(session.is_ready() && !session.process.is_null());
+        pltxt2htm_test_assert_true(session.is_ready() && !session.process_handle().is_null());
     }
 
     {
@@ -344,7 +344,7 @@ int main() {
         auto const invalid = trace::StacktraceEntry{}.resolved();
         pltxt2htm_test_assert_true(invalid.address == nullptr && invalid.description.is_empty());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
-        pltxt2htm_test_assert_true(!session.is_ready() && session.process.is_null());
+        pltxt2htm_test_assert_true(!session.is_ready() && session.process_handle().is_null());
         auto const again = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
         pltxt2htm_test_assert_true(again.address == sample_handle && session.is_ready());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
@@ -353,10 +353,10 @@ int main() {
     {
         // A recorded initialization failure is not retried by later lookups.
         auto& session = trace::details::get_symbol_session();
-        session.state = trace::details::DbgHelpSession::State::unavailable;
+        session.force_unavailable();
         auto const unavailable = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
         pltxt2htm_test_assert_true(unavailable.address == sample_handle && unavailable.description.is_empty() &&
-                                   session.process.is_null() && !session.is_ready());
+                                   session.process_handle().is_null() && !session.is_ready());
         pltxt2htm_test_assert_true(trace::details::shutdown_symbols());
     }
 #endif

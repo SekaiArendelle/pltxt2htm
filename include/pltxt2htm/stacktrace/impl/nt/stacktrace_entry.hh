@@ -76,7 +76,8 @@ public:
  *          process-wide LOAD_LINES option; hosts must coordinate option
  *          changes and all other DbgHelp calls.
  */
-struct DbgHelpSession {
+class DbgHelpSession {
+public:
     /**
      * @brief Initialization state of the session.
      * @details `uninitialized` allows another attempt; `unavailable` records a
@@ -89,14 +90,53 @@ struct DbgHelpSession {
         ready,
     };
 
+private:
     ::pltxt2htm::sys_nt::SrwLock lock{};
     ::pltxt2htm::sys_nt::Handle process{};
     State state{State::uninitialized};
 
+public:
     [[nodiscard]]
     constexpr auto is_ready(this DbgHelpSession const& self) noexcept -> bool {
         return self.state == State::ready;
     }
+
+    /**
+     * @brief Stored duplicate process handle used for DbgHelp calls.
+     * @return The handle value; callers pass it to DbgHelp lookup functions and
+     *         must not close it, since the session cleans up in reset().
+     * @details DbgHelp calls outside the class (and tests checking the session
+     *          lifecycle) use this accessor instead of touching the member.
+     */
+    [[nodiscard]]
+    constexpr auto process_handle(this DbgHelpSession const& self) noexcept -> ::pltxt2htm::sys_nt::Handle {
+        return self.process;
+    }
+
+    /**
+     * @brief The session's single coordination lock.
+     * @return Reference to the session lock; callers serialize DbgHelp use by
+     *         acquiring it exclusively via DbgHelpLock::try_acquire().
+     * @details Resolution paths outside the class (and tests simulating a busy
+     *          session) use this accessor instead of touching the member.
+     */
+    [[nodiscard]]
+    constexpr auto srw_lock(this DbgHelpSession& self) noexcept -> ::pltxt2htm::sys_nt::SrwLock& {
+        return self.lock;
+    }
+
+#if defined(PLTXT2HTM_INTERNAL_USE)
+
+    /**
+     * @brief Record a failed initialization attempt for tests.
+     * @details Lets tests reproduce the unavailable state, in which later
+     *          lookups give up without calling DbgHelp, without a real
+     *          initialization failure.
+     */
+    constexpr auto force_unavailable(this DbgHelpSession& self) noexcept -> void {
+        self.state = State::unavailable;
+    }
+#endif
 
     [[nodiscard]]
     auto try_initialize(this DbgHelpSession& self) noexcept -> bool {
@@ -280,6 +320,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
     constexpr auto name_offset = offsetof(::pltxt2htm::sys_win32::SymbolInfo, name);
     ::std::size_t capacity{2000}; // DbgHelp MAX_SYM_NAME
     bool refreshed{};
+    auto const process_handle = session.process_handle();
     while (true) {
         if (capacity > ::std::numeric_limits<::pltxt2htm::sys_win32::Dword>::max() ||
             capacity > ::std::numeric_limits<::std::size_t>::max() - name_offset) {
@@ -295,7 +336,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
         auto* info = reinterpret_cast<::pltxt2htm::sys_win32::SymbolInfo*>(storage);
         info->size_of_struct = sizeof(::pltxt2htm::sys_win32::SymbolInfo);
         info->max_name_len = static_cast<::pltxt2htm::sys_win32::Dword>(capacity);
-        auto const found = ::pltxt2htm::sys_win32::SymFromAddr(session.process, native_address,
+        auto const found = ::pltxt2htm::sys_win32::SymFromAddr(process_handle, native_address,
                                                                ::std::addressof(result.displacement), info) != 0;
         auto const name_size = static_cast<::std::size_t>(info->name_len);
         if (name_size >= capacity) {
@@ -313,7 +354,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
         }
         if (found == false) {
             ::std::free(storage);
-            if (!refreshed && ::pltxt2htm::sys_win32::SymRefreshModuleList(session.process)) {
+            if (!refreshed && ::pltxt2htm::sys_win32::SymRefreshModuleList(process_handle)) {
                 refreshed = true;
                 continue;
             }
@@ -338,7 +379,7 @@ inline auto NtStacktraceEntry::resolved(this NtStacktraceEntry const& self) noex
     }
     ResolvedFrame result{.address = self.address};
     auto& session = ::pltxt2htm::stacktrace::details::get_symbol_session();
-    auto const held = DbgHelpLock::try_acquire(session.lock);
+    auto const held = DbgHelpLock::try_acquire(session.srw_lock());
     if (!held) {
         return result;
     }
@@ -349,7 +390,7 @@ inline auto NtStacktraceEntry::resolved(this NtStacktraceEntry const& self) noex
         ::pltxt2htm::sys_win32::ImageHlpLine64 line{};
         line.size_of_struct = sizeof(line);
         ::pltxt2htm::sys_win32::Dword line_displacement{};
-        if (::pltxt2htm::sys_win32::SymGetLineFromAddr64(session.process, native_address,
+        if (::pltxt2htm::sys_win32::SymGetLineFromAddr64(session.process_handle(), native_address,
                                                          ::std::addressof(line_displacement), ::std::addressof(line)) &&
             line.file_name != nullptr) {
             auto const* const file_name = line.file_name;
