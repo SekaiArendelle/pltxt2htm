@@ -2637,10 +2637,11 @@ def declaration(symbol: Symbol, x86_stdcall_stack_bytes: dict[str, int]) -> str:
 def generate_declarations(
     library: Library, x86_stdcall_stack_bytes: dict[str, int]
 ) -> str:
-    result = [GENERATED_NOTICE, "\n"]
+    result = [GENERATED_NOTICE, "// clang-format off\n", "\n"]
     result.extend(
         declaration(symbol, x86_stdcall_stack_bytes) for symbol in library.symbols
     )
+    result.append("// clang-format on\n")
     return "".join(result)
 
 
@@ -2770,7 +2771,7 @@ def generate_linker_aliases(
     clang: str,
     llvm_nm: str,
 ) -> tuple[str, dict[str, int]]:
-    result = [GENERATED_NOTICE, "\n"]
+    result = [GENERATED_NOTICE, "// clang-format off\n", "\n"]
     x86_stdcall_stack_bytes: dict[str, int] = {}
 
     def probe(symbol: Symbol) -> tuple[Symbol, tuple[tuple[str, str], ...]]:
@@ -2796,6 +2797,7 @@ def generate_linker_aliases(
                     f"missing i686 stdcall decoration for {symbol.export_name}: {pairs[0][1]}"
                 )
             x86_stdcall_stack_bytes[symbol.export_name] = int(match.group(1))
+    result.append("// clang-format on\n")
     return "".join(result), x86_stdcall_stack_bytes
 
 
