@@ -8,6 +8,7 @@
 #pragma once
 
 #include <compare>
+#include <cstdint>
 
 #include "../resolved_frame.hh"
 
@@ -18,13 +19,13 @@ namespace pltxt2htm::stacktrace::details {
  * @details resolved() looks the saved address up without recapturing; each call
  *          performs a full lookup, so resolve once and reuse the frame. The
  *          text fields are independently owned `container::String` values.
- * @note The class is a standard-layout wrapper around a single native handle.
+ * @note The class is a standard-layout wrapper around a single native address.
  * @note This is the fallback implementation; the public `StacktraceEntry` name
  *       in stacktrace.hh aliases it.
  */
 class NoneStacktraceEntry {
 public:
-    using native_handle_type = void*;
+    using native_handle_type = ::std::uintptr_t;
 
 private:
     native_handle_type address{};
@@ -40,24 +41,6 @@ public:
         return self;
     }
 
-#if defined(PLTXT2HTM_INTERNAL_USE)
-
-private:
-    constexpr NoneStacktraceEntry(native_handle_type address_) noexcept
-        : address{address_} {
-    }
-
-public:
-    /**
-     * @brief Build an entry from a native handle for tests.
-     * @param handle Native frame handle to wrap.
-     */
-    [[nodiscard]]
-    static constexpr auto from_native_handle(native_handle_type handle) noexcept -> NoneStacktraceEntry {
-        return NoneStacktraceEntry{handle};
-    }
-#endif
-
     [[nodiscard]]
     constexpr auto native_handle(this NoneStacktraceEntry const& self) noexcept -> native_handle_type {
         return self.address;
@@ -65,7 +48,7 @@ public:
 
     [[nodiscard]]
     constexpr explicit operator bool(this NoneStacktraceEntry const& self) noexcept {
-        return self.address != nullptr;
+        return self.address != 0;
     }
 
     /**
@@ -76,10 +59,10 @@ public:
      */
     [[nodiscard]]
     auto resolved(this NoneStacktraceEntry const& self) noexcept -> ResolvedFrame {
-        if (self.address == nullptr) {
+        if (self.address == 0) {
             return {};
         }
-        return {.address = reinterpret_cast<::std::uintptr_t>(self.address)};
+        return {.address = self.address};
     }
 
     [[nodiscard]]

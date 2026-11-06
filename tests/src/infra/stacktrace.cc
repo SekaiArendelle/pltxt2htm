@@ -45,26 +45,6 @@ struct TrackingAllocator {
     }
 };
 
-// Entries expose no handle storage to callers: a trace's entries stay
-// immutable, and only the capture backend fills them. The check lives in a
-// concept because this clang rejects a bare requires-expression on a concrete
-// type whose explicit object parameter does not bind.
-template<typename Entry>
-concept can_access_entry_storage = requires(Entry& entry) { entry.native_handle_storage(); };
-
-// Positive control: the concept must still detect an accessible accessor, so a
-// renamed or deleted member cannot make the assertions below vacuous.
-struct StorageProbe {
-    [[nodiscard]]
-    constexpr auto native_handle_storage(this StorageProbe& self) noexcept -> void* {
-        return ::std::addressof(self.value);
-    }
-
-    void* value{};
-};
-
-static_assert(can_access_entry_storage<StorageProbe>);
-
 [[nodiscard]]
 #if defined(_MSC_VER)
 __declspec(noinline)
@@ -147,19 +127,19 @@ int main() {
         static_assert(::std::random_access_iterator<trace::Stacktrace::const_iterator>);
         static_assert(
             ::std::same_as<decltype(::std::declval<trace::Stacktrace const&>()[0]), trace::StacktraceEntry const&>);
-        // Entries expose no handle storage to callers: only the capture backend
-        // may fill it.
-        static_assert(!can_access_entry_storage<trace::StacktraceEntry>);
+        // Entries keep their native addresses as integers.
+        static_assert(::std::same_as<trace::StacktraceEntry::native_handle_type, ::std::uintptr_t>);
         constexpr trace::StacktraceEntry empty_entry{};
-        static_assert(!empty_entry && empty_entry.native_handle() == nullptr);
+        static_assert(!empty_entry && empty_entry.native_handle() == 0);
         auto const empty_frame = empty_entry.resolved();
         pltxt2htm_test_assert_true(empty_frame.address == 0 && empty_frame.description.is_empty() &&
                                    empty_frame.source_file.is_empty() && empty_frame.source_line == 0 &&
                                    !empty_frame.text_truncated && empty_frame.displacement == 0);
     }
 
+#if defined(_WIN32)
     {
-        // Internal-use entry construction from native handles.
+        // Internal-use entry construction from native addresses.
         int first_object{};
         auto const first_handle =
             reinterpret_cast<trace::StacktraceEntry::native_handle_type>(::std::addressof(first_object));
@@ -168,23 +148,17 @@ int main() {
         pltxt2htm_test_assert_true(static_cast<bool>(first_entry));
         pltxt2htm_test_assert_true(!trace::StacktraceEntry{});
     }
+#endif
 
     {
-        // The fallback entry resolves everywhere: without a symbol backend it
-        // keeps the address and produces no text.
+        // The fallback entry stays empty: it has no capture backend that could
+        // fill an address, so it resolves without text.
         constexpr trace::details::NoneStacktraceEntry fallback{};
-        static_assert(!fallback);
+        static_assert(::std::same_as<trace::details::NoneStacktraceEntry::native_handle_type, ::std::uintptr_t>);
+        static_assert(!fallback && fallback.native_handle() == 0);
         auto const empty = fallback.resolved();
         pltxt2htm_test_assert_true(empty.address == 0 && empty.description.is_empty() &&
                                    empty.source_file.is_empty() && empty.source_line == 0);
-        int object{};
-        auto const handle =
-            reinterpret_cast<trace::details::NoneStacktraceEntry::native_handle_type>(::std::addressof(object));
-        auto const entry = trace::details::NoneStacktraceEntry::from_native_handle(handle);
-        pltxt2htm_test_assert_true(entry.native_handle() == handle);
-        auto const frame = entry.resolved();
-        pltxt2htm_test_assert_true(reinterpret_cast<void*>(frame.address) == handle && frame.description.is_empty() &&
-                                   frame.source_file.is_empty() && frame.source_line == 0);
         // Its backend is a declared no-op, so the front-end compiles against it
         // and an existing entry is left untouched.
         static_assert(!trace::details::NoneCaptureBackend::supported);
@@ -192,9 +166,9 @@ int main() {
         ::pltxt2htm::container::Vector<trace::details::NoneStacktraceEntry,
                                        ::fast_io::generic_allocator_adapter<::fast_io::native_global_allocator>>
             fallback_frames{};
-        fallback_frames.push_back(entry);
+        fallback_frames.push_back(fallback);
         trace::details::NoneCaptureBackend::capture<::fast_io::native_global_allocator>(fallback_frames, 0);
-        pltxt2htm_test_assert_true(fallback_frames.size() == 1 && fallback_frames[0].native_handle() == handle);
+        pltxt2htm_test_assert_true(fallback_frames.size() == 1 && fallback_frames[0].native_handle() == 0);
     }
 
     {
@@ -219,6 +193,11 @@ int main() {
     {
         // A skip wider than the stack yields an empty trace.
         pltxt2htm_test_assert_true(trace::Stacktrace::current(::std::numeric_limits<::std::size_t>::max()).is_empty());
+#if defined(_WIN32)
+        // A skip the unwinder can represent, but that overruns the stack,
+        // reports no frames at all.
+        pltxt2htm_test_assert_true(trace::Stacktrace::current(100000).is_empty());
+#endif
     }
 
     {
@@ -274,7 +253,7 @@ int main() {
         pltxt2htm_test_assert_true(!deep.is_empty() && deep[0]);
         // Entry queries use the saved address, not a new capture.
         auto const first_frame = deep[0].resolved();
-        pltxt2htm_test_assert_true(reinterpret_cast<void*>(first_frame.address) == deep[0].native_handle());
+        pltxt2htm_test_assert_true(first_frame.address == deep[0].native_handle());
         // DbgHelp must reach the image's symbols (PDB or, for GNU-ABI builds,
         // the export table) for frames inside the test executable.
         pltxt2htm_test_assert_true(!first_frame.description.is_empty());
@@ -332,7 +311,7 @@ int main() {
         auto held = trace::details::DbgHelpLock::try_acquire(session.srw_lock());
         pltxt2htm_test_assert_true(static_cast<bool>(held));
         auto const busy = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
-        pltxt2htm_test_assert_true(reinterpret_cast<void*>(busy.address) == sample_handle && busy.description.is_empty());
+        pltxt2htm_test_assert_true(busy.address == sample_handle && busy.description.is_empty());
         pltxt2htm_test_assert_true(!session.try_shutdown());
         pltxt2htm_test_assert_true(session.is_ready() && !session.process_handle().is_null());
     }
@@ -342,11 +321,11 @@ int main() {
         // re-initialization on the next lookup.
         auto& session = trace::details::get_symbol_session();
         auto const invalid = trace::StacktraceEntry{}.resolved();
-        pltxt2htm_test_assert_true(reinterpret_cast<void*>(invalid.address) == nullptr && invalid.description.is_empty());
+        pltxt2htm_test_assert_true(invalid.address == 0 && invalid.description.is_empty());
         pltxt2htm_test_assert_true(session.try_shutdown());
         pltxt2htm_test_assert_true(!session.is_ready() && session.process_handle().is_null());
         auto const again = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
-        pltxt2htm_test_assert_true(reinterpret_cast<void*>(again.address) == sample_handle && session.is_ready());
+        pltxt2htm_test_assert_true(again.address == sample_handle && session.is_ready());
         pltxt2htm_test_assert_true(session.try_shutdown());
     }
 
@@ -355,7 +334,7 @@ int main() {
         auto& session = trace::details::get_symbol_session();
         session.force_unavailable();
         auto const unavailable = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
-        pltxt2htm_test_assert_true(reinterpret_cast<void*>(unavailable.address) == sample_handle && unavailable.description.is_empty() &&
+        pltxt2htm_test_assert_true(unavailable.address == sample_handle && unavailable.description.is_empty() &&
                                    session.process_handle().is_null() && !session.is_ready());
         pltxt2htm_test_assert_true(session.try_shutdown());
     }

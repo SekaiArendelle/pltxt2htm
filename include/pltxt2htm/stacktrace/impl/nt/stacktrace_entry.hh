@@ -214,33 +214,19 @@ inline auto get_symbol_session() noexcept -> DbgHelpSession& {
  * @details resolved() looks the saved address up without recapturing; each call
  *          performs a full lookup, so resolve once and reuse the frame. The
  *          text fields are independently owned `container::String` values.
- * @note The class is a standard-layout wrapper around a single native handle;
- *       the capture backend relies on that to fill trace storage directly.
+ * @note The class is a standard-layout wrapper around a single native address;
+ *       only the capture backend may fill it.
  * @note This is the Windows implementation; the public `StacktraceEntry` name
  *       in stacktrace.hh aliases it.
  */
 class NtStacktraceEntry {
 public:
-    using native_handle_type = void*;
+    using native_handle_type = ::std::uintptr_t;
 
 private:
     friend struct NtCaptureBackend;
 
     native_handle_type address{};
-
-    /**
-     * @brief Stored native handle of this entry, by address.
-     * @return Pointer to the entry's handle member; writing through it replaces
-     *         the saved address.
-     * @details Only the capture backend calls this. A trace stores its entries
-     *          contiguously and an entry holds exactly one handle, so the
-     *          backend fills a run of entries by writing consecutive handles
-     *          from this address.
-     */
-    [[nodiscard]]
-    constexpr auto native_handle_storage(this NtStacktraceEntry& self) noexcept -> native_handle_type* {
-        return ::std::addressof(self.address);
-    }
 
 public:
     constexpr NtStacktraceEntry() noexcept = default;
@@ -262,8 +248,8 @@ private:
 
 public:
     /**
-     * @brief Build an entry from a native handle for tests.
-     * @param handle Native frame handle to wrap.
+     * @brief Build an entry from a native address for tests.
+     * @param handle Native frame address to wrap.
      */
     [[nodiscard]]
     static constexpr auto from_native_handle(native_handle_type handle) noexcept -> NtStacktraceEntry {
@@ -278,7 +264,7 @@ public:
 
     [[nodiscard]]
     constexpr explicit operator bool(this NtStacktraceEntry const& self) noexcept {
-        return self.address != nullptr;
+        return self.address != 0;
     }
 
     /**
@@ -364,17 +350,17 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
 }
 
 inline auto NtStacktraceEntry::resolved(this NtStacktraceEntry const& self) noexcept -> ResolvedFrame {
-    if (self.address == nullptr) {
+    if (self.address == 0) {
         return {};
     }
-    ResolvedFrame result{.address = reinterpret_cast<::std::uintptr_t>(self.address)};
+    ResolvedFrame result{.address = self.address};
     auto& session = ::pltxt2htm::stacktrace::details::get_symbol_session();
     auto const held = DbgHelpLock::try_acquire(session.srw_lock());
     if (!held) {
         return result;
     }
     if (session.try_initialize()) {
-        auto const native_address = static_cast<::std::uint64_t>(reinterpret_cast<::std::uintptr_t>(self.address));
+        auto const native_address = static_cast<::std::uint64_t>(self.address);
         ::pltxt2htm::stacktrace::details::resolve_description(result, session, native_address);
         // File/line lookup is independent of function-name lookup.
         ::pltxt2htm::sys_win32::ImageHlpLine64 line{};
