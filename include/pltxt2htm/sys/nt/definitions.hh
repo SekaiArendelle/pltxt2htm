@@ -7,7 +7,7 @@
 
 namespace pltxt2htm::sys_nt {
 using Boolean = unsigned char;
-using Handle = ::pltxt2htm::sys::Handle;
+using ::pltxt2htm::sys::details::Handle;
 using Long = long;
 using Long64 = long long;
 using NtStatus = long;

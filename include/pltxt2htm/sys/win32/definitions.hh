@@ -12,7 +12,7 @@ using Boolean = unsigned char;
 using Char = char;
 using Dword = unsigned long;
 using Dword64 = unsigned long long;
-using Handle = ::pltxt2htm::sys::Handle;
+using ::pltxt2htm::sys::details::Handle;
 using IntPtr = ::std::intptr_t;
 using Long = long;
 using Long64 = long long;

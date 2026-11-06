@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace pltxt2htm::sys {
+namespace pltxt2htm::sys::details {
 
 /**
  * @brief Opaque handle value shared by the Win32 and NT layers.
@@ -36,4 +36,4 @@ struct Handle {
     }
 };
 
-} // namespace pltxt2htm::sys
+} // namespace pltxt2htm::sys::details
