@@ -141,16 +141,12 @@ public:
 
     [[nodiscard]]
     constexpr auto begin(this BasicStacktrace const& self) noexcept -> const_iterator {
-        return self.entries.data();
+        return self.entries.begin();
     }
 
     [[nodiscard]]
     constexpr auto end(this BasicStacktrace const& self) noexcept -> const_iterator {
-        auto const count = self.entries.size();
-        if (count == 0) {
-            return self.entries.data();
-        }
-        return self.entries.data() + count;
+        return self.entries.end();
     }
 
     [[nodiscard]]
