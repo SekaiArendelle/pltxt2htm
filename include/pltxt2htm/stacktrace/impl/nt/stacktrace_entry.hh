@@ -13,6 +13,7 @@
 #include <memory>
 
 #include <fast_io/fast_io_core.h>
+#include <fast_io/fast_io_dsal/string_view.h>
 
 #include "../resolved_frame.hh"
 #include "../../../details/demangle.hh"
