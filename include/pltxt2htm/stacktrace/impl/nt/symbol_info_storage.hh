@@ -32,9 +32,12 @@ namespace pltxt2htm::stacktrace::details {
  *          a terminator, and the untouched zero byte at
  *          `name()[name_length()]` supplies it.
  *
- *          The record also seeds the fields DbgHelp reads (SizeOfStruct and
- *          MaxNameLen) and keeps them in sync when the buffer grows. Except for
- *          is_valid(), the members require a successfully allocated record.
+ *          The record's MaxNameLen field is the capacity, so the allocation size
+ *          is not duplicated in the object. DbgHelp treats SizeOfStruct and
+ *          MaxNameLen as inputs and leaves them unchanged (verified against the
+ *          local DbgHelp for successful and failed lookups), so they are seeded
+ *          once when the record is allocated. Except for is_valid(), the members
+ *          require a successfully allocated record.
  */
 class SymbolInfoStorage {
 public:
@@ -43,7 +46,6 @@ public:
 
 private:
     ::pltxt2htm::sys_win32::SymbolInfo* record{};
-    ::std::size_t capacity{};
 
     /**
      * @brief Allocates a zero-filled record with room for `name_capacity` bytes.
@@ -78,8 +80,7 @@ public:
      *          frame as truncated instead of resolving it.
      */
     explicit SymbolInfoStorage(::std::size_t name_capacity = default_name_capacity) noexcept
-        : record{SymbolInfoStorage::allocate(name_capacity)},
-          capacity{record != nullptr ? name_capacity : 0} {
+        : record{SymbolInfoStorage::allocate(name_capacity)} {
     }
 
     ~SymbolInfoStorage() noexcept {
@@ -104,23 +105,20 @@ public:
     }
 
     /**
-     * @brief Restores the record fields a lookup expects to start empty.
-     * @details DbgHelp documents nothing about the record contents after a
-     *          failed lookup, so the caller clears the reported name length and
-     *          re-seeds the fields DbgHelp reads before every attempt. The buffer
-     *          bytes are untouched, so this is free and matches the state of a
-     *          freshly allocated record.
+     * @brief Clears the reported name length before a lookup.
+     * @details The allocation starts zero-filled, but a failed lookup leaves the
+     *          previous NameLen in place (verified on the local DbgHelp), so the
+     *          caller clears it before every attempt. SizeOfStruct and MaxNameLen
+     *          need no reseeding: DbgHelp leaves its input fields unchanged.
      */
     constexpr void reset_for_lookup(this SymbolInfoStorage& self) noexcept {
         self.record->name_len = 0;
-        self.record->size_of_struct = sizeof(::pltxt2htm::sys_win32::SymbolInfo);
-        self.record->max_name_len = static_cast<::pltxt2htm::sys_win32::Ulong>(self.capacity);
     }
 
-    /// Name capacity in bytes, including the terminator.
+    /// Name capacity in bytes, including the terminator, as stored in MaxNameLen.
     [[nodiscard]]
     constexpr auto name_capacity(this SymbolInfoStorage const& self) noexcept -> ::std::size_t {
-        return self.capacity;
+        return static_cast<::std::size_t>(self.record->max_name_len);
     }
 
     /// Name length DbgHelp reported, excluding the terminator.
@@ -132,7 +130,7 @@ public:
     /// Whether DbgHelp filled the whole name buffer, so a bigger one is needed.
     [[nodiscard]]
     constexpr auto is_name_truncated(this SymbolInfoStorage const& self) noexcept -> bool {
-        return self.name_length() >= self.capacity;
+        return self.name_length() >= self.name_capacity();
     }
 
     /**
@@ -162,9 +160,10 @@ public:
         constexpr auto max_size = ::std::numeric_limits<::std::size_t>::max();
         auto const length = self.name_length();
         auto const required = length == max_size ? max_size : length + 1;
-        auto const doubled = self.capacity > max_size / 2 ? max_size : self.capacity * 2;
+        auto const capacity = self.name_capacity();
+        auto const doubled = capacity > max_size / 2 ? max_size : capacity * 2;
         auto const new_capacity = required > doubled ? required : doubled;
-        if (new_capacity <= self.capacity) {
+        if (new_capacity <= capacity) {
             return false;
         }
         auto* const replacement = SymbolInfoStorage::allocate(new_capacity);
@@ -173,7 +172,6 @@ public:
         }
         ::std::free(self.record);
         self.record = replacement;
-        self.capacity = new_capacity;
         return true;
     }
 };

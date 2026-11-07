@@ -382,7 +382,8 @@ int main() {
         pltxt2htm_test_assert_true(storage.is_valid());
         pltxt2htm_test_assert_true(storage.name_capacity() == trace::details::SymbolInfoStorage::default_name_capacity);
         auto* const info = storage.symbol_info();
-        pltxt2htm_test_assert_true(info->max_name_len == storage.name_capacity());
+        pltxt2htm_test_assert_true(info->size_of_struct == sizeof(::pltxt2htm::sys_win32::SymbolInfo));
+        pltxt2htm_test_assert_true(info->max_name_len == trace::details::SymbolInfoStorage::default_name_capacity);
         pltxt2htm_test_assert_true(info->name_len == 0 && storage.name().is_empty());
         // A lookup may fill the buffer without terminating it; the zero-filled
         // allocation supplies the byte after the reported length.
@@ -407,7 +408,6 @@ int main() {
         pltxt2htm_test_assert_true(storage.name_capacity() ==
                                    trace::details::SymbolInfoStorage::default_name_capacity * 2);
         pltxt2htm_test_assert_true(storage.symbol_info()->name_len == 0);
-        pltxt2htm_test_assert_true(storage.symbol_info()->max_name_len == storage.name_capacity());
         pltxt2htm_test_assert_true(!storage.is_name_truncated());
         // Growth takes the reported length when it exceeds the doubled capacity.
         trace::details::SymbolInfoStorage small{4};
