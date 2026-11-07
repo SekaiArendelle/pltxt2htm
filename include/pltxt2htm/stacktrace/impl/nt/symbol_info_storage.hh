@@ -78,7 +78,7 @@ public:
      *          frame as truncated instead of resolving it.
      */
     explicit SymbolInfoStorage(::std::size_t name_capacity = default_name_capacity) noexcept
-        : record{allocate(name_capacity)},
+        : record{SymbolInfoStorage::allocate(name_capacity)},
           capacity{record != nullptr ? name_capacity : 0} {
     }
 
@@ -167,7 +167,7 @@ public:
         if (new_capacity <= self.capacity) {
             return false;
         }
-        auto* const replacement = allocate(new_capacity);
+        auto* const replacement = SymbolInfoStorage::allocate(new_capacity);
         if (replacement == nullptr) {
             return false;
         }
