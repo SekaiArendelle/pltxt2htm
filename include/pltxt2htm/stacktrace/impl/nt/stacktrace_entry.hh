@@ -339,7 +339,8 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
             return;
         }
         auto const* const name = reinterpret_cast<char const*>(storage + name_offset);
-        if (auto* const demangled = ::pltxt2htm::details::demangle_symbol_name(name)) {
+        if (auto* const demangled = ::pltxt2htm::details::demangle_symbol_name(
+                ::fast_io::cstring_view{::fast_io::null_terminated, name, name_size})) {
             result.description.assign(demangled, demangled + ::fast_io::cstr_len(demangled));
             ::std::free(demangled);
             ::std::free(storage);

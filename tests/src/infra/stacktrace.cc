@@ -3,6 +3,8 @@
 // test covers the no-resolver entry and backend even on Windows.
 #include <pltxt2htm/stacktrace/impl/none/stacktrace_entry.hh>
 #include <pltxt2htm/stacktrace/impl/none/capture.hh>
+// Exercised on every ABI that provides a demangler, not only on Windows.
+#include <pltxt2htm/details/demangle.hh>
 
 #if defined(pltxt2htm_assert) || defined(pltxt2htm_assume) || defined(pltxt2htm_unreachable)
     #error "stacktrace.hh must not leave the assertion macros defined"
@@ -15,6 +17,7 @@
 #include "precompile.hh"
 #include <limits>
 #include <concepts>
+#include <cstdlib>
 #include <iterator>
 #include <memory>
 #include <string_view>
@@ -301,6 +304,19 @@ int main() {
         pltxt2htm_test_assert_true(named.description.data()[0] != u8'Z');
     }
     #endif
+#endif
+
+#if defined(__GXX_ABI_VERSION) && !defined(_MSC_VER) && __has_include(<cxxabi.h>)
+    {
+        // Symbol producers that strip the leading underscore are retried with
+        // it: the demangler must turn the plain spelling into readable text.
+        auto* const demangled = ::pltxt2htm::details::demangle_symbol_name("Z10deep_tracei");
+        pltxt2htm_test_assert_true(demangled != nullptr);
+        if (demangled != nullptr) {
+            pltxt2htm_test_assert_true(::std::string_view{demangled} == "deep_trace(int)");
+            ::std::free(demangled);
+        }
+    }
 #endif
 
 #if defined(_WIN32)

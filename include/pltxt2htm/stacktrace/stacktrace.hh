@@ -2,9 +2,8 @@
  * @file stacktrace.hh
  * @brief Native stacktrace capture and symbol resolution.
  * @warning This subtree is included by the panic path. It may include the
- *          declaration-only `container/impl/vector_decl.hh` and
- *          `container/impl/string_decl.hh`, but the contract-checked container
- *          definitions must stay at the end of this header (and of
+ *          declaration-only container headers, but the contract-checked
+ *          container definitions must stay at the end of this header (and of
  *          `container/vector.hh` / `container/string.hh`) so the
  *          panic/stacktrace include cycle stays broken. `impl/stacktrace_def.inc`
  *          defines members of the class and, in Windows enforce builds, pulls the
