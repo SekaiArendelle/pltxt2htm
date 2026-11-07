@@ -137,7 +137,6 @@ int main() {
                                    !empty_frame.text_truncated && empty_frame.displacement == 0);
     }
 
-#if defined(_WIN32)
     {
         // Internal-use entry construction from native addresses.
         int first_object{};
@@ -148,17 +147,24 @@ int main() {
         pltxt2htm_test_assert_true(static_cast<bool>(first_entry));
         pltxt2htm_test_assert_true(!trace::StacktraceEntry{});
     }
-#endif
 
     {
-        // The fallback entry stays empty: it has no capture backend that could
-        // fill an address, so it resolves without text.
+        // The fallback entry resolves everywhere: without a symbol backend it
+        // keeps the address and produces no text.
         constexpr trace::details::NoneStacktraceEntry fallback{};
         static_assert(::std::same_as<trace::details::NoneStacktraceEntry::native_handle_type, ::std::uintptr_t>);
-        static_assert(!fallback && fallback.native_handle() == 0);
+        static_assert(!fallback);
         auto const empty = fallback.resolved();
         pltxt2htm_test_assert_true(empty.address == 0 && empty.description.is_empty() &&
                                    empty.source_file.is_empty() && empty.source_line == 0);
+        int object{};
+        auto const handle =
+            reinterpret_cast<trace::details::NoneStacktraceEntry::native_handle_type>(::std::addressof(object));
+        auto const entry = trace::details::NoneStacktraceEntry::from_native_handle(handle);
+        pltxt2htm_test_assert_true(entry.native_handle() == handle);
+        auto const frame = entry.resolved();
+        pltxt2htm_test_assert_true(frame.address == handle && frame.description.is_empty() &&
+                                   frame.source_file.is_empty() && frame.source_line == 0);
         // Its backend is a declared no-op, so the front-end compiles against it
         // and an existing entry is left untouched.
         static_assert(!trace::details::NoneCaptureBackend::supported);
@@ -166,9 +172,9 @@ int main() {
         ::pltxt2htm::container::Vector<trace::details::NoneStacktraceEntry,
                                        ::fast_io::generic_allocator_adapter<::fast_io::native_global_allocator>>
             fallback_frames{};
-        fallback_frames.push_back(fallback);
+        fallback_frames.push_back(entry);
         trace::details::NoneCaptureBackend::capture<::fast_io::native_global_allocator>(fallback_frames, 0);
-        pltxt2htm_test_assert_true(fallback_frames.size() == 1 && fallback_frames[0].native_handle() == 0);
+        pltxt2htm_test_assert_true(fallback_frames.size() == 1 && fallback_frames[0].native_handle() == handle);
     }
 
     {

@@ -41,6 +41,24 @@ public:
         return self;
     }
 
+#if defined(PLTXT2HTM_INTERNAL_USE)
+
+private:
+    constexpr NoneStacktraceEntry(native_handle_type address_) noexcept
+        : address{address_} {
+    }
+
+public:
+    /**
+     * @brief Build an entry from a native address for tests.
+     * @param handle Native frame address to wrap.
+     */
+    [[nodiscard]]
+    static constexpr auto from_native_handle(native_handle_type handle) noexcept -> NoneStacktraceEntry {
+        return NoneStacktraceEntry{handle};
+    }
+#endif
+
     [[nodiscard]]
     constexpr auto native_handle(this NoneStacktraceEntry const& self) noexcept -> native_handle_type {
         return self.address;
