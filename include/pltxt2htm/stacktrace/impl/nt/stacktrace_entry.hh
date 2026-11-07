@@ -294,7 +294,7 @@ public:
 };
 
 inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& session,
-                                ::std::uint64_t native_address) noexcept {
+                                ::std::uintptr_t native_address) noexcept {
     constexpr auto name_offset = offsetof(::pltxt2htm::sys_win32::SymbolInfo, name);
     ::std::size_t capacity{2000}; // DbgHelp MAX_SYM_NAME
     bool refreshed{};
@@ -362,7 +362,7 @@ inline auto NtStacktraceEntry::resolved(this NtStacktraceEntry const& self) noex
         return result;
     }
     if (session.try_initialize()) {
-        auto const native_address = static_cast<::std::uint64_t>(reinterpret_cast<::std::uintptr_t>(self.address));
+        auto const native_address = reinterpret_cast<::std::uintptr_t>(self.address);
         ::pltxt2htm::stacktrace::details::resolve_description(result, session, native_address);
         // File/line lookup is independent of function-name lookup.
         ::pltxt2htm::sys_win32::ImageHlpLine64 line{};
