@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
 #include "../../container/impl/string_decl.hh"
@@ -21,7 +22,10 @@ struct ResolvedFrame {
     /// there is no offset to show: the lookup failed, or the symbol starts at
     /// the address itself.
     ::std::uintptr_t displacement{};
-    ::std::uint32_t source_line{};
+    /// Line number reported by the backend; zero when there is no line
+    /// information. Stored as size_t so backends with wider line numbers do not
+    /// need a distinct frame type.
+    ::std::size_t source_line{};
     bool text_truncated{};
 };
 
