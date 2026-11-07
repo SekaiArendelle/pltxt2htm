@@ -247,11 +247,10 @@ int main() {
 
     {
         // Tracked construction and moves release every allocation.
-        TrackingAllocator const alloc{};
         using TrackedTrace = trace::BasicStacktrace<TrackingAllocator>;
         auto tracked = TrackedTrace::current(0);
-        TrackedTrace copy{tracked, alloc};
-        TrackedTrace moved_copy{::std::move(copy), alloc};
+        TrackedTrace copy{tracked};
+        TrackedTrace moved_copy{::std::move(copy)};
         pltxt2htm_test_assert_true(tracked == moved_copy && copy.is_empty());
         // Self-assignment and self-move are contract violations; testing them
         // requires a trap death harness, which this file does not have.

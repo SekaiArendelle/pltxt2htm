@@ -61,7 +61,9 @@ using StacktraceEntry = details::NoneStacktraceEntry;
  *          `container::Vector` and resolved text uses `container::String`;
  *          their checked definitions are included at the end of this header so
  *          the panic path can use this API. Allocation failure terminates
- *          through the stateless fast_io allocator.
+ *          through the stateless fast_io allocator. Because the allocator is
+ *          stateless, construction always uses a default-constructed
+ *          `allocator_type` and no constructor takes an allocator argument.
  * @note The capture machinery marks the frames it hides as noinline, so skip
  *       counts stacktrace entries starting with the caller of current(), as
  *       for std::stacktrace. Out-of-range operator[] is a contract violation.
@@ -88,19 +90,8 @@ public:
     constexpr BasicStacktrace() noexcept = default;
     constexpr BasicStacktrace(BasicStacktrace const&) noexcept = default;
 
-    constexpr explicit BasicStacktrace(allocator_type const&) noexcept {
-    }
-
-    constexpr BasicStacktrace(BasicStacktrace const& other, allocator_type const&) noexcept
-        : entries{other.entries} {
-    }
-
     constexpr BasicStacktrace(BasicStacktrace&& other) noexcept
         : entries{::std::move(other.entries)} {
-    }
-
-    constexpr BasicStacktrace(BasicStacktrace&& other, allocator_type const&) noexcept
-        : BasicStacktrace{::std::move(other)} {
     }
 
     constexpr auto operator=(this BasicStacktrace& self, BasicStacktrace const& other) noexcept -> BasicStacktrace&;
