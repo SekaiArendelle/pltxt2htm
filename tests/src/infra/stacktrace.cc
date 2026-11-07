@@ -86,6 +86,14 @@ void capture_from_shared_site(test_frames& frames, ::std::size_t skip) {
     ::pltxt2htm::stacktrace::details::CaptureBackend::capture<::fast_io::native_global_allocator>(frames, skip);
 }
 
+// Only the capture backend may rewrite a saved handle; entries must not hand
+// their backing storage to ordinary callers.
+template<typename Entry>
+concept can_access_entry_storage = requires(Entry& entry) { entry.native_handle_storage(); };
+
+static_assert(!can_access_entry_storage<::pltxt2htm::stacktrace::StacktraceEntry>);
+static_assert(!can_access_entry_storage<::pltxt2htm::stacktrace::details::NoneStacktraceEntry>);
+
 int main() {
     namespace trace = ::pltxt2htm::stacktrace;
     [[maybe_unused]] trace::StacktraceEntry::native_handle_type sample_handle{};
@@ -127,8 +135,11 @@ int main() {
         static_assert(::std::random_access_iterator<trace::Stacktrace::const_iterator>);
         static_assert(
             ::std::same_as<decltype(::std::declval<trace::Stacktrace const&>()[0]), trace::StacktraceEntry const&>);
-        // Entries keep their native addresses as integers.
-        static_assert(::std::same_as<trace::StacktraceEntry::native_handle_type, ::std::uintptr_t>);
+        // The Windows entry keeps the native handle for zero-copy capture; the
+        // fallback entry stores the address as an integer.
+#if defined(_WIN32)
+        static_assert(::std::same_as<trace::StacktraceEntry::native_handle_type, void*>);
+#endif
         constexpr trace::StacktraceEntry empty_entry{};
         static_assert(!empty_entry && empty_entry.native_handle() == 0);
         auto const empty_frame = empty_entry.resolved();
@@ -259,7 +270,7 @@ int main() {
         pltxt2htm_test_assert_true(!deep.is_empty() && deep[0]);
         // Entry queries use the saved address, not a new capture.
         auto const first_frame = deep[0].resolved();
-        pltxt2htm_test_assert_true(first_frame.address == deep[0].native_handle());
+        pltxt2htm_test_assert_true(reinterpret_cast<void*>(first_frame.address) == deep[0].native_handle());
         // DbgHelp must reach the image's symbols (PDB or, for GNU-ABI builds,
         // the export table) for frames inside the test executable.
         pltxt2htm_test_assert_true(!first_frame.description.is_empty());
@@ -317,7 +328,8 @@ int main() {
         auto held = trace::details::DbgHelpLock::try_acquire(session.srw_lock());
         pltxt2htm_test_assert_true(static_cast<bool>(held));
         auto const busy = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
-        pltxt2htm_test_assert_true(busy.address == sample_handle && busy.description.is_empty());
+        pltxt2htm_test_assert_true(reinterpret_cast<void*>(busy.address) == sample_handle &&
+                                   busy.description.is_empty());
         pltxt2htm_test_assert_true(!session.try_shutdown());
         pltxt2htm_test_assert_true(session.is_ready() && !session.process_handle().is_null());
     }
@@ -331,7 +343,7 @@ int main() {
         pltxt2htm_test_assert_true(session.try_shutdown());
         pltxt2htm_test_assert_true(!session.is_ready() && session.process_handle().is_null());
         auto const again = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
-        pltxt2htm_test_assert_true(again.address == sample_handle && session.is_ready());
+        pltxt2htm_test_assert_true(reinterpret_cast<void*>(again.address) == sample_handle && session.is_ready());
         pltxt2htm_test_assert_true(session.try_shutdown());
     }
 
@@ -340,8 +352,9 @@ int main() {
         auto& session = trace::details::get_symbol_session();
         session.force_unavailable();
         auto const unavailable = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
-        pltxt2htm_test_assert_true(unavailable.address == sample_handle && unavailable.description.is_empty() &&
-                                   session.process_handle().is_null() && !session.is_ready());
+        pltxt2htm_test_assert_true(reinterpret_cast<void*>(unavailable.address) == sample_handle &&
+                                   unavailable.description.is_empty() && session.process_handle().is_null() &&
+                                   !session.is_ready());
         pltxt2htm_test_assert_true(session.try_shutdown());
     }
 #endif
