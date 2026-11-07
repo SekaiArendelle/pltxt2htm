@@ -422,6 +422,13 @@ int main() {
         // Each lookup starts from an empty reported name length again.
         small.reset_for_lookup();
         pltxt2htm_test_assert_true(small.symbol_info()->name_len == 0);
+        // A capacity DbgHelp's length field cannot represent leaves the storage
+        // invalid instead of allocating.
+        if constexpr (sizeof(::std::size_t) > sizeof(::pltxt2htm::sys_win32::Ulong)) {
+            trace::details::SymbolInfoStorage unrepresentable{
+                static_cast<::std::size_t>(::std::numeric_limits<::pltxt2htm::sys_win32::Ulong>::max()) + 1};
+            pltxt2htm_test_assert_true(!unrepresentable.is_valid());
+        }
     }
 #endif
 }

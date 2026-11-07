@@ -7,9 +7,9 @@
 #pragma once
 
 #include <cstddef>
-#include <cstdlib>
 #include <limits>
 
+#include <fast_io/fast_io_core.h>
 #include <fast_io/fast_io_dsal/string_view.h>
 
 #include "../../../sys/win32/dbghelp_definitions.hh"
@@ -27,9 +27,10 @@ namespace pltxt2htm::stacktrace::details {
  * @brief Owns a zero-initialized SymbolInfo record and its trailing name.
  * @details DbgHelp declares the record's name as a one-character array at the
  *          end of the structure, so a usable record is a single allocation of
- *          `offsetof(SymbolInfo, name) + capacity` bytes. Zero initialization
- *          is part of the contract: DbgHelp may fill the buffer without writing
- *          a terminator, and the untouched zero byte at
+ *          `offsetof(SymbolInfo, name) + capacity` bytes. The buffer comes from
+ *          the project's fast_io allocator and is zero-filled, which is part of
+ *          the contract: DbgHelp may fill the buffer without writing a
+ *          terminator, and the untouched zero byte at
  *          `name()[name_length()]` supplies it.
  *
  *          The record's MaxNameLen field is the capacity, so the allocation size
@@ -45,13 +46,24 @@ public:
     static constexpr ::std::size_t default_name_capacity{2000};
 
 private:
+    /// Byte-wise allocator: the record ends in a flexible array, so its size is
+    /// counted in bytes rather than in whole SymbolInfo objects.
+    using allocator_type = ::fast_io::native_typed_global_allocator<unsigned char>;
+
     ::pltxt2htm::sys_win32::SymbolInfo* record{};
+
+    /// Bytes backing a record with room for `name_capacity` name bytes.
+    [[nodiscard]]
+    static constexpr auto buffer_size(::std::size_t name_capacity) noexcept -> ::std::size_t {
+        return offsetof(::pltxt2htm::sys_win32::SymbolInfo, name) + name_capacity;
+    }
 
     /**
      * @brief Allocates a zero-filled record with room for `name_capacity` bytes.
      * @param name_capacity Bytes reserved for the name, including its terminator.
      * @return The record, or nullptr when the capacity does not fit DbgHelp's
-     *         length field or the allocation failed.
+     *         length field; allocator exhaustion terminates instead of returning
+     *         nullptr.
      */
     [[nodiscard]]
     static auto allocate(::std::size_t name_capacity) noexcept -> ::pltxt2htm::sys_win32::SymbolInfo* {
@@ -61,10 +73,7 @@ private:
             name_capacity > max_size - name_offset) {
             return nullptr;
         }
-        auto* const bytes = static_cast<unsigned char*>(::std::calloc(name_offset + name_capacity, 1));
-        if (bytes == nullptr) {
-            return nullptr;
-        }
+        auto* const bytes = allocator_type::allocate_zero(SymbolInfoStorage::buffer_size(name_capacity));
         auto* const record = reinterpret_cast<::pltxt2htm::sys_win32::SymbolInfo*>(bytes);
         record->size_of_struct = sizeof(::pltxt2htm::sys_win32::SymbolInfo);
         record->max_name_len = static_cast<::pltxt2htm::sys_win32::Ulong>(name_capacity);
@@ -76,15 +85,19 @@ public:
      * @brief Allocates a record with the given name capacity.
      * @param name_capacity Bytes reserved for the name, including its terminator;
      *        the default matches DbgHelp's MAX_SYM_NAME.
-     * @details Allocation failure leaves the storage invalid; callers report the
-     *          frame as truncated instead of resolving it.
+     * @details Only an unrepresentable capacity leaves the storage invalid;
+     *          allocator exhaustion terminates. Callers report an invalid storage
+     *          as a truncated frame instead of resolving it.
      */
     explicit SymbolInfoStorage(::std::size_t name_capacity = default_name_capacity) noexcept
         : record{SymbolInfoStorage::allocate(name_capacity)} {
     }
 
     ~SymbolInfoStorage() noexcept {
-        ::std::free(record);
+        if (record != nullptr) {
+            allocator_type::deallocate_n(reinterpret_cast<unsigned char*>(record),
+                                         SymbolInfoStorage::buffer_size(name_capacity()));
+        }
     }
 
     SymbolInfoStorage(SymbolInfoStorage const&) noexcept = delete;
@@ -92,7 +105,11 @@ public:
     auto operator=(SymbolInfoStorage const&) noexcept -> SymbolInfoStorage& = delete;
     auto operator=(SymbolInfoStorage&&) noexcept -> SymbolInfoStorage& = delete;
 
-    /// Whether the record buffer was allocated.
+    /**
+     * @brief Whether the record buffer exists.
+     * @details False only when the requested capacity cannot be represented in
+     *          DbgHelp's length field; allocator exhaustion terminates.
+     */
     [[nodiscard]]
     constexpr auto is_valid(this SymbolInfoStorage const& self) noexcept -> bool {
         return self.record != nullptr;
@@ -146,8 +163,8 @@ public:
 
     /**
      * @brief Replaces the record with a larger zero-filled one.
-     * @return False when the growth would exceed DbgHelp's length field or the
-     *         allocation failed; the current record is kept unchanged.
+     * @return False when the growth would exceed DbgHelp's length field; the
+     *         current record is kept unchanged. Allocator exhaustion terminates.
      * @details Grows to the truncated length plus its terminator, or doubles the
      *          capacity, whichever is larger, so repeated growth stays linear in
      *          the final size.
@@ -170,7 +187,8 @@ public:
         if (replacement == nullptr) {
             return false;
         }
-        ::std::free(self.record);
+        allocator_type::deallocate_n(reinterpret_cast<unsigned char*>(self.record),
+                                     SymbolInfoStorage::buffer_size(capacity));
         self.record = replacement;
         return true;
     }
