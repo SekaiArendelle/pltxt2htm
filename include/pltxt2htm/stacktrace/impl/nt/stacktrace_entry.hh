@@ -290,7 +290,7 @@ public:
 inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& session,
                                 ::std::uintptr_t native_address) noexcept {
     SymbolInfoStorage storage{};
-    if (!storage.is_valid()) {
+    if (storage.is_valid() == false) {
         result.text_truncated = true;
         return;
     }
@@ -309,7 +309,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
             continue;
         }
         if (found == false) {
-            if (!refreshed && ::pltxt2htm::sys_win32::SymRefreshModuleList(process_handle)) {
+            if (refreshed == false && ::pltxt2htm::sys_win32::SymRefreshModuleList(process_handle)) {
                 refreshed = true;
                 continue;
             }
