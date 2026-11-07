@@ -17,7 +17,10 @@ struct ResolvedFrame {
     ::std::uintptr_t address{};
     ::pltxt2htm::container::String description{};
     ::pltxt2htm::container::String source_file{};
-    ::std::uint64_t displacement{};
+    /// Offset of the address inside the symbol, in address units. Zero when
+    /// there is no offset to show: the lookup failed, or the symbol starts at
+    /// the address itself.
+    ::std::uintptr_t displacement{};
     ::std::uint32_t source_line{};
     bool text_truncated{};
 };

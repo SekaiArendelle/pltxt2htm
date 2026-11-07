@@ -353,6 +353,12 @@ int main() {
         pltxt2htm_test_assert_true(looked_up_info->size_of_struct == sizeof(::pltxt2htm::sys_win32::SymbolInfo));
         pltxt2htm_test_assert_true(looked_up_info->max_name_len ==
                                    trace::details::SymbolInfoStorage::default_name_capacity);
+        // A failed lookup reports no displacement, so a frame without a symbol
+        // never prints a stale offset.
+        auto const unresolved =
+            trace::StacktraceEntry::from_native_handle(reinterpret_cast<trace::StacktraceEntry::native_handle_type>(1))
+                .resolved();
+        pltxt2htm_test_assert_true(unresolved.description.is_empty() && unresolved.displacement == 0);
     }
 
     {

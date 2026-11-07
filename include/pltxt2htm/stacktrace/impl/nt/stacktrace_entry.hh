@@ -298,8 +298,12 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
     auto const process_handle = session.process_handle();
     while (true) {
         storage.reset_for_lookup();
+        // DbgHelp always reports a 64-bit displacement, even in 32-bit
+        // processes; the difference of two addresses fits the address width, so
+        // the frame stores it as uintptr_t.
+        ::pltxt2htm::sys_win32::Dword64 displacement{};
         auto const found =
-            ::pltxt2htm::sys_win32::SymFromAddr(process_handle, native_address, ::std::addressof(result.displacement),
+            ::pltxt2htm::sys_win32::SymFromAddr(process_handle, native_address, ::std::addressof(displacement),
                                                 storage.symbol_info()) != 0;
         if (storage.is_name_truncated()) {
             if (!storage.grow()) {
@@ -315,6 +319,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
             }
             return;
         }
+        result.displacement = static_cast<::std::uintptr_t>(displacement);
         auto const name = storage.name();
         if (auto* const demangled = ::pltxt2htm::details::demangle_symbol_name(name)) {
             result.description.assign(demangled, demangled + ::fast_io::cstr_len(demangled));
