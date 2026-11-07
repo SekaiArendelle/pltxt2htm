@@ -9,7 +9,6 @@
 
 #include <cstdint>
 #include <cstdlib>
-#include <limits>
 #include <memory>
 
 #include <fast_io/fast_io_core.h>
@@ -19,13 +18,7 @@
 #include "../../../details/demangle.hh"
 #include "../../../sys/nt/ntdll.hh"
 #include "../../../sys/win32/dbghelp.hh"
-
-// windows.h defines min and max as function-like macros, which would expand
-// inside std::numeric_limits<...>::max(). Keep them undefined in this header.
-#pragma push_macro("min")
-#pragma push_macro("max")
-#undef min
-#undef max
+#include "symbol_info_storage.hh"
 
 namespace pltxt2htm::stacktrace::details {
 
@@ -296,59 +289,39 @@ public:
 
 inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& session,
                                 ::std::uintptr_t native_address) noexcept {
-    constexpr auto name_offset = offsetof(::pltxt2htm::sys_win32::SymbolInfo, name);
-    ::std::size_t capacity{2000}; // DbgHelp MAX_SYM_NAME
+    SymbolInfoStorage storage{};
+    if (!storage.is_valid()) {
+        result.text_truncated = true;
+        return;
+    }
     bool refreshed{};
     auto const process_handle = session.process_handle();
     while (true) {
-        if (capacity > ::std::numeric_limits<::pltxt2htm::sys_win32::Dword>::max() ||
-            capacity > ::std::numeric_limits<::std::size_t>::max() - name_offset) {
-            result.text_truncated = true;
-            return;
-        }
-        auto const storage_size = name_offset + capacity;
-        auto* storage = static_cast<unsigned char*>(::std::calloc(storage_size, 1));
-        if (storage == nullptr) {
-            result.text_truncated = true;
-            return;
-        }
-        auto* info = reinterpret_cast<::pltxt2htm::sys_win32::SymbolInfo*>(storage);
-        info->size_of_struct = sizeof(::pltxt2htm::sys_win32::SymbolInfo);
-        info->max_name_len = static_cast<::pltxt2htm::sys_win32::Dword>(capacity);
-        auto const found = ::pltxt2htm::sys_win32::SymFromAddr(process_handle, native_address,
-                                                               ::std::addressof(result.displacement), info) != 0;
-        auto const name_size = static_cast<::std::size_t>(info->name_len);
-        if (name_size >= capacity) {
-            ::std::free(storage);
-            auto const max_size = ::std::numeric_limits<::std::size_t>::max();
-            auto const required = name_size == max_size ? name_size : name_size + 1;
-            auto const doubled = capacity > max_size / 2 ? max_size : capacity * 2;
-            auto const new_capacity = required > doubled ? required : doubled;
-            if (new_capacity <= capacity) {
+        storage.reset_for_lookup();
+        auto const found =
+            ::pltxt2htm::sys_win32::SymFromAddr(process_handle, native_address, ::std::addressof(result.displacement),
+                                                storage.symbol_info()) != 0;
+        if (storage.is_name_truncated()) {
+            if (!storage.grow()) {
                 result.text_truncated = true;
                 return;
             }
-            capacity = new_capacity;
             continue;
         }
         if (found == false) {
-            ::std::free(storage);
             if (!refreshed && ::pltxt2htm::sys_win32::SymRefreshModuleList(process_handle)) {
                 refreshed = true;
                 continue;
             }
             return;
         }
-        auto const* const name = reinterpret_cast<char const*>(storage + name_offset);
-        if (auto* const demangled = ::pltxt2htm::details::demangle_symbol_name(
-                ::fast_io::cstring_view{::fast_io::null_terminated, name, name_size})) {
+        auto const name = storage.name();
+        if (auto* const demangled = ::pltxt2htm::details::demangle_symbol_name(name)) {
             result.description.assign(demangled, demangled + ::fast_io::cstr_len(demangled));
             ::std::free(demangled);
-            ::std::free(storage);
             return;
         }
-        result.description.assign(name, name + name_size);
-        ::std::free(storage);
+        result.description.assign(name.data(), name.data() + name.size());
         return;
     }
 }
@@ -382,6 +355,3 @@ inline auto NtStacktraceEntry::resolved(this NtStacktraceEntry const& self) noex
 }
 
 } // namespace pltxt2htm::stacktrace::details
-
-#pragma pop_macro("max")
-#pragma pop_macro("min")

@@ -169,8 +169,8 @@ int main() {
         static_assert(::std::same_as<trace::details::NoneStacktraceEntry::native_handle_type, ::std::uintptr_t>);
         static_assert(!fallback);
         auto const empty = fallback.resolved();
-        pltxt2htm_test_assert_true(empty.address == 0 && empty.description.is_empty() &&
-                                   empty.source_file.is_empty() && empty.source_line == 0);
+        pltxt2htm_test_assert_true(empty.address == 0 && empty.description.is_empty() && empty.source_file.is_empty() &&
+                                   empty.source_line == 0);
         int object{};
         auto const handle =
             reinterpret_cast<trace::details::NoneStacktraceEntry::native_handle_type>(::std::addressof(object));
@@ -372,6 +372,56 @@ int main() {
                                    unavailable.description.is_empty() && session.process_handle().is_null() &&
                                    !session.is_ready());
         pltxt2htm_test_assert_true(session.try_shutdown());
+    }
+
+    {
+        // The storage owns SYMBOL_INFO's trailing one-character array: the name
+        // buffer is zero-filled and terminated, and the fields DbgHelp reads stay
+        // in sync.
+        trace::details::SymbolInfoStorage storage{};
+        pltxt2htm_test_assert_true(storage.is_valid());
+        pltxt2htm_test_assert_true(storage.name_capacity() == trace::details::SymbolInfoStorage::default_name_capacity);
+        auto* const info = storage.symbol_info();
+        pltxt2htm_test_assert_true(info->max_name_len == storage.name_capacity());
+        pltxt2htm_test_assert_true(info->name_len == 0 && storage.name().is_empty());
+        // A lookup may fill the buffer without terminating it; the zero-filled
+        // allocation supplies the byte after the reported length.
+        constexpr char sample[] = "deep_trace";
+        constexpr auto sample_length = sizeof(sample) - 1;
+        auto* const written_name = static_cast<char*>(static_cast<void*>(info->name));
+        for (::std::size_t index{}; index != sample_length; ++index) {
+            written_name[index] = sample[index];
+        }
+        info->name_len = static_cast<decltype(info->name_len)>(sample_length);
+        auto const written = storage.name();
+        pltxt2htm_test_assert_true(written.size() == sample_length);
+        pltxt2htm_test_assert_true(::std::string_view{written.data(), written.size()} == "deep_trace");
+        pltxt2htm_test_assert_true(written.c_str()[sample_length] == '\0');
+        // A name filling every reserved byte but the terminator still fits.
+        info->name_len = static_cast<decltype(info->name_len)>(storage.name_capacity() - 1);
+        pltxt2htm_test_assert_true(!storage.is_name_truncated());
+        // A full buffer is truncated and grows, doubling the capacity.
+        info->name_len = static_cast<decltype(info->name_len)>(storage.name_capacity());
+        pltxt2htm_test_assert_true(storage.is_name_truncated());
+        pltxt2htm_test_assert_true(storage.grow());
+        pltxt2htm_test_assert_true(storage.name_capacity() ==
+                                   trace::details::SymbolInfoStorage::default_name_capacity * 2);
+        pltxt2htm_test_assert_true(storage.symbol_info()->name_len == 0);
+        pltxt2htm_test_assert_true(storage.symbol_info()->max_name_len == storage.name_capacity());
+        pltxt2htm_test_assert_true(!storage.is_name_truncated());
+        // Growth takes the reported length when it exceeds the doubled capacity.
+        trace::details::SymbolInfoStorage small{4};
+        small.symbol_info()->name_len = 100;
+        pltxt2htm_test_assert_true(small.grow());
+        pltxt2htm_test_assert_true(small.name_capacity() == 101);
+        // A growth that cannot be represented keeps the current record.
+        auto* const kept = small.symbol_info();
+        small.symbol_info()->name_len = ::std::numeric_limits<::pltxt2htm::sys_win32::Ulong>::max();
+        pltxt2htm_test_assert_true(!small.grow());
+        pltxt2htm_test_assert_true(small.symbol_info() == kept && small.name_capacity() == 101);
+        // Each lookup starts from an empty reported name length again.
+        small.reset_for_lookup();
+        pltxt2htm_test_assert_true(small.symbol_info()->name_len == 0);
     }
 #endif
 }
