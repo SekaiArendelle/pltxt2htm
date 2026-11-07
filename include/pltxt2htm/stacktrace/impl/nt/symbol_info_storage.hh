@@ -52,12 +52,6 @@ private:
 
     ::pltxt2htm::sys_win32::SymbolInfo* record{};
 
-    /// Bytes backing a record with room for `name_capacity` name bytes.
-    [[nodiscard]]
-    static constexpr auto buffer_size(::std::size_t name_capacity) noexcept -> ::std::size_t {
-        return offsetof(::pltxt2htm::sys_win32::SymbolInfo, name) + name_capacity;
-    }
-
     /**
      * @brief Allocates a zero-filled record with room for `name_capacity` bytes.
      * @param name_capacity Bytes reserved for the name, including its terminator.
@@ -73,7 +67,7 @@ private:
             name_capacity > max_size - name_offset) {
             return nullptr;
         }
-        auto* const bytes = allocator_type::allocate_zero(SymbolInfoStorage::buffer_size(name_capacity));
+        auto* const bytes = allocator_type::allocate_zero(name_offset + name_capacity);
         auto* const record = reinterpret_cast<::pltxt2htm::sys_win32::SymbolInfo*>(bytes);
         record->size_of_struct = sizeof(::pltxt2htm::sys_win32::SymbolInfo);
         record->max_name_len = static_cast<::pltxt2htm::sys_win32::Ulong>(name_capacity);
@@ -95,8 +89,7 @@ public:
 
     ~SymbolInfoStorage() noexcept {
         if (record != nullptr) {
-            allocator_type::deallocate_n(reinterpret_cast<unsigned char*>(record),
-                                         SymbolInfoStorage::buffer_size(name_capacity()));
+            allocator_type::deallocate(reinterpret_cast<unsigned char*>(record));
         }
     }
 
@@ -187,8 +180,7 @@ public:
         if (replacement == nullptr) {
             return false;
         }
-        allocator_type::deallocate_n(reinterpret_cast<unsigned char*>(self.record),
-                                     SymbolInfoStorage::buffer_size(capacity));
+        allocator_type::deallocate(reinterpret_cast<unsigned char*>(self.record));
         self.record = replacement;
         return true;
     }
