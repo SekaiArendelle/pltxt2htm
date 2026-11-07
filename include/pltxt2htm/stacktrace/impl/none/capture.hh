@@ -12,8 +12,8 @@
 namespace pltxt2htm::stacktrace::details {
 
 struct NoneCaptureBackend {
-    static constexpr bool supported = false;
-    static constexpr ::std::size_t max_depth = 0;
+    static constexpr bool supported{false};
+    static constexpr ::std::size_t max_depth{};
 
     /**
      * @brief Unused backend entry point, kept so the shared front-end compiles.

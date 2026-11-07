@@ -144,7 +144,7 @@ int main() {
         static_assert(::std::same_as<trace::StacktraceEntry::native_handle_type, void*>);
 #endif
         constexpr trace::StacktraceEntry empty_entry{};
-        static_assert(!empty_entry && empty_entry.native_handle() == 0);
+        static_assert(!empty_entry && empty_entry.native_handle() == trace::StacktraceEntry::native_handle_type{});
         auto const empty_frame = empty_entry.resolved();
         pltxt2htm_test_assert_true(empty_frame.address == 0 && empty_frame.description.is_empty() &&
                                    empty_frame.source_file.is_empty() && empty_frame.source_line == 0 &&

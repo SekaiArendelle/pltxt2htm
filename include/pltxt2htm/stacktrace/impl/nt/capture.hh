@@ -24,8 +24,8 @@
 namespace pltxt2htm::stacktrace::details {
 
 struct NtCaptureBackend {
-    static constexpr bool supported = true;
-    static constexpr ::std::size_t max_depth = 65535;
+    static constexpr bool supported{true};
+    static constexpr ::std::size_t max_depth{65535};
 
     /**
      * @brief Append every captured entry to frames.
