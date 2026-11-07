@@ -75,8 +75,8 @@ void panic() noexcept {
     // site that reported the problem; a sibling call at that site would hide it.
     auto const trace = ::pltxt2htm::stacktrace::Stacktrace::current(1);
     if (trace.is_empty() == false) {
-        constexpr ::std::size_t max_printed{128};
-        auto const printed = trace.size() < max_printed ? trace.size() : max_printed;
+        constexpr ::std::size_t max_panic_frames{128};
+        auto const printed = trace.size() < max_panic_frames ? trace.size() : max_panic_frames;
         ::fast_io::io::perr("* stack trace:\n");
         for (::std::size_t i = 0; i < printed; ++i) {
             auto const frame = trace[i].resolved();
