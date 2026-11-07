@@ -225,7 +225,6 @@ private:
 public:
     constexpr NtStacktraceEntry() noexcept = default;
     constexpr NtStacktraceEntry(NtStacktraceEntry const&) noexcept = default;
-    constexpr NtStacktraceEntry(NtStacktraceEntry&&) noexcept = default;
 
     constexpr auto operator=(this NtStacktraceEntry& self, NtStacktraceEntry const& other) noexcept
         -> NtStacktraceEntry& {

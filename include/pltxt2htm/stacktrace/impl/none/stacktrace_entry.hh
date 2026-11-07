@@ -33,7 +33,6 @@ private:
 public:
     constexpr NoneStacktraceEntry() noexcept = default;
     constexpr NoneStacktraceEntry(NoneStacktraceEntry const&) noexcept = default;
-    constexpr NoneStacktraceEntry(NoneStacktraceEntry&&) noexcept = default;
 
     constexpr auto operator=(this NoneStacktraceEntry& self, NoneStacktraceEntry const& other) noexcept
         -> NoneStacktraceEntry& {
