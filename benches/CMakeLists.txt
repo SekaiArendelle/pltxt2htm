@@ -26,7 +26,8 @@ target_include_directories(pltxt2htm_bench_base INTERFACE
 )
 target_link_libraries(pltxt2htm_bench_base INTERFACE benchmark::benchmark benchmark::benchmark_main)
 if(WIN32)
-    target_link_libraries(pltxt2htm_bench_base INTERFACE ntdll)
+    # Panic diagnostics resolve symbols through DbgHelp and capture through ntdll.
+    target_link_libraries(pltxt2htm_bench_base INTERFACE ntdll dbghelp)
 endif()
 
 target_compile_options(pltxt2htm_bench_base INTERFACE

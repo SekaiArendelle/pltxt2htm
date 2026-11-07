@@ -5,12 +5,6 @@
 
     #include <cstdio>
 
-    // Ensure stacktrace is disabled: stacktrace output is dynamic (file/line/function names
-    // depend on the runtime environment), which would break the exact string comparison below.
-    #ifdef PLTXT2HTM_ENABLE_STACKTRACE
-        #undef PLTXT2HTM_ENABLE_STACKTRACE
-    #endif
-
     #include <pltxt2htm/details/panic.hh>
     #include "precompile.hh"
 
@@ -73,10 +67,13 @@ void test_panic_basic() noexcept {
         ::pltxt2htm::details::uint_to_literal_string<7>(),
         ::pltxt2htm::details::U8LiteralString{u8"\n"
                                               "* with message: \""},
-        ::pltxt2htm::details::U8LiteralString{u8"test message"}, ::pltxt2htm::details::U8LiteralString{u8"\"\n\0"});
+        ::pltxt2htm::details::U8LiteralString{u8"test message"}, ::pltxt2htm::details::U8LiteralString{u8"\"\n"});
     auto output = ::pltxt2htm::container::U8StringView{buffer, total_read};
     auto expected = ::pltxt2htm::container::U8StringView{expected_ls.cdata(), expected_ls.size()};
-    pltxt2htm_test_assert_true(output == expected);
+    // A native stack trace, when the platform provides one, is appended after the fixed
+    // diagnostic and depends on the runtime environment, so only compare its prefix.
+    pltxt2htm_test_assert_true(output.size() >= expected.size());
+    pltxt2htm_test_assert_true(output.subview(0, expected.size()) == expected);
 }
 
 } // namespace
