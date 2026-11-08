@@ -1,27 +1,15 @@
-#include <pltxt2htm/stacktrace/stacktrace.hh>
-// The fallback backend exists on every platform: include it explicitly so the
-// test covers the no-resolver entry and backend even on Windows.
-#include <pltxt2htm/stacktrace/impl/none/stacktrace_entry.hh>
-#include <pltxt2htm/stacktrace/impl/none/capture.hh>
+#include "stacktrace_common.hh"
+#include "stacktrace_none.hh"
+#include "stacktrace_nt.hh"
+#include "stacktrace_std.hh"
 // Exercised on every ABI that provides a demangler, not only on Windows.
 #include <pltxt2htm/details/demangle.hh>
+
+#include <cstdlib>
 
 #if defined(pltxt2htm_assert) || defined(pltxt2htm_assume) || defined(pltxt2htm_unreachable)
     #error "stacktrace.hh must not leave the assertion macros defined"
 #endif
-
-#if defined(_WIN32)
-    #include <pltxt2htm/sys/win32/kernel32.hh>
-#endif
-#include <fast_io/fast_io_dsal/string.h>
-#include "precompile.hh"
-#include <limits>
-#include <concepts>
-#include <cstdlib>
-#include <iterator>
-#include <memory>
-#include <string_view>
-#include <utility>
 
 // windows.h defines min and max as function-like macros, which would expand
 // inside std::numeric_limits<...>::max(). Keep them undefined in this file.
@@ -30,165 +18,41 @@
 #undef min
 #undef max
 
-struct TrackingAllocator {
-    static inline ::std::size_t allocations{};
-    static inline ::std::size_t outstanding{};
-
-    [[nodiscard]] static void* allocate(::std::size_t bytes) noexcept {
-        ++allocations;
-        ++outstanding;
-        return ::fast_io::native_global_allocator::allocate(bytes);
-    }
-
-    static void deallocate(void* pointer) noexcept {
-        if (pointer != nullptr) {
-            --outstanding;
-        }
-        ::fast_io::native_global_allocator::deallocate(pointer);
-    }
-};
-
-[[nodiscard]]
-#if defined(_MSC_VER)
-__declspec(noinline)
-#elif defined(__GNUC__)
-[[gnu::noinline]]
-#endif
-::pltxt2htm::stacktrace::Stacktrace deep_trace(::std::size_t depth) noexcept {
-    if (depth == 0) {
-        return ::pltxt2htm::stacktrace::Stacktrace::current();
-    }
-    auto result = ::deep_trace(depth - 1);
-    // Keep work after recursion so optimized builds cannot use a tail call.
-    if (result.is_empty()) {
-        return {};
-    }
-    return result;
-}
-
-[[nodiscard]]
-#if defined(_MSC_VER)
-__declspec(noinline)
-#elif defined(__GNUC__)
-[[gnu::noinline]]
-#endif
-::pltxt2htm::stacktrace::Stacktrace trace_from_named_frame(::std::size_t skip) noexcept {
-    return ::pltxt2htm::stacktrace::Stacktrace::current(skip);
-}
-
-using test_frames =
-    ::pltxt2htm::container::Vector<::pltxt2htm::stacktrace::StacktraceEntry,
-                                   ::fast_io::generic_allocator_adapter<::fast_io::native_global_allocator>>;
-
-#if defined(_MSC_VER)
-__declspec(noinline)
-#elif defined(__GNUC__)
-[[gnu::noinline]]
-#endif
-void capture_from_shared_site(test_frames& frames, ::std::size_t skip) {
-    ::pltxt2htm::stacktrace::details::CaptureBackend::capture<::fast_io::native_global_allocator>(frames, skip);
-}
-
-// Only the capture backend may rewrite a saved handle; entries must not hand
-// their backing storage to ordinary callers.
-template<typename Entry>
-concept can_access_entry_storage = requires(Entry& entry) { entry.native_handle_storage(); };
-
-static_assert(!can_access_entry_storage<::pltxt2htm::stacktrace::StacktraceEntry>);
-static_assert(!can_access_entry_storage<::pltxt2htm::stacktrace::details::NoneStacktraceEntry>);
-
 int main() {
     namespace trace = ::pltxt2htm::stacktrace;
-    [[maybe_unused]] trace::StacktraceEntry::native_handle_type sample_handle{};
 
     {
-        // Backend contract: append every captured entry, honor skip.
-#if defined(_WIN32)
-        test_frames frames{};
-        trace::details::CaptureBackend::capture<::fast_io::native_global_allocator>(
-            frames, (::std::numeric_limits<::std::size_t>::max)());
-        pltxt2htm_test_assert_true(frames.is_empty());
-        trace::details::CaptureBackend::capture<::fast_io::native_global_allocator>(frames, 0);
-        pltxt2htm_test_assert_true(!frames.is_empty());
-        for (auto const& entry : frames) {
-            pltxt2htm_test_assert_true(entry.native_handle() != trace::StacktraceEntry::native_handle_type{});
-        }
-        sample_handle = frames[0].native_handle();
-        // skip shifts the capture by one frame from the same call site.
-        test_frames unskipped{};
-        test_frames skipped{};
-        capture_from_shared_site(unskipped, 0);
-        capture_from_shared_site(skipped, 1);
-        pltxt2htm_test_assert_true(unskipped.size() > 1);
-        pltxt2htm_test_assert_true(skipped[0].native_handle() == unskipped[1].native_handle());
-        // The front-end stores exactly the handles the backend reported.
-        auto const grown = trace::Stacktrace::current(0);
-        pltxt2htm_test_assert_true(!grown.is_empty());
-        for (auto const& entry : grown) {
-            pltxt2htm_test_assert_true(entry.native_handle() != trace::StacktraceEntry::native_handle_type{});
-        }
-#else
-        // Without a capture backend the front-end reports an empty trace.
-        pltxt2htm_test_assert_true(trace::Stacktrace::current(0).is_empty());
-#endif
-    }
-
-    {
-        // Compile-time surface: iterator category, indexing and empty entry.
+        // Compile-time surface of the public front-end: iterator category and
+        // indexing.
         static_assert(::std::random_access_iterator<trace::Stacktrace::const_iterator>);
         static_assert(
             ::std::same_as<decltype(::std::declval<trace::Stacktrace const&>()[0]), trace::StacktraceEntry const&>);
-        // The Windows entry keeps the native handle for zero-copy capture; the
-        // fallback entry stores the address as an integer.
-#if defined(_WIN32)
-        static_assert(::std::same_as<trace::StacktraceEntry::native_handle_type, void*>);
-#endif
-        constexpr trace::StacktraceEntry empty_entry{};
-        static_assert(!empty_entry && empty_entry.native_handle() == trace::StacktraceEntry::native_handle_type{});
+        // A value-constructed entry resolves to an empty frame on every backend.
+        auto const empty_entry = trace::StacktraceEntry{};
         auto const empty_frame = empty_entry.resolved();
         pltxt2htm_test_assert_true(empty_frame.address == 0 && empty_frame.description.is_empty() &&
                                    empty_frame.source_file.is_empty() && empty_frame.source_line == 0 &&
                                    !empty_frame.text_truncated && empty_frame.displacement == 0);
     }
 
-    {
-        // Internal-use entry construction from native addresses.
-        int first_object{};
-        auto const first_handle =
-            reinterpret_cast<trace::StacktraceEntry::native_handle_type>(::std::addressof(first_object));
-        auto const first_entry = trace::StacktraceEntry::from_native_handle(first_handle);
-        pltxt2htm_test_assert_true(first_entry.native_handle() == first_handle);
-        pltxt2htm_test_assert_true(static_cast<bool>(first_entry));
-        pltxt2htm_test_assert_true(!trace::StacktraceEntry{});
-    }
+    // Every backend runs its own tests where its bundle is supported.
+    ::test_none_stacktrace();
+    ::test_nt_stacktrace();
+    ::test_std_stacktrace();
 
     {
-        // The fallback entry resolves everywhere: without a symbol backend it
-        // keeps the address and produces no text.
-        constexpr trace::details::NoneStacktraceEntry fallback{};
-        static_assert(::std::same_as<trace::details::NoneStacktraceEntry::native_handle_type, ::std::uintptr_t>);
-        static_assert(!fallback);
-        auto const empty = fallback.resolved();
-        pltxt2htm_test_assert_true(empty.address == 0 && empty.description.is_empty() && empty.source_file.is_empty() &&
-                                   empty.source_line == 0);
-        int object{};
-        auto const handle =
-            reinterpret_cast<trace::details::NoneStacktraceEntry::native_handle_type>(::std::addressof(object));
-        auto const entry = trace::details::NoneStacktraceEntry::from_native_handle(handle);
-        pltxt2htm_test_assert_true(entry.native_handle() == handle);
-        auto const frame = entry.resolved();
-        pltxt2htm_test_assert_true(frame.address == handle && frame.description.is_empty() &&
-                                   frame.source_file.is_empty() && frame.source_line == 0);
-        // Its backend is a declared no-op, so the front-end compiles against it
-        // and an existing entry is left untouched.
-        static_assert(!trace::details::NoneCaptureBackend::supported);
-        static_assert(trace::details::NoneCaptureBackend::max_depth == 0);
-        ::pltxt2htm::container::Vector<trace::details::NoneStacktraceEntry,
-                                       ::fast_io::generic_allocator_adapter<::fast_io::native_global_allocator>>
-            fallback_frames{};
-        fallback_frames.push_back(entry);
-        trace::details::NoneCaptureBackend::capture<::fast_io::native_global_allocator>(fallback_frames, 0);
-        pltxt2htm_test_assert_true(fallback_frames.size() == 1 && fallback_frames[0].native_handle() == handle);
+        // Front-end capture semantics for the selected default bundle.
+        if constexpr (trace::details::DefaultBackend::capture::supported) {
+            auto const grown = trace::Stacktrace::current(0);
+            pltxt2htm_test_assert_true(!grown.is_empty());
+            for (auto const& entry : grown) {
+                pltxt2htm_test_assert_true(entry.native_handle() != trace::StacktraceEntry::native_handle_type{});
+            }
+        }
+        else {
+            // Without a usable capture backend the front-end reports an empty trace.
+            pltxt2htm_test_assert_true(trace::Stacktrace::current(0).is_empty());
+        }
     }
 
     {
@@ -212,14 +76,9 @@ int main() {
 
     {
         // A skip wider than the stack yields an empty trace.
-        pltxt2htm_test_assert_true(trace::Stacktrace::current(::std::numeric_limits<::std::size_t>::max()).is_empty());
-#if defined(_WIN32)
-        // A skip the unwinder can represent, but that overruns the stack,
-        // reports no frames at all.
-        pltxt2htm_test_assert_true(trace::Stacktrace::current(100000).is_empty());
-#endif
+        pltxt2htm_test_assert_true(
+            trace::Stacktrace::current((::std::numeric_limits<::std::size_t>::max)()).is_empty());
     }
-
     {
         // Move construction, move assignment and swap preserve the value.
         auto const snapshot = trace::Stacktrace::current(0);
@@ -235,8 +94,15 @@ int main() {
     }
 
     {
-        // Another allocator instance still yields an interchangeable empty trace.
-        trace::BasicStacktrace<::fast_io::native_thread_local_allocator> alternate{};
+        // Another allocator instance still yields an interchangeable empty trace,
+        // spelling both template parameters of the public alias explicitly.
+        using AlternateTrace =
+            trace::BasicStacktrace<trace::details::DefaultBackend, ::fast_io::native_thread_local_allocator>;
+        AlternateTrace alternate{};
+        static_assert(
+            ::std::same_as<AlternateTrace, trace::details::BasicStacktrace<trace::details::DefaultBackend,
+                                                                           ::fast_io::native_thread_local_allocator>>);
+        static_assert(::std::same_as<trace::BasicStacktrace<>, trace::Stacktrace>);
         pltxt2htm_test_assert_true(alternate == trace::Stacktrace{});
         // The comparison is symmetric, so either side may name the allocator.
         pltxt2htm_test_assert_true(trace::Stacktrace{} == alternate);
@@ -247,7 +113,7 @@ int main() {
 
     {
         // Tracked construction and moves release every allocation.
-        using TrackedTrace = trace::BasicStacktrace<TrackingAllocator>;
+        using TrackedTrace = trace::details::BasicStacktrace<trace::details::DefaultBackend, TrackingAllocator>;
         auto tracked = TrackedTrace::current(0);
         TrackedTrace copy{tracked};
         TrackedTrace moved_copy{::std::move(copy)};
@@ -256,54 +122,12 @@ int main() {
         // requires a trap death harness, which this file does not have.
     }
     {
-        // Tracked allocations are balanced, and Windows captures allocate.
-#if defined(_WIN32)
-        pltxt2htm_test_assert_true(TrackingAllocator::allocations > 0);
-#endif
+        // Tracked allocations are balanced, and captures allocate.
+        if constexpr (trace::details::DefaultBackend::capture::supported) {
+            pltxt2htm_test_assert_true(TrackingAllocator::allocations > 0);
+        }
         pltxt2htm_test_assert_true(TrackingAllocator::outstanding == 0);
     }
-
-#if defined(_WIN32)
-    {
-        // Deep capture: entries, comparison and saved addresses.
-        auto const deep = ::deep_trace(96);
-        pltxt2htm_test_assert_true(deep.size() > 64);
-        pltxt2htm_test_assert_true((trace::Stacktrace{} <=> deep) < 0);
-        pltxt2htm_test_assert_true(!deep.is_empty() && deep[0]);
-        // Entry queries use the saved address, not a new capture.
-        auto const first_frame = deep[0].resolved();
-        pltxt2htm_test_assert_true(reinterpret_cast<void*>(first_frame.address) == deep[0].native_handle());
-        // DbgHelp must reach the image's symbols (PDB or, for GNU-ABI builds,
-        // the export table) for frames inside the test executable.
-        pltxt2htm_test_assert_true(!first_frame.description.is_empty());
-        pltxt2htm_test_assert_true(deep.max_size() >= deep.size());
-    }
-
-    {
-        // std::stacktrace semantics: entry zero of current(0) is the caller of
-        // current(), and skip shifts the trace by exactly one entry.
-        auto const from_here = ::trace_from_named_frame(0);
-        auto const one_skipped = ::trace_from_named_frame(1);
-        pltxt2htm_test_assert_true(from_here.size() > 1);
-        pltxt2htm_test_assert_true(one_skipped.size() + 1 == from_here.size());
-        auto const from_here_name = from_here[0].resolved().description;
-        auto const from_here_view = ::std::string_view{from_here_name.data(), from_here_name.size()};
-        pltxt2htm_test_assert_true(from_here_view.find("trace_from_named_frame") != ::std::string_view::npos);
-    }
-
-    #if defined(__GXX_ABI_VERSION) && !defined(_MSC_VER) && __has_include(<cxxabi.h>)
-    {
-        // GNU-ABI builds receive Itanium-mangled export names, which DbgHelp
-        // reports without the leading underscore; the demangler must turn
-        // deep_trace's name into readable text instead of "Z10deep_trace...".
-        auto const deep_trace_handle =
-            reinterpret_cast<trace::StacktraceEntry::native_handle_type>(::std::addressof(::deep_trace));
-        auto const named = trace::StacktraceEntry::from_native_handle(deep_trace_handle).resolved();
-        pltxt2htm_test_assert_true(!named.description.is_empty());
-        pltxt2htm_test_assert_true(named.description.data()[0] != u8'Z');
-    }
-    #endif
-#endif
 
 #if defined(__GXX_ABI_VERSION) && !defined(_MSC_VER) && __has_include(<cxxabi.h>)
     {
@@ -314,143 +138,6 @@ int main() {
         if (demangled != nullptr) {
             pltxt2htm_test_assert_true(::std::string_view{demangled} == "deep_trace(int)");
             ::std::free(demangled);
-        }
-    }
-#endif
-
-#if defined(_WIN32)
-    {
-        // Symbol session is ready with line information enabled.
-        namespace win32 = ::pltxt2htm::sys_win32;
-        auto& session = trace::details::get_symbol_session();
-        pltxt2htm_test_assert_true(session.is_ready());
-        pltxt2htm_test_assert_true((win32::SymGetOptions() & 0x00000010) != 0);
-        // A module loaded after DbgHelp initialized its module list resolves.
-        auto late_module = win32::LoadLibraryExW(L"winmm.dll", win32::Handle{}, 0x00000800);
-        pltxt2htm_test_assert_true(!late_module.is_null());
-        auto const late_function = win32::GetProcAddress(late_module, "PlaySoundW");
-        pltxt2htm_test_assert_true(late_function != nullptr);
-        auto const late_frame = trace::StacktraceEntry::from_native_handle(
-                                    reinterpret_cast<trace::StacktraceEntry::native_handle_type>(late_function))
-                                    .resolved();
-        pltxt2htm_test_assert_true(!late_frame.description.is_empty());
-        (void)win32::FreeLibrary(late_module);
-    }
-
-    {
-        // A real lookup leaves the input fields the storage relies on untouched,
-        // so a reused record never needs them re-seeded before being freed.
-        auto& session = trace::details::get_symbol_session();
-        auto held = trace::details::DbgHelpLock::try_acquire(session.srw_lock());
-        pltxt2htm_test_assert_true(static_cast<bool>(held));
-        trace::details::SymbolInfoStorage looked_up{};
-        ::std::uint64_t displacement{};
-        [[maybe_unused]] auto const found = ::pltxt2htm::sys_win32::SymFromAddr(
-            session.process_handle(), reinterpret_cast<::pltxt2htm::sys_win32::Dword64>(sample_handle),
-            ::std::addressof(displacement), looked_up.symbol_info());
-        auto* const looked_up_info = looked_up.symbol_info();
-        pltxt2htm_test_assert_true(looked_up_info->size_of_struct == sizeof(::pltxt2htm::sys_win32::SymbolInfo));
-        pltxt2htm_test_assert_true(looked_up_info->max_name_len ==
-                                   trace::details::SymbolInfoStorage::default_name_capacity);
-        // A failed lookup reports no displacement, so a frame without a symbol
-        // never prints a stale offset.
-        auto const unresolved =
-            trace::StacktraceEntry::from_native_handle(reinterpret_cast<trace::StacktraceEntry::native_handle_type>(1))
-                .resolved();
-        pltxt2htm_test_assert_true(unresolved.description.is_empty() && unresolved.displacement == 0);
-    }
-
-    {
-        // A held lock makes resolution fall back instead of blocking.
-        auto& session = trace::details::get_symbol_session();
-        auto held = trace::details::DbgHelpLock::try_acquire(session.srw_lock());
-        pltxt2htm_test_assert_true(static_cast<bool>(held));
-        auto const busy = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
-        pltxt2htm_test_assert_true(reinterpret_cast<void*>(busy.address) == sample_handle &&
-                                   busy.description.is_empty());
-        pltxt2htm_test_assert_true(!session.try_shutdown());
-        pltxt2htm_test_assert_true(session.is_ready() && !session.process_handle().is_null());
-    }
-
-    {
-        // Invalid addresses stay unresolved; shutdown is followed by a lazy
-        // re-initialization on the next lookup.
-        auto& session = trace::details::get_symbol_session();
-        auto const invalid = trace::StacktraceEntry{}.resolved();
-        pltxt2htm_test_assert_true(invalid.address == 0 && invalid.description.is_empty());
-        pltxt2htm_test_assert_true(session.try_shutdown());
-        pltxt2htm_test_assert_true(!session.is_ready() && session.process_handle().is_null());
-        auto const again = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
-        pltxt2htm_test_assert_true(reinterpret_cast<void*>(again.address) == sample_handle && session.is_ready());
-        pltxt2htm_test_assert_true(session.try_shutdown());
-    }
-
-    {
-        // A recorded initialization failure is not retried by later lookups.
-        auto& session = trace::details::get_symbol_session();
-        session.force_unavailable();
-        auto const unavailable = trace::StacktraceEntry::from_native_handle(sample_handle).resolved();
-        pltxt2htm_test_assert_true(reinterpret_cast<void*>(unavailable.address) == sample_handle &&
-                                   unavailable.description.is_empty() && session.process_handle().is_null() &&
-                                   !session.is_ready());
-        pltxt2htm_test_assert_true(session.try_shutdown());
-    }
-
-    {
-        // The storage owns SYMBOL_INFO's trailing one-character array: the name
-        // buffer is zero-filled and terminated, and the fields DbgHelp reads stay
-        // in sync.
-        trace::details::SymbolInfoStorage storage{};
-        pltxt2htm_test_assert_true(storage.is_valid());
-        pltxt2htm_test_assert_true(storage.name_capacity() == trace::details::SymbolInfoStorage::default_name_capacity);
-        auto* const info = storage.symbol_info();
-        pltxt2htm_test_assert_true(info->size_of_struct == sizeof(::pltxt2htm::sys_win32::SymbolInfo));
-        pltxt2htm_test_assert_true(info->name_len == 0 && storage.name().is_empty());
-        // A lookup may fill the buffer without terminating it; the zero-filled
-        // allocation supplies the byte after the reported length.
-        constexpr char sample[] = "deep_trace";
-        constexpr auto sample_length = sizeof(sample) - 1;
-        auto* const written_name = static_cast<char*>(static_cast<void*>(info->name));
-        for (::std::size_t index{}; index != sample_length; ++index) {
-            written_name[index] = sample[index];
-        }
-        info->name_len = static_cast<decltype(info->name_len)>(sample_length);
-        auto const written = storage.name();
-        pltxt2htm_test_assert_true(written.size() == sample_length);
-        pltxt2htm_test_assert_true(::std::string_view{written.data(), written.size()} == "deep_trace");
-        pltxt2htm_test_assert_true(written.c_str()[sample_length] == '\0');
-        // A name filling every reserved byte but the terminator still fits.
-        info->name_len = static_cast<decltype(info->name_len)>(storage.name_capacity() - 1);
-        pltxt2htm_test_assert_true(!storage.is_name_truncated());
-        // A full buffer is truncated and grows, doubling the capacity.
-        info->name_len = static_cast<decltype(info->name_len)>(storage.name_capacity());
-        pltxt2htm_test_assert_true(storage.is_name_truncated());
-        pltxt2htm_test_assert_true(storage.grow());
-        pltxt2htm_test_assert_true(storage.name_capacity() ==
-                                   trace::details::SymbolInfoStorage::default_name_capacity * 2);
-        pltxt2htm_test_assert_true(storage.symbol_info()->name_len == 0);
-        pltxt2htm_test_assert_true(storage.name().is_empty());
-        pltxt2htm_test_assert_true(!storage.is_name_truncated());
-        // Growth takes the reported length when it exceeds the doubled capacity.
-        trace::details::SymbolInfoStorage small{4};
-        small.symbol_info()->name_len = 100;
-        pltxt2htm_test_assert_true(small.grow());
-        pltxt2htm_test_assert_true(small.name_capacity() == 101);
-        // A growth that cannot be represented keeps the current record.
-        auto* const kept = small.symbol_info();
-        small.symbol_info()->name_len = ::std::numeric_limits<::pltxt2htm::sys_win32::Ulong>::max();
-        pltxt2htm_test_assert_true(!small.grow());
-        pltxt2htm_test_assert_true(small.symbol_info() == kept && small.name_capacity() == 101);
-        // Each lookup starts from an empty reported name length again.
-        small.reset_for_lookup();
-        pltxt2htm_test_assert_true(small.symbol_info()->name_len == 0);
-        // A capacity DbgHelp's length field cannot represent leaves the storage
-        // invalid instead of allocating.
-        if constexpr (sizeof(::std::size_t) > sizeof(::pltxt2htm::sys_win32::Ulong)) {
-            trace::details::SymbolInfoStorage unrepresentable{
-                static_cast<::std::size_t>(::std::numeric_limits<::pltxt2htm::sys_win32::Ulong>::max()) + 1};
-            pltxt2htm_test_assert_true(!unrepresentable.is_valid());
-            pltxt2htm_test_assert_true(!unrepresentable.grow());
         }
     }
 #endif

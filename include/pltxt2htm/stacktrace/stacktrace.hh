@@ -10,6 +10,12 @@
  *          assert machinery and with it the panic definition, which names
  *          `Stacktrace`; it must follow the class definition (any later position
  *          is fine).
+ * @details Every capture backend is a policy bundle in
+ *          `impl/<backend>/backend.hh`, pairing an entry type with its capture
+ *          backend behind a `capture::supported` flag; the backend headers are
+ *          includable everywhere. `details::BasicStacktrace` is the shared
+ *          front-end parameterized over a bundle, and the public names alias
+ *          the selected default.
  */
 
 #pragma once
@@ -20,13 +26,9 @@
 #include <type_traits>
 #include <utility>
 #include "../container/impl/vector_decl.hh"
-#if defined(_WIN32)
-    #include "impl/nt/stacktrace_entry.hh"
-    #include "impl/nt/capture.hh"
-#else
-    #include "impl/none/stacktrace_entry.hh"
-    #include "impl/none/capture.hh"
-#endif
+#include "impl/none/backend.hh"
+#include "impl/nt/backend.hh"
+#include "impl/std/backend.hh"
 
 // windows.h defines min and max as function-like macros, which would expand
 // inside std::numeric_limits<...>::max(). Keep them undefined in this header.
@@ -37,46 +39,43 @@
 
 namespace pltxt2htm::stacktrace {
 
-// Each platform backend names its concrete entry and capture types; bind the
-// public names here so the rest of this header stays platform-agnostic and one
-// translation unit can include both backends.
 namespace details {
-#if defined(_WIN32)
-using CaptureBackend = NtCaptureBackend;
-#else
-using CaptureBackend = NoneCaptureBackend;
-#endif
-} // namespace details
 
-#if defined(_WIN32)
-using StacktraceEntry = details::NtStacktraceEntry;
-#else
-using StacktraceEntry = details::NoneStacktraceEntry;
-#endif
+/**
+ * @brief The backend the public front-end selects: the Windows option first,
+ *        then the C++23-standard fallback, then the no-resolver fallback.
+ */
+using DefaultBackend =
+    ::std::conditional_t<NtBackend::capture::supported, NtBackend,
+                         ::std::conditional_t<StdBackend::capture::supported, StdBackend, NoneBackend>>;
 
 /**
  * @brief Dynamic counterpart of std::basic_stacktrace.
+ * @tparam Backend Policy bundle with `entry`, `capture` and `supported`
+ *                 through `capture`, as defined by `impl/<backend>/backend.hh`.
+ * @tparam Allocator Stateless fast_io allocator for the entry storage.
  * @details Iterators and indexing expose immutable entries. Capturing is
  *          explicit; queries never unwind again. Storage uses
  *          `container::Vector` and resolved text uses `container::String`;
- *          their checked definitions are included at the end of this header so
- *          the panic path can use this API. Allocation failure terminates
- *          through the stateless fast_io allocator. Because the allocator is
- *          stateless, construction always uses a default-constructed
- *          `allocator_type` and no constructor takes an allocator argument.
+ *          their checked definitions are included at the end of the header
+ *          that includes this one so the panic path can use this API.
+ *          Allocation failure terminates through the stateless fast_io
+ *          allocator. Because the allocator is stateless, construction always
+ *          uses a default-constructed `allocator_type` and no constructor
+ *          takes an allocator argument.
  * @note The capture machinery marks the frames it hides as noinline, so skip
  *       counts stacktrace entries starting with the caller of current(), as
  *       for std::stacktrace. Out-of-range operator[] is a contract violation.
  */
-template<typename Allocator = ::fast_io::native_global_allocator>
+template<typename Backend, typename Allocator = ::fast_io::native_global_allocator>
 class BasicStacktrace {
     static_assert(::std::is_empty_v<Allocator>, "stacktrace requires a stateless fast_io allocator");
     using entries_type =
-        ::pltxt2htm::container::Vector<StacktraceEntry, ::fast_io::generic_allocator_adapter<Allocator>>;
+        ::pltxt2htm::container::Vector<typename Backend::entry, ::fast_io::generic_allocator_adapter<Allocator>>;
     entries_type entries{};
 
 public:
-    using value_type = StacktraceEntry;
+    using value_type = typename Backend::entry;
     using const_reference = value_type const&;
     using reference = value_type&;
     using const_iterator = value_type const*;
@@ -102,8 +101,8 @@ public:
      * @brief Capture the current native call stack.
      * @param skip Stacktrace entries to skip, starting with the caller of
      *             current().
-     * @return Captured frames; empty when the platform has no capture backend
-     *         or skip is unrepresentable.
+     * @return Captured frames; empty when the platform has no usable capture
+     *         backend or skip is unrepresentable.
      * @details The frames of the capture machinery and of current() itself are
      *          hidden, so entry zero corresponds to the caller of current(), as
      *          for std::stacktrace.
@@ -115,21 +114,20 @@ public:
     __declspec(noinline)
 #endif
     static auto current(size_type skip = 0) noexcept -> BasicStacktrace {
-        static_assert(!::pltxt2htm::stacktrace::details::CaptureBackend::supported ||
-                          ::pltxt2htm::stacktrace::details::CaptureBackend::max_depth >= 1,
+        static_assert(!Backend::capture::supported || Backend::capture::max_depth >= 1,
                       "supported capture backends need a positive max_depth");
         BasicStacktrace result{};
-        if constexpr (!details::CaptureBackend::supported) {
+        if constexpr (!Backend::capture::supported) {
             return result;
         }
         else {
-            // CaptureBackend::capture and current are noinline, so their frames
-            // are stable and can be hidden here.
+            // capture and current are noinline, so their frames are stable and
+            // can be hidden here.
             constexpr size_type hidden_machinery_frames{2};
             if (skip > ::std::numeric_limits<size_type>::max() - hidden_machinery_frames) {
                 return result;
             }
-            details::CaptureBackend::capture<allocator_type>(result.entries, skip + hidden_machinery_frames);
+            Backend::capture::template capture<allocator_type>(result.entries, skip + hidden_machinery_frames);
             return result;
         }
     }
@@ -223,8 +221,8 @@ public:
 
     template<typename RightAllocator>
     [[nodiscard]]
-    constexpr auto operator==(this BasicStacktrace const& self, BasicStacktrace<RightAllocator> const& other) noexcept
-        -> bool {
+    constexpr auto operator==(this BasicStacktrace const& self,
+                              BasicStacktrace<Backend, RightAllocator> const& other) noexcept -> bool {
         if (self.size() != other.size()) {
             return false;
         }
@@ -239,7 +237,8 @@ public:
 
     template<typename RightAllocator>
     [[nodiscard]]
-    constexpr auto operator<=>(this BasicStacktrace const& self, BasicStacktrace<RightAllocator> const& other) noexcept
+    constexpr auto operator<=>(this BasicStacktrace const& self,
+                               BasicStacktrace<Backend, RightAllocator> const& other) noexcept
         -> ::std::strong_ordering {
         auto const size_order = self.size() <=> other.size();
         if (size_order != 0) {
@@ -256,12 +255,25 @@ public:
     }
 };
 
-template<typename Allocator>
-constexpr void swap(BasicStacktrace<Allocator>& left, BasicStacktrace<Allocator>& right) noexcept {
+template<typename Backend, typename Allocator>
+constexpr void swap(BasicStacktrace<Backend, Allocator>& left, BasicStacktrace<Backend, Allocator>& right) noexcept {
     left.swap(right);
 }
 
-using Stacktrace = BasicStacktrace<>;
+} // namespace details
+
+/**
+ * @brief The entry type of the backend the public front-end selects.
+ */
+using StacktraceEntry = details::DefaultBackend::entry;
+
+/**
+ * @brief Alias binding a backend bundle to the shared stacktrace front-end.
+ */
+template<typename Backend = details::DefaultBackend, typename Allocator = ::fast_io::native_global_allocator>
+using BasicStacktrace = details::BasicStacktrace<Backend, Allocator>;
+
+using Stacktrace = details::BasicStacktrace<details::DefaultBackend>;
 } // namespace pltxt2htm::stacktrace
 
 #pragma pop_macro("max")
