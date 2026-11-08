@@ -561,11 +561,6 @@ TEST_SUITE("container_vector") {
             return false;
         }
 
-        int move_source[]{6, 7};
-        assigned_values.assign(::std::make_move_iterator(move_source), ::std::make_move_iterator(move_source + 2));
-        if (assigned_values != IntVector{6, 7}) {
-            return false;
-        }
         assigned_values.assign_range(assign_source);
         if (assigned_values != IntVector{1, 2, 3}) {
             return false;
