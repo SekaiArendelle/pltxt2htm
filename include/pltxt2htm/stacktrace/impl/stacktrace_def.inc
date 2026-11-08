@@ -13,7 +13,7 @@
 
 namespace pltxt2htm::stacktrace::details {
 
-template<typename Backend, typename Allocator>
+template<is_stacktrace_backend Backend, typename Allocator>
 constexpr auto BasicStacktrace<Backend, Allocator>::operator=(this BasicStacktrace& self,
                                                               BasicStacktrace const& other) noexcept
     -> BasicStacktrace& {
@@ -22,7 +22,7 @@ constexpr auto BasicStacktrace<Backend, Allocator>::operator=(this BasicStacktra
     return self;
 }
 
-template<typename Backend, typename Allocator>
+template<is_stacktrace_backend Backend, typename Allocator>
 constexpr auto BasicStacktrace<Backend, Allocator>::operator=(this BasicStacktrace& self,
                                                               BasicStacktrace&& other) noexcept -> BasicStacktrace& {
     pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"Self-move-assignment is not allowed");
@@ -30,7 +30,7 @@ constexpr auto BasicStacktrace<Backend, Allocator>::operator=(this BasicStacktra
     return self;
 }
 
-template<typename Backend, typename Allocator>
+template<is_stacktrace_backend Backend, typename Allocator>
 constexpr auto BasicStacktrace<Backend, Allocator>::operator[](this BasicStacktrace const& self,
                                                                size_type index) noexcept -> const_reference {
     pltxt2htm_assert(index < self.size(), u8"Index of Stacktrace out of bound");

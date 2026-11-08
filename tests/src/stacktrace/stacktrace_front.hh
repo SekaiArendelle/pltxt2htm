@@ -11,6 +11,13 @@
     #error "stacktrace.hh must not leave the assertion macros defined"
 #endif
 
+/// A pairing whose entry is not a native stacktrace entry, for the concept's
+/// negative case.
+struct TestNonconformingBackend {
+    using entry = int;
+    using capture = int;
+};
+
 TEST_CASE("front-end-compile-surface") {
     namespace trace = ::pltxt2htm::stacktrace;
     static_assert(::std::random_access_iterator<trace::Stacktrace::const_iterator>);
@@ -125,6 +132,15 @@ TEST_CASE("front-end-tracked-allocator-ownership") {
         CHECK(TrackingAllocator::allocations > 0);
     }
     CHECK(TrackingAllocator::outstanding == 0);
+}
+
+TEST_CASE("concept-describes-the-bundles") {
+    namespace details = ::pltxt2htm::stacktrace::details;
+    static_assert(details::is_stacktrace_backend<details::NoneBackend>);
+    static_assert(details::is_stacktrace_backend<details::NtBackend>);
+    static_assert(details::is_stacktrace_backend<details::StdBackend>);
+    static_assert(details::is_stacktrace_backend<details::DefaultBackend>);
+    static_assert(!details::is_stacktrace_backend<TestNonconformingBackend>);
 }
 
 #if defined(__GXX_ABI_VERSION) && !defined(_MSC_VER) && __has_include(<cxxabi.h>)

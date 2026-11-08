@@ -13,9 +13,10 @@
  * @details Every capture backend is a policy bundle in
  *          `impl/<backend>/backend.hh`, pairing an entry type with its capture
  *          backend behind a `capture::supported` flag; the backend headers are
- *          includable everywhere. `details::BasicStacktrace` is the shared
- *          front-end parameterized over a bundle, and the public names alias
- *          the selected default.
+ *          includable everywhere and the bundle shape is described by
+ *          `details::is_stacktrace_backend`. `details::BasicStacktrace` is the
+ *          shared front-end parameterized over a bundle, and the public names
+ *          alias the selected default.
  */
 
 #pragma once
@@ -29,6 +30,7 @@
 #include "impl/none/backend.hh"
 #include "impl/nt/backend.hh"
 #include "impl/std/backend.hh"
+#include "impl/backend_concept.hh"
 
 // windows.h defines min and max as function-like macros, which would expand
 // inside std::numeric_limits<...>::max(). Keep them undefined in this header.
@@ -52,7 +54,8 @@ using DefaultBackend =
 /**
  * @brief Dynamic counterpart of std::basic_stacktrace.
  * @tparam Backend Policy bundle with `entry`, `capture` and `supported`
- *                 through `capture`, as defined by `impl/<backend>/backend.hh`.
+ *                 through `capture`, as defined by `impl/<backend>/backend.hh`
+ *                 and described by `details::is_stacktrace_backend`.
  * @tparam Allocator Stateless fast_io allocator for the entry storage.
  * @details Iterators and indexing expose immutable entries. Capturing is
  *          explicit; queries never unwind again. Storage uses
@@ -67,7 +70,7 @@ using DefaultBackend =
  *       counts stacktrace entries starting with the caller of current(), as
  *       for std::stacktrace. Out-of-range operator[] is a contract violation.
  */
-template<typename Backend, typename Allocator = ::fast_io::native_global_allocator>
+template<is_stacktrace_backend Backend, typename Allocator = ::fast_io::native_global_allocator>
 class BasicStacktrace {
     static_assert(::std::is_empty_v<Allocator>, "stacktrace requires a stateless fast_io allocator");
     using entries_type =
