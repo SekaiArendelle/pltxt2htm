@@ -11,6 +11,13 @@
 #include "stacktrace_entry.hh"
 #include "../../../container/impl/vector_decl.hh"
 
+// windows.h defines min and max as function-like macros, which would expand
+// inside std::numeric_limits<...>::max(). Keep them undefined in this header.
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 namespace pltxt2htm::stacktrace::details {
 
 struct StdCaptureBackend {
@@ -58,3 +65,6 @@ struct StdCaptureBackend {
 };
 
 } // namespace pltxt2htm::stacktrace::details
+
+#pragma pop_macro("max")
+#pragma pop_macro("min")
