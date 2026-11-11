@@ -63,6 +63,4 @@ foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roun
     elseif(PLTXT2HTM_SANITIZER)
         message(FATAL_ERROR "Unknown sanitizer: ${PLTXT2HTM_SANITIZER}. Supported: asan, msan, ubsan")
     endif()
-
-    install(TARGETS ${FUZZER_SRC} RUNTIME DESTINATION bin)
 endforeach()

@@ -1,0 +1,11 @@
+Inline code: `code span` inside text.
+
+```javascript
+function foo(name) {
+    console.log("Hello, world!");
+}
+```
+~~~py
+def foo(name):
+    print("Hello, world!")
+~~~
