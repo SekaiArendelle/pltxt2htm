@@ -9,8 +9,6 @@ RUN set -eux; \
     curl -fsSL "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     | tar xz -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl/xwin"
 
-# Pin the SDK so the toolchain does not change with the manifest; the floating choice
-# broke the i686 builds. 10.0.26100 ships the x86, x64 and arm64 desktop libraries.
 RUN xwin --accept-license --arch aarch64 --sdk-version 10.0.26100 splat --output /opt/xwin
 
 WORKDIR /pltxt2htm
