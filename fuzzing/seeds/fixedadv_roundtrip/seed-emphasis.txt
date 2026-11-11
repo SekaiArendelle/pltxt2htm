@@ -1,0 +1,3 @@
+***all emphasis*** __bold__ ~~strike~~ `mono`
+Control chars inside ***...*** combinations.
+*em* _em2_ __b__ **b2** ~~s~~ ~~__nested__~~

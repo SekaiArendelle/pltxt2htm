@@ -1,0 +1,9 @@
+- Item 1
+ - Item 2
+  + ~~struck~~ and __bold__
+    * nested deeper
+1. First item
+2. Second item
+3. Third item
+
+List item with [a link](https://www.example.com) and `code span`.

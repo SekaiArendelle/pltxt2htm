@@ -52,6 +52,17 @@ build-c-static = { cmd = "cmake --build c/build-pixi-clang-static", depends-on =
 configure-c-shared = { cmd = "cmake -S c -B c/build-pixi-clang-shared -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=ON", depends-on = ["prepare-tmp"] }
 build-c-shared = { cmd = "cmake --build c/build-pixi-clang-shared", depends-on = ["configure-c-shared"] }
 
+# Fuzzing: libFuzzer harnesses in fuzzing/ (clang only, Linux/macOS).
+# The fuzzing task runs in fuzzing/logs so libFuzzer job logs (fuzz-*.log)
+# stay out of the repository root; paths below are relative to that directory.
+# seeds/ (checked in) holds the curated corpus; fuzzing/corpus/ (gitignored)
+# accumulates new units at runtime, which `-merge=1` folds back into seeds/.
+fuzzing-dirs = "cmake -E make_directory fuzzing/corpus/common_parser fuzzing/corpus/fixedadv_parser fuzzing/corpus/plrichtext_parser fuzzing/corpus/fixedadv_roundtrip fuzzing/artifacts fuzzing/logs"
+configure-fuzzing-clang = { cmd = "cmake -S fuzzing -B fuzzing/build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }} -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DPLTXT2HTM_SANITIZER={{ sanitizer }}", args = [{ arg = "sanitizer", default = "asan" }], depends-on = ["prepare-tmp"] }
+build-fuzzing-clang = { cmd = "cmake --build fuzzing/build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }}", args = [{ arg = "sanitizer", default = "asan" }], depends-on = [{ task = "configure-fuzzing-clang", args = ["{{ sanitizer }}"] }] }
+fuzzing = { cmd = "../build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }}/{{ target }} ../corpus/{{ target }} ../seeds/{{ target }} -dict=../dictionaries/pltxt.dict -artifact_prefix=../artifacts/{{ target }}- {{ fuzzer_args }}", args = ["target", { arg = "sanitizer", default = "asan" }, { arg = "fuzzer_args", default = "" }], depends-on = [{ task = "build-fuzzing-clang", args = ["{{ sanitizer }}"] }, "fuzzing-dirs"], cwd = "fuzzing/logs" }
+fuzzing-merge = { cmd = "../build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }}/{{ target }} -merge=1 ../seeds/{{ target }} ../corpus/{{ target }}", args = ["target", { arg = "sanitizer", default = "asan" }], depends-on = [{ task = "build-fuzzing-clang", args = ["{{ sanitizer }}"] }, "fuzzing-dirs"], cwd = "fuzzing/logs" }
+
 [feature.gcc.dependencies]
 gxx = ">=16"
 
