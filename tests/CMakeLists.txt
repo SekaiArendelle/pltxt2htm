@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(pltxt2htm-tests LANGUAGES CXX VERSION 0.27.0)
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htm_clang_resource_dir.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/pltxt2htm_contract_mode.cmake")
 
 enable_testing()
@@ -135,6 +136,9 @@ if(PLTXT2HTM_SANITIZER)
     endif()
     target_compile_options(pltxt2htm_base INTERFACE -fsanitize=${PLTXT2HTM_SANITIZER})
     target_link_options(pltxt2htm_base INTERFACE -fsanitize=${PLTXT2HTM_SANITIZER})
+    # The sanitizer runtimes come from compiler-rt, which a relocated toolchain may install
+    # outside the resource directory Clang reports; make sure they are found.
+    pltxt2htm_use_installed_clang_resource_dir(pltxt2htm_base INTERFACE)
 endif()
 
 if(PLTXT2HTM_ENABLE_COVERAGE)
