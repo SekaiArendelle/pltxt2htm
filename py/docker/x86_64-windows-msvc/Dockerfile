@@ -19,8 +19,10 @@ RUN xwin --accept-license --sdk-version 10.0.26100 splat --output /opt/xwin
 # Download and extract MSVC tools (headers and import libs for MS STL)
 # vsdownload.py downloads the Visual Studio Build Tools from Microsoft and extracts
 # the MSVC compiler, headers, and libraries — only the files we need for MS STL.
+# Pin the toolset: the latest MSVC STL (14.52) requires Clang 22, while Ubuntu 26.04
+# ships Clang 21. 14.51 still accepts Clang 20 and later, and maps to SDK 10.0.26100.
 RUN wget -q "https://raw.githubusercontent.com/mstorsjo/msvc-wine/master/vsdownload.py" -O /tmp/vsdownload.py \
-    && python3 /tmp/vsdownload.py --accept-license --dest /opt/msvc \
+    && python3 /tmp/vsdownload.py --accept-license --major 18 --msvc-version 14.51 --dest /opt/msvc \
     && rm /tmp/vsdownload.py
 
 # Download Python for Windows (NuGet package provides headers and import libs)
