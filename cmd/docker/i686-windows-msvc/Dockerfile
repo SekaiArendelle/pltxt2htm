@@ -5,11 +5,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     cmake ninja-build llvm clang lld
 
 RUN set -eux; \
-    XWIN_VERSION=0.9.0; \
+    XWIN_VERSION=0.10.0; \
     curl -fsSL "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     | tar xz -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl/xwin"
 
-RUN xwin --accept-license --arch x86 splat --output /opt/xwin
+RUN xwin --accept-license --arch x86 --sdk-version 10.0.26100 splat --output /opt/xwin
 
 WORKDIR /pltxt2htm
 # Copy the entire project to preserve git tracking history.
