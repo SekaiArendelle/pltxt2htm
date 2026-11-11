@@ -42,6 +42,15 @@ Arguments are positional: `fuzzing <target> [sanitizer] [fuzzer_args]`, where
 `fuzzer_args` is passed through to libFuzzer verbatim (shell-expanded, so
 values containing `*` or `?` are glob-expanded by the task shell).
 
+Notes:
+
+- Requires clang (libFuzzer is incompatible with other compilers here) and is
+  unsupported on Windows (`CMakeLists.txt` enforces both). The `msan` build
+  additionally needs instrumented dependencies.
+- Long unattended sessions should run inside a terminal multiplexer or
+  container rather than being daemonized - the crash artifacts and corpus
+  updates are the valuable output, not a detached process.
+
 New coverage units are written into the gitignored `fuzzing/corpus/<target>/`
 and never touch git; the checked-in `fuzzing/seeds/<target>/` is loaded as a
 read-only source of seeds during runs. Fold the useful units into the seed
@@ -56,12 +65,8 @@ pixi run -e clang fuzzing-merge common_parser
 rm -rf fuzzing/corpus/common_parser   # start the next session from a clean slate
 ```
 
-The merge writes a minimal set of `fuzzing/corpus/<target>/` units that add
-coverage features over the current seeds into
-`fuzzing/seeds/<target>/` - usually a few hundred small files instead of tens
-of thousands of raw units. Review the additions (they are ordinary working
-tree changes in the tracked seeds directory) and commit the ones you keep;
-delete the accumulation directory afterwards.
+The merge writes a minimal set of `fuzzing/corpus/<target>/` units that add coverage features over the current seeds into
+`fuzzing/seeds/<target>/` - usually a few hundred small files instead of tens of thousands of raw units.
 
 ### After a crash
 
@@ -71,22 +76,3 @@ file to the target. Once the bug is fixed, move the minimized input into
 `fuzzing/seeds/<target>/` and add a regression test under `tests/src/syntax/`
 so future fuzzing and test runs both cover it.
 
-## Manually Build (without pixi)
-
-chdir to fuzzing/
-
-```sh
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DPLTXT2HTM_SANITIZER=asan
-cmake --build build
-./build/common_parser corpus/common_parser seeds/common_parser -dict=dictionaries/pltxt.dict -artifact_prefix=artifacts/common_parser-
-```
-
-Notes:
-
-- Requires clang (libFuzzer is incompatible with other compilers here) and is
-  unsupported on Windows (`CMakeLists.txt` enforces both).
-- Sanitizers are selected with `-DPLTXT2HTM_SANITIZER=asan|msan|ubsan|""`
-  (msan additionally needs instrumented dependencies).
-- Long unattended sessions should run inside a terminal multiplexer or
-  container rather than being daemonized - the crash artifacts and corpus
-  updates are the valuable output, not a detached process.
