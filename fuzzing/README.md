@@ -1,6 +1,6 @@
 Clang libFuzzer harnesses for the exported APIs in pltxt2htm.
 
-This sub-project follows the conventions used by OSS-Fuzz-style projects:
+The layout mostly follows the conventions used by OSS-Fuzz-style projects:
 one harness binary per fuzz target, a small checked-in seed corpus per
 target, a shared dictionary, and crash artifacts collected into a gitignored
 directory. Accumulated units are kept out of git and folded back into the
@@ -13,7 +13,6 @@ seed corpus via `libFuzzer -merge` minimization.
 | `src/<target>.cc` | `LLVMFuzzerTestOneInput` harnesses | yes |
 | `seeds/<target>/` | Curated seed corpus, grown via merge minimization | yes |
 | `corpus/<target>/` | Runtime corpus; new coverage units accumulate here | no |
-| `regression/<target>/` | Crash inputs from past runs, kept as regression seeds | yes |
 | `dictionaries/pltxt.dict` | Shared libFuzzer dictionary for all targets | yes |
 | `artifacts/` | Crash/oom/leak/timeout/slow-unit artifacts | no |
 | `logs/` | libFuzzer job logs and scratch space | no |
@@ -68,8 +67,9 @@ delete the accumulation directory afterwards.
 
 The artifact lands in `fuzzing/artifacts/` as `<target>-crash-<sha1>` (also
 `-oom-`, `-leak-`, `-timeout-`, `-slow-unit-`). Reproduce it by passing the
-file to the target, then follow the regression-corpus workflow described in
-[regression/README.md](./regression/README.md).
+file to the target. Once the bug is fixed, move the minimized input into
+`fuzzing/seeds/<target>/` and add a regression test under `tests/src/syntax/`
+so future fuzzing and test runs both cover it.
 
 ## Manually Build (without pixi)
 
