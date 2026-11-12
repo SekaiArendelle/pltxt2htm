@@ -1,8 +1,10 @@
 /**
  * @file stacktrace_entry.hh
  * @brief Windows NtStacktraceEntry and DbgHelp symbol resolution.
- * @details The resolver is process-wide and lazily initialized; hosts using
- *          DbgHelp directly must coordinate with it.
+ * @details The resolver is process-wide and lazily initialized; every linked
+ *          image embedding this header reaches DbgHelp through one shared
+ *          named semaphore, and hosts using DbgHelp directly must still
+ *          coordinate with it.
  */
 
 #pragma once
@@ -18,21 +20,72 @@
 #include "../../../details/demangle.hh"
 #include "../../../sys/nt/ntdll.hh"
 #include "../../../sys/win32/dbghelp.hh"
+#include "../../../sys/win32/kernel32.hh"
 #include "symbol_info_storage.hh"
 
 namespace pltxt2htm::stacktrace::details {
 
 /**
- * @brief Scoped exclusive ownership of a session's SRW lock.
- * @details The guard releases the lock when it leaves scope, so early returns
- *          cannot unbalance the acquire/release pair. An unheld guard is the
- *          failure result of try_acquire().
+ * @brief Scoped non-recursive ownership of the process-level DbgHelp gate.
+ * @details DbgHelp requires every call in a process to be serialized by one
+ *          party. Each linked image embedding this header owns its own session
+ *          and session lock, so an in-image lock cannot stop an EXE and a DLL,
+ *          or two DLLs, from entering DbgHelp concurrently. All copies
+ *          therefore share a named semaphore (`Local\pltxt2htm.DbgHelp.v1.<pid>`,
+ *          initial and maximum count 1): each image caches its own handle, but
+ *          the handles refer to one kernel object. A zero-timeout wait yields
+ *          non-recursive try-acquire semantics covering threads within one
+ *          image, threads across images, and same-thread re-entry through
+ *          another image. An unheld guard is the failure result of
+ *          try_acquire(); callers fall back to address-only output.
  */
 class DbgHelpLock {
-    ::pltxt2htm::sys_nt::SrwLock* lock{};
+    ::pltxt2htm::sys_win32::Handle semaphore{};
 
-    constexpr explicit DbgHelpLock(::pltxt2htm::sys_nt::SrwLock* lock_) noexcept
-        : lock{lock_} {
+    constexpr explicit DbgHelpLock(::pltxt2htm::sys_win32::Handle semaphore_) noexcept
+        : semaphore{semaphore_} {
+    }
+
+    [[nodiscard]]
+    static auto get_process_semaphore() noexcept -> ::pltxt2htm::sys_win32::Handle {
+        // Each image caches its own handle; creating with the same name returns
+        // a handle to the same kernel object, so the static need not be shared.
+        // A failed creation is cached and never retried, matching the session's
+        // permanent `unavailable` state. The handle is deliberately never
+        // closed: it lives until process exit, like the session itself, so a
+        // host that repeatedly loads and unloads an embedding DLL leaks one
+        // handle per cycle by design.
+        static ::pltxt2htm::sys_win32::Handle const value = create_process_semaphore();
+        return value;
+    }
+
+    [[nodiscard]]
+    static auto create_process_semaphore() noexcept -> ::pltxt2htm::sys_win32::Handle {
+        // "Local\pltxt2htm.DbgHelp.v1.<pid>": the Local\ prefix keeps the name
+        // inside this session, and the pid keeps concurrent processes apart.
+        constexpr ::pltxt2htm::sys_win32::WideChar prefix[]{L"Local\\pltxt2htm.DbgHelp.v1."};
+        constexpr ::std::size_t pid_digit_capacity{10};
+        constexpr ::std::size_t name_capacity{48};
+        static_assert(sizeof(prefix) / sizeof(prefix[0]) + pid_digit_capacity <= name_capacity);
+        ::pltxt2htm::sys_win32::WideChar name[name_capacity]{};
+        ::std::size_t length{};
+        while (prefix[length] != L'\0') {
+            name[length] = prefix[length];
+            ++length;
+        }
+        auto pid = static_cast<::std::uint32_t>(::pltxt2htm::sys_win32::GetCurrentProcessId());
+        ::std::size_t end{length};
+        do {
+            name[end] = static_cast<::pltxt2htm::sys_win32::WideChar>(L'0' + (pid % 10));
+            ++end;
+            pid /= 10;
+        } while (pid != 0);
+        for (::std::size_t lo{length}, hi{end}; lo < --hi; ++lo) {
+            auto const digit = name[lo];
+            name[lo] = name[hi];
+            name[hi] = digit;
+        }
+        return ::pltxt2htm::sys_win32::CreateSemaphoreW(nullptr, 1, 1, name);
     }
 
 public:
@@ -42,33 +95,40 @@ public:
     constexpr auto operator=(DbgHelpLock&&) noexcept -> DbgHelpLock& = delete;
 
     ~DbgHelpLock() noexcept {
-        if (lock != nullptr) {
-            ::pltxt2htm::sys_nt::RtlReleaseSRWLockExclusive(lock);
+        if (semaphore.is_null() == false) {
+            [[maybe_unused]] auto const released = ::pltxt2htm::sys_win32::ReleaseSemaphore(semaphore, 1, nullptr);
         }
     }
 
     [[nodiscard]]
-    static auto try_acquire(::pltxt2htm::sys_nt::SrwLock& lock_) noexcept -> DbgHelpLock {
-        if (::pltxt2htm::sys_nt::RtlTryAcquireSRWLockExclusive(::std::addressof(lock_)) == 0) {
-            return DbgHelpLock{nullptr};
+    static auto try_acquire() noexcept -> DbgHelpLock {
+        auto const semaphore = get_process_semaphore();
+        if (semaphore.is_null()) {
+            return DbgHelpLock{::pltxt2htm::sys_win32::Handle{}};
         }
-        return DbgHelpLock{::std::addressof(lock_)};
+        // WAIT_OBJECT_0 is zero; any other status means the gate is busy.
+        if (::pltxt2htm::sys_win32::WaitForSingleObject(semaphore, 0) != 0) {
+            return DbgHelpLock{::pltxt2htm::sys_win32::Handle{}};
+        }
+        return DbgHelpLock{semaphore};
     }
 
     [[nodiscard]]
     constexpr explicit operator bool(this DbgHelpLock const& self) noexcept {
-        return self.lock != nullptr;
+        return self.semaphore.is_null() == false;
     }
 };
 
 /**
  * @brief One DbgHelp session per linked image.
- * @details This lock only coordinates our own calls; hosts using DbgHelp
- *          elsewhere must coordinate those users, because panic diagnostics
- *          resolve symbols here. A distinct session handle does not make
- *          concurrent DbgHelp calls safe. Source lookup enables the
- *          process-wide LOAD_LINES option; hosts must coordinate option
- *          changes and all other DbgHelp calls.
+ * @details Each image owns its own duplicate process handle and session
+ *          lifecycle. DbgHelp use is serialized across every image in the
+ *          process by the named semaphore guarded by DbgHelpLock, so this
+ *          class needs no lock of its own. Hosts using DbgHelp directly must
+ *          still coordinate those users, because panic diagnostics resolve
+ *          symbols here. Source lookup enables the process-wide LOAD_LINES
+ *          option; hosts must coordinate option changes and all other DbgHelp
+ *          calls.
  */
 class DbgHelpSession {
 public:
@@ -85,7 +145,6 @@ public:
     };
 
 private:
-    ::pltxt2htm::sys_nt::SrwLock lock{};
     ::pltxt2htm::sys_nt::Handle process{};
     State state{State::uninitialized};
 
@@ -105,18 +164,6 @@ public:
     [[nodiscard]]
     constexpr auto process_handle(this DbgHelpSession const& self) noexcept -> ::pltxt2htm::sys_nt::Handle {
         return self.process;
-    }
-
-    /**
-     * @brief The session's single coordination lock.
-     * @return Reference to the session lock; callers serialize DbgHelp use by
-     *         acquiring it exclusively via DbgHelpLock::try_acquire().
-     * @details Resolution paths outside the class (and tests simulating a busy
-     *          session) use this accessor instead of touching the member.
-     */
-    [[nodiscard]]
-    constexpr auto srw_lock(this DbgHelpSession& self) noexcept -> ::pltxt2htm::sys_nt::SrwLock& {
-        return self.lock;
     }
 
 #if defined(PLTXT2HTM_INTERNAL_USE)
@@ -158,8 +205,8 @@ public:
     /**
      * @brief Release the session's handle and DbgHelp state.
      * @details Explicit cleanup avoids invoking DbgHelp while a DLL is
-     *          unloading under the loader lock. Call only while holding this
-     *          session's lock.
+     *          unloading under the loader lock. Call only while holding the
+     *          process-level DbgHelp lock.
      * @details Cleanup is best-effort: at shutdown a failure is unrecoverable,
      *          there is no retry or error path to take, and process exit reclaims
      *          the resources regardless. The return values are therefore
@@ -177,12 +224,12 @@ public:
     }
 
     /**
-     * @brief Acquire the session's lock exclusively, then release the session.
+     * @brief Acquire the process-level DbgHelp lock, then release the session.
      * @return false when a lookup is active, so nothing was released.
      */
     [[nodiscard]]
     auto try_shutdown(this DbgHelpSession& self) noexcept -> bool {
-        auto const held = DbgHelpLock::try_acquire(self.lock);
+        auto const held = DbgHelpLock::try_acquire();
         if (!held) {
             return false;
         }
@@ -192,8 +239,9 @@ public:
 };
 
 /**
- * @brief Access the lazily initialized process-wide DbgHelp session.
- * @return The session singleton.
+ * @brief Access the lazily initialized DbgHelp session of this linked image.
+ * @return The session singleton; each image embedding this header has its own,
+ *         while DbgHelp entry stays serialized across images via DbgHelpLock.
  * @details Trivial destruction retains the resolver until explicit shutdown or
  *          process exit, so panics during static destruction remain usable.
  */
@@ -337,7 +385,7 @@ inline auto NtStacktraceEntry::resolved(this NtStacktraceEntry const& self) noex
     }
     ResolvedFrame result{.address = reinterpret_cast<::std::uintptr_t>(self.address)};
     auto& session = ::pltxt2htm::stacktrace::details::get_symbol_session();
-    auto const held = DbgHelpLock::try_acquire(session.srw_lock());
+    auto const held = DbgHelpLock::try_acquire();
     if (!held) {
         return result;
     }

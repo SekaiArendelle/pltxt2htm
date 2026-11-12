@@ -98,7 +98,7 @@ void test_nt_symbol_machinery() {
         // A real lookup leaves the input fields the storage relies on untouched,
         // so a reused record never needs them re-seeded before being freed.
         auto& session = details::get_symbol_session();
-        auto held = details::DbgHelpLock::try_acquire(session.srw_lock());
+        auto held = details::DbgHelpLock::try_acquire();
         REQUIRE(static_cast<bool>(held));
         details::SymbolInfoStorage looked_up{};
         ::std::uint64_t displacement{};
@@ -116,9 +116,10 @@ void test_nt_symbol_machinery() {
     }
 
     {
-        // A held lock makes resolution fall back instead of blocking.
+        // A held process-level DbgHelp lock makes resolution fall back instead
+        // of blocking, and the same gate denies shutdown and re-acquisition.
         auto& session = details::get_symbol_session();
-        auto held = details::DbgHelpLock::try_acquire(session.srw_lock());
+        auto held = details::DbgHelpLock::try_acquire();
         REQUIRE(static_cast<bool>(held));
         auto const busy = Entry::from_native_handle(sample_handle).resolved();
         CHECK(reinterpret_cast<void*>(busy.address) == sample_handle);
