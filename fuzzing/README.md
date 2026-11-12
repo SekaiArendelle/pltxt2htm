@@ -32,21 +32,23 @@ All orchestration lives in the `fuzzing` tasks of the `clang` environment in
 the root `pixi.toml`; builds are incremental.
 
 ```sh
-pixi run -e clang fuzzing common_parser                             # run until Ctrl-C
-pixi run -e clang fuzzing common_parser asan "-max_total_time=600"  # 10 minutes
-pixi run -e clang fuzzing common_parser asan "-jobs=8 -workers=8"   # 8 parallel workers
-pixi run -e clang fuzzing common_parser ubsan                       # asan (default) / ubsan / msan / ""
+pixi run -e clang fuzzing common_parser # run until Ctrl-C
+pixi run -e clang fuzzing common_parser "" "-max_total_time=600" # 10 minutes, no sanitizer
+pixi run -e clang fuzzing common_parser address "-jobs=8 -workers=8" # 8 parallel workers
+pixi run -e clang fuzzing common_parser address,undefined # multi-sanitizer build
 ```
 
 Arguments are positional: `fuzzing <target> [sanitizer] [fuzzer_args]`, where
+`sanitizer` (default: empty, i.e. none) is a comma-separated list passed
+verbatim to `-fsanitize=` - `address`, `undefined`, `memory` - and
 `fuzzer_args` is passed through to libFuzzer verbatim (shell-expanded, so
 values containing `*` or `?` are glob-expanded by the task shell).
 
 Notes:
 
 - Requires clang (libFuzzer is incompatible with other compilers here) and is
-  unsupported on Windows (`CMakeLists.txt` enforces both). The `msan` build
-  additionally needs instrumented dependencies.
+  unsupported on Windows (`CMakeLists.txt` enforces both). The `memory`
+  sanitizer additionally needs instrumented dependencies.
 - Long unattended sessions should run inside a terminal multiplexer or
   container rather than being daemonized - the crash artifacts and corpus
   updates are the valuable output, not a detached process.
