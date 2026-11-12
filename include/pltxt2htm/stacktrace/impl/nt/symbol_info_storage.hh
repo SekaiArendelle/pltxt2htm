@@ -10,8 +10,8 @@
 #include <limits>
 
 #include <fast_io/fast_io_core.h>
-#include <fast_io/fast_io_dsal/string_view.h>
 
+#include "../../../container/impl/string_view_decl.hh"
 #include "../../../sys/win32/dbghelp_definitions.hh"
 
 // windows.h defines min and max as function-like macros, which would expand
@@ -28,10 +28,12 @@ namespace pltxt2htm::stacktrace::details {
  * @details DbgHelp declares the record's name as a one-character array at the
  *          end of the structure, so a usable record is a single allocation of
  *          `offsetof(SymbolInfo, name) + capacity` bytes. The buffer comes from
- *          the project's fast_io allocator and is zero-filled, which is part of
- *          the contract: DbgHelp may fill the buffer without writing a
- *          terminator, and the untouched zero byte at
- *          `name()[name_length()]` supplies it.
+ *          the project's fast_io allocator and is zero-filled as a defensive
+ *          measure. The Windows API does not guarantee that DbgHelp terminates
+ *          the name it writes (and a truncated name cannot have room for a
+ *          terminator), so name() returns a length-based view without implying
+ *          one; callers that need a C string must materialize their own
+ *          terminator, for example by copying into a `container::String`.
  *
  *          The record's MaxNameLen field is the capacity, so the allocation size
  *          is not duplicated in the object. DbgHelp treats SizeOfStruct and
@@ -144,14 +146,17 @@ public:
     }
 
     /**
-     * @brief The name DbgHelp wrote, as a NUL-terminated view.
-     * @pre The storage is valid and the name is not truncated.
-     * @return View over the reported characters; the byte after them is the
-     *         terminator supplied by the zero-filled allocation.
+     * @brief The name DbgHelp wrote, as a length-based view.
+     * @return View over the reported name_length() characters; no terminator is
+     *         implied, and no byte beyond them is part of the view. Callers
+     *         that need a NUL-terminated string must materialize one.
+     * @pre The storage is valid. When the name is truncated the view still
+     *      stays inside the record, but its content is the truncated text;
+     *      grow the storage and look up again instead of using it.
      */
     [[nodiscard]]
-    constexpr auto name(this SymbolInfoStorage const& self) noexcept -> ::fast_io::cstring_view {
-        return ::fast_io::cstring_view{::fast_io::null_terminated, self.record->name, self.name_length()};
+    constexpr auto name(this SymbolInfoStorage const& self) noexcept -> ::pltxt2htm::container::StringView {
+        return ::pltxt2htm::container::StringView{self.record->name, self.name_length()};
     }
 
     /**

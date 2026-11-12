@@ -159,7 +159,7 @@ void test_nt_symbol_machinery() {
 
     {
         // The storage owns SYMBOL_INFO's trailing one-character array: the name
-        // buffer is zero-filled and terminated, and the fields DbgHelp reads stay
+        // buffer is zero-filled defensively, and the fields DbgHelp reads stay
         // in sync.
         details::SymbolInfoStorage storage{};
         CHECK(storage.is_valid());
@@ -168,8 +168,9 @@ void test_nt_symbol_machinery() {
         CHECK(info->size_of_struct == sizeof(::pltxt2htm::sys_win32::SymbolInfo));
         CHECK(info->name_len == 0);
         CHECK(storage.name().is_empty());
-        // A lookup may fill the buffer without terminating it; the zero-filled
-        // allocation supplies the byte after the reported length.
+        // The name view is length-based: DbgHelp does not guarantee a
+        // terminator, so the view covers exactly the reported length, and the
+        // zero-filled allocation defensively supplies the byte after it.
         constexpr char sample[] = "deep_trace";
         constexpr auto sample_length = sizeof(sample) - 1;
         auto* const written_name = static_cast<char*>(static_cast<void*>(info->name));
@@ -180,7 +181,13 @@ void test_nt_symbol_machinery() {
         auto const written = storage.name();
         CHECK(written.size() == sample_length);
         CHECK(::std::string_view{written.data(), written.size()} == "deep_trace");
-        CHECK(written.c_str()[sample_length] == '\0');
+        CHECK(written.data()[sample_length] == '\0');
+        // A shorter later report must not expose stale characters of the longer
+        // one: the view covers exactly the reported length.
+        info->name_len = 4;
+        auto const shortened = storage.name();
+        CHECK(shortened.size() == 4);
+        CHECK(::std::string_view{shortened.data(), shortened.size()} == "deep");
         // A name filling every reserved byte but the terminator still fits.
         info->name_len = static_cast<decltype(info->name_len)>(storage.name_capacity() - 1);
         CHECK(!storage.is_name_truncated());

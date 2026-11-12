@@ -369,12 +369,18 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
         }
         result.displacement = static_cast<::std::uintptr_t>(displacement);
         auto const name = storage.name();
-        if (auto* const demangled = ::pltxt2htm::details::demangle_symbol_name(name)) {
+        // DbgHelp does not guarantee a terminator after the reported length, so
+        // the demangler, which reads a C string, needs one materialized. The
+        // copy doubles as the fallback text, moved in when demangling keeps the
+        // raw spelling.
+        ::pltxt2htm::container::String terminated{name.data(), name.data() + name.size()};
+        if (auto* const demangled = ::pltxt2htm::details::demangle_symbol_name(
+                ::fast_io::cstring_view{::fast_io::null_terminated, terminated.c_str(), terminated.size()})) {
             result.description.assign(demangled, demangled + ::fast_io::cstr_len(demangled));
             ::std::free(demangled);
             return;
         }
-        result.description.assign(name.data(), name.data() + name.size());
+        result.description = ::std::move(terminated);
         return;
     }
 }
