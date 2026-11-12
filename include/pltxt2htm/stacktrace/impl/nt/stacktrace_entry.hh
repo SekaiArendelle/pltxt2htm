@@ -63,11 +63,11 @@ class DbgHelpLock {
     static auto create_process_semaphore() noexcept -> ::pltxt2htm::sys_win32::Handle {
         // "Local\pltxt2htm.DbgHelp.v1.<pid>": the Local\ prefix keeps the name
         // inside this session, and the pid keeps concurrent processes apart.
-        constexpr ::pltxt2htm::sys_win32::WideChar prefix[]{L"Local\\pltxt2htm.DbgHelp.v1."};
+        constexpr wchar_t prefix[]{L"Local\\pltxt2htm.DbgHelp.v1."};
         constexpr ::std::size_t pid_digit_capacity{10};
         constexpr ::std::size_t name_capacity{48};
         static_assert(sizeof(prefix) / sizeof(prefix[0]) + pid_digit_capacity <= name_capacity);
-        ::pltxt2htm::sys_win32::WideChar name[name_capacity]{};
+        wchar_t name[name_capacity]{};
         ::std::size_t length{};
         while (prefix[length] != L'\0') {
             name[length] = prefix[length];
@@ -76,7 +76,7 @@ class DbgHelpLock {
         auto pid = static_cast<::std::uint32_t>(::pltxt2htm::sys_win32::GetCurrentProcessId());
         ::std::size_t end{length};
         do {
-            name[end] = static_cast<::pltxt2htm::sys_win32::WideChar>(L'0' + (pid % 10));
+            name[end] = static_cast<wchar_t>(L'0' + (pid % 10));
             ++end;
             pid /= 10;
         } while (pid != 0);
