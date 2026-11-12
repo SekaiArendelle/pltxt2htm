@@ -1646,6 +1646,13 @@ LIBRARIES = (
                 nodiscard=True,
             ),
             Symbol("WaitForSingleObject", "Dword", ("Handle", "Dword"), nodiscard=True),
+            Symbol(
+                "CreateSemaphoreW",
+                "Handle",
+                ("SecurityAttributes*", "Long", "Long", "WideChar const*"),
+                nodiscard=True,
+            ),
+            Symbol("ReleaseSemaphore", "Bool", ("Handle", "Long", "Long*"), nodiscard=True),
             Symbol("CancelIo", "Bool", ("Handle",), nodiscard=True),
             Symbol(
                 "GetFileInformationByHandle",

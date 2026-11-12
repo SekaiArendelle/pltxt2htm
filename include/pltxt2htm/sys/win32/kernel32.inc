@@ -50,6 +50,10 @@ PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CreatePipe(Handle*, Han
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Dword PLTXT2HTM_DETAIL_STDCALL WaitForSingleObject(Handle, Dword) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(WaitForSingleObject, 8);
 [[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Handle PLTXT2HTM_DETAIL_STDCALL CreateSemaphoreW(SecurityAttributes*, Long, Long, WideChar const*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CreateSemaphoreW, 16);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL ReleaseSemaphore(Handle, Long, Long*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ReleaseSemaphore, 12);
+[[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL CancelIo(Handle) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(CancelIo, 4);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT Bool PLTXT2HTM_DETAIL_STDCALL GetFileInformationByHandle(Handle, ByHandleFileInformation*) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(GetFileInformationByHandle, 8);
