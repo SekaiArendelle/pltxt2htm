@@ -97,7 +97,7 @@ struct SymbolInfo {
     Ulong tag;
     Ulong name_len;
     Ulong max_name_len;
-    Char name[1];
+    char name[1];
 };
 
 struct SymbolInfoW {
@@ -115,14 +115,14 @@ struct SymbolInfoW {
     Ulong tag;
     Ulong name_len;
     Ulong max_name_len;
-    WideChar name[1];
+    wchar_t name[1];
 };
 
 struct ImageHlpLine64 {
     Dword size_of_struct;
     void* key;
     Dword line_number;
-    Char* file_name;
+    char* file_name;
     Dword64 address;
 };
 
@@ -130,7 +130,7 @@ struct ImageHlpLineW64 {
     Dword size_of_struct;
     void* key;
     Dword line_number;
-    WideChar* file_name;
+    wchar_t* file_name;
     Dword64 address;
 };
 
@@ -142,12 +142,12 @@ struct ImageHlpModule64 {
     Dword check_sum;
     Dword number_of_symbols;
     SymType symbol_type;
-    Char module_name[32];
-    Char image_name[256];
-    Char loaded_image_name[256];
-    Char loaded_pdb_name[256];
+    char module_name[32];
+    char image_name[256];
+    char loaded_image_name[256];
+    char loaded_pdb_name[256];
     Dword cv_signature;
-    Char cv_data[260 * 3];
+    char cv_data[260 * 3];
     Dword pdb_signature;
     Guid pdb_signature70;
     Dword pdb_age;
@@ -170,12 +170,12 @@ struct ImageHlpModuleW64 {
     Dword check_sum;
     Dword number_of_symbols;
     SymType symbol_type;
-    WideChar module_name[32];
-    WideChar image_name[256];
-    WideChar loaded_image_name[256];
-    WideChar loaded_pdb_name[256];
+    wchar_t module_name[32];
+    wchar_t image_name[256];
+    wchar_t loaded_image_name[256];
+    wchar_t loaded_pdb_name[256];
     Dword cv_signature;
-    WideChar cv_data[260 * 3];
+    wchar_t cv_data[260 * 3];
     Dword pdb_signature;
     Guid pdb_signature70;
     Dword pdb_age;
@@ -192,8 +192,8 @@ struct ImageHlpModuleW64 {
 
 #pragma pack(pop)
 
-using SymEnumModulesCallback64 = Bool(PLTXT2HTM_DETAIL_STDCALL*)(Char const*, Dword64, void*);
-using SymEnumModulesCallbackW64 = Bool(PLTXT2HTM_DETAIL_STDCALL*)(WideChar const*, Dword64, void*);
+using SymEnumModulesCallback64 = Bool(PLTXT2HTM_DETAIL_STDCALL*)(char const*, Dword64, void*);
+using SymEnumModulesCallbackW64 = Bool(PLTXT2HTM_DETAIL_STDCALL*)(wchar_t const*, Dword64, void*);
 using SymEnumSymbolsCallback = Bool(PLTXT2HTM_DETAIL_STDCALL*)(SymbolInfo*, Ulong, void*);
 using SymEnumSymbolsCallbackW = Bool(PLTXT2HTM_DETAIL_STDCALL*)(SymbolInfoW*, Ulong, void*);
 using SymbolRegisteredCallback64 = Bool(PLTXT2HTM_DETAIL_STDCALL*)(Handle, Ulong, Ulong64, Ulong64);

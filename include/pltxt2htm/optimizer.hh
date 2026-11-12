@@ -380,10 +380,10 @@ class OptimizerFrame {
 public:
     ::pltxt2htm::Ast* ast; ///< Pointer to the AST being optimized
 
-#if __has_cpp_attribute(no_unique_address)
-    [[no_unique_address]]
-#elif __has_cpp_attribute(msvc::no_unique_address)
+#if __has_cpp_attribute(msvc::no_unique_address)
     [[msvc::no_unique_address]]
+#else
+    [[no_unique_address]]
 #endif
     Iter iter; ///< Iterator pointing to the current position in the AST
 
