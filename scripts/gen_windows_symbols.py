@@ -1578,13 +1578,13 @@ LIBRARIES = (
             Symbol(
                 "LoadLibraryExW",
                 "ModuleHandle",
-                ("WideChar const*", "Handle", "Dword"),
+                ("wchar_t const*", "Handle", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetProcAddress",
                 "Procedure",
-                ("ModuleHandle", "Char const*"),
+                ("ModuleHandle", "char const*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1593,14 +1593,14 @@ LIBRARIES = (
                 ("ModuleHandle",),
                 nodiscard=True,
             ),
-            Symbol("LoadLibraryA", "ModuleHandle", ("Char const*",), nodiscard=True),
+            Symbol("LoadLibraryA", "ModuleHandle", ("char const*",), nodiscard=True),
             Symbol(
-                "LoadLibraryW", "ModuleHandle", ("WideChar const*",), nodiscard=True
+                "LoadLibraryW", "ModuleHandle", ("wchar_t const*",), nodiscard=True
             ),
             Symbol(
                 "LoadLibraryExA",
                 "ModuleHandle",
-                ("Char const*", "Handle", "Dword"),
+                ("char const*", "Handle", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1612,7 +1612,7 @@ LIBRARIES = (
                     "Dword",
                     "Dword",
                     "Dword",
-                    "Char const*",
+                    "char const*",
                 ),
                 nodiscard=True,
             ),
@@ -1625,7 +1625,7 @@ LIBRARIES = (
                     "Dword",
                     "Dword",
                     "Dword",
-                    "WideChar const*",
+                    "wchar_t const*",
                 ),
                 nodiscard=True,
             ),
@@ -1637,16 +1637,16 @@ LIBRARIES = (
             ),
             Symbol("GetStdHandle", "Handle", ("Dword",), nodiscard=True),
             Symbol(
-                "GetModuleHandleA", "ModuleHandle", ("Char const*",), nodiscard=True
+                "GetModuleHandleA", "ModuleHandle", ("char const*",), nodiscard=True
             ),
             Symbol(
-                "GetModuleHandleW", "ModuleHandle", ("WideChar const*",), nodiscard=True
+                "GetModuleHandleW", "ModuleHandle", ("wchar_t const*",), nodiscard=True
             ),
             Symbol("GetLastError", "Dword", (), nodiscard=True),
             Symbol(
                 "FormatMessageA",
                 "Dword",
-                ("Dword", "void const*", "Dword", "Dword", "Char*", "Dword", "Char**"),
+                ("Dword", "void const*", "Dword", "Dword", "char*", "Dword", "char**"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1657,9 +1657,9 @@ LIBRARIES = (
                     "void const*",
                     "Dword",
                     "Dword",
-                    "WideChar*",
+                    "wchar_t*",
                     "Dword",
-                    "Char**",
+                    "char**",
                 ),
                 nodiscard=True,
             ),
@@ -1705,13 +1705,13 @@ LIBRARIES = (
             Symbol(
                 "CreateSemaphoreA",
                 "Handle",
-                ("SecurityAttributes*", "Long", "Long", "Char const*"),
+                ("SecurityAttributes*", "Long", "Long", "char const*"),
                 nodiscard=True,
             ),
             Symbol(
                 "CreateSemaphoreW",
                 "Handle",
-                ("SecurityAttributes*", "Long", "Long", "WideChar const*"),
+                ("SecurityAttributes*", "Long", "Long", "wchar_t const*"),
                 nodiscard=True,
             ),
             Symbol("ReleaseSemaphore", "Bool", ("Handle", "Long", "Long*"), nodiscard=True),
@@ -1723,7 +1723,7 @@ LIBRARIES = (
                 nodiscard=True,
             ),
             Symbol(
-                "GetUserDefaultLocaleName", "int", ("WideChar*", "int"), nodiscard=True
+                "GetUserDefaultLocaleName", "int", ("wchar_t*", "int"), nodiscard=True
             ),
             Symbol("GetUserDefaultLCID", "Dword", (), nodiscard=True),
             Symbol(
@@ -1757,8 +1757,8 @@ LIBRARIES = (
                 ("Handle", "Dword", "Dword"),
                 nodiscard=True,
             ),
-            Symbol("GetTempPathA", "Dword", ("Dword", "Char*"), nodiscard=True),
-            Symbol("GetTempPathW", "Dword", ("Dword", "WideChar*"), nodiscard=True),
+            Symbol("GetTempPathA", "Dword", ("Dword", "char*"), nodiscard=True),
+            Symbol("GetTempPathW", "Dword", ("Dword", "wchar_t*"), nodiscard=True),
             Symbol("CloseHandle", "Bool", ("Handle",), nodiscard=True),
             Symbol(
                 "LockFileEx",
@@ -1792,13 +1792,13 @@ LIBRARIES = (
             Symbol(
                 "GetEnvironmentVariableA",
                 "Dword",
-                ("Char const*", "Char*", "Dword"),
+                ("char const*", "char*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetEnvironmentVariableW",
                 "Dword",
-                ("WideChar const*", "WideChar*", "Dword"),
+                ("wchar_t const*", "wchar_t*", "Dword"),
                 nodiscard=True,
             ),
             Symbol("GetConsoleMode", "Bool", ("Handle", "Dword*"), nodiscard=True),
@@ -1903,14 +1903,14 @@ LIBRARIES = (
                 "CreateProcessW",
                 "Bool",
                 (
-                    "WideChar const*",
-                    "WideChar*",
+                    "wchar_t const*",
+                    "wchar_t*",
                     "SecurityAttributes*",
                     "SecurityAttributes*",
                     "Bool",
                     "Dword",
                     "void*",
-                    "WideChar const*",
+                    "wchar_t const*",
                     "StartupInfoW*",
                     "ProcessInformation*",
                 ),
@@ -1920,14 +1920,14 @@ LIBRARIES = (
                 "CreateProcessA",
                 "Bool",
                 (
-                    "Char const*",
-                    "Char*",
+                    "char const*",
+                    "char*",
                     "SecurityAttributes*",
                     "SecurityAttributes*",
                     "Bool",
                     "Dword",
                     "void*",
-                    "Char const*",
+                    "char const*",
                     "StartupInfoA*",
                     "ProcessInformation*",
                 ),
@@ -1936,26 +1936,26 @@ LIBRARIES = (
             Symbol(
                 "K32GetMappedFileNameW",
                 "Dword",
-                ("Handle", "void*", "WideChar*", "Dword"),
+                ("Handle", "void*", "wchar_t*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "K32GetMappedFileNameA",
                 "Dword",
-                ("Handle", "void*", "Char*", "Dword"),
+                ("Handle", "void*", "char*", "Dword"),
                 nodiscard=True,
             ),
             Symbol("GetExitCodeProcess", "Bool", ("Handle", "Dword*"), nodiscard=True),
             Symbol(
                 "QueryDosDeviceW",
                 "Dword",
-                ("WideChar const*", "WideChar*", "Dword"),
+                ("wchar_t const*", "wchar_t*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "QueryDosDeviceA",
                 "Dword",
-                ("Char const*", "Char*", "Dword"),
+                ("char const*", "char*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1965,63 +1965,63 @@ LIBRARIES = (
                 "FindNextFileA", "Bool", ("Handle", "Win32FindDataA*"), nodiscard=True
             ),
             Symbol("FindClose", "Bool", ("Handle",), nodiscard=True),
-            Symbol("DeleteFileW", "Bool", ("WideChar const*",), nodiscard=True),
-            Symbol("DeleteFileA", "Bool", ("Char const*",), nodiscard=True),
-            Symbol("RemoveDirectoryW", "Bool", ("WideChar const*",), nodiscard=True),
-            Symbol("RemoveDirectoryA", "Bool", ("Char const*",), nodiscard=True),
+            Symbol("DeleteFileW", "Bool", ("wchar_t const*",), nodiscard=True),
+            Symbol("DeleteFileA", "Bool", ("char const*",), nodiscard=True),
+            Symbol("RemoveDirectoryW", "Bool", ("wchar_t const*",), nodiscard=True),
+            Symbol("RemoveDirectoryA", "Bool", ("char const*",), nodiscard=True),
             Symbol(
                 "CreateDirectoryW",
                 "Bool",
-                ("WideChar const*", "SecurityAttributes*"),
+                ("wchar_t const*", "SecurityAttributes*"),
                 nodiscard=True,
             ),
             Symbol(
                 "CreateDirectoryA",
                 "Bool",
-                ("Char const*", "SecurityAttributes*"),
+                ("char const*", "SecurityAttributes*"),
                 nodiscard=True,
             ),
             Symbol(
                 "SetFileAttributesW",
                 "Bool",
-                ("WideChar const*", "Dword"),
+                ("wchar_t const*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
-                "SetFileAttributesA", "Bool", ("Char const*", "Dword"), nodiscard=True
+                "SetFileAttributesA", "Bool", ("char const*", "Dword"), nodiscard=True
             ),
-            Symbol("GetFileAttributesW", "Dword", ("WideChar const*",), nodiscard=True),
-            Symbol("GetFileAttributesA", "Dword", ("Char const*",), nodiscard=True),
+            Symbol("GetFileAttributesW", "Dword", ("wchar_t const*",), nodiscard=True),
+            Symbol("GetFileAttributesA", "Dword", ("char const*",), nodiscard=True),
             Symbol(
                 "CopyFileW",
                 "Bool",
-                ("WideChar const*", "WideChar const*", "Bool"),
+                ("wchar_t const*", "wchar_t const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
                 "CopyFileA",
                 "Bool",
-                ("Char const*", "Char const*", "Bool"),
+                ("char const*", "char const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
                 "MoveFileW",
                 "Bool",
-                ("WideChar const*", "WideChar const*"),
+                ("wchar_t const*", "wchar_t const*"),
                 nodiscard=True,
             ),
-            Symbol("MoveFileA", "Bool", ("Char const*", "Char const*"), nodiscard=True),
+            Symbol("MoveFileA", "Bool", ("char const*", "char const*"), nodiscard=True),
             Symbol("TerminateProcess", "Bool", ("Handle", "Uint"), nodiscard=True),
             Symbol(
                 "GetFinalPathNameByHandleW",
                 "Dword",
-                ("Handle", "WideChar*", "Dword", "Dword"),
+                ("Handle", "wchar_t*", "Dword", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetFinalPathNameByHandleA",
                 "Dword",
-                ("Handle", "Char*", "Dword", "Dword"),
+                ("Handle", "char*", "Dword", "Dword"),
                 nodiscard=True,
             ),
             Symbol("GetProcessId", "Dword", ("Handle",), nodiscard=True),
@@ -2048,31 +2048,31 @@ LIBRARIES = (
             Symbol("GetCurrentThreadId", "Dword", (), nodiscard=True),
             Symbol("Sleep", "void", ("Dword",), nodiscard=False),
             Symbol("SwitchToThread", "Bool", (), nodiscard=True),
-            Symbol("FreeEnvironmentStringsW", "Bool", ("WideChar*",), nodiscard=True),
-            Symbol("FreeEnvironmentStringsA", "Bool", ("Char*",), nodiscard=True),
+            Symbol("FreeEnvironmentStringsW", "Bool", ("wchar_t*",), nodiscard=True),
+            Symbol("FreeEnvironmentStringsA", "Bool", ("char*",), nodiscard=True),
             Symbol(
                 "GetFullPathNameW",
                 "Dword",
-                ("WideChar const*", "Dword", "WideChar*", "WideChar**"),
+                ("wchar_t const*", "Dword", "wchar_t*", "wchar_t**"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetFullPathNameA",
                 "Dword",
-                ("Char const*", "Dword", "Char*", "Char**"),
+                ("char const*", "Dword", "char*", "char**"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetVolumeInformationW",
                 "Bool",
                 (
-                    "WideChar const*",
-                    "WideChar*",
+                    "wchar_t const*",
+                    "wchar_t*",
                     "Dword",
                     "Dword*",
                     "Dword*",
                     "Dword*",
-                    "WideChar*",
+                    "wchar_t*",
                     "Dword",
                 ),
                 nodiscard=True,
@@ -2081,13 +2081,13 @@ LIBRARIES = (
                 "GetVolumeInformationA",
                 "Bool",
                 (
-                    "Char const*",
-                    "Char*",
+                    "char const*",
+                    "char*",
                     "Dword",
                     "Dword*",
                     "Dword*",
                     "Dword*",
-                    "Char*",
+                    "char*",
                     "Dword",
                 ),
                 nodiscard=True,
@@ -2095,20 +2095,20 @@ LIBRARIES = (
             Symbol(
                 "GetDiskFreeSpaceW",
                 "Bool",
-                ("WideChar const*", "Dword*", "Dword*", "Dword*", "Dword*"),
+                ("wchar_t const*", "Dword*", "Dword*", "Dword*", "Dword*"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetDiskFreeSpaceA",
                 "Bool",
-                ("Char const*", "Dword*", "Dword*", "Dword*", "Dword*"),
+                ("char const*", "Dword*", "Dword*", "Dword*", "Dword*"),
                 nodiscard=True,
             ),
             Symbol(
                 "CreateFileA",
                 "Handle",
                 (
-                    "Char const*",
+                    "char const*",
                     "Dword",
                     "Dword",
                     "SecurityAttributes*",
@@ -2122,7 +2122,7 @@ LIBRARIES = (
                 "CreateFileW",
                 "Handle",
                 (
-                    "WideChar const*",
+                    "wchar_t const*",
                     "Dword",
                     "Dword",
                     "SecurityAttributes*",
@@ -2141,20 +2141,20 @@ LIBRARIES = (
             Symbol(
                 "FindFirstFileA",
                 "Handle",
-                ("Char const*", "Win32FindDataA*"),
+                ("char const*", "Win32FindDataA*"),
                 nodiscard=True,
             ),
             Symbol(
                 "FindFirstFileW",
                 "Handle",
-                ("WideChar const*", "Win32FindDataW*"),
+                ("wchar_t const*", "Win32FindDataW*"),
                 nodiscard=True,
             ),
             Symbol(
                 "CreateNamedPipeA",
                 "Handle",
                 (
-                    "Char const*",
+                    "char const*",
                     "Dword",
                     "Dword",
                     "Dword",
@@ -2169,7 +2169,7 @@ LIBRARIES = (
                 "CreateNamedPipeW",
                 "Handle",
                 (
-                    "WideChar const*",
+                    "wchar_t const*",
                     "Dword",
                     "Dword",
                     "Dword",
@@ -2183,13 +2183,13 @@ LIBRARIES = (
             Symbol(
                 "CreateWaitableTimerA",
                 "Handle",
-                ("SecurityAttributes*", "Bool", "Char const*"),
+                ("SecurityAttributes*", "Bool", "char const*"),
                 nodiscard=True,
             ),
             Symbol(
                 "CreateWaitableTimerW",
                 "Handle",
-                ("SecurityAttributes*", "Bool", "WideChar const*"),
+                ("SecurityAttributes*", "Bool", "wchar_t const*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2205,8 +2205,8 @@ LIBRARIES = (
                 ),
                 nodiscard=True,
             ),
-            Symbol("GetEnvironmentStringsA", "Char*", (), nodiscard=True),
-            Symbol("GetEnvironmentStringsW", "WideChar*", (), nodiscard=True),
+            Symbol("GetEnvironmentStringsA", "char*", (), nodiscard=True),
+            Symbol("GetEnvironmentStringsW", "wchar_t*", (), nodiscard=True),
             Symbol("LocalFree", "Handle", ("Handle",), nodiscard=True),
             Symbol(
                 "AddVectoredExceptionHandler",
@@ -2262,7 +2262,7 @@ LIBRARIES = (
             Symbol(
                 "SymInitialize",
                 "Bool",
-                ("Handle", "Char const*", "Bool"),
+                ("Handle", "char const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2294,25 +2294,25 @@ LIBRARIES = (
             Symbol(
                 "SymInitializeW",
                 "Bool",
-                ("Handle", "WideChar const*", "Bool"),
+                ("Handle", "wchar_t const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
-                "SymGetSearchPath", "Bool", ("Handle", "Char*", "Dword"), nodiscard=True
+                "SymGetSearchPath", "Bool", ("Handle", "char*", "Dword"), nodiscard=True
             ),
             Symbol(
                 "SymGetSearchPathW",
                 "Bool",
-                ("Handle", "WideChar*", "Dword"),
+                ("Handle", "wchar_t*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
-                "SymSetSearchPath", "Bool", ("Handle", "Char const*"), nodiscard=True
+                "SymSetSearchPath", "Bool", ("Handle", "char const*"), nodiscard=True
             ),
             Symbol(
                 "SymSetSearchPathW",
                 "Bool",
-                ("Handle", "WideChar const*"),
+                ("Handle", "wchar_t const*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2321,8 +2321,8 @@ LIBRARIES = (
                 (
                     "Handle",
                     "Handle",
-                    "Char const*",
-                    "Char const*",
+                    "char const*",
+                    "char const*",
                     "Dword64",
                     "Dword",
                     "ModLoadData*",
@@ -2336,8 +2336,8 @@ LIBRARIES = (
                 (
                     "Handle",
                     "Handle",
-                    "WideChar const*",
-                    "WideChar const*",
+                    "wchar_t const*",
+                    "wchar_t const*",
                     "Dword64",
                     "Dword",
                     "ModLoadData*",
@@ -2410,13 +2410,13 @@ LIBRARIES = (
             Symbol(
                 "SymFromName",
                 "Bool",
-                ("Handle", "Char const*", "SymbolInfo*"),
+                ("Handle", "char const*", "SymbolInfo*"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymFromNameW",
                 "Bool",
-                ("Handle", "WideChar const*", "SymbolInfoW*"),
+                ("Handle", "wchar_t const*", "SymbolInfoW*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2438,7 +2438,7 @@ LIBRARIES = (
             Symbol(
                 "SymEnumSymbols",
                 "Bool",
-                ("Handle", "Ulong64", "Char const*", "SymEnumSymbolsCallback", "void*"),
+                ("Handle", "Ulong64", "char const*", "SymEnumSymbolsCallback", "void*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2447,7 +2447,7 @@ LIBRARIES = (
                 (
                     "Handle",
                     "Ulong64",
-                    "WideChar const*",
+                    "wchar_t const*",
                     "SymEnumSymbolsCallbackW",
                     "void*",
                 ),
@@ -2459,7 +2459,7 @@ LIBRARIES = (
                 (
                     "Handle",
                     "Ulong64",
-                    "Char const*",
+                    "char const*",
                     "SymEnumSymbolsCallback",
                     "void*",
                     "Dword",
@@ -2472,7 +2472,7 @@ LIBRARIES = (
                 (
                     "Handle",
                     "Ulong64",
-                    "WideChar const*",
+                    "wchar_t const*",
                     "SymEnumSymbolsCallbackW",
                     "void*",
                     "Dword",
@@ -2514,8 +2514,8 @@ LIBRARIES = (
                 "Bool",
                 (
                     "Handle",
-                    "Char const*",
-                    "Char const*",
+                    "char const*",
+                    "char const*",
                     "Dword",
                     "Long*",
                     "ImageHlpLine64*",
@@ -2527,8 +2527,8 @@ LIBRARIES = (
                 "Bool",
                 (
                     "Handle",
-                    "WideChar const*",
-                    "WideChar const*",
+                    "wchar_t const*",
+                    "wchar_t const*",
                     "Dword",
                     "Long*",
                     "ImageHlpLineW64*",
@@ -2562,19 +2562,19 @@ LIBRARIES = (
             Symbol(
                 "SymGetTypeFromName",
                 "Bool",
-                ("Handle", "Ulong64", "Char const*", "SymbolInfo*"),
+                ("Handle", "Ulong64", "char const*", "SymbolInfo*"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymGetTypeFromNameW",
                 "Bool",
-                ("Handle", "Ulong64", "WideChar const*", "SymbolInfoW*"),
+                ("Handle", "Ulong64", "wchar_t const*", "SymbolInfoW*"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymEnumTypesByName",
                 "Bool",
-                ("Handle", "Ulong64", "Char const*", "SymEnumSymbolsCallback", "void*"),
+                ("Handle", "Ulong64", "char const*", "SymEnumSymbolsCallback", "void*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2583,7 +2583,7 @@ LIBRARIES = (
                 (
                     "Handle",
                     "Ulong64",
-                    "WideChar const*",
+                    "wchar_t const*",
                     "SymEnumSymbolsCallbackW",
                     "void*",
                 ),
@@ -2592,49 +2592,49 @@ LIBRARIES = (
             Symbol(
                 "SymAddSymbol",
                 "Bool",
-                ("Handle", "Ulong64", "Char const*", "Dword64", "Dword", "Dword"),
+                ("Handle", "Ulong64", "char const*", "Dword64", "Dword", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymAddSymbolW",
                 "Bool",
-                ("Handle", "Ulong64", "WideChar const*", "Dword64", "Dword", "Dword"),
+                ("Handle", "Ulong64", "wchar_t const*", "Dword64", "Dword", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymDeleteSymbol",
                 "Bool",
-                ("Handle", "Ulong64", "Char const*", "Dword64", "Dword"),
+                ("Handle", "Ulong64", "char const*", "Dword64", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymDeleteSymbolW",
                 "Bool",
-                ("Handle", "Ulong64", "WideChar const*", "Dword64", "Dword"),
+                ("Handle", "Ulong64", "wchar_t const*", "Dword64", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymMatchStringA",
                 "Bool",
-                ("Char const*", "Char const*", "Bool"),
+                ("char const*", "char const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymMatchStringW",
                 "Bool",
-                ("WideChar const*", "WideChar const*", "Bool"),
+                ("wchar_t const*", "wchar_t const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
                 "UnDecorateSymbolName",
                 "Dword",
-                ("Char const*", "Char*", "Dword", "Dword"),
+                ("char const*", "char*", "Dword", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "UnDecorateSymbolNameW",
                 "Dword",
-                ("WideChar const*", "WideChar*", "Dword", "Dword"),
+                ("wchar_t const*", "wchar_t*", "Dword", "Dword"),
                 nodiscard=True,
             ),
         ),

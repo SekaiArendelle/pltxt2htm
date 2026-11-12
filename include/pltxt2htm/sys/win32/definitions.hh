@@ -9,7 +9,7 @@
 namespace pltxt2htm::sys_win32 {
 using Bool = int;
 using Boolean = unsigned char;
-using Char = char;
+using Word = unsigned short;
 using Dword = unsigned long;
 using Dword64 = unsigned long long;
 using ::pltxt2htm::sys::details::Handle;
@@ -21,8 +21,6 @@ using ModuleHandle = Handle;
 using Ulong = unsigned long;
 using Ulong64 = unsigned long long;
 using Uint = unsigned int;
-using WideChar = wchar_t;
-using Word = unsigned short;
 
 // CONTEXT has a different layout for each Windows architecture.
 struct Context;
@@ -57,8 +55,8 @@ struct SmallRect {
 
 struct CharInfo {
     union {
-        Char ascii_char;
-        WideChar unicode_char;
+        char ascii_char;
+        wchar_t unicode_char;
     } character;
 
     Word attributes;
@@ -150,9 +148,9 @@ struct ProcessInformation {
 
 struct StartupInfoA {
     Dword size;
-    Char* reserved;
-    Char* desktop;
-    Char* title;
+    char* reserved;
+    char* desktop;
+    char* title;
     Dword x;
     Dword y;
     Dword x_size;
@@ -171,9 +169,9 @@ struct StartupInfoA {
 
 struct StartupInfoW {
     Dword size;
-    WideChar* reserved;
-    WideChar* desktop;
-    WideChar* title;
+    wchar_t* reserved;
+    wchar_t* desktop;
+    wchar_t* title;
     Dword x;
     Dword y;
     Dword x_size;
@@ -203,10 +201,10 @@ struct SystemTime {
 
 struct TimeZoneInformation {
     Long bias;
-    WideChar standard_name[32];
+    wchar_t standard_name[32];
     SystemTime standard_date;
     Long standard_bias;
-    WideChar daylight_name[32];
+    wchar_t daylight_name[32];
     SystemTime daylight_date;
     Long daylight_bias;
 };
@@ -241,8 +239,8 @@ struct Win32FindDataA {
     Dword file_size_low;
     Dword reserved0;
     Dword reserved1;
-    Char file_name[260];
-    Char alternate_file_name[14];
+    char file_name[260];
+    char alternate_file_name[14];
 };
 
 struct Win32FindDataW {
@@ -254,8 +252,8 @@ struct Win32FindDataW {
     Dword file_size_low;
     Dword reserved0;
     Dword reserved1;
-    WideChar file_name[260];
-    WideChar alternate_file_name[14];
+    wchar_t file_name[260];
+    wchar_t alternate_file_name[14];
 };
 
 struct MemoryRangeEntry {
