@@ -992,6 +992,62 @@ LIBRARIES = (
                 nodiscard=True,
             ),
             Symbol(
+                "NtCreateSemaphore",
+                "NtStatus",
+                (
+                    "Handle *",
+                    "Ulong",
+                    "ObjectAttributes const *",
+                    "Long",
+                    "Long",
+                ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwCreateSemaphore",
+                "NtStatus",
+                (
+                    "Handle *",
+                    "Ulong",
+                    "ObjectAttributes const *",
+                    "Long",
+                    "Long",
+                ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtOpenSemaphore",
+                "NtStatus",
+                (
+                    "Handle *",
+                    "Ulong",
+                    "ObjectAttributes const *",
+                ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwOpenSemaphore",
+                "NtStatus",
+                (
+                    "Handle *",
+                    "Ulong",
+                    "ObjectAttributes const *",
+                ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtReleaseSemaphore",
+                "NtStatus",
+                ("Handle", "Long", "Long *"),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwReleaseSemaphore",
+                "NtStatus",
+                ("Handle", "Long", "Long *"),
+                nodiscard=True,
+            ),
+            Symbol(
                 "NtSetInformationObject",
                 "NtStatus",
                 ("Handle", "ObjectInformationClass", "void *", "Ulong"),
@@ -1646,6 +1702,12 @@ LIBRARIES = (
                 nodiscard=True,
             ),
             Symbol("WaitForSingleObject", "Dword", ("Handle", "Dword"), nodiscard=True),
+            Symbol(
+                "CreateSemaphoreA",
+                "Handle",
+                ("SecurityAttributes*", "Long", "Long", "Char const*"),
+                nodiscard=True,
+            ),
             Symbol(
                 "CreateSemaphoreW",
                 "Handle",
