@@ -1647,6 +1647,12 @@ LIBRARIES = (
             ),
             Symbol("WaitForSingleObject", "Dword", ("Handle", "Dword"), nodiscard=True),
             Symbol(
+                "CreateSemaphoreA",
+                "Handle",
+                ("SecurityAttributes*", "Long", "Long", "Char const*"),
+                nodiscard=True,
+            ),
+            Symbol(
                 "CreateSemaphoreW",
                 "Handle",
                 ("SecurityAttributes*", "Long", "Long", "WideChar const*"),

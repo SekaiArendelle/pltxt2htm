@@ -25,6 +25,7 @@
 #pragma comment(linker, "/alternatename:__imp_?DuplicateHandle@sys_win32@pltxt2htm@@YAHUHandle@details@sys@2@00PAU3452@KHK@Z=__imp_DuplicateHandle")
 #pragma comment(linker, "/alternatename:__imp_?CreatePipe@sys_win32@pltxt2htm@@YAHPAUHandle@details@sys@2@0PAUSecurityAttributes@12@K@Z=__imp_CreatePipe")
 #pragma comment(linker, "/alternatename:__imp_?WaitForSingleObject@sys_win32@pltxt2htm@@YAKUHandle@details@sys@2@K@Z=__imp_WaitForSingleObject")
+#pragma comment(linker, "/alternatename:__imp_?CreateSemaphoreA@sys_win32@pltxt2htm@@YA?AUHandle@details@sys@2@PAUSecurityAttributes@12@JJPBD@Z=__imp_CreateSemaphoreA")
 #pragma comment(linker, "/alternatename:__imp_?CreateSemaphoreW@sys_win32@pltxt2htm@@YA?AUHandle@details@sys@2@PAUSecurityAttributes@12@JJPB_W@Z=__imp_CreateSemaphoreW")
 #pragma comment(linker, "/alternatename:__imp_?ReleaseSemaphore@sys_win32@pltxt2htm@@YAHUHandle@details@sys@2@JPAJ@Z=__imp_ReleaseSemaphore")
 #pragma comment(linker, "/alternatename:__imp_?CancelIo@sys_win32@pltxt2htm@@YAHUHandle@details@sys@2@@Z=__imp_CancelIo")
