@@ -41,10 +41,11 @@ compile_commands.json
 # MacOS
 **/.DS_Store
 
-# clang fuzzer crashing file
-**/crash-*
-**/oom-*
-**/slow-unit-*
+# fuzzing runtime corpus, artifacts (crash/oom/leak/timeout/slow-unit) and logs
+# see fuzzing/README.md - fuzzing/seeds/ is the curated corpus, checked in
+fuzzing/corpus/
+fuzzing/artifacts/
+fuzzing/logs/
 
 # library
 *.lib
