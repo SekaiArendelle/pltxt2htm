@@ -18,6 +18,52 @@ struct TestNonconformingBackend {
     using capture = int;
 };
 
+/// An otherwise conforming entry whose copy constructor throws, isolating the
+/// no-throw trait half of the entry concept's negative case.
+struct TestThrowingCopyEntry {
+    TestThrowingCopyEntry() noexcept = default;
+
+    TestThrowingCopyEntry(TestThrowingCopyEntry const&) noexcept(false) {
+    }
+
+    TestThrowingCopyEntry(TestThrowingCopyEntry&&) noexcept = default;
+    ~TestThrowingCopyEntry() = default;
+
+    [[nodiscard]]
+    constexpr auto operator<=>(TestThrowingCopyEntry const&) const noexcept -> ::std::strong_ordering = default;
+    [[nodiscard]]
+    constexpr auto operator==(TestThrowingCopyEntry const&) const noexcept -> bool = default;
+
+    [[nodiscard]]
+    constexpr auto native_handle() const noexcept -> int {
+        return 0;
+    }
+
+    [[nodiscard]]
+    constexpr auto resolved() const noexcept -> ::pltxt2htm::stacktrace::ResolvedFrame {
+        return {};
+    }
+
+    constexpr explicit operator bool() const noexcept {
+        return false;
+    }
+
+    constexpr auto operator=(TestThrowingCopyEntry const&) noexcept -> TestThrowingCopyEntry& = default;
+};
+
+/// A capture backend with a wrongly typed `supported` flag, isolating the
+/// static-member shape half of the capture concept's negative case.
+struct TestBadSupportedCapture {
+    inline static int supported{};
+    static constexpr ::std::size_t max_depth{};
+
+    template<typename Allocator>
+    static void capture(::pltxt2htm::container::Vector<::pltxt2htm::stacktrace::details::NoneStacktraceEntry,
+                                                       ::fast_io::generic_allocator_adapter<Allocator>>&,
+                        ::std::size_t) noexcept {
+    }
+};
+
 TEST_CASE("front-end-compile-surface") {
     namespace trace = ::pltxt2htm::stacktrace;
     static_assert(::std::random_access_iterator<trace::Stacktrace::const_iterator>);
@@ -141,6 +187,28 @@ TEST_CASE("concept-describes-the-bundles") {
     static_assert(details::is_stacktrace_backend<details::StdBackend>);
     static_assert(details::is_stacktrace_backend<details::DefaultBackend>);
     static_assert(!details::is_stacktrace_backend<TestNonconformingBackend>);
+}
+
+TEST_CASE("concept-halves-describe-entries-and-captures") {
+    namespace details = ::pltxt2htm::stacktrace::details;
+    static_assert(details::is_stacktrace_entry<details::NoneStacktraceEntry>);
+    static_assert(details::is_stacktrace_capture_backend<details::NoneCaptureBackend, details::NoneStacktraceEntry>);
+    static_assert(!details::is_stacktrace_entry<int>);
+    static_assert(!details::is_stacktrace_entry<TestThrowingCopyEntry>);
+    static_assert(!details::is_stacktrace_capture_backend<int, details::NoneStacktraceEntry>);
+    // A capture backend is tied to its entry type through the storage it fills.
+    static_assert(!details::is_stacktrace_capture_backend<details::NoneCaptureBackend, int>);
+    static_assert(!details::is_stacktrace_capture_backend<TestBadSupportedCapture, details::NoneStacktraceEntry>);
+#if defined(_WIN32)
+    static_assert(details::is_stacktrace_entry<details::NtStacktraceEntry>);
+    static_assert(details::is_stacktrace_capture_backend<details::NtCaptureBackend, details::NtStacktraceEntry>);
+    static_assert(!details::is_stacktrace_capture_backend<details::NtCaptureBackend, details::NoneStacktraceEntry>);
+#endif
+#if !defined(__GLIBCXX__) && __has_include(<stacktrace>) && defined(__cpp_lib_stacktrace) \
+    && (__cpp_lib_stacktrace >= 202011L)
+    static_assert(details::is_stacktrace_entry<details::StdStacktraceEntry>);
+    static_assert(details::is_stacktrace_capture_backend<details::StdCaptureBackend, details::StdStacktraceEntry>);
+#endif
 }
 
 #if defined(__GXX_ABI_VERSION) && !defined(_MSC_VER) && __has_include(<cxxabi.h>)
