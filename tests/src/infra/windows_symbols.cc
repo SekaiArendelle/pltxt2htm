@@ -75,6 +75,10 @@ using ExpectedMapViewOfSection = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, vo
                                                       nt::Long64*, ::std::size_t*, nt::SectionInherit, nt::Ulong,
                                                       nt::Ulong) noexcept;
 using ExpectedEventState = nt::NtStatus(NTAPI*)(nt::Handle, nt::Long*) noexcept;
+using ExpectedCreateSemaphore = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, nt::Long,
+                                                     nt::Long) noexcept;
+using ExpectedOpenSemaphore = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*) noexcept;
+using ExpectedNtReleaseSemaphore = nt::NtStatus(NTAPI*)(nt::Handle, nt::Long, nt::Long*) noexcept;
 using ExpectedAlpcConnectPort = nt::NtStatus(NTAPI*)(nt::Handle*, nt::UnicodeString const*, nt::ObjectAttributes*,
                                                      nt::AlpcPortAttributes*, nt::Ulong, void*, nt::PortMessage*,
                                                      ::std::size_t*, nt::AlpcMessageAttributes*,
@@ -180,6 +184,12 @@ static_assert(::std::is_same_v<decltype(&nt::NtSetEvent), ExpectedEventState>);
 static_assert(::std::is_same_v<decltype(&nt::ZwSetEvent), ExpectedEventState>);
 static_assert(::std::is_same_v<decltype(&nt::NtResetEvent), ExpectedEventState>);
 static_assert(::std::is_same_v<decltype(&nt::ZwResetEvent), ExpectedEventState>);
+static_assert(::std::is_same_v<decltype(&nt::NtCreateSemaphore), ExpectedCreateSemaphore>);
+static_assert(::std::is_same_v<decltype(&nt::ZwCreateSemaphore), ExpectedCreateSemaphore>);
+static_assert(::std::is_same_v<decltype(&nt::NtOpenSemaphore), ExpectedOpenSemaphore>);
+static_assert(::std::is_same_v<decltype(&nt::ZwOpenSemaphore), ExpectedOpenSemaphore>);
+static_assert(::std::is_same_v<decltype(&nt::NtReleaseSemaphore), ExpectedNtReleaseSemaphore>);
+static_assert(::std::is_same_v<decltype(&nt::ZwReleaseSemaphore), ExpectedNtReleaseSemaphore>);
 static_assert(::std::is_same_v<decltype(&nt::NtAlpcConnectPort), ExpectedAlpcConnectPort>);
 static_assert(::std::is_same_v<decltype(&nt::ZwAlpcConnectPort), ExpectedAlpcConnectPort>);
 static_assert(::std::is_same_v<decltype(&nt::AlpcGetHeaderSize), ExpectedAlpcGetHeaderSize>);

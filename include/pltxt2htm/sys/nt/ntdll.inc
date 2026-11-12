@@ -198,6 +198,18 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtResetEvent(Handle
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwResetEvent(Handle, Long *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwResetEvent, 8);
 [[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtCreateSemaphore(Handle *, Ulong, ObjectAttributes const *, Long, Long) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtCreateSemaphore, 20);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwCreateSemaphore(Handle *, Ulong, ObjectAttributes const *, Long, Long) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwCreateSemaphore, 20);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtOpenSemaphore(Handle *, Ulong, ObjectAttributes const *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtOpenSemaphore, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwOpenSemaphore(Handle *, Ulong, ObjectAttributes const *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwOpenSemaphore, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtReleaseSemaphore(Handle, Long, Long *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtReleaseSemaphore, 12);
+[[nodiscard]]
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwReleaseSemaphore(Handle, Long, Long *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwReleaseSemaphore, 12);
+[[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtSetInformationObject(Handle, ObjectInformationClass, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtSetInformationObject, 16);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwSetInformationObject(Handle, ObjectInformationClass, void *, Ulong) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwSetInformationObject, 16);
