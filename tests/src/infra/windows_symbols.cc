@@ -107,6 +107,9 @@ using ExpectedExitProcess = void(WINAPI*)(UINT) noexcept;
 using ExpectedCreateThread = win32::Handle(WINAPI*)(win32::SecurityAttributes*, ::std::size_t,
                                                     win32::ThreadStartRoutine, void*, win32::Dword,
                                                     win32::Dword*) noexcept;
+using ExpectedCreateSemaphoreW = win32::Handle(WINAPI*)(win32::SecurityAttributes*, win32::Long, win32::Long,
+                                                        win32::WideChar const*) noexcept;
+using ExpectedReleaseSemaphore = win32::Bool(WINAPI*)(win32::Handle, win32::Long, win32::Long*) noexcept;
 using ExpectedSymInitialize = win32::Bool(WINAPI*)(win32::Handle, win32::Char const*, win32::Bool) noexcept;
 using ExpectedSymRefreshModuleList = win32::Bool(WINAPI*)(win32::Handle) noexcept;
 using ExpectedSymCleanup = win32::Bool(WINAPI*)(win32::Handle) noexcept;
@@ -196,6 +199,8 @@ static_assert(::std::is_same_v<decltype(&win32::ReadFile), ExpectedReadFile>);
 static_assert(::std::is_same_v<decltype(&win32::TerminateProcess), ExpectedTerminateProcess>);
 static_assert(::std::is_same_v<decltype(&win32::ExitProcess), ExpectedExitProcess>);
 static_assert(::std::is_same_v<decltype(&win32::CreateThread), ExpectedCreateThread>);
+static_assert(::std::is_same_v<decltype(&win32::CreateSemaphoreW), ExpectedCreateSemaphoreW>);
+static_assert(::std::is_same_v<decltype(&win32::ReleaseSemaphore), ExpectedReleaseSemaphore>);
 static_assert(::std::is_same_v<decltype(&win32::SymInitialize), ExpectedSymInitialize>);
 static_assert(::std::is_same_v<decltype(&win32::SymRefreshModuleList), ExpectedSymRefreshModuleList>);
 static_assert(::std::is_same_v<decltype(&win32::SymCleanup), ExpectedSymCleanup>);
