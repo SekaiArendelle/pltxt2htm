@@ -210,8 +210,9 @@ inline auto get_symbol_session() noexcept -> DbgHelpSession& {
  *          text fields are independently owned `container::String` values.
  * @note The class is a standard-layout wrapper around a single native handle;
  *       the capture backend relies on that to fill trace storage directly.
- * @note This is the Windows implementation; the public `StacktraceEntry` name
- *       in stacktrace.hh aliases it.
+ * @note This is the Windows implementation; NtBackend in impl/nt/backend.hh
+ *       pairs it with the capture backend, and the public front-end aliases it
+ *       when that bundle is selected.
  */
 class NtStacktraceEntry {
 public:

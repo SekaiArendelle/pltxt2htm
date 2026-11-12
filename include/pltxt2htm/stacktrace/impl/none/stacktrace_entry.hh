@@ -20,8 +20,10 @@ namespace pltxt2htm::stacktrace::details {
  *          performs a full lookup, so resolve once and reuse the frame. The
  *          text fields are independently owned `container::String` values.
  * @note The class is a standard-layout wrapper around a single native address.
- * @note This is the fallback implementation; the public `StacktraceEntry` name
- *       in stacktrace.hh aliases it.
+ * @note This is the no-resolver fallback; NoneBackend in impl/none/backend.hh
+ *       pairs it with the no-op capture backend, the public front-end aliases
+ *       it when no capture-capable backend is selected, and the defunct
+ *       NtBackend/StdBackend bundles alias it outside their platforms.
  */
 class NoneStacktraceEntry {
 public:
