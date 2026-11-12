@@ -1,4 +1,4 @@
-FROM emscripten/emsdk:4.0.22
+FROM emscripten/emsdk:6.0.13
 
 WORKDIR /pltxt2htm
 COPY include/ /pltxt2htm/include/
