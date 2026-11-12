@@ -55,7 +55,7 @@ class DbgHelpLock {
         // closed: it lives until process exit, like the session itself, so a
         // host that repeatedly loads and unloads an embedding DLL leaks one
         // handle per cycle by design.
-        static ::pltxt2htm::sys_win32::Handle const value = create_process_semaphore();
+        static ::pltxt2htm::sys_win32::Handle const value = DbgHelpLock::create_process_semaphore();
         return value;
     }
 
