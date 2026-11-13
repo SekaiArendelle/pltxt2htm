@@ -579,65 +579,39 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto index(this InplaceVector& self, size_type position) noexcept -> reference {
+    constexpr auto operator[](this InplaceVector& self, size_type position) noexcept -> reference {
         pltxt2htm_assert(position < self.size(), u8"Index of InplaceVector out of bound");
         return self.data()[position];
     }
 
     [[nodiscard]]
-    constexpr auto index(this InplaceVector const& self, size_type position) noexcept -> const_reference {
+    constexpr auto operator[](this InplaceVector const& self, size_type position) noexcept -> const_reference {
         pltxt2htm_assert(position < self.size(), u8"Index of InplaceVector out of bound");
         return self.data()[position];
     }
-
-    constexpr auto operator[](this InplaceVector&, size_type) noexcept -> reference = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("operator[] is deleted; use index() instead for bounds-checked access")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
-
-    constexpr auto operator[](this InplaceVector const&, size_type) noexcept -> const_reference = delete
-#if __cpp_deleted_function >= 202403L
-    #if defined __clang__
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wc++26-extensions"
-    #endif
-        ("operator[] is deleted; use index() instead for bounds-checked access")
-    #if defined __clang__
-        #pragma clang diagnostic pop
-    #endif
-#endif
-        ;
 
     [[nodiscard]]
     constexpr auto front(this InplaceVector& self) noexcept -> reference {
         pltxt2htm_assert(!self.is_empty(), u8"front() called on an empty InplaceVector");
-        return self.index(0);
+        return self[0];
     }
 
     [[nodiscard]]
     constexpr auto front(this InplaceVector const& self) noexcept -> const_reference {
         pltxt2htm_assert(!self.is_empty(), u8"front() called on an empty InplaceVector");
-        return self.index(0);
+        return self[0];
     }
 
     [[nodiscard]]
     constexpr auto back(this InplaceVector& self) noexcept -> reference {
         pltxt2htm_assert(!self.is_empty(), u8"back() called on an empty InplaceVector");
-        return self.index(self.size() - 1);
+        return self[self.size() - 1];
     }
 
     [[nodiscard]]
     constexpr auto back(this InplaceVector const& self) noexcept -> const_reference {
         pltxt2htm_assert(!self.is_empty(), u8"back() called on an empty InplaceVector");
-        return self.index(self.size() - 1);
+        return self[self.size() - 1];
     }
 
     [[nodiscard]]
@@ -882,13 +856,13 @@ public:
             }
             auto const common_size = ::std::min(self.size(), other.size());
             for (size_type index{}; index < common_size; ++index) {
-                ::std::ranges::swap(self.index(index), other.index(index));
+                ::std::ranges::swap(self[index], other[index]);
             }
             if (self.size() < other.size()) {
                 auto const other_size = other.size();
                 while (self.size() < other_size) {
                     auto const index = self.size();
-                    self.emplace_back(::std::move(other.index(index)));
+                    self.emplace_back(::std::move(other[index]));
                 }
                 other.destroy(other.iterator_at(common_size), other.end());
                 other.set_size(common_size);
@@ -897,7 +871,7 @@ public:
             auto const self_size = self.size();
             while (other.size() < self_size) {
                 auto const index = other.size();
-                other.emplace_back(::std::move(self.index(index)));
+                other.emplace_back(::std::move(self[index]));
             }
             self.destroy(self.iterator_at(common_size), self.end());
             self.set_size(common_size);

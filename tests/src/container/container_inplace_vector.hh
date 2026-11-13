@@ -77,7 +77,8 @@ static_assert(::std::same_as<IntInplaceVector::const_iterator, int const*>);
 static_assert(::std::ranges::contiguous_range<IntInplaceVector>);
 static_assert(::std::ranges::sized_range<IntInplaceVector>);
 static_assert(::std::default_initializable<IntInplaceVector>);
-static_assert(!can_subscript<IntInplaceVector>);
+static_assert(can_subscript<IntInplaceVector>);
+static_assert(can_subscript<IntInplaceVector const>);
 static_assert(!has_at<IntInplaceVector>);
 static_assert(::std::is_trivially_copy_constructible_v<IntInplaceVector>);
 static_assert(::std::is_trivially_move_constructible_v<IntInplaceVector>);
@@ -129,7 +130,11 @@ consteval auto inplace_vector_constexpr_operations_work() -> bool {
     values.emplace_back(3);
     auto const inserted = values.emplace(values.begin() + 1, 2);
     if (inserted != values.begin() + 1 || values.size() != 3 || values.front() != 1 || values.back() != 3 ||
-        values.index(1) != 2 || values.index(2) != 3 || *values.rbegin() != 3) {
+        values[1] != 2 || values[2] != 3 || *values.rbegin() != 3) {
+        return false;
+    }
+    IntInplaceVector const& as_const = values;
+    if (as_const[0] != 1 || as_const[1] != 2 || as_const[2] != 3) {
         return false;
     }
 
@@ -276,9 +281,9 @@ TEST_SUITE("container_inplace_vector") {
 
             auto const empty_erase_result = values.erase(values.begin() + 1, values.begin() + 1);
             CHECK(empty_erase_result == values.begin() + 1);
-            CHECK(values.index(0).value == 1);
-            CHECK(values.index(1).value == 3);
-            CHECK(values.index(2).value == 2);
+            CHECK(values[0].value == 1);
+            CHECK(values[1].value == 3);
+            CHECK(values[2].value == 2);
 
             (void)values.erase(values.begin());
             CHECK(values.size() == 2);
@@ -327,24 +332,24 @@ TEST_SUITE("container_inplace_vector") {
         // When shrinking destroys the element that value references, the fill
         // value must be copied before any mutation.
         ::pltxt2htm::container::InplaceVector<int, 8> values{1, 2, 3, 4, 5};
-        values.resize(2, values.index(4));
+        values.resize(2, values[4]);
         CHECK(values.size() == 2);
-        CHECK(values.index(0) == 1);
-        CHECK(values.index(1) == 2);
+        CHECK(values[0] == 1);
+        CHECK(values[1] == 2);
         // Now grow with the preserved fill value (5).
-        values.resize(5, values.index(0));
+        values.resize(5, values[0]);
         CHECK(values.size() == 5);
-        CHECK(values.index(2) == 1);
-        CHECK(values.index(3) == 1);
-        CHECK(values.index(4) == 1);
+        CHECK(values[2] == 1);
+        CHECK(values[3] == 1);
+        CHECK(values[4] == 1);
     }
 
     TEST_CASE("assign-with-self-referencing-value") {
         ::pltxt2htm::container::InplaceVector<int, 8> values{1, 2, 3};
-        values.assign(5, values.index(0));
+        values.assign(5, values[0]);
         CHECK(values.size() == 5);
-        CHECK(values.index(0) == 1);
-        CHECK(values.index(4) == 1);
+        CHECK(values[0] == 1);
+        CHECK(values[4] == 1);
     }
 
     TEST_CASE("non-trivial-swap") {
@@ -359,11 +364,11 @@ TEST_SUITE("container_inplace_vector") {
         left.swap(right);
         CHECK(left.size() == 3);
         CHECK(right.size() == 2);
-        CHECK(left.index(0).value == 3);
-        CHECK(left.index(1).value == 4);
-        CHECK(left.index(2).value == 5);
-        CHECK(right.index(0).value == 1);
-        CHECK(right.index(1).value == 2);
+        CHECK(left[0].value == 3);
+        CHECK(left[1].value == 4);
+        CHECK(left[2].value == 5);
+        CHECK(right[0].value == 1);
+        CHECK(right[1].value == 2);
         CHECK(::pltxt2htm_test::TrackedInplaceVectorValue::alive == 5);
     }
 
@@ -381,8 +386,8 @@ TEST_SUITE("container_inplace_vector") {
         right.emplace_back(5);
         left = ::std::move(right);
         CHECK(left.size() == 2);
-        CHECK(left.index(0).value == 4);
-        CHECK(left.index(1).value == 5);
+        CHECK(left[0].value == 4);
+        CHECK(left[1].value == 5);
     }
 
     TEST_CASE("insert-at-end") {
@@ -398,7 +403,7 @@ TEST_SUITE("container_inplace_vector") {
         auto const result = values.erase(values.begin() + 1, values.begin() + 3);
         CHECK(result == values.begin() + 1);
         CHECK(values.size() == 2);
-        CHECK(values.index(0) == 1);
-        CHECK(values.index(1) == 4);
+        CHECK(values[0] == 1);
+        CHECK(values[1] == 4);
     }
 }
