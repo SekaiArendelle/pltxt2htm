@@ -127,6 +127,12 @@ int main() noexcept {
         pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str(0.125), u8"0.125");
         pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str(0.03125), u8"0.03125");
         pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str(1.0625), u8"1.0625");
+        // 2^63 is representable as double but not as ptrdiff_t; it must take the unsigned
+        // fallback path instead of relying on an out-of-range signed conversion.
+        if constexpr (sizeof(::std::size_t) == 8) {
+            pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str(9223372036854775808.0),
+                                        ::pltxt2htm::container::U8StringView{u8"9223372036854775808"});
+        }
     }
 
     // size_t2str: boundary values around the single-digit / pair / loop transitions
