@@ -120,14 +120,19 @@ static_assert(noexcept(::std::declval<PotentiallyThrowingComparisonEmptyInplaceV
 static_assert(noexcept(::std::declval<PotentiallyThrowingComparisonInplaceVector const&>() <=>
                        ::std::declval<PotentiallyThrowingComparisonEmptyInplaceVector const&>()));
 
-using ThrowingBeginEndRange = ::pltxt2htm_test::ThrowingBeginEndRange;
+using ThrowingBeginRange = ::pltxt2htm_test::ThrowingBeginRange;
+using ThrowingEndRange = ::pltxt2htm_test::ThrowingEndRange;
 
-// Range wrappers must include the begin()/end() calls in their noexcept
-// specification; otherwise a throwing begin() would terminate.
-static_assert(!noexcept(::std::declval<IntInplaceVector&>().append_range(::std::declval<ThrowingBeginEndRange&>())));
-static_assert(!noexcept(::std::declval<IntInplaceVector&>().assign_range(::std::declval<ThrowingBeginEndRange&>())));
+// Range wrappers must include both begin() and end() in their noexcept
+// specification; otherwise a throwing accessor would terminate.
+static_assert(!noexcept(::std::declval<IntInplaceVector&>().append_range(::std::declval<ThrowingBeginRange&>())));
+static_assert(!noexcept(::std::declval<IntInplaceVector&>().append_range(::std::declval<ThrowingEndRange&>())));
+static_assert(!noexcept(::std::declval<IntInplaceVector&>().assign_range(::std::declval<ThrowingBeginRange&>())));
+static_assert(!noexcept(::std::declval<IntInplaceVector&>().assign_range(::std::declval<ThrowingEndRange&>())));
 static_assert(!noexcept(::std::declval<IntInplaceVector&>().insert_range(
-    ::std::declval<IntInplaceVector::const_iterator>(), ::std::declval<ThrowingBeginEndRange&>())));
+    ::std::declval<IntInplaceVector::const_iterator>(), ::std::declval<ThrowingBeginRange&>())));
+static_assert(!noexcept(::std::declval<IntInplaceVector&>().insert_range(
+    ::std::declval<IntInplaceVector::const_iterator>(), ::std::declval<ThrowingEndRange&>())));
 // A range with nothrow access keeps the wrappers noexcept.
 static_assert(noexcept(::std::declval<IntInplaceVector&>().append_range(::std::declval<::std::array<int, 2>&>())));
 
@@ -415,7 +420,10 @@ TEST_SUITE("container_inplace_vector") {
 
     TEST_CASE("throwing-range-access-propagates") {
         IntInplaceVector values;
-        ::pltxt2htm_test::ThrowingBeginEndRange range{nullptr, nullptr, true};
-        CHECK_THROWS(values.append_range(range));
+        ::pltxt2htm_test::ThrowingBeginRange begin_range{nullptr, nullptr, true};
+        CHECK_THROWS(values.append_range(begin_range));
+        ::pltxt2htm_test::ThrowingEndRange end_range{nullptr, nullptr, true};
+        CHECK_THROWS(values.assign_range(end_range));
+        CHECK_THROWS(static_cast<void>(values.insert_range(values.begin(), begin_range)));
     }
 }
