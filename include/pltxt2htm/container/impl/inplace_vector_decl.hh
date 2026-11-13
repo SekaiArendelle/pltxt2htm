@@ -340,13 +340,7 @@ public:
                   ::std::is_copy_assignable_v<value_type> &&
                   !(::std::is_trivially_copy_constructible_v<value_type> &&
                     ::std::is_trivially_copy_assignable_v<value_type> &&
-                    ::std::is_trivially_destructible_v<value_type>))
-    {
-        if (::std::addressof(self) != ::std::addressof(other)) {
-            self.assign(other.begin(), other.end());
-        }
-        return self;
-    }
+                    ::std::is_trivially_destructible_v<value_type>));
 
     constexpr auto operator=(this InplaceVector&, InplaceVector&&) noexcept -> InplaceVector&
         requires (extent == 0 ||
@@ -362,13 +356,7 @@ public:
                   ::std::is_move_assignable_v<value_type> &&
                   !(::std::is_trivially_move_constructible_v<value_type> &&
                     ::std::is_trivially_move_assignable_v<value_type> &&
-                    ::std::is_trivially_destructible_v<value_type>))
-    {
-        if (::std::addressof(self) != ::std::addressof(other)) {
-            self.assign(::std::make_move_iterator(other.begin()), ::std::make_move_iterator(other.end()));
-        }
-        return self;
-    }
+                    ::std::is_trivially_destructible_v<value_type>));
 
     constexpr auto operator=(this InplaceVector& self, ::std::initializer_list<value_type> values) noexcept(
         ::std::is_nothrow_copy_constructible_v<value_type>) -> InplaceVector&

@@ -62,6 +62,48 @@ constexpr InplaceVector<T, extent>::InplaceVector(size_type count, const_referen
 }
 
 template<typename T, ::std::size_t extent>
+constexpr auto InplaceVector<T, extent>::operator=(this InplaceVector& self, InplaceVector const& other) noexcept(
+    ::std::is_nothrow_copy_constructible_v<value_type>) -> InplaceVector&
+    requires (extent != 0 && ::std::is_copy_constructible_v<value_type> && ::std::is_copy_assignable_v<value_type> &&
+              !(::std::is_trivially_copy_constructible_v<value_type> &&
+                ::std::is_trivially_copy_assignable_v<value_type> && ::std::is_trivially_destructible_v<value_type>))
+{
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"Self assignment of InplaceVector");
+#else
+    if (::std::addressof(self) == ::std::addressof(other)) {
+        return self;
+    }
+#endif
+
+    self.assign(other.begin(), other.end());
+    return self;
+}
+
+template<typename T, ::std::size_t extent>
+constexpr auto InplaceVector<T, extent>::operator=(this InplaceVector& self, InplaceVector&& other) noexcept(
+    ::std::is_nothrow_move_assignable_v<value_type> && ::std::is_nothrow_move_constructible_v<value_type>)
+    -> InplaceVector&
+    requires (extent != 0 && ::std::is_move_constructible_v<value_type> && ::std::is_move_assignable_v<value_type> &&
+              !(::std::is_trivially_move_constructible_v<value_type> &&
+                ::std::is_trivially_move_assignable_v<value_type> && ::std::is_trivially_destructible_v<value_type>))
+{
+#if defined(PLTXT2HTM_INTERNAL_USE)
+    pltxt2htm_assert(::std::addressof(self) != ::std::addressof(other), u8"Self assignment of InplaceVector");
+#else
+    if (::std::addressof(self) == ::std::addressof(other)) {
+        return self;
+    }
+#endif
+
+    self.clear();
+    for (auto& value : other) {
+        self.emplace_back(::std::move(value));
+    }
+    return self;
+}
+
+template<typename T, ::std::size_t extent>
 constexpr void InplaceVector<T, extent>::assign(
     this InplaceVector& self, size_type count,
     const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type> &&

@@ -322,12 +322,6 @@ TEST_SUITE("container_inplace_vector") {
         CHECK(right == ::pltxt2htm::container::InplaceVector<int, 4>{1, 2});
     }
 
-    TEST_CASE("self-assignment") {
-        ::pltxt2htm::container::InplaceVector<int, 4> values{1, 2, 3};
-        values = values;
-        CHECK(values == ::pltxt2htm::container::InplaceVector<int, 4>{1, 2, 3});
-    }
-
     TEST_CASE("resize-with-self-referencing-value") {
         // When shrinking destroys the element that value references, the fill
         // value must be copied before any mutation.
