@@ -10,6 +10,7 @@
 
 #include "doctest_config.hh"
 #include "details/concepts.hh"
+#include "details/structs.hh"
 
 template<::std::size_t extent>
 concept can_form_array = requires { typename ::pltxt2htm::container::Array<int, extent>; };
@@ -49,10 +50,6 @@ concept nothrow_three_way_comparable_array_element =
              ::std::declval<::pltxt2htm::container::Array<T, 2> const&>());
 
 struct ArrayWithoutEquality {};
-
-struct ArrayThrowingEquality {
-    friend auto operator==(ArrayThrowingEquality const&, ArrayThrowingEquality const&) -> bool;
-};
 
 struct ArrayThrowingBooleanEquality {
     struct Result {
@@ -114,8 +111,8 @@ static_assert(can_compare_array_with<int>);
 static_assert(can_three_way_compare_array_with<int>);
 static_assert(nothrow_comparable_array_element<int>);
 static_assert(nothrow_three_way_comparable_array_element<int>);
-static_assert(can_compare_array_with<ArrayThrowingEquality>);
-static_assert(!nothrow_comparable_array_element<ArrayThrowingEquality>);
+static_assert(can_compare_array_with<::pltxt2htm_test::ThrowingEquality>);
+static_assert(!nothrow_comparable_array_element<::pltxt2htm_test::ThrowingEquality>);
 static_assert(can_compare_array_with<ArrayThrowingBooleanEquality>);
 static_assert(!nothrow_comparable_array_element<ArrayThrowingBooleanEquality>);
 static_assert(can_compare_array_with<ArrayThrowingThreeWay>);
