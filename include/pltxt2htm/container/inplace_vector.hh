@@ -928,29 +928,27 @@ public:
             self.set_size(common_size);
         }
     }
+
+    template<::std::size_t right_extent>
+        requires ::std::equality_comparable<value_type>
+    [[nodiscard]]
+    constexpr auto
+    operator==(this InplaceVector const& self, InplaceVector<value_type, right_extent> const& other) noexcept(
+        extent == 0 || right_extent == 0 || ::pltxt2htm::details::nothrow_equality_comparable<value_type>) -> bool {
+        return ::std::equal(self.begin(), self.end(), other.begin(), other.end());
+    }
+
+    template<::std::size_t right_extent>
+        requires ::std::three_way_comparable<value_type>
+    [[nodiscard]]
+    constexpr auto operator<=>(this InplaceVector const& self,
+                               InplaceVector<value_type, right_extent> const&
+                                   other) noexcept(extent == 0 || right_extent == 0 ||
+                                                   ::pltxt2htm::details::nothrow_three_way_comparable<value_type>) {
+        return ::std::lexicographical_compare_three_way(self.begin(), self.end(), other.begin(), other.end(),
+                                                        ::std::compare_three_way{});
+    }
 };
-
-template<typename T, ::std::size_t left_extent, ::std::size_t right_extent>
-    requires ::std::equality_comparable<T>
-[[nodiscard]]
-constexpr auto operator==(
-    InplaceVector<T, left_extent> const& left,
-    InplaceVector<T, right_extent> const& right) noexcept(left_extent == 0 || right_extent == 0 ||
-                                                          ::pltxt2htm::details::nothrow_equality_comparable<T>)
-    -> bool {
-    return ::std::equal(left.begin(), left.end(), right.begin(), right.end());
-}
-
-template<typename T, ::std::size_t left_extent, ::std::size_t right_extent>
-    requires ::std::three_way_comparable<T>
-[[nodiscard]]
-constexpr auto operator<=>(
-    InplaceVector<T, left_extent> const& left,
-    InplaceVector<T, right_extent> const& right) noexcept(left_extent == 0 || right_extent == 0 ||
-                                                          ::pltxt2htm::details::nothrow_three_way_comparable<T>) {
-    return ::std::lexicographical_compare_three_way(left.begin(), left.end(), right.begin(), right.end(),
-                                                    ::std::compare_three_way{});
-}
 
 template<typename T, ::std::size_t extent>
     requires (extent == 0 || (::std::swappable<T> && ::std::move_constructible<T>))
