@@ -140,21 +140,21 @@ private:
 #endif
     details::InplaceVectorSize<extent> size_storage;
 
-    constexpr void set_size(size_type new_size) noexcept {
+    constexpr void set_size(this InplaceVector& self, size_type new_size) noexcept {
         if constexpr (extent != 0) {
-            this->size_storage.value = new_size;
+            self.size_storage.value = new_size;
         }
     }
 
-    constexpr void increment_size() noexcept {
+    constexpr void increment_size(this InplaceVector& self) noexcept {
         if constexpr (extent != 0) {
-            ++this->size_storage.value;
+            ++self.size_storage.value;
         }
     }
 
-    constexpr void decrement_size() noexcept {
+    constexpr void decrement_size(this InplaceVector& self) noexcept {
         if constexpr (extent != 0) {
-            --this->size_storage.value;
+            --self.size_storage.value;
         }
     }
 
@@ -240,19 +240,20 @@ private:
     };
 
     [[nodiscard]]
-    constexpr auto position_index(const_iterator position, bool allow_end) const noexcept -> size_type {
+    constexpr auto position_index(this InplaceVector const& self, const_iterator position, bool allow_end) noexcept
+        -> size_type {
         if constexpr (extent == 0) {
             pltxt2htm_assert(position == nullptr && allow_end, u8"Invalid InplaceVector iterator");
             return 0;
         }
-        auto const offset = position - this->cbegin();
+        auto const offset = position - self.cbegin();
         pltxt2htm_assert(offset >= 0, u8"Invalid InplaceVector iterator");
         auto const index = static_cast<size_type>(offset);
         if (allow_end) {
-            pltxt2htm_assert(index <= this->size(), u8"Invalid InplaceVector iterator");
+            pltxt2htm_assert(index <= self.size(), u8"Invalid InplaceVector iterator");
         }
         else {
-            pltxt2htm_assert(index < this->size(), u8"Invalid InplaceVector iterator");
+            pltxt2htm_assert(index < self.size(), u8"Invalid InplaceVector iterator");
         }
         return index;
     }
