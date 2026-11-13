@@ -25,4 +25,25 @@ struct ThrowingEquality {
     friend auto operator==(ThrowingEquality const&, ThrowingEquality const&) -> bool;
 };
 
+// Range whose begin()/end() may throw; used to check that range wrappers include
+// the range-access calls in their noexcept specification.
+struct ThrowingBeginEndRange {
+    int const* first{};
+    int const* last{};
+    bool throw_on_begin{};
+
+    [[nodiscard]]
+    auto begin() const noexcept(false) -> int const* {
+        if (this->throw_on_begin) {
+            throw 1;
+        }
+        return this->first;
+    }
+
+    [[nodiscard]]
+    auto end() const noexcept(false) -> int const* {
+        return this->last;
+    }
+};
+
 } // namespace pltxt2htm_test

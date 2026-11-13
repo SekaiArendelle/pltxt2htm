@@ -14,6 +14,7 @@
 
 #include "doctest_config.hh"
 #include "details/concepts.hh"
+#include "details/structs.hh"
 
 using IntInplaceVector = ::pltxt2htm::container::InplaceVector<int, 8>;
 
@@ -118,6 +119,17 @@ static_assert(noexcept(::std::declval<PotentiallyThrowingComparisonEmptyInplaceV
                        ::std::declval<PotentiallyThrowingComparisonInplaceVector const&>()));
 static_assert(noexcept(::std::declval<PotentiallyThrowingComparisonInplaceVector const&>() <=>
                        ::std::declval<PotentiallyThrowingComparisonEmptyInplaceVector const&>()));
+
+using ThrowingBeginEndRange = ::pltxt2htm_test::ThrowingBeginEndRange;
+
+// Range wrappers must include the begin()/end() calls in their noexcept
+// specification; otherwise a throwing begin() would terminate.
+static_assert(!noexcept(::std::declval<IntInplaceVector&>().append_range(::std::declval<ThrowingBeginEndRange&>())));
+static_assert(!noexcept(::std::declval<IntInplaceVector&>().assign_range(::std::declval<ThrowingBeginEndRange&>())));
+static_assert(!noexcept(::std::declval<IntInplaceVector&>().insert_range(
+    ::std::declval<IntInplaceVector::const_iterator>(), ::std::declval<ThrowingBeginEndRange&>())));
+// A range with nothrow access keeps the wrappers noexcept.
+static_assert(noexcept(::std::declval<IntInplaceVector&>().append_range(::std::declval<::std::array<int, 2>&>())));
 
 consteval auto inplace_vector_constexpr_operations_work() -> bool {
     IntInplaceVector values;
@@ -399,5 +411,11 @@ TEST_SUITE("container_inplace_vector") {
         CHECK(values.size() == 2);
         CHECK(values[0] == 1);
         CHECK(values[1] == 4);
+    }
+
+    TEST_CASE("throwing-range-access-propagates") {
+        IntInplaceVector values;
+        ::pltxt2htm_test::ThrowingBeginEndRange range{nullptr, nullptr, true};
+        CHECK_THROWS(values.append_range(range));
     }
 }

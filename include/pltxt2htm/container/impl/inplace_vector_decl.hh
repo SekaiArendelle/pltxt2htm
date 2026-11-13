@@ -243,8 +243,7 @@ private:
     template<typename InputIterator, typename Sentinel>
     static consteval auto is_nothrow_range_iteration() noexcept -> bool {
         constexpr bool is_nothrow_iteration =
-            noexcept(static_cast<bool>(::std::declval<InputIterator&>() != ::std::declval<Sentinel&>())) &&
-            noexcept(++::std::declval<InputIterator&>()) && noexcept(*::std::declval<InputIterator&>()) &&
+            ::pltxt2htm::details::nothrow_sentinel_iteration<InputIterator, Sentinel> &&
             ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>> &&
             ::std::is_nothrow_copy_constructible_v<InputIterator> && ::std::is_nothrow_copy_constructible_v<Sentinel>;
         if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
@@ -254,6 +253,12 @@ private:
         else {
             return is_nothrow_iteration;
         }
+    }
+
+    template<typename Range>
+    static consteval auto is_nothrow_range_operation() noexcept -> bool {
+        return ::pltxt2htm::details::nothrow_range_access<Range> &&
+               is_nothrow_range_iteration<::std::ranges::iterator_t<Range>, ::std::ranges::sentinel_t<Range>>();
     }
 
     static consteval auto is_nothrow_element_rotation() noexcept -> bool {
@@ -377,8 +382,7 @@ public:
 
     template<::std::ranges::input_range Range>
         requires ::std::constructible_from<value_type, ::std::ranges::range_reference_t<Range>>
-    constexpr void assign_range(this InplaceVector& self, Range&& range) noexcept(
-        is_nothrow_range_iteration<::std::ranges::iterator_t<Range>, ::std::ranges::sentinel_t<Range>>()) {
+    constexpr void assign_range(this InplaceVector& self, Range&& range) noexcept(is_nothrow_range_operation<Range>()) {
         self.clear();
         self.append_range(::std::forward<Range>(range));
     }
@@ -648,8 +652,7 @@ public:
 
     template<::std::ranges::input_range Range>
         requires ::std::constructible_from<value_type, ::std::ranges::range_reference_t<Range>>
-    constexpr void append_range(this InplaceVector& self, Range&& range) noexcept(
-        is_nothrow_range_iteration<::std::ranges::iterator_t<Range>, ::std::ranges::sentinel_t<Range>>()) {
+    constexpr void append_range(this InplaceVector& self, Range&& range) noexcept(is_nothrow_range_operation<Range>()) {
         self.append(::std::ranges::begin(range), ::std::ranges::end(range));
     }
 
@@ -704,9 +707,9 @@ public:
         requires (::std::constructible_from<value_type, ::std::ranges::range_reference_t<Range>> &&
                   ::std::permutable<iterator>)
     [[nodiscard]]
-    constexpr auto insert_range(this InplaceVector& self, const_iterator position, Range&& range) noexcept(
-        is_nothrow_range_iteration<::std::ranges::iterator_t<Range>, ::std::ranges::sentinel_t<Range>>() &&
-        is_nothrow_element_rotation()) -> iterator {
+    constexpr auto insert_range(this InplaceVector& self, const_iterator position,
+                                Range&& range) noexcept(is_nothrow_range_operation<Range>() &&
+                                                        is_nothrow_element_rotation()) -> iterator {
         return self.insert(position, ::std::ranges::begin(range), ::std::ranges::end(range));
     }
 
