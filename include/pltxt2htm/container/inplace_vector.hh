@@ -258,10 +258,31 @@ private:
         return index;
     }
 
+    template<typename InputIterator, typename Sentinel>
+    static consteval auto is_nothrow_range_iteration() noexcept -> bool {
+        constexpr bool is_nothrow_iteration =
+            noexcept(static_cast<bool>(::std::declval<InputIterator&>() != ::std::declval<Sentinel&>())) &&
+            noexcept(++::std::declval<InputIterator&>()) && noexcept(*::std::declval<InputIterator&>()) &&
+            ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>> &&
+            ::std::is_nothrow_copy_constructible_v<InputIterator> && ::std::is_nothrow_copy_constructible_v<Sentinel>;
+        if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
+            return is_nothrow_iteration &&
+                   noexcept(static_cast<size_type>(::std::declval<Sentinel&>() - ::std::declval<InputIterator&>()));
+        }
+        else {
+            return is_nothrow_iteration;
+        }
+    }
+
+    static consteval auto is_nothrow_element_rotation() noexcept -> bool {
+        return ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type> &&
+               ::std::is_nothrow_swappable_v<value_type>;
+    }
+
 public:
     constexpr InplaceVector() noexcept = default;
 
-    constexpr explicit InplaceVector(size_type count)
+    constexpr explicit InplaceVector(size_type count) noexcept(::std::is_nothrow_default_constructible_v<value_type>)
         requires ::std::default_initializable<value_type>
     {
         pltxt2htm_assert(count <= extent, u8"InplaceVector capacity exceeded");
@@ -272,7 +293,8 @@ public:
         guard.release();
     }
 
-    constexpr InplaceVector(size_type count, const_reference value)
+    constexpr InplaceVector(size_type count,
+                            const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type>)
         requires ::std::copy_constructible<value_type>
     {
         pltxt2htm_assert(count <= extent, u8"InplaceVector capacity exceeded");
@@ -285,13 +307,15 @@ public:
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>
-    constexpr InplaceVector(InputIterator first, Sentinel last) {
+    constexpr InplaceVector(InputIterator first,
+                            Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>()) {
         ConstructionGuard guard{*this};
         this->append(first, last);
         guard.release();
     }
 
-    constexpr InplaceVector(::std::initializer_list<value_type> values)
+    constexpr InplaceVector(::std::initializer_list<value_type> values) noexcept(
+        ::std::is_nothrow_copy_constructible_v<value_type>)
         requires ::std::copy_constructible<value_type>
     {
         ConstructionGuard guard{*this};
@@ -343,7 +367,9 @@ public:
                    ::std::is_trivially_copy_assignable_v<value_type> && ::std::is_trivially_destructible_v<value_type>))
     = default;
 
-    constexpr auto operator=(this InplaceVector& self, InplaceVector const& other) -> InplaceVector&
+    constexpr auto operator=(this InplaceVector& self,
+                             InplaceVector const& other) noexcept(::std::is_nothrow_copy_constructible_v<value_type>)
+        -> InplaceVector&
         requires (extent != 0 && ::std::is_copy_constructible_v<value_type> &&
                   ::std::is_copy_assignable_v<value_type> &&
                   !(::std::is_trivially_copy_constructible_v<value_type> &&
@@ -378,7 +404,8 @@ public:
         return self;
     }
 
-    constexpr auto operator=(this InplaceVector& self, ::std::initializer_list<value_type> values) -> InplaceVector&
+    constexpr auto operator=(this InplaceVector& self, ::std::initializer_list<value_type> values) noexcept(
+        ::std::is_nothrow_copy_constructible_v<value_type>) -> InplaceVector&
         requires (::std::copy_constructible<value_type> && ::std::is_copy_assignable_v<value_type>)
     {
         self.assign(values.begin(), values.end());
@@ -388,19 +415,23 @@ public:
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires (::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>> &&
                   ::std::assignable_from<reference, ::std::iter_reference_t<InputIterator>>)
-    constexpr void assign(this InplaceVector& self, InputIterator first, Sentinel last) {
+    constexpr void assign(this InplaceVector& self, InputIterator first,
+                          Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>()) {
         self.clear();
         self.append(first, last);
     }
 
     template<::std::ranges::input_range Range>
         requires ::std::constructible_from<value_type, ::std::ranges::range_reference_t<Range>>
-    constexpr void assign_range(this InplaceVector& self, Range&& range) {
+    constexpr void assign_range(this InplaceVector& self, Range&& range) noexcept(
+        is_nothrow_range_iteration<::std::ranges::iterator_t<Range>, ::std::ranges::sentinel_t<Range>>()) {
         self.clear();
         self.append_range(::std::forward<Range>(range));
     }
 
-    constexpr void assign(this InplaceVector& self, size_type count, const_reference value)
+    constexpr void assign(this InplaceVector& self, size_type count,
+                          const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type> &&
+                                                          ::std::is_nothrow_copy_assignable_v<value_type>)
         requires (::std::copy_constructible<value_type> && ::std::is_copy_assignable_v<value_type>)
     {
         pltxt2htm_assert(count <= extent, u8"InplaceVector capacity exceeded");
@@ -416,7 +447,8 @@ public:
         }
     }
 
-    constexpr void assign(this InplaceVector& self, ::std::initializer_list<value_type> values)
+    constexpr void assign(this InplaceVector& self, ::std::initializer_list<value_type> values) noexcept(
+        ::std::is_nothrow_copy_constructible_v<value_type>)
         requires (::std::copy_constructible<value_type> && ::std::is_copy_assignable_v<value_type>)
     {
         self.assign(values.begin(), values.end());
@@ -549,7 +581,8 @@ public:
     static constexpr void shrink_to_fit() noexcept {
     }
 
-    constexpr void resize(this InplaceVector& self, size_type new_size)
+    constexpr void resize(this InplaceVector& self,
+                          size_type new_size) noexcept(::std::is_nothrow_default_constructible_v<value_type>)
         requires ::std::default_initializable<value_type>
     {
         pltxt2htm_assert(new_size <= extent, u8"InplaceVector capacity exceeded");
@@ -563,7 +596,8 @@ public:
         guard.release();
     }
 
-    constexpr void resize(this InplaceVector& self, size_type new_size, const_reference value)
+    constexpr void resize(this InplaceVector& self, size_type new_size,
+                          const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type>)
         requires ::std::copy_constructible<value_type>
     {
         pltxt2htm_assert(new_size <= extent, u8"InplaceVector capacity exceeded");
@@ -708,7 +742,8 @@ public:
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>
-    constexpr void append(this InplaceVector& self, InputIterator first, Sentinel last) {
+    constexpr void append(this InplaceVector& self, InputIterator first,
+                          Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>()) {
         if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
             auto const count = static_cast<size_type>(last - first);
             pltxt2htm_assert(count <= extent - self.size(), u8"InplaceVector capacity exceeded");
@@ -721,7 +756,8 @@ public:
 
     template<::std::ranges::input_range Range>
         requires ::std::constructible_from<value_type, ::std::ranges::range_reference_t<Range>>
-    constexpr void append_range(this InplaceVector& self, Range&& range) {
+    constexpr void append_range(this InplaceVector& self, Range&& range) noexcept(
+        is_nothrow_range_iteration<::std::ranges::iterator_t<Range>, ::std::ranges::sentinel_t<Range>>()) {
         self.append(::std::ranges::begin(range), ::std::ranges::end(range));
     }
 
@@ -734,7 +770,9 @@ public:
     template<typename... Args>
         requires (::std::constructible_from<value_type, Args...> && ::std::permutable<iterator>)
     [[nodiscard]]
-    constexpr auto emplace(this InplaceVector& self, const_iterator position, Args&&... args) -> iterator {
+    constexpr auto emplace(this InplaceVector& self, const_iterator position,
+                           Args&&... args) noexcept(::std::is_nothrow_constructible_v<value_type, Args...> &&
+                                                    is_nothrow_element_rotation()) -> iterator {
         auto const index = self.position_index(position, true);
         self.emplace_back(::std::forward<Args>(args)...);
         auto const result = self.iterator_at(index);
@@ -743,22 +781,27 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto insert(this InplaceVector& self, const_iterator position, const_reference value) -> iterator
+    constexpr auto insert(this InplaceVector& self, const_iterator position,
+                          const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type> &&
+                                                          is_nothrow_element_rotation()) -> iterator
         requires (::std::copy_constructible<value_type> && ::std::permutable<iterator>)
     {
         return self.emplace(position, value);
     }
 
     [[nodiscard]]
-    constexpr auto insert(this InplaceVector& self, const_iterator position, value_type&& value) -> iterator
+    constexpr auto insert(this InplaceVector& self, const_iterator position,
+                          value_type&& value) noexcept(::std::is_nothrow_move_constructible_v<value_type> &&
+                                                       is_nothrow_element_rotation()) -> iterator
         requires (::std::move_constructible<value_type> && ::std::permutable<iterator>)
     {
         return self.emplace(position, ::std::move(value));
     }
 
     [[nodiscard]]
-    constexpr auto insert(this InplaceVector& self, const_iterator position, size_type count, const_reference value)
-        -> iterator
+    constexpr auto insert(this InplaceVector& self, const_iterator position, size_type count,
+                          const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type> &&
+                                                          is_nothrow_element_rotation()) -> iterator
         requires (::std::copy_constructible<value_type> && ::std::permutable<iterator>)
     {
         auto const index = self.position_index(position, true);
@@ -779,8 +822,9 @@ public:
         requires (::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>> &&
                   ::std::permutable<iterator>)
     [[nodiscard]]
-    constexpr auto insert(this InplaceVector& self, const_iterator position, InputIterator first, Sentinel last)
-        -> iterator {
+    constexpr auto insert(this InplaceVector& self, const_iterator position, InputIterator first,
+                          Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>() &&
+                                                  is_nothrow_element_rotation()) -> iterator {
         auto const index = self.position_index(position, true);
         auto const old_size = self.size();
         self.append(first, last);
@@ -796,20 +840,25 @@ public:
         requires (::std::constructible_from<value_type, ::std::ranges::range_reference_t<Range>> &&
                   ::std::permutable<iterator>)
     [[nodiscard]]
-    constexpr auto insert_range(this InplaceVector& self, const_iterator position, Range&& range) -> iterator {
+    constexpr auto insert_range(this InplaceVector& self, const_iterator position, Range&& range) noexcept(
+        is_nothrow_range_iteration<::std::ranges::iterator_t<Range>, ::std::ranges::sentinel_t<Range>>() &&
+        is_nothrow_element_rotation()) -> iterator {
         return self.insert(position, ::std::ranges::begin(range), ::std::ranges::end(range));
     }
 
     [[nodiscard]]
-    constexpr auto insert(this InplaceVector& self, const_iterator position, ::std::initializer_list<value_type> values)
-        -> iterator
+    constexpr auto insert(
+        this InplaceVector& self, const_iterator position,
+        ::std::initializer_list<value_type> values) noexcept(::std::is_nothrow_copy_constructible_v<value_type> &&
+                                                             is_nothrow_element_rotation()) -> iterator
         requires (::std::copy_constructible<value_type> && ::std::permutable<iterator>)
     {
         return self.insert(position, values.begin(), values.end());
     }
 
     [[nodiscard]]
-    constexpr auto erase(this InplaceVector& self, const_iterator position) -> iterator
+    constexpr auto erase(this InplaceVector& self,
+                         const_iterator position) noexcept(::std::is_nothrow_move_assignable_v<value_type>) -> iterator
         requires ::std::is_move_assignable_v<value_type>
     {
         auto const index = self.position_index(position, false);
@@ -820,7 +869,8 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto erase(this InplaceVector& self, const_iterator first, const_iterator last) -> iterator
+    constexpr auto erase(this InplaceVector& self, const_iterator first,
+                         const_iterator last) noexcept(::std::is_nothrow_move_assignable_v<value_type>) -> iterator
         requires ::std::is_move_assignable_v<value_type>
     {
         auto const first_index = self.position_index(first, true);
@@ -883,7 +933,10 @@ public:
 template<typename T, ::std::size_t left_extent, ::std::size_t right_extent>
     requires ::std::equality_comparable<T>
 [[nodiscard]]
-constexpr auto operator==(InplaceVector<T, left_extent> const& left, InplaceVector<T, right_extent> const& right)
+constexpr auto operator==(
+    InplaceVector<T, left_extent> const& left,
+    InplaceVector<T, right_extent> const& right) noexcept(left_extent == 0 || right_extent == 0 ||
+                                                          ::pltxt2htm::details::nothrow_equality_comparable<T>)
     -> bool {
     return ::std::equal(left.begin(), left.end(), right.begin(), right.end());
 }
@@ -891,10 +944,10 @@ constexpr auto operator==(InplaceVector<T, left_extent> const& left, InplaceVect
 template<typename T, ::std::size_t left_extent, ::std::size_t right_extent>
     requires ::std::three_way_comparable<T>
 [[nodiscard]]
-constexpr auto
-operator<=>(InplaceVector<T, left_extent> const& left, InplaceVector<T, right_extent> const& right) noexcept(
-    left_extent == 0 || right_extent == 0 ||
-    noexcept(::std::compare_three_way{}(::std::declval<T const&>(), ::std::declval<T const&>()))) {
+constexpr auto operator<=>(
+    InplaceVector<T, left_extent> const& left,
+    InplaceVector<T, right_extent> const& right) noexcept(left_extent == 0 || right_extent == 0 ||
+                                                          ::pltxt2htm::details::nothrow_three_way_comparable<T>) {
     return ::std::lexicographical_compare_three_way(left.begin(), left.end(), right.begin(), right.end(),
                                                     ::std::compare_three_way{});
 }
