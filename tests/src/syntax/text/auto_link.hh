@@ -136,6 +136,29 @@ TEST_SUITE("auto_link") {
         auto const& answer = u8"https://www.example.wtf";
         CHECK(html == answer);
     }
+    TEST_CASE("wg21-link") {
+        auto const& pltext = u8"https://wg21.link/p3655";
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
+        auto const& answer = u8"<a href=\"https://wg21.link/p3655\">https://wg21.link/p3655</a>";
+        CHECK(html == answer);
+    }
+    TEST_CASE("newer-gtlds") {
+        auto const& pltext = u8"https://vitejs.dev/guide https://bit.ly/3abc https://foo.page/docs";
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
+        auto const& answer =
+            u8"<a href=\"https://vitejs.dev/guide\">https://vitejs.dev/guide</a>&nbsp;<a href=\"https://bit.ly/"
+            u8"3abc\">https://bit.ly/3abc</a>&nbsp;<a href=\"https://foo.page/docs\">https://foo.page/docs</a>";
+        CHECK(html == answer);
+    }
+    TEST_CASE("common-cctlds") {
+        auto const& pltext = u8"https://www.debian.org https://kernel.org https://example.de https://podcast.fm";
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
+        auto const& answer =
+            u8"<a href=\"https://www.debian.org\">https://www.debian.org</a>&nbsp;<a href=\"https://kernel.org\">"
+            u8"https://kernel.org</a>&nbsp;<a href=\"https://example.de\">https://example.de</a>&nbsp;<a "
+            u8"href=\"https://podcast.fm\">https://podcast.fm</a>";
+        CHECK(html == answer);
+    }
     TEST_CASE("javascript-not-linked") {
         auto const& pltext = u8"javascript:alert(1)";
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
