@@ -80,8 +80,7 @@ private:
     [[nodiscard]]
     static consteval auto is_nothrow_range_iteration() noexcept -> bool {
         constexpr bool is_nothrow_iteration =
-            noexcept(static_cast<bool>(::std::declval<InputIterator&>() != ::std::declval<Sentinel&>())) &&
-            noexcept(++::std::declval<InputIterator&>()) &&
+            ::pltxt2htm::details::nothrow_sentinel_iteration<InputIterator, Sentinel> &&
             noexcept(static_cast<value_type>(*::std::declval<InputIterator&>()));
         if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
             return is_nothrow_iteration &&

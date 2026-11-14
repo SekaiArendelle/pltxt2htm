@@ -6,6 +6,7 @@
 #pragma once
 
 #include <concepts>
+#include <ranges>
 
 namespace pltxt2htm::details {
 
@@ -34,6 +35,28 @@ concept nothrow_equality_comparable = requires(T const& left, T const& right) {
 template<typename T>
 concept nothrow_three_way_comparable = requires(T const& left, T const& right) {
     { left <=> right } noexcept;
+};
+
+/**
+ * @brief Iterating the given iterator/sentinel pair cannot throw.
+ * @details Checks the operations a range loop performs: dereference, increment
+ * and the sentinel comparison. Element construction and iterator copies are
+ * container-specific and are checked by the caller.
+ */
+template<typename Iterator, typename Sentinel>
+concept nothrow_sentinel_iteration = requires(Iterator& iterator, Sentinel& sentinel) {
+    { *iterator } noexcept;
+    { ++iterator } noexcept;
+    { static_cast<bool>(iterator != sentinel) } noexcept;
+};
+
+/**
+ * @brief Calling begin() and end() on an lvalue of Range cannot throw.
+ */
+template<typename Range>
+concept nothrow_range_access = requires(Range& range) {
+    { ::std::ranges::begin(range) } noexcept;
+    { ::std::ranges::end(range) } noexcept;
 };
 
 template<typename T, typename U>
