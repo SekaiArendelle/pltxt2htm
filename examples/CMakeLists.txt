@@ -23,7 +23,8 @@ foreach(EXAMPLE_SOURCE ${EXAMPLE_SOURCES})
     target_compile_features(${EXAMPLE_NAME} PRIVATE cxx_std_23)
 
     if(WIN32 OR MINGW)
-        target_link_libraries(${EXAMPLE_NAME} PRIVATE ntdll)
+        # Panic diagnostics resolve symbols through DbgHelp and capture through ntdll.
+        target_link_libraries(${EXAMPLE_NAME} PRIVATE ntdll dbghelp)
     endif()
 
     if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
