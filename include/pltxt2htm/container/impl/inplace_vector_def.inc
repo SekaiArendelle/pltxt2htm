@@ -151,14 +151,15 @@ constexpr void InplaceVector<T, extent>::resize(
     requires ::std::copy_constructible<value_type>
 {
     pltxt2htm_assert(new_size <= extent, u8"InplaceVector capacity exceeded");
-    // Copy the fill value first: shrinking may destroy the element that value refers to.
-    value_type const fill{value};
-    AppendRollbackGuard guard{self};
-    while (self.size() > new_size) {
-        self.pop_back();
+    if (new_size <= self.size()) {
+        while (self.size() > new_size) {
+            self.pop_back();
+        }
+        return;
     }
+    AppendRollbackGuard guard{self};
     while (self.size() < new_size) {
-        self.emplace_back(fill);
+        self.emplace_back(value);
     }
     guard.release();
 }

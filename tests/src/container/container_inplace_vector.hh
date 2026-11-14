@@ -184,6 +184,21 @@ consteval auto inplace_vector_constexpr_operations_work() -> bool {
         return false;
     }
 
+    // The fill value may refer to a tail element that shrinking destroys; the
+    // shrink path must not read it. Constant evaluation makes a stray read fail.
+    IntInplaceVector self_reference_shrink{1, 2, 3, 4, 5};
+    self_reference_shrink.resize(2, self_reference_shrink[4]);
+    if (self_reference_shrink != ::pltxt2htm::container::InplaceVector<int, 2>{1, 2}) {
+        return false;
+    }
+
+    // Growth appends at the tail without relocating the source element.
+    IntInplaceVector self_reference_grow{7};
+    self_reference_grow.resize(4, self_reference_grow[0]);
+    if (self_reference_grow != ::pltxt2htm::container::InplaceVector<int, 4>{7, 7, 7, 7}) {
+        return false;
+    }
+
     ::std::array<int, 3> const replacement{8, 6, 7};
     values.assign_range(replacement);
     (void)values.insert_range(values.begin() + 1, ::std::array<int, 2>{3, 4});
@@ -280,6 +295,32 @@ struct TrackedInplaceVectorValue {
     }
 };
 
+struct CopyTrackedInplaceVectorValue {
+    static inline int copies{};
+    static inline bool throw_on_copy{};
+    static inline int throw_after{-1};
+    static inline CopyTrackedInplaceVectorValue const* copy_source{};
+    int value{};
+
+    explicit CopyTrackedInplaceVectorValue(int value_) noexcept
+        : value{value_} {
+    }
+
+    CopyTrackedInplaceVectorValue(CopyTrackedInplaceVectorValue const& other)
+        : value{other.value} {
+        if (throw_on_copy || copies == throw_after) {
+            throw 1;
+        }
+        copy_source = ::std::addressof(other);
+        ++copies;
+    }
+
+    CopyTrackedInplaceVectorValue(CopyTrackedInplaceVectorValue&&) noexcept = default;
+
+    ~CopyTrackedInplaceVectorValue() noexcept {
+    }
+};
+
 } // namespace pltxt2htm_test
 
 TEST_SUITE("container_inplace_vector") {
@@ -340,19 +381,99 @@ TEST_SUITE("container_inplace_vector") {
     }
 
     TEST_CASE("resize-with-self-referencing-value") {
-        // When shrinking destroys the element that value references, the fill
-        // value must be copied before any mutation.
+        // Shrinking destroys the element that value references, but that path
+        // never uses the fill value. Growth appends at the tail, so the source
+        // element stays in place while copies are appended.
         ::pltxt2htm::container::InplaceVector<int, 8> values{1, 2, 3, 4, 5};
         values.resize(2, values[4]);
         CHECK(values.size() == 2);
         CHECK(values[0] == 1);
         CHECK(values[1] == 2);
-        // Now grow with the preserved fill value (5).
+        // Now grow; the source element is not relocated.
         values.resize(5, values[0]);
         CHECK(values.size() == 5);
         CHECK(values[2] == 1);
         CHECK(values[3] == 1);
         CHECK(values[4] == 1);
+    }
+
+    TEST_CASE("resize-with-value-copy-count") {
+        using CopyVector = ::pltxt2htm::container::InplaceVector<::pltxt2htm_test::CopyTrackedInplaceVectorValue, 8>;
+        CopyVector values;
+        values.emplace_back(7);
+
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::throw_on_copy = false;
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::copies = 0;
+        values.resize(4, values.front());
+        CHECK(values.size() == 4);
+        CHECK(::pltxt2htm_test::CopyTrackedInplaceVectorValue::copies == 3);
+        CHECK(values[0].value == 7);
+        CHECK(values[3].value == 7);
+
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::copies = 0;
+        values.resize(2, values.front());
+        CHECK(values.size() == 2);
+        CHECK(::pltxt2htm_test::CopyTrackedInplaceVectorValue::copies == 0);
+
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::copies = 0;
+        values.resize(values.size(), values.front());
+        CHECK(values.size() == 2);
+        CHECK(::pltxt2htm_test::CopyTrackedInplaceVectorValue::copies == 0);
+    }
+
+    TEST_CASE("resize-with-value-growth-keeps-source-valid") {
+        using CopyVector = ::pltxt2htm::container::InplaceVector<::pltxt2htm_test::CopyTrackedInplaceVectorValue, 8>;
+        CopyVector values;
+        values.emplace_back(1);
+        values.emplace_back(2);
+        auto const* const source = ::std::addressof(values.back());
+
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::copies = 0;
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::throw_on_copy = false;
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::copy_source = nullptr;
+        values.resize(4, values.back());
+        CHECK(values.size() == 4);
+        CHECK(values[2].value == 2);
+        CHECK(values[3].value == 2);
+        CHECK(::pltxt2htm_test::CopyTrackedInplaceVectorValue::copies == 2);
+        CHECK(::pltxt2htm_test::CopyTrackedInplaceVectorValue::copy_source == source);
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::copy_source = nullptr;
+    }
+
+    TEST_CASE("resize-with-value-shrink-does-not-copy") {
+        using CopyVector = ::pltxt2htm::container::InplaceVector<::pltxt2htm_test::CopyTrackedInplaceVectorValue, 8>;
+        CopyVector values;
+        values.emplace_back(1);
+        values.emplace_back(2);
+
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::copies = 0;
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::throw_on_copy = true;
+        CHECK_NOTHROW(values.resize(1, values.back()));
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::throw_on_copy = false;
+        CHECK(values.size() == 1);
+        CHECK(::pltxt2htm_test::CopyTrackedInplaceVectorValue::copies == 0);
+
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::throw_on_copy = true;
+        CHECK_NOTHROW(values.resize(values.size(), values.front()));
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::throw_on_copy = false;
+        CHECK(values.size() == 1);
+        CHECK(::pltxt2htm_test::CopyTrackedInplaceVectorValue::copies == 0);
+    }
+
+    TEST_CASE("resize-with-value-throwing-copy-rolls-back") {
+        using CopyVector = ::pltxt2htm::container::InplaceVector<::pltxt2htm_test::CopyTrackedInplaceVectorValue, 8>;
+        CopyVector values;
+        values.emplace_back(1);
+        values.emplace_back(2);
+
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::copies = 0;
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::throw_on_copy = false;
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::throw_after = 1;
+        CHECK_THROWS(values.resize(5, values.front()));
+        ::pltxt2htm_test::CopyTrackedInplaceVectorValue::throw_after = -1;
+        CHECK(values.size() == 2);
+        CHECK(values[0].value == 1);
+        CHECK(values[1].value == 2);
     }
 
     TEST_CASE("assign-with-self-referencing-value") {
