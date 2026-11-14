@@ -35,23 +35,31 @@ namespace pltxt2htm::container {
 
 namespace details {
 
+// Equivalent to std::is_trivial_v<T>, spelled out because that trait is
+// deprecated in C++26. Trivial assignment is deliberately not required: the
+// constant-evaluation storage activates elements by constructing the array.
 template<typename T>
 concept is_constexpr_activatable_inplace_vector_element =
-    ::std::is_trivially_default_constructible_v<T> && ::std::is_trivially_copyable_v<T> &&
-    ::std::is_trivially_assignable_v<T&, T>;
+    ::std::is_trivially_default_constructible_v<T> && ::std::is_trivially_copyable_v<T>;
+
+template<typename T, ::std::size_t extent>
+struct InplaceVectorArrayMember {
+    T values[extent];
+};
 
 template<typename T, ::std::size_t extent>
 union InplaceVectorNonzeroStorage {
-    T elements[extent];
+    InplaceVectorArrayMember<T, extent> array;
 
     constexpr InplaceVectorNonzeroStorage() noexcept {
         if consteval {
-            // Assignment implicitly starts the lifetime of this union array and
-            // its implicit-lifetime elements without relying on array construct_at.
+            // Constructing the member starts the lifetime of this union member and
+            // value-initializes its elements. A wrapper object is used because
+            // std::construct_at on an array is not available in every standard
+            // library (LWG-3436). This does not need assignment, so trivial types
+            // with a deleted assignment operator are supported too.
             if constexpr (is_constexpr_activatable_inplace_vector_element<T>) {
-                for (::std::size_t index{}; index != extent; ++index) {
-                    elements[index] = T{};
-                }
+                ::std::construct_at(::std::addressof(array));
             }
         }
     }
@@ -570,7 +578,7 @@ public:
             return nullptr;
         }
         else {
-            return self.storage.elements;
+            return self.storage.array.values;
         }
     }
 
@@ -580,7 +588,7 @@ public:
             return nullptr;
         }
         else {
-            return self.storage.elements;
+            return self.storage.array.values;
         }
     }
 

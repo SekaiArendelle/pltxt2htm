@@ -43,6 +43,10 @@ struct TriviallyMovableOnlyInplace {
 };
 
 struct TrivialWithoutAssignmentInplace {
+    TrivialWithoutAssignmentInplace() = default;
+    TrivialWithoutAssignmentInplace(TrivialWithoutAssignmentInplace const&) = default;
+    TrivialWithoutAssignmentInplace(TrivialWithoutAssignmentInplace&&) = default;
+
     auto operator=(this TrivialWithoutAssignmentInplace&, TrivialWithoutAssignmentInplace const&)
         -> TrivialWithoutAssignmentInplace& = delete;
     int value;
@@ -254,6 +258,27 @@ consteval auto zero_capacity_inplace_vector_works() -> bool {
 }
 
 static_assert(zero_capacity_inplace_vector_works());
+
+consteval auto inplace_vector_constexpr_trivial_without_assignment_works() -> bool {
+    using Vector = ::pltxt2htm::container::InplaceVector<TrivialWithoutAssignmentInplace, 2>;
+    Vector values;
+    values.emplace_back().value = 1;
+    values.emplace_back().value = 2;
+    if (values.size() != 2 || values[0].value != 1 || values[1].value != 2) {
+        return false;
+    }
+
+    auto copied = values;
+    if (copied.size() != 2 || copied[0].value != 1 || copied[1].value != 2) {
+        return false;
+    }
+
+    values.pop_back();
+    values.clear();
+    return values.is_empty() && copied.size() == 2 && copied[0].value == 1 && copied[1].value == 2;
+}
+
+static_assert(inplace_vector_constexpr_trivial_without_assignment_works());
 
 namespace pltxt2htm_test {
 
