@@ -390,8 +390,12 @@ public:
      * @brief Exchanges the values of this view and @p other.
      */
     constexpr void swap(this BasicCStringView& self, BasicCStringView& other) noexcept {
-        ::std::swap(self.pointer, other.pointer);
-        ::std::swap(self.length, other.length);
+        auto const tmp_pointer = self.pointer;
+        auto const tmp_length = self.length;
+        self.pointer = other.pointer;
+        self.length = other.length;
+        other.pointer = tmp_pointer;
+        other.length = tmp_length;
     }
 
     /**

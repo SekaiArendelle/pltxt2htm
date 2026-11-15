@@ -300,21 +300,25 @@ public:
      * @param count Number of leading characters to drop.
      * @pre count <= size()
      */
-    constexpr auto remove_prefix(this BasicStringView& self, size_type count) noexcept -> void;
+    constexpr void remove_prefix(this BasicStringView& self, size_type count) noexcept;
 
     /**
      * @brief Drops @p count trailing characters.
      * @param count Number of trailing characters to drop.
      * @pre count <= size()
      */
-    constexpr auto remove_suffix(this BasicStringView& self, size_type count) noexcept -> void;
+    constexpr void remove_suffix(this BasicStringView& self, size_type count) noexcept;
 
     /**
      * @brief Exchanges the referenced sequence with @p right.
      */
-    constexpr auto swap(this BasicStringView& self, BasicStringView& right) noexcept -> void {
-        ::std::swap(self.pointer, right.pointer);
-        ::std::swap(self.length, right.length);
+    constexpr void swap(this BasicStringView& self, BasicStringView& other) noexcept {
+        auto const tmp_pointer = self.pointer;
+        auto const tmp_length = self.length;
+        self.pointer = other.pointer;
+        self.length = other.length;
+        other.pointer = tmp_pointer;
+        other.length = tmp_length;
     }
 
     [[nodiscard]]

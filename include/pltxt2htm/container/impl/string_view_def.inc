@@ -46,14 +46,14 @@ constexpr auto BasicStringView<CharType>::back(this BasicStringView const& self)
 }
 
 template<::pltxt2htm::details::is_char_type CharType>
-constexpr auto BasicStringView<CharType>::remove_prefix(this BasicStringView& self, size_type count) noexcept -> void {
+constexpr void BasicStringView<CharType>::remove_prefix(this BasicStringView& self, size_type count) noexcept {
     pltxt2htm_assert(count <= self.length, u8"Remove_prefix count of BasicStringView out of bound");
     self.pointer += count;
     self.length -= count;
 }
 
 template<::pltxt2htm::details::is_char_type CharType>
-constexpr auto BasicStringView<CharType>::remove_suffix(this BasicStringView& self, size_type count) noexcept -> void {
+constexpr void BasicStringView<CharType>::remove_suffix(this BasicStringView& self, size_type count) noexcept {
     pltxt2htm_assert(count <= self.length, u8"Remove_suffix count of BasicStringView out of bound");
     self.length -= count;
 }
