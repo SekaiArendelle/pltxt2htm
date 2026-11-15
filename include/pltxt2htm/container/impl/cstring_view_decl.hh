@@ -571,7 +571,7 @@ public:
             return npos;
         }
         for (size_type index = position; index < self.length; ++index) {
-            if (::std::find(set.begin(), set.end(), self.pointer[index]) != set.end()) {
+            if (::std::ranges::find(set, self.pointer[index]) != set.end()) {
                 return index;
             }
         }
@@ -604,7 +604,7 @@ public:
         }
         size_type const start = ::std::min(position, self.length - 1);
         for (size_type index = start + 1; index-- > 0;) {
-            if (::std::find(set.begin(), set.end(), self.pointer[index]) != set.end()) {
+            if (::std::ranges::find(set, self.pointer[index]) != set.end()) {
                 return index;
             }
         }
@@ -636,7 +636,7 @@ public:
             return npos;
         }
         for (size_type index = position; index < self.length; ++index) {
-            if (::std::find(set.begin(), set.end(), self.pointer[index]) == set.end()) {
+            if (::std::ranges::find(set, self.pointer[index]) == set.end()) {
                 return index;
             }
         }
@@ -677,7 +677,7 @@ public:
         }
         size_type const start = ::std::min(position, self.length - 1);
         for (size_type index = start + 1; index-- > 0;) {
-            if (::std::find(set.begin(), set.end(), self.pointer[index]) == set.end()) {
+            if (::std::ranges::find(set, self.pointer[index]) == set.end()) {
                 return index;
             }
         }
