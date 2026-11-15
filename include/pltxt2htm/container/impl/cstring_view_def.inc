@@ -1,6 +1,12 @@
 /**
  * @file cstring_view_def.inc
  * @brief Out-of-line contract-checked definitions for container::BasicCStringView.
+ * @note The trailing requires-clauses use the member aliases (value_type,
+ *       size_type, const_pointer, the injected class name) so their spelling is
+ *       token-identical to the declarations. A requires-clause in the
+ *       template-head of an out-of-line member definition is parsed before the
+ *       class scope is entered and cannot see these aliases, which is why the
+ *       constraints live in the trailing position here and in the class.
  */
 
 #pragma once
@@ -11,8 +17,8 @@ namespace pltxt2htm::container {
 
 template<::pltxt2htm::details::is_char_type CharType>
 template<typename PointerType>
-    requires (::std::same_as<PointerType, CharType const*> || ::std::same_as<PointerType, CharType*>)
 constexpr BasicCStringView<CharType>::BasicCStringView(PointerType string) noexcept
+    requires (::std::same_as<PointerType, value_type const*> || ::std::same_as<PointerType, value_type*>)
     : pointer{string} {
     pltxt2htm_assert(string != nullptr, u8"Null pointer passed to BasicCStringView");
     length = ::fast_io::cstr_len(string);
@@ -38,29 +44,30 @@ constexpr BasicCStringView<CharType>::BasicCStringView(value_type const (&string
 
 template<::pltxt2htm::details::is_char_type CharType>
 template<typename InputIterator, typename EndSentinel>
-    requires (::std::contiguous_iterator<InputIterator> && ::std::sized_sentinel_for<EndSentinel, InputIterator> &&
-              ::std::same_as<::std::iter_value_t<InputIterator>, CharType> &&
-              !::std::convertible_to<EndSentinel, ::std::size_t>)
 constexpr BasicCStringView<CharType>::BasicCStringView(InputIterator begin, EndSentinel end) noexcept(
     noexcept(::std::to_address(::std::declval<InputIterator&>())) &&
     noexcept(::std::declval<EndSentinel&>() - ::std::declval<InputIterator&>()) &&
     noexcept(::std::declval<InputIterator&>()[::std::size_t{}]))
+    requires (::std::contiguous_iterator<InputIterator> && ::std::sized_sentinel_for<EndSentinel, InputIterator> &&
+              ::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
+              !::std::convertible_to<EndSentinel, size_type>)
     : pointer{::std::to_address(begin)},
       length{static_cast<::std::size_t>(end - begin)} {
-    pltxt2htm_assert(begin[length] == CharType{}, u8"BasicCStringView does not refer to a null-terminated string");
+    pltxt2htm_assert(::std::to_address(begin) != nullptr && begin[length] == CharType{},
+                     u8"BasicCStringView does not refer to a null-terminated string");
 }
 
 template<::pltxt2htm::details::is_char_type CharType>
 template<::pltxt2htm::container::details::is_ntcts_range<CharType> RangeType>
-    requires (::std::is_lvalue_reference_v<RangeType&&> &&
-              !::std::same_as<::std::remove_cvref_t<RangeType>, ::pltxt2htm::container::BasicCStringView<CharType>> &&
-              !::std::same_as<::std::remove_cvref_t<RangeType>, ::pltxt2htm::container::BasicStringView<CharType>> &&
-              !::pltxt2htm::details::is_literal_string<RangeType> &&
-              !::pltxt2htm::details::is_basic_inplace_string<RangeType> &&
-              !::std::convertible_to<RangeType, CharType const*>)
 constexpr BasicCStringView<CharType>::BasicCStringView(RangeType&& range) noexcept(
     noexcept(::std::ranges::data(::std::declval<RangeType&>())) &&
     noexcept(::std::ranges::size(::std::declval<RangeType&>())))
+    requires (::std::is_lvalue_reference_v<RangeType&&> &&
+              !::std::same_as<::std::remove_cvref_t<RangeType>, BasicCStringView> &&
+              !::std::same_as<::std::remove_cvref_t<RangeType>, BasicStringView<value_type>> &&
+              !::pltxt2htm::details::is_literal_string<RangeType> &&
+              !::pltxt2htm::details::is_basic_inplace_string<RangeType> &&
+              !::std::convertible_to<RangeType, const_pointer>)
     : pointer{::std::ranges::data(range)},
       length{static_cast<::std::size_t>(::std::ranges::size(range))} {
     pltxt2htm_assert(::std::ranges::data(range) != nullptr && ::std::ranges::data(range)[length] == CharType{},
@@ -124,7 +131,7 @@ constexpr auto BasicCStringView<CharType>::subview(this BasicCStringView const& 
         pltxt2htm_assert(count <= remaining_size, u8"Subview size of BasicCStringView out of bound");
     }
 
-    const_pointer const subview_data{position == 0 ? self.pointer : self.pointer + position};
+    const_pointer const subview_data{self.pointer + position};
     return BasicStringView<CharType>{subview_data, count};
 }
 
