@@ -119,8 +119,6 @@ public:
     // special member set complete.
     constexpr BasicCStringView(BasicCStringView const&) noexcept = default;
 
-    constexpr BasicCStringView(BasicCStringView&&) noexcept = default;
-
     constexpr ~BasicCStringView() noexcept = default;
 
     // The standard implements this as a defaulted copy assignment with an implicit
