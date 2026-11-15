@@ -25,6 +25,12 @@ using U8InplaceString = ::pltxt2htm::details::U8InplaceString<8>;
 template<typename CharType>
 concept can_form_basic_cstring_view = requires { typename ::pltxt2htm::container::BasicCStringView<CharType>; };
 
+// Requires-expressions in a non-dependent context are ill-formed when the body is
+// invalid, so the deleted-member check needs a templated entity to become a
+// substitution failure.
+template<typename ViewType>
+concept can_remove_suffix = requires(ViewType& view) { view.remove_suffix(1); };
+
 static_assert(::std::is_trivially_copyable_v<U8CStringView>);
 static_assert(::std::is_standard_layout_v<U8CStringView>);
 static_assert(::std::same_as<U8CStringView::value_type, char8_t>);
@@ -62,6 +68,7 @@ static_assert(can_form_basic_cstring_view<char32_t>);
 static_assert(!can_form_basic_cstring_view<bool>);
 static_assert(!can_form_basic_cstring_view<int>);
 static_assert(!can_call_empty<U8CStringView>);
+static_assert(!can_remove_suffix<U8CStringView>);
 
 TEST_SUITE("container_cstring_view") {
     consteval auto test_constexpr_cstring_view() noexcept -> bool {
@@ -95,9 +102,21 @@ TEST_SUITE("container_cstring_view") {
             return false;
         }
 
+        auto const empty_tail = text.subview(text.size());
+        if (!empty_tail.is_empty() || empty_tail.data() != text.data() + text.size() || *empty_tail.data() != u8'\0') {
+            return false;
+        }
+
         U8CStringView removed_prefix{text};
         removed_prefix.remove_prefix(4);
         if (removed_prefix != u8"ef" || removed_prefix.size() != 2 || *removed_prefix.data() != u8'e') {
+            return false;
+        }
+
+        U8CStringView removed_all_prefix{text};
+        removed_all_prefix.remove_prefix(removed_all_prefix.size());
+        if (!removed_all_prefix.is_empty() || *removed_all_prefix.data() != u8'\0' ||
+            removed_all_prefix.c_str() != text.data() + text.size()) {
             return false;
         }
 
@@ -112,12 +131,15 @@ TEST_SUITE("container_cstring_view") {
         }
 
         if (text.find(u8"cd") != 2 || text.find(u8'c') != 2 || text.find(u8"cd", 3) != U8CStringView::npos ||
-            text.find(u8"") != 0 || text.find(u8"abcdefg") != U8CStringView::npos) {
+            text.find(u8"") != 0 || text.find(u8"abcdefg") != U8CStringView::npos ||
+            text.find(u8"a", text.size() + 1) != U8CStringView::npos ||
+            text.find(u8'a', text.size() + 1) != U8CStringView::npos) {
             return false;
         }
 
         if (text.rfind(u8"cd") != 2 || text.rfind(u8'c') != 2 || text.rfind(u8"c", 1) != U8CStringView::npos ||
-            text.rfind(u8"") != 6 || text.rfind(u8"abcdefg") != U8CStringView::npos) {
+            text.rfind(u8"") != 6 || text.rfind(u8"abcdefg") != U8CStringView::npos ||
+            text.rfind(u8"abc", text.size() + 1) != 0) {
             return false;
         }
 
