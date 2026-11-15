@@ -82,6 +82,71 @@ TEST_SUITE("container_string_view") {
             return false;
         }
 
+        if (text.front() != u8'a' || text.back() != u8'f' || *text.cbegin() != u8'a' || *text.crbegin() != u8'f' ||
+            text.cbegin() != text.begin() || text.cend() != text.end() || *(text.rend() - 1) != u8'a' ||
+            *(text.rbegin() + 5) != u8'a' || text.crbegin() != text.rbegin() || text.crend() != text.rend()) {
+            return false;
+        }
+
+        if (!text.starts_with(u8'a') || !text.ends_with(u8'f') || empty.starts_with(u8'a') || empty.ends_with(u8'a')) {
+            return false;
+        }
+
+        if (!text.contains(u8"abc") || !text.contains(u8"cde") || !text.contains(u8"abcdef") ||
+            !text.contains(U8StringView{}) || !text.contains(u8'c') || !text.contains(u8"f") ||
+            text.contains(u8"abcdefg") || text.contains(u8"bca") || empty.contains(u8"a")) {
+            return false;
+        }
+
+        U8StringView mutable_view{u8"abcdef"};
+        mutable_view.remove_prefix(1);
+        mutable_view.remove_suffix(1);
+        if (mutable_view != u8"bcde") {
+            return false;
+        }
+        mutable_view.remove_prefix(mutable_view.size());
+        if (!mutable_view.is_empty()) {
+            return false;
+        }
+
+        U8StringView left{u8"left"};
+        U8StringView right{u8"right"};
+        left.swap(right);
+        if (left != u8"right" || right != u8"left") {
+            return false;
+        }
+
+        if (text.find(u8"abc") != 0 || text.find(u8"cde") != 2 || text.find(u8"f") != 5 || text.find(u8"abcdef") != 0 ||
+            text.find(U8StringView{}) != 0 || text.find(u8'c') != 2 || text.find(u8"", 3) != 3 ||
+            text.find(u8"a", 6) != U8StringView::npos || text.find(u8"abcdefg") != U8StringView::npos ||
+            text.find(u8"bca") != U8StringView::npos || empty.find(u8"a") != U8StringView::npos) {
+            return false;
+        }
+
+        if (text.rfind(u8"def") != 3 || text.rfind(u8"a") != 0 || text.rfind(u8"abcdef") != 0 ||
+            text.rfind(U8StringView{}) != 6 || text.rfind(u8'f') != 5 || text.rfind(u8"", 2) != 2 ||
+            text.rfind(u8"a", 0) != 0 || text.rfind(u8"bca") != U8StringView::npos ||
+            empty.rfind(u8"abc") != U8StringView::npos) {
+            return false;
+        }
+
+        if (text.find_first_of(u8"cd") != 2 || text.find_first_of(u8'c') != 2 ||
+            text.find_first_of(u8"xyz") != U8StringView::npos || text.find_first_of(u8"abc", 3) != U8StringView::npos ||
+            text.find_first_of(U8StringView{}) != U8StringView::npos ||
+            empty.find_first_of(u8"a") != U8StringView::npos || text.find_last_of(u8"cd") != 3 ||
+            text.find_last_of(u8'c') != 2 || text.find_last_of(u8"abcdef") != 5 ||
+            text.find_last_of(u8"xyz") != U8StringView::npos || empty.find_last_of(u8"a") != U8StringView::npos) {
+            return false;
+        }
+
+        if (text.find_first_not_of(u8"abc") != 3 || text.find_first_not_of(u8'a') != 1 ||
+            text.find_first_not_of(u8"abcdef") != U8StringView::npos || text.find_first_not_of(u8"abc", 3) != 3 ||
+            empty.find_first_not_of(u8"a") != U8StringView::npos || text.find_last_not_of(u8"ef") != 3 ||
+            text.find_last_not_of(u8'f') != 4 || text.find_last_not_of(u8"abcdef") != U8StringView::npos ||
+            text.find_last_not_of(u8"de", 3) != 2 || empty.find_last_not_of(u8"a") != U8StringView::npos) {
+            return false;
+        }
+
         constexpr auto literal = ::pltxt2htm::details::U8LiteralString{u8"literal"};
         auto const literal_view = ::pltxt2htm::container::BasicStringView{literal};
         static_assert(::std::same_as<::std::remove_cvref_t<decltype(literal_view)>, U8StringView>);

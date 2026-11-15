@@ -474,42 +474,22 @@ public:
     [[nodiscard]]
     constexpr auto find(this BasicCStringView const& self, BasicStringView<CharType> needle,
                         size_type position = 0) noexcept -> size_type {
-        if (position > self.length) {
-            return npos;
-        }
-        if (needle.is_empty()) {
-            return position;
-        }
-        if (needle.size() > self.length - position) {
-            return npos;
-        }
-        size_type const scan_limit = self.length - needle.size();
-        for (size_type index = position; index <= scan_limit; ++index) {
-            if (::std::equal(needle.begin(), needle.end(), self.pointer + index)) {
-                return index;
-            }
-        }
-        return npos;
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find(needle, position);
     }
 
     [[nodiscard]]
     constexpr auto find(this BasicCStringView const& self, value_type needle, size_type position = 0) noexcept
         -> size_type {
-        if (position >= self.length) {
-            return npos;
-        }
-        for (size_type index = position; index < self.length; ++index) {
-            if (self.pointer[index] == needle) {
-                return index;
-            }
-        }
-        return npos;
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find(needle, position);
     }
 
     [[nodiscard]]
     constexpr auto find(this BasicCStringView const& self, const_pointer needle, size_type position,
                         size_type count) noexcept -> size_type {
-        return self.find(BasicStringView<CharType>{needle, count}, position);
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find(needle, position, count);
     }
 
     [[nodiscard]]
@@ -521,41 +501,22 @@ public:
     [[nodiscard]]
     constexpr auto rfind(this BasicCStringView const& self, BasicStringView<CharType> needle,
                          size_type position = npos) noexcept -> size_type {
-        if (needle.size() > self.length) {
-            return npos;
-        }
-        size_type const clamped_position = ::std::min(position, self.length);
-        if (needle.is_empty()) {
-            return clamped_position;
-        }
-        size_type const start = ::std::min(clamped_position, self.length - needle.size());
-        for (size_type index = start + 1; index-- > 0;) {
-            if (::std::equal(needle.begin(), needle.end(), self.pointer + index)) {
-                return index;
-            }
-        }
-        return npos;
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.rfind(needle, position);
     }
 
     [[nodiscard]]
     constexpr auto rfind(this BasicCStringView const& self, value_type needle, size_type position = npos) noexcept
         -> size_type {
-        if (self.length == 0) {
-            return npos;
-        }
-        size_type const start = ::std::min(position, self.length - 1);
-        for (size_type index = start + 1; index-- > 0;) {
-            if (self.pointer[index] == needle) {
-                return index;
-            }
-        }
-        return npos;
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.rfind(needle, position);
     }
 
     [[nodiscard]]
     constexpr auto rfind(this BasicCStringView const& self, const_pointer needle, size_type position,
                          size_type count) noexcept -> size_type {
-        return self.rfind(BasicStringView<CharType>{needle, count}, position);
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.rfind(needle, position, count);
     }
 
     [[nodiscard]]
@@ -567,15 +528,8 @@ public:
     [[nodiscard]]
     constexpr auto find_first_of(this BasicCStringView const& self, BasicStringView<CharType> set,
                                  size_type position = 0) noexcept -> size_type {
-        if (position >= self.length) {
-            return npos;
-        }
-        for (size_type index = position; index < self.length; ++index) {
-            if (::std::ranges::find(set, self.pointer[index]) != set.end()) {
-                return index;
-            }
-        }
-        return npos;
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find_first_of(set, position);
     }
 
     [[nodiscard]]
@@ -587,7 +541,8 @@ public:
     [[nodiscard]]
     constexpr auto find_first_of(this BasicCStringView const& self, const_pointer set, size_type position,
                                  size_type count) noexcept -> size_type {
-        return self.find_first_of(BasicStringView<CharType>{set, count}, position);
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find_first_of(set, position, count);
     }
 
     [[nodiscard]]
@@ -599,16 +554,8 @@ public:
     [[nodiscard]]
     constexpr auto find_last_of(this BasicCStringView const& self, BasicStringView<CharType> set,
                                 size_type position = npos) noexcept -> size_type {
-        if (self.length == 0) {
-            return npos;
-        }
-        size_type const start = ::std::min(position, self.length - 1);
-        for (size_type index = start + 1; index-- > 0;) {
-            if (::std::ranges::find(set, self.pointer[index]) != set.end()) {
-                return index;
-            }
-        }
-        return npos;
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find_last_of(set, position);
     }
 
     [[nodiscard]]
@@ -620,7 +567,8 @@ public:
     [[nodiscard]]
     constexpr auto find_last_of(this BasicCStringView const& self, const_pointer set, size_type position,
                                 size_type count) noexcept -> size_type {
-        return self.find_last_of(BasicStringView<CharType>{set, count}, position);
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find_last_of(set, position, count);
     }
 
     [[nodiscard]]
@@ -632,35 +580,22 @@ public:
     [[nodiscard]]
     constexpr auto find_first_not_of(this BasicCStringView const& self, BasicStringView<CharType> set,
                                      size_type position = 0) noexcept -> size_type {
-        if (position >= self.length) {
-            return npos;
-        }
-        for (size_type index = position; index < self.length; ++index) {
-            if (::std::ranges::find(set, self.pointer[index]) == set.end()) {
-                return index;
-            }
-        }
-        return npos;
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find_first_not_of(set, position);
     }
 
     [[nodiscard]]
     constexpr auto find_first_not_of(this BasicCStringView const& self, value_type set, size_type position = 0) noexcept
         -> size_type {
-        if (position >= self.length) {
-            return npos;
-        }
-        for (size_type index = position; index < self.length; ++index) {
-            if (self.pointer[index] != set) {
-                return index;
-            }
-        }
-        return npos;
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find_first_not_of(set, position);
     }
 
     [[nodiscard]]
     constexpr auto find_first_not_of(this BasicCStringView const& self, const_pointer set, size_type position,
                                      size_type count) noexcept -> size_type {
-        return self.find_first_not_of(BasicStringView<CharType>{set, count}, position);
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find_first_not_of(set, position, count);
     }
 
     [[nodiscard]]
@@ -672,37 +607,22 @@ public:
     [[nodiscard]]
     constexpr auto find_last_not_of(this BasicCStringView const& self, BasicStringView<CharType> set,
                                     size_type position = npos) noexcept -> size_type {
-        if (self.length == 0) {
-            return npos;
-        }
-        size_type const start = ::std::min(position, self.length - 1);
-        for (size_type index = start + 1; index-- > 0;) {
-            if (::std::ranges::find(set, self.pointer[index]) == set.end()) {
-                return index;
-            }
-        }
-        return npos;
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find_last_not_of(set, position);
     }
 
     [[nodiscard]]
     constexpr auto find_last_not_of(this BasicCStringView const& self, value_type set,
                                     size_type position = npos) noexcept -> size_type {
-        if (self.length == 0) {
-            return npos;
-        }
-        size_type const start = ::std::min(position, self.length - 1);
-        for (size_type index = start + 1; index-- > 0;) {
-            if (self.pointer[index] != set) {
-                return index;
-            }
-        }
-        return npos;
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find_last_not_of(set, position);
     }
 
     [[nodiscard]]
     constexpr auto find_last_not_of(this BasicCStringView const& self, const_pointer set, size_type position,
                                     size_type count) noexcept -> size_type {
-        return self.find_last_not_of(BasicStringView<CharType>{set, count}, position);
+        BasicStringView<CharType> const self_view{self.pointer, self.length};
+        return self_view.find_last_not_of(set, position, count);
     }
 
     [[nodiscard]]

@@ -33,6 +33,31 @@ constexpr auto BasicStringView<CharType>::subview(this BasicStringView const& se
     return BasicStringView{subview_data, count};
 }
 
+template<::pltxt2htm::details::is_char_type CharType>
+constexpr auto BasicStringView<CharType>::front(this BasicStringView const& self) noexcept -> const_reference {
+    pltxt2htm_assert(self.length != 0, u8"Front of empty BasicStringView");
+    return self.pointer[0];
+}
+
+template<::pltxt2htm::details::is_char_type CharType>
+constexpr auto BasicStringView<CharType>::back(this BasicStringView const& self) noexcept -> const_reference {
+    pltxt2htm_assert(self.length != 0, u8"Back of empty BasicStringView");
+    return self.pointer[self.length - 1];
+}
+
+template<::pltxt2htm::details::is_char_type CharType>
+constexpr auto BasicStringView<CharType>::remove_prefix(this BasicStringView& self, size_type count) noexcept -> void {
+    pltxt2htm_assert(count <= self.length, u8"Remove_prefix count of BasicStringView out of bound");
+    self.pointer += count;
+    self.length -= count;
+}
+
+template<::pltxt2htm::details::is_char_type CharType>
+constexpr auto BasicStringView<CharType>::remove_suffix(this BasicStringView& self, size_type count) noexcept -> void {
+    pltxt2htm_assert(count <= self.length, u8"Remove_suffix count of BasicStringView out of bound");
+    self.length -= count;
+}
+
 } // namespace pltxt2htm::container
 
 #include "../../details/pop_macro.hh"
