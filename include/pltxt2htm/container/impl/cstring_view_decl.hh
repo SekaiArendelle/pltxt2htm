@@ -769,6 +769,17 @@ public:
     }
 
     /**
+     * @brief Converts to a BasicStringView over the same characters, without the terminator.
+     * @details Implicit by design: every null-terminated sequence is a valid character
+     *          sequence. Mirrors std::basic_string's operator basic_string_view and
+     *          P3655's transparent cstring_view to string_view conversion.
+     */
+    [[nodiscard]]
+    constexpr operator BasicStringView<CharType>(this BasicCStringView const& self) noexcept {
+        return BasicStringView<CharType>{self.pointer, self.length};
+    }
+
+    /**
      * @brief Compares two cstring views by size and character values.
      */
     [[nodiscard]]
@@ -782,12 +793,6 @@ public:
  * @details Implicit by design: every null-terminated sequence is a valid character
  *          sequence. The terminator is not part of the result.
  */
-template<::pltxt2htm::details::is_char_type CharType>
-constexpr BasicStringView<CharType>::BasicStringView(BasicCStringView<CharType> const& cstring) noexcept
-    : pointer{cstring.data()},
-      length{cstring.size()} {
-}
-
 template<::pltxt2htm::details::is_char_type CharType>
 [[nodiscard]]
 constexpr auto print_alias_define(::fast_io::io_alias_t, BasicCStringView<CharType> string) noexcept
