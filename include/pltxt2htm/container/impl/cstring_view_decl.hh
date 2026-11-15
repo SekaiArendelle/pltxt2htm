@@ -366,14 +366,14 @@ public:
      * @brief Drops the first @p count characters, retaining the terminator.
      * @pre count <= size().
      */
-    constexpr auto remove_prefix(this BasicCStringView& self, size_type count) noexcept -> void;
+    constexpr void remove_prefix(this BasicCStringView& self, size_type count) noexcept;
 
     /**
      * @brief Removing characters from the end in place would drop the null terminator.
      * @note Use the two-argument subview(size_type, size_type), which returns a
      *       BasicStringView instead.
      */
-    constexpr auto remove_suffix(this BasicCStringView&, size_type) noexcept -> void = delete
+    constexpr void remove_suffix(this BasicCStringView&, size_type) noexcept = delete
 #if __cpp_deleted_function >= 202403L
     #if defined __clang__
         #pragma clang diagnostic push
@@ -389,7 +389,7 @@ public:
     /**
      * @brief Exchanges the values of this view and @p other.
      */
-    constexpr auto swap(this BasicCStringView& self, BasicCStringView& other) noexcept -> void {
+    constexpr void swap(this BasicCStringView& self, BasicCStringView& other) noexcept {
         ::std::swap(self.pointer, other.pointer);
         ::std::swap(self.length, other.length);
     }

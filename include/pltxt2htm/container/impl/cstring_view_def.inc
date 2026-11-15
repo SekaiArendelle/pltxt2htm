@@ -87,8 +87,7 @@ constexpr auto BasicCStringView<CharType>::back(this BasicCStringView const& sel
 }
 
 template<::pltxt2htm::details::is_char_type CharType>
-constexpr auto BasicCStringView<CharType>::remove_prefix(this BasicCStringView& self, size_type count) noexcept
-    -> void {
+constexpr void BasicCStringView<CharType>::remove_prefix(this BasicCStringView& self, size_type count) noexcept {
     pltxt2htm_assert(count <= self.length, u8"Prefix removal of BasicCStringView out of bound");
     self.pointer += count;
     self.length -= count;
