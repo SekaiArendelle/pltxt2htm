@@ -28,6 +28,9 @@
 
 namespace pltxt2htm::container {
 
+template<::pltxt2htm::details::is_char_type>
+class BasicCStringView;
+
 /**
  * @brief A non-owning view over a contiguous sequence of characters.
  * @tparam CharType Character type stored by the referenced sequence.
@@ -152,6 +155,14 @@ public:
     #endif
 #endif
         ;
+
+    /**
+     * @brief Builds a view over the whole sequence referred to by @p cstring.
+     * @details The terminator is not part of the result. Implicit by design: every
+     *          null-terminated sequence is a valid character sequence. Defined in
+     *          cstring_view_decl.hh after BasicCStringView.
+     */
+    constexpr BasicStringView(BasicCStringView<CharType> const& cstring) noexcept;
 
     // The standard implements this as a defaulted copy assignment with an implicit
     // object parameter; std::basic_string_view has no move assignment. The project

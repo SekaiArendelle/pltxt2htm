@@ -294,6 +294,19 @@ public:
     }
 };
 
+namespace details {
+
+template<typename T>
+constexpr bool is_basic_inplace_string_ = false;
+
+template<typename CharType, ::std::size_t extent>
+constexpr bool is_basic_inplace_string_<BasicInplaceString<CharType, extent>> = true;
+
+} // namespace details
+
+template<typename T>
+concept is_basic_inplace_string = ::pltxt2htm::details::details::is_basic_inplace_string_<::std::remove_cvref_t<T>>;
+
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t left_extent, ::std::size_t right_extent>
 [[nodiscard]]
 constexpr auto operator==(BasicInplaceString<CharType, left_extent> const& left,
