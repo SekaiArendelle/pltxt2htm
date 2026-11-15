@@ -57,16 +57,13 @@ template<::pltxt2htm::container::details::is_ntcts_range<CharType> RangeType>
               !::pltxt2htm::details::is_literal_string<RangeType> &&
               !::pltxt2htm::details::is_basic_inplace_string<RangeType> &&
               !::pltxt2htm::container::details::has_allocator_type<RangeType> &&
-              !::pltxt2htm::container::details::is_std_array<RangeType> &&
-              !::std::same_as<::std::remove_cvref_t<RangeType>, ::std::basic_string_view<CharType>> &&
-              !::std::same_as<::std::remove_cvref_t<RangeType>, ::fast_io::containers::basic_string_view<CharType>> &&
               !::std::convertible_to<RangeType, CharType const*>)
 constexpr BasicCStringView<CharType>::BasicCStringView(RangeType&& range) noexcept(
     noexcept(::std::ranges::data(::std::declval<RangeType&>())) &&
     noexcept(::std::ranges::size(::std::declval<RangeType&>())))
     : pointer{::std::ranges::data(range)},
       length{static_cast<::std::size_t>(::std::ranges::size(range))} {
-    pltxt2htm_assert(::std::ranges::data(range)[length] == CharType{},
+    pltxt2htm_assert(::std::ranges::data(range) != nullptr && ::std::ranges::data(range)[length] == CharType{},
                      u8"BasicCStringView does not refer to a null-terminated string");
 }
 

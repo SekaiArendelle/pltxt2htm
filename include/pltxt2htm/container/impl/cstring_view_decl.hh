@@ -10,18 +10,15 @@
 #pragma once
 
 #include <algorithm>
-#include <array>
 #include <concepts>
 #include <cstddef>
 #include <iterator>
 #include <limits>
 #include <ranges>
-#include <string_view>
 #include <type_traits>
 #include <utility>
 
 #include <fast_io/fast_io_core.h>
-#include <fast_io/fast_io_dsal/string_view.h>
 
 #include "../../details/concepts.hh"
 #include "../../details/literal_string.hh"
@@ -44,10 +41,15 @@ namespace details {
  * @brief A contiguous, sized range holding @p CharType code units.
  * @details Ranges accepted by BasicCStringView's range constructor. The element
  *          one past `ranges::size(r)` must exist and equal `CharType{}`; that
- *          null-termination precondition is asserted at runtime when contracts
- *          are enforced and cannot be verified statically, so callers must not
- *          pass general view types (std::string_view and friends are excluded
- *          by the constructor constraints).
+ *          null-termination precondition is documented, cannot be verified
+ *          statically, and is asserted at runtime when contracts are enforced.
+ *          Callers are responsible for the guarantee, whether the range is a
+ *          span into a larger buffer, a view of a string literal, or any other
+ *          contiguous range. Ranges excluded structurally are: allocator-backed
+ *          owning strings (rvalues would dangle, and the project BasicString has
+ *          a dedicated whole-string constructor) and the project literal/inplace
+ *          strings (their storage is exactly N code units, so the one-past-the-end
+ *          element cannot exist).
  */
 template<typename RangeType, typename CharType>
 concept is_ntcts_range = ::std::ranges::contiguous_range<RangeType> && ::std::ranges::sized_range<RangeType> &&
@@ -61,23 +63,6 @@ concept is_ntcts_range = ::std::ranges::contiguous_range<RangeType> && ::std::ra
  */
 template<typename RangeType>
 concept has_allocator_type = requires { typename ::std::remove_cvref_t<RangeType>::allocator_type; };
-
-namespace details {
-
-template<typename T>
-constexpr bool is_std_array_ = false;
-
-template<typename ElementType, ::std::size_t extent>
-constexpr bool is_std_array_<::std::array<ElementType, extent>> = true;
-
-} // namespace details
-
-/**
- * @brief Excludes std::array from the range constructor: its one-past-the-end element
- *        never exists, so a null terminator outside the array cannot be referenced.
- */
-template<typename RangeType>
-concept is_std_array = details::is_std_array_<::std::remove_cvref_t<RangeType>>;
 
 } // namespace details
 
@@ -206,22 +191,20 @@ public:
         noexcept(::std::declval<InputIterator&>()[::std::size_t{}]));
 
     /**
-     * @brief Builds a view over the contiguous, sized, null-terminated range @p range.
-     * @pre The element at range[size()] exists and equals value_type{}.
-     * @note O(1); the terminator is asserted when contracts are enforced. General view
-     *       types are excluded by the constraints: they cannot guarantee termination.
+     * @brief Builds a view over the contiguous, sized range @p range.
+     * @pre The element at range[size()] exists, is not reached through a null
+     *      data pointer, and equals value_type{}.
+     * @note O(1); the terminator is asserted when contracts are enforced. Callers
+     *       are responsible for the termination guarantee; structurally impossible
+     *       sources are still excluded (see is_ntcts_range).
      */
     template<::pltxt2htm::container::details::is_ntcts_range<value_type> RangeType>
-        requires (
-            !::std::same_as<::std::remove_cvref_t<RangeType>, BasicCStringView> &&
-            !::std::same_as<::std::remove_cvref_t<RangeType>, BasicStringView<value_type>> &&
-            !::pltxt2htm::details::is_literal_string<RangeType> &&
-            !::pltxt2htm::details::is_basic_inplace_string<RangeType> &&
-            !::pltxt2htm::container::details::has_allocator_type<RangeType> &&
-            !::pltxt2htm::container::details::is_std_array<RangeType> &&
-            !::std::same_as<::std::remove_cvref_t<RangeType>, ::std::basic_string_view<value_type>> &&
-            !::std::same_as<::std::remove_cvref_t<RangeType>, ::fast_io::containers::basic_string_view<value_type>> &&
-            !::std::convertible_to<RangeType, const_pointer>)
+        requires (!::std::same_as<::std::remove_cvref_t<RangeType>, BasicCStringView> &&
+                  !::std::same_as<::std::remove_cvref_t<RangeType>, BasicStringView<value_type>> &&
+                  !::pltxt2htm::details::is_literal_string<RangeType> &&
+                  !::pltxt2htm::details::is_basic_inplace_string<RangeType> &&
+                  !::pltxt2htm::container::details::has_allocator_type<RangeType> &&
+                  !::std::convertible_to<RangeType, const_pointer>)
     constexpr explicit BasicCStringView(RangeType&& range) noexcept(
         noexcept(::std::ranges::data(::std::declval<RangeType&>())) &&
         noexcept(::std::ranges::size(::std::declval<RangeType&>())));

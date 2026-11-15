@@ -36,10 +36,10 @@ static_assert(::std::is_assignable_v<U8CStringView&, U8CStringView const&>);
 static_assert(::std::is_assignable_v<U8CStringView&, U8CStringView&&>);
 static_assert(!::std::is_assignable_v<U8CStringView, U8CStringView const&>);
 static_assert(!::std::is_constructible_v<U8CStringView, ::std::nullptr_t>);
-static_assert(!::std::is_constructible_v<U8CStringView, ::fast_io::u8string_view>);
+static_assert(::std::is_constructible_v<U8CStringView, ::fast_io::u8string_view>);
 static_assert(!::std::is_constructible_v<U8CStringView, ::fast_io::u8string const&>);
 static_assert(!::std::is_constructible_v<U8CStringView, ::fast_io::u8string&&>);
-static_assert(!::std::is_constructible_v<U8CStringView, ::std::u8string_view>);
+static_assert(::std::is_constructible_v<U8CStringView, ::std::u8string_view>);
 static_assert(!::std::is_constructible_v<U8CStringView, ::std::u8string const&>);
 static_assert(!::std::is_constructible_v<U8CStringView, U8String&&>);
 static_assert(!::std::is_convertible_v<U8String&&, U8CStringView>);
@@ -47,7 +47,6 @@ static_assert(!::std::is_constructible_v<U8CStringView, U8String const&&>);
 static_assert(!::std::is_constructible_v<U8CStringView, U8InplaceString const&>);
 static_assert(!::std::is_constructible_v<U8CStringView, U8InplaceString&&>);
 static_assert(!::std::is_constructible_v<U8CStringView, ::pltxt2htm::details::U8LiteralString<8> const&>);
-static_assert(!::std::is_constructible_v<U8CStringView, ::std::array<char8_t, 7> const&>);
 static_assert(::std::is_constructible_v<U8StringView, U8CStringView const&>);
 static_assert(::std::is_convertible_v<U8CStringView const&, U8StringView>);
 static_assert(::fast_io::alias_printable<::pltxt2htm::container::CStringView>);
@@ -193,6 +192,12 @@ TEST_SUITE("container_cstring_view") {
 
         U8CStringView const from_range{::std::span<char8_t const, 6>{array_text.data(), 6}};
         if (from_range != text) {
+            return false;
+        }
+
+        ::std::u8string_view const std_view{array_text.data(), 6};
+        U8CStringView const from_std_view{std_view};
+        if (from_std_view != text) {
             return false;
         }
 
