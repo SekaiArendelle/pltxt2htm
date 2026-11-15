@@ -150,6 +150,17 @@ public:
 #endif
         ;
 
+    // The standard implements this as a defaulted copy assignment with an implicit
+    // object parameter; std::basic_string_view has no move assignment. The project
+    // convention prefers an explicit object parameter, but clang 23.1.3 crashes in
+    // the backend when generating code for a defaulted explicit-object operator= on
+    // a class with two or more members; see
+    // https://github.com/llvm/llvm-project/issues/242767. Use the implicit object
+    // form until that bug is fixed; the lvalue ref-qualifier keeps the convention's
+    // intent of rejecting assignment to temporaries. Staying defaulted also keeps
+    // the copy assignment trivial, preserving is_trivially_copyable.
+    constexpr BasicStringView& operator=(BasicStringView const&) & noexcept = default;
+
     /**
      * @brief Builds a view over a null-terminated string.
      * @param[in] string Null-terminated string; must not be null.

@@ -22,6 +22,11 @@ concept can_form_basic_string_view = requires { typename ::pltxt2htm::container:
 
 static_assert(::std::is_trivially_copyable_v<U8StringView>);
 static_assert(::std::is_standard_layout_v<U8StringView>);
+static_assert(
+    ::std::same_as<decltype(::std::declval<U8StringView&>() = ::std::declval<U8StringView const&>()), U8StringView&>);
+static_assert(::std::is_assignable_v<U8StringView&, U8StringView const&>);
+static_assert(::std::is_assignable_v<U8StringView&, U8StringView&&>);
+static_assert(!::std::is_assignable_v<U8StringView, U8StringView const&>);
 static_assert(::std::same_as<U8StringView::value_type, char8_t>);
 static_assert(::std::same_as<U8StringView::const_iterator, char8_t const*>);
 static_assert(!::std::is_constructible_v<U8StringView, ::fast_io::u8string_view>);
@@ -55,6 +60,12 @@ TEST_SUITE("container_string_view") {
 
         U8StringView const text{u8"abcdef"};
         if (text.is_empty() || text.size() != 6 || text[2] != u8'c') {
+            return false;
+        }
+
+        U8StringView assigned{u8"first"};
+        assigned = text;
+        if (assigned.data() != text.data() || assigned != u8"abcdef") {
             return false;
         }
 
