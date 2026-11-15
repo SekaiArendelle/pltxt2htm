@@ -190,10 +190,11 @@ public:
     }
 
     template<::std::size_t right_extent>
-        requires (::std::equality_comparable<T> && right_extent != 0)
     [[nodiscard]]
     constexpr auto operator==(this Array const& self, Array<T, right_extent> const& right) noexcept(
-        ::pltxt2htm::details::nothrow_equality_comparable<T>) -> bool {
+        ::pltxt2htm::details::nothrow_equality_comparable<T>) -> bool
+        requires (::std::equality_comparable<T> && right_extent != 0)
+    {
         if constexpr (extent != right_extent) {
             return false;
         }
@@ -203,10 +204,11 @@ public:
     }
 
     template<::std::size_t right_extent>
-        requires (::std::three_way_comparable<T> && right_extent != 0)
     [[nodiscard]]
     constexpr auto operator<=>(this Array const& self, Array<T, right_extent> const& right) noexcept(
-        ::pltxt2htm::details::nothrow_three_way_comparable<T>) {
+        ::pltxt2htm::details::nothrow_three_way_comparable<T>)
+        requires (::std::three_way_comparable<T> && right_extent != 0)
+    {
         return ::std::lexicographical_compare_three_way(self.begin(), self.end(), right.begin(), right.end(),
                                                         ::std::compare_three_way{});
     }

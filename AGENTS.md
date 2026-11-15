@@ -192,6 +192,11 @@ Follow the existing low-runtime, cross-platform style used in core headers:
 - **Avoid the redundant `(string_view, offset)` parameter pair:**
   - A `string_view` already carries both a pointer and a length, so a signature like `parse_value(::pltxt2htm::container::U8StringView s, ::std::size_t pos)` is redundant - the offset is implicit in the view.
   - This keeps each parser "parse the given view from the start", avoids offset arithmetic and empty-check (`pos == 0`) inside helpers, and keeps the call sites' intent explicit.
+- **Place `requires`-clauses in the trailing position (after the declarator):**
+  - Write `template<...> constexpr auto f(...) noexcept -> R requires (...)`, not `template<...> requires (...) constexpr auto f(...)`.
+  - Mandatory when the declaration and definition are separated: [temp.over.link]/6 requires equivalent template-heads including their constraints, so the position must agree between them. Per [basic.scope.class]/1, only the portion after the declarator-id of an out-of-line definition is in class scope, so member aliases (`value_type`, `size_type`, the injected class name) are usable only in the trailing form; spell the constraint uniformly on both sides for readability.
+  - For in-class definitions and namespace-scope function templates defined at a single point, the template-head position is equally valid; trailing is preferred only for uniform style.
+  - Class template head constraints (repeated in the template head of each out-of-line member definition) and deduction-guide constraints at namespace scope keep their positions. In a template head the definition side cannot see member aliases, so such constraints are spelled with the template parameters; implementations accept the resulting mixed spelling between declaration and definition.
 - **Keep side effects separated from algorithms:**
   - Put pure algorithmic logic in headers under `include/` whenever practical.
   - Keep I/O and other side-effectful operations (file access, console output, process exits, etc.) in implementation files in module directories.

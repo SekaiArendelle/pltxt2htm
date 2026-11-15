@@ -1,12 +1,6 @@
 /**
  * @file cstring_view_def.inc
  * @brief Out-of-line contract-checked definitions for container::BasicCStringView.
- * @note The trailing requires-clauses use the member aliases (value_type,
- *       size_type, const_pointer, the injected class name) so their spelling is
- *       token-identical to the declarations. A requires-clause in the
- *       template-head of an out-of-line member definition is parsed before the
- *       class scope is entered and cannot see these aliases, which is why the
- *       constraints live in the trailing position here and in the class.
  */
 
 #pragma once
