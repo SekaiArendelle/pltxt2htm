@@ -15,7 +15,6 @@
 
 #include <fast_io/fast_io_core.h>
 
-#include "../../details/contracts.hh"
 #include "../../details/concepts.hh"
 #include "../../details/literal_string.hh"
 #include "../../details/impl/inplace_string_decl.hh"
@@ -56,6 +55,10 @@ private:
 
 public:
     constexpr BasicStringView() noexcept = default;
+
+    constexpr BasicStringView(BasicStringView const&) noexcept = default;
+
+    constexpr ~BasicStringView() noexcept = default;
 
     constexpr BasicStringView(::std::nullptr_t) = delete
 #if __cpp_deleted_function >= 202403L
