@@ -52,11 +52,11 @@ constexpr BasicCStringView<CharType>::BasicCStringView(InputIterator begin, EndS
 
 template<::pltxt2htm::details::is_char_type CharType>
 template<::pltxt2htm::container::details::is_ntcts_range<CharType> RangeType>
-    requires (!::std::same_as<::std::remove_cvref_t<RangeType>, ::pltxt2htm::container::BasicCStringView<CharType>> &&
+    requires (::std::is_lvalue_reference_v<RangeType&&> &&
+              !::std::same_as<::std::remove_cvref_t<RangeType>, ::pltxt2htm::container::BasicCStringView<CharType>> &&
               !::std::same_as<::std::remove_cvref_t<RangeType>, ::pltxt2htm::container::BasicStringView<CharType>> &&
               !::pltxt2htm::details::is_literal_string<RangeType> &&
               !::pltxt2htm::details::is_basic_inplace_string<RangeType> &&
-              !::pltxt2htm::container::details::has_allocator_type<RangeType> &&
               !::std::convertible_to<RangeType, CharType const*>)
 constexpr BasicCStringView<CharType>::BasicCStringView(RangeType&& range) noexcept(
     noexcept(::std::ranges::data(::std::declval<RangeType&>())) &&

@@ -36,11 +36,12 @@ static_assert(::std::is_assignable_v<U8CStringView&, U8CStringView const&>);
 static_assert(::std::is_assignable_v<U8CStringView&, U8CStringView&&>);
 static_assert(!::std::is_assignable_v<U8CStringView, U8CStringView const&>);
 static_assert(!::std::is_constructible_v<U8CStringView, ::std::nullptr_t>);
-static_assert(::std::is_constructible_v<U8CStringView, ::fast_io::u8string_view>);
-static_assert(!::std::is_constructible_v<U8CStringView, ::fast_io::u8string const&>);
+static_assert(!::std::is_constructible_v<U8CStringView, ::fast_io::u8string_view>);
+static_assert(::std::is_constructible_v<U8CStringView, ::fast_io::u8string const&>);
 static_assert(!::std::is_constructible_v<U8CStringView, ::fast_io::u8string&&>);
-static_assert(::std::is_constructible_v<U8CStringView, ::std::u8string_view>);
-static_assert(!::std::is_constructible_v<U8CStringView, ::std::u8string const&>);
+static_assert(!::std::is_constructible_v<U8CStringView, ::std::u8string_view>);
+static_assert(::std::is_constructible_v<U8CStringView, ::std::u8string const&>);
+static_assert(!::std::is_constructible_v<U8CStringView, ::std::u8string&&>);
 static_assert(!::std::is_constructible_v<U8CStringView, U8String&&>);
 static_assert(!::std::is_convertible_v<U8String&&, U8CStringView>);
 static_assert(!::std::is_constructible_v<U8CStringView, U8String const&&>);
@@ -190,7 +191,8 @@ TEST_SUITE("container_cstring_view") {
             return false;
         }
 
-        U8CStringView const from_range{::std::span<char8_t const, 6>{array_text.data(), 6}};
+        ::std::span<char8_t const, 6> const span_text{array_text.data(), 6};
+        U8CStringView const from_range{span_text};
         if (from_range != text) {
             return false;
         }
@@ -201,13 +203,18 @@ TEST_SUITE("container_cstring_view") {
             return false;
         }
 
+        ::std::u8string const std_string{u8"abcdef"};
+        U8CStringView const from_std_string{std_string};
+        if (from_std_string != text || from_std_string.data() != std_string.data()) {
+            return false;
+        }
+
         ::pltxt2htm::container::BasicCStringView const ctad_literal{u8"abcdef"};
         if (!::std::same_as<decltype(ctad_literal), U8CStringView const> || ctad_literal != text) {
             return false;
         }
 
-        ::pltxt2htm::container::BasicCStringView const ctad_from_span{
-            ::std::span<char8_t const, 6>{array_text.data(), 6}};
+        ::pltxt2htm::container::BasicCStringView const ctad_from_span{span_text};
         if (!::std::same_as<::std::remove_cvref_t<decltype(ctad_from_span)>, U8CStringView> || ctad_from_span != text) {
             return false;
         }

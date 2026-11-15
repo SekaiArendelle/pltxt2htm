@@ -45,24 +45,15 @@ namespace details {
  *          statically, and is asserted at runtime when contracts are enforced.
  *          Callers are responsible for the guarantee, whether the range is a
  *          span into a larger buffer, a view of a string literal, or any other
- *          contiguous range. Ranges excluded structurally are: allocator-backed
- *          owning strings (rvalues would dangle, and the project BasicString has
- *          a dedicated whole-string constructor) and the project literal/inplace
- *          strings (their storage is exactly N code units, so the one-past-the-end
- *          element cannot exist).
+ *          contiguous range. The range constructor additionally requires an
+ *          lvalue: binding a temporary would dangle the view. Ranges excluded
+ *          structurally are the project literal/inplace strings (their storage
+ *          is exactly N code units, so the one-past-the-end element cannot
+ *          exist).
  */
 template<typename RangeType, typename CharType>
 concept is_ntcts_range = ::std::ranges::contiguous_range<RangeType> && ::std::ranges::sized_range<RangeType> &&
                          ::std::same_as<::std::ranges::range_value_t<RangeType>, CharType>;
-
-/**
- * @brief Excludes allocator-backed owning strings (project BasicString, fast_io
- *        container strings, std::basic_string/std::vector and similar) from the
- *        range constructor; their null-termination story is handled by
- *        dedicated constructors or rejected outright.
- */
-template<typename RangeType>
-concept has_allocator_type = requires { typename ::std::remove_cvref_t<RangeType>::allocator_type; };
 
 } // namespace details
 
@@ -190,18 +181,20 @@ public:
 
     /**
      * @brief Builds a view over the contiguous, sized range @p range.
-     * @pre The element at range[size()] exists, is not reached through a null
-     *      data pointer, and equals value_type{}.
+     * @pre @p range is an lvalue (binding a temporary would dangle the view), the
+     *      element at range[size()] exists, is not reached through a null data
+     *      pointer, and equals value_type{}.
      * @note O(1); the terminator is asserted when contracts are enforced. Callers
-     *       are responsible for the termination guarantee; structurally impossible
-     *       sources are still excluded (see is_ntcts_range).
+     *       are responsible for the termination guarantee and for the lifetime of
+     *       the viewed characters; structurally impossible sources are still
+     *       excluded (see is_ntcts_range).
      */
     template<::pltxt2htm::container::details::is_ntcts_range<value_type> RangeType>
-        requires (!::std::same_as<::std::remove_cvref_t<RangeType>, BasicCStringView> &&
+        requires (::std::is_lvalue_reference_v<RangeType&&> &&
+                  !::std::same_as<::std::remove_cvref_t<RangeType>, BasicCStringView> &&
                   !::std::same_as<::std::remove_cvref_t<RangeType>, BasicStringView<value_type>> &&
                   !::pltxt2htm::details::is_literal_string<RangeType> &&
                   !::pltxt2htm::details::is_basic_inplace_string<RangeType> &&
-                  !::pltxt2htm::container::details::has_allocator_type<RangeType> &&
                   !::std::convertible_to<RangeType, const_pointer>)
     constexpr explicit BasicCStringView(RangeType&& range) noexcept(
         noexcept(::std::ranges::data(::std::declval<RangeType&>())) &&
