@@ -15,7 +15,6 @@
 
 #include <fast_io/fast_io_core.h>
 
-#include "../../details/contracts.hh"
 #include "../../details/concepts.hh"
 #include "../../details/literal_string.hh"
 #include "../../details/impl/inplace_string_decl.hh"
@@ -56,6 +55,10 @@ private:
 
 public:
     constexpr BasicStringView() noexcept = default;
+
+    constexpr BasicStringView(BasicStringView const&) noexcept = default;
+
+    constexpr ~BasicStringView() noexcept = default;
 
     constexpr BasicStringView(::std::nullptr_t) = delete
 #if __cpp_deleted_function >= 202403L
@@ -149,6 +152,17 @@ public:
     #endif
 #endif
         ;
+
+    // The standard implements this as a defaulted copy assignment with an implicit
+    // object parameter; std::basic_string_view has no move assignment. The project
+    // convention prefers an explicit object parameter, but clang 23.1.3 crashes in
+    // the backend when generating code for a defaulted explicit-object operator= on
+    // a class with two or more members; see
+    // https://github.com/llvm/llvm-project/issues/242767. Use the implicit object
+    // form until that bug is fixed; the lvalue ref-qualifier keeps the convention's
+    // intent of rejecting assignment to temporaries. Staying defaulted also keeps
+    // the copy assignment trivial, preserving is_trivially_copyable.
+    constexpr BasicStringView& operator=(BasicStringView const&) & noexcept = default;
 
     /**
      * @brief Builds a view over a null-terminated string.
