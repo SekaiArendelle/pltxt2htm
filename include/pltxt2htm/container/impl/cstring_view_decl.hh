@@ -126,8 +126,7 @@ public:
      * @post size() == 0 and data() addresses a null-terminated empty string.
      */
     constexpr BasicCStringView() noexcept
-        : pointer{empty_storage},
-          length{0} {
+        : pointer{empty_storage} {
     }
 
     // Declaring any copy assignment operator, even a defaulted one, deprecates the
