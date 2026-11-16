@@ -14,6 +14,8 @@
 #include <pltxt2htm/container/deque.hh>
 
 #include "doctest_config.hh"
+#include "details/concepts.hh"
+#include "details/structs.hh"
 
 // windows.h defines min and max as function-like macros, which would expand
 // inside std::numeric_limits<...>::max(). Keep them undefined in this header.
@@ -24,28 +26,12 @@
 
 using IntDeque = ::pltxt2htm::container::Deque<int>;
 
-template<typename Deque>
-concept has_external_empty = requires(Deque& values) { values.empty(); };
-
 static_assert(requires(IntDeque& values, IntDeque const& const_values, ::std::size_t position) {
     { values[position] } -> ::std::same_as<int&>;
     values[position] = 1;
     { const_values[position] } -> ::std::same_as<int const&>;
 });
-static_assert(!has_external_empty<IntDeque>);
-static_assert(!has_external_empty<IntDeque const>);
-
-struct ThrowingCopy {
-    ThrowingCopy() noexcept = default;
-
-    ThrowingCopy(ThrowingCopy const&) noexcept(false) {
-    }
-
-    ThrowingCopy(ThrowingCopy&&) noexcept = default;
-    auto operator=(this ThrowingCopy&, ThrowingCopy const&) noexcept -> ThrowingCopy& = default;
-    auto operator=(this ThrowingCopy&, ThrowingCopy&&) noexcept -> ThrowingCopy& = default;
-    ~ThrowingCopy() noexcept = default;
-};
+static_assert(!can_call_empty<IntDeque>);
 
 static_assert(::std::same_as<IntDeque::allocator_type, ::fast_io::native_global_allocator>);
 static_assert(::std::random_access_iterator<IntDeque::iterator>);
@@ -59,7 +45,7 @@ static_assert(!::std::is_constructible_v<IntDeque, ::std::size_t, int const&>);
 static_assert(::std::is_nothrow_constructible_v<IntDeque, int const*, int const*>);
 static_assert(::std::is_nothrow_copy_constructible_v<IntDeque>);
 static_assert(::std::is_nothrow_copy_assignable_v<IntDeque>);
-static_assert(!::std::is_copy_constructible_v<::pltxt2htm::container::Deque<ThrowingCopy>>);
+static_assert(!::std::is_copy_constructible_v<::pltxt2htm::container::Deque<::pltxt2htm_test::ThrowingCopy>>);
 static_assert(noexcept(::std::declval<IntDeque&>().emplace_back(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().emplace_front(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().push_back(1)));

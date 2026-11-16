@@ -30,13 +30,14 @@ constexpr auto BasicInplaceString<CharType, extent>::operator=(this BasicInplace
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent>
     requires (extent != 0)
 template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-    requires (::std::same_as<::std::iter_value_t<InputIterator>, CharType> &&
-              ::std::constructible_from<CharType, ::std::iter_reference_t<InputIterator>>)
 constexpr void BasicInplaceString<CharType, extent>::assign(
     this BasicInplaceString& self, InputIterator first,
     Sentinel last) noexcept(::std::is_nothrow_move_constructible_v<InputIterator> &&
                             ::std::is_nothrow_move_constructible_v<Sentinel> &&
-                            is_nothrow_range_iteration<InputIterator, Sentinel>()) {
+                            is_nothrow_range_iteration<InputIterator, Sentinel>())
+    requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
+              ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
+{
     if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
         auto const count = static_cast<size_type>(last - first);
         pltxt2htm_assert(count <= extent, u8"BasicInplaceString capacity exceeded");
@@ -48,11 +49,12 @@ constexpr void BasicInplaceString<CharType, extent>::assign(
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent>
     requires (extent != 0)
 template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-    requires (::std::same_as<::std::iter_value_t<InputIterator>, CharType> &&
-              ::std::constructible_from<CharType, ::std::iter_reference_t<InputIterator>>)
 constexpr void BasicInplaceString<CharType, extent>::append(
     this BasicInplaceString& self, InputIterator first,
-    Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>()) {
+    Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>())
+    requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
+              ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
+{
     if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
         auto const count = static_cast<size_type>(last - first);
         pltxt2htm_assert(count <= extent - self.size(), u8"BasicInplaceString capacity exceeded");

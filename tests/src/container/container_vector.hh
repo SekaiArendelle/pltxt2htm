@@ -12,6 +12,7 @@
 
 #include "doctest_config.hh"
 #include "details/concepts.hh"
+#include "details/structs.hh"
 
 using IntVector = ::pltxt2htm::container::Vector<int>;
 
@@ -355,10 +356,6 @@ struct ThrowingMove {
     ThrowingMove(ThrowingMove&&);
 };
 
-struct ThrowingEquality {
-    friend auto operator==(ThrowingEquality const&, ThrowingEquality const&) -> bool;
-};
-
 struct ThrowingBoolean {
     explicit operator bool() const;
 };
@@ -374,12 +371,6 @@ struct ThrowingConstruction {
     ThrowingConstruction() noexcept = default;
     explicit ThrowingConstruction(int);
     ThrowingConstruction(ThrowingConstruction&&) noexcept = default;
-};
-
-struct ThrowingVectorCopy {
-    ThrowingVectorCopy() noexcept = default;
-    ThrowingVectorCopy(ThrowingVectorCopy const&);
-    ThrowingVectorCopy(ThrowingVectorCopy&&) noexcept = default;
 };
 
 struct ThrowingMoveAssignment {
@@ -449,22 +440,22 @@ static_assert(::std::ranges::forward_range<NonConstexprSizedForwardRange>);
 static_assert(::std::ranges::sized_range<NonConstexprSizedForwardRange>);
 static_assert(!ReservableVectorElement<ThrowingMove>);
 static_assert(!IntEmplaceableVectorElement<ThrowingConstruction>);
-static_assert(!CopyPushableVectorElement<ThrowingVectorCopy>);
+static_assert(!CopyPushableVectorElement<::pltxt2htm_test::ThrowingCopy>);
 static_assert(!ErasableVectorElement<ThrowingMoveAssignment>);
 static_assert(!ResizableVectorElement<ThrowingMove>);
-static_assert(ResizableVectorElement<ThrowingVectorCopy>);
+static_assert(ResizableVectorElement<::pltxt2htm_test::ThrowingCopy>);
 static_assert(!ResizableVectorElement<NoDefaultVectorElement>);
 static_assert(FillResizableVectorElement<int>);
 static_assert(FillResizableVectorElement<NoDefaultVectorElement>);
-static_assert(!FillResizableVectorElement<ThrowingVectorCopy>);
+static_assert(!FillResizableVectorElement<::pltxt2htm_test::ThrowingCopy>);
 static_assert(!FillResizableVectorElement<ThrowingMoveCopyable>);
 static_assert(FillAssignableVectorElement<NoDefaultVectorElement>);
 static_assert(FillAssignableVectorElement<ThrowingMoveCopyable>);
-static_assert(!FillAssignableVectorElement<ThrowingVectorCopy>);
+static_assert(!FillAssignableVectorElement<::pltxt2htm_test::ThrowingCopy>);
 static_assert(RangeAssignableVectorElement<NoDefaultVectorElement>);
 static_assert(!RangeAssignableVectorElement<ThrowingMoveCopyable>);
-static_assert(!RangeAssignableVectorElement<ThrowingVectorCopy>);
-static_assert(!EqualityComparableVectorElement<ThrowingEquality>);
+static_assert(!RangeAssignableVectorElement<::pltxt2htm_test::ThrowingCopy>);
+static_assert(!EqualityComparableVectorElement<::pltxt2htm_test::ThrowingEquality>);
 static_assert(!EqualityComparableVectorElement<ThrowingBooleanEquality>);
 static_assert(!AppendableIntRange<ThrowingIncrementRange&>);
 static_assert(::std::is_nothrow_copy_assignable_v<IntVector>);
