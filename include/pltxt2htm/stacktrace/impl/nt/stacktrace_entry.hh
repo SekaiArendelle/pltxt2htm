@@ -30,7 +30,9 @@ namespace pltxt2htm::stacktrace::details {
  *          party. Each linked image embedding this header owns its own session
  *          and session lock, so an in-image lock cannot stop an EXE and a DLL,
  *          or two DLLs, from entering DbgHelp concurrently. All copies
- *          therefore share a named semaphore (`Local\pltxt2htm.DbgHelp.v1.<pid>`,
+ *          therefore share a named semaphore (the session-local NT spelling of
+ *          the Win32 `Local\` prefix,
+ *          `\Sessions\<sid>\BaseNamedObjects\pltxt2htm.DbgHelp.v1.<pid>`,
  *          initial and maximum count 1): each image caches its own handle, but
  *          the handles refer to one kernel object. A zero-timeout wait yields
  *          non-recursive try-acquire semantics covering threads within one
@@ -39,14 +41,51 @@ namespace pltxt2htm::stacktrace::details {
  *          try_acquire(); callers fall back to address-only output.
  */
 class DbgHelpLock {
-    ::pltxt2htm::sys_win32::Handle semaphore{};
+    ::pltxt2htm::sys_nt::Handle semaphore{};
 
-    constexpr explicit DbgHelpLock(::pltxt2htm::sys_win32::Handle semaphore_) noexcept
+    constexpr explicit DbgHelpLock(::pltxt2htm::sys_nt::Handle semaphore_) noexcept
         : semaphore{semaphore_} {
     }
 
+    /**
+     * @brief Appends the decimal spelling of @p value at @p offset in @p buffer.
+     * @return The offset just past the appended digits.
+     */
+    template<::std::size_t capacity>
+    static auto append_decimal(char16_t (&buffer)[capacity], ::std::size_t offset, ::std::uint32_t value) noexcept
+        -> ::std::size_t {
+        ::std::size_t end{offset};
+        do {
+            buffer[end] = static_cast<char16_t>(u'0' + (value % 10));
+            ++end;
+            value /= 10;
+        } while (value != 0);
+        for (::std::size_t low{offset}, high{end}; low < --high; ++low) {
+            char16_t const digit{buffer[low]};
+            buffer[low] = buffer[high];
+            buffer[high] = digit;
+        }
+        return end;
+    }
+
+    /**
+     * @brief Copies @p literal (without its terminator) at @p offset in @p buffer.
+     * @return The offset just past the appended characters.
+     */
+    template<::std::size_t capacity, ::std::size_t literal_size>
+    static auto append_literal(char16_t (&buffer)[capacity], ::std::size_t offset,
+                               char16_t const (&literal)[literal_size]) noexcept -> ::std::size_t {
+        static_assert(literal_size != 0);
+        ::std::size_t end{offset};
+        for (::std::size_t index{}; literal[index] != char16_t{}; ++index) {
+            buffer[end] = literal[index];
+            ++end;
+        }
+        return end;
+    }
+
     [[nodiscard]]
-    static auto get_process_semaphore() noexcept -> ::pltxt2htm::sys_win32::Handle {
+    static auto get_process_semaphore() noexcept -> ::pltxt2htm::sys_nt::Handle {
         // Each image caches its own handle; creating with the same name returns
         // a handle to the same kernel object, so the static need not be shared.
         // A failed creation is cached and never retried, matching the session's
@@ -54,37 +93,60 @@ class DbgHelpLock {
         // closed: it lives until process exit, like the session itself, so a
         // host that repeatedly loads and unloads an embedding DLL leaks one
         // handle per cycle by design.
-        static ::pltxt2htm::sys_win32::Handle const value = DbgHelpLock::create_process_semaphore();
+        static ::pltxt2htm::sys_nt::Handle const value = DbgHelpLock::create_process_semaphore();
         return value;
     }
 
     [[nodiscard]]
-    static auto create_process_semaphore() noexcept -> ::pltxt2htm::sys_win32::Handle {
-        // "Local\pltxt2htm.DbgHelp.v1.<pid>": the Local\ prefix keeps the name
-        // inside this session, and the pid keeps concurrent processes apart.
-        constexpr wchar_t prefix[]{L"Local\\pltxt2htm.DbgHelp.v1."};
-        constexpr ::std::size_t pid_digit_capacity{10};
-        constexpr ::std::size_t name_capacity{48};
-        static_assert(sizeof(prefix) / sizeof(prefix[0]) + pid_digit_capacity <= name_capacity);
-        wchar_t name[name_capacity]{};
+    static auto create_process_semaphore() noexcept -> ::pltxt2htm::sys_nt::Handle {
+        // The Win32 "Local\" name prefix maps into the session-local
+        // BaseNamedObjects directory: "\Sessions\<sid>\BaseNamedObjects" for a
+        // nonzero session id, and "\BaseNamedObjects" for session zero. The
+        // pid keeps concurrent processes apart.
+        ::pltxt2htm::sys_nt::ProcessSessionInformation session_info{};
+        ::pltxt2htm::sys_nt::Ulong session_return_length{};
+        auto const session_status = ::pltxt2htm::sys_nt::NtQueryInformationProcess(
+            ::pltxt2htm::sys_nt::nt_current_process(),
+            ::pltxt2htm::sys_nt::ProcessInformationClass::ProcessSessionInformation, ::std::addressof(session_info),
+            static_cast<::pltxt2htm::sys_nt::Ulong>(sizeof(session_info)), ::std::addressof(session_return_length));
+        // A failed query degrades to the global directory: pids are unique
+        // across sessions, so the name still cannot collide.
+        ::pltxt2htm::sys_nt::Ulong const session_id = session_status < 0 ? 0 : session_info.session_id;
+
+        // "\Sessions\" + ten session digits + "\BaseNamedObjects\" +
+        // "pltxt2htm.DbgHelp.v1." + ten pid digits + one terminator.
+        constexpr ::std::size_t path_capacity{80};
+        static_assert(10 + 10 + 18 + 21 + 10 + 1 <= path_capacity);
+        char16_t path[path_capacity]{};
         ::std::size_t length{};
-        while (prefix[length] != L'\0') {
-            name[length] = prefix[length];
-            ++length;
+        if (session_id != 0) {
+            length = DbgHelpLock::append_literal(path, 0, u"\\Sessions\\");
+            length = DbgHelpLock::append_decimal(path, length, session_id);
         }
-        auto pid = static_cast<::std::uint32_t>(::pltxt2htm::sys_win32::GetCurrentProcessId());
-        ::std::size_t end{length};
-        do {
-            name[end] = static_cast<wchar_t>(L'0' + (pid % 10));
-            ++end;
-            pid /= 10;
-        } while (pid != 0);
-        for (::std::size_t lo{length}, hi{end}; lo < --hi; ++lo) {
-            auto const digit = name[lo];
-            name[lo] = name[hi];
-            name[hi] = digit;
+        length = DbgHelpLock::append_literal(path, length, u"\\BaseNamedObjects\\");
+        length = DbgHelpLock::append_literal(path, length, u"pltxt2htm.DbgHelp.v1.");
+        length = DbgHelpLock::append_decimal(
+            path, length, static_cast<::std::uint32_t>(::pltxt2htm::sys_win32::GetCurrentProcessId()));
+        path[length] = char16_t{};
+
+        ::pltxt2htm::sys_nt::UnicodeString object_name{};
+        object_name.length = static_cast<::pltxt2htm::sys_nt::Ushort>(length * sizeof(char16_t));
+        object_name.maximum_length = object_name.length + sizeof(char16_t);
+        object_name.buffer = path;
+
+        ::pltxt2htm::sys_nt::ObjectAttributes attributes{};
+        attributes.length = static_cast<::pltxt2htm::sys_nt::Ulong>(sizeof(attributes));
+        attributes.attributes = ::pltxt2htm::sys_nt::obj_case_insensitive | ::pltxt2htm::sys_nt::obj_open_if;
+        attributes.object_name = ::std::addressof(object_name);
+
+        ::pltxt2htm::sys_nt::Handle semaphore{};
+        auto const status = ::pltxt2htm::sys_nt::NtCreateSemaphore(
+            ::std::addressof(semaphore), ::pltxt2htm::sys_nt::synchronize | ::pltxt2htm::sys_nt::semaphore_modify_state,
+            ::std::addressof(attributes), 1, 1);
+        if (status < 0) [[unlikely]] {
+            return ::pltxt2htm::sys_nt::Handle{};
         }
-        return ::pltxt2htm::sys_win32::CreateSemaphoreW(nullptr, 1, 1, name);
+        return semaphore;
     }
 
 public:
@@ -95,7 +157,7 @@ public:
 
     ~DbgHelpLock() noexcept {
         if (semaphore.is_null() == false) {
-            [[maybe_unused]] auto const released = ::pltxt2htm::sys_win32::ReleaseSemaphore(semaphore, 1, nullptr);
+            [[maybe_unused]] auto const released = ::pltxt2htm::sys_nt::NtReleaseSemaphore(semaphore, 1, nullptr);
         }
     }
 
@@ -103,11 +165,13 @@ public:
     static auto try_acquire() noexcept -> DbgHelpLock {
         auto const semaphore = get_process_semaphore();
         if (semaphore.is_null()) {
-            return DbgHelpLock{::pltxt2htm::sys_win32::Handle{}};
+            return DbgHelpLock{::pltxt2htm::sys_nt::Handle{}};
         }
-        // WAIT_OBJECT_0 is zero; any other status means the gate is busy.
-        if (::pltxt2htm::sys_win32::WaitForSingleObject(semaphore, 0) != 0) {
-            return DbgHelpLock{::pltxt2htm::sys_win32::Handle{}};
+        // STATUS_SUCCESS is zero; any other status (a timeout, or a failure
+        // such as an invalid handle) means the gate is busy or unusable.
+        ::pltxt2htm::sys_nt::Long64 timeout{};
+        if (::pltxt2htm::sys_nt::NtWaitForSingleObject(semaphore, false, ::std::addressof(timeout)) != 0) {
+            return DbgHelpLock{::pltxt2htm::sys_nt::Handle{}};
         }
         return DbgHelpLock{semaphore};
     }

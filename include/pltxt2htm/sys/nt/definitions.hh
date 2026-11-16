@@ -28,6 +28,37 @@ constexpr auto nt_current_process() noexcept -> Handle {
     return Handle{static_cast<::std::intptr_t>(-1)};
 }
 
+/**
+ * @brief ObjectAttributes::attributes flag: match object names without regard
+ *        to case.
+ */
+constexpr Ulong obj_case_insensitive{0x00000040};
+
+/**
+ * @brief ObjectAttributes::attributes flag: when a named object already
+ *        exists, open it instead of failing with a name-collision status. The
+ *        call then reports status_object_name_exists while returning a valid
+ *        handle, which is how the Win32 create functions behave.
+ */
+constexpr Ulong obj_open_if{0x00000080};
+
+/**
+ * @brief Access mask right: wait on a synchronizable object.
+ */
+constexpr Ulong synchronize{0x00100000};
+
+/**
+ * @brief Access mask right: release a semaphore.
+ */
+constexpr Ulong semaphore_modify_state{0x00000002};
+
+/**
+ * @brief Status reported by a create call with obj_open_if when the named
+ *        object already existed and was opened instead. Positive, so a status
+ *        below zero still separates it from failures.
+ */
+constexpr NtStatus status_object_name_exists{0x40000000};
+
 // Enum values adapted from include/fast_io/fast_io_hosted/platforms/nt/nt_definitions.h.
 enum class AlpcMessageInformationClass : int {
     AlpcMessageSidInformation = 0,
@@ -457,6 +488,16 @@ struct ObjectAttributes {
     Ulong attributes;
     void* security_descriptor;
     void* security_quality_of_service;
+};
+
+/**
+ * @brief Output of NtQueryInformationProcess with ProcessSessionInformation.
+ * @details The session id selects the per-session BaseNamedObjects directory
+ *          that the Win32 Local\ name prefix maps into; the kernel reports
+ *          four bytes, matching this single field.
+ */
+struct ProcessSessionInformation {
+    Ulong session_id;
 };
 
 struct IoStatusBlock {
