@@ -28,6 +28,7 @@
 #include <type_traits>
 #include <utility>
 #include "../container/impl/vector_decl.hh"
+#include "../container/impl/cstring_view_decl.hh"
 #include "impl/none/backend.hh"
 #include "impl/nt/backend.hh"
 #include "impl/std/backend.hh"
