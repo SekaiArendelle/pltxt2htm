@@ -29,33 +29,167 @@ constexpr auto nt_current_process() noexcept -> Handle {
 }
 
 /**
- * @brief ObjectAttributes::attributes flag: match object names without regard
- *        to case.
+ * @brief Values for the ObjectAttributes::attributes field.
+ * @details The field holds an OR of these flags; a different enum keeps
+ *          attribute flags and access-mask rights from being mixed up. Values
+ *          follow the OBJ_* constants of the platform headers.
  */
-constexpr Ulong obj_case_insensitive{0x00000040};
+enum class ObjectAttributesFlags : Ulong {
+    /**
+     * @brief No attribute bits set. A zero value requests no attributes,
+     *        which is the state of a zero-initialized ObjectAttributes.
+     */
+    none = 0x00000000,
+
+    /**
+     * @brief Handle returned by the call is inherited by child processes
+     *        created with handle inheritance.
+     */
+    inherit = 0x00000002,
+
+    /**
+     * @brief Created object survives after its last handle closes; it becomes
+     *        temporary again only through NtMakeTemporaryObject. Creating
+     *        permanent objects requires SeCreatePermanentPrivilege.
+     */
+    permanent = 0x00000010,
+
+    /**
+     * @brief Only one handle may be open on the object at a time.
+     */
+    exclusive = 0x00000020,
+
+    /**
+     * @brief Match object names without regard to case.
+     */
+    case_insensitive = 0x00000040,
+
+    /**
+     * @brief When a named object already exists, open it instead of failing
+     *        with a name-collision status. The call then reports
+     *        status_object_name_exists while returning a valid handle, which
+     *        is how the Win32 create functions behave.
+     */
+    open_if = 0x00000080,
+
+    /**
+     * @brief Open a symbolic-link object itself instead of the object it
+     *        points at.
+     */
+    open_link = 0x00000100,
+
+    /**
+     * @brief The returned handle is a kernel handle, valid only in kernel
+     *        mode; user-mode callers must not pass this flag.
+     */
+    kernel_handle = 0x00000200,
+
+    /**
+     * @brief Perform access checks even where the object manager would skip
+     *        them for kernel-mode callers.
+     */
+    force_access_check = 0x00000400,
+
+    /**
+     * @brief Ignore the device map of the impersonated process while
+     *        interpreting DOS device names in the object name.
+     */
+    ignore_impersonated_devicemap = 0x00000800,
+
+    /**
+     * @brief Do not follow reparse points while parsing the object name; the
+     *        call fails when the path traverses one.
+     */
+    dont_reparse = 0x00001000,
+
+    /**
+     * @brief Mask of every settable attribute bit, for validating a flags
+     *        value; not an attribute to pass on its own.
+     */
+    valid_attributes = 0x00001FF2,
+};
 
 /**
- * @brief ObjectAttributes::attributes flag: when a named object already
- *        exists, open it instead of failing with a name-collision status. The
- *        call then reports status_object_name_exists while returning a valid
- *        handle, which is how the Win32 create functions behave.
+ * @brief ORs two attribute flags into one value.
  */
-constexpr Ulong obj_open_if{0x00000080};
+[[nodiscard]]
+constexpr auto operator|(ObjectAttributesFlags left, ObjectAttributesFlags right) noexcept -> ObjectAttributesFlags {
+    return static_cast<ObjectAttributesFlags>(static_cast<Ulong>(left) | static_cast<Ulong>(right));
+}
 
 /**
- * @brief Access mask right: wait on a synchronizable object.
+ * @brief Intersects two attribute flags, keeping the bits both values set.
  */
-constexpr Ulong synchronize{0x00100000};
+[[nodiscard]]
+constexpr auto operator&(ObjectAttributesFlags left, ObjectAttributesFlags right) noexcept -> ObjectAttributesFlags {
+    return static_cast<ObjectAttributesFlags>(static_cast<Ulong>(left) & static_cast<Ulong>(right));
+}
 
 /**
- * @brief Access mask right: release a semaphore.
+ * @brief Access-mask rights for object creation and opening.
+ * @details The desired-access parameter of the create and open functions holds
+ *          an OR of these rights; a different enum keeps access rights and
+ *          attribute flags from being mixed up.
  */
-constexpr Ulong semaphore_modify_state{0x00000002};
+enum class AccessMask : Ulong {
+    /**
+     * @brief No rights requested. A handle created or opened with no rights
+     *        grants nothing and cannot be used on the object.
+     */
+    none = 0x00000000,
+
+    /**
+     * @brief Delete the object.
+     */
+    delete_access = 0x00010000,
+
+    /**
+     * @brief Read the security descriptor of the object.
+     */
+    read_control = 0x00020000,
+
+    /**
+     * @brief Change the discretionary access-control list of the object.
+     */
+    write_dac = 0x00040000,
+
+    /**
+     * @brief Change the owner in the security descriptor of the object.
+     */
+    write_owner = 0x00080000,
+
+    /**
+     * @brief Wait on a synchronizable object.
+     */
+    synchronize = 0x00100000,
+
+    /**
+     * @brief Release a semaphore.
+     */
+    semaphore_modify_state = 0x00000002,
+};
 
 /**
- * @brief Status reported by a create call with obj_open_if when the named
- *        object already existed and was opened instead. Positive, so a status
- *        below zero still separates it from failures.
+ * @brief ORs two access rights into one mask.
+ */
+[[nodiscard]]
+constexpr auto operator|(AccessMask left, AccessMask right) noexcept -> AccessMask {
+    return static_cast<AccessMask>(static_cast<Ulong>(left) | static_cast<Ulong>(right));
+}
+
+/**
+ * @brief Intersects two access rights, keeping the bits both values set.
+ */
+[[nodiscard]]
+constexpr auto operator&(AccessMask left, AccessMask right) noexcept -> AccessMask {
+    return static_cast<AccessMask>(static_cast<Ulong>(left) & static_cast<Ulong>(right));
+}
+
+/**
+ * @brief Status reported by a create call with
+ *        ObjectAttributesFlags::open_if when the named object already existed
+ *        and was opened instead. Positive, so a status below zero still
+ *        separates it from failures.
  */
 constexpr NtStatus status_object_name_exists{0x40000000};
 
@@ -485,7 +619,7 @@ struct ObjectAttributes {
     Ulong length;
     Handle root_directory;
     UnicodeString* object_name;
-    Ulong attributes;
+    ObjectAttributesFlags attributes;
     void* security_descriptor;
     void* security_quality_of_service;
 };

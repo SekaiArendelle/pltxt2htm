@@ -136,12 +136,14 @@ class DbgHelpLock {
 
         ::pltxt2htm::sys_nt::ObjectAttributes attributes{};
         attributes.length = static_cast<::pltxt2htm::sys_nt::Ulong>(sizeof(attributes));
-        attributes.attributes = ::pltxt2htm::sys_nt::obj_case_insensitive | ::pltxt2htm::sys_nt::obj_open_if;
+        attributes.attributes = ::pltxt2htm::sys_nt::ObjectAttributesFlags::case_insensitive |
+                                ::pltxt2htm::sys_nt::ObjectAttributesFlags::open_if;
         attributes.object_name = ::std::addressof(object_name);
 
         ::pltxt2htm::sys_nt::Handle semaphore{};
         auto const status = ::pltxt2htm::sys_nt::NtCreateSemaphore(
-            ::std::addressof(semaphore), ::pltxt2htm::sys_nt::synchronize | ::pltxt2htm::sys_nt::semaphore_modify_state,
+            ::std::addressof(semaphore),
+            ::pltxt2htm::sys_nt::AccessMask::synchronize | ::pltxt2htm::sys_nt::AccessMask::semaphore_modify_state,
             ::std::addressof(attributes), 1, 1);
         if (status < 0) [[unlikely]] {
             return ::pltxt2htm::sys_nt::Handle{};

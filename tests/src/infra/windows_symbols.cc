@@ -75,9 +75,9 @@ using ExpectedMapViewOfSection = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, vo
                                                       nt::Long64*, ::std::size_t*, nt::SectionInherit, nt::Ulong,
                                                       nt::Ulong) noexcept;
 using ExpectedEventState = nt::NtStatus(NTAPI*)(nt::Handle, nt::Long*) noexcept;
-using ExpectedCreateSemaphore = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, nt::Long,
+using ExpectedCreateSemaphore = nt::NtStatus(NTAPI*)(nt::Handle*, nt::AccessMask, nt::ObjectAttributes const*, nt::Long,
                                                      nt::Long) noexcept;
-using ExpectedOpenSemaphore = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*) noexcept;
+using ExpectedOpenSemaphore = nt::NtStatus(NTAPI*)(nt::Handle*, nt::AccessMask, nt::ObjectAttributes const*) noexcept;
 using ExpectedNtReleaseSemaphore = nt::NtStatus(NTAPI*)(nt::Handle, nt::Long, nt::Long*) noexcept;
 using ExpectedAlpcConnectPort = nt::NtStatus(NTAPI*)(nt::Handle*, nt::UnicodeString const*, nt::ObjectAttributes*,
                                                      nt::AlpcPortAttributes*, nt::Ulong, void*, nt::PortMessage*,
