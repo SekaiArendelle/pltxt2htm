@@ -4,7 +4,8 @@
  * @warning This subtree is included by the panic path. It may include the
  *          declaration-only container headers, but the contract-checked
  *          container definitions must stay at the end of this header (and of
- *          `container/vector.hh` / `container/string.hh`) so the
+ *          `container/vector.hh` / `container/string.hh` /
+ *          `container/cstring_view.hh`) so the
  *          panic/stacktrace include cycle stays broken. `impl/stacktrace_def.inc`
  *          defines members of the class and, in Windows enforce builds, pulls the
  *          assert machinery and with it the panic definition, which names
@@ -285,3 +286,4 @@ using Stacktrace = details::BasicStacktrace<details::DefaultBackend>;
 #include "impl/stacktrace_def.inc"
 #include "../container/impl/vector_def.inc"
 #include "../container/impl/string_def.inc"
+#include "../container/impl/cstring_view_def.inc"

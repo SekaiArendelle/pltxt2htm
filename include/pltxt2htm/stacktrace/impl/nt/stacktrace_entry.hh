@@ -14,7 +14,6 @@
 #include <memory>
 
 #include <fast_io/fast_io_core.h>
-#include <fast_io/fast_io_dsal/string_view.h>
 
 #include "../resolved_frame.hh"
 #include "../../../details/demangle.hh"
@@ -375,7 +374,7 @@ inline void resolve_description(ResolvedFrame& result, DbgHelpSession const& ses
         // raw spelling.
         ::pltxt2htm::container::String terminated{name.data(), name.data() + name.size()};
         if (auto* const demangled = ::pltxt2htm::details::demangle_symbol_name(
-                ::fast_io::cstring_view{::fast_io::null_terminated, terminated.c_str(), terminated.size()})) {
+                ::pltxt2htm::container::CStringView{terminated.c_str(), terminated.size()})) {
             result.description.assign(demangled, demangled + ::fast_io::cstr_len(demangled));
             ::std::free(demangled);
             return;

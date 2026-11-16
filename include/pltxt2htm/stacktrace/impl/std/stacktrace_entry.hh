@@ -17,7 +17,6 @@
 #include <stacktrace>
 
 #include <fast_io/fast_io_core.h>
-#include <fast_io/fast_io_dsal/string_view.h>
 
 #include "../resolved_frame.hh"
 #include "../../../details/demangle.hh"
@@ -86,8 +85,7 @@ public:
         }
         ResolvedFrame frame{.address = reinterpret_cast<::std::uintptr_t>(self.entry.native_handle())};
         auto const description = self.entry.description();
-        if (auto* const demangled =
-                ::pltxt2htm::details::demangle_symbol_name(::fast_io::mnp::os_c_str(description.c_str()))) {
+        if (auto* const demangled = ::pltxt2htm::details::demangle_symbol_name(description.c_str())) {
             frame.description.assign(demangled, demangled + ::fast_io::cstr_len(demangled));
             ::std::free(demangled);
         }

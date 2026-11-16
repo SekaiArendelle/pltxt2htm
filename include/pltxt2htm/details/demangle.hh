@@ -11,7 +11,7 @@
 #include <cstdlib>
 #include <memory>
 
-#include <fast_io/fast_io_dsal/string_view.h>
+#include "../container/impl/cstring_view_decl.hh"
 #include "../container/impl/string_decl.hh"
 
 #if defined(__GXX_ABI_VERSION) && !defined(_MSC_VER) && __has_include(<cxxabi.h>)
@@ -34,13 +34,14 @@ namespace pltxt2htm::details {
  *          prefixed spelling is retried.
  * @note This header only declares the container it uses; the caller's
  *       translation unit must also provide the container definitions, for
- *       example by including container/string.hh or stacktrace/stacktrace.hh.
+ *       example by including container/string.hh and container/cstring_view.hh
+ *       or stacktrace/stacktrace.hh.
  * @note Itanium ABI consumers must link the C++ ABI runtime for
  *       __cxa_demangle; builds that omit it (for example -nostdlib++) must not
  *       include this header or the stacktrace backends that use it.
  */
 [[nodiscard]]
-inline auto demangle_symbol_name([[maybe_unused]] ::fast_io::cstring_view name) noexcept -> char* {
+inline auto demangle_symbol_name([[maybe_unused]] ::pltxt2htm::container::CStringView name) noexcept -> char* {
 #if defined(__GXX_ABI_VERSION) && !defined(_MSC_VER) && __has_include(<cxxabi.h>)
     int status{};
     auto* demangled = ::abi::__cxa_demangle(name.c_str(), nullptr, nullptr, ::std::addressof(status));
