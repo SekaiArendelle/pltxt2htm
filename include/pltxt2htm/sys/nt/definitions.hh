@@ -1,11 +1,13 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
+#include "../details/handle.hh"
 #include "../push_macro.hh"
 
 namespace pltxt2htm::sys_nt {
 using Boolean = unsigned char;
-using Handle = void*;
+using ::pltxt2htm::sys::details::Handle;
 using Long = long;
 using Long64 = long long;
 using NtStatus = long;
@@ -13,6 +15,18 @@ using Uchar = unsigned char;
 using Ulong = unsigned long;
 using Ulong64 = unsigned long long;
 using Ushort = unsigned short;
+
+/**
+ * @brief Pseudo-handle that refers to the current process.
+ * @details The kernel resolves this value directly instead of looking it up in
+ *          a handle table, so it is never opened and must never be closed. It
+ *          shares its representation with INVALID_HANDLE_VALUE, which is an API
+ *          failure code rather than a handle.
+ */
+[[nodiscard]]
+constexpr auto nt_current_process() noexcept -> Handle {
+    return Handle{static_cast<::std::intptr_t>(-1)};
+}
 
 // Enum values adapted from include/fast_io/fast_io_hosted/platforms/nt/nt_definitions.h.
 enum class AlpcMessageInformationClass : int {
@@ -572,7 +586,7 @@ struct PsAttributeList {
 
 struct Curdir {
     UnicodeString dos_path;
-    void* handle;
+    Handle handle;
 };
 
 struct RtlDriveLetterCurdir {
@@ -591,11 +605,11 @@ struct RtlUserProcessParameters {
     Ulong flags;
     Ulong debug_flags;
 
-    void* console_handle;
+    Handle console_handle;
     Ulong console_flags;
-    void* standard_input;
-    void* standard_output;
-    void* standard_error;
+    Handle standard_input;
+    Handle standard_output;
+    Handle standard_error;
 
     Curdir current_directory;
     UnicodeString dll_path;
@@ -641,7 +655,7 @@ struct Peb {
     Uchar read_image_file_exec_options;
     Uchar being_debugged;
     Uchar spare_bool;
-    void* mutant;
+    Handle mutant;
     void* image_base_address;
     PebLdrData* ldr;
     RtlUserProcessParameters* process_parameters;
@@ -673,7 +687,7 @@ struct PsCreateInfo {
         } init_state;
 
         struct {
-            void* file_handle;
+            Handle file_handle;
         } fail_section;
 
         struct {
@@ -681,7 +695,7 @@ struct PsCreateInfo {
         } exe_format;
 
         struct {
-            void* ifeo_key;
+            Handle ifeo_key;
         } exe_name;
 
         struct {
@@ -700,8 +714,8 @@ struct PsCreateInfo {
                 } s2;
             } u2;
 
-            void* file_handle;
-            void* section_handle;
+            Handle file_handle;
+            Handle section_handle;
             Ulong64 user_process_parameters_native;
             Ulong user_process_parameters_wow64;
             Ulong current_parameter_flags;

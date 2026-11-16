@@ -65,39 +65,42 @@ using ExpectedCreateUserProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Handle*,
                                                        nt::ObjectAttributes const*, nt::ObjectAttributes const*,
                                                        nt::Ulong, nt::Ulong, nt::RtlUserProcessParameters*,
                                                        nt::PsCreateInfo*, nt::PsAttributeList*) noexcept;
-using ExpectedCreateProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, void*,
-                                                   nt::Boolean, void*, void*, void*) noexcept;
-using ExpectedWaitForSingleObject = nt::NtStatus(NTAPI*)(void*, nt::Boolean, nt::Long64*) noexcept;
+using ExpectedCreateProcess = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, nt::Handle,
+                                                   nt::Boolean, nt::Handle, nt::Handle, nt::Handle) noexcept;
+using ExpectedWaitForSingleObject = nt::NtStatus(NTAPI*)(nt::Handle, nt::Boolean, nt::Long64*) noexcept;
 using ExpectedDelayExecution = nt::NtStatus(NTAPI*)(nt::Boolean, nt::Long64*) noexcept;
-using ExpectedSetTimer = nt::NtStatus(NTAPI*)(void*, nt::Long64*, nt::TimerApcRoutine, void*, nt::Boolean, nt::Long,
-                                              nt::Boolean*) noexcept;
-using ExpectedMapViewOfSection = nt::NtStatus(NTAPI*)(void*, void*, void**, ::std::size_t, ::std::size_t, nt::Long64*,
-                                                      ::std::size_t*, nt::SectionInherit, nt::Ulong,
+using ExpectedSetTimer = nt::NtStatus(NTAPI*)(nt::Handle, nt::Long64*, nt::TimerApcRoutine, void*, nt::Boolean,
+                                              nt::Long, nt::Boolean*) noexcept;
+using ExpectedMapViewOfSection = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, void**, ::std::size_t, ::std::size_t,
+                                                      nt::Long64*, ::std::size_t*, nt::SectionInherit, nt::Ulong,
                                                       nt::Ulong) noexcept;
-using ExpectedEventState = nt::NtStatus(NTAPI*)(void*, nt::Long*) noexcept;
+using ExpectedEventState = nt::NtStatus(NTAPI*)(nt::Handle, nt::Long*) noexcept;
+using ExpectedCreateSemaphore = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, nt::Long,
+                                                     nt::Long) noexcept;
+using ExpectedOpenSemaphore = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*) noexcept;
+using ExpectedNtReleaseSemaphore = nt::NtStatus(NTAPI*)(nt::Handle, nt::Long, nt::Long*) noexcept;
 using ExpectedAlpcConnectPort = nt::NtStatus(NTAPI*)(nt::Handle*, nt::UnicodeString const*, nt::ObjectAttributes*,
                                                      nt::AlpcPortAttributes*, nt::Ulong, void*, nt::PortMessage*,
                                                      ::std::size_t*, nt::AlpcMessageAttributes*,
                                                      nt::AlpcMessageAttributes*, nt::Long64*) noexcept;
 using ExpectedAlpcGetHeaderSize = nt::Ulong(NTAPI*)(nt::Ulong) noexcept;
-using ExpectedAlpcQueryInformationMessage = nt::NtStatus(NTAPI*)(void*, nt::PortMessage*,
+using ExpectedAlpcQueryInformationMessage = nt::NtStatus(NTAPI*)(nt::Handle, nt::PortMessage*,
                                                                  nt::AlpcMessageInformationClass, void*, nt::Ulong,
                                                                  nt::Ulong*) noexcept;
-using ExpectedControlFile = nt::NtStatus(NTAPI*)(void*, void*, nt::IoApcRoutine, void*, nt::IoStatusBlock*, nt::Ulong,
-                                                 void*, nt::Ulong, void*, nt::Ulong) noexcept;
+using ExpectedControlFile = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, nt::IoApcRoutine, void*, nt::IoStatusBlock*,
+                                                 nt::Ulong, void*, nt::Ulong, void*, nt::Ulong) noexcept;
 using ExpectedCreateFile = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, nt::IoStatusBlock*,
                                                 nt::Long64*, nt::Ulong, nt::Ulong, nt::Ulong, nt::Ulong, void*,
                                                 nt::Ulong) noexcept;
 using ExpectedDbgPrint = nt::Ulong(__cdecl*)(char const*, ...) noexcept;
-using ExpectedLoadLibraryExW = win32::ModuleHandle(WINAPI*)(win32::WideChar const*, win32::Handle,
-                                                            win32::Dword) noexcept;
-using ExpectedGetProcAddress = win32::Procedure(WINAPI*)(win32::ModuleHandle, win32::Char const*) noexcept;
+using ExpectedLoadLibraryExW = win32::ModuleHandle(WINAPI*)(wchar_t const*, win32::Handle, win32::Dword) noexcept;
+using ExpectedGetProcAddress = win32::Procedure(WINAPI*)(win32::ModuleHandle, char const*) noexcept;
 using ExpectedFreeLibrary = win32::Bool(WINAPI*)(win32::ModuleHandle) noexcept;
 using ExpectedGetLastError = win32::Dword(WINAPI*)() noexcept;
-using ExpectedFormatMessageW = win32::Dword(WINAPI*)(win32::Dword, void const*, win32::Dword, win32::Dword,
-                                                     win32::WideChar*, win32::Dword, win32::Char**) noexcept;
+using ExpectedFormatMessageW = win32::Dword(WINAPI*)(win32::Dword, void const*, win32::Dword, win32::Dword, wchar_t*,
+                                                     win32::Dword, char**) noexcept;
 using ExpectedTryAcquireSrwLock = win32::Boolean(WINAPI*)(void*) noexcept;
-using ExpectedCreateFileW = win32::Handle(WINAPI*)(win32::WideChar const*, win32::Dword, win32::Dword,
+using ExpectedCreateFileW = win32::Handle(WINAPI*)(wchar_t const*, win32::Dword, win32::Dword,
                                                    win32::SecurityAttributes*, win32::Dword, win32::Dword,
                                                    win32::Handle) noexcept;
 using ExpectedReadFile = win32::Bool(WINAPI*)(win32::Handle, void*, win32::Dword, win32::Dword*,
@@ -107,7 +110,12 @@ using ExpectedExitProcess = void(WINAPI*)(UINT) noexcept;
 using ExpectedCreateThread = win32::Handle(WINAPI*)(win32::SecurityAttributes*, ::std::size_t,
                                                     win32::ThreadStartRoutine, void*, win32::Dword,
                                                     win32::Dword*) noexcept;
-using ExpectedSymInitialize = win32::Bool(WINAPI*)(win32::Handle, win32::Char const*, win32::Bool) noexcept;
+using ExpectedCreateSemaphoreA = win32::Handle(WINAPI*)(win32::SecurityAttributes*, win32::Long, win32::Long,
+                                                        char const*) noexcept;
+using ExpectedCreateSemaphoreW = win32::Handle(WINAPI*)(win32::SecurityAttributes*, win32::Long, win32::Long,
+                                                        wchar_t const*) noexcept;
+using ExpectedReleaseSemaphore = win32::Bool(WINAPI*)(win32::Handle, win32::Long, win32::Long*) noexcept;
+using ExpectedSymInitialize = win32::Bool(WINAPI*)(win32::Handle, char const*, win32::Bool) noexcept;
 using ExpectedSymRefreshModuleList = win32::Bool(WINAPI*)(win32::Handle) noexcept;
 using ExpectedSymCleanup = win32::Bool(WINAPI*)(win32::Handle) noexcept;
 using ExpectedSymFromAddr = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64, win32::Dword64*,
@@ -115,23 +123,27 @@ using ExpectedSymFromAddr = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64, 
 using ExpectedSymGetLineFromAddr64 = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64, win32::Dword*,
                                                           win32::ImageHlpLine64*) noexcept;
 using ExpectedSymSetOptions = win32::Dword(WINAPI*)(win32::Dword) noexcept;
-using ExpectedSymInitializeW = win32::Bool(WINAPI*)(win32::Handle, win32::WideChar const*, win32::Bool) noexcept;
-using ExpectedSymLoadModuleExW = win32::Dword64(WINAPI*)(win32::Handle, win32::Handle, win32::WideChar const*,
-                                                         win32::WideChar const*, win32::Dword64, win32::Dword,
-                                                         win32::ModLoadData*, win32::Dword) noexcept;
+using ExpectedSymInitializeW = win32::Bool(WINAPI*)(win32::Handle, wchar_t const*, win32::Bool) noexcept;
+using ExpectedSymLoadModuleExW = win32::Dword64(WINAPI*)(win32::Handle, win32::Handle, wchar_t const*, wchar_t const*,
+                                                         win32::Dword64, win32::Dword, win32::ModLoadData*,
+                                                         win32::Dword) noexcept;
 using ExpectedSymGetModuleInfoW64 = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64,
                                                          win32::ImageHlpModuleW64*) noexcept;
-using ExpectedSymEnumSymbolsW = win32::Bool(WINAPI*)(win32::Handle, win32::Ulong64, win32::WideChar const*,
+using ExpectedSymEnumSymbolsW = win32::Bool(WINAPI*)(win32::Handle, win32::Ulong64, wchar_t const*,
                                                      win32::SymEnumSymbolsCallbackW, void*) noexcept;
 using ExpectedSymEnumSymbolsCallbackW = BOOL(WINAPI*)(win32::SymbolInfoW*, ULONG, PVOID);
 using ExpectedSymGetLineFromAddrW64 = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64, win32::Dword*,
                                                            win32::ImageHlpLineW64*) noexcept;
-using ExpectedUnDecorateSymbolNameW = win32::Dword(WINAPI*)(win32::WideChar const*, win32::WideChar*, win32::Dword,
+using ExpectedUnDecorateSymbolNameW = win32::Dword(WINAPI*)(wchar_t const*, wchar_t*, win32::Dword,
                                                             win32::Dword) noexcept;
-using ExpectedTranslateAddressRoutine64 = DWORD64(WINAPI*)(HANDLE, HANDLE, win32::Address64*);
-using ExpectedStackWalk64 = BOOL(WINAPI*)(DWORD, HANDLE, HANDLE, win32::StackFrame64*, PVOID,
+using ExpectedTranslateAddressRoutine64 = DWORD64(WINAPI*)(win32::Handle, win32::Handle, win32::Address64*);
+using ExpectedStackWalk64 = BOOL(WINAPI*)(DWORD, win32::Handle, win32::Handle, win32::StackFrame64*, PVOID,
                                           win32::ReadProcessMemoryRoutine64, win32::FunctionTableAccessRoutine64,
                                           win32::GetModuleBaseRoutine64, win32::TranslateAddressRoutine64) noexcept;
+using ExpectedReadProcessMemoryRoutine64 = win32::Bool(WINAPI*)(win32::Handle, win32::Dword64, void*, win32::Dword,
+                                                                win32::Dword*);
+using ExpectedFunctionTableAccessRoutine64 = void*(WINAPI*)(win32::Handle, win32::Dword64);
+using ExpectedGetModuleBaseRoutine64 = win32::Dword64(WINAPI*)(win32::Handle, win32::Dword64);
 
 static_assert(::std::is_same_v<decltype(&nt::RtlCaptureStackBackTrace), ExpectedCaptureStackBackTrace>);
 static_assert(::std::is_same_v<decltype(&nt::RtlTryAcquireSRWLockExclusive), ExpectedTryAcquireSrwLockExclusive>);
@@ -171,6 +183,12 @@ static_assert(::std::is_same_v<decltype(&nt::NtSetEvent), ExpectedEventState>);
 static_assert(::std::is_same_v<decltype(&nt::ZwSetEvent), ExpectedEventState>);
 static_assert(::std::is_same_v<decltype(&nt::NtResetEvent), ExpectedEventState>);
 static_assert(::std::is_same_v<decltype(&nt::ZwResetEvent), ExpectedEventState>);
+static_assert(::std::is_same_v<decltype(&nt::NtCreateSemaphore), ExpectedCreateSemaphore>);
+static_assert(::std::is_same_v<decltype(&nt::ZwCreateSemaphore), ExpectedCreateSemaphore>);
+static_assert(::std::is_same_v<decltype(&nt::NtOpenSemaphore), ExpectedOpenSemaphore>);
+static_assert(::std::is_same_v<decltype(&nt::ZwOpenSemaphore), ExpectedOpenSemaphore>);
+static_assert(::std::is_same_v<decltype(&nt::NtReleaseSemaphore), ExpectedNtReleaseSemaphore>);
+static_assert(::std::is_same_v<decltype(&nt::ZwReleaseSemaphore), ExpectedNtReleaseSemaphore>);
 static_assert(::std::is_same_v<decltype(&nt::NtAlpcConnectPort), ExpectedAlpcConnectPort>);
 static_assert(::std::is_same_v<decltype(&nt::ZwAlpcConnectPort), ExpectedAlpcConnectPort>);
 static_assert(::std::is_same_v<decltype(&nt::AlpcGetHeaderSize), ExpectedAlpcGetHeaderSize>);
@@ -192,6 +210,9 @@ static_assert(::std::is_same_v<decltype(&win32::ReadFile), ExpectedReadFile>);
 static_assert(::std::is_same_v<decltype(&win32::TerminateProcess), ExpectedTerminateProcess>);
 static_assert(::std::is_same_v<decltype(&win32::ExitProcess), ExpectedExitProcess>);
 static_assert(::std::is_same_v<decltype(&win32::CreateThread), ExpectedCreateThread>);
+static_assert(::std::is_same_v<decltype(&win32::CreateSemaphoreA), ExpectedCreateSemaphoreA>);
+static_assert(::std::is_same_v<decltype(&win32::CreateSemaphoreW), ExpectedCreateSemaphoreW>);
+static_assert(::std::is_same_v<decltype(&win32::ReleaseSemaphore), ExpectedReleaseSemaphore>);
 static_assert(::std::is_same_v<decltype(&win32::SymInitialize), ExpectedSymInitialize>);
 static_assert(::std::is_same_v<decltype(&win32::SymRefreshModuleList), ExpectedSymRefreshModuleList>);
 static_assert(::std::is_same_v<decltype(&win32::SymCleanup), ExpectedSymCleanup>);
@@ -205,14 +226,25 @@ static_assert(::std::is_same_v<decltype(&win32::SymEnumSymbolsW), ExpectedSymEnu
 static_assert(::std::is_same_v<win32::SymEnumSymbolsCallbackW, ExpectedSymEnumSymbolsCallbackW>);
 static_assert(::std::is_same_v<decltype(&win32::SymGetLineFromAddrW64), ExpectedSymGetLineFromAddrW64>);
 static_assert(::std::is_same_v<decltype(&win32::UnDecorateSymbolNameW), ExpectedUnDecorateSymbolNameW>);
-static_assert(::std::is_same_v<win32::ReadProcessMemoryRoutine64, PREAD_PROCESS_MEMORY_ROUTINE64>);
-static_assert(::std::is_same_v<win32::FunctionTableAccessRoutine64, PFUNCTION_TABLE_ACCESS_ROUTINE64>);
-static_assert(::std::is_same_v<win32::GetModuleBaseRoutine64, PGET_MODULE_BASE_ROUTINE64>);
+static_assert(::std::is_same_v<win32::ReadProcessMemoryRoutine64, ExpectedReadProcessMemoryRoutine64>);
+static_assert(::std::is_same_v<win32::FunctionTableAccessRoutine64, ExpectedFunctionTableAccessRoutine64>);
+static_assert(::std::is_same_v<win32::GetModuleBaseRoutine64, ExpectedGetModuleBaseRoutine64>);
 static_assert(::std::is_same_v<win32::TranslateAddressRoutine64, ExpectedTranslateAddressRoutine64>);
 static_assert(::std::is_same_v<decltype(&win32::StackWalk64), ExpectedStackWalk64>);
 
 static_assert(::std::is_same_v<nt::Boolean, BOOLEAN>);
-static_assert(::std::is_same_v<nt::Handle, HANDLE>);
+// `pltxt2htm::sys::Handle` is shared by the NT and Win32 layers. Core headers
+// cannot include <type_traits> (the Windows symbol probes build them with only
+// <cstddef> and <cstdint>), so its ABI-shape checks live here.
+static_assert(sizeof(nt::Handle) == sizeof(::std::intptr_t));
+static_assert(alignof(nt::Handle) == alignof(::std::intptr_t));
+static_assert(::std::is_aggregate_v<nt::Handle>);
+static_assert(::std::is_standard_layout_v<nt::Handle>);
+static_assert(::std::is_trivially_copyable_v<nt::Handle>);
+// The distinct type keeps the SDK handle's size and alignment, so the imported
+// declarations stay ABI-compatible.
+static_assert(sizeof(nt::Handle) == sizeof(HANDLE));
+static_assert(alignof(nt::Handle) == alignof(HANDLE));
 static_assert(::std::is_same_v<nt::NtStatus, NTSTATUS>);
 static_assert(::std::is_same_v<nt::Long, LONG>);
 static_assert(::std::is_same_v<nt::Long64, LONGLONG>);
@@ -261,16 +293,18 @@ static_assert(offsetof(nt::RtlUserProcessParameters, command_line) >
 
 static_assert(::std::is_same_v<win32::Bool, BOOL>);
 static_assert(::std::is_same_v<win32::Boolean, BOOLEAN>);
-static_assert(::std::is_same_v<win32::Char, CHAR>);
 static_assert(::std::is_same_v<win32::Dword, DWORD>);
 static_assert(::std::is_same_v<win32::Dword64, DWORD64>);
-static_assert(::std::is_same_v<win32::Handle, HANDLE>);
+static_assert(sizeof(win32::Handle) == sizeof(HANDLE));
+static_assert(alignof(win32::Handle) == alignof(HANDLE));
+static_assert(::std::is_aggregate_v<win32::Handle>);
+static_assert(::std::is_standard_layout_v<win32::Handle>);
+static_assert(::std::is_trivially_copyable_v<win32::Handle>);
 static_assert(::std::is_same_v<win32::IntPtr, INT_PTR>);
 static_assert(::std::is_same_v<win32::Procedure, FARPROC>);
 static_assert(::std::is_same_v<win32::Ulong, ULONG>);
 static_assert(::std::is_same_v<win32::Ulong64, ULONG64>);
 static_assert(::std::is_same_v<win32::Uint, UINT>);
-static_assert(::std::is_same_v<win32::WideChar, WCHAR>);
 static_assert(sizeof(win32::ExceptionRecord) == sizeof(EXCEPTION_RECORD));
 static_assert(alignof(win32::ExceptionRecord) == alignof(EXCEPTION_RECORD));
 static_assert(offsetof(win32::ExceptionRecord, information) == offsetof(EXCEPTION_RECORD, ExceptionInformation));
@@ -301,8 +335,8 @@ static_assert(sizeof(win32::SystemTime) == sizeof(SYSTEMTIME));
 static_assert(sizeof(win32::TimeZoneInformation) == sizeof(TIME_ZONE_INFORMATION));
 static_assert(sizeof(win32::SystemInfo) == sizeof(SYSTEM_INFO));
 static_assert(offsetof(win32::SystemInfo, dummy_union_name.oem_id) == offsetof(SYSTEM_INFO, dwOemId));
-static_assert(offsetof(win32::SystemInfo, dummy_union_name.dummy_struct_name.processor_architecture)
-              == offsetof(SYSTEM_INFO, wProcessorArchitecture));
+static_assert(offsetof(win32::SystemInfo, dummy_union_name.dummy_struct_name.processor_architecture) ==
+              offsetof(SYSTEM_INFO, wProcessorArchitecture));
 static_assert(offsetof(win32::SystemInfo, page_size) == offsetof(SYSTEM_INFO, dwPageSize));
 static_assert(sizeof(win32::Win32FindDataA) == sizeof(WIN32_FIND_DATAA));
 static_assert(sizeof(win32::Win32FindDataW) == sizeof(WIN32_FIND_DATAW));

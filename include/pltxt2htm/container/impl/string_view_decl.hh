@@ -11,11 +11,12 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <iterator>
 #include <limits>
+#include <utility>
 
 #include <fast_io/fast_io_core.h>
 
-#include "../../details/contracts.hh"
 #include "../../details/concepts.hh"
 #include "../../details/literal_string.hh"
 #include "../../details/impl/inplace_string_decl.hh"
@@ -33,9 +34,12 @@ namespace pltxt2htm::container {
  * @brief A non-owning view over a contiguous sequence of characters.
  * @tparam CharType Character type stored by the referenced sequence.
  *
- * BasicStringView deliberately implements only the operations currently needed by
- * pltxt2htm. Checked operations take a build-wide contract setting so they use the
- * same panic/assertion policy as the rest of the library.
+ * BasicStringView mirrors std::basic_string_view where the semantics map onto
+ * this library: exception-based facilities (at, compare and the ordering
+ * operators) and conversions from owning containers are omitted, bounds
+ * violations are contract-checked with the same panic/assertion policy as the
+ * rest of the library, and the null-terminated flavor with the search
+ * operations is container::BasicCStringView.
  */
 template<::pltxt2htm::details::is_char_type CharType>
 class BasicStringView {
@@ -47,6 +51,8 @@ public:
     using const_pointer = value_type const*;
     using const_iterator = const_pointer;
     using iterator = const_iterator;
+    using const_reverse_iterator = ::std::reverse_iterator<const_pointer>;
+    using reverse_iterator = const_reverse_iterator;
 
     static constexpr size_type npos{::std::numeric_limits<size_type>::max()};
 
@@ -56,6 +62,10 @@ private:
 
 public:
     constexpr BasicStringView() noexcept = default;
+
+    constexpr BasicStringView(BasicStringView const&) noexcept = default;
+
+    constexpr ~BasicStringView() noexcept = default;
 
     constexpr BasicStringView(::std::nullptr_t) = delete
 #if __cpp_deleted_function >= 202403L
@@ -150,6 +160,17 @@ public:
 #endif
         ;
 
+    // The standard implements this as a defaulted copy assignment with an implicit
+    // object parameter; std::basic_string_view has no move assignment. The project
+    // convention prefers an explicit object parameter, but clang 23.1.3 crashes in
+    // the backend when generating code for a defaulted explicit-object operator= on
+    // a class with two or more members; see
+    // https://github.com/llvm/llvm-project/issues/242767. Use the implicit object
+    // form until that bug is fixed; the lvalue ref-qualifier keeps the convention's
+    // intent of rejecting assignment to temporaries. Staying defaulted also keeps
+    // the copy assignment trivial, preserving is_trivially_copyable.
+    constexpr BasicStringView& operator=(BasicStringView const&) & noexcept = default;
+
     /**
      * @brief Builds a view over a null-terminated string.
      * @param[in] string Null-terminated string; must not be null.
@@ -214,6 +235,36 @@ public:
         return self.pointer + self.length;
     }
 
+    [[nodiscard]]
+    constexpr auto cbegin(this BasicStringView const& self) noexcept -> const_iterator {
+        return self.begin();
+    }
+
+    [[nodiscard]]
+    constexpr auto cend(this BasicStringView const& self) noexcept -> const_iterator {
+        return self.end();
+    }
+
+    [[nodiscard]]
+    constexpr auto rbegin(this BasicStringView const& self) noexcept -> reverse_iterator {
+        return reverse_iterator{self.end()};
+    }
+
+    [[nodiscard]]
+    constexpr auto rend(this BasicStringView const& self) noexcept -> reverse_iterator {
+        return reverse_iterator{self.begin()};
+    }
+
+    [[nodiscard]]
+    constexpr auto crbegin(this BasicStringView const& self) noexcept -> const_reverse_iterator {
+        return self.rbegin();
+    }
+
+    [[nodiscard]]
+    constexpr auto crend(this BasicStringView const& self) noexcept -> const_reverse_iterator {
+        return self.rend();
+    }
+
     /**
      * @brief Indexed element access, read-only, bounds-checked according to the
      * build-wide contract setting.
@@ -224,13 +275,60 @@ public:
     [[nodiscard]]
     constexpr auto operator[](this BasicStringView const& self, size_type position) noexcept -> const_reference;
 
+    /**
+     * @brief Access to the first character, read-only.
+     * @return Read-only reference to the character at position zero.
+     * @pre size() != 0
+     */
+    [[nodiscard]]
+    constexpr auto front(this BasicStringView const& self) noexcept -> const_reference;
+
+    /**
+     * @brief Access to the last character, read-only.
+     * @return Read-only reference to the character at size() - 1.
+     * @pre size() != 0
+     */
+    [[nodiscard]]
+    constexpr auto back(this BasicStringView const& self) noexcept -> const_reference;
+
     [[nodiscard]]
     constexpr auto subview(this BasicStringView const& self, size_type position, size_type count = npos) noexcept
         -> BasicStringView;
 
+    /**
+     * @brief Drops @p count leading characters.
+     * @param count Number of leading characters to drop.
+     * @pre count <= size()
+     */
+    constexpr void remove_prefix(this BasicStringView& self, size_type count) noexcept;
+
+    /**
+     * @brief Drops @p count trailing characters.
+     * @param count Number of trailing characters to drop.
+     * @pre count <= size()
+     */
+    constexpr void remove_suffix(this BasicStringView& self, size_type count) noexcept;
+
+    /**
+     * @brief Exchanges the referenced sequence with @p right.
+     */
+    constexpr void swap(this BasicStringView& self, BasicStringView& other) noexcept {
+        auto const tmp_pointer = self.pointer;
+        auto const tmp_length = self.length;
+        self.pointer = other.pointer;
+        self.length = other.length;
+        other.pointer = tmp_pointer;
+        other.length = tmp_length;
+    }
+
     [[nodiscard]]
     constexpr auto starts_with(this BasicStringView const& self, BasicStringView prefix) noexcept -> bool {
         return prefix.length <= self.length && ::std::equal(prefix.begin(), prefix.end(), self.begin());
+    }
+
+    [[nodiscard]]
+    constexpr auto starts_with(this BasicStringView const& self, value_type prefix) noexcept -> bool {
+        return !self.is_empty() && self.pointer[0] == prefix;
     }
 
     [[nodiscard]]
@@ -240,6 +338,301 @@ public:
         }
         const_pointer const suffix_begin{suffix.length == self.length ? self.pointer : self.end() - suffix.length};
         return ::std::equal(suffix.begin(), suffix.end(), suffix_begin);
+    }
+
+    [[nodiscard]]
+    constexpr auto ends_with(this BasicStringView const& self, value_type suffix) noexcept -> bool {
+        return !self.is_empty() && self.pointer[self.length - 1] == suffix;
+    }
+
+    /**
+     * @brief Tests whether @p needle appears as a substring.
+     * @return true when @p needle is empty or occurs at some position.
+     */
+    [[nodiscard]]
+    constexpr auto contains(this BasicStringView const& self, BasicStringView needle) noexcept -> bool {
+        return self.find(needle) != npos;
+    }
+
+    [[nodiscard]]
+    constexpr auto contains(this BasicStringView const& self, value_type needle) noexcept -> bool {
+        return self.find(needle) != npos;
+    }
+
+    [[nodiscard]]
+    constexpr auto contains(this BasicStringView const& self, const_pointer needle) noexcept -> bool {
+        return self.find(needle) != npos;
+    }
+
+    /**
+     * @brief Finds the first position where @p needle appears as a substring.
+     * @return The match position, or npos. An empty @p needle matches at
+     *         @p position itself.
+     */
+    [[nodiscard]]
+    constexpr auto find(this BasicStringView const& self, BasicStringView needle, size_type position = 0) noexcept
+        -> size_type {
+        if (position > self.length) {
+            return npos;
+        }
+        if (needle.is_empty()) {
+            return position;
+        }
+        if (needle.length > self.length - position) {
+            return npos;
+        }
+        size_type const scan_limit = self.length - needle.length;
+        for (size_type index = position; index <= scan_limit; ++index) {
+            if (::std::equal(needle.begin(), needle.end(), self.pointer + index)) {
+                return index;
+            }
+        }
+        return npos;
+    }
+
+    [[nodiscard]]
+    constexpr auto find(this BasicStringView const& self, value_type needle, size_type position = 0) noexcept
+        -> size_type {
+        if (position >= self.length) {
+            return npos;
+        }
+        for (size_type index = position; index < self.length; ++index) {
+            if (self.pointer[index] == needle) {
+                return index;
+            }
+        }
+        return npos;
+    }
+
+    [[nodiscard]]
+    constexpr auto find(this BasicStringView const& self, const_pointer needle, size_type position,
+                        size_type count) noexcept -> size_type {
+        return self.find(BasicStringView{needle, count}, position);
+    }
+
+    [[nodiscard]]
+    constexpr auto find(this BasicStringView const& self, const_pointer needle, size_type position = 0) noexcept
+        -> size_type {
+        return self.find(needle, position, ::fast_io::cstr_len(needle));
+    }
+
+    /**
+     * @brief Finds the last position where @p needle appears as a substring,
+     *        starting the search at or before @p position.
+     * @return The match position, or npos. An empty @p needle matches at the
+     *         clamped @p position.
+     */
+    [[nodiscard]]
+    constexpr auto rfind(this BasicStringView const& self, BasicStringView needle, size_type position = npos) noexcept
+        -> size_type {
+        if (needle.length > self.length) {
+            return npos;
+        }
+        size_type const clamped_position = ::std::min(position, self.length);
+        if (needle.is_empty()) {
+            return clamped_position;
+        }
+        size_type const start = ::std::min(clamped_position, self.length - needle.length);
+        for (size_type index = start + 1; index-- > 0;) {
+            if (::std::equal(needle.begin(), needle.end(), self.pointer + index)) {
+                return index;
+            }
+        }
+        return npos;
+    }
+
+    [[nodiscard]]
+    constexpr auto rfind(this BasicStringView const& self, value_type needle, size_type position = npos) noexcept
+        -> size_type {
+        if (self.length == 0) {
+            return npos;
+        }
+        size_type const start = ::std::min(position, self.length - 1);
+        for (size_type index = start + 1; index-- > 0;) {
+            if (self.pointer[index] == needle) {
+                return index;
+            }
+        }
+        return npos;
+    }
+
+    [[nodiscard]]
+    constexpr auto rfind(this BasicStringView const& self, const_pointer needle, size_type position,
+                         size_type count) noexcept -> size_type {
+        return self.rfind(BasicStringView{needle, count}, position);
+    }
+
+    [[nodiscard]]
+    constexpr auto rfind(this BasicStringView const& self, const_pointer needle, size_type position = npos) noexcept
+        -> size_type {
+        return self.rfind(needle, position, ::fast_io::cstr_len(needle));
+    }
+
+    /**
+     * @brief Finds the first position whose character appears in @p set.
+     * @return The match position, or npos. An empty @p set matches nothing.
+     */
+    [[nodiscard]]
+    constexpr auto find_first_of(this BasicStringView const& self, BasicStringView set, size_type position = 0) noexcept
+        -> size_type {
+        if (position >= self.length) {
+            return npos;
+        }
+        for (size_type index = position; index < self.length; ++index) {
+            if (::std::ranges::find(set, self.pointer[index]) != set.end()) {
+                return index;
+            }
+        }
+        return npos;
+    }
+
+    [[nodiscard]]
+    constexpr auto find_first_of(this BasicStringView const& self, value_type set, size_type position = 0) noexcept
+        -> size_type {
+        return self.find(set, position);
+    }
+
+    [[nodiscard]]
+    constexpr auto find_first_of(this BasicStringView const& self, const_pointer set, size_type position,
+                                 size_type count) noexcept -> size_type {
+        return self.find_first_of(BasicStringView{set, count}, position);
+    }
+
+    [[nodiscard]]
+    constexpr auto find_first_of(this BasicStringView const& self, const_pointer set, size_type position = 0) noexcept
+        -> size_type {
+        return self.find_first_of(set, position, ::fast_io::cstr_len(set));
+    }
+
+    /**
+     * @brief Finds the last position whose character appears in @p set, starting
+     *        the search at or before @p position.
+     * @return The match position, or npos. An empty @p set matches nothing.
+     */
+    [[nodiscard]]
+    constexpr auto find_last_of(this BasicStringView const& self, BasicStringView set,
+                                size_type position = npos) noexcept -> size_type {
+        if (self.length == 0) {
+            return npos;
+        }
+        size_type const start = ::std::min(position, self.length - 1);
+        for (size_type index = start + 1; index-- > 0;) {
+            if (::std::ranges::find(set, self.pointer[index]) != set.end()) {
+                return index;
+            }
+        }
+        return npos;
+    }
+
+    [[nodiscard]]
+    constexpr auto find_last_of(this BasicStringView const& self, value_type set, size_type position = npos) noexcept
+        -> size_type {
+        return self.rfind(set, position);
+    }
+
+    [[nodiscard]]
+    constexpr auto find_last_of(this BasicStringView const& self, const_pointer set, size_type position,
+                                size_type count) noexcept -> size_type {
+        return self.find_last_of(BasicStringView{set, count}, position);
+    }
+
+    [[nodiscard]]
+    constexpr auto find_last_of(this BasicStringView const& self, const_pointer set, size_type position = npos) noexcept
+        -> size_type {
+        return self.find_last_of(set, position, ::fast_io::cstr_len(set));
+    }
+
+    /**
+     * @brief Finds the first position whose character does not appear in @p set.
+     * @return The match position, or npos. An empty @p set matches the first
+     *         character from @p position onward.
+     */
+    [[nodiscard]]
+    constexpr auto find_first_not_of(this BasicStringView const& self, BasicStringView set,
+                                     size_type position = 0) noexcept -> size_type {
+        if (position >= self.length) {
+            return npos;
+        }
+        for (size_type index = position; index < self.length; ++index) {
+            if (::std::ranges::find(set, self.pointer[index]) == set.end()) {
+                return index;
+            }
+        }
+        return npos;
+    }
+
+    [[nodiscard]]
+    constexpr auto find_first_not_of(this BasicStringView const& self, value_type set, size_type position = 0) noexcept
+        -> size_type {
+        if (position >= self.length) {
+            return npos;
+        }
+        for (size_type index = position; index < self.length; ++index) {
+            if (self.pointer[index] != set) {
+                return index;
+            }
+        }
+        return npos;
+    }
+
+    [[nodiscard]]
+    constexpr auto find_first_not_of(this BasicStringView const& self, const_pointer set, size_type position,
+                                     size_type count) noexcept -> size_type {
+        return self.find_first_not_of(BasicStringView{set, count}, position);
+    }
+
+    [[nodiscard]]
+    constexpr auto find_first_not_of(this BasicStringView const& self, const_pointer set,
+                                     size_type position = 0) noexcept -> size_type {
+        return self.find_first_not_of(set, position, ::fast_io::cstr_len(set));
+    }
+
+    /**
+     * @brief Finds the last position whose character does not appear in @p set,
+     *        starting the search at or before @p position.
+     * @return The match position, or npos. An empty @p set matches the last
+     *         character before @p position.
+     */
+    [[nodiscard]]
+    constexpr auto find_last_not_of(this BasicStringView const& self, BasicStringView set,
+                                    size_type position = npos) noexcept -> size_type {
+        if (self.length == 0) {
+            return npos;
+        }
+        size_type const start = ::std::min(position, self.length - 1);
+        for (size_type index = start + 1; index-- > 0;) {
+            if (::std::ranges::find(set, self.pointer[index]) == set.end()) {
+                return index;
+            }
+        }
+        return npos;
+    }
+
+    [[nodiscard]]
+    constexpr auto find_last_not_of(this BasicStringView const& self, value_type set,
+                                    size_type position = npos) noexcept -> size_type {
+        if (self.length == 0) {
+            return npos;
+        }
+        size_type const start = ::std::min(position, self.length - 1);
+        for (size_type index = start + 1; index-- > 0;) {
+            if (self.pointer[index] != set) {
+                return index;
+            }
+        }
+        return npos;
+    }
+
+    [[nodiscard]]
+    constexpr auto find_last_not_of(this BasicStringView const& self, const_pointer set, size_type position,
+                                    size_type count) noexcept -> size_type {
+        return self.find_last_not_of(BasicStringView{set, count}, position);
+    }
+
+    [[nodiscard]]
+    constexpr auto find_last_not_of(this BasicStringView const& self, const_pointer set,
+                                    size_type position = npos) noexcept -> size_type {
+        return self.find_last_not_of(set, position, ::fast_io::cstr_len(set));
     }
 
     [[nodiscard]]

@@ -1,0 +1,10 @@
+<div>plain html block</div>
+<b>bold html</b> and <i>italic</i>
+<size=20>large text</size>
+<align=center>centered</align>
+<color=red>colored</color>
+<link="https://plweb.turtlesim.com">linked</link>
+<br>
+line break <br/> inside text
+<p>paragraph html</p>
+<pre>preformatted</pre>

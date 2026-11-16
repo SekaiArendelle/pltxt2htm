@@ -494,6 +494,66 @@ public:
     }
 
     /**
+     * @brief Replaces the contents with count copies of value.
+     * @param count New element count.
+     * @param value Element copied into every position; it may refer to an
+     *              element of this vector.
+     * @details Reuses the existing allocation when it is large enough.
+     * @pre count does not exceed max_size().
+     */
+    constexpr void assign(this Vector& self, size_type count, value_type const& value) noexcept
+        requires (::std::is_nothrow_copy_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>);
+
+    /**
+     * @brief Replaces the contents with the elements of the range [first, last).
+     * @param first First source iterator.
+     * @param last Past-the-end source sentinel.
+     * @details Reuses the existing allocation when it is large enough.
+     * @pre The source range must not reference elements in this Vector.
+     */
+    template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
+        requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type> &&
+                  ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>> &&
+                  requires(InputIterator& iterator, Sentinel& sentinel) {
+                      { *iterator } noexcept;
+                      { ++iterator } noexcept;
+                      { static_cast<bool>(iterator != sentinel) } noexcept -> ::std::same_as<bool>;
+                  })
+    constexpr void assign(this Vector& self, InputIterator first, Sentinel last) noexcept {
+        self.clear();
+        for (; first != last; ++first) {
+            self.emplace_back(*first);
+        }
+    }
+
+    /**
+     * @brief Replaces the contents with copies of the initializer-list elements.
+     * @param values Source values.
+     * @details Reuses the existing allocation when it is large enough.
+     */
+    constexpr void assign(this Vector& self, ::std::initializer_list<value_type> values) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> &&
+                  ::std::is_nothrow_copy_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+    {
+        self.assign(values.begin(), values.end());
+    }
+
+    /**
+     * @brief Replaces the contents with the elements of a range.
+     * @param range Source range.
+     * @details Reuses the existing allocation when it is large enough.
+     * @pre The source range must not reference elements in this Vector.
+     */
+    template<::std::ranges::input_range R>
+    constexpr void assign_range(this Vector& self, R&& range) noexcept
+        requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type> &&
+                  is_nothrow_append_range<R>())
+    {
+        self.clear();
+        self.append_range(::std::forward<R>(range));
+    }
+
+    /**
      * @pre A single-pass input range must not reference elements in this Vector.
      */
     template<::std::ranges::input_range R>

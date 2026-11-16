@@ -1,0 +1,5 @@
+\*not emphasized\*
+\\backslash\\ at ends
+\&amp; entity kept as text
+\`not code\`
+\[not a link\]

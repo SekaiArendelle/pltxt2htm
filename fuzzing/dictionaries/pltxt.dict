@@ -1,0 +1,102 @@
+# Shared libFuzzer dictionary for all pltxt2htm fuzz targets.
+# Tokens are drawn from the pltxt/Markdown syntax and the pltxt-specific
+# inline HTML tags supported by the parsers (see tests/src/syntax/).
+
+# Headings
+"# "
+"## "
+"### "
+"#### "
+
+# Blockquote
+"> "
+">> "
+
+# Lists
+"- "
+"* "
+"+ "
+"1. "
+"2. "
+
+# Emphasis and inline styles
+"~~"
+"__"
+"**"
+"***"
+"`"
+"``"
+
+# Code blocks
+"```"
+"~~~"
+
+# Tables
+"|"
+"|---|---|"
+"| | |"
+"\x0A|"
+
+# Links and images
+"]("
+")"
+"!["
+"https://"
+"http://"
+
+# Structure
+"\x0A\x0A"
+"\x0A\x0A\x0A"
+"\x0A   \x0A"
+"\x0A|"
+"---"
+"- - - - -"
+
+# Escapes
+"\\"
+"\\*"
+"\\\\"
+"\\\""
+"\\&"
+
+# Entities
+"&amp;"
+"&lt;"
+"&gt;"
+"&quot;"
+"&nbsp;"
+
+# pltxt-specific inline tags
+"<size=20>"
+"</size>"
+"<align=center>"
+"</align>"
+"<margin=1>"
+"</margin>"
+"<color=red>"
+"</color>"
+"<link=\"https://plweb.turtlesim.com\">"
+"</link>"
+"<br>"
+"<br/>"
+"<input>"
+
+# Generic HTML tags
+"<div>"
+"</div>"
+"<p>"
+"</p>"
+"<pre>"
+"</pre>"
+"<b>"
+"</b>"
+"<table>"
+"</table>"
+"<"
+">"
+"</"
+
+# UTF-8 / unicode-ish fragments
+"\xe4\xb8\xad"
+"\xf0\x9f\x98\x80"
+"\xef\xbc\x9c"

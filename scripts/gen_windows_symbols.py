@@ -76,7 +76,7 @@ LIBRARIES = (
             Symbol(
                 "ZwDuplicateObject",
                 "NtStatus",
-                ("void *", "void *", "void *", "Handle *", "Ulong", "Ulong", "Ulong"),
+                ("Handle", "Handle", "Handle", "Handle *", "Ulong", "Ulong", "Ulong"),
                 nodiscard=True,
             ),
             Symbol(
@@ -88,7 +88,7 @@ LIBRARIES = (
             Symbol(
                 "ZwClose",
                 "NtStatus",
-                ("void *",),
+                ("Handle",),
                 nodiscard=True,
             ),
             Symbol(
@@ -143,7 +143,7 @@ LIBRARIES = (
                     "Long64 *",
                     "Ulong",
                     "Ulong",
-                    "void *",
+                    "Handle",
                 ),
                 nodiscard=True,
             ),
@@ -157,28 +157,28 @@ LIBRARIES = (
                     "Long64 *",
                     "Ulong",
                     "Ulong",
-                    "void *",
+                    "Handle",
                 ),
                 nodiscard=True,
             ),
             Symbol(
                 "NtQueryInformationProcess",
                 "NtStatus",
-                ("void *", "ProcessInformationClass", "void *", "Ulong", "Ulong *"),
+                ("Handle", "ProcessInformationClass", "void *", "Ulong", "Ulong *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwQueryInformationProcess",
                 "NtStatus",
-                ("void *", "ProcessInformationClass", "void *", "Ulong", "Ulong *"),
+                ("Handle", "ProcessInformationClass", "void *", "Ulong", "Ulong *"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtWriteFile",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "IoApcRoutine",
                     "void *",
                     "IoStatusBlock *",
@@ -193,8 +193,8 @@ LIBRARIES = (
                 "ZwWriteFile",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "IoApcRoutine",
                     "void *",
                     "IoStatusBlock *",
@@ -209,8 +209,8 @@ LIBRARIES = (
                 "NtReadFile",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "IoApcRoutine",
                     "void *",
                     "IoStatusBlock *",
@@ -225,8 +225,8 @@ LIBRARIES = (
                 "ZwReadFile",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "IoApcRoutine",
                     "void *",
                     "IoStatusBlock *",
@@ -240,21 +240,21 @@ LIBRARIES = (
             Symbol(
                 "NtQueryObject",
                 "NtStatus",
-                ("void *", "ObjectInformationClass", "void *", "Ulong", "Ulong *"),
+                ("Handle", "ObjectInformationClass", "void *", "Ulong", "Ulong *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwQueryObject",
                 "NtStatus",
-                ("void *", "ObjectInformationClass", "void *", "Ulong", "Ulong *"),
+                ("Handle", "ObjectInformationClass", "void *", "Ulong", "Ulong *"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtQueryDirectoryFile",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "IoApcRoutine",
                     "void *",
                     "IoStatusBlock *",
@@ -271,8 +271,8 @@ LIBRARIES = (
                 "ZwQueryDirectoryFile",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "IoApcRoutine",
                     "void *",
                     "IoStatusBlock *",
@@ -289,7 +289,7 @@ LIBRARIES = (
                 "NtQuerySection",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "SectionInformationClass",
                     "void *",
                     "::std::size_t",
@@ -301,7 +301,7 @@ LIBRARIES = (
                 "ZwQuerySection",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "SectionInformationClass",
                     "void *",
                     "::std::size_t",
@@ -313,7 +313,7 @@ LIBRARIES = (
                 "NtQueryInformationFile",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "IoStatusBlock *",
                     "void *",
                     "Ulong",
@@ -325,7 +325,7 @@ LIBRARIES = (
                 "ZwQueryInformationFile",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "IoStatusBlock *",
                     "void *",
                     "Ulong",
@@ -337,7 +337,7 @@ LIBRARIES = (
                 "NtSetInformationFile",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "IoStatusBlock *",
                     "void *",
                     "Ulong",
@@ -349,7 +349,7 @@ LIBRARIES = (
                 "ZwSetInformationFile",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "IoStatusBlock *",
                     "void *",
                     "Ulong",
@@ -360,25 +360,25 @@ LIBRARIES = (
             Symbol(
                 "NtWaitForSingleObject",
                 "NtStatus",
-                ("void *", "Boolean", "Long64 *"),
+                ("Handle", "Boolean", "Long64 *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwWaitForSingleObject",
                 "NtStatus",
-                ("void *", "Boolean", "Long64 *"),
+                ("Handle", "Boolean", "Long64 *"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtWaitForMultipleObjects",
                 "NtStatus",
-                ("Ulong", "void *const *", "WaitType", "Boolean", "Long64 *"),
+                ("Ulong", "Handle const *", "WaitType", "Boolean", "Long64 *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwWaitForMultipleObjects",
                 "NtStatus",
-                ("Ulong", "void *const *", "WaitType", "Boolean", "Long64 *"),
+                ("Ulong", "Handle const *", "WaitType", "Boolean", "Long64 *"),
                 nodiscard=True,
             ),
             Symbol(
@@ -400,11 +400,11 @@ LIBRARIES = (
                     "Handle *",
                     "Ulong",
                     "ObjectAttributes const *",
-                    "void *",
+                    "Handle",
                     "Boolean",
-                    "void *",
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
+                    "Handle",
                 ),
                 nodiscard=True,
             ),
@@ -415,11 +415,11 @@ LIBRARIES = (
                     "Handle *",
                     "Ulong",
                     "ObjectAttributes const *",
-                    "void *",
+                    "Handle",
                     "Boolean",
-                    "void *",
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
+                    "Handle",
                 ),
                 nodiscard=True,
             ),
@@ -490,7 +490,7 @@ LIBRARIES = (
                 "RtlCreateUserThread",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "void *",
                     "Boolean",
                     "Ulong",
@@ -506,21 +506,21 @@ LIBRARIES = (
             Symbol(
                 "NtResumeThread",
                 "NtStatus",
-                ("void *", "Ulong *"),
+                ("Handle", "Ulong *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwResumeThread",
                 "NtStatus",
-                ("void *", "Ulong *"),
+                ("Handle", "Ulong *"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtLockFile",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "IoApcRoutine",
                     "void *",
                     "IoStatusBlock *",
@@ -536,8 +536,8 @@ LIBRARIES = (
                 "ZwLockFile",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "IoApcRoutine",
                     "void *",
                     "IoStatusBlock *",
@@ -552,37 +552,37 @@ LIBRARIES = (
             Symbol(
                 "NtUnlockFile",
                 "NtStatus",
-                ("void *", "IoStatusBlock *", "Long64 *", "Long64 *", "Ulong"),
+                ("Handle", "IoStatusBlock *", "Long64 *", "Long64 *", "Ulong"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwUnlockFile",
                 "NtStatus",
-                ("void *", "IoStatusBlock *", "Long64 *", "Long64 *", "Ulong"),
+                ("Handle", "IoStatusBlock *", "Long64 *", "Long64 *", "Ulong"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtFlushBuffersFile",
                 "NtStatus",
-                ("void *", "IoStatusBlock *"),
+                ("Handle", "IoStatusBlock *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwFlushBuffersFile",
                 "NtStatus",
-                ("void *", "IoStatusBlock *"),
+                ("Handle", "IoStatusBlock *"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtFlushBuffersFileEx",
                 "NtStatus",
-                ("void *", "Ulong", "void *", "Ulong", "IoStatusBlock *"),
+                ("Handle", "Ulong", "void *", "Ulong", "IoStatusBlock *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwFlushBuffersFileEx",
                 "NtStatus",
-                ("void *", "Ulong", "void *", "Ulong", "IoStatusBlock *"),
+                ("Handle", "Ulong", "void *", "Ulong", "IoStatusBlock *"),
                 nodiscard=True,
             ),
             Symbol(
@@ -680,8 +680,8 @@ LIBRARIES = (
                 "NtMapViewOfSection",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "void **",
                     "::std::size_t",
                     "::std::size_t",
@@ -697,8 +697,8 @@ LIBRARIES = (
                 "ZwMapViewOfSection",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "void **",
                     "::std::size_t",
                     "::std::size_t",
@@ -713,37 +713,37 @@ LIBRARIES = (
             Symbol(
                 "NtUnmapViewOfSection",
                 "NtStatus",
-                ("void *", "void *"),
+                ("Handle", "void *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwUnmapViewOfSection",
                 "NtStatus",
-                ("void *", "void *"),
+                ("Handle", "void *"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtReadVirtualMemory",
                 "NtStatus",
-                ("void *", "void *", "void *", "::std::size_t", "::std::size_t *"),
+                ("Handle", "void *", "void *", "::std::size_t", "::std::size_t *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwReadVirtualMemory",
                 "NtStatus",
-                ("void *", "void *", "void *", "::std::size_t", "::std::size_t *"),
+                ("Handle", "void *", "void *", "::std::size_t", "::std::size_t *"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtWriteVirtualMemory",
                 "NtStatus",
-                ("void *", "void *", "void *", "::std::size_t", "::std::size_t *"),
+                ("Handle", "void *", "void *", "::std::size_t", "::std::size_t *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwWriteVirtualMemory",
                 "NtStatus",
-                ("void *", "void *", "void *", "::std::size_t", "::std::size_t *"),
+                ("Handle", "void *", "void *", "::std::size_t", "::std::size_t *"),
                 nodiscard=True,
             ),
             Symbol(
@@ -762,7 +762,7 @@ LIBRARIES = (
                 "NtAllocateVirtualMemory",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "void **",
                     "::std::size_t",
                     "::std::size_t *",
@@ -775,7 +775,7 @@ LIBRARIES = (
                 "ZwAllocateVirtualMemory",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "void **",
                     "::std::size_t",
                     "::std::size_t *",
@@ -787,13 +787,13 @@ LIBRARIES = (
             Symbol(
                 "NtFreeVirtualMemory",
                 "NtStatus",
-                ("void *", "void **", "::std::size_t *", "Ulong"),
+                ("Handle", "void **", "::std::size_t *", "Ulong"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwFreeVirtualMemory",
                 "NtStatus",
-                ("void *", "void **", "::std::size_t *", "Ulong"),
+                ("Handle", "void **", "::std::size_t *", "Ulong"),
                 nodiscard=True,
             ),
             Symbol(
@@ -822,21 +822,21 @@ LIBRARIES = (
             Symbol(
                 "NtQueryVolumeInformationFile",
                 "NtStatus",
-                ("void *", "IoStatusBlock *", "void *", "Ulong", "FsInformationClass"),
+                ("Handle", "IoStatusBlock *", "void *", "Ulong", "FsInformationClass"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwQueryVolumeInformationFile",
                 "NtStatus",
-                ("void *", "IoStatusBlock *", "void *", "Ulong", "FsInformationClass"),
+                ("Handle", "IoStatusBlock *", "void *", "Ulong", "FsInformationClass"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtFsControlFile",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "IoApcRoutine",
                     "void *",
                     "IoStatusBlock *",
@@ -852,8 +852,8 @@ LIBRARIES = (
                 "ZwFsControlFile",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "IoApcRoutine",
                     "void *",
                     "IoStatusBlock *",
@@ -928,13 +928,13 @@ LIBRARIES = (
             Symbol(
                 "NtQueryInformationThread",
                 "NtStatus",
-                ("void *", "ThreadInformationClass", "void *", "Ulong", "Ulong *"),
+                ("Handle", "ThreadInformationClass", "void *", "Ulong", "Ulong *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwQueryInformationThread",
                 "NtStatus",
-                ("void *", "ThreadInformationClass", "void *", "Ulong", "Ulong *"),
+                ("Handle", "ThreadInformationClass", "void *", "Ulong", "Ulong *"),
                 nodiscard=True,
             ),
             Symbol(
@@ -970,37 +970,93 @@ LIBRARIES = (
             Symbol(
                 "NtSetEvent",
                 "NtStatus",
-                ("void *", "Long *"),
+                ("Handle", "Long *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwSetEvent",
                 "NtStatus",
-                ("void *", "Long *"),
+                ("Handle", "Long *"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtResetEvent",
                 "NtStatus",
-                ("void *", "Long *"),
+                ("Handle", "Long *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwResetEvent",
                 "NtStatus",
-                ("void *", "Long *"),
+                ("Handle", "Long *"),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtCreateSemaphore",
+                "NtStatus",
+                (
+                    "Handle *",
+                    "Ulong",
+                    "ObjectAttributes const *",
+                    "Long",
+                    "Long",
+                ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwCreateSemaphore",
+                "NtStatus",
+                (
+                    "Handle *",
+                    "Ulong",
+                    "ObjectAttributes const *",
+                    "Long",
+                    "Long",
+                ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtOpenSemaphore",
+                "NtStatus",
+                (
+                    "Handle *",
+                    "Ulong",
+                    "ObjectAttributes const *",
+                ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwOpenSemaphore",
+                "NtStatus",
+                (
+                    "Handle *",
+                    "Ulong",
+                    "ObjectAttributes const *",
+                ),
+                nodiscard=True,
+            ),
+            Symbol(
+                "NtReleaseSemaphore",
+                "NtStatus",
+                ("Handle", "Long", "Long *"),
+                nodiscard=True,
+            ),
+            Symbol(
+                "ZwReleaseSemaphore",
+                "NtStatus",
+                ("Handle", "Long", "Long *"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtSetInformationObject",
                 "NtStatus",
-                ("void *", "ObjectInformationClass", "void *", "Ulong"),
+                ("Handle", "ObjectInformationClass", "void *", "Ulong"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwSetInformationObject",
                 "NtStatus",
-                ("void *", "ObjectInformationClass", "void *", "Ulong"),
+                ("Handle", "ObjectInformationClass", "void *", "Ulong"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1096,7 +1152,7 @@ LIBRARIES = (
                 "NtAlpcSendWaitReceivePort",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "Ulong",
                     "PortMessage *",
                     "AlpcMessageAttributes *",
@@ -1111,7 +1167,7 @@ LIBRARIES = (
                 "ZwAlpcSendWaitReceivePort",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "Ulong",
                     "PortMessage *",
                     "AlpcMessageAttributes *",
@@ -1127,7 +1183,7 @@ LIBRARIES = (
                 "NtStatus",
                 (
                     "Handle *",
-                    "void *",
+                    "Handle",
                     "Ulong",
                     "ObjectAttributes *",
                     "AlpcPortAttributes *",
@@ -1143,7 +1199,7 @@ LIBRARIES = (
                 "NtStatus",
                 (
                     "Handle *",
-                    "void *",
+                    "Handle",
                     "Ulong",
                     "ObjectAttributes *",
                     "AlpcPortAttributes *",
@@ -1163,46 +1219,46 @@ LIBRARIES = (
             Symbol(
                 "NtAlpcImpersonateClientOfPort",
                 "NtStatus",
-                ("void *", "PortMessage *", "void *"),
+                ("Handle", "PortMessage *", "void *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwAlpcImpersonateClientOfPort",
                 "NtStatus",
-                ("void *", "PortMessage *", "void *"),
+                ("Handle", "PortMessage *", "void *"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtAlpcImpersonateClientContainerOfPort",
                 "NtStatus",
-                ("void *", "PortMessage *", "Ulong"),
+                ("Handle", "PortMessage *", "Ulong"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwAlpcImpersonateClientContainerOfPort",
                 "NtStatus",
-                ("void *", "PortMessage *", "Ulong"),
+                ("Handle", "PortMessage *", "Ulong"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtAlpcDisconnectPort",
                 "NtStatus",
-                ("void *", "Ulong"),
+                ("Handle", "Ulong"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwAlpcDisconnectPort",
                 "NtStatus",
-                ("void *", "Ulong"),
+                ("Handle", "Ulong"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtAlpcCreatePortSection",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "Ulong",
-                    "void *",
+                    "Handle",
                     "::std::size_t",
                     "Handle *",
                     "::std::size_t *",
@@ -1213,9 +1269,9 @@ LIBRARIES = (
                 "ZwAlpcCreatePortSection",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "Ulong",
-                    "void *",
+                    "Handle",
                     "::std::size_t",
                     "Handle *",
                     "::std::size_t *",
@@ -1225,13 +1281,13 @@ LIBRARIES = (
             Symbol(
                 "NtAlpcCreateSectionView",
                 "NtStatus",
-                ("void *", "Ulong", "AlpcDataViewAttr *"),
+                ("Handle", "Ulong", "AlpcDataViewAttr *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwAlpcCreateSectionView",
                 "NtStatus",
-                ("void *", "Ulong", "AlpcDataViewAttr *"),
+                ("Handle", "Ulong", "AlpcDataViewAttr *"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1244,7 +1300,7 @@ LIBRARIES = (
                 "NtAlpcQueryInformationMessage",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "PortMessage *",
                     "AlpcMessageInformationClass",
                     "void *",
@@ -1257,7 +1313,7 @@ LIBRARIES = (
                 "ZwAlpcQueryInformationMessage",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "PortMessage *",
                     "AlpcMessageInformationClass",
                     "void *",
@@ -1269,13 +1325,13 @@ LIBRARIES = (
             Symbol(
                 "NtAlpcCreateSecurityContext",
                 "NtStatus",
-                ("void *", "Ulong", "AlpcSecurityAttr *"),
+                ("Handle", "Ulong", "AlpcSecurityAttr *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwAlpcCreateSecurityContext",
                 "NtStatus",
-                ("void *", "Ulong", "AlpcSecurityAttr *"),
+                ("Handle", "Ulong", "AlpcSecurityAttr *"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1283,7 +1339,7 @@ LIBRARIES = (
                 "NtStatus",
                 (
                     "Handle *",
-                    "void *",
+                    "Handle",
                     "PortMessage *",
                     "Ulong",
                     "Ulong",
@@ -1296,7 +1352,7 @@ LIBRARIES = (
                 "NtStatus",
                 (
                     "Handle *",
-                    "void *",
+                    "Handle",
                     "PortMessage *",
                     "Ulong",
                     "Ulong",
@@ -1307,21 +1363,21 @@ LIBRARIES = (
             Symbol(
                 "NtTerminateProcess",
                 "NtStatus",
-                ("void *", "Long"),
+                ("Handle", "Long"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwTerminateProcess",
                 "NtStatus",
-                ("void *", "Long"),
+                ("Handle", "Long"),
                 nodiscard=True,
             ),
             Symbol(
                 "NtDeviceIoControlFile",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "IoApcRoutine",
                     "void *",
                     "IoStatusBlock *",
@@ -1337,8 +1393,8 @@ LIBRARIES = (
                 "ZwDeviceIoControlFile",
                 "NtStatus",
                 (
-                    "void *",
-                    "void *",
+                    "Handle",
+                    "Handle",
                     "IoApcRoutine",
                     "void *",
                     "IoStatusBlock *",
@@ -1371,7 +1427,7 @@ LIBRARIES = (
                 "NtSetInformationVirtualMemory",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "VirtualMemoryInformationClass",
                     "::std::size_t",
                     "MemoryRangeEntry *",
@@ -1384,7 +1440,7 @@ LIBRARIES = (
                 "ZwSetInformationVirtualMemory",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "VirtualMemoryInformationClass",
                     "::std::size_t",
                     "MemoryRangeEntry *",
@@ -1445,7 +1501,7 @@ LIBRARIES = (
                 "NtSetTimer",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "Long64 *",
                     "TimerApcRoutine",
                     "void *",
@@ -1459,7 +1515,7 @@ LIBRARIES = (
                 "ZwSetTimer",
                 "NtStatus",
                 (
-                    "void *",
+                    "Handle",
                     "Long64 *",
                     "TimerApcRoutine",
                     "void *",
@@ -1472,13 +1528,13 @@ LIBRARIES = (
             Symbol(
                 "NtCancelTimer",
                 "NtStatus",
-                ("void *", "Boolean *"),
+                ("Handle", "Boolean *"),
                 nodiscard=True,
             ),
             Symbol(
                 "ZwCancelTimer",
                 "NtStatus",
-                ("void *", "Boolean *"),
+                ("Handle", "Boolean *"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1522,13 +1578,13 @@ LIBRARIES = (
             Symbol(
                 "LoadLibraryExW",
                 "ModuleHandle",
-                ("WideChar const*", "Handle", "Dword"),
+                ("wchar_t const*", "Handle", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetProcAddress",
                 "Procedure",
-                ("ModuleHandle", "Char const*"),
+                ("ModuleHandle", "char const*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1537,14 +1593,14 @@ LIBRARIES = (
                 ("ModuleHandle",),
                 nodiscard=True,
             ),
-            Symbol("LoadLibraryA", "ModuleHandle", ("Char const*",), nodiscard=True),
+            Symbol("LoadLibraryA", "ModuleHandle", ("char const*",), nodiscard=True),
             Symbol(
-                "LoadLibraryW", "ModuleHandle", ("WideChar const*",), nodiscard=True
+                "LoadLibraryW", "ModuleHandle", ("wchar_t const*",), nodiscard=True
             ),
             Symbol(
                 "LoadLibraryExA",
                 "ModuleHandle",
-                ("Char const*", "Handle", "Dword"),
+                ("char const*", "Handle", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1556,7 +1612,7 @@ LIBRARIES = (
                     "Dword",
                     "Dword",
                     "Dword",
-                    "Char const*",
+                    "char const*",
                 ),
                 nodiscard=True,
             ),
@@ -1569,7 +1625,7 @@ LIBRARIES = (
                     "Dword",
                     "Dword",
                     "Dword",
-                    "WideChar const*",
+                    "wchar_t const*",
                 ),
                 nodiscard=True,
             ),
@@ -1581,16 +1637,16 @@ LIBRARIES = (
             ),
             Symbol("GetStdHandle", "Handle", ("Dword",), nodiscard=True),
             Symbol(
-                "GetModuleHandleA", "ModuleHandle", ("Char const*",), nodiscard=True
+                "GetModuleHandleA", "ModuleHandle", ("char const*",), nodiscard=True
             ),
             Symbol(
-                "GetModuleHandleW", "ModuleHandle", ("WideChar const*",), nodiscard=True
+                "GetModuleHandleW", "ModuleHandle", ("wchar_t const*",), nodiscard=True
             ),
             Symbol("GetLastError", "Dword", (), nodiscard=True),
             Symbol(
                 "FormatMessageA",
                 "Dword",
-                ("Dword", "void const*", "Dword", "Dword", "Char*", "Dword", "Char**"),
+                ("Dword", "void const*", "Dword", "Dword", "char*", "Dword", "char**"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1601,9 +1657,9 @@ LIBRARIES = (
                     "void const*",
                     "Dword",
                     "Dword",
-                    "WideChar*",
+                    "wchar_t*",
                     "Dword",
-                    "Char**",
+                    "char**",
                 ),
                 nodiscard=True,
             ),
@@ -1646,6 +1702,19 @@ LIBRARIES = (
                 nodiscard=True,
             ),
             Symbol("WaitForSingleObject", "Dword", ("Handle", "Dword"), nodiscard=True),
+            Symbol(
+                "CreateSemaphoreA",
+                "Handle",
+                ("SecurityAttributes*", "Long", "Long", "char const*"),
+                nodiscard=True,
+            ),
+            Symbol(
+                "CreateSemaphoreW",
+                "Handle",
+                ("SecurityAttributes*", "Long", "Long", "wchar_t const*"),
+                nodiscard=True,
+            ),
+            Symbol("ReleaseSemaphore", "Bool", ("Handle", "Long", "Long*"), nodiscard=True),
             Symbol("CancelIo", "Bool", ("Handle",), nodiscard=True),
             Symbol(
                 "GetFileInformationByHandle",
@@ -1654,7 +1723,7 @@ LIBRARIES = (
                 nodiscard=True,
             ),
             Symbol(
-                "GetUserDefaultLocaleName", "int", ("WideChar*", "int"), nodiscard=True
+                "GetUserDefaultLocaleName", "int", ("wchar_t*", "int"), nodiscard=True
             ),
             Symbol("GetUserDefaultLCID", "Dword", (), nodiscard=True),
             Symbol(
@@ -1688,8 +1757,8 @@ LIBRARIES = (
                 ("Handle", "Dword", "Dword"),
                 nodiscard=True,
             ),
-            Symbol("GetTempPathA", "Dword", ("Dword", "Char*"), nodiscard=True),
-            Symbol("GetTempPathW", "Dword", ("Dword", "WideChar*"), nodiscard=True),
+            Symbol("GetTempPathA", "Dword", ("Dword", "char*"), nodiscard=True),
+            Symbol("GetTempPathW", "Dword", ("Dword", "wchar_t*"), nodiscard=True),
             Symbol("CloseHandle", "Bool", ("Handle",), nodiscard=True),
             Symbol(
                 "LockFileEx",
@@ -1723,13 +1792,13 @@ LIBRARIES = (
             Symbol(
                 "GetEnvironmentVariableA",
                 "Dword",
-                ("Char const*", "Char*", "Dword"),
+                ("char const*", "char*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetEnvironmentVariableW",
                 "Dword",
-                ("WideChar const*", "WideChar*", "Dword"),
+                ("wchar_t const*", "wchar_t*", "Dword"),
                 nodiscard=True,
             ),
             Symbol("GetConsoleMode", "Bool", ("Handle", "Dword*"), nodiscard=True),
@@ -1834,14 +1903,14 @@ LIBRARIES = (
                 "CreateProcessW",
                 "Bool",
                 (
-                    "WideChar const*",
-                    "WideChar*",
+                    "wchar_t const*",
+                    "wchar_t*",
                     "SecurityAttributes*",
                     "SecurityAttributes*",
                     "Bool",
                     "Dword",
                     "void*",
-                    "WideChar const*",
+                    "wchar_t const*",
                     "StartupInfoW*",
                     "ProcessInformation*",
                 ),
@@ -1851,14 +1920,14 @@ LIBRARIES = (
                 "CreateProcessA",
                 "Bool",
                 (
-                    "Char const*",
-                    "Char*",
+                    "char const*",
+                    "char*",
                     "SecurityAttributes*",
                     "SecurityAttributes*",
                     "Bool",
                     "Dword",
                     "void*",
-                    "Char const*",
+                    "char const*",
                     "StartupInfoA*",
                     "ProcessInformation*",
                 ),
@@ -1867,26 +1936,26 @@ LIBRARIES = (
             Symbol(
                 "K32GetMappedFileNameW",
                 "Dword",
-                ("Handle", "void*", "WideChar*", "Dword"),
+                ("Handle", "void*", "wchar_t*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "K32GetMappedFileNameA",
                 "Dword",
-                ("Handle", "void*", "Char*", "Dword"),
+                ("Handle", "void*", "char*", "Dword"),
                 nodiscard=True,
             ),
             Symbol("GetExitCodeProcess", "Bool", ("Handle", "Dword*"), nodiscard=True),
             Symbol(
                 "QueryDosDeviceW",
                 "Dword",
-                ("WideChar const*", "WideChar*", "Dword"),
+                ("wchar_t const*", "wchar_t*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "QueryDosDeviceA",
                 "Dword",
-                ("Char const*", "Char*", "Dword"),
+                ("char const*", "char*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
@@ -1896,63 +1965,63 @@ LIBRARIES = (
                 "FindNextFileA", "Bool", ("Handle", "Win32FindDataA*"), nodiscard=True
             ),
             Symbol("FindClose", "Bool", ("Handle",), nodiscard=True),
-            Symbol("DeleteFileW", "Bool", ("WideChar const*",), nodiscard=True),
-            Symbol("DeleteFileA", "Bool", ("Char const*",), nodiscard=True),
-            Symbol("RemoveDirectoryW", "Bool", ("WideChar const*",), nodiscard=True),
-            Symbol("RemoveDirectoryA", "Bool", ("Char const*",), nodiscard=True),
+            Symbol("DeleteFileW", "Bool", ("wchar_t const*",), nodiscard=True),
+            Symbol("DeleteFileA", "Bool", ("char const*",), nodiscard=True),
+            Symbol("RemoveDirectoryW", "Bool", ("wchar_t const*",), nodiscard=True),
+            Symbol("RemoveDirectoryA", "Bool", ("char const*",), nodiscard=True),
             Symbol(
                 "CreateDirectoryW",
                 "Bool",
-                ("WideChar const*", "SecurityAttributes*"),
+                ("wchar_t const*", "SecurityAttributes*"),
                 nodiscard=True,
             ),
             Symbol(
                 "CreateDirectoryA",
                 "Bool",
-                ("Char const*", "SecurityAttributes*"),
+                ("char const*", "SecurityAttributes*"),
                 nodiscard=True,
             ),
             Symbol(
                 "SetFileAttributesW",
                 "Bool",
-                ("WideChar const*", "Dword"),
+                ("wchar_t const*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
-                "SetFileAttributesA", "Bool", ("Char const*", "Dword"), nodiscard=True
+                "SetFileAttributesA", "Bool", ("char const*", "Dword"), nodiscard=True
             ),
-            Symbol("GetFileAttributesW", "Dword", ("WideChar const*",), nodiscard=True),
-            Symbol("GetFileAttributesA", "Dword", ("Char const*",), nodiscard=True),
+            Symbol("GetFileAttributesW", "Dword", ("wchar_t const*",), nodiscard=True),
+            Symbol("GetFileAttributesA", "Dword", ("char const*",), nodiscard=True),
             Symbol(
                 "CopyFileW",
                 "Bool",
-                ("WideChar const*", "WideChar const*", "Bool"),
+                ("wchar_t const*", "wchar_t const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
                 "CopyFileA",
                 "Bool",
-                ("Char const*", "Char const*", "Bool"),
+                ("char const*", "char const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
                 "MoveFileW",
                 "Bool",
-                ("WideChar const*", "WideChar const*"),
+                ("wchar_t const*", "wchar_t const*"),
                 nodiscard=True,
             ),
-            Symbol("MoveFileA", "Bool", ("Char const*", "Char const*"), nodiscard=True),
+            Symbol("MoveFileA", "Bool", ("char const*", "char const*"), nodiscard=True),
             Symbol("TerminateProcess", "Bool", ("Handle", "Uint"), nodiscard=True),
             Symbol(
                 "GetFinalPathNameByHandleW",
                 "Dword",
-                ("Handle", "WideChar*", "Dword", "Dword"),
+                ("Handle", "wchar_t*", "Dword", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetFinalPathNameByHandleA",
                 "Dword",
-                ("Handle", "Char*", "Dword", "Dword"),
+                ("Handle", "char*", "Dword", "Dword"),
                 nodiscard=True,
             ),
             Symbol("GetProcessId", "Dword", ("Handle",), nodiscard=True),
@@ -1979,31 +2048,31 @@ LIBRARIES = (
             Symbol("GetCurrentThreadId", "Dword", (), nodiscard=True),
             Symbol("Sleep", "void", ("Dword",), nodiscard=False),
             Symbol("SwitchToThread", "Bool", (), nodiscard=True),
-            Symbol("FreeEnvironmentStringsW", "Bool", ("WideChar*",), nodiscard=True),
-            Symbol("FreeEnvironmentStringsA", "Bool", ("Char*",), nodiscard=True),
+            Symbol("FreeEnvironmentStringsW", "Bool", ("wchar_t*",), nodiscard=True),
+            Symbol("FreeEnvironmentStringsA", "Bool", ("char*",), nodiscard=True),
             Symbol(
                 "GetFullPathNameW",
                 "Dword",
-                ("WideChar const*", "Dword", "WideChar*", "WideChar**"),
+                ("wchar_t const*", "Dword", "wchar_t*", "wchar_t**"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetFullPathNameA",
                 "Dword",
-                ("Char const*", "Dword", "Char*", "Char**"),
+                ("char const*", "Dword", "char*", "char**"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetVolumeInformationW",
                 "Bool",
                 (
-                    "WideChar const*",
-                    "WideChar*",
+                    "wchar_t const*",
+                    "wchar_t*",
                     "Dword",
                     "Dword*",
                     "Dword*",
                     "Dword*",
-                    "WideChar*",
+                    "wchar_t*",
                     "Dword",
                 ),
                 nodiscard=True,
@@ -2012,13 +2081,13 @@ LIBRARIES = (
                 "GetVolumeInformationA",
                 "Bool",
                 (
-                    "Char const*",
-                    "Char*",
+                    "char const*",
+                    "char*",
                     "Dword",
                     "Dword*",
                     "Dword*",
                     "Dword*",
-                    "Char*",
+                    "char*",
                     "Dword",
                 ),
                 nodiscard=True,
@@ -2026,20 +2095,20 @@ LIBRARIES = (
             Symbol(
                 "GetDiskFreeSpaceW",
                 "Bool",
-                ("WideChar const*", "Dword*", "Dword*", "Dword*", "Dword*"),
+                ("wchar_t const*", "Dword*", "Dword*", "Dword*", "Dword*"),
                 nodiscard=True,
             ),
             Symbol(
                 "GetDiskFreeSpaceA",
                 "Bool",
-                ("Char const*", "Dword*", "Dword*", "Dword*", "Dword*"),
+                ("char const*", "Dword*", "Dword*", "Dword*", "Dword*"),
                 nodiscard=True,
             ),
             Symbol(
                 "CreateFileA",
                 "Handle",
                 (
-                    "Char const*",
+                    "char const*",
                     "Dword",
                     "Dword",
                     "SecurityAttributes*",
@@ -2053,7 +2122,7 @@ LIBRARIES = (
                 "CreateFileW",
                 "Handle",
                 (
-                    "WideChar const*",
+                    "wchar_t const*",
                     "Dword",
                     "Dword",
                     "SecurityAttributes*",
@@ -2072,20 +2141,20 @@ LIBRARIES = (
             Symbol(
                 "FindFirstFileA",
                 "Handle",
-                ("Char const*", "Win32FindDataA*"),
+                ("char const*", "Win32FindDataA*"),
                 nodiscard=True,
             ),
             Symbol(
                 "FindFirstFileW",
                 "Handle",
-                ("WideChar const*", "Win32FindDataW*"),
+                ("wchar_t const*", "Win32FindDataW*"),
                 nodiscard=True,
             ),
             Symbol(
                 "CreateNamedPipeA",
                 "Handle",
                 (
-                    "Char const*",
+                    "char const*",
                     "Dword",
                     "Dword",
                     "Dword",
@@ -2100,7 +2169,7 @@ LIBRARIES = (
                 "CreateNamedPipeW",
                 "Handle",
                 (
-                    "WideChar const*",
+                    "wchar_t const*",
                     "Dword",
                     "Dword",
                     "Dword",
@@ -2114,13 +2183,13 @@ LIBRARIES = (
             Symbol(
                 "CreateWaitableTimerA",
                 "Handle",
-                ("SecurityAttributes*", "Bool", "Char const*"),
+                ("SecurityAttributes*", "Bool", "char const*"),
                 nodiscard=True,
             ),
             Symbol(
                 "CreateWaitableTimerW",
                 "Handle",
-                ("SecurityAttributes*", "Bool", "WideChar const*"),
+                ("SecurityAttributes*", "Bool", "wchar_t const*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2136,8 +2205,8 @@ LIBRARIES = (
                 ),
                 nodiscard=True,
             ),
-            Symbol("GetEnvironmentStringsA", "Char*", (), nodiscard=True),
-            Symbol("GetEnvironmentStringsW", "WideChar*", (), nodiscard=True),
+            Symbol("GetEnvironmentStringsA", "char*", (), nodiscard=True),
+            Symbol("GetEnvironmentStringsW", "wchar_t*", (), nodiscard=True),
             Symbol("LocalFree", "Handle", ("Handle",), nodiscard=True),
             Symbol(
                 "AddVectoredExceptionHandler",
@@ -2193,7 +2262,7 @@ LIBRARIES = (
             Symbol(
                 "SymInitialize",
                 "Bool",
-                ("Handle", "Char const*", "Bool"),
+                ("Handle", "char const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2225,25 +2294,25 @@ LIBRARIES = (
             Symbol(
                 "SymInitializeW",
                 "Bool",
-                ("Handle", "WideChar const*", "Bool"),
+                ("Handle", "wchar_t const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
-                "SymGetSearchPath", "Bool", ("Handle", "Char*", "Dword"), nodiscard=True
+                "SymGetSearchPath", "Bool", ("Handle", "char*", "Dword"), nodiscard=True
             ),
             Symbol(
                 "SymGetSearchPathW",
                 "Bool",
-                ("Handle", "WideChar*", "Dword"),
+                ("Handle", "wchar_t*", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
-                "SymSetSearchPath", "Bool", ("Handle", "Char const*"), nodiscard=True
+                "SymSetSearchPath", "Bool", ("Handle", "char const*"), nodiscard=True
             ),
             Symbol(
                 "SymSetSearchPathW",
                 "Bool",
-                ("Handle", "WideChar const*"),
+                ("Handle", "wchar_t const*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2252,8 +2321,8 @@ LIBRARIES = (
                 (
                     "Handle",
                     "Handle",
-                    "Char const*",
-                    "Char const*",
+                    "char const*",
+                    "char const*",
                     "Dword64",
                     "Dword",
                     "ModLoadData*",
@@ -2267,8 +2336,8 @@ LIBRARIES = (
                 (
                     "Handle",
                     "Handle",
-                    "WideChar const*",
-                    "WideChar const*",
+                    "wchar_t const*",
+                    "wchar_t const*",
                     "Dword64",
                     "Dword",
                     "ModLoadData*",
@@ -2341,13 +2410,13 @@ LIBRARIES = (
             Symbol(
                 "SymFromName",
                 "Bool",
-                ("Handle", "Char const*", "SymbolInfo*"),
+                ("Handle", "char const*", "SymbolInfo*"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymFromNameW",
                 "Bool",
-                ("Handle", "WideChar const*", "SymbolInfoW*"),
+                ("Handle", "wchar_t const*", "SymbolInfoW*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2369,7 +2438,7 @@ LIBRARIES = (
             Symbol(
                 "SymEnumSymbols",
                 "Bool",
-                ("Handle", "Ulong64", "Char const*", "SymEnumSymbolsCallback", "void*"),
+                ("Handle", "Ulong64", "char const*", "SymEnumSymbolsCallback", "void*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2378,7 +2447,7 @@ LIBRARIES = (
                 (
                     "Handle",
                     "Ulong64",
-                    "WideChar const*",
+                    "wchar_t const*",
                     "SymEnumSymbolsCallbackW",
                     "void*",
                 ),
@@ -2390,7 +2459,7 @@ LIBRARIES = (
                 (
                     "Handle",
                     "Ulong64",
-                    "Char const*",
+                    "char const*",
                     "SymEnumSymbolsCallback",
                     "void*",
                     "Dword",
@@ -2403,7 +2472,7 @@ LIBRARIES = (
                 (
                     "Handle",
                     "Ulong64",
-                    "WideChar const*",
+                    "wchar_t const*",
                     "SymEnumSymbolsCallbackW",
                     "void*",
                     "Dword",
@@ -2445,8 +2514,8 @@ LIBRARIES = (
                 "Bool",
                 (
                     "Handle",
-                    "Char const*",
-                    "Char const*",
+                    "char const*",
+                    "char const*",
                     "Dword",
                     "Long*",
                     "ImageHlpLine64*",
@@ -2458,8 +2527,8 @@ LIBRARIES = (
                 "Bool",
                 (
                     "Handle",
-                    "WideChar const*",
-                    "WideChar const*",
+                    "wchar_t const*",
+                    "wchar_t const*",
                     "Dword",
                     "Long*",
                     "ImageHlpLineW64*",
@@ -2493,19 +2562,19 @@ LIBRARIES = (
             Symbol(
                 "SymGetTypeFromName",
                 "Bool",
-                ("Handle", "Ulong64", "Char const*", "SymbolInfo*"),
+                ("Handle", "Ulong64", "char const*", "SymbolInfo*"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymGetTypeFromNameW",
                 "Bool",
-                ("Handle", "Ulong64", "WideChar const*", "SymbolInfoW*"),
+                ("Handle", "Ulong64", "wchar_t const*", "SymbolInfoW*"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymEnumTypesByName",
                 "Bool",
-                ("Handle", "Ulong64", "Char const*", "SymEnumSymbolsCallback", "void*"),
+                ("Handle", "Ulong64", "char const*", "SymEnumSymbolsCallback", "void*"),
                 nodiscard=True,
             ),
             Symbol(
@@ -2514,7 +2583,7 @@ LIBRARIES = (
                 (
                     "Handle",
                     "Ulong64",
-                    "WideChar const*",
+                    "wchar_t const*",
                     "SymEnumSymbolsCallbackW",
                     "void*",
                 ),
@@ -2523,49 +2592,49 @@ LIBRARIES = (
             Symbol(
                 "SymAddSymbol",
                 "Bool",
-                ("Handle", "Ulong64", "Char const*", "Dword64", "Dword", "Dword"),
+                ("Handle", "Ulong64", "char const*", "Dword64", "Dword", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymAddSymbolW",
                 "Bool",
-                ("Handle", "Ulong64", "WideChar const*", "Dword64", "Dword", "Dword"),
+                ("Handle", "Ulong64", "wchar_t const*", "Dword64", "Dword", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymDeleteSymbol",
                 "Bool",
-                ("Handle", "Ulong64", "Char const*", "Dword64", "Dword"),
+                ("Handle", "Ulong64", "char const*", "Dword64", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymDeleteSymbolW",
                 "Bool",
-                ("Handle", "Ulong64", "WideChar const*", "Dword64", "Dword"),
+                ("Handle", "Ulong64", "wchar_t const*", "Dword64", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymMatchStringA",
                 "Bool",
-                ("Char const*", "Char const*", "Bool"),
+                ("char const*", "char const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
                 "SymMatchStringW",
                 "Bool",
-                ("WideChar const*", "WideChar const*", "Bool"),
+                ("wchar_t const*", "wchar_t const*", "Bool"),
                 nodiscard=True,
             ),
             Symbol(
                 "UnDecorateSymbolName",
                 "Dword",
-                ("Char const*", "Char*", "Dword", "Dword"),
+                ("char const*", "char*", "Dword", "Dword"),
                 nodiscard=True,
             ),
             Symbol(
                 "UnDecorateSymbolNameW",
                 "Dword",
-                ("WideChar const*", "WideChar*", "Dword", "Dword"),
+                ("wchar_t const*", "wchar_t*", "Dword", "Dword"),
                 nodiscard=True,
             ),
         ),
@@ -2637,10 +2706,11 @@ def declaration(symbol: Symbol, x86_stdcall_stack_bytes: dict[str, int]) -> str:
 def generate_declarations(
     library: Library, x86_stdcall_stack_bytes: dict[str, int]
 ) -> str:
-    result = [GENERATED_NOTICE, "\n"]
+    result = [GENERATED_NOTICE, "// clang-format off\n", "\n"]
     result.extend(
         declaration(symbol, x86_stdcall_stack_bytes) for symbol in library.symbols
     )
+    result.append("// clang-format on\n")
     return "".join(result)
 
 
@@ -2770,7 +2840,7 @@ def generate_linker_aliases(
     clang: str,
     llvm_nm: str,
 ) -> tuple[str, dict[str, int]]:
-    result = [GENERATED_NOTICE, "\n"]
+    result = [GENERATED_NOTICE, "// clang-format off\n", "\n"]
     x86_stdcall_stack_bytes: dict[str, int] = {}
 
     def probe(symbol: Symbol) -> tuple[Symbol, tuple[tuple[str, str], ...]]:
@@ -2796,6 +2866,7 @@ def generate_linker_aliases(
                     f"missing i686 stdcall decoration for {symbol.export_name}: {pairs[0][1]}"
                 )
             x86_stdcall_stack_bytes[symbol.export_name] = int(match.group(1))
+    result.append("// clang-format on\n")
     return "".join(result), x86_stdcall_stack_bytes
 
 

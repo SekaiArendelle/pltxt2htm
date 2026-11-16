@@ -92,8 +92,56 @@ constexpr auto Vector<T, Allocator>::operator=(this Vector& self, Vector const& 
         return self;
     }
 #endif
-    Vector temporary{other};
-    self.swap(temporary);
+    // Copy-assign in place when the existing allocation is large enough.
+    // Copy-and-swap would allocate a fresh buffer and copy every element even
+    // though the destination can reuse its storage.
+    size_type const other_size{other.size()};
+    if (self.current_capacity < other_size) {
+        auto const allocation = typed_allocator_type::allocate_at_least(other_size);
+        const_pointer const source{other.begin_pointer};
+        for (size_type index{}; index != other_size; ++index) {
+            ::std::construct_at(allocation.ptr + index, source[index]);
+        }
+
+        pointer const old_begin{self.begin_pointer};
+        size_type const old_size{self.current_size};
+        size_type const old_capacity{self.current_capacity};
+        self.begin_pointer = allocation.ptr;
+        self.current_size = other_size;
+        self.current_capacity = allocation.count;
+        if (old_begin != nullptr) {
+            ::std::destroy(old_begin, old_begin + old_size);
+            typed_allocator_type::deallocate_n(old_begin, old_capacity);
+        }
+        return self;
+    }
+
+    size_type const self_size{self.current_size};
+    size_type const common_size{self_size < other_size ? self_size : other_size};
+    if constexpr (::std::is_nothrow_copy_assignable_v<value_type>) {
+        for (size_type index{}; index != common_size; ++index) {
+            self.begin_pointer[index] = other.begin_pointer[index];
+        }
+    }
+    else {
+        // Preserve support for copy-constructible-only elements.
+        for (size_type index{}; index != common_size; ++index) {
+            ::std::destroy_at(self.begin_pointer + index);
+            ::std::construct_at(self.begin_pointer + index, other.begin_pointer[index]);
+        }
+    }
+
+    if (common_size < other_size) {
+        pointer destination{self.begin_pointer + common_size};
+        for (size_type index{common_size}; index != other_size; ++index) {
+            ::std::construct_at(destination, other.begin_pointer[index]);
+            ++destination;
+        }
+    }
+    else if (other_size < self_size) {
+        ::std::destroy(self.begin_pointer + other_size, self.begin_pointer + self_size);
+    }
+    self.current_size = other_size;
     return self;
 }
 
@@ -109,6 +157,61 @@ constexpr auto Vector<T, Allocator>::operator=(this Vector& self, Vector&& other
 #endif
     self.swap(other);
     return self;
+}
+
+template<typename T, typename Allocator>
+constexpr void Vector<T, Allocator>::assign(this Vector& self, size_type count, value_type const& value) noexcept
+    requires (::std::is_nothrow_copy_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type>)
+{
+    pltxt2htm_assert(count <= self.max_size(), u8"Vector size exceeds max_size");
+    if (count == 0) {
+        self.clear();
+        return;
+    }
+
+    // Copy the fill value first: the existing elements, including the one value
+    // may refer to, are overwritten or released below.
+    value_type const fill{value};
+    if (count > self.current_capacity) {
+        auto const allocation = typed_allocator_type::allocate_at_least(count);
+        for (size_type index{}; index != count; ++index) {
+            ::std::construct_at(allocation.ptr + index, fill);
+        }
+
+        pointer const old_begin{self.begin_pointer};
+        size_type const old_size{self.current_size};
+        size_type const old_capacity{self.current_capacity};
+        self.begin_pointer = allocation.ptr;
+        self.current_size = count;
+        self.current_capacity = allocation.count;
+        if (old_begin != nullptr) {
+            ::std::destroy(old_begin, old_begin + old_size);
+            typed_allocator_type::deallocate_n(old_begin, old_capacity);
+        }
+        return;
+    }
+
+    size_type const old_size{self.current_size};
+    size_type const common_size{old_size < count ? old_size : count};
+    if constexpr (::std::is_nothrow_copy_assignable_v<value_type>) {
+        for (size_type index{}; index != common_size; ++index) {
+            self.begin_pointer[index] = fill;
+        }
+    }
+    else {
+        for (size_type index{}; index != common_size; ++index) {
+            ::std::destroy_at(self.begin_pointer + index);
+            ::std::construct_at(self.begin_pointer + index, fill);
+        }
+    }
+
+    for (size_type index{common_size}; index != count; ++index) {
+        ::std::construct_at(self.begin_pointer + index, fill);
+    }
+    if (count < old_size) {
+        ::std::destroy(self.begin_pointer + count, self.begin_pointer + old_size);
+    }
+    self.current_size = count;
 }
 
 template<typename T, typename Allocator>

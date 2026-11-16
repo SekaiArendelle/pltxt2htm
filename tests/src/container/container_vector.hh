@@ -12,6 +12,7 @@
 
 #include "doctest_config.hh"
 #include "details/concepts.hh"
+#include "details/structs.hh"
 
 using IntVector = ::pltxt2htm::container::Vector<int>;
 
@@ -355,10 +356,6 @@ struct ThrowingMove {
     ThrowingMove(ThrowingMove&&);
 };
 
-struct ThrowingEquality {
-    friend auto operator==(ThrowingEquality const&, ThrowingEquality const&) -> bool;
-};
-
 struct ThrowingBoolean {
     explicit operator bool() const;
 };
@@ -374,12 +371,6 @@ struct ThrowingConstruction {
     ThrowingConstruction() noexcept = default;
     explicit ThrowingConstruction(int);
     ThrowingConstruction(ThrowingConstruction&&) noexcept = default;
-};
-
-struct ThrowingVectorCopy {
-    ThrowingVectorCopy() noexcept = default;
-    ThrowingVectorCopy(ThrowingVectorCopy const&);
-    ThrowingVectorCopy(ThrowingVectorCopy&&) noexcept = default;
 };
 
 struct ThrowingMoveAssignment {
@@ -423,6 +414,14 @@ concept FillResizableVectorElement =
     requires(::pltxt2htm::container::Vector<T>& values, T const& value) { values.resize(1, value); };
 
 template<typename T>
+concept FillAssignableVectorElement =
+    requires(::pltxt2htm::container::Vector<T>& values, T const& value) { values.assign(1, value); };
+
+template<typename T>
+concept RangeAssignableVectorElement =
+    requires(::pltxt2htm::container::Vector<T>& values, T const* first, T const* last) { values.assign(first, last); };
+
+template<typename T>
 concept EqualityComparableVectorElement = requires(::pltxt2htm::container::Vector<T> const& left,
                                                    ::pltxt2htm::container::Vector<T> const& right) { left == right; };
 
@@ -441,18 +440,33 @@ static_assert(::std::ranges::forward_range<NonConstexprSizedForwardRange>);
 static_assert(::std::ranges::sized_range<NonConstexprSizedForwardRange>);
 static_assert(!ReservableVectorElement<ThrowingMove>);
 static_assert(!IntEmplaceableVectorElement<ThrowingConstruction>);
-static_assert(!CopyPushableVectorElement<ThrowingVectorCopy>);
+static_assert(!CopyPushableVectorElement<::pltxt2htm_test::ThrowingCopy>);
 static_assert(!ErasableVectorElement<ThrowingMoveAssignment>);
 static_assert(!ResizableVectorElement<ThrowingMove>);
-static_assert(ResizableVectorElement<ThrowingVectorCopy>);
+static_assert(ResizableVectorElement<::pltxt2htm_test::ThrowingCopy>);
 static_assert(!ResizableVectorElement<NoDefaultVectorElement>);
 static_assert(FillResizableVectorElement<int>);
 static_assert(FillResizableVectorElement<NoDefaultVectorElement>);
-static_assert(!FillResizableVectorElement<ThrowingVectorCopy>);
+static_assert(!FillResizableVectorElement<::pltxt2htm_test::ThrowingCopy>);
 static_assert(!FillResizableVectorElement<ThrowingMoveCopyable>);
-static_assert(!EqualityComparableVectorElement<ThrowingEquality>);
+static_assert(FillAssignableVectorElement<NoDefaultVectorElement>);
+static_assert(FillAssignableVectorElement<ThrowingMoveCopyable>);
+static_assert(!FillAssignableVectorElement<::pltxt2htm_test::ThrowingCopy>);
+static_assert(RangeAssignableVectorElement<NoDefaultVectorElement>);
+static_assert(!RangeAssignableVectorElement<ThrowingMoveCopyable>);
+static_assert(!RangeAssignableVectorElement<::pltxt2htm_test::ThrowingCopy>);
+static_assert(!EqualityComparableVectorElement<::pltxt2htm_test::ThrowingEquality>);
 static_assert(!EqualityComparableVectorElement<ThrowingBooleanEquality>);
 static_assert(!AppendableIntRange<ThrowingIncrementRange&>);
+static_assert(::std::is_nothrow_copy_assignable_v<IntVector>);
+static_assert(::std::is_nothrow_move_assignable_v<IntVector>);
+static_assert(noexcept(::std::declval<IntVector&>() = ::std::declval<IntVector const&>()));
+static_assert(noexcept(::std::declval<IntVector&>() = ::std::declval<IntVector&&>()));
+static_assert(noexcept(::std::declval<IntVector&>().assign(1, 1)));
+static_assert(noexcept(::std::declval<IntVector&>().assign(::std::declval<int const*>(),
+                                                           ::std::declval<int const*>())));
+static_assert(noexcept(::std::declval<IntVector&>().assign(::std::declval<::std::initializer_list<int>>())));
+static_assert(noexcept(::std::declval<IntVector&>().assign_range(::std::declval<::std::span<int const>>())));
 static_assert(noexcept(::std::declval<IntVector&>().reserve(1)));
 static_assert(noexcept(::std::declval<IntVector&>().resize(1)));
 static_assert(noexcept(::std::declval<IntVector&>().resize(1, 1)));
@@ -505,6 +519,55 @@ TEST_SUITE("container_vector") {
         IntVector copy{values};
         copy[0] = 9;
         if (values != IntVector{1} || copy != IntVector{9}) {
+            return false;
+        }
+
+        IntVector copy_assigned{0};
+        copy_assigned.reserve(4);
+        copy_assigned = copy;
+        if (copy_assigned != copy) {
+            return false;
+        }
+
+        IntVector move_assigned{};
+        move_assigned = ::std::move(copy_assigned);
+        if (move_assigned != IntVector{9} || !copy_assigned.is_empty()) {
+            return false;
+        }
+
+        IntVector assigned_values{};
+        assigned_values.reserve(8);
+        assigned_values.assign(3, 5);
+        if (assigned_values != IntVector{5, 5, 5}) {
+            return false;
+        }
+        assigned_values.assign(2, assigned_values[0]);
+        if (assigned_values != IntVector{5, 5}) {
+            return false;
+        }
+
+        int const assign_source[]{1, 2, 3};
+        assigned_values.assign(assign_source, assign_source + 3);
+        if (assigned_values != IntVector{1, 2, 3}) {
+            return false;
+        }
+
+        assigned_values.assign_range(assign_source);
+        if (assigned_values != IntVector{1, 2, 3}) {
+            return false;
+        }
+        assigned_values.assign({4, 5});
+        if (assigned_values != IntVector{4, 5}) {
+            return false;
+        }
+
+        auto const assign_input = SinglePassIntRange{assign_source, assign_source + 3};
+        assigned_values.assign_range(assign_input);
+        if (assigned_values != IntVector{1, 2, 3}) {
+            return false;
+        }
+        assigned_values.assign(0, 1);
+        if (!assigned_values.is_empty()) {
             return false;
         }
 
@@ -629,6 +692,157 @@ TEST_SUITE("container_vector") {
         moved.pop_back();
         moved.clear();
         CHECK(moved.is_empty());
+    }
+
+    TEST_CASE("copy-assignment-copy-constructible-only-element") {
+        ::pltxt2htm::container::Vector<NoDefaultVectorElement> source{};
+        source.emplace_back(1);
+        source.emplace_back(2);
+        ::pltxt2htm::container::Vector<NoDefaultVectorElement> destination{};
+        destination.emplace_back(3);
+        destination = source;
+        CHECK(destination.size() == 2);
+    }
+
+    TEST_CASE("copy-assignment-reuses-capacity") {
+        TrackingRawAllocator::reset();
+        {
+            TrackingIntVector source{};
+            source.push_back(1);
+            source.push_back(2);
+            TrackingIntVector destination{};
+            destination.reserve(8);
+            auto const capacity = destination.capacity();
+            auto const active_allocations = TrackingRawAllocator::get_active_allocations();
+            auto const deallocation_count = TrackingRawAllocator::get_deallocation_count();
+
+            destination = source;
+            CHECK(destination == source);
+            CHECK(destination.capacity() == capacity);
+            CHECK(TrackingRawAllocator::get_active_allocations() == active_allocations);
+            CHECK(TrackingRawAllocator::get_deallocation_count() == deallocation_count);
+        }
+        CHECK(TrackingRawAllocator::get_active_allocations() == 0);
+        CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
+    }
+
+    TEST_CASE("copy-assignment-grows-and-shrinks") {
+        TrackingRawAllocator::reset();
+        {
+            TrackingIntVector source{};
+            for (int value{}; value != 6; ++value) {
+                source.push_back(value);
+            }
+            TrackingIntVector destination{};
+            destination.push_back(99);
+            REQUIRE(source.size() > destination.capacity());
+
+            destination = source;
+            CHECK(destination == source);
+            CHECK(destination.capacity() >= source.size());
+
+            auto const grown_capacity = destination.capacity();
+            TrackingIntVector shorter{};
+            shorter.push_back(7);
+            destination = shorter;
+            CHECK(destination == shorter);
+            CHECK(destination.capacity() == grown_capacity);
+
+            TrackingIntVector empty{};
+            destination = empty;
+            CHECK(destination.is_empty());
+            CHECK(destination.capacity() == grown_capacity);
+        }
+        CHECK(TrackingRawAllocator::get_active_allocations() == 0);
+        CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
+    }
+
+    TEST_CASE("assign-copy-constructible-only-element") {
+        ::pltxt2htm::container::Vector<NoDefaultVectorElement> values{};
+        values.assign(3, NoDefaultVectorElement{1});
+        CHECK(values.size() == 3);
+    }
+
+    TEST_CASE("assign-reuses-capacity") {
+        TrackingRawAllocator::reset();
+        {
+            TrackingIntVector values{};
+            values.reserve(8);
+            auto const capacity = values.capacity();
+            auto const active_allocations = TrackingRawAllocator::get_active_allocations();
+            auto const deallocation_count = TrackingRawAllocator::get_deallocation_count();
+
+            values.assign(3, 7);
+            CHECK(values.size() == 3);
+            CHECK(values[0] == 7);
+            CHECK(values[1] == 7);
+            CHECK(values[2] == 7);
+            CHECK(values.capacity() == capacity);
+            CHECK(TrackingRawAllocator::get_active_allocations() == active_allocations);
+            CHECK(TrackingRawAllocator::get_deallocation_count() == deallocation_count);
+
+            int const source[]{1, 2, 3, 4};
+            values.assign_range(source);
+            CHECK(values.size() == 4);
+            CHECK(values[0] == 1);
+            CHECK(values[3] == 4);
+            CHECK(values.capacity() == capacity);
+            CHECK(TrackingRawAllocator::get_active_allocations() == active_allocations);
+            CHECK(TrackingRawAllocator::get_deallocation_count() == deallocation_count);
+
+            values.assign(source, source + 4);
+            CHECK(values.size() == 4);
+            CHECK(values[0] == 1);
+            CHECK(values[3] == 4);
+            CHECK(values.capacity() == capacity);
+            CHECK(TrackingRawAllocator::get_active_allocations() == active_allocations);
+            CHECK(TrackingRawAllocator::get_deallocation_count() == deallocation_count);
+        }
+        CHECK(TrackingRawAllocator::get_active_allocations() == 0);
+        CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
+    }
+
+    TEST_CASE("assign-range-grows") {
+        TrackingRawAllocator::reset();
+        {
+            TrackingIntVector values{};
+            values.push_back(1);
+
+            int const first_source[]{1, 2, 3, 4, 5, 6, 7};
+            values.assign(first_source, first_source + 7);
+            CHECK(values.size() == 7);
+            CHECK(values[0] == 1);
+            CHECK(values[6] == 7);
+            CHECK(values.capacity() >= values.size());
+
+            TrackingIntVector range_values{};
+            range_values.push_back(1);
+            auto const range_capacity = range_values.capacity();
+            int const second_source[]{8, 9, 10, 11, 12, 13, 14, 15, 16};
+            range_values.assign_range(second_source);
+            CHECK(range_values.size() == 9);
+            CHECK(range_values[0] == 8);
+            CHECK(range_values[8] == 16);
+            CHECK(range_values.capacity() > range_capacity);
+        }
+        CHECK(TrackingRawAllocator::get_active_allocations() == 0);
+        CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
+    }
+
+    TEST_CASE("assign-grows-with-aliased-fill") {
+        TrackingRawAllocator::reset();
+        {
+            TrackingIntVector values{};
+            values.push_back(1);
+            values.assign(6, values[0]);
+            CHECK(values.size() == 6);
+            for (::std::size_t index{}; index != values.size(); ++index) {
+                CHECK(values[index] == 1);
+            }
+            CHECK(values.capacity() >= values.size());
+        }
+        CHECK(TrackingRawAllocator::get_active_allocations() == 0);
+        CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
     }
 
     TEST_CASE("resize") {

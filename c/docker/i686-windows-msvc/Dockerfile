@@ -1,15 +1,30 @@
 FROM ubuntu:26.04
 
+# Route apt through authoritative Ubuntu archive mirrors from several countries
+# (US origin first, then CN / JP / DE / UK); apt falls back to the next mirror
+# automatically when one is unavailable.
+RUN set -eux; \
+    printf '%b\n' \
+        'http://archive.ubuntu.com/ubuntu/\tpriority:1' \
+        'http://mirrors.tuna.tsinghua.edu.cn/ubuntu/\tpriority:2' \
+        'http://ftp.jaist.ac.jp/pub/Linux/ubuntu/\tpriority:2' \
+        'http://de.archive.ubuntu.com/ubuntu/\tpriority:2' \
+        'http://uk.archive.ubuntu.com/ubuntu/\tpriority:2' \
+        > /etc/apt/pltxt2htm-ubuntu-mirrors.lst; \
+    sed -i 's|^URIs: .*|URIs: mirror+file:/etc/apt/pltxt2htm-ubuntu-mirrors.lst|' \
+        /etc/apt/sources.list.d/ubuntu.sources; \
+    grep -q '^URIs: mirror+file:' /etc/apt/sources.list.d/ubuntu.sources
+
 RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     ca-certificates curl xz-utils zip python3 \
     cmake ninja-build llvm clang lld
 
 RUN set -eux; \
-    XWIN_VERSION=0.9.0; \
+    XWIN_VERSION=0.10.0; \
     curl -fsSL "https://github.com/Jake-Shadle/xwin/releases/download/${XWIN_VERSION}/xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
     | tar xz -C /usr/local/bin --strip-components=1 "xwin-${XWIN_VERSION}-x86_64-unknown-linux-musl/xwin"
 
-RUN xwin --accept-license --arch x86 --include-debug-runtime splat --include-debug-libs --output /opt/xwin
+RUN xwin --accept-license --arch x86 --include-debug-runtime --sdk-version 10.0.26100 splat --include-debug-libs --output /opt/xwin
 
 WORKDIR /pltxt2htm
 COPY ../../../include /pltxt2htm/include/

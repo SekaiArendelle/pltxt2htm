@@ -1,0 +1,6 @@
+This is an [example link](https://www.example.com) to a website.
+
+Here is an image:
+![Alt Text](https://via.placeholder.com/150)
+
+Autolink <https://plweb.turtlesim.com>

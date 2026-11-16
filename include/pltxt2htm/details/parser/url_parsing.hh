@@ -42,16 +42,48 @@ constexpr auto try_parse_url_scheme(::pltxt2htm::container::U8StringView pltext)
 
 /**
  * @brief Check whether a parsed domain ends in an accepted top-level domain.
+ * @details This is a hand-curated lightweight whitelist, not the full Public Suffix List -
+ *          keeping every entry an O(1) `ends_with` check avoids any table lookups while the
+ *          parser runs on every character position.  It covers the legacy gTLDs, the popular
+ *          newer gTLDs, and the ccTLDs seen frequently in the wild (including the
+ *          tech-community favorites such as `.io` `.sh` `.gg` `.so` `.to` `.fm`); notable
+ *          examples of domains that require a newer entry here: `wg21.link` (C++ standard
+ *          proposal short links), `vitejs.dev`, `bit.ly`.
+ *          Unknown TLDs (e.g. `.wtf` `.invalid`) are rejected, matching cmark-gfm's
+ *          autolink behaviour of requiring a plausible public suffix.  Extend this list
+ *          deliberately - prefer adding a real TLD over a single-domain special case.
  */
 [[nodiscard]]
 constexpr bool has_allowed_url_tld(::pltxt2htm::container::U8StringView domain) noexcept {
+    // Legacy gTLDs.
     return domain.ends_with(u8".com") || domain.ends_with(u8".net") || domain.ends_with(u8".org") ||
-           domain.ends_with(u8".cn") || domain.ends_with(u8".edu") || domain.ends_with(u8".gov") ||
-           domain.ends_with(u8".io") || domain.ends_with(u8".ai") || domain.ends_with(u8".co") ||
-           domain.ends_with(u8".me") || domain.ends_with(u8".cc") || domain.ends_with(u8".tv") ||
-           domain.ends_with(u8".info") || domain.ends_with(u8".biz") || domain.ends_with(u8".us") ||
-           domain.ends_with(u8".uk") || domain.ends_with(u8".jp") || domain.ends_with(u8".hk") ||
-           domain.ends_with(u8".tw") || domain.ends_with(u8".xyz") || domain.ends_with(u8".top");
+           domain.ends_with(u8".edu") || domain.ends_with(u8".gov") || domain.ends_with(u8".info") ||
+           domain.ends_with(u8".biz") || domain.ends_with(u8".name") || domain.ends_with(u8".mobi") ||
+           domain.ends_with(u8".pro") ||
+           // Popular newer gTLDs.
+           domain.ends_with(u8".xyz") || domain.ends_with(u8".top") || domain.ends_with(u8".site") ||
+           domain.ends_with(u8".online") || domain.ends_with(u8".store") || domain.ends_with(u8".tech") ||
+           domain.ends_with(u8".club") || domain.ends_with(u8".live") || domain.ends_with(u8".link") ||
+           domain.ends_with(u8".app") || domain.ends_with(u8".dev") || domain.ends_with(u8".page") ||
+           domain.ends_with(u8".blog") ||
+           // Frequently used ccTLDs (East Asia first, then the rest of the world).
+           domain.ends_with(u8".cn") || domain.ends_with(u8".jp") || domain.ends_with(u8".kr") ||
+           domain.ends_with(u8".hk") || domain.ends_with(u8".tw") || domain.ends_with(u8".sg") ||
+           domain.ends_with(u8".in") || domain.ends_with(u8".io") || domain.ends_with(u8".ai") ||
+           domain.ends_with(u8".us") || domain.ends_with(u8".uk") || domain.ends_with(u8".ca") ||
+           domain.ends_with(u8".mx") || domain.ends_with(u8".br") || domain.ends_with(u8".au") ||
+           domain.ends_with(u8".nz") || domain.ends_with(u8".de") || domain.ends_with(u8".fr") ||
+           domain.ends_with(u8".it") || domain.ends_with(u8".es") || domain.ends_with(u8".nl") ||
+           domain.ends_with(u8".be") || domain.ends_with(u8".at") || domain.ends_with(u8".ch") ||
+           domain.ends_with(u8".se") || domain.ends_with(u8".no") || domain.ends_with(u8".dk") ||
+           domain.ends_with(u8".fi") || domain.ends_with(u8".pl") || domain.ends_with(u8".pt") ||
+           domain.ends_with(u8".cz") || domain.ends_with(u8".ru") || domain.ends_with(u8".eu") ||
+           // ccTLDs widely reused outside their home countries (tech community, podcasts, etc.).
+           domain.ends_with(u8".co") || domain.ends_with(u8".me") || domain.ends_with(u8".cc") ||
+           domain.ends_with(u8".tv") || domain.ends_with(u8".sh") || domain.ends_with(u8".gg") ||
+           domain.ends_with(u8".so") || domain.ends_with(u8".to") || domain.ends_with(u8".fm") ||
+           domain.ends_with(u8".li") || domain.ends_with(u8".ly") || domain.ends_with(u8".is") ||
+           domain.ends_with(u8".im") || domain.ends_with(u8".la");
 }
 
 /**
