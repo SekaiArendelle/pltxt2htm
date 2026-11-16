@@ -165,7 +165,7 @@ public:
 
     [[nodiscard]]
     static auto try_acquire() noexcept -> DbgHelpLock {
-        auto const semaphore = get_process_semaphore();
+        auto const semaphore = DbgHelpLock::get_process_semaphore();
         if (semaphore.is_null()) {
             return DbgHelpLock{::pltxt2htm::sys_nt::Handle{}};
         }
