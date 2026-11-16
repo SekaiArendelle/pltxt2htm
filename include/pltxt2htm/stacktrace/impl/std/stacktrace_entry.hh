@@ -19,7 +19,7 @@
 #include <fast_io/fast_io_core.h>
 
 #include "../resolved_frame.hh"
-#include "../../../details/demangle.hh"
+#include "../demangle.hh"
 
 namespace pltxt2htm::stacktrace::details {
 

@@ -15,8 +15,8 @@
 
 #include <fast_io/fast_io_core.h>
 
+#include "../demangle.hh"
 #include "../resolved_frame.hh"
-#include "../../../details/demangle.hh"
 #include "../../../sys/nt/ntdll.hh"
 #include "../../../sys/win32/dbghelp.hh"
 #include "../../../sys/win32/kernel32.hh"

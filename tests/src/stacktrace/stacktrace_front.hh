@@ -2,7 +2,7 @@
 
 #include <cstdlib>
 
-#include <pltxt2htm/details/demangle.hh>
+#include <pltxt2htm/stacktrace/stacktrace.hh>
 
 #include "doctest_config.hh"
 #include "details/helpers.hh"
