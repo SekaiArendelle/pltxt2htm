@@ -86,7 +86,7 @@ enum class AccessMask : Ulong {
     write_owner = 0x00080000, ///< Change the owner in the security descriptor of the object.
     synchronize = 0x00100000, ///< Wait on a synchronizable object.
     semaphore_modify_state = 0x00000002, ///< Release a semaphore.
-    semaphore_all_access = 0x001F0002, ///< Standard rights plus synchronize and semaphore_modify_state.
+    semaphore_all_access = 0x001F0003, ///< All possible access rights for a semaphore object.
 };
 
 /**
