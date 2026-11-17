@@ -46,9 +46,15 @@ values containing `*` or `?` are glob-expanded by the task shell).
 
 Notes:
 
-- Requires clang (libFuzzer is incompatible with other compilers here) and is
-  unsupported on Windows (`CMakeLists.txt` enforces both). The `memory`
-  sanitizer additionally needs instrumented dependencies.
+- Requires clang (libFuzzer is incompatible with other compilers here). The
+  `memory` sanitizer additionally needs instrumented dependencies.
+- Windows works with the pixi clang (targeting MSVC) only with the `address`
+  or `address,undefined` sanitizer argument: the prebuilt `clang_rt.fuzzer`
+  runtime resolves its sanitizer-common dependencies through the ASan link
+  path, and it links the release CRT, so `CMakeLists.txt` switches the build
+  type from Debug to Release while keeping contract checks enforced, and
+  copies the ASan dynamic runtime DLL beside each executable so the binaries
+  run standalone. The libFuzzer `-fork` mode is unsupported on Windows.
 - Long unattended sessions should run inside a terminal multiplexer or
   container rather than being daemonized - the crash artifacts and corpus
   updates are the valuable output, not a detached process.

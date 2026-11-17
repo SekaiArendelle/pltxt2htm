@@ -17,9 +17,12 @@ endif()
 option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
 set(PLTXT2HTM_SANITIZER "" CACHE STRING "Comma-separated sanitizers passed verbatim to -fsanitize= (e.g. address, address,undefined, memory), or empty")
 set_property(CACHE PLTXT2HTM_SANITIZER PROPERTY STRINGS "" address undefined memory address,undefined)
+if(NOT (PLTXT2HTM_SANITIZER STREQUAL "" OR PLTXT2HTM_SANITIZER MATCHES "^(address|undefined|memory)(,(address|undefined|memory))*$"))
+    message(FATAL_ERROR "PLTXT2HTM_SANITIZER must be empty or a comma-separated list of: address, undefined, memory (got: ${PLTXT2HTM_SANITIZER})")
+endif()
 
-if(WIN32 OR MINGW)
-    message(FATAL_ERROR "Fuzzing is not supported on Windows")
+if(MINGW)
+    message(FATAL_ERROR "Fuzzing is not supported on MinGW")
 endif()
 
 # Require clang
@@ -27,9 +30,59 @@ if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     message(FATAL_ERROR "Only clang is supported for fuzzing (CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID})")
 endif()
 
+# On Windows the prebuilt clang_rt.fuzzer runtime only resolves its
+# sanitizer-common dependencies (COE and dbghelp symbolization) through the
+# ASan link path, so a fuzzer-only build fails to link; require ASan there.
+if(WIN32 AND NOT PLTXT2HTM_SANITIZER MATCHES "address")
+    message(FATAL_ERROR "Windows fuzzing requires -fsanitize=address; use the address or address,undefined sanitizer argument")
+endif()
+
+# The prebuilt clang_rt.fuzzer runtime links against the release CRT, so a
+# Debug build would trip _ITERATOR_DEBUG_LEVEL mismatches at link time. Keep
+# the harnesses on the release CRT on Windows and enforce contract checks
+# explicitly instead of relying on the Debug default below.
+if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    message(STATUS "pltxt2htm-fuzzing: switching CMAKE_BUILD_TYPE from Debug to Release on Windows")
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
+# On Windows, locate the ASan dynamic runtime DLL shipped next to the clang
+# resource directory so -fsanitize=address targets can copy it beside their
+# executables at build time; the loader has no other way to find it on a
+# machine whose PATH does not already contain the clang runtime directory.
+if(WIN32 AND (NOT DEFINED PLTXT2HTM_ASAN_DYNAMIC_DLL OR NOT EXISTS "${PLTXT2HTM_ASAN_DYNAMIC_DLL}"))
+    execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -print-resource-dir
+        OUTPUT_VARIABLE _pltxt2htm_asan_resource_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        RESULT_VARIABLE _pltxt2htm_asan_resource_result
+        ERROR_QUIET
+    )
+    if(_pltxt2htm_asan_resource_result EQUAL 0 AND EXISTS "${_pltxt2htm_asan_resource_dir}/lib/windows")
+        if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(AMD64|x86_64)$")
+            set(_pltxt2htm_asan_arch "x86_64")
+        elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(ARM64|aarch64)$")
+            set(_pltxt2htm_asan_arch "aarch64")
+        else()
+            message(FATAL_ERROR "Unsupported Windows architecture for ASan: ${CMAKE_SYSTEM_PROCESSOR}")
+        endif()
+        # Recompute (FORCE) when the cached path no longer exists, e.g.
+        # after a clang upgrade inside the same build tree.
+        set(PLTXT2HTM_ASAN_DYNAMIC_DLL "${_pltxt2htm_asan_resource_dir}/lib/windows/clang_rt.asan_dynamic-${_pltxt2htm_asan_arch}.dll" CACHE INTERNAL "Path to the clang ASan dynamic runtime DLL" FORCE)
+    else()
+        message(FATAL_ERROR "Cannot locate the clang resource directory; required to run ASan-instrumented fuzzers on Windows")
+    endif()
+endif()
+
 foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roundtrip)
     add_executable(${FUZZER_SRC} src/${FUZZER_SRC}.cc)
-    pltxt2htm_apply_contract_mode(${FUZZER_SRC} PRIVATE)
+    if(WIN32 AND PLTXT2HTM_CONTRACT_MODE STREQUAL "AUTO")
+        # The release build type would resolve AUTO to IGNORE; keep the
+        # contract checks enforced, matching the Debug default on other
+        # platforms.
+        pltxt2htm_apply_contract_mode(${FUZZER_SRC} PRIVATE ENFORCE)
+    else()
+        pltxt2htm_apply_contract_mode(${FUZZER_SRC} PRIVATE)
+    endif()
     target_include_directories(${FUZZER_SRC} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
     target_compile_features(${FUZZER_SRC} PRIVATE cxx_std_23)
 
@@ -41,6 +94,14 @@ foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roun
         CXX_EXTENSIONS OFF
         EXCEPTIONS OFF
     )
+    if(WIN32)
+        # The prebuilt clang_rt.fuzzer runtime is built with the static CRT
+        # (MT_StaticRelease); match it to keep the linker's RuntimeLibrary
+        # consistency check happy.
+        set_target_properties(${FUZZER_SRC} PROPERTIES
+            MSVC_RUNTIME_LIBRARY "MultiThreaded"
+        )
+    endif()
 
     target_compile_options(${FUZZER_SRC} PRIVATE
         -fno-rtti
@@ -52,10 +113,25 @@ foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roun
     )
 
     if(PLTXT2HTM_SANITIZER)
-        if(NOT PLTXT2HTM_SANITIZER MATCHES "^(address|undefined|memory)(,(address|undefined|memory))*$")
-            message(FATAL_ERROR "PLTXT2HTM_SANITIZER must be a comma-separated list of: address, undefined, memory (got: ${PLTXT2HTM_SANITIZER})")
-        endif()
         target_compile_options(${FUZZER_SRC} PRIVATE "-fsanitize=${PLTXT2HTM_SANITIZER}")
         target_link_options(${FUZZER_SRC} PRIVATE "-fsanitize=${PLTXT2HTM_SANITIZER}")
+
+        if(WIN32)
+            # The prebuilt clang_rt.fuzzer static runtime carries no MSVC STL
+            # container annotation directives while clang-compiled TUs do; the
+            # mismatch trips LNK2038 at link time, so disable the annotations.
+            target_compile_definitions(${FUZZER_SRC} PRIVATE
+                _DISABLE_STRING_ANNOTATION
+                _DISABLE_VECTOR_ANNOTATION
+            )
+            # The ASan dynamic runtime DLL must sit beside the executable for
+            # the Windows loader to find it.
+            add_custom_command(TARGET ${FUZZER_SRC} POST_BUILD
+                COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                    "${PLTXT2HTM_ASAN_DYNAMIC_DLL}"
+                    "$<TARGET_FILE_DIR:${FUZZER_SRC}>"
+                VERBATIM
+            )
+        endif()
     endif()
 endforeach()
