@@ -35,78 +35,19 @@ constexpr auto nt_current_process() noexcept -> Handle {
  *          follow the OBJ_* constants of the platform headers.
  */
 enum class ObjectAttributesFlags : Ulong {
-    /**
-     * @brief No attribute bits set. A zero value requests no attributes,
-     *        which is the state of a zero-initialized ObjectAttributes.
-     */
-    none = 0x00000000,
-
-    /**
-     * @brief Handle returned by the call is inherited by child processes
-     *        created with handle inheritance.
-     */
-    inherit = 0x00000002,
-
-    /**
-     * @brief Created object survives after its last handle closes; it becomes
-     *        temporary again only through NtMakeTemporaryObject. Creating
-     *        permanent objects requires SeCreatePermanentPrivilege.
-     */
-    permanent = 0x00000010,
-
-    /**
-     * @brief Only one handle may be open on the object at a time.
-     */
-    exclusive = 0x00000020,
-
-    /**
-     * @brief Match object names without regard to case.
-     */
-    case_insensitive = 0x00000040,
-
-    /**
-     * @brief When a named object already exists, open it instead of failing
-     *        with a name-collision status. The call then reports
-     *        status_object_name_exists while returning a valid handle, which
-     *        is how the Win32 create functions behave.
-     */
-    open_if = 0x00000080,
-
-    /**
-     * @brief Open a symbolic-link object itself instead of the object it
-     *        points at.
-     */
-    open_link = 0x00000100,
-
-    /**
-     * @brief The returned handle is a kernel handle, valid only in kernel
-     *        mode; user-mode callers must not pass this flag.
-     */
-    kernel_handle = 0x00000200,
-
-    /**
-     * @brief Perform access checks even where the object manager would skip
-     *        them for kernel-mode callers.
-     */
-    force_access_check = 0x00000400,
-
-    /**
-     * @brief Ignore the device map of the impersonated process while
-     *        interpreting DOS device names in the object name.
-     */
-    ignore_impersonated_devicemap = 0x00000800,
-
-    /**
-     * @brief Do not follow reparse points while parsing the object name; the
-     *        call fails when the path traverses one.
-     */
-    dont_reparse = 0x00001000,
-
-    /**
-     * @brief Mask of every settable attribute bit, for validating a flags
-     *        value; not an attribute to pass on its own.
-     */
-    valid_attributes = 0x00001FF2,
+    none = 0x00000000, ///< No attribute bits set; a zero-initialized ObjectAttributes state.
+    inherit = 0x00000002, ///< The returned handle is inherited by child processes.
+    permanent = 0x00000010, ///< The object survives its last handle close; needs SeCreatePermanentPrivilege.
+    exclusive = 0x00000020, ///< Only one handle may be open on the object at a time.
+    case_insensitive = 0x00000040, ///< Match object names without regard to case.
+    open_if = 0x00000080, ///< When the object exists, open it; the call reports status_object_name_exists.
+    open_link = 0x00000100, ///< Open the symbolic-link object itself instead of its target.
+    kernel_handle = 0x00000200, ///< Kernel-mode-only handle; user-mode callers must not pass it.
+    force_access_check = 0x00000400, ///< Perform access checks even where the object manager would skip them.
+    ignore_impersonated_devicemap =
+        0x00000800, ///< Ignore the impersonated process's devicemap when resolving DOS device names.
+    dont_reparse = 0x00001000, ///< Do not follow reparse points while parsing the object name.
+    valid_attributes = 0x00001FF2, ///< Mask of settable attribute bits, for validation only; not passable.
 };
 
 /**
@@ -132,41 +73,20 @@ constexpr auto operator&(ObjectAttributesFlags left, ObjectAttributesFlags right
  *          attribute flags from being mixed up.
  */
 enum class AccessMask : Ulong {
-    /**
-     * @brief No rights requested. A handle created or opened with no rights
-     *        grants nothing and cannot be used on the object.
-     */
-    none = 0x00000000,
-
-    /**
-     * @brief Delete the object.
-     */
-    delete_access = 0x00010000,
-
-    /**
-     * @brief Read the security descriptor of the object.
-     */
-    read_control = 0x00020000,
-
-    /**
-     * @brief Change the discretionary access-control list of the object.
-     */
-    write_dac = 0x00040000,
-
-    /**
-     * @brief Change the owner in the security descriptor of the object.
-     */
-    write_owner = 0x00080000,
-
-    /**
-     * @brief Wait on a synchronizable object.
-     */
-    synchronize = 0x00100000,
-
-    /**
-     * @brief Release a semaphore.
-     */
-    semaphore_modify_state = 0x00000002,
+    none = 0x00000000, ///< Grants no object access; operations that require rights fail.
+    generic_read = 0x80000000, ///< Generic read access, mapped by the object type to specific rights.
+    generic_write = 0x40000000, ///< Generic write access, mapped by the object type to specific rights.
+    generic_execute = 0x20000000, ///< Generic execute access, mapped by the object type to specific rights.
+    generic_all = 0x10000000, ///< All access the object type supports.
+    access_system_security = 0x01000000, ///< Access the system ACL; requires SeSecurityPrivilege.
+    maximum_allowed = 0x02000000, ///< Ask for the maximum access the caller is granted.
+    delete_access = 0x00010000, ///< Delete the object.
+    read_control = 0x00020000, ///< Read the security descriptor of the object.
+    write_dac = 0x00040000, ///< Change the discretionary access-control list of the object.
+    write_owner = 0x00080000, ///< Change the owner in the security descriptor of the object.
+    synchronize = 0x00100000, ///< Wait on a synchronizable object.
+    semaphore_modify_state = 0x00000002, ///< Release a semaphore.
+    semaphore_all_access = 0x001F0002, ///< Standard rights plus synchronize and semaphore_modify_state.
 };
 
 /**
