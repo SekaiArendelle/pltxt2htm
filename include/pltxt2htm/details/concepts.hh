@@ -7,6 +7,7 @@
 
 #include <concepts>
 #include <ranges>
+#include <iterator>
 
 namespace pltxt2htm::details {
 
@@ -39,12 +40,15 @@ concept nothrow_three_way_comparable = requires(T const& left, T const& right) {
 
 /**
  * @brief Iterating the given iterator/sentinel pair cannot throw.
- * @details Checks the operations a range loop performs: dereference, increment
- * and the sentinel comparison. Element construction and iterator copies are
- * container-specific and are checked by the caller.
+ * @details Refinement of std::sentinel_for that additionally requires
+ * the operations a range loop performs—dereference, increment, and
+ * the sentinel comparison—to complete without throwing. Element
+ * construction and iterator copies are container-specific and are
+ * checked by the caller.
  */
 template<typename Iterator, typename Sentinel>
 concept nothrow_sentinel_iteration = requires(Iterator& iterator, Sentinel& sentinel) {
+    requires ::std::sentinel_for<Sentinel, Iterator>;
     { *iterator } noexcept;
     { ++iterator } noexcept;
     { static_cast<bool>(iterator != sentinel) } noexcept;
