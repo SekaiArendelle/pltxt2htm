@@ -28,6 +28,91 @@ constexpr auto nt_current_process() noexcept -> Handle {
     return Handle{static_cast<::std::intptr_t>(-1)};
 }
 
+/**
+ * @brief Values for the ObjectAttributes::attributes field.
+ * @details The field holds an OR of these flags; a different enum keeps
+ *          attribute flags and access-mask rights from being mixed up. Values
+ *          follow the OBJ_* constants of the platform headers.
+ */
+enum class ObjectAttributesFlags : Ulong {
+    none = 0x00000000, ///< No attribute bits set; a zero-initialized ObjectAttributes state.
+    inherit = 0x00000002, ///< The returned handle is inherited by child processes.
+    permanent = 0x00000010, ///< The object survives its last handle close; needs SeCreatePermanentPrivilege.
+    exclusive = 0x00000020, ///< Only one handle may be open on the object at a time.
+    case_insensitive = 0x00000040, ///< Match object names without regard to case.
+    open_if = 0x00000080, ///< When the object exists, open it; the call reports status_object_name_exists.
+    open_link = 0x00000100, ///< Open the symbolic-link object itself instead of its target.
+    kernel_handle = 0x00000200, ///< Kernel-mode-only handle; user-mode callers must not pass it.
+    force_access_check = 0x00000400, ///< Perform access checks even where the object manager would skip them.
+    ignore_impersonated_devicemap =
+        0x00000800, ///< Ignore the impersonated process's devicemap when resolving DOS device names.
+    dont_reparse = 0x00001000, ///< Do not follow reparse points while parsing the object name.
+    valid_attributes = 0x00001FF2, ///< Mask of settable attribute bits, for validation only; not passable.
+};
+
+/**
+ * @brief ORs two attribute flags into one value.
+ */
+[[nodiscard]]
+constexpr auto operator|(ObjectAttributesFlags left, ObjectAttributesFlags right) noexcept -> ObjectAttributesFlags {
+    return static_cast<ObjectAttributesFlags>(static_cast<Ulong>(left) | static_cast<Ulong>(right));
+}
+
+/**
+ * @brief Intersects two attribute flags, keeping the bits both values set.
+ */
+[[nodiscard]]
+constexpr auto operator&(ObjectAttributesFlags left, ObjectAttributesFlags right) noexcept -> ObjectAttributesFlags {
+    return static_cast<ObjectAttributesFlags>(static_cast<Ulong>(left) & static_cast<Ulong>(right));
+}
+
+/**
+ * @brief Access-mask rights for object creation and opening.
+ * @details The desired-access parameter of the create and open functions holds
+ *          an OR of these rights; a different enum keeps access rights and
+ *          attribute flags from being mixed up.
+ */
+enum class AccessMask : Ulong {
+    none = 0x00000000, ///< Grants no object access; operations that require rights fail.
+    generic_read = 0x80000000, ///< Generic read access, mapped by the object type to specific rights.
+    generic_write = 0x40000000, ///< Generic write access, mapped by the object type to specific rights.
+    generic_execute = 0x20000000, ///< Generic execute access, mapped by the object type to specific rights.
+    generic_all = 0x10000000, ///< All access the object type supports.
+    access_system_security = 0x01000000, ///< Access the system ACL; requires SeSecurityPrivilege.
+    maximum_allowed = 0x02000000, ///< Ask for the maximum access the caller is granted.
+    delete_access = 0x00010000, ///< Delete the object.
+    read_control = 0x00020000, ///< Read the security descriptor of the object.
+    write_dac = 0x00040000, ///< Change the discretionary access-control list of the object.
+    write_owner = 0x00080000, ///< Change the owner in the security descriptor of the object.
+    synchronize = 0x00100000, ///< Wait on a synchronizable object.
+    semaphore_modify_state = 0x00000002, ///< Release a semaphore.
+    semaphore_all_access = 0x001F0003, ///< All possible access rights for a semaphore object.
+};
+
+/**
+ * @brief ORs two access rights into one mask.
+ */
+[[nodiscard]]
+constexpr auto operator|(AccessMask left, AccessMask right) noexcept -> AccessMask {
+    return static_cast<AccessMask>(static_cast<Ulong>(left) | static_cast<Ulong>(right));
+}
+
+/**
+ * @brief Intersects two access rights, keeping the bits both values set.
+ */
+[[nodiscard]]
+constexpr auto operator&(AccessMask left, AccessMask right) noexcept -> AccessMask {
+    return static_cast<AccessMask>(static_cast<Ulong>(left) & static_cast<Ulong>(right));
+}
+
+/**
+ * @brief Status reported by a create call with
+ *        ObjectAttributesFlags::open_if when the named object already existed
+ *        and was opened instead. Positive, so a status below zero still
+ *        separates it from failures.
+ */
+constexpr NtStatus status_object_name_exists{0x40000000};
+
 // Enum values adapted from include/fast_io/fast_io_hosted/platforms/nt/nt_definitions.h.
 enum class AlpcMessageInformationClass : int {
     AlpcMessageSidInformation = 0,
@@ -454,9 +539,19 @@ struct ObjectAttributes {
     Ulong length;
     Handle root_directory;
     UnicodeString* object_name;
-    Ulong attributes;
+    ObjectAttributesFlags attributes;
     void* security_descriptor;
     void* security_quality_of_service;
+};
+
+/**
+ * @brief Output of NtQueryInformationProcess with ProcessSessionInformation.
+ * @details The session id selects the per-session BaseNamedObjects directory
+ *          that the Win32 Local\ name prefix maps into; the kernel reports
+ *          four bytes, matching this single field.
+ */
+struct ProcessSessionInformation {
+    Ulong session_id;
 };
 
 struct IoStatusBlock {
