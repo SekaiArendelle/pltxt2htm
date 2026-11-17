@@ -198,13 +198,13 @@ PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtResetEvent(Handle
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwResetEvent(Handle, Long *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwResetEvent, 8);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtCreateSemaphore(Handle *, Ulong, ObjectAttributes const *, Long, Long) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtCreateSemaphore, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtCreateSemaphore(Handle *, AccessMask, ObjectAttributes const *, Long, Long) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtCreateSemaphore, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwCreateSemaphore(Handle *, Ulong, ObjectAttributes const *, Long, Long) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwCreateSemaphore, 20);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwCreateSemaphore(Handle *, AccessMask, ObjectAttributes const *, Long, Long) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwCreateSemaphore, 20);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtOpenSemaphore(Handle *, Ulong, ObjectAttributes const *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtOpenSemaphore, 12);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtOpenSemaphore(Handle *, AccessMask, ObjectAttributes const *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtOpenSemaphore, 12);
 [[nodiscard]]
-PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwOpenSemaphore(Handle *, Ulong, ObjectAttributes const *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwOpenSemaphore, 12);
+PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL ZwOpenSemaphore(Handle *, AccessMask, ObjectAttributes const *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(ZwOpenSemaphore, 12);
 [[nodiscard]]
 PLTXT2HTM_DETAIL_DLLIMPORT NtStatus PLTXT2HTM_DETAIL_STDCALL NtReleaseSemaphore(Handle, Long, Long *) noexcept PLTXT2HTM_DETAIL_STDCALL_ASM_NAME(NtReleaseSemaphore, 12);
 [[nodiscard]]

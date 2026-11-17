@@ -996,7 +996,7 @@ LIBRARIES = (
                 "NtStatus",
                 (
                     "Handle *",
-                    "Ulong",
+                    "AccessMask",
                     "ObjectAttributes const *",
                     "Long",
                     "Long",
@@ -1008,7 +1008,7 @@ LIBRARIES = (
                 "NtStatus",
                 (
                     "Handle *",
-                    "Ulong",
+                    "AccessMask",
                     "ObjectAttributes const *",
                     "Long",
                     "Long",
@@ -1020,7 +1020,7 @@ LIBRARIES = (
                 "NtStatus",
                 (
                     "Handle *",
-                    "Ulong",
+                    "AccessMask",
                     "ObjectAttributes const *",
                 ),
                 nodiscard=True,
@@ -1030,7 +1030,7 @@ LIBRARIES = (
                 "NtStatus",
                 (
                     "Handle *",
-                    "Ulong",
+                    "AccessMask",
                     "ObjectAttributes const *",
                 ),
                 nodiscard=True,
