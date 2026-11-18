@@ -298,8 +298,9 @@ template<typename T, typename Allocator>
 template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
 constexpr auto Deque<T, Allocator>::insert(this Deque& self, const_iterator position, InputIterator first,
                                            Sentinel last) noexcept -> iterator
-    requires (is_nothrow_input_range<InputIterator, Sentinel>() && ::std::is_nothrow_move_constructible_v<value_type> &&
-              ::std::is_nothrow_move_assignable_v<value_type>)
+    requires (::pltxt2htm::details::nothrow_input_range<InputIterator, Sentinel> &&
+              ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>> &&
+              ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
 {
     size_type const index{static_cast<size_type>(position - self.cbegin())};
     pltxt2htm_assert(index <= self.element_count, u8"Insertion position of Deque out of bound");

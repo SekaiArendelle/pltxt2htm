@@ -93,13 +93,6 @@ private:
     size_type start_offset{};
     size_type element_count{};
 
-    template<typename InputIterator, typename Sentinel>
-    [[nodiscard]]
-    static consteval auto is_nothrow_input_range() noexcept -> bool {
-        return ::pltxt2htm::details::nothrow_input_range<InputIterator, Sentinel> &&
-               ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>>;
-    }
-
     [[nodiscard]]
     constexpr auto allocated_block_count(this Deque const& self) noexcept -> size_type {
         if (self.element_count == 0) {
@@ -390,7 +383,8 @@ public:
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (is_nothrow_input_range<InputIterator, Sentinel>())
+        requires (::pltxt2htm::details::nothrow_input_range<InputIterator, Sentinel> &&
+                  ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>>)
     constexpr Deque(InputIterator first, Sentinel last) noexcept {
         for (; first != last; ++first) {
             this->emplace_back(*first);
@@ -703,7 +697,8 @@ public:
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
     constexpr auto insert(this Deque& self, const_iterator position, InputIterator first, Sentinel last) noexcept
         -> iterator
-        requires (is_nothrow_input_range<InputIterator, Sentinel>() &&
+        requires (::pltxt2htm::details::nothrow_input_range<InputIterator, Sentinel> &&
+                  ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>> &&
                   ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     ;
 
@@ -722,7 +717,8 @@ public:
         requires ::std::is_nothrow_move_assignable_v<value_type>;
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (is_nothrow_input_range<InputIterator, Sentinel>())
+        requires (::pltxt2htm::details::nothrow_input_range<InputIterator, Sentinel> &&
+                  ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>>)
     constexpr void assign(this Deque& self, InputIterator first, Sentinel last) noexcept {
         Deque replacement{first, last};
         self.swap(replacement);
