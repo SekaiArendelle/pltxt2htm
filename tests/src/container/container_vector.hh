@@ -428,6 +428,9 @@ concept EqualityComparableVectorElement = requires(::pltxt2htm::container::Vecto
 template<typename R>
 concept AppendableIntRange = requires(IntVector& values, R&& range) { values.append_range(::std::forward<R>(range)); };
 
+template<typename Container, typename Range>
+concept AppendableRange = requires(Container& container, Range& range) { container.append_range(range); };
+
 static_assert(::std::same_as<IntVector::allocator_type, ::fast_io::native_global_allocator>);
 static_assert(::std::same_as<IntVector::value_type, int>);
 static_assert(::std::same_as<IntVector::iterator, int*>);
@@ -458,6 +461,8 @@ static_assert(!RangeAssignableVectorElement<::pltxt2htm_test::ThrowingCopy>);
 static_assert(!EqualityComparableVectorElement<::pltxt2htm_test::ThrowingEquality>);
 static_assert(!EqualityComparableVectorElement<ThrowingBooleanEquality>);
 static_assert(!AppendableIntRange<ThrowingIncrementRange&>);
+static_assert(!AppendableRange<IntVector, ::pltxt2htm_test::ThrowingBeginRange>);
+static_assert(!AppendableRange<IntVector, ::pltxt2htm_test::ThrowingEndRange>);
 static_assert(::std::is_nothrow_copy_assignable_v<IntVector>);
 static_assert(::std::is_nothrow_move_assignable_v<IntVector>);
 static_assert(noexcept(::std::declval<IntVector&>() = ::std::declval<IntVector const&>()));
