@@ -46,6 +46,11 @@ static_assert(::std::is_nothrow_constructible_v<IntDeque, int const*, int const*
 static_assert(::std::is_nothrow_copy_constructible_v<IntDeque>);
 static_assert(::std::is_nothrow_copy_assignable_v<IntDeque>);
 static_assert(!::std::is_copy_constructible_v<::pltxt2htm::container::Deque<::pltxt2htm_test::ThrowingCopy>>);
+static_assert(::pltxt2htm::details::nothrow_input_range<int const*, int const*>);
+static_assert(!::pltxt2htm::details::nothrow_input_range<::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
+                                                         ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(!::std::is_constructible_v<IntDeque, ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
+                                         ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
 static_assert(noexcept(::std::declval<IntDeque&>().emplace_back(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().emplace_front(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().push_back(1)));

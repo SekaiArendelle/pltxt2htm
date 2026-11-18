@@ -8,6 +8,7 @@
 #include <concepts>
 #include <ranges>
 #include <iterator>
+#include <type_traits>
 
 namespace pltxt2htm::details {
 
@@ -62,6 +63,25 @@ concept nothrow_range_access = requires(Range& range) {
     { ::std::ranges::begin(range) } noexcept;
     { ::std::ranges::end(range) } noexcept;
 };
+
+/**
+ * @brief An iterator/sentinel pair whose traversal completes without throwing.
+ * @details Counterpart of the standard's exposition-only nothrow-input-range,
+ * with these deliberate differences: the boundaries are given as an
+ * iterator/sentinel pair instead of a range, the no-throw requirement is
+ * checked syntactically rather than left as a semantic precondition, the
+ * standard's lvalue/value-type restriction that excludes proxy iterators is
+ * omitted because container loops construct elements from `*iterator`, and
+ * the iterator and sentinel themselves must be nothrow copy/move
+ * constructible because containers pass them by value inside noexcept
+ * functions. Element construction is container-specific and is composed by
+ * the caller.
+ */
+template<typename Iterator, typename Sentinel>
+concept nothrow_input_range =
+    ::std::input_iterator<Iterator> && nothrow_sentinel_iteration<Iterator, Sentinel> &&
+    ::std::is_nothrow_copy_constructible_v<Iterator> && ::std::is_nothrow_move_constructible_v<Iterator> &&
+    ::std::is_nothrow_copy_constructible_v<Sentinel> && ::std::is_nothrow_move_constructible_v<Sentinel>;
 
 template<typename T, typename U>
 concept reference_constructs_from_temporary =

@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <iterator>
+#include <ranges>
 #include <span>
 #include <type_traits>
 #include <utility>
@@ -463,6 +464,15 @@ static_assert(!EqualityComparableVectorElement<ThrowingBooleanEquality>);
 static_assert(!AppendableIntRange<ThrowingIncrementRange&>);
 static_assert(!AppendableRange<IntVector, ::pltxt2htm_test::ThrowingBeginRange>);
 static_assert(!AppendableRange<IntVector, ::pltxt2htm_test::ThrowingEndRange>);
+static_assert(::pltxt2htm::details::nothrow_input_range<SinglePassIntRange::Iterator, SinglePassIntRange::Iterator>);
+static_assert(
+    !::pltxt2htm::details::nothrow_input_range<ThrowingIncrementRange::Iterator, ThrowingIncrementRange::Iterator>);
+static_assert(::std::ranges::input_range<::pltxt2htm_test::ThrowingIteratorCopyRange>);
+static_assert(::std::is_nothrow_move_constructible_v<::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(!::std::is_nothrow_copy_constructible_v<::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(::pltxt2htm::details::nothrow_sentinel_iteration<::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
+                                                               ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(!AppendableRange<IntVector, ::pltxt2htm_test::ThrowingIteratorCopyRange>);
 static_assert(::std::is_nothrow_copy_assignable_v<IntVector>);
 static_assert(::std::is_nothrow_move_assignable_v<IntVector>);
 static_assert(noexcept(::std::declval<IntVector&>() = ::std::declval<IntVector const&>()));

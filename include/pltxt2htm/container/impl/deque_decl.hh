@@ -96,12 +96,7 @@ private:
     template<typename InputIterator, typename Sentinel>
     [[nodiscard]]
     static consteval auto is_nothrow_input_range() noexcept -> bool {
-        if constexpr (!::pltxt2htm::details::nothrow_sentinel_iteration<InputIterator, Sentinel>) {
-            return false;
-        }
-        return ::std::is_nothrow_copy_constructible_v<InputIterator> &&
-               ::std::is_nothrow_move_constructible_v<InputIterator> &&
-               ::std::is_nothrow_copy_constructible_v<Sentinel> && ::std::is_nothrow_move_constructible_v<Sentinel> &&
+        return ::pltxt2htm::details::nothrow_input_range<InputIterator, Sentinel> &&
                ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>>;
     }
 

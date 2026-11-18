@@ -84,7 +84,7 @@ private:
         using iterator_type = ::std::ranges::iterator_t<R>;
         using sentinel_type = ::std::ranges::sentinel_t<R>;
         if constexpr (!::pltxt2htm::details::nothrow_range_access<R> ||
-                      !::pltxt2htm::details::nothrow_sentinel_iteration<iterator_type, sentinel_type>) {
+                      !::pltxt2htm::details::nothrow_input_range<iterator_type, sentinel_type>) {
             return false;
         }
 
