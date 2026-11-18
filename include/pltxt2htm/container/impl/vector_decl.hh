@@ -509,11 +509,7 @@ public:
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type> &&
                   ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>> &&
-                  requires(InputIterator& iterator, Sentinel& sentinel) {
-                      { *iterator } noexcept;
-                      { ++iterator } noexcept;
-                      { static_cast<bool>(iterator != sentinel) } noexcept -> ::std::same_as<bool>;
-                  })
+                  ::pltxt2htm::details::nothrow_input_range<InputIterator, Sentinel>)
     constexpr void assign(this Vector& self, InputIterator first, Sentinel last) noexcept {
         self.clear();
         for (; first != last; ++first) {

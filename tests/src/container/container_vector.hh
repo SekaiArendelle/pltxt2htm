@@ -432,6 +432,10 @@ concept AppendableIntRange = requires(IntVector& values, R&& range) { values.app
 template<typename Container, typename Range>
 concept AppendableRange = requires(Container& container, Range& range) { container.append_range(range); };
 
+template<typename Container, typename Iterator, typename Sentinel>
+concept IteratorPairAssignable =
+    requires(Container& container, Iterator first, Sentinel last) { container.assign(first, last); };
+
 static_assert(::std::same_as<IntVector::allocator_type, ::fast_io::native_global_allocator>);
 static_assert(::std::same_as<IntVector::value_type, int>);
 static_assert(::std::same_as<IntVector::iterator, int*>);
@@ -473,6 +477,9 @@ static_assert(!::std::is_nothrow_copy_constructible_v<::pltxt2htm_test::Throwing
 static_assert(::pltxt2htm::details::nothrow_sentinel_iteration<::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
                                                                ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
 static_assert(!AppendableRange<IntVector, ::pltxt2htm_test::ThrowingIteratorCopyRange>);
+static_assert(IteratorPairAssignable<IntVector, int const*, int const*>);
+static_assert(!IteratorPairAssignable<IntVector, ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
+                                      ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
 static_assert(::std::is_nothrow_copy_assignable_v<IntVector>);
 static_assert(::std::is_nothrow_move_assignable_v<IntVector>);
 static_assert(noexcept(::std::declval<IntVector&>() = ::std::declval<IntVector const&>()));
