@@ -41,8 +41,8 @@ concept nothrow_three_way_comparable = requires(T const& left, T const& right) {
 /**
  * @brief Iterating the given iterator/sentinel pair cannot throw.
  * @details Refinement of std::sentinel_for that additionally requires
- * the operations a range loop performs—dereference, increment, and
- * the sentinel comparison—to complete without throwing. Element
+ * the operations a range loop performs - dereference, increment, and
+ * the sentinel comparison - to complete without throwing. Element
  * construction and iterator copies are container-specific and are
  * checked by the caller.
  */
