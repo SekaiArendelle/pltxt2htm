@@ -23,7 +23,7 @@ constexpr auto InplaceVector<T, extent>::position_index(this InplaceVector const
         pltxt2htm_assert(position == nullptr && allow_end, u8"Invalid InplaceVector iterator");
         return 0;
     }
-    auto const offset = position - self.cbegin();
+    difference_type const offset{position - self.cbegin()};
     pltxt2htm_assert(offset >= 0, u8"Invalid InplaceVector iterator");
     auto const index = static_cast<size_type>(offset);
     if (allow_end) {
@@ -297,7 +297,7 @@ constexpr auto InplaceVector<T, extent>::erase(
     if (erased_count == 0) {
         return result;
     }
-    auto const new_end = ::std::move(self.iterator_at(last_index), self.end(), result);
+    auto const new_end = ::std::shift_left(result, self.end(), erased_count);
     self.destroy(new_end, self.end());
     self.set_size(self.size() - erased_count);
     return result;

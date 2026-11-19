@@ -302,7 +302,7 @@ public:
         guard.release();
     }
 
-    constexpr InplaceVector(InplaceVector const&)
+    constexpr InplaceVector(InplaceVector const&) noexcept
         requires (extent == 0 || ::std::is_trivially_copy_constructible_v<value_type>)
     = default;
 
@@ -317,7 +317,7 @@ public:
         guard.release();
     }
 
-    constexpr InplaceVector(InplaceVector&&)
+    constexpr InplaceVector(InplaceVector&&) noexcept
         requires (extent == 0 || ::std::is_trivially_move_constructible_v<value_type>)
     = default;
 
@@ -340,7 +340,7 @@ public:
         this->clear();
     }
 
-    constexpr auto operator=(this InplaceVector&, InplaceVector const&) -> InplaceVector&
+    constexpr auto operator=(this InplaceVector&, InplaceVector const&) noexcept -> InplaceVector&
         requires (extent == 0 ||
                   (::std::is_trivially_copy_constructible_v<value_type> &&
                    ::std::is_trivially_copy_assignable_v<value_type> && ::std::is_trivially_destructible_v<value_type>))
@@ -738,7 +738,7 @@ public:
     {
         auto const index = self.position_index(position, false);
         auto const result = self.iterator_at(index);
-        ::std::move(result + 1, self.end(), result);
+        ::std::shift_left(result, self.end(), 1);
         self.pop_back();
         return result;
     }
@@ -791,21 +791,24 @@ public:
     }
 
     template<::std::size_t right_extent>
-        requires ::std::equality_comparable<value_type>
     [[nodiscard]]
-    constexpr auto
-    operator==(this InplaceVector const& self, InplaceVector<value_type, right_extent> const& other) noexcept(
-        extent == 0 || right_extent == 0 || ::pltxt2htm::details::nothrow_equality_comparable<value_type>) -> bool {
+    constexpr auto operator==(this InplaceVector const& self,
+                              InplaceVector<value_type, right_extent> const&
+                                  other) noexcept(extent == 0 || right_extent == 0 ||
+                                                  ::pltxt2htm::details::nothrow_equality_comparable<value_type>) -> bool
+        requires (::std::equality_comparable<value_type>)
+    {
         return ::std::equal(self.begin(), self.end(), other.begin(), other.end());
     }
 
     template<::std::size_t right_extent>
-        requires ::std::three_way_comparable<value_type>
     [[nodiscard]]
     constexpr auto operator<=>(this InplaceVector const& self,
                                InplaceVector<value_type, right_extent> const&
                                    other) noexcept(extent == 0 || right_extent == 0 ||
-                                                   ::pltxt2htm::details::nothrow_three_way_comparable<value_type>) {
+                                                   ::pltxt2htm::details::nothrow_three_way_comparable<value_type>)
+        requires (::std::three_way_comparable<value_type>)
+    {
         return ::std::lexicographical_compare_three_way(self.begin(), self.end(), other.begin(), other.end(),
                                                         ::std::compare_three_way{});
     }
