@@ -476,10 +476,17 @@ static_assert(::std::is_nothrow_move_constructible_v<::pltxt2htm_test::ThrowingI
 static_assert(!::std::is_nothrow_copy_constructible_v<::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
 static_assert(::pltxt2htm::details::nothrow_sentinel_iteration<::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
                                                                ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
-static_assert(!AppendableRange<IntVector, ::pltxt2htm_test::ThrowingIteratorCopyRange>);
+static_assert(::std::ranges::input_range<::pltxt2htm_test::ThrowingIteratorMoveRange>);
+static_assert(!::std::is_nothrow_move_constructible_v<::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator>);
+static_assert(AppendableRange<IntVector, ::pltxt2htm_test::ThrowingIteratorCopyRange>);
+static_assert(AppendableRange<IntVector, ::pltxt2htm_test::ThrowingIteratorMoveRange>);
 static_assert(IteratorPairAssignable<IntVector, int const*, int const*>);
-static_assert(!IteratorPairAssignable<IntVector, ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
-                                      ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(IteratorPairAssignable<IntVector, ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
+                                     ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(IteratorPairAssignable<IntVector, ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator,
+                                     ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator>);
+static_assert(IteratorPairAssignable<IntVector, int const*, ::pltxt2htm_test::ThrowingMoveSentinel>);
+static_assert(!IteratorPairAssignable<IntVector, ThrowingIncrementRange::Iterator, ThrowingIncrementRange::Iterator>);
 static_assert(::std::is_nothrow_copy_assignable_v<IntVector>);
 static_assert(::std::is_nothrow_move_assignable_v<IntVector>);
 static_assert(noexcept(::std::declval<IntVector&>() = ::std::declval<IntVector const&>()));

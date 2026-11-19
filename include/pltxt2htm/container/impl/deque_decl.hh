@@ -697,7 +697,7 @@ public:
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
     constexpr auto insert(this Deque& self, const_iterator position, InputIterator first, Sentinel last) noexcept
         -> iterator
-        requires (::pltxt2htm::details::nothrow_input_range<InputIterator, Sentinel> &&
+        requires (::pltxt2htm::details::nothrow_move_input_range<InputIterator, Sentinel> &&
                   ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>> &&
                   ::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_move_assignable_v<value_type>)
     ;
@@ -717,10 +717,10 @@ public:
         requires ::std::is_nothrow_move_assignable_v<value_type>;
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::pltxt2htm::details::nothrow_input_range<InputIterator, Sentinel> &&
+        requires (::pltxt2htm::details::nothrow_move_input_range<InputIterator, Sentinel> &&
                   ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>>)
     constexpr void assign(this Deque& self, InputIterator first, Sentinel last) noexcept {
-        Deque replacement{first, last};
+        Deque replacement{::std::move(first), ::std::move(last)};
         self.swap(replacement);
     }
 

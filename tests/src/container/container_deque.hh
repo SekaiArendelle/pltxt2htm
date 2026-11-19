@@ -26,6 +26,17 @@
 
 using IntDeque = ::pltxt2htm::container::Deque<int>;
 
+template<typename Container, typename Iterator, typename Sentinel>
+concept DequeIteratorPairInsertable =
+    requires(Container& container, typename Container::const_iterator position, Iterator first, Sentinel last) {
+        container.insert(position, ::std::move(first), ::std::move(last));
+    };
+
+template<typename Container, typename Iterator, typename Sentinel>
+concept DequeIteratorPairAssignable = requires(Container& container, Iterator first, Sentinel last) {
+    container.assign(::std::move(first), ::std::move(last));
+};
+
 static_assert(requires(IntDeque& values, IntDeque const& const_values, ::std::size_t position) {
     { values[position] } -> ::std::same_as<int&>;
     values[position] = 1;
@@ -47,10 +58,40 @@ static_assert(::std::is_nothrow_copy_constructible_v<IntDeque>);
 static_assert(::std::is_nothrow_copy_assignable_v<IntDeque>);
 static_assert(!::std::is_copy_constructible_v<::pltxt2htm::container::Deque<::pltxt2htm_test::ThrowingCopy>>);
 static_assert(::pltxt2htm::details::nothrow_input_range<int const*, int const*>);
-static_assert(!::pltxt2htm::details::nothrow_input_range<::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
-                                                         ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
-static_assert(!::std::is_constructible_v<IntDeque, ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
-                                         ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(::pltxt2htm::details::nothrow_input_range<::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
+                                                        ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(::std::is_nothrow_constructible_v<IntDeque, ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
+                                                ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(!::std::is_nothrow_constructible_v<IntDeque, ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator&,
+                                                 ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator&>);
+static_assert(::std::is_constructible_v<IntDeque, ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator&,
+                                        ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator&>);
+static_assert(::pltxt2htm::details::nothrow_input_range<::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator,
+                                                        ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator>);
+static_assert(!::pltxt2htm::details::nothrow_move_input_range<::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator,
+                                                              ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator>);
+static_assert(::std::is_constructible_v<IntDeque, ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator,
+                                        ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator>);
+static_assert(!::std::is_nothrow_constructible_v<IntDeque, ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator,
+                                                 ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator>);
+static_assert(DequeIteratorPairInsertable<IntDeque, int const*, int const*>);
+static_assert(DequeIteratorPairAssignable<IntDeque, int const*, int const*>);
+static_assert(DequeIteratorPairInsertable<IntDeque, ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
+                                          ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(DequeIteratorPairAssignable<IntDeque, ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
+                                          ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(!DequeIteratorPairInsertable<IntDeque, ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator,
+                                           ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator>);
+static_assert(!DequeIteratorPairAssignable<IntDeque, ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator,
+                                           ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator>);
+static_assert(::pltxt2htm::details::nothrow_input_range<int const*, ::pltxt2htm_test::ThrowingMoveSentinel>);
+static_assert(!::pltxt2htm::details::nothrow_move_input_range<int const*, ::pltxt2htm_test::ThrowingMoveSentinel>);
+static_assert(!DequeIteratorPairInsertable<IntDeque, int const*, ::pltxt2htm_test::ThrowingMoveSentinel>);
+static_assert(!DequeIteratorPairAssignable<IntDeque, int const*, ::pltxt2htm_test::ThrowingMoveSentinel>);
+static_assert(::pltxt2htm::details::nothrow_input_range<::pltxt2htm_test::MoveOnlyIntIterator, int const*>);
+static_assert(::pltxt2htm::details::nothrow_move_input_range<::pltxt2htm_test::MoveOnlyIntIterator, int const*>);
+static_assert(DequeIteratorPairInsertable<IntDeque, ::pltxt2htm_test::MoveOnlyIntIterator, int const*>);
+static_assert(DequeIteratorPairAssignable<IntDeque, ::pltxt2htm_test::MoveOnlyIntIterator, int const*>);
 static_assert(noexcept(::std::declval<IntDeque&>().emplace_back(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().emplace_front(1)));
 static_assert(noexcept(::std::declval<IntDeque&>().push_back(1)));
@@ -471,6 +512,20 @@ TEST_SUITE("container_deque") {
         CHECK((front_self == IntDeque{0, 2, 3, 4, 1, 2, 3, 4, 5}));
     }
 
+    void test_move_only_boundaries() {
+        int const source[]{1, 2, 3};
+
+        IntDeque inserted{4, 5};
+        auto const result =
+            inserted.insert(inserted.cbegin() + 1, ::pltxt2htm_test::MoveOnlyIntIterator{source}, source + 3);
+        REQUIRE(result == inserted.begin() + 1);
+        CHECK((inserted == IntDeque{4, 1, 2, 3, 5}));
+
+        IntDeque assigned{9};
+        assigned.assign(::pltxt2htm_test::MoveOnlyIntIterator{source}, source + 3);
+        CHECK((assigned == IntDeque{1, 2, 3}));
+    }
+
     consteval auto test_constexpr_deque() -> bool {
         IntDeque values{};
         for (int value{}; value != 300; ++value) {
@@ -539,6 +594,10 @@ TEST_SUITE("container_deque") {
 
     TEST_CASE("range-insertion") {
         test_range_insertion();
+    }
+
+    TEST_CASE("move-only-boundaries") {
+        test_move_only_boundaries();
     }
 
     TEST_CASE("differential-against-std-deque") {
