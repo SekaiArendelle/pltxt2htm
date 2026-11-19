@@ -16,6 +16,7 @@
 #endif
 
 #include "container/deque.hh"
+#include "container/inplace_vector.hh"
 #include "container/string.hh"
 #include "container/array.hh"
 #include "container/string_view.hh"
