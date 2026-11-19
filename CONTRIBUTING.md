@@ -26,6 +26,8 @@ Commits follow the shape:
 - **body** — optional, wrapped at 72 columns. Explain *why*; the diff already shows *what*.
 - **footer** — optional. Issue references (`Closes #123`) and attribution trailers.
 
+Prefer references within this repository (`Closes #123`); a bare `#123` always means this repository. Avoid `owner/repo#123` and URLs to other repositories: the cross-reference event GitHub adds there is mostly noise, and a reference serves readers, not notification. If one is genuinely needed, use a form GitHub does not auto-link, for example `owner/repo issue 123`.
+
 A concise reference template covering this structure lives in [`.gitmessage`](./.gitmessage).
 
 ### Attribution
