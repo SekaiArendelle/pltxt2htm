@@ -512,20 +512,6 @@ TEST_SUITE("container_deque") {
         CHECK((front_self == IntDeque{0, 2, 3, 4, 1, 2, 3, 4, 5}));
     }
 
-    void test_move_only_boundaries() {
-        int const source[]{1, 2, 3};
-
-        IntDeque inserted{4, 5};
-        auto const result =
-            inserted.insert(inserted.cbegin() + 1, ::pltxt2htm_test::MoveOnlyIntIterator{source}, source + 3);
-        REQUIRE(result == inserted.begin() + 1);
-        CHECK((inserted == IntDeque{4, 1, 2, 3, 5}));
-
-        IntDeque assigned{9};
-        assigned.assign(::pltxt2htm_test::MoveOnlyIntIterator{source}, source + 3);
-        CHECK((assigned == IntDeque{1, 2, 3}));
-    }
-
     consteval auto test_constexpr_deque() -> bool {
         IntDeque values{};
         for (int value{}; value != 300; ++value) {
@@ -597,7 +583,17 @@ TEST_SUITE("container_deque") {
     }
 
     TEST_CASE("move-only-boundaries") {
-        test_move_only_boundaries();
+        int const source[]{1, 2, 3};
+
+        IntDeque inserted{4, 5};
+        auto const result =
+            inserted.insert(inserted.cbegin() + 1, ::pltxt2htm_test::MoveOnlyIntIterator{source}, source + 3);
+        REQUIRE(result == inserted.begin() + 1);
+        CHECK((inserted == IntDeque{4, 1, 2, 3, 5}));
+
+        IntDeque assigned{9};
+        assigned.assign(::pltxt2htm_test::MoveOnlyIntIterator{source}, source + 3);
+        CHECK((assigned == IntDeque{1, 2, 3}));
     }
 
     TEST_CASE("differential-against-std-deque") {
