@@ -92,6 +92,24 @@ struct PotentiallyThrowingComparisonInplace {
 
 using ZeroInplaceVector = ::pltxt2htm::container::InplaceVector<NonTrivialInplaceValue, 0>;
 using CopyOnlyInplaceVector = ::pltxt2htm::container::InplaceVector<CopyOnlyInplaceValue, 8>;
+using NonAssignableInplaceVector = ::pltxt2htm::container::InplaceVector<TrivialWithoutAssignmentInplace, 4>;
+using ThrowingCopyInplaceVector = ::pltxt2htm::container::InplaceVector<::pltxt2htm_test::ThrowingCopy, 4>;
+
+// The assign overloads only destroy and construct, so they must accept an element
+// type whose assignment operators are deleted; the count overload fills by
+// assignment and must keep rejecting it.
+template<typename Vector, typename Value>
+concept can_assign_iterators =
+    requires(Vector& vector, Value const* first, Value const* last) { vector.assign(first, last); };
+
+template<typename Vector, typename Value>
+concept can_assign_initializer_list = requires(Vector& vector, Value const& value) { vector.assign({value, value}); };
+
+template<typename Vector, typename Value>
+concept can_assign_count = requires(Vector& vector, Value const& value) { vector.assign(::std::size_t{2}, value); };
+
+template<typename Vector, typename Value>
+concept can_assign_from_initializer_list = requires(Vector& vector, Value const& value) { vector = {value, value}; };
 
 static_assert(::std::is_copy_constructible_v<CopyOnlyInplaceValue>);
 static_assert(!::std::is_move_constructible_v<CopyOnlyInplaceValue>);
@@ -105,6 +123,21 @@ static_assert(::std::default_initializable<IntInplaceVector>);
 static_assert(can_subscript<IntInplaceVector>);
 static_assert(can_subscript<IntInplaceVector const>);
 static_assert(!has_at<IntInplaceVector>);
+static_assert(!can_call_empty<IntInplaceVector>);
+static_assert(can_assign_iterators<IntInplaceVector, int>);
+static_assert(can_assign_initializer_list<IntInplaceVector, int>);
+static_assert(can_assign_count<IntInplaceVector, int>);
+static_assert(can_assign_from_initializer_list<IntInplaceVector, int>);
+static_assert(noexcept(::std::declval<IntInplaceVector&>().assign(::std::declval<int const*>(),
+                                                                  ::std::declval<int const*>())));
+static_assert(noexcept(::std::declval<IntInplaceVector&>().assign({1, 2})));
+static_assert(can_assign_iterators<NonAssignableInplaceVector, TrivialWithoutAssignmentInplace>);
+static_assert(can_assign_initializer_list<NonAssignableInplaceVector, TrivialWithoutAssignmentInplace>);
+static_assert(can_assign_from_initializer_list<NonAssignableInplaceVector, TrivialWithoutAssignmentInplace>);
+static_assert(!can_assign_count<NonAssignableInplaceVector, TrivialWithoutAssignmentInplace>);
+static_assert(can_assign_iterators<ThrowingCopyInplaceVector, ::pltxt2htm_test::ThrowingCopy>);
+static_assert(!noexcept(::std::declval<ThrowingCopyInplaceVector&>().assign(
+    ::std::declval<::pltxt2htm_test::ThrowingCopy const*>(), ::std::declval<::pltxt2htm_test::ThrowingCopy const*>())));
 static_assert(::std::is_trivially_copy_constructible_v<IntInplaceVector>);
 static_assert(::std::is_trivially_move_constructible_v<IntInplaceVector>);
 static_assert(::std::is_trivially_copy_assignable_v<IntInplaceVector>);
@@ -241,7 +274,15 @@ consteval auto inplace_vector_constexpr_operations_work() -> bool {
     other = {2, 3};
     other.reserve(8);
     other.shrink_to_fit();
-    return other == ::pltxt2htm::container::InplaceVector<int, 2>{2, 3} &&
+
+    // Trivial assignment copies the whole inline payload, not just the size.
+    IntInplaceVector copy_assigned{9, 9, 9};
+    copy_assigned = other;
+    IntInplaceVector move_assigned{9};
+    move_assigned = IntInplaceVector{4, 5, 6};
+    return copy_assigned == ::pltxt2htm::container::InplaceVector<int, 2>{2, 3} &&
+           move_assigned == ::pltxt2htm::container::InplaceVector<int, 3>{4, 5, 6} &&
+           other == ::pltxt2htm::container::InplaceVector<int, 2>{2, 3} &&
            (other <=> ::pltxt2htm::container::InplaceVector<int, 3>{2, 4}) == ::std::strong_ordering::less;
 }
 
@@ -645,10 +686,80 @@ TEST_SUITE("container_inplace_vector") {
         CHECK(resized.back().value == 5);
     }
 
+    TEST_CASE("assign-non-assignable-elements") {
+        // These assign overloads and the initializer-list assignment operator
+        // only destroy and construct, so they must accept elements whose
+        // assignment operators are deleted. assign(count, value) fills by
+        // assignment and stays unavailable, as pinned above.
+        using Vector = ::pltxt2htm::container::InplaceVector<TrivialWithoutAssignmentInplace, 4>;
+        TrivialWithoutAssignmentInplace first{};
+        first.value = 1;
+        TrivialWithoutAssignmentInplace second{};
+        second.value = 2;
+        TrivialWithoutAssignmentInplace const source[]{first, second};
+
+        Vector values;
+        values.push_back(first);
+        values.assign(source, source + 2);
+        CHECK(values.size() == 2);
+        CHECK(values[0].value == 1);
+        CHECK(values[1].value == 2);
+
+        values.assign({first, second});
+        CHECK(values.size() == 2);
+        CHECK(values[1].value == 2);
+
+        values = {first, second};
+        CHECK(values.size() == 2);
+        CHECK(values[0].value == 1);
+        CHECK(values[1].value == 2);
+
+        values.assign_range(source);
+        CHECK(values.size() == 2);
+        CHECK(values[0].value == 1);
+    }
+
     TEST_CASE("trivial-move-assignment") {
         IntInplaceVector left{1, 2};
         IntInplaceVector right{3, 4, 5};
         left = ::std::move(right);
         CHECK((left == IntInplaceVector{3, 4, 5}));
+    }
+
+    TEST_CASE("trivial-copy-assignment") {
+        // The defaulted assignment is lowered to a whole-object copy; check that
+        // it copies the element payload and not only the size field.
+        IntInplaceVector source{1, 2, 3};
+        IntInplaceVector target{9, 9, 9, 9};
+        target = source;
+        CHECK(target.size() == 3);
+        CHECK((target == IntInplaceVector{1, 2, 3}));
+        CHECK((source == IntInplaceVector{1, 2, 3}));
+
+        IntInplaceVector shorter{7};
+        target = shorter;
+        CHECK(target.size() == 1);
+        CHECK(target.front() == 7);
+
+        IntInplaceVector empty;
+        target = empty;
+        CHECK(target.is_empty());
+    }
+
+    TEST_CASE("copy-assignment-non-trivial") {
+        using TrackedVector = ::pltxt2htm::container::InplaceVector<::pltxt2htm_test::TrackedInplaceVectorValue, 4>;
+        TrackedVector source;
+        source.emplace_back(1);
+        source.emplace_back(2);
+        TrackedVector target;
+        target.emplace_back(3);
+        target = source;
+        CHECK(target.size() == 2);
+        CHECK(target[0].value == 1);
+        CHECK(target[1].value == 2);
+        CHECK(source.size() == 2);
+        CHECK(source[0].value == 1);
+        CHECK(source[1].value == 2);
+        CHECK(::pltxt2htm_test::TrackedInplaceVectorValue::alive == 4);
     }
 }

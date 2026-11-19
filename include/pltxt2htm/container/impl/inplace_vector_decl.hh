@@ -383,15 +383,14 @@ public:
 
     constexpr auto operator=(this InplaceVector& self, ::std::initializer_list<value_type> values) noexcept(
         ::std::is_nothrow_copy_constructible_v<value_type>) -> InplaceVector&
-        requires (::std::constructible_from<value_type, const_reference> && ::std::is_copy_assignable_v<value_type>)
+        requires ::std::constructible_from<value_type, const_reference>
     {
         self.assign(values.begin(), values.end());
         return self;
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>> &&
-                  ::std::assignable_from<reference, ::std::iter_reference_t<InputIterator>>)
+        requires ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>
     constexpr void assign(this InplaceVector& self, InputIterator first,
                           Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>()) {
         self.clear();
@@ -412,7 +411,7 @@ public:
 
     constexpr void assign(this InplaceVector& self, ::std::initializer_list<value_type> values) noexcept(
         ::std::is_nothrow_copy_constructible_v<value_type>)
-        requires (::std::constructible_from<value_type, const_reference> && ::std::is_copy_assignable_v<value_type>)
+        requires ::std::constructible_from<value_type, const_reference>
     {
         self.assign(values.begin(), values.end());
     }
