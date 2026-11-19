@@ -479,7 +479,14 @@ static_assert(::pltxt2htm::details::nothrow_sentinel_iteration<::pltxt2htm_test:
 static_assert(::std::ranges::input_range<::pltxt2htm_test::ThrowingIteratorMoveRange>);
 static_assert(!::std::is_nothrow_move_constructible_v<::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator>);
 static_assert(AppendableRange<IntVector, ::pltxt2htm_test::ThrowingIteratorCopyRange>);
+// GCC 15's libstdc++ evaluates ranges::begin/end's noexcept through
+// __decay_copy, which counts the iterator's move. GCC 16 uses auto(x) via
+// _GLIBCXX_AUTO_CAST instead, so only there does a throwing iterator move
+// leave the range accessor noexcept. ThrowingIteratorMoveRange exists to test
+// exactly that throwing move.
+#if defined(__GLIBCXX__) && _GLIBCXX_RELEASE >= 16
 static_assert(AppendableRange<IntVector, ::pltxt2htm_test::ThrowingIteratorMoveRange>);
+#endif
 static_assert(IteratorPairAssignable<IntVector, int const*, int const*>);
 static_assert(IteratorPairAssignable<IntVector, ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
                                      ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
