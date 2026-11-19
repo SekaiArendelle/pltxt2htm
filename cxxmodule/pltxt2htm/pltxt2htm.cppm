@@ -45,6 +45,7 @@ using ::pltxt2htm::container::NonZeroU32;
 using ::pltxt2htm::container::NonZeroU64;
 using ::pltxt2htm::container::NonZeroUsize;
 using ::pltxt2htm::container::Vector;
+using ::pltxt2htm::container::InplaceVector;
 using ::pltxt2htm::container::swap;
 
 } // namespace container
