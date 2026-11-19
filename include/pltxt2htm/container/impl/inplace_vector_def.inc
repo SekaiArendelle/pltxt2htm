@@ -51,7 +51,7 @@ constexpr InplaceVector<T, extent>::InplaceVector(size_type count) noexcept(
 template<typename T, ::std::size_t extent>
 constexpr InplaceVector<T, extent>::InplaceVector(size_type count, const_reference value) noexcept(
     ::std::is_nothrow_copy_constructible_v<value_type>)
-    requires ::std::copy_constructible<value_type>
+    requires ::std::constructible_from<value_type, const_reference>
 {
     pltxt2htm_assert(count <= extent, u8"InplaceVector capacity exceeded");
     ConstructionGuard guard{*this};
@@ -108,7 +108,7 @@ constexpr void InplaceVector<T, extent>::assign(
     this InplaceVector& self, size_type count,
     const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type> &&
                                     ::std::is_nothrow_copy_assignable_v<value_type>)
-    requires (::std::copy_constructible<value_type> && ::std::is_copy_assignable_v<value_type>)
+    requires (::std::constructible_from<value_type, const_reference> && ::std::is_copy_assignable_v<value_type>)
 {
     pltxt2htm_assert(count <= extent, u8"InplaceVector capacity exceeded");
     auto const common_size = ::std::min(self.size(), count);
@@ -148,7 +148,7 @@ template<typename T, ::std::size_t extent>
 constexpr void InplaceVector<T, extent>::resize(
     this InplaceVector& self, size_type new_size,
     const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type>)
-    requires ::std::copy_constructible<value_type>
+    requires ::std::constructible_from<value_type, const_reference>
 {
     pltxt2htm_assert(new_size <= extent, u8"InplaceVector capacity exceeded");
     if (new_size <= self.size()) {
@@ -274,7 +274,7 @@ constexpr auto InplaceVector<T, extent>::insert(
 {
     auto const index = self.position_index(position, true);
     auto const old_size = self.size();
-    self.append(first, last);
+    self.append(::std::move(first), ::std::move(last));
     auto const result = self.iterator_at(index);
     if (self.size() == old_size) {
         return result;

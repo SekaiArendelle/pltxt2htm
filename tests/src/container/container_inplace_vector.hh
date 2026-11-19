@@ -60,6 +60,22 @@ struct ImmobileInplace {
     auto operator=(this ImmobileInplace&, ImmobileInplace&&) -> ImmobileInplace& = delete;
 };
 
+struct CopyOnlyInplaceValue {
+    int value;
+
+    constexpr explicit CopyOnlyInplaceValue(int value_) noexcept
+        : value{value_} {
+    }
+
+    constexpr CopyOnlyInplaceValue(CopyOnlyInplaceValue const&) noexcept = default;
+    constexpr CopyOnlyInplaceValue(CopyOnlyInplaceValue&&) = delete;
+
+    constexpr auto operator=(this CopyOnlyInplaceValue&, CopyOnlyInplaceValue const&) noexcept
+        -> CopyOnlyInplaceValue& = default;
+    constexpr auto operator=(this CopyOnlyInplaceValue&, CopyOnlyInplaceValue&&) noexcept
+        -> CopyOnlyInplaceValue& = delete;
+};
+
 struct PotentiallyThrowingComparisonInplace {
     int value;
 
@@ -75,6 +91,10 @@ struct PotentiallyThrowingComparisonInplace {
 };
 
 using ZeroInplaceVector = ::pltxt2htm::container::InplaceVector<NonTrivialInplaceValue, 0>;
+using CopyOnlyInplaceVector = ::pltxt2htm::container::InplaceVector<CopyOnlyInplaceValue, 8>;
+
+static_assert(::std::is_copy_constructible_v<CopyOnlyInplaceValue>);
+static_assert(!::std::is_move_constructible_v<CopyOnlyInplaceValue>);
 
 static_assert(::std::same_as<IntInplaceVector::value_type, int>);
 static_assert(::std::same_as<IntInplaceVector::iterator, int*>);
@@ -571,5 +591,64 @@ TEST_SUITE("container_inplace_vector") {
         ::pltxt2htm_test::ThrowingEndRange end_range{nullptr, nullptr, true};
         CHECK_THROWS(values.assign_range(end_range));
         CHECK_THROWS(static_cast<void>(values.insert_range(values.begin(), begin_range)));
+    }
+
+    TEST_CASE("move-only-boundaries") {
+        int const source[]{1, 2, 3};
+
+        IntInplaceVector constructed(::pltxt2htm_test::MoveOnlyIntIterator{source}, source + 3);
+        CHECK((constructed == IntInplaceVector{1, 2, 3}));
+
+        IntInplaceVector assigned{9};
+        assigned.assign(::pltxt2htm_test::MoveOnlyIntIterator{source}, source + 3);
+        CHECK((assigned == IntInplaceVector{1, 2, 3}));
+
+        IntInplaceVector inserted{4, 5};
+        auto const result =
+            inserted.insert(inserted.cbegin() + 1, ::pltxt2htm_test::MoveOnlyIntIterator{source}, source + 3);
+        REQUIRE(result == inserted.begin() + 1);
+        CHECK((inserted == IntInplaceVector{4, 1, 2, 3, 5}));
+    }
+
+    TEST_CASE("copy-only-elements") {
+        CopyOnlyInplaceValue const source{5};
+
+        CopyOnlyInplaceVector initialized(3, source);
+        CHECK(initialized.size() == 3);
+        CHECK(initialized[2].value == 5);
+
+        CopyOnlyInplaceVector listed{source, source};
+        CHECK(listed.size() == 2);
+        CHECK(listed[1].value == 5);
+
+        CopyOnlyInplaceVector assigned;
+        assigned.assign(4, source);
+        CHECK(assigned.size() == 4);
+        CHECK(assigned[3].value == 5);
+
+        CopyOnlyInplaceVector assigned_list;
+        assigned_list.assign({source, source});
+        CHECK(assigned_list.size() == 2);
+
+        CopyOnlyInplaceVector assigned_from_list;
+        assigned_from_list = {source, source};
+        CHECK(assigned_from_list.size() == 2);
+
+        CopyOnlyInplaceVector resized;
+        resized.resize(2, source);
+        CHECK(resized.size() == 2);
+        CHECK(resized[1].value == 5);
+
+        CHECK(resized.try_push_back(source).has_value());
+        resized.push_back(source);
+        CHECK(resized.size() == 4);
+        CHECK(resized.back().value == 5);
+    }
+
+    TEST_CASE("trivial-move-assignment") {
+        IntInplaceVector left{1, 2};
+        IntInplaceVector right{3, 4, 5};
+        left = ::std::move(right);
+        CHECK((left == IntInplaceVector{3, 4, 5}));
     }
 }

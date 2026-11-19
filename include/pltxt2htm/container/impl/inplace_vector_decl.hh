@@ -251,9 +251,8 @@ private:
     template<typename InputIterator, typename Sentinel>
     static consteval auto is_nothrow_range_iteration() noexcept -> bool {
         constexpr bool is_nothrow_iteration =
-            ::pltxt2htm::details::nothrow_input_range<InputIterator, Sentinel> &&
-            ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>> &&
-            ::std::is_nothrow_copy_constructible_v<InputIterator> && ::std::is_nothrow_copy_constructible_v<Sentinel>;
+            ::pltxt2htm::details::nothrow_move_input_range<InputIterator, Sentinel> &&
+            ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>>;
         if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
             return is_nothrow_iteration &&
                    noexcept(static_cast<size_type>(::std::declval<Sentinel&>() - ::std::declval<InputIterator&>()));
@@ -282,20 +281,20 @@ public:
 
     constexpr InplaceVector(size_type count,
                             const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type>)
-        requires ::std::copy_constructible<value_type>;
+        requires ::std::constructible_from<value_type, const_reference>;
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>
     constexpr InplaceVector(InputIterator first,
                             Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>()) {
         ConstructionGuard guard{*this};
-        this->append(first, last);
+        this->append(::std::move(first), ::std::move(last));
         guard.release();
     }
 
     constexpr InplaceVector(::std::initializer_list<value_type> values) noexcept(
         ::std::is_nothrow_copy_constructible_v<value_type>)
-        requires ::std::copy_constructible<value_type>
+        requires ::std::constructible_from<value_type, const_reference>
     {
         ConstructionGuard guard{*this};
         this->append(values.begin(), values.end());
@@ -340,7 +339,17 @@ public:
         this->clear();
     }
 
-    constexpr auto operator=(this InplaceVector&, InplaceVector const&) noexcept -> InplaceVector&
+    // The project convention prefers an explicit object parameter, but clang
+    // miscompiles defaulted assignment operators written that way: it crashes
+    // on classes with two or more members (GH#242767, still open on main), and
+    // before llvm/llvm-project#206579 a defaulted explicit-object union
+    // assignment had an empty body, so the inactive union payload was not
+    // copied (that fix missed clang 23.1.3). A trivial assignment with an
+    // implicit object parameter is lowered to a whole-object memcpy that
+    // avoids both defects. The lvalue ref-qualifier keeps the convention's
+    // intent of rejecting assignment to temporaries, and staying defaulted
+    // keeps the assignment trivial.
+    constexpr InplaceVector& operator=(InplaceVector const&) & noexcept
         requires (extent == 0 ||
                   (::std::is_trivially_copy_constructible_v<value_type> &&
                    ::std::is_trivially_copy_assignable_v<value_type> && ::std::is_trivially_destructible_v<value_type>))
@@ -355,7 +364,8 @@ public:
                     ::std::is_trivially_copy_assignable_v<value_type> &&
                     ::std::is_trivially_destructible_v<value_type>));
 
-    constexpr auto operator=(this InplaceVector&, InplaceVector&&) noexcept -> InplaceVector&
+    // Same workaround as the trivial copy assignment above.
+    constexpr InplaceVector& operator=(InplaceVector&&) & noexcept
         requires (extent == 0 ||
                   (::std::is_trivially_move_constructible_v<value_type> &&
                    ::std::is_trivially_move_assignable_v<value_type> && ::std::is_trivially_destructible_v<value_type>))
@@ -373,7 +383,7 @@ public:
 
     constexpr auto operator=(this InplaceVector& self, ::std::initializer_list<value_type> values) noexcept(
         ::std::is_nothrow_copy_constructible_v<value_type>) -> InplaceVector&
-        requires (::std::copy_constructible<value_type> && ::std::is_copy_assignable_v<value_type>)
+        requires (::std::constructible_from<value_type, const_reference> && ::std::is_copy_assignable_v<value_type>)
     {
         self.assign(values.begin(), values.end());
         return self;
@@ -385,7 +395,7 @@ public:
     constexpr void assign(this InplaceVector& self, InputIterator first,
                           Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>()) {
         self.clear();
-        self.append(first, last);
+        self.append(::std::move(first), ::std::move(last));
     }
 
     template<::std::ranges::input_range Range>
@@ -398,11 +408,11 @@ public:
     constexpr void assign(this InplaceVector& self, size_type count,
                           const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type> &&
                                                           ::std::is_nothrow_copy_assignable_v<value_type>)
-        requires (::std::copy_constructible<value_type> && ::std::is_copy_assignable_v<value_type>);
+        requires (::std::constructible_from<value_type, const_reference> && ::std::is_copy_assignable_v<value_type>);
 
     constexpr void assign(this InplaceVector& self, ::std::initializer_list<value_type> values) noexcept(
         ::std::is_nothrow_copy_constructible_v<value_type>)
-        requires (::std::copy_constructible<value_type> && ::std::is_copy_assignable_v<value_type>)
+        requires (::std::constructible_from<value_type, const_reference> && ::std::is_copy_assignable_v<value_type>)
     {
         self.assign(values.begin(), values.end());
     }
@@ -538,7 +548,7 @@ public:
 
     constexpr void resize(this InplaceVector& self, size_type new_size,
                           const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type>)
-        requires ::std::copy_constructible<value_type>;
+        requires ::std::constructible_from<value_type, const_reference>;
 
     /**
      * @brief Indexed element access, bounds-checked according to the
@@ -608,7 +618,7 @@ public:
     constexpr auto try_push_back(this InplaceVector& self,
                                  const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type>)
         -> Optional<reference>
-        requires ::std::copy_constructible<value_type>
+        requires ::std::constructible_from<value_type, const_reference>
     {
         return self.try_emplace_back(value);
     }
@@ -637,7 +647,7 @@ public:
     constexpr auto push_back(this InplaceVector& self,
                              const_reference value) noexcept(::std::is_nothrow_copy_constructible_v<value_type>)
         -> reference
-        requires ::std::copy_constructible<value_type>
+        requires ::std::constructible_from<value_type, const_reference>
     {
         return self.emplace_back(value);
     }
