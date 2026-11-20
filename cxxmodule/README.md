@@ -1,6 +1,6 @@
 ## Use pltxt2htm in C++20 module
 
-Requires: clang++ >= 22, g++ >= 16
+`examples/` requires clang++ >= 21. `tests/` additionally uses C++26 reflection, so it requires g++ >= 16 (`-freflection`).
 
 ## Tests
 

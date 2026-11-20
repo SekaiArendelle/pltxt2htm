@@ -83,13 +83,8 @@ private:
     static consteval auto is_nothrow_append_range() noexcept -> bool {
         using iterator_type = ::std::ranges::iterator_t<R>;
         using sentinel_type = ::std::ranges::sentinel_t<R>;
-        if constexpr (!requires(R& range, iterator_type& iterator, sentinel_type& sentinel) {
-                          { ::std::ranges::begin(range) } noexcept;
-                          { ::std::ranges::end(range) } noexcept;
-                          { *iterator } noexcept;
-                          { ++iterator } noexcept;
-                          { static_cast<bool>(iterator != sentinel) } noexcept -> ::std::same_as<bool>;
-                      }) {
+        if constexpr (!::pltxt2htm::details::nothrow_range_access<R> ||
+                      !::pltxt2htm::details::nothrow_input_range<iterator_type, sentinel_type>) {
             return false;
         }
 
@@ -514,11 +509,7 @@ public:
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
         requires (::std::is_nothrow_move_constructible_v<value_type> && ::std::is_nothrow_destructible_v<value_type> &&
                   ::std::is_nothrow_constructible_v<value_type, ::std::iter_reference_t<InputIterator>> &&
-                  requires(InputIterator& iterator, Sentinel& sentinel) {
-                      { *iterator } noexcept;
-                      { ++iterator } noexcept;
-                      { static_cast<bool>(iterator != sentinel) } noexcept -> ::std::same_as<bool>;
-                  })
+                  ::pltxt2htm::details::nothrow_input_range<InputIterator, Sentinel>)
     constexpr void assign(this Vector& self, InputIterator first, Sentinel last) noexcept {
         self.clear();
         for (; first != last; ++first) {
