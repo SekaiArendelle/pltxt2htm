@@ -50,8 +50,7 @@ namespace details {
  *        then the C++23-standard fallback, then the no-resolver fallback.
  */
 using DefaultBackend =
-    ::std::conditional_t<NtBackend::capture::supported, NtBackend,
-                         ::std::conditional_t<StdBackend::capture::supported, StdBackend, NoneBackend>>;
+    ::std::conditional_t<NtBackend::capture::supported, NtBackend, NoneBackend>;
 
 /**
  * @brief Dynamic counterpart of std::basic_stacktrace.
