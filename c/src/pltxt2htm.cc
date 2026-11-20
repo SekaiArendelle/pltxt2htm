@@ -1,5 +1,4 @@
 #include <pltxt2htm/pltxt2htm.h>
-#include "../include/push_macros.h"
 
 #if __has_attribute(visibility)
     #define PLTXT2HTM_C_SRC_VISIBILITY_DEFAULT __attribute__((visibility("default")))
@@ -22,28 +21,24 @@
 #define PLTXT2HTM_C_SRC_EXPORT_FUNCTION \
     extern "C" PLTXT2HTM_C_SRC_VISIBILITY_DEFAULT PLTXT2HTM_C_SRC_USED PLTXT2HTM_C_SRC_WIN32_DLLEXPORT auto
 
-PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-PLTXT2HTM_C_NAME_MANGLING(common_parser)(char8_t const* const pltext) noexcept -> char8_t const* {
+PLTXT2HTM_C_SRC_EXPORT_FUNCTION pltxt2htm_common_parser(char8_t const* const pltext) noexcept -> char8_t const* {
     return ::pltxt2htm::common_parser(pltext);
 }
 
-PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char8_t const* const pltext, char8_t const* const host,
-                                           char8_t const* const project, char8_t const* const visitor,
-                                           char8_t const* const author, char8_t const* const coauthors) noexcept
-    -> char8_t const* {
+PLTXT2HTM_C_SRC_EXPORT_FUNCTION pltxt2htm_fixedadv_parser(char8_t const* const pltext, char8_t const* const host,
+                                                          char8_t const* const project, char8_t const* const visitor,
+                                                          char8_t const* const author,
+                                                          char8_t const* const coauthors) noexcept -> char8_t const* {
     return ::pltxt2htm::fixedadv_parser(pltext, host, project, visitor, author, coauthors);
 }
 
-PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-PLTXT2HTM_C_NAME_MANGLING(plrichtext_parser)(char8_t const* const text, char8_t const* const project,
-                                             char8_t const* const visitor, char8_t const* const author,
-                                             char8_t const* const coauthors) noexcept -> char8_t const* {
+PLTXT2HTM_C_SRC_EXPORT_FUNCTION pltxt2htm_plrichtext_parser(char8_t const* const text, char8_t const* const project,
+                                                            char8_t const* const visitor, char8_t const* const author,
+                                                            char8_t const* const coauthors) noexcept -> char8_t const* {
     return ::pltxt2htm::plrichtext_parser(text, project, visitor, author, coauthors);
 }
 
-PLTXT2HTM_C_SRC_EXPORT_FUNCTION
-PLTXT2HTM_C_NAME_MANGLING(free_u8string)(char8_t* const str) noexcept -> void {
+PLTXT2HTM_C_SRC_EXPORT_FUNCTION pltxt2htm_free_u8string(char8_t* const str) noexcept -> void {
     ::free(static_cast<void*>(str));
 }
 
