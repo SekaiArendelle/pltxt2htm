@@ -20,6 +20,7 @@
 #include "../../../sys/nt/ntdll.hh"
 #include "../../../sys/win32/dbghelp.hh"
 #include "../../../sys/win32/kernel32.hh"
+#include "../../../container/impl/cstring_view_decl.hh"
 #include "symbol_info_storage.hh"
 
 namespace pltxt2htm::stacktrace::details {
