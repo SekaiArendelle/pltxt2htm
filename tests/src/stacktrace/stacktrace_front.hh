@@ -145,13 +145,12 @@ TEST_CASE("front-end-alternate-allocator-comparison") {
     namespace trace = ::pltxt2htm::stacktrace;
     // Another allocator instance still yields an interchangeable empty trace,
     // spelling both template parameters of the public alias explicitly.
-    using AlternateTrace =
-        trace::BasicStacktrace<trace::details::DefaultBackend, ::fast_io::native_thread_local_allocator>;
+    using AlternateTrace = trace::BasicStacktrace<::fast_io::native_thread_local_allocator>;
     AlternateTrace alternate{};
     static_assert(
         ::std::same_as<AlternateTrace, trace::details::BasicStacktrace<trace::details::DefaultBackend,
                                                                        ::fast_io::native_thread_local_allocator>>);
-    static_assert(::std::same_as<trace::BasicStacktrace<>, trace::Stacktrace>);
+    static_assert(::std::same_as<trace::BasicStacktrace<::fast_io::native_global_allocator>, trace::Stacktrace>);
     CHECK(alternate == trace::Stacktrace{});
     // The comparison is symmetric, so either side may name the allocator.
     CHECK(trace::Stacktrace{} == alternate);

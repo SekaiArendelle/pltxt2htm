@@ -273,10 +273,10 @@ using StacktraceEntry = details::DefaultBackend::entry;
 /**
  * @brief Alias binding a backend bundle to the shared stacktrace front-end.
  */
-template<typename Backend = details::DefaultBackend, typename Allocator = ::fast_io::native_global_allocator>
-using BasicStacktrace = details::BasicStacktrace<Backend, Allocator>;
+template<typename Allocator>
+using BasicStacktrace = details::BasicStacktrace<details::DefaultBackend, Allocator>;
 
-using Stacktrace = details::BasicStacktrace<details::DefaultBackend>;
+using Stacktrace = BasicStacktrace<::fast_io::native_global_allocator>;
 } // namespace pltxt2htm::stacktrace
 
 #pragma pop_macro("max")
