@@ -38,7 +38,6 @@ concept is_stacktrace_entry = requires(Entry const& left, Entry const& right, En
     { left.native_handle() } noexcept;
     { left.resolved() } noexcept -> ::std::same_as<::pltxt2htm::stacktrace::ResolvedFrame>;
     { entry = right } noexcept;
-} && requires {
     requires ::std::is_nothrow_default_constructible_v<Entry>;
     requires ::std::is_nothrow_move_constructible_v<Entry>;
     requires ::std::is_nothrow_copy_constructible_v<Entry>;
@@ -55,18 +54,15 @@ concept is_stacktrace_entry = requires(Entry const& left, Entry const& right, En
  *          the caller's allocator.
  */
 template<typename Capture, typename Entry>
-concept is_stacktrace_capture_backend =
-    requires {
-        Capture::supported;
-        Capture::max_depth;
-        requires ::std::same_as<::std::remove_const_t<decltype(Capture::supported)>, bool>;
-        requires ::std::integral<::std::remove_const_t<decltype(Capture::max_depth)>>;
-    } &&
-    requires(
-        ::pltxt2htm::container::Vector<Entry, ::fast_io::generic_allocator_adapter<::fast_io::native_global_allocator>>&
-            frames) {
-        { Capture::template capture<::fast_io::native_global_allocator>(frames, ::std::size_t{}) } noexcept;
-    };
+concept is_stacktrace_capture_backend = requires(
+    ::pltxt2htm::container::Vector<Entry, ::fast_io::generic_allocator_adapter<::fast_io::native_global_allocator>>&
+        frames) {
+    Capture::supported;
+    Capture::max_depth;
+    requires ::std::same_as<::std::remove_const_t<decltype(Capture::supported)>, bool>;
+    requires ::std::integral<::std::remove_const_t<decltype(Capture::max_depth)>>;
+    { Capture::template capture<::fast_io::native_global_allocator>(frames, ::std::size_t{}) } noexcept;
+};
 
 /**
  * @brief Shape of one backend policy bundle.
@@ -74,11 +70,11 @@ concept is_stacktrace_capture_backend =
  *          satisfy the standalone entry and capture concepts above.
  */
 template<typename Backend>
-concept is_stacktrace_backend =
-    requires {
-        typename Backend::entry;
-        typename Backend::capture;
-    } && is_stacktrace_entry<typename Backend::entry> &&
-    is_stacktrace_capture_backend<typename Backend::capture, typename Backend::entry>;
+concept is_stacktrace_backend = requires {
+    typename Backend::entry;
+    typename Backend::capture;
+    requires is_stacktrace_entry<typename Backend::entry>;
+    requires is_stacktrace_capture_backend<typename Backend::capture, typename Backend::entry>;
+};
 
 } // namespace pltxt2htm::stacktrace::details

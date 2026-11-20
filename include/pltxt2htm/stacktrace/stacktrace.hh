@@ -49,8 +49,7 @@ namespace details {
  * @brief The backend the public front-end selects: the Windows option first,
  *        then the C++23-standard fallback, then the no-resolver fallback.
  */
-using DefaultBackend =
-    ::std::conditional_t<NtBackend::capture::supported, NtBackend, NoneBackend>;
+using DefaultBackend = ::std::conditional_t<NtBackend::capture::supported, NtBackend, NoneBackend>;
 
 /**
  * @brief Dynamic counterpart of std::basic_stacktrace.
