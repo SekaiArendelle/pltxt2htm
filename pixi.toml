@@ -59,7 +59,7 @@ fuzzing = { cmd = "../build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else
 fuzzing-merge = { cmd = "../build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }}/{{ target }} -merge=1 ../seeds/{{ target }} ../corpus/{{ target }}", args = ["target", { arg = "sanitizer", default = "" }], depends-on = [{ task = "build-fuzzing-clang", args = ["{{ sanitizer }}"] }, "fuzzing-dirs"], cwd = "fuzzing/logs" }
 
 [feature.gcc.dependencies]
-gxx = ">=16"
+gxx = ">=15"
 
 [feature.gcc.tasks]
 configure-tests-gcc = { cmd = "cmake -S tests -B tests/build-pixi-gcc{{ '-' ~ sanitizer if sanitizer != '' else '' }} -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++ -DPLTXT2HTM_SANITIZER={{ sanitizer }}", args = [{ arg = "sanitizer", default = "" }], depends-on = ["prepare-tmp"] }
@@ -132,9 +132,9 @@ python = ">=3.14,<3.15"
 python = ">=3.15,<3.16"
 
 [feature.scripts.dependencies]
-clangxx = ">=23"
-llvm-tools = ">=23"
-clang-tools = ">=23"
+clangxx = ">=21"
+llvm-tools = ">=21"
+clang-tools = ">=21"
 python = ">=3.10"
 
 [feature.scripts.tasks]
