@@ -49,8 +49,7 @@ Notes:
 - Requires clang (libFuzzer is incompatible with other compilers here). The
   `memory` sanitizer additionally needs instrumented dependencies.
 - Windows works with the pixi clang (targeting MSVC) only with the `address`
-  or `address,undefined` sanitizer argument. The libFuzzer `-fork` mode is
-  unsupported on Windows.
+  or `address,undefined` sanitizer argument.
 - Long unattended sessions should run inside a terminal multiplexer or
   container rather than being daemonized - the crash artifacts and corpus
   updates are the valuable output, not a detached process.
