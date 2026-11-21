@@ -73,6 +73,10 @@ using DefaultBackend = ::std::conditional_t<NtBackend::capture::supported, NtBac
 template<is_stacktrace_backend Backend, typename Allocator = ::fast_io::native_global_allocator>
 class BasicStacktrace {
     static_assert(::std::is_empty_v<Allocator>, "stacktrace requires a stateless fast_io allocator");
+
+    template<is_stacktrace_backend, typename>
+    friend class BasicStacktrace;
+
     using entries_type =
         ::pltxt2htm::container::Vector<typename Backend::entry, ::fast_io::generic_allocator_adapter<Allocator>>;
     entries_type entries{};
@@ -226,35 +230,7 @@ public:
     [[nodiscard]]
     constexpr auto operator==(this BasicStacktrace const& self,
                               BasicStacktrace<Backend, RightAllocator> const& other) noexcept -> bool {
-        if (self.size() != other.size()) {
-            return false;
-        }
-        auto const size = self.size();
-        for (::std::size_t i = 0; i < size; ++i) {
-            if (self[i] != other[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    template<typename RightAllocator>
-    [[nodiscard]]
-    constexpr auto operator<=>(this BasicStacktrace const& self,
-                               BasicStacktrace<Backend, RightAllocator> const& other) noexcept
-        -> ::std::strong_ordering {
-        auto const size_order = self.size() <=> other.size();
-        if (size_order != 0) {
-            return size_order;
-        }
-        auto const size = self.size();
-        for (::std::size_t i = 0; i < size; ++i) {
-            auto const order = self[i] <=> other[i];
-            if (order != 0) {
-                return order;
-            }
-        }
-        return ::std::strong_ordering::equal;
+        return self.entries == other.entries;
     }
 };
 

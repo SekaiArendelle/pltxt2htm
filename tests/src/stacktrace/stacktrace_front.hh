@@ -103,9 +103,7 @@ TEST_CASE("front-end-snapshot-copy-comparison-iteration") {
         CHECK(snapshot[i].native_handle() == copied_snapshot[i].native_handle());
         CHECK(snapshot[i] == copied_snapshot[i]);
     }
-    auto const snapshot_order = snapshot <=> copied_snapshot;
     CHECK(snapshot == copied_snapshot);
-    CHECK(snapshot_order == ::std::strong_ordering::equal);
     CHECK(snapshot.cbegin() == snapshot.begin());
     CHECK(snapshot.cend() == snapshot.end());
     CHECK(snapshot.crbegin() == snapshot.rbegin());
@@ -154,10 +152,6 @@ TEST_CASE("front-end-alternate-allocator-comparison") {
     CHECK(alternate == trace::Stacktrace{});
     // The comparison is symmetric, so either side may name the allocator.
     CHECK(trace::Stacktrace{} == alternate);
-    auto const alternate_order = alternate <=> trace::Stacktrace{};
-    CHECK(alternate_order == ::std::strong_ordering::equal);
-    auto const reverse_alternate_order = trace::Stacktrace{} <=> alternate;
-    CHECK(reverse_alternate_order == ::std::strong_ordering::equal);
     (void)alternate.get_allocator();
 }
 

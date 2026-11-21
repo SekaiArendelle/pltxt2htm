@@ -36,8 +36,7 @@ void test_std_stacktrace_backend() {
         using BackendTrace = ::pltxt2htm::stacktrace::details::BasicStacktrace<Backend>;
         auto const deep = ::deep_trace<BackendTrace>(96);
         REQUIRE(deep.size() > 64);
-        auto const deep_order = BackendTrace{} <=> deep;
-        CHECK(deep_order == ::std::strong_ordering::less);
+        CHECK(BackendTrace{} != deep);
         CHECK(!deep.is_empty());
         CHECK(static_cast<bool>(deep[0]));
         auto const first_frame = deep[0].resolved();
