@@ -65,7 +65,7 @@ refreshed when that fixture changes).
 ### Minimizing the corpus
 
 ```sh
-pixi run -e clang fuzzing-merge common_parser
+pixi run -e clang fuzzing-merge common_parser address
 rm -rf fuzzing/corpus/common_parser   # start the next session from a clean slate
 ```
 
