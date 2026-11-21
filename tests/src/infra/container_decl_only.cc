@@ -1,5 +1,6 @@
 #include <pltxt2htm/container/impl/array_decl.hh>
 #include <pltxt2htm/container/impl/deque_decl.hh>
+#include <pltxt2htm/container/impl/inplace_vector_decl.hh>
 #include <pltxt2htm/container/impl/non_zero_decl.hh>
 #include <pltxt2htm/container/impl/optional_decl.hh>
 #include <pltxt2htm/container/impl/string_decl.hh>

@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <iterator>
+#include <ranges>
 #include <span>
 #include <type_traits>
 #include <utility>
@@ -428,6 +429,13 @@ concept EqualityComparableVectorElement = requires(::pltxt2htm::container::Vecto
 template<typename R>
 concept AppendableIntRange = requires(IntVector& values, R&& range) { values.append_range(::std::forward<R>(range)); };
 
+template<typename Container, typename Range>
+concept AppendableRange = requires(Container& container, Range& range) { container.append_range(range); };
+
+template<typename Container, typename Iterator, typename Sentinel>
+concept IteratorPairAssignable =
+    requires(Container& container, Iterator first, Sentinel last) { container.assign(first, last); };
+
 static_assert(::std::same_as<IntVector::allocator_type, ::fast_io::native_global_allocator>);
 static_assert(::std::same_as<IntVector::value_type, int>);
 static_assert(::std::same_as<IntVector::iterator, int*>);
@@ -458,6 +466,34 @@ static_assert(!RangeAssignableVectorElement<::pltxt2htm_test::ThrowingCopy>);
 static_assert(!EqualityComparableVectorElement<::pltxt2htm_test::ThrowingEquality>);
 static_assert(!EqualityComparableVectorElement<ThrowingBooleanEquality>);
 static_assert(!AppendableIntRange<ThrowingIncrementRange&>);
+static_assert(!AppendableRange<IntVector, ::pltxt2htm_test::ThrowingBeginRange>);
+static_assert(!AppendableRange<IntVector, ::pltxt2htm_test::ThrowingEndRange>);
+static_assert(::pltxt2htm::details::nothrow_input_range<SinglePassIntRange::Iterator, SinglePassIntRange::Iterator>);
+static_assert(
+    !::pltxt2htm::details::nothrow_input_range<ThrowingIncrementRange::Iterator, ThrowingIncrementRange::Iterator>);
+static_assert(::std::ranges::input_range<::pltxt2htm_test::ThrowingIteratorCopyRange>);
+static_assert(::std::is_nothrow_move_constructible_v<::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(!::std::is_nothrow_copy_constructible_v<::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(::pltxt2htm::details::nothrow_sentinel_iteration<::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
+                                                               ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(::std::ranges::input_range<::pltxt2htm_test::ThrowingIteratorMoveRange>);
+static_assert(!::std::is_nothrow_move_constructible_v<::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator>);
+static_assert(AppendableRange<IntVector, ::pltxt2htm_test::ThrowingIteratorCopyRange>);
+// GCC 15's libstdc++ evaluates ranges::begin/end's noexcept through
+// __decay_copy, which counts the iterator's move. GCC 16 uses auto(x) via
+// _GLIBCXX_AUTO_CAST instead, so with libstdc++, only GCC 16 and later
+// does a throwing iterator move leave the range accessor noexcept.
+// ThrowingIteratorMoveRange exists to test exactly that throwing move.
+#if !defined(__GLIBCXX__) || _GLIBCXX_RELEASE >= 16
+static_assert(AppendableRange<IntVector, ::pltxt2htm_test::ThrowingIteratorMoveRange>);
+#endif
+static_assert(IteratorPairAssignable<IntVector, int const*, int const*>);
+static_assert(IteratorPairAssignable<IntVector, ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator,
+                                     ::pltxt2htm_test::ThrowingIteratorCopyRange::Iterator>);
+static_assert(IteratorPairAssignable<IntVector, ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator,
+                                     ::pltxt2htm_test::ThrowingIteratorMoveRange::Iterator>);
+static_assert(IteratorPairAssignable<IntVector, int const*, ::pltxt2htm_test::ThrowingMoveSentinel>);
+static_assert(!IteratorPairAssignable<IntVector, ThrowingIncrementRange::Iterator, ThrowingIncrementRange::Iterator>);
 static_assert(::std::is_nothrow_copy_assignable_v<IntVector>);
 static_assert(::std::is_nothrow_move_assignable_v<IntVector>);
 static_assert(noexcept(::std::declval<IntVector&>() = ::std::declval<IntVector const&>()));
@@ -475,6 +511,10 @@ static_assert(noexcept(::std::declval<IntVector&>().erase(::std::declval<IntVect
 static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<SinglePassIntRange&>())));
 static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<CvSensitiveForwardRange&>())));
 static_assert(noexcept(::std::declval<IntVector const&>() == ::std::declval<IntVector const&>()));
+static_assert(requires(IntVector const& global_values, TrackingIntVector const& tracking_values) {
+    { global_values == tracking_values } noexcept -> ::std::same_as<bool>;
+    { tracking_values == global_values } noexcept -> ::std::same_as<bool>;
+});
 
 TEST_SUITE("container_vector") {
     consteval auto test_constexpr_vector() -> bool {
@@ -692,6 +732,26 @@ TEST_SUITE("container_vector") {
         moved.pop_back();
         moved.clear();
         CHECK(moved.is_empty());
+    }
+
+    TEST_CASE("comparison-across-allocators") {
+        TrackingRawAllocator::reset();
+        {
+            IntVector const global_values{1, 2, 3};
+            TrackingIntVector const tracking_values{1, 2, 3};
+            TrackingIntVector const different_values{1, 2, 4};
+
+            CHECK(global_values == tracking_values);
+            CHECK(tracking_values == global_values);
+            CHECK(global_values != different_values);
+            CHECK(different_values != global_values);
+            CHECK(global_values != TrackingIntVector{1, 2});
+            CHECK(TrackingIntVector{1, 2} != global_values);
+            CHECK(IntVector{} != tracking_values);
+            CHECK(IntVector{} == TrackingIntVector{});
+        }
+        CHECK(TrackingRawAllocator::get_active_allocations() == 0);
+        CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
     }
 
     TEST_CASE("copy-assignment-copy-constructible-only-element") {

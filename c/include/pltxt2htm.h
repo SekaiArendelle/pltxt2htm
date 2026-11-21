@@ -4,35 +4,32 @@
 #define PLTXT2HTM_H // This macro is an exported api (only available in c/)
 
 #include <stddef.h>
-#include "push_macros.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-char const* PLTXT2HTM_C_NAME_MANGLING(common_parser)(char const* text)
+char const* pltxt2htm_common_parser(char const* text)
 #if __cpp_noexcept_function_type >= 201510L
     noexcept
 #endif
     ;
 
-char const* PLTXT2HTM_C_NAME_MANGLING(fixedadv_parser)(char const* const pltext, char const* const host,
-                                                       char const* const project, char const* const visitor,
-                                                       char const* const author, char const* const coauthors)
+char const* pltxt2htm_fixedadv_parser(char const* const pltext, char const* const host, char const* const project,
+                                      char const* const visitor, char const* const author, char const* const coauthors)
 #if __cpp_noexcept_function_type >= 201510L
     noexcept
 #endif
     ;
 
-char const* PLTXT2HTM_C_NAME_MANGLING(plrichtext_parser)(char const* const text, char const* const project,
-                                                         char const* const visitor, char const* const author,
-                                                         char const* const coauthors)
+char const* pltxt2htm_plrichtext_parser(char const* const text, char const* const project, char const* const visitor,
+                                        char const* const author, char const* const coauthors)
 #if __cpp_noexcept_function_type >= 201510L
     noexcept
 #endif
     ;
 
-void PLTXT2HTM_C_NAME_MANGLING(free_u8string)(char const* str)
+void pltxt2htm_free_u8string(char const* str)
 #if __cpp_noexcept_function_type >= 201510L
     noexcept
 #endif
