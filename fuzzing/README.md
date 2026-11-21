@@ -49,18 +49,8 @@ Notes:
 - Requires clang (libFuzzer is incompatible with other compilers here). The
   `memory` sanitizer additionally needs instrumented dependencies.
 - Windows works with the pixi clang (targeting MSVC) only with the `address`
-  or `address,undefined` sanitizer argument: the prebuilt `clang_rt.fuzzer`
-  runtime resolves its sanitizer-common dependencies through the ASan link
-  path, and it is built against the static release CRT, so `CMakeLists.txt`
-  selects `CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded` (the build type does not
-  control the CRT) and copies the ASan dynamic runtime DLL beside each
-  executable so the binaries run standalone. The pixi task configures
-  `RelWithDebInfo`, where an `AUTO` contract mode still resolves to enforce;
-  non-Windows single-config builds fall back to the same type.
-  The libFuzzer `-fork` mode is unsupported on Windows.
-- A plain `Release` configuration resolves an `AUTO` contract mode to `ignore`,
-  as it does on the other platforms; pass `-DPLTXT2HTM_CONTRACT_MODE=ENFORCE`
-  to keep the contract checks enabled in that build.
+  or `address,undefined` sanitizer argument. The libFuzzer `-fork` mode is
+  unsupported on Windows.
 - Long unattended sessions should run inside a terminal multiplexer or
   container rather than being daemonized - the crash artifacts and corpus
   updates are the valuable output, not a detached process.

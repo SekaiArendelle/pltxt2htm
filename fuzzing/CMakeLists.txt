@@ -9,12 +9,8 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
     set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 endif()
 
-# Fuzzing benefits from an optimized build with debug info, and an AUTO contract
-# mode still resolves to enforce there (only a plain Release build disables the
-# checks). project() already creates the CMAKE_BUILD_TYPE cache entry from the
-# platform module's CMAKE_BUILD_TYPE_INIT (Windows-MSVC/Windows-Clang set it to
-# Debug, other platforms leave it empty), so filling in a default requires FORCE;
-# an explicit -DCMAKE_BUILD_TYPE still wins because this only runs when empty.
+# Default to optimized fuzzing; an AUTO contract mode still enforces here. project()
+# pre-creates the cache entry (Windows toolchains set Debug), so FORCE is required.
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Build type" FORCE)
 endif()
@@ -42,23 +38,18 @@ if(WIN32 AND NOT PLTXT2HTM_SANITIZER MATCHES "address")
     message(FATAL_ERROR "Windows fuzzing requires -fsanitize=address; use the address or address,undefined sanitizer argument")
 endif()
 
-# The prebuilt clang_rt.fuzzer runtime is built against the static release CRT
-# (MT_StaticRelease), so the harnesses must select the same runtime library;
-# the build type does not control that choice. Reject an explicitly incompatible
-# runtime and default to the required one, mirroring the sanitizer runtime guard
-# in tests/CMakeLists.txt. Only the literal MultiThreaded value is accepted:
-# generator expressions are not evaluated here, so a per-config expression is
-# rejected as well rather than silently overriding it.
+# clang_rt.fuzzer is built against the static release CRT (MT_StaticRelease), so
+# the harnesses must match it; the build type does not select the CRT. Only the
+# literal MultiThreaded value is accepted; anything else is rejected, not overridden.
 if(WIN32)
     if(CMAKE_MSVC_RUNTIME_LIBRARY AND NOT CMAKE_MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded")
         message(FATAL_ERROR
-            "Fuzzing on Windows requires the static release CRT, because the prebuilt "
-            "clang_rt.fuzzer runtime is built with MT_StaticRelease. Set "
-            "CMAKE_MSVC_RUNTIME_LIBRARY to the literal value MultiThreaded (got "
-            "\"${CMAKE_MSVC_RUNTIME_LIBRARY}\").")
+            "Fuzzing on Windows needs CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded to match "
+            "the prebuilt clang_rt.fuzzer runtime (MT_StaticRelease); got "
+            "\"${CMAKE_MSVC_RUNTIME_LIBRARY}\".")
     endif()
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
-    message(STATUS "Fuzzing: MSVC runtime library ${CMAKE_MSVC_RUNTIME_LIBRARY} (matching the prebuilt libFuzzer runtime)")
+    message(STATUS "Fuzzing: MSVC runtime library ${CMAKE_MSVC_RUNTIME_LIBRARY}")
 endif()
 
 # On Windows, locate the ASan dynamic runtime DLL shipped next to the clang
