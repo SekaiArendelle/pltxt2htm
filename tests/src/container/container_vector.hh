@@ -511,6 +511,10 @@ static_assert(noexcept(::std::declval<IntVector&>().erase(::std::declval<IntVect
 static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<SinglePassIntRange&>())));
 static_assert(noexcept(::std::declval<IntVector&>().append_range(::std::declval<CvSensitiveForwardRange&>())));
 static_assert(noexcept(::std::declval<IntVector const&>() == ::std::declval<IntVector const&>()));
+static_assert(requires(IntVector const& global_values, TrackingIntVector const& tracking_values) {
+    { global_values == tracking_values } noexcept -> ::std::same_as<bool>;
+    { tracking_values == global_values } noexcept -> ::std::same_as<bool>;
+});
 
 TEST_SUITE("container_vector") {
     consteval auto test_constexpr_vector() -> bool {
@@ -728,6 +732,26 @@ TEST_SUITE("container_vector") {
         moved.pop_back();
         moved.clear();
         CHECK(moved.is_empty());
+    }
+
+    TEST_CASE("comparison-across-allocators") {
+        TrackingRawAllocator::reset();
+        {
+            IntVector const global_values{1, 2, 3};
+            TrackingIntVector const tracking_values{1, 2, 3};
+            TrackingIntVector const different_values{1, 2, 4};
+
+            CHECK(global_values == tracking_values);
+            CHECK(tracking_values == global_values);
+            CHECK(global_values != different_values);
+            CHECK(different_values != global_values);
+            CHECK(global_values != TrackingIntVector{1, 2});
+            CHECK(TrackingIntVector{1, 2} != global_values);
+            CHECK(IntVector{} != tracking_values);
+            CHECK(IntVector{} == TrackingIntVector{});
+        }
+        CHECK(TrackingRawAllocator::get_active_allocations() == 0);
+        CHECK(!TrackingRawAllocator::has_deallocation_mismatch());
     }
 
     TEST_CASE("copy-assignment-copy-constructible-only-element") {

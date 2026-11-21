@@ -624,15 +624,16 @@ public:
         other.current_capacity = current_capacity;
     }
 
+    template<typename RightAllocator>
     [[nodiscard]]
-    constexpr auto operator==(this Vector const& self, Vector const& other) noexcept -> bool
+    constexpr auto operator==(this Vector const& self, Vector<T, RightAllocator> const& other) noexcept -> bool
         requires ::pltxt2htm::details::nothrow_equality_comparable<T>
     {
         if (self.size() != other.size()) {
             return false;
         }
-        const_iterator left{self.begin_pointer};
-        const_iterator right{other.begin_pointer};
+        const_iterator left{self.begin()};
+        const_iterator right{other.begin()};
         const_iterator const left_end{self.end()};
         for (; left != left_end; ++left, ++right) {
             if (!static_cast<bool>(*left == *right)) {
