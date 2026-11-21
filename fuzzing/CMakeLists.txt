@@ -9,9 +9,14 @@ if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.28)
     set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 endif()
 
-# Force debug mode for fuzzing
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
+# Fuzzing benefits from an optimized build with debug info, and an AUTO contract
+# mode still resolves to enforce there (only a plain Release build disables the
+# checks). project() already creates the CMAKE_BUILD_TYPE cache entry from the
+# platform module's CMAKE_BUILD_TYPE_INIT (Windows-MSVC/Windows-Clang set it to
+# Debug, other platforms leave it empty), so filling in a default requires FORCE;
+# an explicit -DCMAKE_BUILD_TYPE still wins because this only runs when empty.
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Build type" FORCE)
 endif()
 
 option(PLTXT2HTM_ENABLE_STACKTRACE "Enable C++23 <stacktrace>" OFF)
@@ -37,13 +42,23 @@ if(WIN32 AND NOT PLTXT2HTM_SANITIZER MATCHES "address")
     message(FATAL_ERROR "Windows fuzzing requires -fsanitize=address; use the address or address,undefined sanitizer argument")
 endif()
 
-# The prebuilt clang_rt.fuzzer runtime links against the release CRT, so a
-# Debug build would trip _ITERATOR_DEBUG_LEVEL mismatches at link time. Keep
-# the harnesses on the release CRT on Windows and enforce contract checks
-# explicitly instead of relying on the Debug default below.
-if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-    message(STATUS "pltxt2htm-fuzzing: switching CMAKE_BUILD_TYPE from Debug to Release on Windows")
-    set(CMAKE_BUILD_TYPE Release)
+# The prebuilt clang_rt.fuzzer runtime is built against the static release CRT
+# (MT_StaticRelease), so the harnesses must select the same runtime library;
+# the build type does not control that choice. Reject an explicitly incompatible
+# runtime and default to the required one, mirroring the sanitizer runtime guard
+# in tests/CMakeLists.txt. Only the literal MultiThreaded value is accepted:
+# generator expressions are not evaluated here, so a per-config expression is
+# rejected as well rather than silently overriding it.
+if(WIN32)
+    if(CMAKE_MSVC_RUNTIME_LIBRARY AND NOT CMAKE_MSVC_RUNTIME_LIBRARY STREQUAL "MultiThreaded")
+        message(FATAL_ERROR
+            "Fuzzing on Windows requires the static release CRT, because the prebuilt "
+            "clang_rt.fuzzer runtime is built with MT_StaticRelease. Set "
+            "CMAKE_MSVC_RUNTIME_LIBRARY to the literal value MultiThreaded (got "
+            "\"${CMAKE_MSVC_RUNTIME_LIBRARY}\").")
+    endif()
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+    message(STATUS "Fuzzing: MSVC runtime library ${CMAKE_MSVC_RUNTIME_LIBRARY} (matching the prebuilt libFuzzer runtime)")
 endif()
 
 # On Windows, locate the ASan dynamic runtime DLL shipped next to the clang
@@ -75,14 +90,7 @@ endif()
 
 foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roundtrip)
     add_executable(${FUZZER_SRC} src/${FUZZER_SRC}.cc)
-    if(WIN32 AND PLTXT2HTM_CONTRACT_MODE STREQUAL "AUTO")
-        # The release build type would resolve AUTO to IGNORE; keep the
-        # contract checks enforced, matching the Debug default on other
-        # platforms.
-        pltxt2htm_apply_contract_mode(${FUZZER_SRC} PRIVATE ENFORCE)
-    else()
-        pltxt2htm_apply_contract_mode(${FUZZER_SRC} PRIVATE)
-    endif()
+    pltxt2htm_apply_contract_mode(${FUZZER_SRC} PRIVATE)
     target_include_directories(${FUZZER_SRC} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
     target_compile_features(${FUZZER_SRC} PRIVATE cxx_std_23)
 
@@ -94,14 +102,6 @@ foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roun
         CXX_EXTENSIONS OFF
         EXCEPTIONS OFF
     )
-    if(WIN32)
-        # The prebuilt clang_rt.fuzzer runtime is built with the static CRT
-        # (MT_StaticRelease); match it to keep the linker's RuntimeLibrary
-        # consistency check happy.
-        set_target_properties(${FUZZER_SRC} PROPERTIES
-            MSVC_RUNTIME_LIBRARY "MultiThreaded"
-        )
-    endif()
 
     target_compile_options(${FUZZER_SRC} PRIVATE
         -fno-rtti
