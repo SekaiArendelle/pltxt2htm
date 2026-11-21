@@ -46,9 +46,10 @@ values containing `*` or `?` are glob-expanded by the task shell).
 
 Notes:
 
-- Requires clang (libFuzzer is incompatible with other compilers here) and is
-  unsupported on Windows (`CMakeLists.txt` enforces both). The `memory`
-  sanitizer additionally needs instrumented dependencies.
+- Requires clang (libFuzzer is incompatible with other compilers here). The
+  `memory` sanitizer additionally needs instrumented dependencies.
+- Windows works with the pixi clang (targeting MSVC) only with the `address`
+  or `address,undefined` sanitizer argument.
 - Long unattended sessions should run inside a terminal multiplexer or
   container rather than being daemonized - the crash artifacts and corpus
   updates are the valuable output, not a detached process.
@@ -63,7 +64,7 @@ refreshed when that fixture changes).
 ### Minimizing the corpus
 
 ```sh
-pixi run -e clang fuzzing-merge common_parser
+pixi run -e clang fuzzing-merge common_parser address
 rm -rf fuzzing/corpus/common_parser   # start the next session from a clean slate
 ```
 
