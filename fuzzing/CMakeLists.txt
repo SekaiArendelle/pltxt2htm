@@ -33,10 +33,6 @@ foreach(FUZZER_SRC common_parser fixedadv_parser plrichtext_parser fixedadv_roun
     target_include_directories(${FUZZER_SRC} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")
     target_compile_features(${FUZZER_SRC} PRIVATE cxx_std_23)
 
-    if(PLTXT2HTM_ENABLE_STACKTRACE)
-        target_compile_definitions(${FUZZER_SRC} PRIVATE PLTXT2HTM_ENABLE_STACKTRACE)
-    endif()
-
     set_target_properties(${FUZZER_SRC} PROPERTIES
         CXX_EXTENSIONS OFF
         EXCEPTIONS OFF
