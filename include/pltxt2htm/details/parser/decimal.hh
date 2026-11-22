@@ -155,7 +155,7 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
             // Round the large integer exactly instead of relying on the implementation-defined
             // direction of the integer-to-double conversion.
             value = ::pltxt2htm::details::wide::decimal_ratio_to_double(
-                ::pltxt2htm::details::wide::UInt192{.low = integer_part}, 0);
+                ::pltxt2htm::details::wide::UInt192{integer_part}, 0);
         }
     }
     else {
@@ -175,9 +175,8 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
             if (scale_digits <= parser_details::max_exact_scale_digits) {
                 // Exactly rounded: build the full rational numerator and let the shared 192-bit
                 // helper handle the rounding, so long fractions never drift by an ulp.
-                auto const numerator = ::pltxt2htm::details::wide::add(
-                    ::pltxt2htm::details::wide::multiply(::pltxt2htm::details::wide::pow10(scale_digits), integer_part),
-                    ::pltxt2htm::details::wide::UInt192{.low = fraction});
+                auto const numerator = (::pltxt2htm::details::wide::pow10(scale_digits) * integer_part) +
+                                       ::pltxt2htm::details::wide::UInt192{fraction};
                 value = ::pltxt2htm::details::wide::decimal_ratio_to_double(numerator, scale_digits,
                                                                             has_nonzero_fraction_tail);
             }
@@ -187,7 +186,7 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
                 // matters when the integer part sits exactly on a midpoint: the sticky bit makes
                 // the tie round up instead of to even.
                 value = ::pltxt2htm::details::wide::decimal_ratio_to_double(
-                    ::pltxt2htm::details::wide::UInt192{.low = integer_part}, 0, true);
+                    ::pltxt2htm::details::wide::UInt192{integer_part}, 0, true);
             }
         }
     }

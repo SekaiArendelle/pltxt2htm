@@ -68,15 +68,6 @@ constexpr auto decimal_exponent_of(double const value) noexcept -> int {
 }
 
 /**
- * @brief Return one bit of a 192-bit integer.
- */
-[[nodiscard]]
-constexpr auto bit_at(::pltxt2htm::details::wide::UInt192 const value, unsigned const index) noexcept -> bool {
-    ::std::uint64_t const limb = index < 64 ? value.low : (index < 128 ? value.middle : value.high);
-    return ((limb >> (index % 64)) & 1) != 0;
-}
-
-/**
  * @brief Shift a 192-bit integer right, rounding the discarded bits to nearest with ties to even.
  * @param[out] result The rounded 64-bit result.
  * @return false when the truncated result does not fit 64 bits.
@@ -84,21 +75,21 @@ constexpr auto bit_at(::pltxt2htm::details::wide::UInt192 const value, unsigned 
 [[nodiscard]]
 constexpr auto rounded_shift_right(::pltxt2htm::details::wide::UInt192 const value, unsigned const count,
                                    ::std::uint64_t& result) noexcept -> bool {
-    if (::pltxt2htm::details::wide::bit_length(value) > count + 63) {
+    if (value.bit_length() > count + 63) {
         return false;
     }
-    auto const shifted = ::pltxt2htm::details::wide::shift_right(value, count);
-    if (shifted.middle != 0 || shifted.high != 0) {
+    auto const shifted = value >> count;
+    if (shifted.fits_uint64() == false) {
         return false;
     }
-    result = shifted.low;
+    result = static_cast<::std::uint64_t>(shifted);
     if (count == 0) {
         return true;
     }
-    bool const round_bit = ::pltxt2htm::details::format_details::bit_at(value, count - 1);
+    bool const round_bit = value.bit(count - 1);
     bool sticky{};
     for (unsigned index{}; index + 1 < count; ++index) {
-        if (::pltxt2htm::details::format_details::bit_at(value, index)) {
+        if (value.bit(index)) {
             sticky = true;
             break;
         }
@@ -125,15 +116,14 @@ constexpr auto scaled_digits(double const value, int const decimal_shift) noexce
     auto const significand = (bits & ((::std::uint64_t{1} << 52) - 1)) | (::std::uint64_t{1} << 52);
 
     if (decimal_shift >= 0) {
-        auto const product = ::pltxt2htm::details::wide::multiply(
-            ::pltxt2htm::details::wide::pow5(static_cast<::std::size_t>(decimal_shift)), significand);
+        auto const product = ::pltxt2htm::details::wide::pow5(static_cast<::std::size_t>(decimal_shift)) * significand;
         auto const shift = binary_exponent + decimal_shift;
         if (shift >= 0) {
-            auto const shifted = ::pltxt2htm::details::wide::shift_left(product, static_cast<unsigned>(shift));
-            if (shifted.middle != 0 || shifted.high != 0) {
+            auto const shifted = product << static_cast<unsigned>(shift);
+            if (shifted.fits_uint64() == false) {
                 return 0;
             }
-            return shifted.low;
+            return static_cast<::std::uint64_t>(shifted);
         }
         ::std::uint64_t result{};
         if (::pltxt2htm::details::format_details::rounded_shift_right(product, static_cast<unsigned>(-shift), result) ==
@@ -145,25 +135,22 @@ constexpr auto scaled_digits(double const value, int const decimal_shift) noexce
 
     // value * 10^decimal_shift = significand * 2^(binary_exponent + decimal_shift) / 5^-decimal_shift.
     auto const divisor_base = ::pltxt2htm::details::wide::pow5(static_cast<::std::size_t>(-decimal_shift));
-    ::pltxt2htm::details::wide::UInt192 numerator{.low = significand};
+    ::pltxt2htm::details::wide::UInt192 numerator{significand};
     ::pltxt2htm::details::wide::UInt192 divisor{};
     if (binary_exponent + decimal_shift >= 0) {
-        numerator =
-            ::pltxt2htm::details::wide::shift_left(numerator, static_cast<unsigned>(binary_exponent + decimal_shift));
+        numerator = numerator << static_cast<unsigned>(binary_exponent + decimal_shift);
         divisor = divisor_base;
     }
     else {
-        divisor = ::pltxt2htm::details::wide::shift_left(divisor_base,
-                                                         static_cast<unsigned>(-(binary_exponent + decimal_shift)));
+        divisor = divisor_base << static_cast<unsigned>(-(binary_exponent + decimal_shift));
     }
     auto const division = ::pltxt2htm::details::wide::divide(numerator, divisor);
-    if (division.quotient.middle != 0 || division.quotient.high != 0) {
+    if (division.quotient.fits_uint64() == false) {
         return 0;
     }
-    auto digits = division.quotient.low;
-    auto const doubled_remainder = ::pltxt2htm::details::wide::shift_left(division.remainder, 1);
-    auto const comparison = ::pltxt2htm::details::wide::compare(doubled_remainder, divisor);
-    if (comparison > 0 || (comparison == 0 && (digits & 1) != 0)) {
+    auto digits = static_cast<::std::uint64_t>(division.quotient);
+    auto const doubled_remainder = division.remainder << 1;
+    if (doubled_remainder > divisor || (doubled_remainder == divisor && (digits & 1) != 0)) {
         ++digits;
     }
     return digits;

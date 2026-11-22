@@ -142,7 +142,7 @@ TEST_SUITE("parser_decimal") {
         using ::pltxt2htm_test::parser_decimal_details::oracle_value;
         using ::pltxt2htm_test::parser_decimal_details::parse;
 
-        for (::std::string const& text :
+        for (char const* const text :
              {"0.010924504404784173", "175.002439047", "6502438387485576253.18963", "0.0000000000000010855935740152218",
               "0.00000000000011875472369152510", "10184670014847297.72941", "34612617606248738.81690909232107",
               "214748364.75", "0.1", "0.33333333333333331483", "9223372036854775808", "18446744073709549568",
