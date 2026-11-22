@@ -115,18 +115,4 @@ public:
 };
 #endif
 
-/**
- * @brief Targets the explicit integer conversions accept.
- * @details All standard unsigned integer types, plus the native 128-bit type when it is
- *          available. Some standard libraries do not classify the native 128-bit type as an
- *          integral type, so it is listed explicitly.
- */
-#if defined(__SIZEOF_INT128__)
-template<typename T>
-concept UnsignedConversionTarget = ::std::unsigned_integral<T> || ::std::same_as<T, UInt128>;
-#else
-template<typename T>
-concept UnsignedConversionTarget = ::std::unsigned_integral<T>;
-#endif
-
 } // namespace pltxt2htm::numeric

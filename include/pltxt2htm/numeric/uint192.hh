@@ -16,12 +16,31 @@
 
 #include <bit>
 #include <compare>
+#include <concepts>
 #include <cstddef>
 #include <cstdint>
 
 #include "uint128.hh"
 
 namespace pltxt2htm::numeric {
+
+namespace details {
+
+/**
+ * @brief Targets the explicit UInt192 conversion accepts.
+ * @details All standard unsigned integer types, plus the native 128-bit type when it is
+ *          available. Some standard libraries do not classify the native 128-bit type as an
+ *          integral type, so it is listed explicitly.
+ */
+#if defined(__SIZEOF_INT128__)
+template<typename T>
+concept unsigned_conversion_target = ::std::unsigned_integral<T> || ::std::same_as<T, UInt128>;
+#else
+template<typename T>
+concept unsigned_conversion_target = ::std::unsigned_integral<T>;
+#endif
+
+} // namespace details
 
 /**
  * @brief A 192-bit unsigned integer with unsigned (modulo 2^192) arithmetic.
@@ -51,7 +70,7 @@ public:
     /// @details `bool` reports whether the value is non-zero. Targets up to 64 bits keep the low
     /// bits and truncate; a 128-bit target keeps the low 128 bits. Conversions are explicit, so
     /// narrowing never happens implicitly.
-    template<UnsignedConversionTarget T>
+    template<details::unsigned_conversion_target T>
     [[nodiscard]]
     constexpr explicit operator T(this UInt192 const& self) noexcept {
         if constexpr (::std::same_as<T, bool>) {
