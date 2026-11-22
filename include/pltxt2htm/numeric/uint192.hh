@@ -107,12 +107,6 @@ public:
         return ((limb >> (index % 64)) & 1) != 0;
     }
 
-    /// True when the value fits a ::std::uint64_t.
-    [[nodiscard]]
-    constexpr auto fits_uint64() const noexcept -> bool {
-        return middle_limb == 0 && high_limb == 0;
-    }
-
     /// Adds two values modulo 2^192.
     [[nodiscard]]
     friend constexpr auto operator+(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
@@ -212,6 +206,13 @@ public:
                        left.high_limb | right.high_limb};
     }
 
+    /// Bitwise AND.
+    [[nodiscard]]
+    friend constexpr auto operator&(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
+        return UInt192{left.low_limb & right.low_limb, left.middle_limb & right.middle_limb,
+                       left.high_limb & right.high_limb};
+    }
+
     [[nodiscard]]
     constexpr auto operator==(this UInt192 const&, UInt192 const&) noexcept -> bool = default;
 
@@ -223,7 +224,7 @@ public:
         }
         if (self.middle_limb != other.middle_limb) {
             return self.middle_limb < other.middle_limb ? ::std::strong_ordering::less
-                                                          : ::std::strong_ordering::greater;
+                                                        : ::std::strong_ordering::greater;
         }
         if (self.low_limb != other.low_limb) {
             return self.low_limb < other.low_limb ? ::std::strong_ordering::less : ::std::strong_ordering::greater;
@@ -319,7 +320,7 @@ constexpr auto decimal_ratio_to_double(UInt192 const numerator, ::std::size_t co
     auto mantissa = quotient_low >> drop_bits;
     bool const round_bit = ((quotient_low >> (drop_bits - 1)) & 1) != 0;
     ::std::uint64_t const low_mask = (::std::uint64_t{1} << (drop_bits - 1)) - 1;
-    bool const sticky = (quotient_low & low_mask) != 0 || quotient.fits_uint64() == false ||
+    bool const sticky = (quotient_low & low_mask) != 0 || (quotient >> 64) != UInt192{} ||
                         division.remainder != UInt192{} || extra_sticky;
     if (round_bit && (sticky || (mantissa & 1) != 0)) {
         ++mantissa;

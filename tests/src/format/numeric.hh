@@ -140,6 +140,19 @@ TEST_SUITE("numeric_integers") {
 #endif
     }
 
+    TEST_CASE("bitwise-and") {
+        using ::pltxt2htm::numeric::UInt192;
+        using ::pltxt2htm_test::numeric_details::make;
+
+        auto const value = make(0x1111222233334444ull, 0x5555666677778888ull, 0x9999AAAABBBBCCCCull);
+        CHECK((value & make(0xFFFFFFFFFFFFFFFFull)) == make(0x1111222233334444ull));
+        CHECK((value & make(0, 0xFFFFFFFFFFFFFFFFull)) == make(0, 0x5555666677778888ull));
+        CHECK((value & make(0, 0, 0xFFFFFFFFFFFFFFFFull)) == make(0, 0, 0x9999AAAABBBBCCCCull));
+        CHECK((value & make(0xFFFF0000FFFF0000ull, 0x00FF00FF00FF00FFull, 0xF0F0F0F0F0F0F0F0ull)) ==
+              make(0x1111000033330000ull, 0x0055006600770088ull, 0x9090A0A0B0B0C0C0ull));
+        CHECK((value & UInt192{}) == UInt192{});
+    }
+
     TEST_CASE("bit-length") {
         using ::pltxt2htm_test::numeric_details::make;
 
