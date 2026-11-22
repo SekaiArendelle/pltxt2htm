@@ -24,6 +24,8 @@
 
 namespace pltxt2htm::numeric {
 
+class UInt192;
+
 namespace details {
 
 /**
@@ -39,6 +41,14 @@ concept unsigned_conversion_target = ::std::unsigned_integral<T> || ::std::same_
 template<typename T>
 concept unsigned_conversion_target = ::std::unsigned_integral<T>;
 #endif
+
+/**
+ * @brief Integer operands the UInt192 arithmetic operators accept.
+ * @details Standard integer types plus the two extended-width types. Signed operands are
+ *          sign-extended to 192 bits, so arithmetic follows modulo 2^192.
+ */
+template<typename T>
+concept integer_operand = ::std::integral<T> || ::std::same_as<T, UInt192> || ::std::same_as<T, UInt128>;
 
 } // namespace details
 
@@ -62,7 +72,8 @@ public:
     constexpr UInt192() noexcept = default;
 
     /// Constructs a value from an unsigned integer; the conversion is lossless and implicit.
-    template<::std::unsigned_integral T>
+    template<typename T>
+        requires (::std::unsigned_integral<T> || ::std::same_as<T, UInt128>)
     constexpr UInt192(T const value) noexcept
         : low_limb{static_cast<::std::uint64_t>(value)} {
         if constexpr (sizeof(T) == 16) {
@@ -129,36 +140,37 @@ public:
 
     /// Adds two values modulo 2^192.
     [[nodiscard]]
-    friend constexpr auto operator+(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
-        auto const low = left.low_limb + right.low_limb;
-        ::std::uint64_t const carry_low = low < left.low_limb ? 1 : 0;
-        auto const middle = left.middle_limb + right.middle_limb;
-        ::std::uint64_t const carry_middle = middle < left.middle_limb ? 1 : 0;
+    constexpr auto operator+(this UInt192 const& self, UInt192 const& right) noexcept -> UInt192 {
+        auto const low = self.low_limb + right.low_limb;
+        ::std::uint64_t const carry_low = low < self.low_limb ? 1 : 0;
+        auto const middle = self.middle_limb + right.middle_limb;
+        ::std::uint64_t const carry_middle = middle < self.middle_limb ? 1 : 0;
         auto const middle_adjusted = middle + carry_low;
         ::std::uint64_t const carry_adjusted = middle_adjusted < carry_low ? 1 : 0;
-        auto const high = left.high_limb + right.high_limb + carry_middle + carry_adjusted;
+        auto const high = self.high_limb + right.high_limb + carry_middle + carry_adjusted;
         return UInt192{low, middle_adjusted, high};
     }
 
     /// Subtracts two values modulo 2^192.
     [[nodiscard]]
-    friend constexpr auto operator-(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
-        auto const low = left.low_limb - right.low_limb;
-        ::std::uint64_t const borrow_low = left.low_limb < right.low_limb ? 1 : 0;
-        auto const middle = left.middle_limb - right.middle_limb;
-        ::std::uint64_t const borrow_middle = left.middle_limb < right.middle_limb ? 1 : 0;
+    constexpr auto operator-(this UInt192 const& self, UInt192 const& right) noexcept -> UInt192 {
+        auto const low = self.low_limb - right.low_limb;
+        ::std::uint64_t const borrow_low = self.low_limb < right.low_limb ? 1 : 0;
+        auto const middle = self.middle_limb - right.middle_limb;
+        ::std::uint64_t const borrow_middle = self.middle_limb < right.middle_limb ? 1 : 0;
         auto const middle_adjusted = middle - borrow_low;
         ::std::uint64_t const borrow_adjusted = middle < borrow_low ? 1 : 0;
-        auto const high = left.high_limb - right.high_limb - borrow_middle - borrow_adjusted;
+        auto const high = self.high_limb - right.high_limb - borrow_middle - borrow_adjusted;
         return UInt192{low, middle_adjusted, high};
     }
 
+private:
     /// Multiplies by a 64-bit factor, keeping the low 192 bits.
     [[nodiscard]]
-    friend constexpr auto operator*(UInt192 const& value, ::std::uint64_t const factor) noexcept -> UInt192 {
-        auto const low_product = UInt128{value.low_limb} * factor;
-        auto const middle_product = UInt128{value.middle_limb} * factor;
-        auto const high_product = UInt128{value.high_limb} * factor;
+    constexpr auto multiply_64(this UInt192 const& self, ::std::uint64_t const other) noexcept -> UInt192 {
+        auto const low_product = UInt128{self.low_limb} * other;
+        auto const middle_product = UInt128{self.middle_limb} * other;
+        auto const high_product = UInt128{self.high_limb} * other;
 
         auto const low_high = static_cast<::std::uint64_t>(low_product >> 64);
         auto const middle = static_cast<::std::uint64_t>(middle_product) + low_high;
@@ -168,18 +180,70 @@ public:
         return UInt192{static_cast<::std::uint64_t>(low_product), middle, high};
     }
 
+    /// Multiplies by a 128-bit factor, keeping the low 192 bits.
+    [[nodiscard]]
+    constexpr auto multiply_128(this UInt192 const& self, UInt128 const other) noexcept -> UInt192 {
+        auto const factor_low = static_cast<::std::uint64_t>(other);
+        auto const factor_high = static_cast<::std::uint64_t>(other >> 64);
+
+        auto const p00 = UInt128{self.low_limb} * factor_low;
+        auto const p01 = UInt128{self.low_limb} * factor_high;
+        auto const p10 = UInt128{self.middle_limb} * factor_low;
+        auto const p11 = UInt128{self.middle_limb} * factor_high;
+        auto const p20 = UInt128{self.high_limb} * factor_low;
+
+        auto const low = static_cast<::std::uint64_t>(p00);
+        auto const carry_low = static_cast<::std::uint64_t>(p00 >> 64);
+
+        auto const sum_low = static_cast<::std::uint64_t>(p01) + static_cast<::std::uint64_t>(p10);
+        auto const carry_sum_low = sum_low < static_cast<::std::uint64_t>(p01) ? 1 : 0;
+        auto const middle = sum_low + carry_low;
+        auto const carry_middle = middle < sum_low ? 1 : 0;
+        auto const carry_products = static_cast<::std::uint64_t>(p01 >> 64) + static_cast<::std::uint64_t>(p10 >> 64) +
+                                    carry_sum_low + carry_middle;
+
+        auto const high = static_cast<::std::uint64_t>(p11) + static_cast<::std::uint64_t>(p20) + carry_products;
+        return UInt192{low, middle, high};
+    }
+
+    /// Multiplies by a full 192-bit factor, keeping the low 192 bits.
+    [[nodiscard]]
+    constexpr auto multiply_192(this UInt192 const& self, UInt192 const& other) noexcept -> UInt192 {
+        auto const p00 = UInt128{self.low_limb} * other.low_limb;
+        auto const p01 = UInt128{self.low_limb} * other.middle_limb;
+        auto const p10 = UInt128{self.middle_limb} * other.low_limb;
+        auto const p02 = UInt128{self.low_limb} * other.high_limb;
+        auto const p11 = UInt128{self.middle_limb} * other.middle_limb;
+        auto const p20 = UInt128{self.high_limb} * other.low_limb;
+
+        auto const low = static_cast<::std::uint64_t>(p00);
+        auto const carry_low = static_cast<::std::uint64_t>(p00 >> 64);
+
+        auto const sum_low = static_cast<::std::uint64_t>(p01) + static_cast<::std::uint64_t>(p10);
+        auto const carry_sum_low = sum_low < static_cast<::std::uint64_t>(p01) ? 1 : 0;
+        auto const middle = sum_low + carry_low;
+        auto const carry_middle = middle < sum_low ? 1 : 0;
+        auto const carry_products = static_cast<::std::uint64_t>(p01 >> 64) + static_cast<::std::uint64_t>(p10 >> 64) +
+                                    carry_sum_low + carry_middle;
+
+        auto const sum_high = static_cast<::std::uint64_t>(p02) + static_cast<::std::uint64_t>(p11);
+        auto const high = sum_high + static_cast<::std::uint64_t>(p20) + carry_products;
+        return UInt192{low, middle, high};
+    }
+
+public:
     /// Shifts left, discarding bits that leave the type.
     [[nodiscard]]
-    friend constexpr auto operator<<(UInt192 const& value, unsigned const count) noexcept -> UInt192 {
+    constexpr auto operator<<(this UInt192 const& self, unsigned const count) noexcept -> UInt192 {
         if (count >= 192) {
             return UInt192{};
         }
         if (count == 0) {
-            return value;
+            return self;
         }
         auto const limb_shift = count / 64;
         auto const bit_shift = count % 64;
-        ::std::uint64_t const source[3]{value.low_limb, value.middle_limb, value.high_limb};
+        ::std::uint64_t const source[3]{self.low_limb, self.middle_limb, self.high_limb};
         ::std::uint64_t result[3]{};
         for (unsigned i{}; i < 3; ++i) {
             auto const destination = i + limb_shift;
@@ -196,16 +260,16 @@ public:
 
     /// Shifts right, discarding the bits shifted out.
     [[nodiscard]]
-    friend constexpr auto operator>>(UInt192 const& value, unsigned const count) noexcept -> UInt192 {
+    constexpr auto operator>>(this UInt192 const& self, unsigned const count) noexcept -> UInt192 {
         if (count >= 192) {
             return UInt192{};
         }
         if (count == 0) {
-            return value;
+            return self;
         }
         auto const limb_shift = count / 64;
         auto const bit_shift = count % 64;
-        ::std::uint64_t const source[3]{value.low_limb, value.middle_limb, value.high_limb};
+        ::std::uint64_t const source[3]{self.low_limb, self.middle_limb, self.high_limb};
         ::std::uint64_t result[3]{};
         for (unsigned i{}; i < 3; ++i) {
             if (i < limb_shift) {
@@ -221,16 +285,119 @@ public:
 
     /// Bitwise OR, used to assemble multi-limb values from shifted 64-bit parts.
     [[nodiscard]]
-    friend constexpr auto operator|(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
-        return UInt192{left.low_limb | right.low_limb, left.middle_limb | right.middle_limb,
-                       left.high_limb | right.high_limb};
+    constexpr auto operator|(this UInt192 const& self, UInt192 const& other) noexcept -> UInt192 {
+        return UInt192{self.low_limb | other.low_limb, self.middle_limb | other.middle_limb,
+                       self.high_limb | other.high_limb};
     }
 
     /// Bitwise AND.
     [[nodiscard]]
-    friend constexpr auto operator&(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
-        return UInt192{left.low_limb & right.low_limb, left.middle_limb & right.middle_limb,
-                       left.high_limb & right.high_limb};
+    constexpr auto operator&(this UInt192 const& self, UInt192 const& other) noexcept -> UInt192 {
+        return UInt192{self.low_limb & other.low_limb, self.middle_limb & other.middle_limb,
+                       self.high_limb & other.high_limb};
+    }
+
+    /// Adds an integer operand, sign-extending it when signed.
+    template<details::integer_operand T>
+    [[nodiscard]]
+    constexpr auto operator+(this UInt192 const& self, T const& other) noexcept -> UInt192
+        requires (!::std::same_as<T, UInt192>)
+    {
+        return self + UInt192{other};
+    }
+
+    template<details::integer_operand T>
+    [[nodiscard]]
+    friend constexpr auto operator+(T const& left, UInt192 const& right) noexcept -> UInt192
+        requires (!::std::same_as<T, UInt192>)
+    {
+        return UInt192{left} + right;
+    }
+
+    /// Subtracts an integer operand, sign-extending it when signed.
+    template<details::integer_operand T>
+    [[nodiscard]]
+    constexpr auto operator-(this UInt192 const& self, T const& other) noexcept -> UInt192
+        requires (!::std::same_as<T, UInt192>)
+    {
+        return self - UInt192{other};
+    }
+
+    template<details::integer_operand T>
+    [[nodiscard]]
+    friend constexpr auto operator-(T const& left, UInt192 const& right) noexcept -> UInt192
+        requires (!::std::same_as<T, UInt192>)
+    {
+        return UInt192{left} - right;
+    }
+
+    /// Multiplies by an integer operand, keeping the low 192 bits.
+    template<details::integer_operand T>
+    [[nodiscard]]
+    constexpr auto operator*(this UInt192 const& self, T const& other) noexcept -> UInt192 {
+        if constexpr (::std::same_as<T, UInt192>) {
+            if (other.middle_limb == 0 && other.high_limb == 0) {
+                return self.multiply_64(other.low_limb);
+            }
+            return self.multiply_192(other);
+        }
+        else if constexpr (::std::same_as<T, UInt128>) {
+            return self.multiply_128(other);
+        }
+        else if constexpr (::std::unsigned_integral<T> && sizeof(T) <= 8) {
+            return self.multiply_64(static_cast<::std::uint64_t>(other));
+        }
+        else if constexpr (::std::signed_integral<T> && sizeof(T) <= 8) {
+            if (other < 0) {
+                return UInt192{} - self.multiply_64(0 - static_cast<::std::uint64_t>(other));
+            }
+            return self.multiply_64(static_cast<::std::uint64_t>(other));
+        }
+        else {
+            return self.multiply_192(UInt192{other});
+        }
+    }
+
+    template<details::integer_operand T>
+    [[nodiscard]]
+    friend constexpr auto operator*(T const& factor, UInt192 const& value) noexcept -> UInt192
+        requires (!::std::same_as<T, UInt192>)
+    {
+        return value * factor;
+    }
+
+    /// Bitwise OR with an integer operand.
+    template<details::integer_operand T>
+    [[nodiscard]]
+    constexpr auto operator|(this UInt192 const& self, T const& other) noexcept -> UInt192
+        requires (!::std::same_as<T, UInt192>)
+    {
+        return self | UInt192{other};
+    }
+
+    template<details::integer_operand T>
+    [[nodiscard]]
+    friend constexpr auto operator|(T const& left, UInt192 const& right) noexcept -> UInt192
+        requires (!::std::same_as<T, UInt192>)
+    {
+        return UInt192{left} | right;
+    }
+
+    /// Bitwise AND with an integer operand.
+    template<details::integer_operand T>
+    [[nodiscard]]
+    constexpr auto operator&(this UInt192 const& self, T const& other) noexcept -> UInt192
+        requires (!::std::same_as<T, UInt192>)
+    {
+        return self & UInt192{other};
+    }
+
+    template<details::integer_operand T>
+    [[nodiscard]]
+    friend constexpr auto operator&(T const& left, UInt192 const& right) noexcept -> UInt192
+        requires (!::std::same_as<T, UInt192>)
+    {
+        return UInt192{left} & right;
     }
 
     [[nodiscard]]
@@ -260,7 +427,7 @@ public:
 constexpr auto pow5(::std::size_t exponent) noexcept -> UInt192 {
     UInt192 result{1};
     for (::std::size_t i{}; i < exponent; ++i) {
-        result = result * 5;
+        result = result * ::std::uint64_t{5};
     }
     return result;
 }
@@ -272,7 +439,7 @@ constexpr auto pow5(::std::size_t exponent) noexcept -> UInt192 {
 constexpr auto pow10(::std::size_t exponent) noexcept -> UInt192 {
     UInt192 result{1};
     for (::std::size_t i{}; i < exponent; ++i) {
-        result = result * 10;
+        result = result * ::std::uint64_t{10};
     }
     return result;
 }

@@ -206,6 +206,38 @@ TEST_SUITE("numeric_integers") {
               make(0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull));
     }
 
+    TEST_CASE("wide-operands") {
+        using ::pltxt2htm::numeric::UInt128;
+        using ::pltxt2htm_test::numeric_details::make;
+
+        auto const all_ones = make(0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull);
+
+        CHECK((make(0) + (-1)) == all_ones);
+        CHECK(((-1) + make(0)) == all_ones);
+        CHECK((make(1) - 2) == all_ones);
+        CHECK(((-1) - make(0)) == all_ones);
+        CHECK((make(3) * (-2)) == (make(0) - make(6)));
+        CHECK(((-2) * make(3)) == (make(0) - make(6)));
+
+        CHECK((make(0, 1) * make(0, 1)) == make(0, 0, 1));
+        CHECK((make(0xFFFFFFFFFFFFFFFFull) * make(0xFFFFFFFFFFFFFFFFull)) == make(1, 0xFFFFFFFFFFFFFFFEull, 0));
+        CHECK((make(0, 0, 1) * make(0xFFFFFFFFFFFFFFFFull)) == make(0, 0, 0xFFFFFFFFFFFFFFFFull));
+        CHECK((make(1, 1, 1) * make(1, 1, 1)) == make(1, 2, 3));
+
+        auto const high_bit = UInt128{1} << 64;
+        CHECK((make(1) + high_bit) == make(1, 1));
+        CHECK((high_bit + make(1)) == make(1, 1));
+        CHECK((make(1) * high_bit) == make(0, 1));
+        CHECK((high_bit * make(1)) == make(0, 1));
+
+        auto const both_limbs = UInt128{1} + (UInt128{1} << 64);
+        CHECK((make(1) * both_limbs) == make(1, 1));
+        CHECK((both_limbs * make(1)) == make(1, 1));
+
+        CHECK((make(0xFFFFFFFFFFFFFFFFull) & (-1)) == make(0xFFFFFFFFFFFFFFFFull));
+        CHECK((make(1) | (-1)) == all_ones);
+    }
+
     TEST_CASE("signed-construction") {
         using ::pltxt2htm::numeric::UInt192;
         using ::pltxt2htm_test::numeric_details::make;
@@ -221,6 +253,12 @@ TEST_SUITE("numeric_integers") {
         using ::pltxt2htm::numeric::UInt128;
         UInt128 const from_unsigned_128 = 5u;
         CHECK(static_cast<::std::uint64_t>(from_unsigned_128) == 5);
+        auto const wide_source = UInt128{1} << 64;
+        UInt192 const from_wide = wide_source;
+        CHECK(from_wide == make(0, 1));
+        CHECK(UInt192{wide_source} == make(0, 1));
+        auto const wide_product = UInt128{0xFFFFFFFFFFFFFFFFull} * 0xFFFFFFFFFFFFFFFFull;
+        CHECK(UInt192{wide_product} == make(1, 0xFFFFFFFFFFFFFFFEull, 0));
 
 #if !defined(__SIZEOF_INT128__)
         auto const negative = UInt128{-1};
