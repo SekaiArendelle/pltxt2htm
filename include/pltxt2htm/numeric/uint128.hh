@@ -63,9 +63,25 @@ class UInt128 {
 public:
     constexpr UInt128() noexcept = default;
 
-    /// Constructs a value from a 64-bit integer; the conversion is lossless and implicit.
-    constexpr UInt128(::std::uint64_t const value) noexcept
-        : low_limb{value} {
+    /// Constructs a value from an unsigned integer; the conversion is lossless and implicit.
+    template<::std::unsigned_integral T>
+    constexpr UInt128(T const value) noexcept
+        : low_limb{static_cast<::std::uint64_t>(value)} {
+        if constexpr (sizeof(T) == 16) {
+            high_limb = static_cast<::std::uint64_t>(value >> 64);
+        }
+    }
+
+    /// Constructs a value from a signed integer, sign-extending it to 128 bits.
+    template<::std::signed_integral T>
+    explicit constexpr UInt128(T const value) noexcept
+        : low_limb{static_cast<::std::uint64_t>(value)} {
+        if constexpr (sizeof(T) == 16) {
+            high_limb = static_cast<::std::uint64_t>(value >> 64);
+        }
+        else if (value < 0) {
+            high_limb = 0xFFFFFFFFFFFFFFFFull;
+        }
     }
 
     /// Explicit conversion to an unsigned integer target of at most 64 bits.

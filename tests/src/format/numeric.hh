@@ -206,6 +206,29 @@ TEST_SUITE("numeric_integers") {
               make(0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull));
     }
 
+    TEST_CASE("signed-construction") {
+        using ::pltxt2htm::numeric::UInt192;
+        using ::pltxt2htm_test::numeric_details::make;
+
+        auto const all_ones = make(0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull);
+        UInt192 const from_unsigned = 5u;
+        CHECK(from_unsigned == make(5));
+        CHECK(UInt192{-1} == all_ones);
+        CHECK(UInt192{-2} == (make(0) - make(2)));
+        CHECK(UInt192{5} == make(5));
+        CHECK(UInt192{static_cast<::std::int64_t>(-1)} == all_ones);
+
+        using ::pltxt2htm::numeric::UInt128;
+        UInt128 const from_unsigned_128 = 5u;
+        CHECK(static_cast<::std::uint64_t>(from_unsigned_128) == 5);
+
+#if !defined(__SIZEOF_INT128__)
+        auto const negative = UInt128{-1};
+        CHECK(static_cast<::std::uint64_t>(negative) == 0xFFFFFFFFFFFFFFFFull);
+        CHECK(static_cast<::std::uint64_t>(negative >> 64) == 0xFFFFFFFFFFFFFFFFull);
+#endif
+    }
+
     TEST_CASE("explicit-conversion") {
         using ::pltxt2htm_test::numeric_details::make;
 

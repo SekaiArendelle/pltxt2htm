@@ -61,9 +61,29 @@ class UInt192 {
 public:
     constexpr UInt192() noexcept = default;
 
-    /// Constructs a value from a 64-bit integer; the conversion is lossless and implicit.
-    constexpr UInt192(::std::uint64_t const value) noexcept
-        : low_limb{value} {
+    /// Constructs a value from an unsigned integer; the conversion is lossless and implicit.
+    template<::std::unsigned_integral T>
+    constexpr UInt192(T const value) noexcept
+        : low_limb{static_cast<::std::uint64_t>(value)} {
+        if constexpr (sizeof(T) == 16) {
+            middle_limb = static_cast<::std::uint64_t>(value >> 64);
+        }
+    }
+
+    /// Constructs a value from a signed integer, sign-extending it to 192 bits.
+    template<::std::signed_integral T>
+    explicit constexpr UInt192(T const value) noexcept
+        : low_limb{static_cast<::std::uint64_t>(value)} {
+        if constexpr (sizeof(T) == 16) {
+            middle_limb = static_cast<::std::uint64_t>(value >> 64);
+            if (value < 0) {
+                high_limb = 0xFFFFFFFFFFFFFFFFull;
+            }
+        }
+        else if (value < 0) {
+            middle_limb = 0xFFFFFFFFFFFFFFFFull;
+            high_limb = 0xFFFFFFFFFFFFFFFFull;
+        }
     }
 
     /// Explicit conversion to an unsigned integer-like target.
