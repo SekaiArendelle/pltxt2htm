@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <cstdint>
 
-#include <pltxt2htm/details/font_size_domain.hh>
 #include <pltxt2htm/numeric/uint192.hh>
 
 #include "doctest_config.hh"
@@ -204,7 +203,6 @@ TEST_SUITE("numeric_integers") {
     }
 
     TEST_CASE("ratio-to-double") {
-        using ::pltxt2htm::details::min_font_size_value;
         using ::pltxt2htm::numeric::decimal_ratio_to_double;
         using ::pltxt2htm::numeric::pow10;
         using ::pltxt2htm_test::numeric_details::make;
@@ -213,7 +211,7 @@ TEST_SUITE("numeric_integers") {
         CHECK(decimal_ratio_to_double(make(1), 0) == 1.0);
         CHECK(decimal_ratio_to_double(make(125), 1) == 12.5);
         CHECK(decimal_ratio_to_double(make(1), 1) == 0.1);
-        CHECK(decimal_ratio_to_double(make(1), 18) == min_font_size_value);
+        CHECK(decimal_ratio_to_double(make(1), 18) == 1e-18);
         CHECK(decimal_ratio_to_double(pow10(38), 38) == 1.0);
         CHECK(decimal_ratio_to_double(pow10(38) + make(1), 38) == 1.0);
         CHECK(decimal_ratio_to_double(pow10(19) * 3, 19) == 3.0);
