@@ -184,9 +184,9 @@ constexpr auto add(UInt192 const left, UInt192 const right) noexcept -> UInt192 
  */
 [[nodiscard]]
 constexpr auto multiply(UInt192 const value, ::std::uint64_t const factor) noexcept -> UInt192 {
-    auto const low_product = multiply_64x64(value.low, factor);
-    auto const middle_product = multiply_64x64(value.middle, factor);
-    auto const high_product = multiply_64x64(value.high, factor);
+    auto const low_product = wide::multiply_64x64(value.low, factor);
+    auto const middle_product = wide::multiply_64x64(value.middle, factor);
+    auto const high_product = wide::multiply_64x64(value.high, factor);
 
     auto const middle = middle_product.low + low_product.high;
     ::std::uint64_t const middle_carry = middle < low_product.high ? 1 : 0;
@@ -201,7 +201,7 @@ constexpr auto multiply(UInt192 const value, ::std::uint64_t const factor) noexc
 constexpr auto pow5(::std::size_t exponent) noexcept -> UInt192 {
     UInt192 result{.low = 1, .middle = 0, .high = 0};
     for (::std::size_t i{}; i < exponent; ++i) {
-        result = multiply(result, 5);
+        result = wide::multiply(result, 5);
     }
     return result;
 }
@@ -213,7 +213,7 @@ constexpr auto pow5(::std::size_t exponent) noexcept -> UInt192 {
 constexpr auto pow10(::std::size_t exponent) noexcept -> UInt192 {
     UInt192 result{.low = 1, .middle = 0, .high = 0};
     for (::std::size_t i{}; i < exponent; ++i) {
-        result = multiply(result, 10);
+        result = wide::multiply(result, 10);
     }
     return result;
 }
@@ -231,15 +231,15 @@ struct DivisionResult {
  */
 [[nodiscard]]
 constexpr auto divide(UInt192 const numerator, UInt192 const divisor) noexcept -> DivisionResult {
-    auto const bits = bit_length(numerator);
+    auto const bits = wide::bit_length(numerator);
     UInt192 quotient{};
     UInt192 remainder{};
     for (unsigned index = bits; index-- > 0;) {
-        remainder = shift_left(remainder, 1);
+        remainder = wide::shift_left(remainder, 1);
         ::std::uint64_t const limb = index < 64 ? numerator.low : (index < 128 ? numerator.middle : numerator.high);
         remainder.low |= (limb >> (index % 64)) & 1;
-        if (compare(remainder, divisor) >= 0) {
-            remainder = subtract(remainder, divisor);
+        if (wide::compare(remainder, divisor) >= 0) {
+            remainder = wide::subtract(remainder, divisor);
             if (index < 64) {
                 quotient.low |= ::std::uint64_t{1} << index;
             }
@@ -268,22 +268,22 @@ constexpr auto divide(UInt192 const numerator, UInt192 const divisor) noexcept -
 [[nodiscard]]
 constexpr auto decimal_ratio_to_double(UInt192 const numerator, ::std::size_t const scale_digits,
                                        bool const extra_sticky = false) noexcept -> double {
-    if (is_zero(numerator)) {
+    if (wide::is_zero(numerator)) {
         return 0.0;
     }
-    auto const divisor = pow10(scale_digits);
-    auto const numerator_bits = bit_length(numerator);
-    auto const divisor_bits = bit_length(divisor);
+    auto const divisor = wide::pow10(scale_digits);
+    auto const numerator_bits = wide::bit_length(numerator);
+    auto const divisor_bits = wide::bit_length(divisor);
     // Target a quotient of 57-58 bits: the 53-bit significand, one round bit, and slack. With this
     // offset the shifted numerator stays below 2^184 and the shifted divisor below 2^135, so both
     // fit the 192-bit type without truncation.
     auto const shift = static_cast<int>(divisor_bits) + 57 - static_cast<int>(numerator_bits);
-    UInt192 const scaled_numerator = shift >= 0 ? shift_left(numerator, static_cast<unsigned>(shift)) : numerator;
-    UInt192 const scaled_divisor = shift >= 0 ? divisor : shift_left(divisor, static_cast<unsigned>(-shift));
-    auto const division = divide(scaled_numerator, scaled_divisor);
+    UInt192 const scaled_numerator = shift >= 0 ? wide::shift_left(numerator, static_cast<unsigned>(shift)) : numerator;
+    UInt192 const scaled_divisor = shift >= 0 ? divisor : wide::shift_left(divisor, static_cast<unsigned>(-shift));
+    auto const division = wide::divide(scaled_numerator, scaled_divisor);
 
     auto const quotient = division.quotient;
-    auto const quotient_bits = bit_length(quotient);
+    auto const quotient_bits = wide::bit_length(quotient);
     // Keep 53 bits and one round bit; drop_bits is 4 or 5 for the targeted quotient size, so the
     // round/sticky bits below the mantissa are exact.
     auto const drop_bits = quotient_bits - 53;
@@ -291,7 +291,7 @@ constexpr auto decimal_ratio_to_double(UInt192 const numerator, ::std::size_t co
     bool const round_bit = ((quotient.low >> (drop_bits - 1)) & 1) != 0;
     ::std::uint64_t const low_mask = (::std::uint64_t{1} << (drop_bits - 1)) - 1;
     bool const sticky = (quotient.low & low_mask) != 0 || quotient.middle != 0 || quotient.high != 0 ||
-                        is_zero(division.remainder) == false || extra_sticky;
+                        wide::is_zero(division.remainder) == false || extra_sticky;
     if (round_bit && (sticky || (mantissa & 1) != 0)) {
         ++mantissa;
     }

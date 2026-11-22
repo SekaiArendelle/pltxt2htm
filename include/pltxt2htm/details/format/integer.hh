@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <utility>
 
 #include "../../container/string.hh"
 #include "../literal_string.hh"
@@ -119,17 +120,17 @@ constexpr auto to_decimal_string(T num) noexcept -> ::pltxt2htm::container::U8St
 /**
  * @brief Write the decimal digits of an unsigned integer into [first, last).
  * @param[in] first First writable character.
- * @param[in] last One past the last writable character.
+ * @param[in] last One past the last writable character; only used as a bound.
  * @param[in] value The value to write.
  * @return One past the last written character, or nullptr when the range is too small.
  */
 template<::std::unsigned_integral T>
 [[nodiscard]]
-constexpr auto to_chars(char8_t* const first, char8_t* const last, T value) noexcept -> char8_t* {
+constexpr auto to_chars(char8_t* const first, char8_t const* const last, T value) noexcept -> char8_t* {
     char8_t buffer[::std::numeric_limits<T>::digits10 + 2];
     char8_t const* const begin = ::pltxt2htm::details::write_decimal_digits_backward(value, buffer + sizeof(buffer));
     auto const size = static_cast<::std::size_t>(buffer + sizeof(buffer) - begin);
-    if (static_cast<::std::size_t>(last - first) < size) {
+    if (::std::cmp_less(last - first, size)) {
         return nullptr;
     }
     for (::std::size_t i{}; i < size; ++i) {
@@ -141,13 +142,13 @@ constexpr auto to_chars(char8_t* const first, char8_t* const last, T value) noex
 /**
  * @brief Write the decimal digits of a signed integer into [first, last).
  * @param[in] first First writable character.
- * @param[in] last One past the last writable character.
+ * @param[in] last One past the last writable character; only used as a bound.
  * @param[in] value The value to write.
  * @return One past the last written character, or nullptr when the range is too small.
  */
 template<::std::signed_integral T>
 [[nodiscard]]
-constexpr auto to_chars(char8_t* const first, char8_t* const last, T value) noexcept -> char8_t* {
+constexpr auto to_chars(char8_t* const first, char8_t const* const last, T value) noexcept -> char8_t* {
     using unsigned_type = ::std::make_unsigned_t<T>;
 
     auto magnitude = static_cast<unsigned_type>(value);
@@ -163,7 +164,7 @@ constexpr auto to_chars(char8_t* const first, char8_t* const last, T value) noex
         *begin = u8'-';
     }
     auto const size = static_cast<::std::size_t>(buffer + sizeof(buffer) - begin);
-    if (static_cast<::std::size_t>(last - first) < size) {
+    if (::std::cmp_less(last - first, size)) {
         return nullptr;
     }
     for (::std::size_t i{}; i < size; ++i) {

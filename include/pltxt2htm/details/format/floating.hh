@@ -16,6 +16,7 @@
 #include <bit>
 #include <cstddef>
 #include <cstdint>
+#include <utility>
 
 #include "../../container/optional.hh"
 #include "../../container/string.hh"
@@ -267,18 +268,21 @@ constexpr auto is_in_font_size_domain(double const value) noexcept -> bool {
 
 /**
  * @brief Write the fixed-point decimal representation of a value into [first, last).
+ * @param[in] first First writable character.
+ * @param[in] last One past the last writable character; only used as a bound.
+ * @param[in] value The value to write.
  * @return One past the last written character, or nullptr when the range is too small or the
  *         value is outside the font-size domain (mirroring `std::to_chars`'s
  *         `errc::value_too_large` for the buffer case).
  */
 [[nodiscard]]
-constexpr auto to_chars(char8_t* const first, char8_t* const last, double const value) noexcept -> char8_t* {
+constexpr auto to_chars(char8_t* const first, char8_t const* const last, double const value) noexcept -> char8_t* {
     if (::pltxt2htm::details::format_details::is_in_font_size_domain(value) == false) {
         return nullptr;
     }
     char8_t buffer[::pltxt2htm::details::format_details::max_fixed_point_length];
     auto const length = ::pltxt2htm::details::format_details::format_fixed_point(value, buffer);
-    if (static_cast<::std::size_t>(last - first) < length) {
+    if (::std::cmp_less(last - first, length)) {
         return nullptr;
     }
     for (::std::size_t i{}; i < length; ++i) {
