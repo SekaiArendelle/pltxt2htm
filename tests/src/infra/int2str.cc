@@ -127,12 +127,24 @@ int main() noexcept {
         pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str(0.125), u8"0.125");
         pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str(0.03125), u8"0.03125");
         pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str(1.0625), u8"1.0625");
-        // 2^63 is representable as double but not as ptrdiff_t; it must take the unsigned
-        // fallback path instead of relying on an out-of-range signed conversion.
+        // 2^63 sits exactly on double2str's fixed-point bound, so it produces no scaled
+        // candidate; its exact digits must still come out of the truncated-integer fallback.
         if constexpr (sizeof(::std::size_t) == 8) {
             pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str(9223372036854775808.0),
                                         ::pltxt2htm::container::U8StringView{u8"9223372036854775808"});
+            // 2^64 - 2048 is the largest double below 2^64, one ulp below the parser's
+            // limit; it is outside the fixed-point range too, so it hits the same fallback.
+            pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str(18446744073709549568.0),
+                                        ::pltxt2htm::container::U8StringView{u8"18446744073709549568"});
         }
+        // Regression: on a 32-bit target, 214748364.75 * 10 is 2147483647.5, so rounding up
+        // needed 2147483648, one past ptrdiff_t max, and the two-digit candidate needs
+        // 21474836475, which no 32-bit integer holds; the value therefore fell back to the
+        // truncated integer "214748364". The scaled value is rounded in 64-bit unsigned
+        // arithmetic against a platform-independent bound, so 32-bit targets now keep the
+        // two-digit form just like 64-bit ones do.
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::double2str(214748364.75),
+                                    ::pltxt2htm::container::U8StringView{u8"214748364.75"});
     }
 
     // size_t2str: boundary values around the single-digit / pair / loop transitions
@@ -156,6 +168,16 @@ int main() noexcept {
                                     ::pltxt2htm::container::U8StringView{u8"1000"});
         pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(12345),
                                     ::pltxt2htm::container::U8StringView{u8"12345"});
+    }
+
+    // uint64_t2str: same conversion for the 64-bit scaled values, including values above a
+    // 32-bit size_t maximum
+    {
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::uint64_t2str(0), ::pltxt2htm::container::U8StringView{u8"0"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::uint64_t2str(::std::uint64_t{1} << 32),
+                                    ::pltxt2htm::container::U8StringView{u8"4294967296"});
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::uint64_t2str(::std::numeric_limits<::std::uint64_t>::max()),
+                                    ::pltxt2htm::container::U8StringView{u8"18446744073709551615"});
     }
 
     // ptrdiff_t2str: sign handling around the same transitions
@@ -219,6 +241,9 @@ int main() noexcept {
     // exhaustive cross-check against the pre-refactor algorithm
     for (::std::size_t i{}; i <= 100000; ++i) {
         pltxt2htm_test_assert_equal(::pltxt2htm::details::size_t2str(i), oracle_int2str(i));
+    }
+    for (::std::uint64_t i{}; i <= 100000; ++i) {
+        pltxt2htm_test_assert_equal(::pltxt2htm::details::uint64_t2str(i), oracle_int2str(i));
     }
     for (::std::ptrdiff_t i{-100000}; i <= 100000; ++i) {
         pltxt2htm_test_assert_equal(::pltxt2htm::details::ptrdiff_t2str(i), oracle_int2str(i));

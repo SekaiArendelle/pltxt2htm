@@ -58,6 +58,18 @@ TEST_SUITE("unity_size_tag") {
         }
     }
 
+    TEST_CASE("roundtrip-long-fraction-stays-stable") {
+        // double2str keeps its last (17-fractional-digit) candidate as an unverified fallback.
+        // If its fixed-point bound were raised past 2^63, values such as this one would emit a
+        // decimal string that the parser reads back as a different double, so the two passes
+        // would disagree. The fixed-point bound must stay where the signed 64-bit form had it.
+        auto const& pltext = u8"<size=175.002439047em>hello</size>";
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
+        auto reparsed_html =
+            ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{html.data(), html.size()});
+        CHECK(reparsed_html == html);
+    }
+
     TEST_CASE("size-eleven-becomes-6px") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=11>hello</size>");
         auto const& answer = u8"<span style=\"font-size:6px;\">hello</span>";

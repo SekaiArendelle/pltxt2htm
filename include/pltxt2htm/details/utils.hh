@@ -245,6 +245,21 @@ constexpr auto size_t2str(::std::size_t num) noexcept -> ::pltxt2htm::container:
 }
 
 /**
+ * @brief Convert a ::std::uint64_t to a UTF-8 string.
+ * @details Mirrors ::pltxt2htm::details::size_t2str. Scaled fixed-point values must stay
+ *          64-bit even on 32-bit platforms, where ::std::size_t is too narrow for them.
+ */
+[[nodiscard]]
+#if __has_cpp_attribute(__gnu__::__pure__)
+[[__gnu__::__pure__]]
+#endif
+constexpr auto uint64_t2str(::std::uint64_t num) noexcept -> ::pltxt2htm::container::U8String {
+    char8_t buffer[::std::numeric_limits<::std::uint64_t>::digits10 + 2];
+    char8_t const* const begin = ::pltxt2htm::details::write_decimal_digits_backward(num, buffer + sizeof(buffer));
+    return ::pltxt2htm::container::U8String{begin, buffer + sizeof(buffer)};
+}
+
+/**
  * @brief Result of parsing an ASCII decimal value.
  */
 struct TryParseSizeTDecimalValueResult {
@@ -391,11 +406,12 @@ struct TryParseDoubleDecimalValueResult {
  * @details Accepts `[0-9]+` with an optional `.` followed by one or more `[0-9]`; a bare `.`
  *          without digits is rejected. Stops at the first character that is neither a digit nor
  *          the fraction dot; the returned `end` is the run length relative to `str`. The integer
- *          part is accumulated exactly in `::std::uint64_t` and converted to double only at the
- *          end, so long integer digit runs such as `<size=7173733806442602179>` keep their
- *          correctly rounded value instead of drifting by an ulp during accumulation. The value
- *          is stored as double so `<size=12.5>` keeps its fractional part exact enough to
- *          round-trip when emitted again.
+ *          part is accumulated exactly in `::std::uint64_t` and converted to double once at the
+ *          end, so a long digit run such as `<size=7173733806442602179>` is not rounded digit by
+ *          digit while accumulating, which would drift by an ulp. The single conversion is still
+ *          subject to the implementation-defined rounding direction of integer-to-double
+ *          conversion. The value is stored as double so `<size=12.5>` keeps its fractional part
+ *          exact enough to round-trip when emitted again.
  */
 [[nodiscard]]
 constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringView str) noexcept
@@ -463,7 +479,14 @@ constexpr auto double_to_size_t_ceil(double value) noexcept -> ::std::size_t {
 [[nodiscard]]
 constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8String {
     constexpr ::std::size_t max_fractional_digits{17};
-    constexpr double max_scaled{static_cast<double>(::std::numeric_limits<::std::ptrdiff_t>::max()) + 1};
+    // Round the scaled value as a 64-bit unsigned integer so 32-bit platforms get the same range
+    // as 64-bit ones: a 32-bit ::std::ptrdiff_t cannot hold `value * 10^fractional_digits` even
+    // when the decimal form would round-trip (214748364.75 needs 21474836475), and rounding a
+    // signed maximum up would overflow. 2^63 is the bound the signed 64-bit form effectively
+    // produced (::std::ptrdiff_t max converted to double, plus one) and is spelled out so the
+    // emitted digits do not depend on the integer width. Do not widen it to 2^64; see the
+    // fallback below.
+    constexpr double max_scaled{9223372036854775808.0};
     ::pltxt2htm::container::U8String fallback{};
     for (::std::size_t fractional_digits{0}; fractional_digits <= max_fractional_digits; ++fractional_digits) {
         double scale{1};
@@ -471,16 +494,14 @@ constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8St
             scale *= 10;
         }
         double const scaled = value * scale;
-        // `>=` excludes exactly 2^63, which is representable as double but not as the signed
-        // integer used below; such values fall through to the unsigned fallback path.
         if (scaled >= max_scaled) {
             continue;
         }
-        auto rounded = static_cast<::std::ptrdiff_t>(scaled);
+        auto rounded = static_cast<::std::uint64_t>(scaled);
         if (static_cast<double>(rounded) < scaled) {
             ++rounded;
         }
-        auto const digit_str = ::pltxt2htm::details::size_t2str(static_cast<::std::size_t>(rounded));
+        auto const digit_str = ::pltxt2htm::details::uint64_t2str(rounded);
         ::std::size_t const digit_str_size{digit_str.size()};
         ::pltxt2htm::container::U8String candidate{};
         if (fractional_digits == 0) {
@@ -506,6 +527,9 @@ constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8St
         if (round_trips) {
             return candidate;
         }
+        // The last candidate is kept even when it does not round-trip. This is why the bound
+        // above must stay at 2^63: a wider bound would emit this unverified fallback for
+        // ordinary font sizes and break the roundtrip idempotence the fuzzers check.
         if (fractional_digits == max_fractional_digits) {
             fallback = ::std::move(candidate);
         }
@@ -513,8 +537,8 @@ constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8St
     if (fallback.is_empty() == false) {
         return fallback;
     }
-    // Values too large for a signed 64-bit integer cannot be round-tripped above; emit the
-    // truncated integer part instead of failing (the parser guarantees value <= size_t max).
+    // Values outside the fixed-point range fall back to the truncated integer part instead of
+    // failing; the conversion below requires value <= ::std::size_t max.
     return ::pltxt2htm::details::size_t2str(static_cast<::std::size_t>(value));
 }
 
