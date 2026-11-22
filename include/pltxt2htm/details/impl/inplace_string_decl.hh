@@ -80,8 +80,7 @@ private:
     [[nodiscard]]
     static consteval auto is_nothrow_range_iteration() noexcept -> bool {
         constexpr bool is_nothrow_iteration =
-            noexcept(static_cast<bool>(::std::declval<InputIterator&>() != ::std::declval<Sentinel&>())) &&
-            noexcept(++::std::declval<InputIterator&>()) &&
+            ::pltxt2htm::details::nothrow_sentinel_iteration<InputIterator, Sentinel> &&
             noexcept(static_cast<value_type>(*::std::declval<InputIterator&>()));
         if constexpr (::std::sized_sentinel_for<Sentinel, InputIterator>) {
             return is_nothrow_iteration &&
@@ -103,12 +102,13 @@ public:
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
-                  ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
     constexpr BasicInplaceString(InputIterator first,
                                  Sentinel last) noexcept(::std::is_nothrow_move_constructible_v<InputIterator> &&
                                                          ::std::is_nothrow_move_constructible_v<Sentinel> &&
-                                                         is_nothrow_range_iteration<InputIterator, Sentinel>()) {
+                                                         is_nothrow_range_iteration<InputIterator, Sentinel>())
+        requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
+                  ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
+    {
         this->initialize_storage_for_constant_evaluation();
         this->append(::std::move(first), ::std::move(last));
     }
@@ -127,18 +127,18 @@ public:
     constexpr ~BasicInplaceString() noexcept = default;
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
-                  ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
     constexpr void assign(this BasicInplaceString& self, InputIterator first,
                           Sentinel last) noexcept(::std::is_nothrow_move_constructible_v<InputIterator> &&
                                                   ::std::is_nothrow_move_constructible_v<Sentinel> &&
-                                                  is_nothrow_range_iteration<InputIterator, Sentinel>());
+                                                  is_nothrow_range_iteration<InputIterator, Sentinel>())
+        requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
+                  ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>);
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
-                  ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>)
     constexpr void append(this BasicInplaceString& self, InputIterator first,
-                          Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>());
+                          Sentinel last) noexcept(is_nothrow_range_iteration<InputIterator, Sentinel>())
+        requires (::std::same_as<::std::iter_value_t<InputIterator>, value_type> &&
+                  ::std::constructible_from<value_type, ::std::iter_reference_t<InputIterator>>);
 
     [[nodiscard]]
     constexpr auto begin(this BasicInplaceString& self) noexcept -> iterator {
@@ -293,6 +293,19 @@ public:
         self.size_storage = StoredSize{};
     }
 };
+
+namespace details {
+
+template<typename T>
+constexpr bool is_basic_inplace_string_ = false;
+
+template<typename CharType, ::std::size_t extent>
+constexpr bool is_basic_inplace_string_<BasicInplaceString<CharType, extent>> = true;
+
+} // namespace details
+
+template<typename T>
+concept is_basic_inplace_string = ::pltxt2htm::details::details::is_basic_inplace_string_<::std::remove_cvref_t<T>>;
 
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t left_extent, ::std::size_t right_extent>
 [[nodiscard]]

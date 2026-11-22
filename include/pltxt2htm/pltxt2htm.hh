@@ -16,9 +16,11 @@
 #endif
 
 #include "container/deque.hh"
+#include "container/inplace_vector.hh"
 #include "container/string.hh"
 #include "container/array.hh"
 #include "container/string_view.hh"
+#include "container/cstring_view.hh"
 #include "container/optional.hh"
 #include "container/vector.hh"
 #include "details/contracts.hh"

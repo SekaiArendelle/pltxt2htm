@@ -75,9 +75,9 @@ using ExpectedMapViewOfSection = nt::NtStatus(NTAPI*)(nt::Handle, nt::Handle, vo
                                                       nt::Long64*, ::std::size_t*, nt::SectionInherit, nt::Ulong,
                                                       nt::Ulong) noexcept;
 using ExpectedEventState = nt::NtStatus(NTAPI*)(nt::Handle, nt::Long*) noexcept;
-using ExpectedCreateSemaphore = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*, nt::Long,
+using ExpectedCreateSemaphore = nt::NtStatus(NTAPI*)(nt::Handle*, nt::AccessMask, nt::ObjectAttributes const*, nt::Long,
                                                      nt::Long) noexcept;
-using ExpectedOpenSemaphore = nt::NtStatus(NTAPI*)(nt::Handle*, nt::Ulong, nt::ObjectAttributes const*) noexcept;
+using ExpectedOpenSemaphore = nt::NtStatus(NTAPI*)(nt::Handle*, nt::AccessMask, nt::ObjectAttributes const*) noexcept;
 using ExpectedNtReleaseSemaphore = nt::NtStatus(NTAPI*)(nt::Handle, nt::Long, nt::Long*) noexcept;
 using ExpectedAlpcConnectPort = nt::NtStatus(NTAPI*)(nt::Handle*, nt::UnicodeString const*, nt::ObjectAttributes*,
                                                      nt::AlpcPortAttributes*, nt::Ulong, void*, nt::PortMessage*,
@@ -253,6 +253,9 @@ static_assert(::std::is_same_v<nt::Ulong, ULONG>);
 static_assert(::std::is_same_v<nt::Ulong64, ULONG64>);
 static_assert(::std::is_same_v<nt::Ushort, USHORT>);
 static_assert(sizeof(nt::Privileges) == sizeof(ULONG));
+// The platform headers spell SEMAPHORE_ALL_ACCESS as
+// STANDARD_RIGHTS_REQUIRED|SYNCHRONIZE|0x3, so pin our composite to theirs.
+static_assert(static_cast<nt::Ulong>(nt::AccessMask::semaphore_all_access) == SEMAPHORE_ALL_ACCESS);
 static_assert(sizeof(nt::RtlpCurdirRef) == 2 * sizeof(void*));
 static_assert(sizeof(nt::RtlRelativeNameU) == 4 * sizeof(void*));
 static_assert(offsetof(nt::RtlRelativeNameU, cur_dir_ref) == 3 * sizeof(void*));

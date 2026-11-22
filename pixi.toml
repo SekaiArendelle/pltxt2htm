@@ -53,13 +53,13 @@ configure-c-shared = { cmd = "cmake -S c -B c/build-pixi-clang-shared -G Ninja -
 build-c-shared = { cmd = "cmake --build c/build-pixi-clang-shared", depends-on = ["configure-c-shared"] }
 
 fuzzing-dirs = "cmake -E make_directory fuzzing/corpus/common_parser fuzzing/corpus/fixedadv_parser fuzzing/corpus/plrichtext_parser fuzzing/corpus/fixedadv_roundtrip fuzzing/artifacts fuzzing/logs"
-configure-fuzzing-clang = { cmd = "cmake -S fuzzing -B fuzzing/build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }} -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DPLTXT2HTM_SANITIZER={{ sanitizer }}", args = [{ arg = "sanitizer", default = "" }], depends-on = ["prepare-tmp"] }
+configure-fuzzing-clang = { cmd = "cmake -S fuzzing -B fuzzing/build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }} -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_CXX_COMPILER=clang++ -DPLTXT2HTM_SANITIZER={{ sanitizer }}", args = [{ arg = "sanitizer", default = "" }], depends-on = ["prepare-tmp"] }
 build-fuzzing-clang = { cmd = "cmake --build fuzzing/build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }}", args = [{ arg = "sanitizer", default = "" }], depends-on = [{ task = "configure-fuzzing-clang", args = ["{{ sanitizer }}"] }] }
 fuzzing = { cmd = "../build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }}/{{ target }} ../corpus/{{ target }} ../seeds/{{ target }} -dict=../dictionaries/pltxt.dict -artifact_prefix=../artifacts/{{ target }}- {{ fuzzer_args }}", args = ["target", { arg = "sanitizer", default = "" }, { arg = "fuzzer_args", default = "" }], depends-on = [{ task = "build-fuzzing-clang", args = ["{{ sanitizer }}"] }, "fuzzing-dirs"], cwd = "fuzzing/logs" }
 fuzzing-merge = { cmd = "../build-pixi-clang{{ '-' ~ sanitizer if sanitizer != '' else '' }}/{{ target }} -merge=1 ../seeds/{{ target }} ../corpus/{{ target }}", args = ["target", { arg = "sanitizer", default = "" }], depends-on = [{ task = "build-fuzzing-clang", args = ["{{ sanitizer }}"] }, "fuzzing-dirs"], cwd = "fuzzing/logs" }
 
 [feature.gcc.dependencies]
-gxx = ">=16"
+gxx = ">=15"
 
 [feature.gcc.tasks]
 configure-tests-gcc = { cmd = "cmake -S tests -B tests/build-pixi-gcc{{ '-' ~ sanitizer if sanitizer != '' else '' }} -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=g++ -DPLTXT2HTM_SANITIZER={{ sanitizer }}", args = [{ arg = "sanitizer", default = "" }], depends-on = ["prepare-tmp"] }
@@ -132,9 +132,9 @@ python = ">=3.14,<3.15"
 python = ">=3.15,<3.16"
 
 [feature.scripts.dependencies]
-clangxx = ">=23"
-llvm-tools = ">=23"
-clang-tools = ">=23"
+clangxx = ">=21"
+llvm-tools = ">=21"
+clang-tools = ">=21"
 python = ">=3.10"
 
 [feature.scripts.tasks]

@@ -23,6 +23,12 @@ using ::pltxt2htm::container::WStringView;
 using ::pltxt2htm::container::U8StringView;
 using ::pltxt2htm::container::U16StringView;
 using ::pltxt2htm::container::U32StringView;
+using ::pltxt2htm::container::BasicCStringView;
+using ::pltxt2htm::container::CStringView;
+using ::pltxt2htm::container::WCStringView;
+using ::pltxt2htm::container::U8CStringView;
+using ::pltxt2htm::container::U16CStringView;
+using ::pltxt2htm::container::U32CStringView;
 using ::pltxt2htm::container::print_alias_define;
 using ::pltxt2htm::container::scan_alias_define;
 using ::pltxt2htm::container::scan_context_define;
@@ -39,6 +45,7 @@ using ::pltxt2htm::container::NonZeroU32;
 using ::pltxt2htm::container::NonZeroU64;
 using ::pltxt2htm::container::NonZeroUsize;
 using ::pltxt2htm::container::Vector;
+using ::pltxt2htm::container::InplaceVector;
 using ::pltxt2htm::container::swap;
 
 } // namespace container

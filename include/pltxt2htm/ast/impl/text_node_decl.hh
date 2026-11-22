@@ -35,10 +35,10 @@ public:
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
-        requires (::std::same_as<::std::iter_value_t<InputIterator>, char8_t> &&
-                  ::std::constructible_from<char8_t, ::std::iter_reference_t<InputIterator>>)
     constexpr Text(InputIterator first,
                    Sentinel last) noexcept(noexcept(Storage{::std::move(first), ::std::move(last)}))
+        requires (::std::same_as<::std::iter_value_t<InputIterator>, char8_t> &&
+                  ::std::constructible_from<char8_t, ::std::iter_reference_t<InputIterator>>)
         : storage{::std::move(first), ::std::move(last)} {
     }
 
@@ -97,11 +97,11 @@ public:
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
+    constexpr void append(this Text& self, InputIterator first,
+                          Sentinel last) noexcept(noexcept(self.storage.append(::std::move(first), ::std::move(last))))
         requires (::std::same_as<::std::iter_value_t<InputIterator>, char8_t> &&
                   ::std::constructible_from<char8_t, ::std::iter_reference_t<InputIterator>>)
-    constexpr void append(this Text& self, InputIterator first,
-                          Sentinel last) noexcept(noexcept(self.storage.append(::std::move(first),
-                                                                               ::std::move(last)))) {
+    {
         self.storage.append(::std::move(first), ::std::move(last));
     }
 };
