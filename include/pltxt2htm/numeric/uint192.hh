@@ -118,14 +118,14 @@ public:
 
     /// Number of significant bits, or 0 for zero.
     [[nodiscard]]
-    constexpr auto bit_length() const noexcept -> unsigned {
-        if (high_limb != 0) {
-            return static_cast<unsigned>(128 + ::std::bit_width(high_limb));
+    constexpr auto bit_length(this UInt192 const& self) noexcept -> unsigned {
+        if (self.high_limb != 0) {
+            return static_cast<unsigned>(128 + ::std::bit_width(self.high_limb));
         }
-        if (middle_limb != 0) {
-            return static_cast<unsigned>(64 + ::std::bit_width(middle_limb));
+        if (self.middle_limb != 0) {
+            return static_cast<unsigned>(64 + ::std::bit_width(self.middle_limb));
         }
-        return static_cast<unsigned>(::std::bit_width(low_limb));
+        return static_cast<unsigned>(::std::bit_width(self.low_limb));
     }
 
     /// Returns the bit at index, or false when index >= 192.
