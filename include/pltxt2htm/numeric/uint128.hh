@@ -84,6 +84,24 @@ public:
         }
     }
 
+    /// Adds two values modulo 2^128.
+    [[nodiscard]]
+    constexpr auto operator+(this UInt128 const& self, UInt128 const& other) noexcept -> UInt128 {
+        auto const low = self.low_limb + other.low_limb;
+        ::std::uint64_t const carry = low < self.low_limb ? 1 : 0;
+        auto const high = self.high_limb + other.high_limb + carry;
+        return UInt128{low, high};
+    }
+
+    /// Subtracts two values modulo 2^128.
+    [[nodiscard]]
+    constexpr auto operator-(this UInt128 const& self, UInt128 const& other) noexcept -> UInt128 {
+        auto const low = self.low_limb - other.low_limb;
+        ::std::uint64_t const borrow = self.low_limb < other.low_limb ? 1 : 0;
+        auto const high = self.high_limb - other.high_limb - borrow;
+        return UInt128{low, high};
+    }
+
     /// Multiplies by a 64-bit factor, keeping the low 128 bits.
     [[nodiscard]]
     constexpr auto operator*(this UInt128 const& self, ::std::uint64_t const factor) noexcept -> UInt128 {
@@ -91,6 +109,22 @@ public:
         auto const high_product = UInt128::multiply_64x64(self.high_limb, factor);
         return UInt128{low_product.low_limb,
                        static_cast<::std::uint64_t>(high_product.low_limb + low_product.high_limb)};
+    }
+
+    /// Shifts left, discarding the bits shifted out. `count` must be less than 128 to match the
+    /// native type; the portable implementation returns zero for larger counts.
+    [[nodiscard]]
+    constexpr auto operator<<(this UInt128 const& self, unsigned const count) noexcept -> UInt128 {
+        if (count == 0) {
+            return self;
+        }
+        if (count >= 128) {
+            return UInt128{};
+        }
+        if (count < 64) {
+            return UInt128{self.low_limb << count, (self.high_limb << count) | (self.low_limb >> (64 - count))};
+        }
+        return UInt128{0, self.low_limb << (count - 64)};
     }
 
     /// Logical right shift. `count` must be less than 128 to match the native type; the portable

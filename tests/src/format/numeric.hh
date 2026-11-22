@@ -100,6 +100,46 @@ TEST_SUITE("numeric_integers") {
 #endif
     }
 
+    TEST_CASE("uint128-arithmetic") {
+        using ::pltxt2htm::numeric::UInt128;
+        using ::pltxt2htm_test::numeric_details::high64;
+        using ::pltxt2htm_test::numeric_details::low64;
+
+        auto const one = UInt128{1};
+        auto const max = UInt128{0xFFFFFFFFFFFFFFFFull};
+
+        auto const sum = max + one;
+        CHECK(low64(sum) == 0);
+        CHECK(high64(sum) == 1);
+
+        auto const doubled = max + max;
+        CHECK(low64(doubled) == 0xFFFFFFFFFFFFFFFEull);
+        CHECK(high64(doubled) == 1);
+
+        auto const difference = UInt128{} - one;
+        CHECK(low64(difference) == 0xFFFFFFFFFFFFFFFFull);
+        CHECK(high64(difference) == 0xFFFFFFFFFFFFFFFFull);
+
+        auto const borrowed = (one << 64) - one;
+        CHECK(low64(borrowed) == 0xFFFFFFFFFFFFFFFFull);
+        CHECK(high64(borrowed) == 0);
+
+        CHECK(low64(one << 0) == 1);
+        CHECK(high64(one << 0) == 0);
+        CHECK(low64(one << 63) == 0x8000000000000000ull);
+        CHECK(high64(one << 63) == 0);
+        CHECK(low64(one << 64) == 0);
+        CHECK(high64(one << 64) == 1);
+        CHECK(low64(one << 65) == 0);
+        CHECK(high64(one << 65) == 2);
+        CHECK(low64(one << 127) == 0);
+        CHECK(high64(one << 127) == 0x8000000000000000ull);
+#if !defined(__SIZEOF_INT128__)
+        CHECK(low64(one << 128) == 0);
+        CHECK(high64(one << 128) == 0);
+#endif
+    }
+
     TEST_CASE("bit-length") {
         using ::pltxt2htm_test::numeric_details::make;
 
