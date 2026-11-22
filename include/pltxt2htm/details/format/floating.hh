@@ -23,7 +23,7 @@
 #include "../../container/string_view.hh"
 #include "../font_size_domain.hh"
 #include "../parser/decimal.hh"
-#include "../wide_decimal.hh"
+#include "../../numeric/uint192.hh"
 #include "integer.hh"
 
 namespace pltxt2htm::details {
@@ -73,7 +73,7 @@ constexpr auto decimal_exponent_of(double const value) noexcept -> int {
  * @return false when the truncated result does not fit 64 bits.
  */
 [[nodiscard]]
-constexpr auto rounded_shift_right(::pltxt2htm::details::wide::UInt192 const value, unsigned const count,
+constexpr auto rounded_shift_right(::pltxt2htm::numeric::UInt192 const value, unsigned const count,
                                    ::std::uint64_t& result) noexcept -> bool {
     if (value.bit_length() > count + 63) {
         return false;
@@ -116,7 +116,7 @@ constexpr auto scaled_digits(double const value, int const decimal_shift) noexce
     auto const significand = (bits & ((::std::uint64_t{1} << 52) - 1)) | (::std::uint64_t{1} << 52);
 
     if (decimal_shift >= 0) {
-        auto const product = ::pltxt2htm::details::wide::pow5(static_cast<::std::size_t>(decimal_shift)) * significand;
+        auto const product = ::pltxt2htm::numeric::pow5(static_cast<::std::size_t>(decimal_shift)) * significand;
         auto const shift = binary_exponent + decimal_shift;
         if (shift >= 0) {
             auto const shifted = product << static_cast<unsigned>(shift);
@@ -134,9 +134,9 @@ constexpr auto scaled_digits(double const value, int const decimal_shift) noexce
     }
 
     // value * 10^decimal_shift = significand * 2^(binary_exponent + decimal_shift) / 5^-decimal_shift.
-    auto const divisor_base = ::pltxt2htm::details::wide::pow5(static_cast<::std::size_t>(-decimal_shift));
-    ::pltxt2htm::details::wide::UInt192 numerator{significand};
-    ::pltxt2htm::details::wide::UInt192 divisor{};
+    auto const divisor_base = ::pltxt2htm::numeric::pow5(static_cast<::std::size_t>(-decimal_shift));
+    ::pltxt2htm::numeric::UInt192 numerator{significand};
+    ::pltxt2htm::numeric::UInt192 divisor{};
     if (binary_exponent + decimal_shift >= 0) {
         numerator = numerator << static_cast<unsigned>(binary_exponent + decimal_shift);
         divisor = divisor_base;
@@ -144,7 +144,7 @@ constexpr auto scaled_digits(double const value, int const decimal_shift) noexce
     else {
         divisor = divisor_base << static_cast<unsigned>(-(binary_exponent + decimal_shift));
     }
-    auto const division = ::pltxt2htm::details::wide::divide(numerator, divisor);
+    auto const division = ::pltxt2htm::numeric::divide(numerator, divisor);
     if (division.quotient.fits_uint64() == false) {
         return 0;
     }

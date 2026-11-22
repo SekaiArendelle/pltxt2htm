@@ -5,74 +5,74 @@
 #include <cstdint>
 
 #include <pltxt2htm/details/font_size_domain.hh>
-#include <pltxt2htm/details/wide_decimal.hh>
+#include <pltxt2htm/numeric/uint192.hh>
 
 #include "doctest_config.hh"
 
-namespace pltxt2htm_test::format_wide_details {
+namespace pltxt2htm_test::numeric_details {
 
-namespace wide = ::pltxt2htm::details::wide;
+namespace numeric = ::pltxt2htm::numeric;
 
 [[nodiscard]] constexpr auto make(::std::uint64_t const low, ::std::uint64_t const middle = 0,
-                                  ::std::uint64_t const high = 0) -> wide::UInt192 {
-    return wide::UInt192{low} | (wide::UInt192{middle} << 64) | (wide::UInt192{high} << 128);
+                                  ::std::uint64_t const high = 0) -> numeric::UInt192 {
+    return numeric::UInt192{low} | (numeric::UInt192{middle} << 64) | (numeric::UInt192{high} << 128);
 }
 
-[[nodiscard]] constexpr auto low64(wide::UInt128 const value) -> ::std::uint64_t {
+[[nodiscard]] constexpr auto low64(numeric::UInt128 const value) -> ::std::uint64_t {
     return static_cast<::std::uint64_t>(value);
 }
 
-[[nodiscard]] constexpr auto high64(wide::UInt128 const value) -> ::std::uint64_t {
+[[nodiscard]] constexpr auto high64(numeric::UInt128 const value) -> ::std::uint64_t {
     return static_cast<::std::uint64_t>(value >> 64);
 }
 
 #if defined(__SIZEOF_INT128__)
 /// True when the 128-bit conversion keeps the low 128 bits.
 template<typename T>
-[[nodiscard]] constexpr auto low_128_bits_match(wide::UInt192 const value) noexcept -> bool {
+[[nodiscard]] constexpr auto low_128_bits_match(numeric::UInt192 const value) noexcept -> bool {
     T const low_bits = static_cast<T>(value);
     T const expected = (static_cast<T>(0x5555666677778888ull) << 64) | static_cast<T>(0x1111222233334444ull);
     return low_bits == expected;
 }
 #endif
 
-} // namespace pltxt2htm_test::format_wide_details
+} // namespace pltxt2htm_test::numeric_details
 
-TEST_SUITE("format_wide_decimal") {
+TEST_SUITE("numeric_integers") {
     TEST_CASE("multiply-128") {
-        using ::pltxt2htm_test::format_wide_details::high64;
-        using ::pltxt2htm_test::format_wide_details::low64;
+        using ::pltxt2htm_test::numeric_details::high64;
+        using ::pltxt2htm_test::numeric_details::low64;
 
-        auto result = ::pltxt2htm::details::wide::UInt128{1234567890123456789ull} * 9876543210987654321ull;
+        auto result = ::pltxt2htm::numeric::UInt128{1234567890123456789ull} * 9876543210987654321ull;
         CHECK(high64(result) == 660998117878163465ull);
         CHECK(low64(result) == 5547335688409725829ull);
 
-        result = ::pltxt2htm::details::wide::UInt128{9007199254740993ull} * 2;
+        result = ::pltxt2htm::numeric::UInt128{9007199254740993ull} * 2;
         CHECK(high64(result) == 0);
         CHECK(low64(result) == 18014398509481986ull);
 
-        result = ::pltxt2htm::details::wide::UInt128{0x100000000ull} * 0x100000000ull;
+        result = ::pltxt2htm::numeric::UInt128{0x100000000ull} * 0x100000000ull;
         CHECK(high64(result) == 1);
         CHECK(low64(result) == 0);
 
-        result = ::pltxt2htm::details::wide::UInt128{0xFFFFFFFFFFFFFFFFull} * 0xFFFFFFFFFFFFFFFFull;
+        result = ::pltxt2htm::numeric::UInt128{0xFFFFFFFFFFFFFFFFull} * 0xFFFFFFFFFFFFFFFFull;
         CHECK(high64(result) == 0xFFFFFFFFFFFFFFFEull);
         CHECK(low64(result) == 1);
 
-        result = ::pltxt2htm::details::wide::UInt128{0xFFFFFFFFFFFFFFFFull} * 3;
+        result = ::pltxt2htm::numeric::UInt128{0xFFFFFFFFFFFFFFFFull} * 3;
         CHECK(high64(result) == 2);
         CHECK(low64(result) == 18446744073709551613ull);
 
         // Multiplication is modulo 2^128, like the UInt192 operators.
-        result = (::pltxt2htm::details::wide::UInt128{0xFFFFFFFFFFFFFFFFull} * 0xFFFFFFFFFFFFFFFFull) * 2;
+        result = (::pltxt2htm::numeric::UInt128{0xFFFFFFFFFFFFFFFFull} * 0xFFFFFFFFFFFFFFFFull) * 2;
         CHECK(high64(result) == 0xFFFFFFFFFFFFFFFCull);
         CHECK(low64(result) == 2);
     }
 
     TEST_CASE("uint128-operations") {
-        using ::pltxt2htm::details::wide::UInt128;
-        using ::pltxt2htm_test::format_wide_details::high64;
-        using ::pltxt2htm_test::format_wide_details::low64;
+        using ::pltxt2htm::numeric::UInt128;
+        using ::pltxt2htm_test::numeric_details::high64;
+        using ::pltxt2htm_test::numeric_details::low64;
 
         auto const product = UInt128{0xFFFFFFFFFFFFFFFFull} * 0xFFFFFFFFFFFFFFFFull;
         CHECK(low64(product) == 1);
@@ -102,7 +102,7 @@ TEST_SUITE("format_wide_decimal") {
     }
 
     TEST_CASE("bit-length") {
-        using ::pltxt2htm_test::format_wide_details::make;
+        using ::pltxt2htm_test::numeric_details::make;
 
         CHECK(make(0).bit_length() == 0);
         CHECK(make(1).bit_length() == 1);
@@ -115,7 +115,7 @@ TEST_SUITE("format_wide_decimal") {
     }
 
     TEST_CASE("shifts") {
-        using ::pltxt2htm_test::format_wide_details::make;
+        using ::pltxt2htm_test::numeric_details::make;
 
         CHECK((make(1) << 0) == make(1));
         CHECK((make(1) << 63) == make(0x8000000000000000ull));
@@ -134,7 +134,7 @@ TEST_SUITE("format_wide_decimal") {
     }
 
     TEST_CASE("add-subtract-compare") {
-        using ::pltxt2htm_test::format_wide_details::make;
+        using ::pltxt2htm_test::numeric_details::make;
 
         CHECK((make(0xFFFFFFFFFFFFFFFFull) + make(1)) == make(0, 1));
         CHECK((make(0, 0xFFFFFFFFFFFFFFFFull) + make(0, 1)) == make(0, 0, 1));
@@ -146,7 +146,7 @@ TEST_SUITE("format_wide_decimal") {
     }
 
     TEST_CASE("multiply") {
-        using ::pltxt2htm_test::format_wide_details::make;
+        using ::pltxt2htm_test::numeric_details::make;
 
         CHECK((make(1, 2, 3) * 2) == make(2, 4, 6));
         CHECK((make(1, 2, 3) * 0) == make(0));
@@ -155,7 +155,7 @@ TEST_SUITE("format_wide_decimal") {
     }
 
     TEST_CASE("explicit-conversion") {
-        using ::pltxt2htm_test::format_wide_details::make;
+        using ::pltxt2htm_test::numeric_details::make;
 
         auto const value = make(0x1111222233334444ull, 0x5555666677778888ull, 0xFEDCBA9876543210ull);
         CHECK(static_cast<::std::uint64_t>(value) == 0x1111222233334444ull);
@@ -166,15 +166,15 @@ TEST_SUITE("format_wide_decimal") {
         CHECK(static_cast<bool>(make(0, 1)));
         CHECK(static_cast<bool>(make(0, 0, 1)));
 #if defined(__SIZEOF_INT128__)
-        CHECK(::pltxt2htm_test::format_wide_details::low_128_bits_match<::pltxt2htm::details::wide::UInt128>(value));
+        CHECK(::pltxt2htm_test::numeric_details::low_128_bits_match<::pltxt2htm::numeric::UInt128>(value));
 #endif
     }
 
     TEST_CASE("powers-and-divide") {
-        using ::pltxt2htm::details::wide::divide;
-        using ::pltxt2htm::details::wide::pow5;
-        using ::pltxt2htm::details::wide::pow10;
-        using ::pltxt2htm_test::format_wide_details::make;
+        using ::pltxt2htm::numeric::divide;
+        using ::pltxt2htm::numeric::pow5;
+        using ::pltxt2htm::numeric::pow10;
+        using ::pltxt2htm_test::numeric_details::make;
 
         CHECK(pow5(0) == make(1));
         CHECK(pow5(3) == make(125));
@@ -205,9 +205,9 @@ TEST_SUITE("format_wide_decimal") {
 
     TEST_CASE("ratio-to-double") {
         using ::pltxt2htm::details::min_font_size_value;
-        using ::pltxt2htm::details::wide::decimal_ratio_to_double;
-        using ::pltxt2htm::details::wide::pow10;
-        using ::pltxt2htm_test::format_wide_details::make;
+        using ::pltxt2htm::numeric::decimal_ratio_to_double;
+        using ::pltxt2htm::numeric::pow10;
+        using ::pltxt2htm_test::numeric_details::make;
 
         CHECK(decimal_ratio_to_double(make(0), 5) == 0.0);
         CHECK(decimal_ratio_to_double(make(1), 0) == 1.0);

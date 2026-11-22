@@ -13,7 +13,7 @@
 #include "../../container/string_view.hh"
 #include "../ascii.hh"
 #include "../font_size_domain.hh"
-#include "../wide_decimal.hh"
+#include "../../numeric/uint192.hh"
 
 namespace pltxt2htm::details {
 
@@ -154,8 +154,7 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
         else {
             // Round the large integer exactly instead of relying on the implementation-defined
             // direction of the integer-to-double conversion.
-            value = ::pltxt2htm::details::wide::decimal_ratio_to_double(
-                ::pltxt2htm::details::wide::UInt192{integer_part}, 0);
+            value = ::pltxt2htm::numeric::decimal_ratio_to_double(::pltxt2htm::numeric::UInt192{integer_part}, 0);
         }
     }
     else {
@@ -175,18 +174,18 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
             if (scale_digits <= parser_details::max_exact_scale_digits) {
                 // Exactly rounded: build the full rational numerator and let the shared 192-bit
                 // helper handle the rounding, so long fractions never drift by an ulp.
-                auto const numerator = (::pltxt2htm::details::wide::pow10(scale_digits) * integer_part) +
-                                       ::pltxt2htm::details::wide::UInt192{fraction};
-                value = ::pltxt2htm::details::wide::decimal_ratio_to_double(numerator, scale_digits,
-                                                                            has_nonzero_fraction_tail);
+                auto const numerator = (::pltxt2htm::numeric::pow10(scale_digits) * integer_part) +
+                                       ::pltxt2htm::numeric::UInt192{fraction};
+                value =
+                    ::pltxt2htm::numeric::decimal_ratio_to_double(numerator, scale_digits, has_nonzero_fraction_tail);
             }
             else {
                 // The fraction digits beyond the retained significand are below 10^-20, far below
                 // the rounding distance of any double. They are still strictly positive, which
                 // matters when the integer part sits exactly on a midpoint: the sticky bit makes
                 // the tie round up instead of to even.
-                value = ::pltxt2htm::details::wide::decimal_ratio_to_double(
-                    ::pltxt2htm::details::wide::UInt192{integer_part}, 0, true);
+                value =
+                    ::pltxt2htm::numeric::decimal_ratio_to_double(::pltxt2htm::numeric::UInt192{integer_part}, 0, true);
             }
         }
     }
