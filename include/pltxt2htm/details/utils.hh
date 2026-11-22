@@ -9,6 +9,7 @@
 
 #include <limits>
 #include <cstddef>
+#include <cstdint>
 #include <ranges>
 #include <type_traits>
 #include "../container/string.hh"
@@ -389,27 +390,35 @@ struct TryParseDoubleDecimalValueResult {
  * @brief Parse a non-negative ASCII decimal value that may contain a fractional part.
  * @details Accepts `[0-9]+` with an optional `.` followed by one or more `[0-9]`; a bare `.`
  *          without digits is rejected. Stops at the first character that is neither a digit nor
- *          the fraction dot; the returned `end` is the run length relative to `str`. The value is
- *          stored as double so `<size=12.5>` keeps its fractional part exact enough to
+ *          the fraction dot; the returned `end` is the run length relative to `str`. The integer
+ *          part is accumulated exactly in `::std::uint64_t` and converted to double only at the
+ *          end, so long integer digit runs such as `<size=7173733806442602179>` keep their
+ *          correctly rounded value instead of drifting by an ulp during accumulation. The value
+ *          is stored as double so `<size=12.5>` keeps its fractional part exact enough to
  *          round-trip when emitted again.
  */
 [[nodiscard]]
 constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringView str) noexcept
     -> ::pltxt2htm::container::Optional<TryParseDoubleDecimalValueResult> {
     ::std::size_t const str_size{str.size()};
-    double parsed_value{};
+    ::std::uint64_t integer_part{};
     auto pos = ::std::size_t{0};
     for (; pos < str_size; ++pos) {
         auto const chr = str[pos];
         if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
             break;
         }
-        parsed_value = parsed_value * 10 + static_cast<double>(chr - u8'0');
-    }
-    if (pos < str_size && str[pos] == u8'.') {
-        if (pos == 0) {
+        auto const digit = static_cast<::std::uint64_t>(chr - u8'0');
+        if (integer_part > (::std::numeric_limits<::std::uint64_t>::max() - digit) / 10) {
             return ::pltxt2htm::container::nullopt;
         }
+        integer_part = integer_part * 10 + digit;
+    }
+    if (pos == 0) {
+        return ::pltxt2htm::container::nullopt;
+    }
+    auto parsed_value = static_cast<double>(integer_part);
+    if (pos < str_size && str[pos] == u8'.') {
         auto const dot_pos = pos;
         auto frac_pos = dot_pos + 1;
         double scale{10};
@@ -425,9 +434,6 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
             return ::pltxt2htm::container::nullopt;
         }
         pos = frac_pos;
-    }
-    if (pos == 0) {
-        return ::pltxt2htm::container::nullopt;
     }
     // Reject values that cannot be represented in ::std::size_t so oversized tags stay literal
     // text (preserving the historical behavior of try_parse_size_t_decimal_value). `>=` is used
@@ -465,7 +471,9 @@ constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8St
             scale *= 10;
         }
         double const scaled = value * scale;
-        if (scaled > max_scaled) {
+        // `>=` excludes exactly 2^63, which is representable as double but not as the signed
+        // integer used below; such values fall through to the unsigned fallback path.
+        if (scaled >= max_scaled) {
             continue;
         }
         auto rounded = static_cast<::std::ptrdiff_t>(scaled);
