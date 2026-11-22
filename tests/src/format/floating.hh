@@ -86,12 +86,10 @@ TEST_SUITE("format_floating") {
                                              ::pltxt2htm::details::max_font_size_value) == nullptr);
     }
 
-    TEST_CASE("saturate-and-round-up") {
+    TEST_CASE("round-up") {
         using ::pltxt2htm::details::double_to_uint64_ceil;
-        using ::pltxt2htm::details::max_font_size_value;
         using ::pltxt2htm::details::max_size_tag_value;
         using ::pltxt2htm::details::min_font_size_value;
-        using ::pltxt2htm::details::saturate_to_size_tag;
 
         CHECK(double_to_uint64_ceil(0.0) == 0);
         CHECK(double_to_uint64_ceil(1.0) == 1);
@@ -100,10 +98,6 @@ TEST_SUITE("format_floating") {
         CHECK(double_to_uint64_ceil(214748364.75 / 2) == 107374183);
         CHECK(double_to_uint64_ceil(max_size_tag_value) == 18446744073709549568ull);
         CHECK(double_to_uint64_ceil(min_font_size_value) == 1);
-
-        CHECK(saturate_to_size_tag(12.5) == 12.5);
-        CHECK(saturate_to_size_tag(max_size_tag_value) == max_size_tag_value);
-        CHECK(saturate_to_size_tag(max_font_size_value * 2) == max_size_tag_value);
     }
 
     TEST_CASE("append-decimal") {

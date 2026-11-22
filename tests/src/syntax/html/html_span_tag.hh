@@ -23,6 +23,19 @@ TEST_SUITE("html_span_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
+    TEST_CASE("plunity-font-size-px-saturates-at-size-tag-max") {
+        // The largest `<size=N>` value is the largest double below 2^64 (2^64 - 2048).
+        // Doubling the boundary font size reaches it; doubling anything larger is clamped to it.
+        auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(
+            u8"<span style=\"font-size:9223372036854774784px\">text</span>");
+        auto const& plunity_richtext_answer = u8"<size=18446744073709549568>text</size>";
+        CHECK(plunity_richtext == plunity_richtext_answer);
+
+        plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(
+            u8"<span style=\"font-size:9223372036854775808px\">text</span>");
+        CHECK(plunity_richtext == plunity_richtext_answer);
+    }
+
     TEST_CASE("combined-color-font-size") {
         auto const& pltext = u8"<span style=\"color:blue;font-size:16px\">text</span>";
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);

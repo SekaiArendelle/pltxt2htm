@@ -326,14 +326,6 @@ constexpr void append_decimal(::pltxt2htm::container::U8String& out, double valu
 }
 
 /**
- * @brief Clamp a value to the largest number a `<size=N>` tag can carry.
- */
-[[nodiscard]]
-constexpr auto saturate_to_size_tag(double const value) noexcept -> double {
-    return value >= ::pltxt2htm::details::max_size_tag_value ? ::pltxt2htm::details::max_size_tag_value : value;
-}
-
-/**
  * @brief Round a non-negative domain value up to the nearest integer.
  * @pre value is inside the font-size domain, so the conversion to `::std::uint64_t` is defined.
  */

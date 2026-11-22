@@ -431,8 +431,15 @@ entry:
                     case ::pltxt2htm::Unit::px: {
                         // plunity <size> counts two scale units per CSS px; match the /2 applied
                         // by the plunity->plweb mapping (e.g. 12.5px -> <size=25>, size=11 -> 6px).
-                        ::pltxt2htm::details::append_decimal(
-                            result, ::pltxt2htm::details::saturate_to_size_tag(font_size.value * 2));
+                        // The largest size-tag value is the largest double below 2^64, so a font
+                        // size whose doubled value would leave that range is clamped to it.
+                        constexpr double max_size_tag{::pltxt2htm::details::max_size_tag_value};
+                        if (font_size.value > max_size_tag / 2) {
+                            ::pltxt2htm::details::append_decimal(result, max_size_tag);
+                        }
+                        else {
+                            ::pltxt2htm::details::append_decimal(result, font_size.value * 2);
+                        }
                         break;
                     }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
