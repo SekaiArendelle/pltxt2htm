@@ -201,6 +201,8 @@ pltxt2htm_generate_cases(doctest_external_use
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ast/external/*.hh")
 pltxt2htm_generate_cases(doctest_container
     "${CMAKE_CURRENT_SOURCE_DIR}/src/container/*.hh")
+pltxt2htm_generate_cases(doctest_format
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/format/*.hh")
 
 foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
@@ -211,7 +213,8 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     endif()
     # The doctest runners consume their generated include lists.
     if(TEST_NAME STREQUAL "doctest_precompile_suites" OR TEST_NAME STREQUAL "doctest_ast"
-       OR TEST_NAME STREQUAL "doctest_external_use" OR TEST_NAME STREQUAL "doctest_container")
+       OR TEST_NAME STREQUAL "doctest_external_use" OR TEST_NAME STREQUAL "doctest_container"
+       OR TEST_NAME STREQUAL "doctest_format")
         target_include_directories(${TEST_NAME} PRIVATE
             "${CMAKE_CURRENT_BINARY_DIR}/generated"
             "${CMAKE_CURRENT_SOURCE_DIR}/src")
