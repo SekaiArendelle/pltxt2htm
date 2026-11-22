@@ -46,16 +46,16 @@ concept unsigned_conversion_target = ::std::unsigned_integral<T>;
  * @brief A 192-bit unsigned integer with unsigned (modulo 2^192) arithmetic.
  */
 class UInt192 {
-    ::std::uint64_t low_limb_{}; ///< Least significant 64-bit limb.
-    ::std::uint64_t middle_limb_{}; ///< Middle 64-bit limb.
-    ::std::uint64_t high_limb_{}; ///< Most significant 64-bit limb.
+    ::std::uint64_t low_limb{}; ///< Least significant 64-bit limb.
+    ::std::uint64_t middle_limb{}; ///< Middle 64-bit limb.
+    ::std::uint64_t high_limb{}; ///< Most significant 64-bit limb.
 
     /// Constructs a value from little-endian limbs. Callers inside the class and its hidden
     /// friends use this; external callers assemble multi-limb values with shifts and `operator|`.
     constexpr UInt192(::std::uint64_t const low, ::std::uint64_t const middle, ::std::uint64_t const high) noexcept
-        : low_limb_{low},
-          middle_limb_{middle},
-          high_limb_{high} {
+        : low_limb{low},
+          middle_limb{middle},
+          high_limb{high} {
     }
 
 public:
@@ -63,7 +63,7 @@ public:
 
     /// Constructs a value from a 64-bit integer; the conversion is lossless and implicit.
     constexpr UInt192(::std::uint64_t const value) noexcept
-        : low_limb_{value} {
+        : low_limb{value} {
     }
 
     /// Explicit conversion to an unsigned integer-like target.
@@ -77,24 +77,24 @@ public:
             return self != UInt192{};
         }
         else if constexpr (sizeof(T) <= 8) {
-            return static_cast<T>(self.low_limb_);
+            return static_cast<T>(self.low_limb);
         }
         else {
             static_assert(sizeof(T) == 16, "UInt192 converts to at most 128 bits");
-            return (static_cast<T>(self.middle_limb_) << 64) | static_cast<T>(self.low_limb_);
+            return (static_cast<T>(self.middle_limb) << 64) | static_cast<T>(self.low_limb);
         }
     }
 
     /// Number of significant bits, or 0 for zero.
     [[nodiscard]]
     constexpr auto bit_length() const noexcept -> unsigned {
-        if (high_limb_ != 0) {
-            return static_cast<unsigned>(128 + ::std::bit_width(high_limb_));
+        if (high_limb != 0) {
+            return static_cast<unsigned>(128 + ::std::bit_width(high_limb));
         }
-        if (middle_limb_ != 0) {
-            return static_cast<unsigned>(64 + ::std::bit_width(middle_limb_));
+        if (middle_limb != 0) {
+            return static_cast<unsigned>(64 + ::std::bit_width(middle_limb));
         }
-        return static_cast<unsigned>(::std::bit_width(low_limb_));
+        return static_cast<unsigned>(::std::bit_width(low_limb));
     }
 
     /// Returns the bit at index, or false when index >= 192.
@@ -103,48 +103,48 @@ public:
         if (index >= 192) {
             return false;
         }
-        auto const limb = index < 64 ? low_limb_ : (index < 128 ? middle_limb_ : high_limb_);
+        auto const limb = index < 64 ? low_limb : (index < 128 ? middle_limb : high_limb);
         return ((limb >> (index % 64)) & 1) != 0;
     }
 
     /// True when the value fits a ::std::uint64_t.
     [[nodiscard]]
     constexpr auto fits_uint64() const noexcept -> bool {
-        return middle_limb_ == 0 && high_limb_ == 0;
+        return middle_limb == 0 && high_limb == 0;
     }
 
     /// Adds two values modulo 2^192.
     [[nodiscard]]
     friend constexpr auto operator+(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
-        auto const low = left.low_limb_ + right.low_limb_;
-        ::std::uint64_t const carry_low = low < left.low_limb_ ? 1 : 0;
-        auto const middle = left.middle_limb_ + right.middle_limb_;
-        ::std::uint64_t const carry_middle = middle < left.middle_limb_ ? 1 : 0;
+        auto const low = left.low_limb + right.low_limb;
+        ::std::uint64_t const carry_low = low < left.low_limb ? 1 : 0;
+        auto const middle = left.middle_limb + right.middle_limb;
+        ::std::uint64_t const carry_middle = middle < left.middle_limb ? 1 : 0;
         auto const middle_adjusted = middle + carry_low;
         ::std::uint64_t const carry_adjusted = middle_adjusted < carry_low ? 1 : 0;
-        auto const high = left.high_limb_ + right.high_limb_ + carry_middle + carry_adjusted;
+        auto const high = left.high_limb + right.high_limb + carry_middle + carry_adjusted;
         return UInt192{low, middle_adjusted, high};
     }
 
     /// Subtracts two values modulo 2^192.
     [[nodiscard]]
     friend constexpr auto operator-(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
-        auto const low = left.low_limb_ - right.low_limb_;
-        ::std::uint64_t const borrow_low = left.low_limb_ < right.low_limb_ ? 1 : 0;
-        auto const middle = left.middle_limb_ - right.middle_limb_;
-        ::std::uint64_t const borrow_middle = left.middle_limb_ < right.middle_limb_ ? 1 : 0;
+        auto const low = left.low_limb - right.low_limb;
+        ::std::uint64_t const borrow_low = left.low_limb < right.low_limb ? 1 : 0;
+        auto const middle = left.middle_limb - right.middle_limb;
+        ::std::uint64_t const borrow_middle = left.middle_limb < right.middle_limb ? 1 : 0;
         auto const middle_adjusted = middle - borrow_low;
         ::std::uint64_t const borrow_adjusted = middle < borrow_low ? 1 : 0;
-        auto const high = left.high_limb_ - right.high_limb_ - borrow_middle - borrow_adjusted;
+        auto const high = left.high_limb - right.high_limb - borrow_middle - borrow_adjusted;
         return UInt192{low, middle_adjusted, high};
     }
 
     /// Multiplies by a 64-bit factor, keeping the low 192 bits.
     [[nodiscard]]
     friend constexpr auto operator*(UInt192 const& value, ::std::uint64_t const factor) noexcept -> UInt192 {
-        auto const low_product = UInt128{value.low_limb_} * factor;
-        auto const middle_product = UInt128{value.middle_limb_} * factor;
-        auto const high_product = UInt128{value.high_limb_} * factor;
+        auto const low_product = UInt128{value.low_limb} * factor;
+        auto const middle_product = UInt128{value.middle_limb} * factor;
+        auto const high_product = UInt128{value.high_limb} * factor;
 
         auto const low_high = static_cast<::std::uint64_t>(low_product >> 64);
         auto const middle = static_cast<::std::uint64_t>(middle_product) + low_high;
@@ -165,7 +165,7 @@ public:
         }
         auto const limb_shift = count / 64;
         auto const bit_shift = count % 64;
-        ::std::uint64_t const source[3]{value.low_limb_, value.middle_limb_, value.high_limb_};
+        ::std::uint64_t const source[3]{value.low_limb, value.middle_limb, value.high_limb};
         ::std::uint64_t result[3]{};
         for (unsigned i{}; i < 3; ++i) {
             auto const destination = i + limb_shift;
@@ -191,7 +191,7 @@ public:
         }
         auto const limb_shift = count / 64;
         auto const bit_shift = count % 64;
-        ::std::uint64_t const source[3]{value.low_limb_, value.middle_limb_, value.high_limb_};
+        ::std::uint64_t const source[3]{value.low_limb, value.middle_limb, value.high_limb};
         ::std::uint64_t result[3]{};
         for (unsigned i{}; i < 3; ++i) {
             if (i < limb_shift) {
@@ -208,8 +208,8 @@ public:
     /// Bitwise OR, used to assemble multi-limb values from shifted 64-bit parts.
     [[nodiscard]]
     friend constexpr auto operator|(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
-        return UInt192{left.low_limb_ | right.low_limb_, left.middle_limb_ | right.middle_limb_,
-                       left.high_limb_ | right.high_limb_};
+        return UInt192{left.low_limb | right.low_limb, left.middle_limb | right.middle_limb,
+                       left.high_limb | right.high_limb};
     }
 
     [[nodiscard]]
@@ -218,15 +218,15 @@ public:
     /// Three-way comparison, most significant limb first.
     [[nodiscard]]
     constexpr auto operator<=>(this UInt192 const& self, UInt192 const& other) noexcept -> ::std::strong_ordering {
-        if (self.high_limb_ != other.high_limb_) {
-            return self.high_limb_ < other.high_limb_ ? ::std::strong_ordering::less : ::std::strong_ordering::greater;
+        if (self.high_limb != other.high_limb) {
+            return self.high_limb < other.high_limb ? ::std::strong_ordering::less : ::std::strong_ordering::greater;
         }
-        if (self.middle_limb_ != other.middle_limb_) {
-            return self.middle_limb_ < other.middle_limb_ ? ::std::strong_ordering::less
+        if (self.middle_limb != other.middle_limb) {
+            return self.middle_limb < other.middle_limb ? ::std::strong_ordering::less
                                                           : ::std::strong_ordering::greater;
         }
-        if (self.low_limb_ != other.low_limb_) {
-            return self.low_limb_ < other.low_limb_ ? ::std::strong_ordering::less : ::std::strong_ordering::greater;
+        if (self.low_limb != other.low_limb) {
+            return self.low_limb < other.low_limb ? ::std::strong_ordering::less : ::std::strong_ordering::greater;
         }
         return ::std::strong_ordering::equal;
     }
