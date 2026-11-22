@@ -17,6 +17,10 @@
 #include "../container/string_view.hh"
 #include "contracts.hh"
 #include "literal_string.hh"
+#include "ascii.hh"
+#include "format/floating.hh"
+#include "format/integer.hh"
+#include "parser/decimal.hh"
 
 #include "push_macro.hh"
 
@@ -28,83 +32,6 @@
 #undef max
 
 namespace pltxt2htm::details {
-
-/**
- * @brief Check if a character is an ASCII letter.
- * @param chr The character to test.
- * @return true if chr is in [a-zA-Z].
- */
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr bool is_ascii_alpha(char8_t const chr) noexcept {
-    return (u8'a' <= chr && chr <= u8'z') || (u8'A' <= chr && chr <= u8'Z');
-}
-
-/**
- * @brief Check if a character is an ASCII digit.
- * @param chr The character to test.
- * @return true if chr is in [0-9].
- */
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr bool is_ascii_digit(char8_t const chr) noexcept {
-    return u8'0' <= chr && chr <= u8'9';
-}
-
-/**
- * @brief Check if a character is an ASCII hexadecimal digit.
- * @param chr The character to test.
- * @return true if chr is in [0-9a-fA-F].
- */
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr bool is_ascii_hexdigit(char8_t const chr) noexcept {
-    return ::pltxt2htm::details::is_ascii_digit(chr) || (u8'a' <= chr && chr <= u8'f') ||
-           (u8'A' <= chr && chr <= u8'F');
-}
-
-/**
- * @brief Check if a character is printable ASCII excluding space.
- */
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr bool is_ascii_graphic(char8_t const chr) noexcept {
-    return u8'!' <= chr && chr <= u8'~';
-}
-
-/**
- * @brief Check if a character is ASCII punctuation.
- * @details This is the character set CommonMark permits after a backslash escape.
- */
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr bool is_ascii_punctuation(char8_t const chr) noexcept {
-    return (u8'!' <= chr && chr <= u8'/') || (u8':' <= chr && chr <= u8'@') || (u8'[' <= chr && chr <= u8'`') ||
-           (u8'{' <= chr && chr <= u8'~');
-}
-
-/**
- * @brief Check if a character is allowed in a URL-valued tag attribute.
- * @details Printable ASCII plus any non-ASCII byte (e.g. UTF-8 CJK); non-ASCII bytes are
- *          percent-encoded later by Url::try_make.
- */
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr bool is_url_value_char(char8_t const chr) noexcept {
-    return ::pltxt2htm::details::is_ascii_graphic(chr) || chr >= char8_t(0x80);
-}
 
 /**
  * @brief Check if a string is a case-insensitive prefix match
@@ -174,92 +101,6 @@ constexpr bool is_prefix_match(::pltxt2htm::container::U8StringView str) noexcep
 }
 
 /**
- * @brief Generate the lookup table of two-digit decimal pairs ("00" through "99").
- */
-[[nodiscard]]
-consteval auto make_decimal_digit_pairs() noexcept -> ::pltxt2htm::details::U8LiteralString<200> {
-    auto pairs = ::pltxt2htm::details::U8LiteralString<200>{};
-    for (::std::size_t i{}; i < 100; ++i) {
-        pairs[i * 2] = static_cast<char8_t>(u8'0' + i / 10);
-        pairs[i * 2 + 1] = static_cast<char8_t>(u8'0' + i % 10);
-    }
-    return pairs;
-}
-
-inline constexpr auto decimal_digit_pairs = ::pltxt2htm::details::make_decimal_digit_pairs();
-
-/**
- * @brief Write the decimal digits of an unsigned integer backward into a buffer.
- * @details Digits are emitted into [returned pointer, buffer_end) so callers need
- *          no digit-count pre-pass and no reversal pass. Two digits are written per
- *          iteration through a 100-entry lookup table, halving the number of divisions.
- * @tparam T The unsigned integer type of value.
- * @param[in] value The value to write; any unsigned value is accepted, including 0.
- * @param[in] buffer_end One past the last writable element; the buffer must have room
- *            for digits10(T) + 1 characters.
- * @return Pointer to the first written digit.
- */
-template<::std::unsigned_integral T>
-[[nodiscard]]
-constexpr auto write_decimal_digits_backward(T value, char8_t* const buffer_end) noexcept -> char8_t* {
-    auto ptr = buffer_end;
-    while (value >= 100) {
-        auto const pair_index = static_cast<::std::size_t>(value % 100) * 2;
-        value /= 100;
-        // The ones digit sits at the higher address since we fill backward.
-        *--ptr = ::pltxt2htm::details::decimal_digit_pairs[pair_index + 1];
-        *--ptr = ::pltxt2htm::details::decimal_digit_pairs[pair_index];
-    }
-    if (value >= 10) {
-        auto const pair_index = static_cast<::std::size_t>(value) * 2;
-        // The ones digit sits at the higher address since we fill backward.
-        *--ptr = ::pltxt2htm::details::decimal_digit_pairs[pair_index + 1];
-        *--ptr = ::pltxt2htm::details::decimal_digit_pairs[pair_index];
-    }
-    else {
-        *--ptr = static_cast<char8_t>(u8'0' + value);
-    }
-    return ptr;
-}
-
-/**
- * @brief Convert a std::size_t to a UTF-8 string
- * @param[in] num The number to convert
- * @return A UTF-8 string representation of the number
- * @retval container::U8String UTF-8 string containing the number representation
- * @note Digits are written backward into a fixed stack buffer (two per iteration
- *       through a lookup table) and the result is constructed with the exact final
- *       size, so the conversion performs a single allocation with no reversal pass
- *       and no per-digit capacity checks.
- */
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto size_t2str(::std::size_t num) noexcept -> ::pltxt2htm::container::U8String {
-    // digits10(size_t) + 1 characters cover every value, including the extra digit
-    // that digits10 does not account for.
-    char8_t buffer[::std::numeric_limits<::std::size_t>::digits10 + 2];
-    char8_t const* const begin = ::pltxt2htm::details::write_decimal_digits_backward(num, buffer + sizeof(buffer));
-    return ::pltxt2htm::container::U8String{begin, buffer + sizeof(buffer)};
-}
-
-/**
- * @brief Convert a ::std::uint64_t to a UTF-8 string.
- * @details Mirrors ::pltxt2htm::details::size_t2str. Scaled fixed-point values must stay
- *          64-bit even on 32-bit platforms, where ::std::size_t is too narrow for them.
- */
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto uint64_t2str(::std::uint64_t num) noexcept -> ::pltxt2htm::container::U8String {
-    char8_t buffer[::std::numeric_limits<::std::uint64_t>::digits10 + 2];
-    char8_t const* const begin = ::pltxt2htm::details::write_decimal_digits_backward(num, buffer + sizeof(buffer));
-    return ::pltxt2htm::container::U8String{begin, buffer + sizeof(buffer)};
-}
-
-/**
  * @brief Result of parsing an ASCII decimal value.
  */
 struct TryParseSizeTDecimalValueResult {
@@ -294,42 +135,6 @@ constexpr auto try_parse_size_t_decimal_value(::pltxt2htm::container::U8StringVi
         return ::pltxt2htm::container::nullopt;
     }
     return TryParseSizeTDecimalValueResult{.end = pos, .value = parsed_value};
-}
-
-/**
- * @brief Convert a signed integer (::std::ptrdiff_t) to a UTF-8 string.
- * @details Handles negative values with a leading U+002D '-' sign written directly
- *          into the buffer, avoiding a post-hoc insert. Mirrors
- *          ::pltxt2htm::details::size_t2str but for signed values.
- */
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto ptrdiff_t2str(::std::ptrdiff_t num) noexcept -> ::pltxt2htm::container::U8String {
-    using unsigned_type = ::std::make_unsigned_t<::std::ptrdiff_t>;
-
-    auto magnitude = static_cast<unsigned_type>(num);
-    bool const negative = num < 0;
-    if (negative) {
-        // Unsigned negation is well-defined and also covers ::std::ptrdiff_t min().
-        magnitude = static_cast<unsigned_type>(0) - magnitude;
-    }
-
-    // digits10 + 1 characters cover the magnitude and one more covers the '-'.
-    char8_t buffer[::std::numeric_limits<unsigned_type>::digits10 + 3];
-    char8_t* begin = ::pltxt2htm::details::write_decimal_digits_backward(magnitude, buffer + sizeof(buffer));
-    if (negative) {
-        // Split into two statements instead of `*--begin = u8'-'`: clang-tidy's
-        // misc-const-correctness does not recognize pointee writes through an
-        // adjusted pointer and wrongly suggests declaring the pointee const
-        // (llvm/llvm-project#215161). Fixed on LLVM main by
-        // llvm/llvm-project#215285, but the fix is in neither LLVM 22.x (CI)
-        // nor 23.1.0, so keep the two-statement form for now.
-        --begin;
-        *begin = u8'-';
-    }
-    return ::pltxt2htm::container::U8String{begin, buffer + sizeof(buffer)};
 }
 
 /**
@@ -391,155 +196,6 @@ constexpr auto try_parse_ptrdiff_t_decimal_value(::pltxt2htm::container::U8Strin
     }
 
     return TryParsePtrdiffTDecimalValueResult{.end = digit_pos, .value = value};
-}
-
-/**
- * @brief Result of parsing a non-negative ASCII decimal value that may be fractional.
- */
-struct TryParseDoubleDecimalValueResult {
-    ::std::size_t end;
-    double value;
-};
-
-/**
- * @brief Parse a non-negative ASCII decimal value that may contain a fractional part.
- * @details Accepts `[0-9]+` with an optional `.` followed by one or more `[0-9]`; a bare `.`
- *          without digits is rejected. Stops at the first character that is neither a digit nor
- *          the fraction dot; the returned `end` is the run length relative to `str`. The integer
- *          part is accumulated exactly in `::std::uint64_t` and converted to double once at the
- *          end, so a long digit run such as `<size=7173733806442602179>` is not rounded digit by
- *          digit while accumulating, which would drift by an ulp. The single conversion is still
- *          subject to the implementation-defined rounding direction of integer-to-double
- *          conversion. The value is stored as double so `<size=12.5>` keeps its fractional part
- *          exact enough to round-trip when emitted again.
- */
-[[nodiscard]]
-constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringView str) noexcept
-    -> ::pltxt2htm::container::Optional<TryParseDoubleDecimalValueResult> {
-    ::std::size_t const str_size{str.size()};
-    ::std::uint64_t integer_part{};
-    auto pos = ::std::size_t{0};
-    for (; pos < str_size; ++pos) {
-        auto const chr = str[pos];
-        if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
-            break;
-        }
-        auto const digit = static_cast<::std::uint64_t>(chr - u8'0');
-        if (integer_part > (::std::numeric_limits<::std::uint64_t>::max() - digit) / 10) {
-            return ::pltxt2htm::container::nullopt;
-        }
-        integer_part = integer_part * 10 + digit;
-    }
-    if (pos == 0) {
-        return ::pltxt2htm::container::nullopt;
-    }
-    auto parsed_value = static_cast<double>(integer_part);
-    if (pos < str_size && str[pos] == u8'.') {
-        auto const dot_pos = pos;
-        auto frac_pos = dot_pos + 1;
-        double scale{10};
-        for (; frac_pos < str_size; ++frac_pos) {
-            auto const chr = str[frac_pos];
-            if (::pltxt2htm::details::is_ascii_digit(chr) == false) {
-                break;
-            }
-            parsed_value += static_cast<double>(chr - u8'0') / scale;
-            scale *= 10;
-        }
-        if (frac_pos == dot_pos + 1) {
-            return ::pltxt2htm::container::nullopt;
-        }
-        pos = frac_pos;
-    }
-    // Reject values that cannot be represented in ::std::size_t so oversized tags stay literal
-    // text (preserving the historical behavior of try_parse_size_t_decimal_value). `>=` is used
-    // because double(std::size_t max) rounds up to 2^64, and any double >= 2^64 cannot fit.
-    if (parsed_value >= static_cast<double>(::std::numeric_limits<::std::size_t>::max())) {
-        return ::pltxt2htm::container::nullopt;
-    }
-    return TryParseDoubleDecimalValueResult{.end = pos, .value = parsed_value};
-}
-
-/**
- * @brief Round a non-negative double up to the nearest integer.
- */
-[[nodiscard]]
-constexpr auto double_to_size_t_ceil(double value) noexcept -> ::std::size_t {
-    auto const truncated = static_cast<::std::size_t>(value);
-    return static_cast<double>(truncated) < value ? truncated + 1 : truncated;
-}
-
-/**
- * @brief Convert a non-negative double to a UTF-8 decimal string that round-trips.
- * @details Tries fixed-point representations with 0 through 17 fractional digits and keeps the
- *          first one that parses back to exactly `value`. Integral values therefore print without
- *          a decimal point (e.g. 12.0 -> "12"), while fractional values print with the minimal
- *          number of digits (e.g. 12.5 -> "12.5").
- */
-[[nodiscard]]
-constexpr auto double2str(double value) noexcept -> ::pltxt2htm::container::U8String {
-    constexpr ::std::size_t max_fractional_digits{17};
-    // Round the scaled value as a 64-bit unsigned integer so 32-bit platforms get the same range
-    // as 64-bit ones: a 32-bit ::std::ptrdiff_t cannot hold `value * 10^fractional_digits` even
-    // when the decimal form would round-trip (214748364.75 needs 21474836475), and rounding a
-    // signed maximum up would overflow. 2^63 is the bound the signed 64-bit form effectively
-    // produced (::std::ptrdiff_t max converted to double, plus one) and is spelled out so the
-    // emitted digits do not depend on the integer width. Do not widen it to 2^64; see the
-    // fallback below.
-    constexpr double max_scaled{9223372036854775808.0};
-    ::pltxt2htm::container::U8String fallback{};
-    for (::std::size_t fractional_digits{0}; fractional_digits <= max_fractional_digits; ++fractional_digits) {
-        double scale{1};
-        for (::std::size_t i{0}; i < fractional_digits; ++i) {
-            scale *= 10;
-        }
-        double const scaled = value * scale;
-        if (scaled >= max_scaled) {
-            continue;
-        }
-        auto rounded = static_cast<::std::uint64_t>(scaled);
-        if (static_cast<double>(rounded) < scaled) {
-            ++rounded;
-        }
-        auto const digit_str = ::pltxt2htm::details::uint64_t2str(rounded);
-        ::std::size_t const digit_str_size{digit_str.size()};
-        ::pltxt2htm::container::U8String candidate{};
-        if (fractional_digits == 0) {
-            candidate = digit_str;
-        }
-        else if (digit_str_size > fractional_digits) {
-            auto const frac_start = digit_str_size - fractional_digits;
-            candidate.append(::pltxt2htm::container::U8StringView{digit_str.data(), frac_start});
-            candidate.push_back(u8'.');
-            candidate.append(::pltxt2htm::container::U8StringView{digit_str.data() + frac_start, fractional_digits});
-        }
-        else {
-            candidate.append(u8"0.");
-            ::std::size_t const padding_size{fractional_digits - digit_str_size};
-            for (::std::size_t i{0}; i < padding_size; ++i) {
-                candidate.push_back(u8'0');
-            }
-            candidate.append(digit_str);
-        }
-        auto opt_reparsed =
-            ::pltxt2htm::details::try_parse_double_decimal_value(::pltxt2htm::container::U8StringView{candidate});
-        bool const round_trips = opt_reparsed.has_value() && (opt_reparsed.value().value == value);
-        if (round_trips) {
-            return candidate;
-        }
-        // The last candidate is kept even when it does not round-trip. This is why the bound
-        // above must stay at 2^63: a wider bound would emit this unverified fallback for
-        // ordinary font sizes and break the roundtrip idempotence the fuzzers check.
-        if (fractional_digits == max_fractional_digits) {
-            fallback = ::std::move(candidate);
-        }
-    }
-    if (fallback.is_empty() == false) {
-        return fallback;
-    }
-    // Values outside the fixed-point range fall back to the truncated integer part instead of
-    // failing; the conversion below requires value <= ::std::size_t max.
-    return ::pltxt2htm::details::size_t2str(static_cast<::std::size_t>(value));
 }
 
 } // namespace pltxt2htm::details

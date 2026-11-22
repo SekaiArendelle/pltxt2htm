@@ -59,10 +59,9 @@ TEST_SUITE("unity_size_tag") {
     }
 
     TEST_CASE("roundtrip-long-fraction-stays-stable") {
-        // double2str keeps its last (17-fractional-digit) candidate as an unverified fallback.
-        // If its fixed-point bound were raised past 2^63, values such as this one would emit a
-        // decimal string that the parser reads back as a different double, so the two passes
-        // would disagree. The fixed-point bound must stay where the signed 64-bit form had it.
+        // Regression: a formatter must only emit strings that the parser reads back to the same
+        // value. A long fraction such as this one used to be emitted from an unverified
+        // candidate, so the second pass produced a different decimal and the roundtrip drifted.
         auto const& pltext = u8"<size=175.002439047em>hello</size>";
         auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
         auto reparsed_html =

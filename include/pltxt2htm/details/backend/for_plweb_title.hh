@@ -134,7 +134,7 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.value();
                     result.append(u8"font-size:");
-                    result.append(::pltxt2htm::details::double2str(font_size.value));
+                    ::pltxt2htm::details::append_decimal(result, font_size.value);
                     switch (font_size.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
@@ -165,7 +165,7 @@ entry:
                             ::pltxt2htm::details::vertical_align_keyword_string(vertical_align.get_keyword()));
                     }
                     else {
-                        result.append(::pltxt2htm::details::ptrdiff_t2str(vertical_align.get_length().value));
+                        ::pltxt2htm::details::append_decimal(result, vertical_align.get_length().value);
                         switch (vertical_align.get_length().unit) /* -Werror=switch */ {
                         case ::pltxt2htm::Unit::percent: {
                             result.push_back(u8'%');
