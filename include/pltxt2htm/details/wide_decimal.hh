@@ -68,18 +68,6 @@ class UInt128 {
         return UInt128{low, high};
     }
 
-    /// Least significant 64-bit half.
-    [[nodiscard]]
-    constexpr auto low64() const noexcept -> ::std::uint64_t {
-        return low_limb_;
-    }
-
-    /// Most significant 64-bit half.
-    [[nodiscard]]
-    constexpr auto high64() const noexcept -> ::std::uint64_t {
-        return high_limb_;
-    }
-
 public:
     constexpr UInt128() noexcept = default;
 
@@ -96,11 +84,11 @@ public:
     [[nodiscard]]
     constexpr explicit operator T(this UInt128 const& self) noexcept {
         if constexpr (::std::same_as<T, bool>) {
-            return self.low64() != 0 || self.high64() != 0;
+            return self.low_limb_ != 0 || self.high_limb_ != 0;
         }
         else {
             static_assert(sizeof(T) <= 8, "the portable UInt128 converts to at most 64 bits");
-            return static_cast<T>(self.low64());
+            return static_cast<T>(self.low_limb_);
         }
     }
 
@@ -109,7 +97,8 @@ public:
     constexpr auto operator*(this UInt128 const& self, ::std::uint64_t const factor) noexcept -> UInt128 {
         auto const low_product = UInt128::multiply_64x64(self.low_limb_, factor);
         auto const high_product = UInt128::multiply_64x64(self.high_limb_, factor);
-        return UInt128{low_product.low64(), static_cast<::std::uint64_t>(high_product.low64() + low_product.high64())};
+        return UInt128{low_product.low_limb_,
+                       static_cast<::std::uint64_t>(high_product.low_limb_ + low_product.high_limb_)};
     }
 
     /// Logical right shift. `count` must be less than 128 to match the native type; the portable
@@ -126,10 +115,10 @@ public:
         auto const limb_shift = count / 64;
         auto const bit_shift = count % 64;
         if (limb_shift == 0) {
-            return UInt128{(self.low64() >> bit_shift) | (self.high64() << (64 - bit_shift)),
-                           self.high64() >> bit_shift};
+            return UInt128{(self.low_limb_ >> bit_shift) | (self.high_limb_ << (64 - bit_shift)),
+                           self.high_limb_ >> bit_shift};
         }
-        return UInt128{self.high64() >> bit_shift, 0};
+        return UInt128{self.high_limb_ >> bit_shift, 0};
     }
 };
 #endif
