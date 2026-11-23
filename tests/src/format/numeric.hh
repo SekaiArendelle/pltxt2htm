@@ -5,6 +5,7 @@
 #include <cstdint>
 
 #include <pltxt2htm/numeric/uint192.hh>
+#include <pltxt2htm/details/parser/decimal.hh>
 
 #include "doctest_config.hh"
 
@@ -359,7 +360,7 @@ TEST_SUITE("numeric_integers") {
     }
 
     TEST_CASE("ratio-to-double") {
-        using ::pltxt2htm::numeric::decimal_ratio_to_double;
+        using ::pltxt2htm::details::decimal_ratio_to_double;
         using ::pltxt2htm::numeric::pow;
         using ::pltxt2htm::numeric::UInt192;
         using ::pltxt2htm_test::numeric_details::make;
@@ -384,7 +385,7 @@ TEST_SUITE("numeric_integers") {
     }
 
     TEST_CASE("constexpr-evaluation") {
-        using ::pltxt2htm::numeric::decimal_ratio_to_double;
+        using ::pltxt2htm::details::decimal_ratio_to_double;
         using ::pltxt2htm::numeric::divide;
         using ::pltxt2htm_test::numeric_details::make;
 
