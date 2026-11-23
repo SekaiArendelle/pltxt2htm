@@ -284,7 +284,6 @@ TEST_SUITE("numeric_integers") {
     }
 
     TEST_CASE("divide-operators") {
-        using ::pltxt2htm::numeric::divide;
         using ::pltxt2htm_test::numeric_details::make;
 
         CHECK((make(100) / make(7)) == make(14));
@@ -299,9 +298,14 @@ TEST_SUITE("numeric_integers") {
 
         auto const numerator = make(0xFFFFFFFFFFFFFFFFull, 0x0123456789ABCDEFull, 0xFEDCBA9876543210ull);
         auto const divisor = make(0x9E3779B97F4A7C15ull);
-        auto const result = divide(numerator, divisor);
-        CHECK((numerator / divisor) == result.quotient);
-        CHECK((numerator % divisor) == result.remainder);
+        // Precomputed quotient and remainder are an independent oracle; dividing and comparing
+        // against divide()'s own result would be a tautology.
+        auto const expected_quotient = make(0xC4871CA04BA57AD1ull, 0x9C60305DA68C2512ull, 0x1ull);
+        auto const expected_remainder = make(0x60A682697485B0DAull);
+        CHECK((numerator / divisor) == expected_quotient);
+        CHECK((numerator % divisor) == expected_remainder);
+        CHECK(((expected_quotient * divisor) + expected_remainder) == numerator);
+        CHECK(expected_remainder < divisor);
     }
 
     TEST_CASE("powers-and-divide") {
@@ -335,6 +339,23 @@ TEST_SUITE("numeric_integers") {
         CHECK(((wide_division.quotient * static_cast<::std::uint64_t>(wide_divisor)) + wide_division.remainder) ==
               wide_numerator);
         CHECK(wide_division.remainder < wide_divisor);
+
+        // Divisors spanning all three limbs, including one just above 2^191 where the running
+        // remainder grows largest, pin the invariant that shifting the remainder left stays in range.
+        auto const all_ones = make(0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull);
+        auto const three_limb_divisor = make(0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull, 0x7FFFFFFFFFFFFFFFull);
+        auto const three_limb_division = divide(all_ones, three_limb_divisor);
+        CHECK(three_limb_division.quotient == make(2));
+        CHECK(three_limb_division.remainder == make(1));
+
+        auto const above_2_pow_191_divisor = make(0x0000000000000001ull, 0, 0x8000000000000000ull);
+        auto const above_2_pow_191_division = divide(all_ones, above_2_pow_191_divisor);
+        CHECK(above_2_pow_191_division.quotient == make(1));
+        CHECK(above_2_pow_191_division.remainder ==
+              make(0xFFFFFFFFFFFFFFFEull, 0xFFFFFFFFFFFFFFFFull, 0x7FFFFFFFFFFFFFFFull));
+        CHECK(((above_2_pow_191_division.quotient * above_2_pow_191_divisor) + above_2_pow_191_division.remainder) ==
+              all_ones);
+        CHECK(above_2_pow_191_division.remainder < above_2_pow_191_divisor);
     }
 
     TEST_CASE("ratio-to-double") {
@@ -353,9 +374,28 @@ TEST_SUITE("numeric_integers") {
         CHECK(decimal_ratio_to_double(pow(UInt192{10}, 19) * 3, 19) == 3.0);
         CHECK(decimal_ratio_to_double(make(0xFFFFFFFFFFFFFFFFull), 0) == 18446744073709551616.0);
 
-        // 2^53 + 1 is exactly halfway between two doubles: ties-to-even goes down, and a sticky
-        // tail above the midpoint goes up.
+        // 2^53 + 1 is exactly halfway between two doubles and rounds down (ties-to-even), while a
+        // sticky tail above the midpoint goes up.
         CHECK(decimal_ratio_to_double(make(9007199254740993ull), 0) == 9007199254740992.0);
         CHECK(decimal_ratio_to_double(make(9007199254740993ull), 0, true) == 9007199254740994.0);
+        // 2^53 + 3 is exactly halfway and the lower candidate has an odd significand, so
+        // ties-to-even rounds up.
+        CHECK(decimal_ratio_to_double(make(9007199254740995ull), 0) == 9007199254740996.0);
+    }
+
+    TEST_CASE("constexpr-evaluation") {
+        using ::pltxt2htm::numeric::decimal_ratio_to_double;
+        using ::pltxt2htm::numeric::divide;
+        using ::pltxt2htm_test::numeric_details::make;
+
+        static_assert((make(1) << 191) == make(0, 0, 0x8000000000000000ull));
+        static_assert((make(0, 0, 0x8000000000000000ull) >> 191) == make(1));
+        static_assert(divide(make(0xFFFFFFFFFFFFFFFFull, 0x0123456789ABCDEFull, 0xFEDCBA9876543210ull),
+                             make(0x9E3779B97F4A7C15ull))
+                          .quotient == make(0xC4871CA04BA57AD1ull, 0x9C60305DA68C2512ull, 0x1ull));
+        static_assert(divide(make(0xFFFFFFFFFFFFFFFFull, 0x0123456789ABCDEFull, 0xFEDCBA9876543210ull),
+                             make(0x9E3779B97F4A7C15ull))
+                          .remainder == make(0x60A682697485B0DAull));
+        static_assert(decimal_ratio_to_double(make(9007199254740995ull), 0) == 9007199254740996.0);
     }
 }
