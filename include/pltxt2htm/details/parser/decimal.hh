@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <limits>
 
+#include "../../container/array.hh"
 #include "../../container/optional.hh"
 #include "../../container/string_view.hh"
 #include "../ascii.hh"
@@ -24,46 +25,6 @@ struct TryParseDoubleDecimalValueResult {
     ::std::size_t end;
     double value;
 };
-
-namespace parser_details {
-
-/// Exact powers of ten that fit a ::std::uint64_t (10^0 through 10^19).
-inline constexpr ::std::uint64_t decimal_powers_of_ten[]{
-    1ull,
-    10ull,
-    100ull,
-    1000ull,
-    10000ull,
-    100000ull,
-    1000000ull,
-    10000000ull,
-    100000000ull,
-    1000000000ull,
-    10000000000ull,
-    100000000000ull,
-    1000000000000ull,
-    10000000000000ull,
-    100000000000000ull,
-    1000000000000000ull,
-    10000000000000000ull,
-    100000000000000000ull,
-    1000000000000000000ull,
-    10000000000000000000ull,
-};
-
-/// The number of exact powers of ten in decimal_powers_of_ten.
-inline constexpr ::std::size_t decimal_powers_of_ten_size{sizeof(decimal_powers_of_ten) / sizeof(::std::uint64_t)};
-
-/// 2^53, the largest integer magnitude a double represents exactly.
-inline constexpr ::std::uint64_t exact_integer_limit{::std::uint64_t{1} << 53};
-
-/// Number of significant fraction digits retained exactly (fits 10^19 in a uint64).
-inline constexpr ::std::size_t max_significant_fraction_digits{decimal_powers_of_ten_size - 1};
-
-/// Largest decimal scale whose exact numerator (integer part * 10^scale + fraction) fits 192 bits.
-inline constexpr ::std::size_t max_exact_scale_digits{38};
-
-} // namespace parser_details
 
 /**
  * @brief Parse a non-negative ASCII decimal value that may contain a fractional part.
@@ -85,6 +46,30 @@ inline constexpr ::std::size_t max_exact_scale_digits{38};
 [[nodiscard]]
 constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringView str) noexcept
     -> ::pltxt2htm::container::Optional<TryParseDoubleDecimalValueResult> {
+    /// Exact powers of ten that fit a ::std::uint64_t (10^0 through 10^19).
+    constexpr auto decimal_powers_of_ten = ::pltxt2htm::container::Array{
+        ::std::uint64_t{1ull},
+        ::std::uint64_t{10ull},
+        ::std::uint64_t{100ull},
+        ::std::uint64_t{1000ull},
+        ::std::uint64_t{10000ull},
+        ::std::uint64_t{100000ull},
+        ::std::uint64_t{1000000ull},
+        ::std::uint64_t{10000000ull},
+        ::std::uint64_t{100000000ull},
+        ::std::uint64_t{1000000000ull},
+        ::std::uint64_t{10000000000ull},
+        ::std::uint64_t{100000000000ull},
+        ::std::uint64_t{1000000000000ull},
+        ::std::uint64_t{10000000000000ull},
+        ::std::uint64_t{100000000000000ull},
+        ::std::uint64_t{1000000000000000ull},
+        ::std::uint64_t{10000000000000000ull},
+        ::std::uint64_t{100000000000000000ull},
+        ::std::uint64_t{1000000000000000000ull},
+        ::std::uint64_t{10000000000000000000ull},
+    };
+
     ::std::size_t const str_size{str.size()};
     ::std::uint64_t integer_part{};
     auto pos = ::std::size_t{0};
@@ -128,7 +113,7 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
                 }
                 seen_significant_digit = true;
             }
-            if (significant_fraction_digits < parser_details::max_significant_fraction_digits) {
+            if (significant_fraction_digits < decimal_powers_of_ten.size() - 1) {
                 fraction = fraction * 10 + digit;
                 ++significant_fraction_digits;
             }
@@ -147,8 +132,10 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
     auto const scale_digits = leading_zero_digits + significant_fraction_digits;
 
     double value{};
+    /// 2^53, the largest integer magnitude a double represents exactly.
+    constexpr ::std::uint64_t exact_integer_limit{::std::uint64_t{1} << 53};
     if (significant_fraction_digits == 0) {
-        if (integer_part < parser_details::exact_integer_limit) {
+        if (integer_part < exact_integer_limit) {
             value = static_cast<double>(integer_part);
         }
         else {
@@ -159,11 +146,11 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
     }
     else {
         bool exact{};
-        if (scale_digits < parser_details::decimal_powers_of_ten_size) {
-            auto const scale = parser_details::decimal_powers_of_ten[scale_digits];
+        if (scale_digits < decimal_powers_of_ten.size()) {
+            auto const scale = decimal_powers_of_ten[scale_digits];
             auto const scale_double = static_cast<double>(scale);
-            if (integer_part <= (parser_details::exact_integer_limit - 1) / scale &&
-                integer_part * scale + fraction < parser_details::exact_integer_limit) {
+            if (integer_part <= (exact_integer_limit - 1) / scale &&
+                integer_part * scale + fraction < exact_integer_limit) {
                 // The whole significand is exactly representable, so a single division produces
                 // the correctly rounded value.
                 value = static_cast<double>(integer_part * scale + fraction) / scale_double;
@@ -171,7 +158,9 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
             }
         }
         if (exact == false) {
-            if (scale_digits <= parser_details::max_exact_scale_digits) {
+            /// Largest decimal scale whose exact numerator (integer part * 10^scale + fraction) fits 192 bits.
+            constexpr ::std::size_t max_exact_scale_digits{38};
+            if (scale_digits <= max_exact_scale_digits) {
                 // Exactly rounded: build the full rational numerator and let the shared 192-bit
                 // helper handle the rounding, so long fractions never drift by an ulp.
                 auto const numerator =
