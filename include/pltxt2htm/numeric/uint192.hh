@@ -21,6 +21,7 @@
 #include <cstdint>
 
 #include "uint128.hh"
+#include "../details/push_macro.hh"
 
 namespace pltxt2htm::numeric {
 
@@ -549,6 +550,7 @@ constexpr auto operator%(T const& left, UInt192 const& right) noexcept -> UInt19
 [[nodiscard]]
 constexpr auto decimal_ratio_to_double(UInt192 const numerator, ::std::size_t const scale_digits,
                                        bool const extra_sticky = false) noexcept -> double {
+    pltxt2htm_assert(scale_digits <= 38, u8"scale_digits must not exceed 38");
     if (numerator == UInt192{}) {
         return 0.0;
     }
@@ -593,3 +595,5 @@ constexpr auto decimal_ratio_to_double(UInt192 const numerator, ::std::size_t co
 }
 
 } // namespace pltxt2htm::numeric
+
+#include "../details/pop_macro.hh"
