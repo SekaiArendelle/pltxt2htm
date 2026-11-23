@@ -570,10 +570,9 @@ constexpr auto decimal_ratio_to_double(UInt192 const numerator, ::std::size_t co
     auto const drop_bits = quotient_bits - 53;
     auto const quotient_low = static_cast<::std::uint64_t>(quotient);
     auto mantissa = quotient_low >> drop_bits;
-    bool const round_bit = ((quotient_low >> (drop_bits - 1)) & 1) != 0;
+    bool const round_bit{((quotient_low >> (drop_bits - 1)) & 1) != 0};
     ::std::uint64_t const low_mask = (::std::uint64_t{1} << (drop_bits - 1)) - 1;
-    bool const sticky = (quotient_low & low_mask) != 0 || (quotient >> 64) != UInt192{} ||
-                        division.remainder != UInt192{} || extra_sticky;
+    bool const sticky{(quotient_low & low_mask) != 0 || division.remainder != UInt192{} || extra_sticky};
     if (round_bit && (sticky || (mantissa & 1) != 0)) {
         ++mantissa;
     }
