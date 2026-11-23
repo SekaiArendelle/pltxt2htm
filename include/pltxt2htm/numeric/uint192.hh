@@ -468,6 +468,54 @@ constexpr auto divide(UInt192 const numerator, UInt192 const divisor) noexcept -
 }
 
 /**
+ * @brief Unsigned division of two 192-bit integers.
+ * @pre `right` is non-zero.
+ */
+[[nodiscard]]
+constexpr auto operator/(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
+    return divide(left, right).quotient;
+}
+
+/**
+ * @brief Unsigned remainder of two 192-bit integers.
+ * @pre `right` is non-zero.
+ */
+[[nodiscard]]
+constexpr auto operator%(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
+    return divide(left, right).remainder;
+}
+
+/// Division with an integer operand converted to UInt192.
+template<details::integer_operand T>
+    requires (!::std::same_as<T, UInt192>)
+[[nodiscard]]
+constexpr auto operator/(UInt192 const& left, T const& right) noexcept -> UInt192 {
+    return left / UInt192{right};
+}
+
+template<details::integer_operand T>
+    requires (!::std::same_as<T, UInt192>)
+[[nodiscard]]
+constexpr auto operator/(T const& left, UInt192 const& right) noexcept -> UInt192 {
+    return UInt192{left} / right;
+}
+
+/// Remainder with an integer operand converted to UInt192.
+template<details::integer_operand T>
+    requires (!::std::same_as<T, UInt192>)
+[[nodiscard]]
+constexpr auto operator%(UInt192 const& left, T const& right) noexcept -> UInt192 {
+    return left % UInt192{right};
+}
+
+template<details::integer_operand T>
+    requires (!::std::same_as<T, UInt192>)
+[[nodiscard]]
+constexpr auto operator%(T const& left, UInt192 const& right) noexcept -> UInt192 {
+    return UInt192{left} % right;
+}
+
+/**
  * @brief Round a positive rational to the nearest double with ties to even.
  * @param numerator The significand.
  * @param scale_digits The number of decimal places: the value is numerator / 10^scale_digits.

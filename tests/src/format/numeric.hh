@@ -283,6 +283,27 @@ TEST_SUITE("numeric_integers") {
 #endif
     }
 
+    TEST_CASE("divide-operators") {
+        using ::pltxt2htm::numeric::divide;
+        using ::pltxt2htm_test::numeric_details::make;
+
+        CHECK((make(100) / make(7)) == make(14));
+        CHECK((make(100) % make(7)) == make(2));
+        CHECK((make(7) / make(100)) == make(0));
+        CHECK((make(7) % make(100)) == make(7));
+
+        CHECK((make(100) / 7u) == make(14));
+        CHECK((make(100) % 7u) == make(2));
+        CHECK((100u / make(7)) == make(14));
+        CHECK((100u % make(7)) == make(2));
+
+        auto const numerator = make(0xFFFFFFFFFFFFFFFFull, 0x0123456789ABCDEFull, 0xFEDCBA9876543210ull);
+        auto const divisor = make(0x9E3779B97F4A7C15ull);
+        auto const result = divide(numerator, divisor);
+        CHECK((numerator / divisor) == result.quotient);
+        CHECK((numerator % divisor) == result.remainder);
+    }
+
     TEST_CASE("powers-and-divide") {
         using ::pltxt2htm::numeric::divide;
         using ::pltxt2htm::numeric::pow5;
