@@ -410,28 +410,48 @@ public:
     }
 };
 
-/**
- * @brief Compute 5^exponent as a 192-bit integer.
- */
+namespace details {
+
+/// Repeated multiplication by a 64-bit factor; the cheapest path for narrow bases.
 [[nodiscard]]
-constexpr auto pow5(::std::size_t exponent) noexcept -> UInt192 {
+constexpr auto pow_narrow(::std::uint64_t const factor, ::std::size_t exponent) noexcept -> UInt192 {
     UInt192 result{1};
     for (::std::size_t i{}; i < exponent; ++i) {
-        result = result * ::std::uint64_t{5};
+        result = result * factor;
     }
     return result;
 }
 
-/**
- * @brief Compute 10^exponent as a 192-bit integer.
- */
+/// Exponentiation by squaring, used for wide bases or large exponents.
 [[nodiscard]]
-constexpr auto pow10(::std::size_t exponent) noexcept -> UInt192 {
+constexpr auto pow_wide(UInt192 base, ::std::size_t exponent) noexcept -> UInt192 {
     UInt192 result{1};
-    for (::std::size_t i{}; i < exponent; ++i) {
-        result = result * ::std::uint64_t{10};
+    while (exponent != 0) {
+        if ((exponent & 1) != 0) {
+            result = result * base;
+        }
+        exponent >>= 1;
+        if (exponent != 0) {
+            base = base * base;
+        }
     }
     return result;
+}
+
+} // namespace details
+
+/**
+ * @brief Raise a 192-bit integer to an unsigned power, modulo 2^192.
+ * @details A narrow base with a small exponent uses repeated multiplication by a 64-bit factor,
+ *          which is cheaper than squaring full-width intermediate values; other cases use
+ *          exponentiation by squaring. `pow(base, 0)` is one.
+ */
+[[nodiscard]]
+constexpr auto pow(UInt192 base, ::std::size_t exponent) noexcept -> UInt192 {
+    if ((base >> 64) == UInt192{} && exponent <= 64) {
+        return details::pow_narrow(static_cast<::std::uint64_t>(base), exponent);
+    }
+    return details::pow_wide(base, exponent);
 }
 
 /**
@@ -532,7 +552,7 @@ constexpr auto decimal_ratio_to_double(UInt192 const numerator, ::std::size_t co
     if (numerator == UInt192{}) {
         return 0.0;
     }
-    auto const divisor = ::pltxt2htm::numeric::pow10(scale_digits);
+    auto const divisor = ::pltxt2htm::numeric::pow(UInt192{10}, scale_digits);
     auto const numerator_bits = numerator.bit_length();
     auto const divisor_bits = divisor.bit_length();
     // Target a quotient of 57-58 bits: the 53-bit significand, one round bit, and slack. With this

@@ -306,20 +306,20 @@ TEST_SUITE("numeric_integers") {
 
     TEST_CASE("powers-and-divide") {
         using ::pltxt2htm::numeric::divide;
-        using ::pltxt2htm::numeric::pow5;
-        using ::pltxt2htm::numeric::pow10;
+        using ::pltxt2htm::numeric::pow;
+        using ::pltxt2htm::numeric::UInt192;
         using ::pltxt2htm_test::numeric_details::make;
 
-        CHECK(pow5(0) == make(1));
-        CHECK(pow5(3) == make(125));
-        CHECK(pow10(0) == make(1));
-        CHECK(pow10(19) == make(10000000000000000000ull));
-        CHECK((pow10(19) * 10) == pow10(20));
-        CHECK((pow10(38) * 10) == pow10(39));
+        CHECK(pow(UInt192{5}, 0) == make(1));
+        CHECK(pow(UInt192{5}, 3) == make(125));
+        CHECK(pow(UInt192{10}, 0) == make(1));
+        CHECK(pow(UInt192{10}, 19) == make(10000000000000000000ull));
+        CHECK((pow(UInt192{10}, 19) * 10) == pow(UInt192{10}, 20));
+        CHECK((pow(UInt192{10}, 38) * 10) == pow(UInt192{10}, 39));
 
         // q * d + r == n and r < d for a large numerator and a 64-bit divisor.
-        auto const numerator = pow10(38);
-        auto const divisor = pow5(19);
+        auto const numerator = pow(UInt192{10}, 38);
+        auto const divisor = pow(UInt192{5}, 19);
         auto const division = divide(numerator, divisor);
         CHECK(((division.quotient * static_cast<::std::uint64_t>(divisor)) + division.remainder) == numerator);
         CHECK(division.remainder < divisor);
@@ -339,7 +339,8 @@ TEST_SUITE("numeric_integers") {
 
     TEST_CASE("ratio-to-double") {
         using ::pltxt2htm::numeric::decimal_ratio_to_double;
-        using ::pltxt2htm::numeric::pow10;
+        using ::pltxt2htm::numeric::pow;
+        using ::pltxt2htm::numeric::UInt192;
         using ::pltxt2htm_test::numeric_details::make;
 
         CHECK(decimal_ratio_to_double(make(0), 5) == 0.0);
@@ -347,9 +348,9 @@ TEST_SUITE("numeric_integers") {
         CHECK(decimal_ratio_to_double(make(125), 1) == 12.5);
         CHECK(decimal_ratio_to_double(make(1), 1) == 0.1);
         CHECK(decimal_ratio_to_double(make(1), 18) == 1e-18);
-        CHECK(decimal_ratio_to_double(pow10(38), 38) == 1.0);
-        CHECK(decimal_ratio_to_double(pow10(38) + make(1), 38) == 1.0);
-        CHECK(decimal_ratio_to_double(pow10(19) * 3, 19) == 3.0);
+        CHECK(decimal_ratio_to_double(pow(UInt192{10}, 38), 38) == 1.0);
+        CHECK(decimal_ratio_to_double(pow(UInt192{10}, 38) + make(1), 38) == 1.0);
+        CHECK(decimal_ratio_to_double(pow(UInt192{10}, 19) * 3, 19) == 3.0);
         CHECK(decimal_ratio_to_double(make(0xFFFFFFFFFFFFFFFFull), 0) == 18446744073709551616.0);
 
         // 2^53 + 1 is exactly halfway between two doubles: ties-to-even goes down, and a sticky
