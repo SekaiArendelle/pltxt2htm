@@ -128,16 +128,6 @@ public:
         return static_cast<unsigned>(::std::bit_width(self.low_limb));
     }
 
-    /// Returns the bit at index, or false when index >= 192.
-    [[nodiscard]]
-    constexpr auto bit(unsigned const index) const noexcept -> bool {
-        if (index >= 192) {
-            return false;
-        }
-        auto const limb = index < 64 ? low_limb : (index < 128 ? middle_limb : high_limb);
-        return ((limb >> (index % 64)) & 1) != 0;
-    }
-
     /// Adds two values modulo 2^192.
     [[nodiscard]]
     constexpr auto operator+(this UInt192 const& self, UInt192 const& right) noexcept -> UInt192 {
@@ -460,11 +450,18 @@ constexpr auto divide(UInt192 const numerator, UInt192 const divisor) noexcept -
     auto const bits = numerator.bit_length();
     UInt192 quotient{};
     UInt192 remainder{};
-    for (unsigned index = bits; index-- > 0;) {
-        remainder = (remainder << 1) + UInt192{static_cast<::std::uint64_t>(numerator.bit(index) ? 1u : 0u)};
-        if (remainder >= divisor) {
-            remainder = remainder - divisor;
-            quotient = quotient + (UInt192{1} << index);
+    auto const limbs = (bits + 63) / 64;
+    for (unsigned limb_offset{}; limb_offset < limbs; ++limb_offset) {
+        auto const limb_index = limbs - 1 - limb_offset;
+        auto const limb = static_cast<::std::uint64_t>(numerator >> (limb_index * 64));
+        auto const limb_bits = (limb_offset == 0) ? (bits - limb_index * 64) : 64;
+        for (unsigned bit = limb_bits; bit-- > 0;) {
+            bool const set = ((limb >> bit) & 1) != 0;
+            remainder = (remainder << 1) + UInt192{static_cast<::std::uint64_t>(set ? 1u : 0u)};
+            if (remainder >= divisor) {
+                remainder = remainder - divisor;
+                quotient = quotient + (UInt192{1} << (limb_index * 64 + bit));
+            }
         }
     }
     return DivisionResult{.quotient = quotient, .remainder = remainder};
