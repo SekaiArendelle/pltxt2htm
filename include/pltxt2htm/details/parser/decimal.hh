@@ -44,8 +44,9 @@ constexpr auto decimal_ratio_to_double(::pltxt2htm::numeric::UInt192 const numer
     // offset the shifted numerator stays below 2^184 and the shifted divisor below 2^135, so both
     // fit the 192-bit type without truncation.
     auto const shift = static_cast<int>(divisor_bits) + 57 - static_cast<int>(numerator_bits);
-    ::pltxt2htm::numeric::UInt192 const scaled_numerator = shift >= 0 ? numerator << static_cast<unsigned>(shift) : numerator;
-    ::pltxt2htm::numeric::UInt192 const scaled_divisor = shift >= 0 ? divisor : divisor << static_cast<unsigned>(-shift);
+    ::pltxt2htm::numeric::UInt192 const scaled_numerator{shift >= 0 ? numerator << static_cast<unsigned>(shift)
+                                                                    : numerator};
+    ::pltxt2htm::numeric::UInt192 const scaled_divisor{shift >= 0 ? divisor : divisor << static_cast<unsigned>(-shift)};
     auto const division = ::pltxt2htm::numeric::divide(scaled_numerator, scaled_divisor);
 
     auto const quotient = division.quotient;
@@ -56,8 +57,9 @@ constexpr auto decimal_ratio_to_double(::pltxt2htm::numeric::UInt192 const numer
     auto const quotient_low = static_cast<::std::uint64_t>(quotient);
     auto mantissa = quotient_low >> drop_bits;
     bool const round_bit{((quotient_low >> (drop_bits - 1)) & 1) != 0};
-    ::std::uint64_t const low_mask = (::std::uint64_t{1} << (drop_bits - 1)) - 1;
-    bool const sticky{(quotient_low & low_mask) != 0 || division.remainder != ::pltxt2htm::numeric::UInt192{} || extra_sticky};
+    ::std::uint64_t const low_mask{(::std::uint64_t{1} << (drop_bits - 1)) - 1};
+    bool const sticky{(quotient_low & low_mask) != 0 || division.remainder != ::pltxt2htm::numeric::UInt192{} ||
+                      extra_sticky};
     if (round_bit && (sticky || (mantissa & 1) != 0)) {
         ++mantissa;
     }

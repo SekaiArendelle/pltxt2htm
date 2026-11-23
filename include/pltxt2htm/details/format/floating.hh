@@ -17,7 +17,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <utility>
+#include <type_traits>
 
+#include "../../container/array.hh"
 #include "../../container/optional.hh"
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
@@ -33,16 +35,17 @@ namespace format_details {
 /// Maximum number of characters a fixed-point font-size value can occupy.
 inline constexpr ::std::size_t max_fixed_point_length{48};
 
-/// 10^0 through 10^20 as doubles; 10^20 is the first inexact entry but only compares.
-inline constexpr double decimal_powers[]{1e0,  1e1,  1e2,  1e3,  1e4,  1e5,  1e6,  1e7,  1e8,  1e9, 1e10,
-                                         1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20};
-
 /**
  * @brief Return 10^exponent as a double for the comparison loop below.
  * @details Only exponents in [-18, 20] occur for values inside the font-size domain.
  */
 [[nodiscard]]
 constexpr auto pow10_as_double(int const exponent) noexcept -> double {
+    /// 10^0 through 10^20 as doubles; 10^20 is the first inexact entry but only compares.
+    constexpr auto decimal_powers =
+        ::pltxt2htm::container::Array{1e0,  1e1,  1e2,  1e3,  1e4,  1e5,  1e6,  1e7,  1e8,  1e9, 1e10,
+                                      1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20};
+    static_assert(::std::is_same_v<decltype(decimal_powers)::value_type, double>);
     if (exponent >= 0) {
         return decimal_powers[exponent];
     }
