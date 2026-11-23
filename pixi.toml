@@ -198,11 +198,17 @@ python = ">=3.10"
 
 [feature.scripts.activation.env]
 PLTXT2HTM_CLANGXX = "$CONDA_PREFIX/bin/clang++"
+PLTXT2HTM_CLANG_TIDY = "$CONDA_PREFIX/bin/clang-tidy"
+PLTXT2HTM_CLANG_FORMAT = "$CONDA_PREFIX/bin/clang-format"
+PLTXT2HTM_GIT_CLANG_FORMAT = "$CONDA_PREFIX/bin/git-clang-format"
 PLTXT2HTM_LLVM_NM = "$CONDA_PREFIX/bin/llvm-nm"
 PLTXT2HTM_PYTHON = "$CONDA_PREFIX/bin/python"
 
 [feature.scripts.target.win-64.activation.env]
 PLTXT2HTM_CLANGXX = "%CONDA_PREFIX%\\Library\\bin\\clang++.exe"
+PLTXT2HTM_CLANG_TIDY = "%CONDA_PREFIX%\\Library\\bin\\clang-tidy.exe"
+PLTXT2HTM_CLANG_FORMAT = "%CONDA_PREFIX%\\Library\\bin\\clang-format.exe"
+PLTXT2HTM_GIT_CLANG_FORMAT = "%CONDA_PREFIX%\\Library\\bin\\git-clang-format"
 PLTXT2HTM_LLVM_NM = "%CONDA_PREFIX%\\Library\\bin\\llvm-nm.exe"
 PLTXT2HTM_PYTHON = "%CONDA_PREFIX%\\python.exe"
 
@@ -213,19 +219,14 @@ gen-dockerignore = "\"$PLTXT2HTM_PYTHON\" scripts/gen_dockerignore.py"
 gen-format-ninja = "\"$PLTXT2HTM_PYTHON\" scripts/gen_format_ninja.py"
 gen-html-named-character-references = "\"$PLTXT2HTM_PYTHON\" scripts/gen_html_named_character_references.py"
 gen-version = "\"$PLTXT2HTM_PYTHON\" scripts/gen_version.py"
-run-clang-tidy = "\"$PLTXT2HTM_PYTHON\" scripts/run_clang_tidy.py"
+run-clang-tidy = "\"$PLTXT2HTM_PYTHON\" scripts/run_clang_tidy.py --cmake \"$PLTXT2HTM_CMAKE\" --ninja \"$PLTXT2HTM_NINJA\" --clang-tidy \"$PLTXT2HTM_CLANG_TIDY\" --clangxx \"$PLTXT2HTM_CLANGXX\""
 windows-symbols = "\"$PLTXT2HTM_PYTHON\" scripts/gen_windows_symbols.py --clang \"$PLTXT2HTM_CLANGXX\" --llvm-nm \"$PLTXT2HTM_LLVM_NM\""
 windows-symbols-check = "\"$PLTXT2HTM_PYTHON\" scripts/gen_windows_symbols.py --clang \"$PLTXT2HTM_CLANGXX\" --llvm-nm \"$PLTXT2HTM_LLVM_NM\" --check"
-git-clang-format-diff = "git-clang-format --diff main"
-git-clang-format = "git-clang-format --force main"
+git-clang-format-diff = "\"$PLTXT2HTM_PYTHON\" \"$PLTXT2HTM_GIT_CLANG_FORMAT\" --binary \"$PLTXT2HTM_CLANG_FORMAT\" --diff main"
+git-clang-format = "\"$PLTXT2HTM_PYTHON\" \"$PLTXT2HTM_GIT_CLANG_FORMAT\" --binary \"$PLTXT2HTM_CLANG_FORMAT\" --force main"
 
 # Full-tree formatting is discouraged; prefer the git-clang-format tasks for changed lines.
 format-all-cpp = { cmd = "\"$PLTXT2HTM_NINJA\" -f format_cpp.ninja", depends-on = ["gen-format-ninja"] }
-
-[feature.scripts.target.win-64.tasks]
-# The Windows launcher calls the system `py -3`; invoke the Pixi Python directly.
-git-clang-format-diff = { cmd = "cmd /c \"\"%CONDA_PREFIX%\\python.exe\" \"%CONDA_PREFIX%\\Library\\bin\\git-clang-format\" --diff main\"" }
-git-clang-format = { cmd = "cmd /c \"\"%CONDA_PREFIX%\\python.exe\" \"%CONDA_PREFIX%\\Library\\bin\\git-clang-format\" --force main\"" }
 
 [environments]
 default = []
