@@ -125,6 +125,8 @@ pixi run -e clang test-clang
 pixi run -e gcc test-gcc
 ```
 
+The `gcc` environment is available on Linux and Windows only; on macOS, use the `clang` environment.
+
 For custom compilers or CMake options, configure `tests/` directly - see [tests/README.md](./tests/README.md).
 
 Pass a sanitizer name as a positional argument, for example `pixi run -e clang test-clang address` (or `pixi run -e gcc test-gcc address`); `undefined` and `memory` are accepted where the compiler supports them.

@@ -7,6 +7,8 @@ pixi run -e clang test-clang
 pixi run -e gcc test-gcc
 ```
 
+The `gcc` environment is available on Linux and Windows only; on macOS, use the `clang` environment.
+
 Windows symbol declarations and MSVC linker aliases are generated with Clang's
 MSVC targets. After changing their manifest, regenerate and verify them with the
 [Windows symbol generator image](../scripts/docker/windows-symbols/README.md).
