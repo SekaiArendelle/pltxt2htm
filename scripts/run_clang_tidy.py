@@ -8,7 +8,9 @@ This way clang-tidy uses the exact same flags as the real build (including
 machine-specific ones such as -stdlib=libc++, passed via CXXFLAGS).
 
 Usage:
-    python scripts/run_clang_tidy.py [-j N] [--refresh] [subproject ...]
+    python scripts/run_clang_tidy.py [--cmake PATH] [--ninja PATH]
+        [--clang-tidy PATH] [--clangxx PATH] [-j N] [--refresh]
+        [subproject ...]
 """
 
 import argparse
@@ -36,14 +38,14 @@ def log(message):
         print(message)
 
 
-def find_clang_tidy():
-    return os.environ.get("CLANG_TIDY", "clang-tidy")
+def find_clang_tidy(explicit):
+    return explicit or os.environ.get("CLANG_TIDY", "clang-tidy")
 
 
-def find_clang_pp(clang_tidy):
+def find_clang_pp(clang_tidy, explicit):
     """Pick the clang++ matching clang-tidy so flags resolve to the same
     standard library installation (e.g. libc++)."""
-    exe = os.environ.get("CLANG_CXX")
+    exe = explicit or os.environ.get("CLANG_CXX")
     if exe:
         return exe
     resolved = shutil.which(clang_tidy)
@@ -54,7 +56,7 @@ def find_clang_pp(clang_tidy):
     return "clang++"
 
 
-def configure(subproject, refresh, compiler, cxxflags):
+def configure(subproject, refresh, compiler, cxxflags, cmake, ninja):
     """Ensure <sub>/build-tidy has a compile_commands.json (configure only)."""
     build_dir = os.path.join(subproject, BUILD_DIR)
     db_path = os.path.join(build_dir, COMPILE_DB)
@@ -66,24 +68,30 @@ def configure(subproject, refresh, compiler, cxxflags):
             lines = f.read().splitlines()
         stored_compiler = lines[0] if lines else ""
         stored_flags = lines[1] if len(lines) > 1 else ""
+        stored_cmake = lines[2] if len(lines) > 2 else ""
+        stored_ninja = lines[3] if len(lines) > 3 else ""
         needs_configure = stored_compiler != compiler or stored_flags != (cxxflags or "")
+        needs_configure = needs_configure or stored_cmake != cmake
+        needs_configure = needs_configure or stored_ninja != (ninja or "")
     if not needs_configure:
         return build_dir
 
     cmd = [
-        "cmake", "-S", subproject, "-B", build_dir, "-G", "Ninja",
+        cmake, "-S", subproject, "-B", build_dir, "-G", "Ninja",
         "-DCMAKE_BUILD_TYPE=Debug",
         "-DCMAKE_CXX_COMPILER=" + compiler,
         "-DCMAKE_CXX_FLAGS=" + (cxxflags or ""),
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
     ]
+    if ninja:
+        cmd.append("-DCMAKE_MAKE_PROGRAM=" + ninja)
 
     log(f"Configuring {os.path.basename(subproject)} -> {build_dir}")
     result = subprocess.run(cmd)
     if result.returncode != 0:
         return None
     with open(marker_path, "w", encoding="utf-8") as f:
-        f.write(f"{compiler}\n{cxxflags or ''}\n")
+        f.write(f"{compiler}\n{cxxflags or ''}\n{cmake}\n{ninja or ''}\n")
     return build_dir
 
 
@@ -146,16 +154,36 @@ def main():
         help="re-configure sub-projects even if a compile_commands.json exists",
     )
     parser.add_argument(
+        "--cmake", default=os.environ.get("CMAKE", "cmake"),
+        help="CMake executable (default: $CMAKE or cmake from PATH)",
+    )
+    parser.add_argument(
+        "--ninja", default=os.environ.get("NINJA", ""),
+        help="Ninja executable pinned via -DCMAKE_MAKE_PROGRAM "
+             "(default: $NINJA, otherwise resolved by CMake)",
+    )
+    parser.add_argument(
+        "--clang-tidy", default=None,
+        help="clang-tidy executable (default: $CLANG_TIDY or clang-tidy)",
+    )
+    parser.add_argument(
+        "--clangxx", default=None,
+        help="clang++ matching clang-tidy "
+             "(default: $CLANG_CXX or a sibling of clang-tidy)",
+    )
+    parser.add_argument(
         "subprojects", nargs="*", default=DEFAULT_SUBPROJECTS,
         help="sub-projects to tidy (default: %(default)s)",
     )
     args = parser.parse_args()
 
-    clang_tidy = find_clang_tidy()
-    compiler = find_clang_pp(clang_tidy)
+    clang_tidy = find_clang_tidy(args.clang_tidy)
+    compiler = find_clang_pp(clang_tidy, args.clangxx)
     cxxflags = os.environ.get("CXXFLAGS")
     log(f"clang-tidy: {shutil.which(clang_tidy) or clang_tidy}")
     log(f"clang++: {compiler}")
+    log(f"cmake: {shutil.which(args.cmake) or args.cmake}")
+    log(f"ninja: {args.ninja or 'resolved by CMake'}")
 
     tasks = []
     skipped = []
@@ -168,7 +196,9 @@ def main():
                   file=sys.stderr)
             skipped.append(name)
             continue
-        build_dir = configure(subproject, args.refresh, compiler, cxxflags)
+        build_dir = configure(
+            subproject, args.refresh, compiler, cxxflags, args.cmake, args.ninja
+        )
         if build_dir is None:
             print(f"Error: failed to configure '{name}'", file=sys.stderr)
             sys.exit(1)
