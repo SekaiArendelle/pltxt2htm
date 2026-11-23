@@ -147,6 +147,16 @@ pltxt2htm_generate_cases(doctest_container
     "${CMAKE_CURRENT_SOURCE_DIR}/src/container/*.hh")
 pltxt2htm_generate_cases(doctest_stacktrace
     "${CMAKE_CURRENT_SOURCE_DIR}/src/stacktrace/*.hh")
+pltxt2htm_generate_cases(doctest_format
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/format/*.hh")
+
+set(PLTXT2HTM_DOCTEST_RUNNERS
+    doctest_precompile_suites
+    doctest_ast
+    doctest_external_use
+    doctest_container
+    doctest_stacktrace
+    doctest_format)
 
 foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
@@ -162,9 +172,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
         target_link_libraries(${TEST_NAME} PRIVATE dbghelp)
     endif()
     # The doctest runners consume their generated include lists.
-    if(TEST_NAME STREQUAL "doctest_precompile_suites" OR TEST_NAME STREQUAL "doctest_ast"
-       OR TEST_NAME STREQUAL "doctest_external_use" OR TEST_NAME STREQUAL "doctest_container"
-       OR TEST_NAME STREQUAL "doctest_stacktrace")
+    if(TEST_NAME IN_LIST PLTXT2HTM_DOCTEST_RUNNERS)
         target_include_directories(${TEST_NAME} PRIVATE
             "${CMAKE_CURRENT_BINARY_DIR}/generated"
             "${CMAKE_CURRENT_SOURCE_DIR}/src")
