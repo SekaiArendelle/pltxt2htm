@@ -174,8 +174,9 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
             if (scale_digits <= parser_details::max_exact_scale_digits) {
                 // Exactly rounded: build the full rational numerator and let the shared 192-bit
                 // helper handle the rounding, so long fractions never drift by an ulp.
-                auto const numerator = (::pltxt2htm::numeric::pow10(scale_digits) * integer_part) +
-                                       ::pltxt2htm::numeric::UInt192{fraction};
+                auto const numerator =
+                    (::pltxt2htm::numeric::pow(::pltxt2htm::numeric::UInt192{10}, scale_digits) * integer_part) +
+                    ::pltxt2htm::numeric::UInt192{fraction};
                 value =
                     ::pltxt2htm::numeric::decimal_ratio_to_double(numerator, scale_digits, has_nonzero_fraction_tail);
             }

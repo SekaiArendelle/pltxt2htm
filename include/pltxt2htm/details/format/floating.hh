@@ -68,6 +68,14 @@ constexpr auto decimal_exponent_of(double const value) noexcept -> int {
 }
 
 /**
+ * @brief Return the bit at index, or false when index is beyond 191.
+ */
+[[nodiscard]]
+constexpr auto bit_at(::pltxt2htm::numeric::UInt192 const value, unsigned const index) noexcept -> bool {
+    return (static_cast<::std::uint64_t>(value >> index) & 1u) != 0;
+}
+
+/**
  * @brief Shift a 192-bit integer right, rounding the discarded bits to nearest with ties to even.
  * @param[out] result The rounded 64-bit result.
  * @return false when the truncated result does not fit 64 bits.
@@ -79,17 +87,17 @@ constexpr auto rounded_shift_right(::pltxt2htm::numeric::UInt192 const value, un
         return false;
     }
     auto const shifted = value >> count;
-    if (shifted.fits_uint64() == false) {
+    if (shifted.bit_length() > 64) {
         return false;
     }
     result = static_cast<::std::uint64_t>(shifted);
     if (count == 0) {
         return true;
     }
-    bool const round_bit = value.bit(count - 1);
+    bool const round_bit = ::pltxt2htm::details::format_details::bit_at(value, count - 1);
     bool sticky{};
     for (unsigned index{}; index + 1 < count; ++index) {
-        if (value.bit(index)) {
+        if (::pltxt2htm::details::format_details::bit_at(value, index)) {
             sticky = true;
             break;
         }
@@ -116,11 +124,13 @@ constexpr auto scaled_digits(double const value, int const decimal_shift) noexce
     auto const significand = (bits & ((::std::uint64_t{1} << 52) - 1)) | (::std::uint64_t{1} << 52);
 
     if (decimal_shift >= 0) {
-        auto const product = ::pltxt2htm::numeric::pow5(static_cast<::std::size_t>(decimal_shift)) * significand;
+        auto const product =
+            ::pltxt2htm::numeric::pow(::pltxt2htm::numeric::UInt192{5}, static_cast<::std::size_t>(decimal_shift)) *
+            significand;
         auto const shift = binary_exponent + decimal_shift;
         if (shift >= 0) {
             auto const shifted = product << static_cast<unsigned>(shift);
-            if (shifted.fits_uint64() == false) {
+            if (shifted.bit_length() > 64) {
                 return 0;
             }
             return static_cast<::std::uint64_t>(shifted);
@@ -134,7 +144,8 @@ constexpr auto scaled_digits(double const value, int const decimal_shift) noexce
     }
 
     // value * 10^decimal_shift = significand * 2^(binary_exponent + decimal_shift) / 5^-decimal_shift.
-    auto const divisor_base = ::pltxt2htm::numeric::pow5(static_cast<::std::size_t>(-decimal_shift));
+    auto const divisor_base =
+        ::pltxt2htm::numeric::pow(::pltxt2htm::numeric::UInt192{5}, static_cast<::std::size_t>(-decimal_shift));
     ::pltxt2htm::numeric::UInt192 numerator{significand};
     ::pltxt2htm::numeric::UInt192 divisor{};
     if (binary_exponent + decimal_shift >= 0) {
@@ -145,7 +156,7 @@ constexpr auto scaled_digits(double const value, int const decimal_shift) noexce
         divisor = divisor_base << static_cast<unsigned>(-(binary_exponent + decimal_shift));
     }
     auto const division = ::pltxt2htm::numeric::divide(numerator, divisor);
-    if (division.quotient.fits_uint64() == false) {
+    if (division.quotient.bit_length() > 64) {
         return 0;
     }
     auto digits = static_cast<::std::uint64_t>(division.quotient);

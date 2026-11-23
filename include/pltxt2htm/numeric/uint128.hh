@@ -29,12 +29,12 @@ __extension__ using UInt128 = unsigned __int128;
  *          conversion to an unsigned integer type (the low 64 bits for targets up to 64 bits).
  */
 class UInt128 {
-    ::std::uint64_t low_limb_{};
-    ::std::uint64_t high_limb_{};
+    ::std::uint64_t low_limb{};
+    ::std::uint64_t high_limb{};
 
     constexpr UInt128(::std::uint64_t const low, ::std::uint64_t const high) noexcept
-        : low_limb_{low},
-          high_limb_{high} {
+        : low_limb{low},
+          high_limb{high} {
     }
 
     /**
@@ -63,9 +63,25 @@ class UInt128 {
 public:
     constexpr UInt128() noexcept = default;
 
-    /// Constructs a value from a 64-bit integer; the conversion is lossless and implicit.
-    constexpr UInt128(::std::uint64_t const value) noexcept
-        : low_limb_{value} {
+    /// Constructs a value from an unsigned integer; the conversion is lossless and implicit.
+    template<::std::unsigned_integral T>
+    constexpr UInt128(T const value) noexcept
+        : low_limb{static_cast<::std::uint64_t>(value)} {
+        if constexpr (sizeof(T) == 16) {
+            high_limb = static_cast<::std::uint64_t>(value >> 64);
+        }
+    }
+
+    /// Constructs a value from a signed integer, sign-extending it to 128 bits.
+    template<::std::signed_integral T>
+    explicit constexpr UInt128(T const value) noexcept
+        : low_limb{static_cast<::std::uint64_t>(value)} {
+        if constexpr (sizeof(T) == 16) {
+            high_limb = static_cast<::std::uint64_t>(value >> 64);
+        }
+        else if (value < 0) {
+            high_limb = 0xFFFFFFFFFFFFFFFFull;
+        }
     }
 
     /// Explicit conversion to an unsigned integer target of at most 64 bits.
@@ -76,21 +92,55 @@ public:
     [[nodiscard]]
     constexpr explicit operator T(this UInt128 const& self) noexcept {
         if constexpr (::std::same_as<T, bool>) {
-            return self.low_limb_ != 0 || self.high_limb_ != 0;
+            return self.low_limb != 0 || self.high_limb != 0;
         }
         else {
             static_assert(sizeof(T) <= 8, "the portable UInt128 converts to at most 64 bits");
-            return static_cast<T>(self.low_limb_);
+            return static_cast<T>(self.low_limb);
         }
+    }
+
+    /// Adds two values modulo 2^128.
+    [[nodiscard]]
+    constexpr auto operator+(this UInt128 const& self, UInt128 const& other) noexcept -> UInt128 {
+        auto const low = self.low_limb + other.low_limb;
+        ::std::uint64_t const carry = low < self.low_limb ? 1 : 0;
+        auto const high = self.high_limb + other.high_limb + carry;
+        return UInt128{low, high};
+    }
+
+    /// Subtracts two values modulo 2^128.
+    [[nodiscard]]
+    constexpr auto operator-(this UInt128 const& self, UInt128 const& other) noexcept -> UInt128 {
+        auto const low = self.low_limb - other.low_limb;
+        ::std::uint64_t const borrow = self.low_limb < other.low_limb ? 1 : 0;
+        auto const high = self.high_limb - other.high_limb - borrow;
+        return UInt128{low, high};
     }
 
     /// Multiplies by a 64-bit factor, keeping the low 128 bits.
     [[nodiscard]]
     constexpr auto operator*(this UInt128 const& self, ::std::uint64_t const factor) noexcept -> UInt128 {
-        auto const low_product = UInt128::multiply_64x64(self.low_limb_, factor);
-        auto const high_product = UInt128::multiply_64x64(self.high_limb_, factor);
-        return UInt128{low_product.low_limb_,
-                       static_cast<::std::uint64_t>(high_product.low_limb_ + low_product.high_limb_)};
+        auto const low_product = UInt128::multiply_64x64(self.low_limb, factor);
+        auto const high_product = UInt128::multiply_64x64(self.high_limb, factor);
+        return UInt128{low_product.low_limb,
+                       static_cast<::std::uint64_t>(high_product.low_limb + low_product.high_limb)};
+    }
+
+    /// Shifts left, discarding the bits shifted out. `count` must be less than 128 to match the
+    /// native type; the portable implementation returns zero for larger counts.
+    [[nodiscard]]
+    constexpr auto operator<<(this UInt128 const& self, unsigned const count) noexcept -> UInt128 {
+        if (count == 0) {
+            return self;
+        }
+        if (count >= 128) {
+            return UInt128{};
+        }
+        if (count < 64) {
+            return UInt128{self.low_limb << count, (self.high_limb << count) | (self.low_limb >> (64 - count))};
+        }
+        return UInt128{0, self.low_limb << (count - 64)};
     }
 
     /// Logical right shift. `count` must be less than 128 to match the native type; the portable
@@ -107,26 +157,12 @@ public:
         auto const limb_shift = count / 64;
         auto const bit_shift = count % 64;
         if (limb_shift == 0) {
-            return UInt128{(self.low_limb_ >> bit_shift) | (self.high_limb_ << (64 - bit_shift)),
-                           self.high_limb_ >> bit_shift};
+            return UInt128{(self.low_limb >> bit_shift) | (self.high_limb << (64 - bit_shift)),
+                           self.high_limb >> bit_shift};
         }
-        return UInt128{self.high_limb_ >> bit_shift, 0};
+        return UInt128{self.high_limb >> bit_shift, 0};
     }
 };
-#endif
-
-/**
- * @brief Targets the explicit integer conversions accept.
- * @details All standard unsigned integer types, plus the native 128-bit type when it is
- *          available. Some standard libraries do not classify the native 128-bit type as an
- *          integral type, so it is listed explicitly.
- */
-#if defined(__SIZEOF_INT128__)
-template<typename T>
-concept UnsignedConversionTarget = ::std::unsigned_integral<T> || ::std::same_as<T, UInt128>;
-#else
-template<typename T>
-concept UnsignedConversionTarget = ::std::unsigned_integral<T>;
 #endif
 
 } // namespace pltxt2htm::numeric
