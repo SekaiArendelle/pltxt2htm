@@ -106,10 +106,19 @@ test-cxxmodule = { cmd = "cxxmodule/tests/build-pixi-gcc/check_public_symbols", 
 [feature.rust.dependencies]
 rust = "*"
 
+[feature.rust.activation.env]
+PLTXT2HTM_CARGO = "$CONDA_PREFIX/bin/cargo"
+# cc-rs compiles the C++ shim through CXX.
+CXX = "$CONDA_PREFIX/bin/clang++"
+
+[feature.rust.target.win-64.activation.env]
+PLTXT2HTM_CARGO = "%CONDA_PREFIX%\\Library\\bin\\cargo.exe"
+CXX = "%CONDA_PREFIX%\\Library\\bin\\clang++.exe"
+
 [feature.rust.tasks]
-build-rust = { cmd = "cargo build --manifest-path rust/Cargo.toml --workspace", depends-on = ["prepare-tmp"], env = { CXX = "$PLTXT2HTM_CLANGXX" } }
-test-rust = { cmd = "cargo test --manifest-path rust/Cargo.toml --workspace", depends-on = ["prepare-tmp"], env = { CXX = "$PLTXT2HTM_CLANGXX" } }
-run-rust-example = { cmd = "cargo run --manifest-path rust/Cargo.toml -p {{ package }} --example {{ example }}", args = ["package", "example"], depends-on = ["prepare-tmp"], env = { CXX = "$PLTXT2HTM_CLANGXX" } }
+build-rust = { cmd = "\"$PLTXT2HTM_CARGO\" build --manifest-path rust/Cargo.toml --workspace", depends-on = ["prepare-tmp"] }
+test-rust = { cmd = "\"$PLTXT2HTM_CARGO\" test --manifest-path rust/Cargo.toml --workspace", depends-on = ["prepare-tmp"] }
+run-rust-example = { cmd = "\"$PLTXT2HTM_CARGO\" run --manifest-path rust/Cargo.toml -p {{ package }} --example {{ example }}", args = [{ arg = "package", default = "pltxt2htm" }, { arg = "example", default = "recommend" }], depends-on = ["prepare-tmp"] }
 
 [feature.wasm.dependencies]
 emscripten = ">=4,<5"
@@ -133,12 +142,22 @@ test-wasm = { cmd = "\"$PLTXT2HTM_NODE\" wasm/examples/basic.mjs wasm/build-pixi
 [feature.csharp.dependencies]
 dotnet-sdk = ">=9,<10"
 
+[feature.csharp.activation.env]
+PLTXT2HTM_DOTNET = "$CONDA_PREFIX/lib/dotnet/dotnet"
+DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi"
+NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch"
+
+[feature.csharp.target.win-64.activation.env]
+PLTXT2HTM_DOTNET = "%CONDA_PREFIX%\\dotnet\\dotnet.exe"
+DOTNET_CLI_HOME = "%PIXI_PROJECT_ROOT%\\.pixi"
+NUGET_SCRATCH = "%PIXI_PROJECT_ROOT%\\.pixi\\nuget-scratch"
+
 [feature.csharp.tasks]
-build-csharp = { cmd = "dotnet build csharp/csharp.csproj --configuration Debug", depends-on = ["build-c-shared"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch" } }
-run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration Debug --no-build", depends-on = ["build-csharp"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch", LD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared:$LD_LIBRARY_PATH", DYLD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared:$DYLD_LIBRARY_PATH" } }
+build-csharp = { cmd = "\"$PLTXT2HTM_DOTNET\" build csharp/csharp.csproj --configuration Debug", depends-on = ["build-c-shared"] }
+run-csharp = { cmd = "\"$PLTXT2HTM_DOTNET\" run --project csharp/csharp.csproj --configuration Debug --no-build", depends-on = ["build-csharp"], env = { LD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared:$LD_LIBRARY_PATH", DYLD_LIBRARY_PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared:$DYLD_LIBRARY_PATH" } }
 
 [feature.csharp.target.win-64.tasks]
-run-csharp = { cmd = "dotnet run --project csharp/csharp.csproj --configuration Debug --no-build", depends-on = ["build-csharp"], env = { DOTNET_CLI_HOME = "$PIXI_PROJECT_ROOT/.pixi", NUGET_SCRATCH = "$PIXI_PROJECT_ROOT/.pixi/nuget-scratch", PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared;$PATH" } }
+run-csharp = { cmd = "\"$PLTXT2HTM_DOTNET\" run --project csharp/csharp.csproj --configuration Debug --no-build", depends-on = ["build-csharp"], env = { PATH = "$PIXI_PROJECT_ROOT/c/build-pixi-clang-shared;$PATH" } }
 
 [feature.py.tasks]
 configure-py = { cmd = "\"$PLTXT2HTM_CMAKE\" -S py -B py/build-pixi-{{ pixi.environment.name }} -G Ninja -DCMAKE_MAKE_PROGRAM=\"$PLTXT2HTM_NINJA\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=\"$PLTXT2HTM_CLANGXX\"", args = [], depends-on = ["prepare-tmp"] }
