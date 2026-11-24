@@ -32,35 +32,36 @@ consteval auto make_decimal_digit_pairs() noexcept -> ::pltxt2htm::details::U8Li
     return pairs;
 }
 
-inline constexpr auto decimal_digit_pairs = ::pltxt2htm::details::make_decimal_digit_pairs();
 
 /**
- * @brief Write the decimal digits of an unsigned integer backward into a buffer.
- * @details Digits are emitted into [returned pointer, buffer_end) so callers need
- *          no digit-count pre-pass and no reversal pass. Two digits are written per
- *          iteration through a 100-entry lookup table, halving the number of divisions.
- * @tparam T The unsigned integer type of value.
- * @param[in] value The value to write; any unsigned value is accepted, including 0.
- * @param[in] buffer_end One past the last writable element; the buffer must have room
- *            for digits10(T) + 1 characters.
- * @return Pointer to the first written digit.
- */
+* @brief Write the decimal digits of an unsigned integer backward into a buffer.
+* @details Digits are emitted into [returned pointer, buffer_end) so callers need
+*          no digit-count pre-pass and no reversal pass. Two digits are written per
+*          iteration through a 100-entry lookup table, halving the number of divisions.
+* @tparam T The unsigned integer type of value.
+* @param[in] value The value to write; any unsigned value is accepted, including 0.
+* @param[in] buffer_end One past the last writable element; the buffer must have room
+*            for digits10(T) + 1 characters.
+* @return Pointer to the first written digit.
+*/
 template<::std::unsigned_integral T>
 [[nodiscard]]
 constexpr auto write_decimal_digits_backward(T value, char8_t* const buffer_end) noexcept -> char8_t* {
+    constexpr auto decimal_digit_pairs = ::pltxt2htm::details::make_decimal_digit_pairs();
+
     auto ptr = buffer_end;
     while (value >= 100) {
         auto const pair_index = static_cast<::std::size_t>(value % 100) * 2;
         value /= 100;
         // The ones digit sits at the higher address since we fill backward.
-        *--ptr = ::pltxt2htm::details::decimal_digit_pairs[pair_index + 1];
-        *--ptr = ::pltxt2htm::details::decimal_digit_pairs[pair_index];
+        *--ptr = decimal_digit_pairs[pair_index + 1];
+        *--ptr = decimal_digit_pairs[pair_index];
     }
     if (value >= 10) {
         auto const pair_index = static_cast<::std::size_t>(value) * 2;
         // The ones digit sits at the higher address since we fill backward.
-        *--ptr = ::pltxt2htm::details::decimal_digit_pairs[pair_index + 1];
-        *--ptr = ::pltxt2htm::details::decimal_digit_pairs[pair_index];
+        *--ptr = decimal_digit_pairs[pair_index + 1];
+        *--ptr = decimal_digit_pairs[pair_index];
     }
     else {
         *--ptr = static_cast<char8_t>(u8'0' + value);

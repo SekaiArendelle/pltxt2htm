@@ -34,17 +34,6 @@ constexpr auto buffer_matches(char8_t const* begin, char8_t const* end, char8_t 
 }
 
 [[nodiscard]]
-consteval auto test_decimal_digit_pairs() noexcept -> bool {
-    for (::std::size_t i{}; i < 100; ++i) {
-        if (::pltxt2htm::details::decimal_digit_pairs[i * 2] != static_cast<char8_t>(u8'0' + i / 10) ||
-            ::pltxt2htm::details::decimal_digit_pairs[i * 2 + 1] != static_cast<char8_t>(u8'0' + i % 10)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-[[nodiscard]]
 consteval auto test_write_decimal_digits_backward() noexcept -> bool {
     constexpr ::std::size_t buffer_size = ::std::numeric_limits<::std::uintmax_t>::digits10 + 2;
     char8_t buffer[buffer_size]{};
@@ -97,8 +86,6 @@ consteval auto test_write_decimal_digits_backward() noexcept -> bool {
 
 } // namespace pltxt2htm_test::format_integer_details
 
-static_assert(::pltxt2htm::details::decimal_digit_pairs.size() == 200);
-static_assert(::pltxt2htm_test::format_integer_details::test_decimal_digit_pairs());
 static_assert(::pltxt2htm_test::format_integer_details::test_write_decimal_digits_backward());
 
 TEST_SUITE("format_integer") {
