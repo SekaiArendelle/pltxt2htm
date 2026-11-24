@@ -3,6 +3,7 @@
 #include <pltxt2htm/container/impl/inplace_vector_decl.hh>
 #include <pltxt2htm/container/impl/non_zero_decl.hh>
 #include <pltxt2htm/container/impl/optional_decl.hh>
+#include <pltxt2htm/container/impl/span_decl.hh>
 #include <pltxt2htm/container/impl/string_decl.hh>
 #include <pltxt2htm/container/impl/string_view_decl.hh>
 #include <pltxt2htm/container/impl/cstring_view_decl.hh>

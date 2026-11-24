@@ -19,6 +19,7 @@
 #include "container/inplace_vector.hh"
 #include "container/string.hh"
 #include "container/array.hh"
+#include "container/span.hh"
 #include "container/string_view.hh"
 #include "container/cstring_view.hh"
 #include "container/optional.hh"
