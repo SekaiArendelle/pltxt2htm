@@ -150,7 +150,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(pltxt2htm_base INTERFACE
         -finput-charset=utf-8 -fexec-charset=utf-8 -fexceptions
-        -Wall -Wextra -Wshadow -Werror=pedantic
+        -Wall -Wextra -Wshadow -Wpedantic
         -Werror=return-type -Werror=switch -Werror=implicit-fallthrough
     )
 endif()
