@@ -382,10 +382,18 @@ entry:
                         parent_text.subview(parent_index), call_stack, parent_frame.subast);
                     parent_index += fwd;
                     if (restart) {
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                 }
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             switch (frame_iter->get_type()) {
             case ListNodeType::list_li: {
@@ -395,7 +403,11 @@ entry:
                     FrontendContextVariant{ParserFrameContextWithPltextInfo{text}, ::pltxt2htm::NodeKind::list_li},
                     ::pltxt2htm::Ast{}));
                 ::pltxt2htm::details::inline_parse_pltxt(call_stack);
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ListNodeType::list_li_checkbox: {
                 auto const text = frame_iter->get_text_view();
@@ -406,7 +418,11 @@ entry:
                                            ::pltxt2htm::NodeKind::list_li_checkbox},
                     ::pltxt2htm::Ast{}));
                 ::pltxt2htm::details::inline_parse_pltxt(call_stack);
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ListNodeType::list_ul: {
                 auto sublist = ::std::move(frame_iter->get_sublist());
@@ -415,7 +431,11 @@ entry:
                     ParserFrame(FrontendContextVariant{ParserFrameContextWithListInfo{::std::move(sublist)},
                                                        ::pltxt2htm::NodeKind::list_ul},
                                 ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ListNodeType::list_ol: {
                 auto sublist = ::std::move(frame_iter->get_sublist());
@@ -425,7 +445,11 @@ entry:
                     ParserFrame(FrontendContextVariant{ParserFrameContextWithListInfo{::std::move(sublist), start},
                                                        ::pltxt2htm::NodeKind::list_ol},
                                 ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
             default:
@@ -447,7 +471,11 @@ entry:
             if (call_stack.frame_count() > previous_stack_size) {
                 ::pltxt2htm::details::inline_parse_pltxt(call_stack);
             }
+#if __cpp_break_label >= 202611L
+            continue entry;
+#else
             goto entry;
+#endif
         }
 
         auto&& top_frame = call_stack.current_frame();
@@ -469,7 +497,11 @@ entry:
                 pltext.subview(current_index), call_stack, result);
             current_index += advance_count;
             if (require_restart) {
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
         }
 
@@ -490,7 +522,11 @@ entry:
                 current_index += advance_count;
                 if (require_restart) {
                     current_index += 1;
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 ++current_index;
                 continue;
@@ -575,7 +611,11 @@ entry:
                         ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk},
                     ::pltxt2htm::Ast{}));
                 current_index += advance_count + 6;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             if (auto opt_double_emphasis_asterisk =
                     ::pltxt2htm::details::try_parse_md_inlines<u8"**">(pltext.subview(current_index));
@@ -588,7 +628,11 @@ entry:
                         ::pltxt2htm::NodeKind::md_double_emphasis_asterisk},
                     ::pltxt2htm::Ast{}));
                 current_index += advance_count + 4;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             if (auto opt_single_emphasis_asterisk =
                     ::pltxt2htm::details::try_parse_md_inlines<u8"*">(pltext.subview(current_index));
@@ -601,7 +645,11 @@ entry:
                         ::pltxt2htm::NodeKind::md_single_emphasis_asterisk},
                     ::pltxt2htm::Ast{}));
                 current_index += advance_count + 2;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             if (auto opt_triple_emphasis_underscore =
                     ::pltxt2htm::details::try_parse_md_inlines<u8"___">(pltext.subview(current_index));
@@ -614,7 +662,11 @@ entry:
                         ::pltxt2htm::NodeKind::md_triple_emphasis_underscore},
                     ::pltxt2htm::Ast{}));
                 current_index += advance_count + 6;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             if (auto opt_double_emphasis_undersore =
                     ::pltxt2htm::details::try_parse_md_inlines<u8"__">(pltext.subview(current_index));
@@ -627,7 +679,11 @@ entry:
                         ::pltxt2htm::NodeKind::md_double_emphasis_underscore},
                     ::pltxt2htm::Ast{}));
                 current_index += advance_count + 4;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             if (auto opt_single_emphasis_undersore =
                     ::pltxt2htm::details::try_parse_md_inlines<u8"_">(pltext.subview(current_index));
@@ -640,7 +696,11 @@ entry:
                         ::pltxt2htm::NodeKind::md_single_emphasis_underscore},
                     ::pltxt2htm::Ast{}));
                 current_index += advance_count + 2;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             if (auto opt_md_del = ::pltxt2htm::details::try_parse_md_inlines<u8"~~">(pltext.subview(current_index));
                 opt_md_del.has_value()) {
@@ -652,7 +712,11 @@ entry:
                         ::pltxt2htm::NodeKind::md_del},
                     ::pltxt2htm::Ast{}));
                 current_index += advance_count + 4;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             if (auto opt_code_span_3_backtick =
                     ::pltxt2htm::details::try_parse_md_code_span<u8"```">(pltext.subview(current_index));
@@ -711,7 +775,11 @@ entry:
                         ParserFrameContextWithUrlInfo{.pltext = url_text, .url = ::std::move(url_link)},
                         ::pltxt2htm::NodeKind::md_link},
                     ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             if (auto opt_url = ::pltxt2htm::details::try_parse_auto_url(pltext.subview(current_index));
                 opt_url.has_value()) {
@@ -762,7 +830,11 @@ entry:
                             FrontendContextVariant{ParserFrameContextWithPltextInfo{pltext.subview(current_index)},
                                                    ::pltxt2htm::NodeKind::pl_a},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     // parsing html <a href="URL"> tag
                     if (auto a_tag = ::pltxt2htm::details::try_parse_html_a_tag(pltext.subview(current_index + 2));
@@ -777,7 +849,11 @@ entry:
                                 .url = ::std::move(url),
                                 .internal = internal}}, // ::pltxt2htm::NodeKind::html_a is automatically set in ctor
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     else if (a_tag.is_invalid_url()) {
                         // the <a href="..."> opening tag was recognized but its URL is invalid:
@@ -805,7 +881,11 @@ entry:
                             FrontendContextVariant{ParserFrameContextWithPltextInfo{pltext.subview(current_index)},
                                                    ::pltxt2htm::NodeKind::unity_b},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     if (auto opt_br_tag_len =
                             ::pltxt2htm::details::try_parse_self_closing_tag<u8"r">(pltext.subview(current_index + 2));
@@ -820,7 +900,11 @@ entry:
                                                                                    call_stack, result);
                         current_index += advance_count;
                         if (require_restart) {
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         continue;
                     }
@@ -842,7 +926,11 @@ entry:
                             FrontendContextVariant{ParserFrameContextWithPltextInfo{pltext.subview(current_index)},
                                                    ::pltxt2htm::NodeKind::html_code},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     // parsing: <color=$1>$2</color>
                     if (auto opt_color_tag =
@@ -857,7 +945,11 @@ entry:
                                                                        .id = ::pltxt2htm::container::U8String{color}},
                                 ::pltxt2htm::NodeKind::unity_color},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
@@ -876,7 +968,11 @@ entry:
                             FrontendContextVariant{ParserFrameContextWithPltextInfo{pltext.subview(current_index)},
                                                    ::pltxt2htm::NodeKind::html_del},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     // parsing: <discussions=$1>$2</discussions>
                     if (auto opt_discussions_tag = ::pltxt2htm::details::try_parse_non_nestable_equal_sign_tag<
@@ -891,7 +987,11 @@ entry:
                                                        .id = ::pltxt2htm::details::decode_character_references(value)},
                                                    ::pltxt2htm::NodeKind::pl_discussions},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     // parsing: <discussion=$1>$2</discussion>; the payload must be an ObjectId
                     if (auto opt_discussion_tag =
@@ -905,7 +1005,11 @@ entry:
                                                        .pltext = pltext.subview(current_index), .id = ::std::move(id)},
                                                    ::pltxt2htm::NodeKind::pl_discussion},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
@@ -928,7 +1032,11 @@ entry:
                                                        .id = ::pltxt2htm::details::decode_character_references(value)},
                                                    ::pltxt2htm::NodeKind::pl_experiments},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     // parsing: <experiment=$1>$2</experiment>; the payload must be an ObjectId
                     if (auto opt_experiment_tag =
@@ -942,7 +1050,11 @@ entry:
                                                        .pltext = pltext.subview(current_index), .id = ::std::move(id)},
                                                    ::pltxt2htm::NodeKind::pl_experiment},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     if (auto external_tag =
                             ::pltxt2htm::details::try_parse_external_tag(pltext.subview(current_index + 2), call_stack);
@@ -956,7 +1068,11 @@ entry:
                                                               .url = ::std::move(url)},
                                 ::pltxt2htm::NodeKind::pl_external},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     else if (external_tag.is_invalid_url()) {
                         // the <external=...> opening tag was recognized but its URL is invalid:
@@ -976,7 +1092,11 @@ entry:
                             FrontendContextVariant{ParserFrameContextWithPltextInfo{pltext.subview(current_index)},
                                                    ::pltxt2htm::NodeKind::html_em},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
@@ -999,7 +1119,11 @@ entry:
                                                        .id = ::pltxt2htm::details::decode_character_references(value)},
                                                    ::pltxt2htm::NodeKind::pl_internal},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     // parsing Unity and HTML <i>$1</i> tag
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag(pltext.subview(current_index + 2));
@@ -1009,7 +1133,11 @@ entry:
                             FrontendContextVariant{ParserFrameContextWithPltextInfo{pltext.subview(current_index)},
                                                    ::pltxt2htm::NodeKind::unity_i},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     // parsing html <img src="..." alt="..."> self-closing tag
                     if (auto opt_img_tag = ::pltxt2htm::details::try_parse_img_tag(pltext.subview(current_index + 2));
@@ -1041,7 +1169,11 @@ entry:
                                                               .url = ::std::move(url)},
                                 ::pltxt2htm::NodeKind::unity_link},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     else if (link_tag.is_invalid_url()) {
                         // the <link="..."> opening tag was recognized but its URL is invalid:
@@ -1073,7 +1205,11 @@ entry:
                                                                    .background_color = ::std::move(background_color)},
                                                                ::pltxt2htm::NodeKind::unity_mark},
                                         ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     if (auto opt_mark_tag = ::pltxt2htm::details::try_parse_mark_tag(pltext.subview(current_index + 2));
                         opt_mark_tag.has_value()) {
@@ -1086,7 +1222,11 @@ entry:
                                                                    .background_color = ::std::move(background_color)},
                                                                ::pltxt2htm::NodeKind::html_mark},
                                         ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
@@ -1103,7 +1243,11 @@ entry:
                         if (value.value == 0) {
                             result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                             ++current_index;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
 
                         current_index += tag_len + 2;
@@ -1112,7 +1256,11 @@ entry:
                                                        .pltext = pltext.subview(current_index), .value = value},
                                                    ::pltxt2htm::NodeKind::unity_size},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     // parsing <span style="color:...;font-size:..."> as html_span
                     if (auto opt_span_tag = ::pltxt2htm::details::try_parse_span_tag(pltext.subview(current_index + 2));
@@ -1127,7 +1275,11 @@ entry:
                                                                    .vertical_align = ::std::move(vertical_align)},
                                 ::pltxt2htm::NodeKind::html_span},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     if (auto opt_tag_len =
                             ::pltxt2htm::details::try_parse_bare_tag<u8"trong">(pltext.subview(current_index + 2));
@@ -1138,7 +1290,11 @@ entry:
                             FrontendContextVariant{ParserFrameContextWithPltextInfo{pltext.subview(current_index)},
                                                    ::pltxt2htm::NodeKind::html_strong},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     if (auto opt_tag_len =
                             ::pltxt2htm::details::try_parse_bare_tag<u8"up">(pltext.subview(current_index + 2));
@@ -1149,7 +1305,11 @@ entry:
                             FrontendContextVariant{ParserFrameContextWithPltextInfo{pltext.subview(current_index)},
                                                    ::pltxt2htm::NodeKind::html_sup},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     if (auto opt_tag_len =
                             ::pltxt2htm::details::try_parse_bare_tag<u8"ub">(pltext.subview(current_index + 2));
@@ -1160,7 +1320,11 @@ entry:
                             FrontendContextVariant{ParserFrameContextWithPltextInfo{pltext.subview(current_index)},
                                                    ::pltxt2htm::NodeKind::html_sub},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     if (auto opt_tag_len = ::pltxt2htm::details::try_parse_bare_tag(pltext.subview(current_index + 2));
                         opt_tag_len.has_value()) {
@@ -1170,7 +1334,11 @@ entry:
                             FrontendContextVariant{ParserFrameContextWithPltextInfo{pltext.subview(current_index)},
                                                    ::pltxt2htm::NodeKind::html_s},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
@@ -1193,7 +1361,11 @@ entry:
                                                        .id = ::pltxt2htm::details::decode_character_references(value)},
                                                    ::pltxt2htm::NodeKind::pl_trigger},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
@@ -1214,7 +1386,11 @@ entry:
                                                        .pltext = pltext.subview(current_index), .id = ::std::move(id)},
                                                    ::pltxt2htm::NodeKind::pl_user},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     // <ul> is a block-level list; inline occurrences are plain literal text
                     // (except <u> underline below).
@@ -1226,7 +1402,11 @@ entry:
                             FrontendContextVariant{ParserFrameContextWithPltextInfo{pltext.subview(current_index)},
                                                    ::pltxt2htm::NodeKind::html_u},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
@@ -1247,7 +1427,11 @@ entry:
                                                        .pltext = pltext.subview(current_index), .value = value},
                                                    ::pltxt2htm::NodeKind::unity_voffset},
                             ::pltxt2htm::Ast{}));
+#if __cpp_break_label >= 202611L
+                        continue entry;
+#else
                         goto entry;
+#endif
                     }
                     result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                     ++current_index;
@@ -1301,7 +1485,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1325,7 +1513,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1347,7 +1539,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1368,7 +1564,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1391,7 +1591,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1413,7 +1617,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1436,7 +1644,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1458,7 +1670,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1480,7 +1696,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1500,7 +1720,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1520,7 +1744,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1540,7 +1768,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1562,7 +1794,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1582,7 +1818,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1602,7 +1842,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1626,7 +1870,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1647,7 +1895,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityMark>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1672,7 +1924,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1697,7 +1953,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1716,7 +1976,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1735,7 +1999,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1760,7 +2028,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1783,7 +2055,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1806,7 +2082,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1829,7 +2109,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1852,7 +2136,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1875,7 +2163,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1898,7 +2190,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1917,7 +2213,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1936,7 +2236,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1959,7 +2263,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1978,7 +2286,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -1999,7 +2311,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -2018,7 +2334,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -2037,7 +2357,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -2056,7 +2380,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -2075,7 +2403,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -2098,7 +2430,11 @@ entry:
                                 ::pltxt2htm::PlTxtNode::template emplace<decltype(staged_node)>(
                                     ::std::move(staged_node)));
                             parent_frame.current_index += staged_index + opt_tag_len.value() + 2;
+#if __cpp_break_label >= 202611L
+                            continue entry;
+#else
                             goto entry;
+#endif
                         }
                         result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                         ++current_index;
@@ -2272,19 +2608,31 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityColor>(
                     ::std::move(subast), ::std::move(id)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_a: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlA>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_experiment: {
                 auto&& active_frame_data = frame.as_object_id_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExperiment>(
                     ::std::move(subast), ::std::move(active_frame_data.id)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_experiments: {
                 auto&& active_frame_data = frame.as_equal_sign_tag();
@@ -2292,14 +2640,22 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExperiments>(
                     ::std::move(subast), ::std::move(value)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_discussion: {
                 auto&& active_frame_data = frame.as_object_id_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlDiscussion>(
                     ::std::move(subast), ::std::move(active_frame_data.id)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_discussions: {
                 auto&& active_frame_data = frame.as_equal_sign_tag();
@@ -2307,14 +2663,22 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlDiscussions>(
                     ::std::move(subast), ::std::move(value)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_user: {
                 auto&& active_frame_data = frame.as_object_id_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlUser>(
                     ::std::move(subast), ::std::move(active_frame_data.id)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_trigger: {
                 auto&& active_frame_data = frame.as_equal_sign_tag();
@@ -2322,7 +2686,11 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlTrigger>(
                     ::std::move(subast), ::std::move(value)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_internal: {
                 auto&& active_frame_data = frame.as_equal_sign_tag();
@@ -2330,7 +2698,11 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlInternal>(
                     ::std::move(subast), ::std::move(value)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_external: {
                 auto&& active_frame_data = frame.as_url_info();
@@ -2338,7 +2710,11 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::PlExternal>(
                     ::std::move(subast), ::std::move(url)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_link: {
                 auto&& active_frame_data = frame.as_url_info();
@@ -2346,49 +2722,77 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityLink>(
                     ::std::move(subast), ::std::move(url)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_size: {
                 auto&& active_frame_data = frame.as_unity_size_tag();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
                     ::std::move(subast), active_frame_data.value));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_voffset: {
                 auto&& active_frame_data = frame.as_unity_voffset_tag();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityVoffset>(
                     ::std::move(subast), active_frame_data.value));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_align: {
                 auto&& active_frame_data = frame.as_align_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityAlign>(
                     ::std::move(subast), active_frame_data.align));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_margin: {
                 auto&& active_frame_data = frame.as_margins_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityMargin>(
                     ::std::move(subast), active_frame_data.left, active_frame_data.right));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_div: {
                 auto&& active_frame_data = frame.as_margins_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlDiv>(
                     ::std::move(subast), active_frame_data.left, active_frame_data.right));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_mark: {
                 auto&& active_frame_data = frame.as_background_color_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityMark>(
                     ::std::move(subast), ::std::move(active_frame_data.background_color)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto&& active_frame_data = frame.as_html_span_info();
@@ -2396,128 +2800,212 @@ entry:
                     ::std::move(subast), ::std::move(active_frame_data.color), active_frame_data.font_size,
                     active_frame_data.vertical_align));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_a: {
                 auto&& active_frame_data = frame.as_html_a_tag_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlA>(
                     ::std::move(subast), ::std::move(active_frame_data.url), active_frame_data.internal));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_strong: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlStrong>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_b: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityB>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_i: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnityI>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_p: {
                 auto&& active_frame_data = frame.as_align_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlP>(
                     ::std::move(subast), active_frame_data.align));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_h1: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH1>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_h2: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH2>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_h3: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH3>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_h4: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH4>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_h5: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH5>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_h6: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlH6>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_del: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlDel>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_code: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlCode>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_u: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlU>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_s: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlS>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_sup: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlSup>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_sub: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlSub>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_em: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlEm>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_mark: {
                 auto&& active_frame_data = frame.as_background_color_info();
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlMark>(
                     ::std::move(subast), ::std::move(active_frame_data.background_color)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::list_li: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListLi>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::list_li_checkbox: {
                 auto&& active_frame_data = frame.as_list_li_checkbox();
@@ -2525,7 +3013,11 @@ entry:
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::ListLiCheckbox>(
                     ::std::move(subast), checked));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table_td: {
                 auto&& active_frame_data = frame.as_cell();
@@ -2533,7 +3025,11 @@ entry:
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTd>(::std::move(subast), align));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table_th: {
                 auto&& active_frame_data = frame.as_cell();
@@ -2541,19 +3037,31 @@ entry:
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableTh>(::std::move(subast), align));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table_caption: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::TableCaption>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_blockquote: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::HtmlBlockquote>(::std::move(subast)));
                 parent_index += staged_index;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_atx_h1: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
@@ -2563,7 +3071,11 @@ entry:
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break(
                     super_pltext.subview(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_atx_h2: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
@@ -2573,7 +3085,11 @@ entry:
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break(
                     super_pltext.subview(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_atx_h3: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
@@ -2583,7 +3099,11 @@ entry:
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break(
                     super_pltext.subview(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_atx_h4: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
@@ -2593,7 +3113,11 @@ entry:
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break(
                     super_pltext.subview(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_atx_h5: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
@@ -2603,7 +3127,11 @@ entry:
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break(
                     super_pltext.subview(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_atx_h6: {
                 ::pltxt2htm::container::U8StringView const super_pltext{
@@ -2613,53 +3141,93 @@ entry:
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break(
                     super_pltext.subview(parent_index), call_stack, parent_ast);
                 parent_index += advance_count;
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdSingleEmphasisAsterisk>(
                     ::std::move(subast)));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdSingleEmphasisUnderscore>(
                     ::std::move(subast)));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdDoubleEmphasisAsterisk>(
                     ::std::move(subast)));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdDoubleEmphasisUnderscore>(
                     ::std::move(subast)));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdTripleEmphasisAsterisk>(
                     ::std::move(subast)));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdTripleEmphasisUnderscore>(
                     ::std::move(subast)));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_del: {
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdDel>(::std::move(subast)));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_block_quotes: {
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdBlockQuotes>(::std::move(subast)));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_link: {
                 auto&& active_frame_data = frame.as_url_info();
                 auto&& link_url = active_frame_data.url;
                 parent_ast.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdLink>(
                     ::std::move(subast), ::std::move(link_url)));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::text:
                 [[fallthrough]];
