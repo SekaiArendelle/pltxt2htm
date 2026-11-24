@@ -93,7 +93,11 @@ entry:
                 result.append(u8"<span style=\"color:");
                 result.append(active_node.get_color());
                 result.append(u8";\">");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_a: {
                 auto&& active_node = node.as_pl_a();
@@ -102,7 +106,11 @@ entry:
                     ::pltxt2htm::details::concat(U8LiteralString{u8"<span style=\"color:"},
                                                  ::pltxt2htm::PlA::get_color_literal(), U8LiteralString{u8";\">"});
                 result.append(::pltxt2htm::container::U8StringView{open_tag});
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_span: {
                 auto&& active_node = node.as_html_span();
@@ -190,7 +198,11 @@ entry:
                     result.push_back(u8';');
                 }
                 result.append(u8"\">");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_a: {
                 auto&& active_node = node.as_html_a();
@@ -205,73 +217,117 @@ entry:
                 else {
                     result.append(u8"\">");
                 }
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore: {
                 auto&& active_node = node.as_md_double_emphasis_underscore();
                 call_stack.push_frame(
                     BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::md_double_emphasis_underscore));
                 result.append(u8"<strong>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_asterisk: {
                 auto&& active_node = node.as_md_double_emphasis_asterisk();
                 call_stack.push_frame(
                     BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::md_double_emphasis_asterisk));
                 result.append(u8"<strong>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_b: {
                 auto&& active_node = node.as_unity_b();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_b));
                 result.append(u8"<strong>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_strong: {
                 auto&& active_node = node.as_html_strong();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::html_strong));
                 result.append(u8"<strong>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_underscore: {
                 auto&& active_node = node.as_md_single_emphasis_underscore();
                 call_stack.push_frame(
                     BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::md_single_emphasis_underscore));
                 result.append(u8"<em>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_asterisk: {
                 auto&& active_node = node.as_md_single_emphasis_asterisk();
                 call_stack.push_frame(
                     BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::md_single_emphasis_asterisk));
                 result.append(u8"<em>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_i: {
                 auto&& active_node = node.as_unity_i();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_i));
                 result.append(u8"<em>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_em: {
                 auto&& active_node = node.as_html_em();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::html_em));
                 result.append(u8"<em>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore: {
                 auto&& active_node = node.as_md_triple_emphasis_underscore();
                 call_stack.push_frame(
                     BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::md_triple_emphasis_underscore));
                 result.append(u8"<em><strong>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
                 auto&& active_node = node.as_md_triple_emphasis_asterisk();
                 call_stack.push_frame(
                     BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk));
                 result.append(u8"<em><strong>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_escape: {
                 auto&& active_node = node.as_md_escape();
@@ -304,132 +360,236 @@ entry:
             case ::pltxt2htm::NodeKind::group: {
                 auto&& active_node = node.as_group();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_experiment: {
                 auto&& active_node = node.as_pl_experiment();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_discussion: {
                 auto&& active_node = node.as_pl_discussion();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_experiments: {
                 auto&& active_node = node.as_pl_experiments();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_discussions: {
                 auto&& active_node = node.as_pl_discussions();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_user: {
                 auto&& active_node = node.as_pl_user();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_trigger: {
                 auto&& active_node = node.as_pl_trigger();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_internal: {
                 auto&& active_node = node.as_pl_internal();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_size: {
                 auto&& active_node = node.as_unity_size();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_voffset: {
                 auto&& active_node = node.as_unity_voffset();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_align: {
                 auto&& active_node = node.as_unity_align();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_margin: {
                 auto&& active_node = node.as_unity_margin();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_del: {
                 auto&& active_node = node.as_md_del();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_del: {
                 auto&& active_node = node.as_html_del();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_code: {
                 auto&& active_node = node.as_html_code();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_mark: {
                 auto&& active_node = node.as_html_mark();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_mark: {
                 auto&& active_node = node.as_unity_mark();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_u: {
                 auto&& active_node = node.as_html_u();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_s: {
                 auto&& active_node = node.as_html_s();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_sup: {
                 auto&& active_node = node.as_html_sup();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_sub: {
                 auto&& active_node = node.as_html_sub();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_latex_inline: {
                 auto&& active_node = node.as_md_latex_inline();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_latex_block: {
                 auto&& active_node = node.as_md_latex_block();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
                 auto&& active_node = node.as_md_code_span_1_backtick();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
                 auto&& active_node = node.as_md_code_span_2_backtick();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
                 auto&& active_node = node.as_md_code_span_3_backtick();
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::group));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_external: {
                 auto&& active_node = node.as_pl_external();
@@ -439,7 +599,11 @@ entry:
                     result, ::pltxt2htm::container::U8StringView{external_url});
                 result.append(u8"\">");
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::pl_external));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_link: {
                 auto&& active_node = node.as_unity_link();
@@ -449,7 +613,11 @@ entry:
                     result, ::pltxt2htm::container::U8StringView{link_url});
                 result.append(u8"\">");
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_link));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_link: {
                 auto&& active_node = node.as_md_link();
@@ -459,7 +627,11 @@ entry:
                     result, ::pltxt2htm::container::U8StringView{md_link_url});
                 result.append(u8"\">");
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::md_link));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::url: {
                 auto&& active_node = node.as_url();
@@ -475,7 +647,11 @@ entry:
                 continue;
             }
             case ::pltxt2htm::NodeKind::md_image: {
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_hr:
                 [[fallthrough]];
@@ -565,7 +741,11 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::unity_b: {
                 result.append(u8"</strong>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
                 [[fallthrough]];
@@ -575,13 +755,21 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_em: {
                 result.append(u8"</em>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::md_triple_emphasis_asterisk: {
                 result.append(u8"</strong></em>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_span:
                 [[fallthrough]];
@@ -589,7 +777,11 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::unity_color: {
                 result.append(u8"</span>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_external:
                 [[fallthrough]];
@@ -601,16 +793,32 @@ entry:
                 [[fallthrough]];
             case ::pltxt2htm::NodeKind::html_a: {
                 result.append(u8"</a>");
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::group: {
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_trigger: {
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_internal: {
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             default:
                 [[unlikely]] {

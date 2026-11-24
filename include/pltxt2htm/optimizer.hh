@@ -598,7 +598,11 @@ entry:
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::group, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_color: {
                 auto&& active_node = node.as_unity_color();
@@ -655,7 +659,11 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_color, subast.begin(),
                         ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
                             ::pltxt2htm::container::U8StringView{equal_sign_tag_id}}));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
                 node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
@@ -792,14 +800,22 @@ entry:
                         .color = ::pltxt2htm::container::U8StringView{span_color},
                         .font_size = span_font_size,
                         .vertical_align = span_vertical_align}));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_a: {
                 auto&& active_node = node.as_html_a();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_a, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_a: {
                 auto&& active_node = node.as_pl_a();
@@ -850,7 +866,11 @@ entry:
                     }
                     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_a, subast.begin()));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 // Optimization: If the color is the same as the parent node, then ignore the nested tag.
                 node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
@@ -920,7 +940,11 @@ entry:
                     ::std::addressof(subast), node.get_node_kind(), subast.begin(),
                     ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
                         ::pltxt2htm::container::U8StringView{equal_sign_tag_id}}));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_user: {
                 auto&& active_node = node.as_pl_user();
@@ -956,7 +980,11 @@ entry:
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_user, subast.begin(),
                         ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{
                             ::pltxt2htm::container::U8StringView{equal_sign_tag_id}}));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
@@ -974,7 +1002,11 @@ entry:
                     ::std::addressof(subast), node.get_node_kind(), subast.begin(),
                     ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::pltxt2htm::container::U8StringView{
                         active_node.get_value().data(), active_node.get_value().size()}}));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_internal: {
                 auto&& active_node = node.as_pl_internal();
@@ -988,7 +1020,11 @@ entry:
                     ::std::addressof(subast), node.get_node_kind(), subast.begin(),
                     ::pltxt2htm::details::OptimizerContextWithEqualSignTagInfo{::pltxt2htm::container::U8StringView{
                         active_node.get_value().data(), active_node.get_value().size()}}));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::pl_external: {
                 auto&& active_node = node.as_pl_external();
@@ -1000,7 +1036,11 @@ entry:
                 }
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::pl_external, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_link: {
                 auto&& active_node = node.as_unity_link();
@@ -1012,7 +1052,11 @@ entry:
                 }
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_link, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_size: {
                 auto&& active_node = node.as_unity_size();
@@ -1045,7 +1089,11 @@ entry:
                     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                         ::std::addressof(subast), subast.begin(),
                         ::pltxt2htm::details::OptimizerContextWithUnitySizeTagInfo{active_node.get_font_size()}));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
@@ -1082,7 +1130,11 @@ entry:
                     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                         ::std::addressof(subast), subast.begin(),
                         ::pltxt2htm::details::OptimizerContextWithUnityVoffsetTagInfo{active_node.get_value()}));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
@@ -1093,14 +1145,22 @@ entry:
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_align, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_margin: {
                 auto&& active_node = node.as_unity_margin();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::unity_margin, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_double_emphasis_underscore:
                 [[fallthrough]];
@@ -1142,7 +1202,11 @@ entry:
                     }
                     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                         ::std::addressof(subast), node.get_node_kind(), subast.begin()));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
@@ -1153,14 +1217,22 @@ entry:
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_p, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_div: {
                 auto&& active_node = node.as_html_div();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_div, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::line_break:
                 [[fallthrough]];
@@ -1181,84 +1253,132 @@ entry:
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h1, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_atx_h1: {
                 auto&& active_node = node.as_md_atx_h1();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h1, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_h2: {
                 auto&& active_node = node.as_html_h2();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h2, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_atx_h2: {
                 auto&& active_node = node.as_md_atx_h2();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h2, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_h3: {
                 auto&& active_node = node.as_html_h3();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h3, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_atx_h3: {
                 auto&& active_node = node.as_md_atx_h3();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h3, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_h4: {
                 auto&& active_node = node.as_html_h4();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h4, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_atx_h4: {
                 auto&& active_node = node.as_md_atx_h4();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h4, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_h5: {
                 auto&& active_node = node.as_html_h5();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h5, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_atx_h5: {
                 auto&& active_node = node.as_md_atx_h5();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h5, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_h6: {
                 auto&& active_node = node.as_html_h6();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_h6, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_atx_h6: {
                 auto&& active_node = node.as_md_atx_h6();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::md_atx_h6, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_del:
                 [[fallthrough]];
@@ -1289,7 +1409,11 @@ entry:
                     }
                     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::html_del, subast.begin()));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
@@ -1307,7 +1431,11 @@ entry:
                     }
                     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::html_code, subast.begin()));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
@@ -1327,7 +1455,11 @@ entry:
                     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                         ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::html_mark,
                         ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo{node_background_color_view}));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 // Optimization: same-tag mark with an identical background-color is flattened.
                 // <mark style="background-color:yellow">a<mark style="background-color:yellow">b</mark>c</mark>
@@ -1345,7 +1477,11 @@ entry:
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::html_mark,
                     ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo{node_background_color_view}));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::unity_mark: {
                 auto&& active_node = node.as_unity_mark();
@@ -1361,7 +1497,11 @@ entry:
                     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                         ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::unity_mark,
                         ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo{node_background_color_view}));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 // Optimization: same-tag unity_mark with an identical background color is flattened.
                 // <mark=yellow>a<mark=yellow>b</mark>c</mark>
@@ -1379,7 +1519,11 @@ entry:
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), subast.begin(), ::pltxt2htm::NodeKind::unity_mark,
                     ::pltxt2htm::details::OptimizerContextWithBackgroundColorInfo{node_background_color_view}));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_u: {
                 auto&& active_node = node.as_html_u();
@@ -1393,7 +1537,11 @@ entry:
                     }
                     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::html_u, subast.begin()));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
@@ -1411,7 +1559,11 @@ entry:
                     }
                     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                         ::std::addressof(subast), ::pltxt2htm::NodeKind::html_s, subast.begin()));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
@@ -1427,7 +1579,11 @@ entry:
                 }
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_sup, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_sub: {
                 auto&& active_node = node.as_html_sub();
@@ -1439,7 +1595,11 @@ entry:
                 }
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_sub, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_single_emphasis_underscore:
                 [[fallthrough]];
@@ -1481,7 +1641,11 @@ entry:
                     }
                     call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                         ::std::addressof(subast), node.get_node_kind(), subast.begin()));
+#if __cpp_break_label >= 202611L
+                    continue entry;
+#else
                     goto entry;
+#endif
                 }
                 node = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::Group>(::std::move(subast));
                 ++current_iter;
@@ -1496,119 +1660,187 @@ entry:
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::list_ul, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::list_ol: {
                 auto&& active_node = node.as_list_ol();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::list_ol, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::list_li_checkbox: {
                 auto&& active_node = node.as_list_li_checkbox();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::list_li_checkbox, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::list_li: {
                 auto&& active_node = node.as_list_li();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::list_li, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_code_span_1_backtick: {
                 auto&& active_node = node.as_md_code_span_1_backtick();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::md_code_span_1_backtick, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_code_span_2_backtick: {
                 auto&& active_node = node.as_md_code_span_2_backtick();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::md_code_span_2_backtick, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_code_span_3_backtick: {
                 auto&& active_node = node.as_md_code_span_3_backtick();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::md_code_span_3_backtick, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::html_blockquote: {
                 auto&& active_node = node.as_html_blockquote();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::html_blockquote, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table: {
                 auto&& active_node = node.as_table();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::table, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table_caption: {
                 auto&& active_node = node.as_table_caption();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::table_caption, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table_colgroup: {
                 auto&& active_node = node.as_table_colgroup();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::table_colgroup, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table_thead: {
                 auto&& active_node = node.as_table_thead();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::table_thead, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table_tbody: {
                 auto&& active_node = node.as_table_tbody();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::table_tbody, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table_tfoot: {
                 auto&& active_node = node.as_table_tfoot();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::table_tfoot, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table_tr: {
                 auto&& active_node = node.as_table_tr();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::table_tr, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table_th: {
                 auto&& active_node = node.as_table_th();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::table_th, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table_td: {
                 auto&& active_node = node.as_table_td();
                 auto&& subast = active_node.get_subast();
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), ::pltxt2htm::NodeKind::table_td, subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::md_triple_emphasis_underscore:
                 [[fallthrough]];
@@ -1676,7 +1908,11 @@ entry:
                 }
                 call_stack.push_frame(::pltxt2htm::details::OptimizerFrame<typename ::pltxt2htm::Ast::iterator>(
                     ::std::addressof(subast), node.get_node_kind(), subast.begin()));
+#if __cpp_break_label >= 202611L
+                continue entry;
+#else
                 goto entry;
+#endif
             }
             case ::pltxt2htm::NodeKind::table_col:
                 [[fallthrough]];
@@ -1724,7 +1960,11 @@ entry:
         call_stack.discard_current_frame();
         if (has_parent) {
             ++(call_stack.current_frame().iter);
+#if __cpp_break_label >= 202611L
+            continue entry;
+#else
             goto entry;
+#endif
         }
         return;
     }
