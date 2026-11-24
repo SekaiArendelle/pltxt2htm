@@ -19,11 +19,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Clang
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: latest
-          platform: x64
+      - name: Use Clang bundled with Visual Studio
+        shell: powershell
+        run: |
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          $installationPath = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Llvm.Clang -property installationPath | Select-Object -First 1
+          if (-not $installationPath) {
+            throw 'Visual Studio C++ Clang component is not installed'
+          }
+          $clangBin = Join-Path $installationPath 'VC\Tools\Llvm\x64\bin'
+          if (-not (Test-Path (Join-Path $clangBin 'clang++.exe'))) {
+            throw "clang++.exe not found in $clangBin"
+          }
+          Add-Content -Path $env:GITHUB_PATH -Value $clangBin
 
       - name: clang version
         shell: powershell
