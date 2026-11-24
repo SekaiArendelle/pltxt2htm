@@ -167,6 +167,7 @@
     DOCTEST_CLANG_SUPPRESS_WARNING("-Wmissing-prototypes")                                         \
     DOCTEST_CLANG_SUPPRESS_WARNING("-Wc++98-compat")                                               \
     DOCTEST_CLANG_SUPPRESS_WARNING("-Wc++98-compat-pedantic")                                      \
+    DOCTEST_CLANG_SUPPRESS_WARNING("-Wc2y-extensions")                                             \
                                                                                                    \
     DOCTEST_GCC_SUPPRESS_WARNING_PUSH                                                              \
     DOCTEST_GCC_SUPPRESS_WARNING("-Wunknown-pragmas")                                              \
@@ -419,7 +420,7 @@ DOCTEST_MSVC_SUPPRESS_WARNING(4623) // default constructor was implicitly define
 #define DOCTEST_CAT_IMPL(s1, s2) s1##s2
 #define DOCTEST_CAT(s1, s2) DOCTEST_CAT_IMPL(s1, s2)
 #ifdef __COUNTER__ // not standard and may be missing for some compilers
-#define DOCTEST_ANONYMOUS(x) _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wc2y-extensions\"") DOCTEST_CAT(x, __COUNTER__) _Pragma("clang diagnostic pop")
+#define DOCTEST_ANONYMOUS(x) DOCTEST_CAT(x, __COUNTER__)
 #else // __COUNTER__
 #define DOCTEST_ANONYMOUS(x) DOCTEST_CAT(x, __LINE__)
 #endif // __COUNTER__
