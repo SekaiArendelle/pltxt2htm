@@ -16,9 +16,9 @@ namespace pltxt2htm::numeric {
 
 #if defined(__SIZEOF_INT128__)
 /// The compiler's native 128-bit unsigned type, accepted without a pedantic warning.
-/// The alias is required: GCC rejects every bare `unsigned __int128` spelling under
-/// `-Wpedantic`, which the project builds with `-Werror=pedantic`. A future standard `uint128_t`
-/// would replace only this line.
+/// The alias is needed to keep the build warning-free: GCC warns on every bare
+/// `unsigned __int128` spelling under `-Wpedantic`, which the project builds with.
+/// A future standard `uint128_t` would replace only this line.
 __extension__ using UInt128 = unsigned __int128;
 #else
 /**
