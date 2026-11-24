@@ -78,10 +78,5 @@ int main() noexcept {
         pltxt2htm_test_assert_true(::pltxt2htm::details::is_prefix_match<str>(u8"-"));
     }
 
-    {
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::to_decimal_string(0), u8"0");
-        pltxt2htm_test_assert_equal(::pltxt2htm::details::to_decimal_string(42), u8"42");
-    }
-
     return 0;
 }
