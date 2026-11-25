@@ -166,18 +166,26 @@ constexpr auto exact_integer_digits(double const value, char8_t* const buffer) n
     while (significant_limbs != 0 && limbs[significant_limbs - 1] == 0) {
         --significant_limbs;
     }
+    // Both write sites below decrement first and then assign, instead of using
+    // `*--cursor = ...`: clang-tidy's misc-const-correctness does not resolve
+    // pointee writes through increment/decrement expressions, so it wrongly
+    // suggests a const pointee (llvm/llvm-project#215161, fixed by #215285 on
+    // main for clang 24; not in the release/23.x branch). Drop this workaround
+    // once the CI clang-tidy includes the fix.
     while (significant_limbs != 0) {
         auto remainder = ::pltxt2htm::format::details::divide_limbs(limbs, significant_limbs, chunk_divisor);
         if (significant_limbs == 0) {
             // Most significant chunk: no leading zeros.
             do {
-                *--cursor = static_cast<char8_t>(u8'0' + remainder % 10);
+                --cursor;
+                *cursor = static_cast<char8_t>(u8'0' + remainder % 10);
                 remainder /= 10;
             } while (remainder != 0);
         }
         else {
             for (unsigned i{}; i < 9; ++i) {
-                *--cursor = static_cast<char8_t>(u8'0' + remainder % 10);
+                --cursor;
+                *cursor = static_cast<char8_t>(u8'0' + remainder % 10);
                 remainder /= 10;
             }
         }
