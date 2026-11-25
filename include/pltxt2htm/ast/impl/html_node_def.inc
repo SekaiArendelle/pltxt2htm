@@ -196,7 +196,7 @@ constexpr auto ::pltxt2htm::HtmlBlockquote::operator==(this HtmlBlockquote const
 
 constexpr ::pltxt2htm::HtmlSpan::HtmlSpan(
     ::pltxt2htm::Ast&& subast_, ::pltxt2htm::container::U8String&& color_,
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size_,
+    ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> font_size_,
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> vertical_align_) noexcept
     : subast(::std::move(subast_)),
       color(::std::move(color_)),

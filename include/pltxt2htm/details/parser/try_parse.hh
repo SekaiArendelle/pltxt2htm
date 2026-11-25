@@ -993,7 +993,7 @@ constexpr auto try_parse_color_tag(::pltxt2htm::container::U8StringView pltext) 
  */
 struct TryParseSizeTagResult {
     ::std::size_t tag_len;
-    ::pltxt2htm::ValueWithUnit<double> value;
+    ::pltxt2htm::FontSize value;
 };
 
 /**
@@ -1028,7 +1028,11 @@ constexpr auto try_parse_size_tag(::pltxt2htm::container::U8StringView pltext) n
         return ::pltxt2htm::container::nullopt;
     }
     auto const tag_len = value_end + opt_close.value();
-    return TryParseSizeTagResult{.tag_len = tag_len, .value = {.value = value.value, .unit = unit}};
+    auto opt_font_size = ::pltxt2htm::FontSize::try_make(value.value, unit);
+    if (opt_font_size.has_value() == false) {
+        return ::pltxt2htm::container::nullopt;
+    }
+    return TryParseSizeTagResult{.tag_len = tag_len, .value = opt_font_size.value()};
 }
 
 /**
@@ -1037,8 +1041,7 @@ constexpr auto try_parse_size_tag(::pltxt2htm::container::U8StringView pltext) n
 struct TryParseSpanTagResult {
     ::std::size_t tag_len; ///< Length of the matched tag.
     ::pltxt2htm::container::U8String color; ///< Extracted color value.
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>
-        font_size; ///< Extracted font-size value+unit (if present).
+    ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> font_size; ///< Extracted font-size value+unit (if present).
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue>
         vertical_align; ///< Extracted vertical-align value (if present).
 };
@@ -1048,7 +1051,7 @@ struct TryParseSpanTagResult {
  */
 struct TryParseFontSizeValueResult {
     ::std::size_t end;
-    ::pltxt2htm::ValueWithUnit<double> value;
+    ::pltxt2htm::FontSize value;
 };
 
 /**
@@ -1084,7 +1087,11 @@ constexpr auto try_parse_font_size_value(::pltxt2htm::container::U8StringView pl
         unit = ::pltxt2htm::Unit::em;
         pos += 2;
     }
-    return TryParseFontSizeValueResult{.end = pos, .value = {.value = decimal.value, .unit = unit}};
+    auto opt_font_size = ::pltxt2htm::FontSize::try_make(decimal.value, unit);
+    if (opt_font_size.has_value() == false) {
+        return ::pltxt2htm::container::nullopt;
+    }
+    return TryParseFontSizeValueResult{.end = pos, .value = opt_font_size.value()};
 }
 
 /**
@@ -1746,8 +1753,7 @@ constexpr auto try_parse_span_style_property_suffix(::pltxt2htm::container::U8St
 struct TryParseSpanStyleResult {
     ::std::size_t end; ///< Byte offset just past the closing quote, relative to the input subview.
     ::pltxt2htm::container::U8String color; ///< Extracted color value, empty if none was present.
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>
-        font_size; ///< Extracted font-size value+unit, if present.
+    ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> font_size; ///< Extracted font-size value+unit, if present.
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue>
         vertical_align; ///< Extracted vertical-align value, if present.
 };
@@ -1758,7 +1764,7 @@ constexpr auto try_parse_span_style(::pltxt2htm::container::U8StringView pltext,
     ::std::size_t const pltext_size{pltext.size()};
     ::std::size_t p{};
     ::pltxt2htm::container::U8String color{};
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size{::pltxt2htm::container::nullopt};
+    ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> font_size{::pltxt2htm::container::nullopt};
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> vertical_align{::pltxt2htm::container::nullopt};
 
     while (p < pltext_size) {
@@ -1906,7 +1912,7 @@ constexpr auto try_parse_span_tag(::pltxt2htm::container::U8StringView pltext) n
     ::std::size_t pos{4}; // skip past "span" (the 's' was consumed by the trie dispatch)
     bool found_style{false};
     ::pltxt2htm::container::U8String color{};
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size{::pltxt2htm::container::nullopt};
+    ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> font_size{::pltxt2htm::container::nullopt};
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> vertical_align{::pltxt2htm::container::nullopt};
 
     while (pos < pltext_size) {

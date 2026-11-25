@@ -2,9 +2,9 @@
  * @file value_unit.hh
  * @brief Value+unit pair type definitions for pltxt2htm
  * @details Defines a generic numeric value paired with its unit, so the value
- *          and its unit never travel independently. Used by Physics-Lab
- *          &lt;size=N&gt; / &lt;size=N%&gt; / &lt;size=Nem&gt; tags and &lt;span style="font-size:..."&gt; /
- *          &lt;span style="vertical-align:..."&gt; lengths.
+ *          and its unit never travel independently. Used for integer quantities such as
+ *          &lt;span style="vertical-align:..."&gt; lengths and margins. Font sizes use the
+ *          dedicated ::pltxt2htm::FontSize type, which stores a double.
  */
 
 #pragma once
@@ -31,10 +31,9 @@ enum class Unit : unsigned {
  *          never travel independently. This avoids carrying an invalid/undefined
  *          unit when no value is present (the value is then simply absent).
  * @tparam T The numeric type of the value. Use ::std::size_t for non-negative
- *           integer quantities, a signed type such as ::std::ptrdiff_t where a
- *           negative value is meaningful (e.g. `vertical-align:-5px`), or a
- *           floating-point type such as double where a fractional value
- *           is meaningful (e.g. `<size=12.5>`).
+ *           integer quantities or a signed type such as ::std::ptrdiff_t where a
+ *           negative value is meaningful (e.g. `vertical-align:-5px`). Font sizes
+ *           use ::pltxt2htm::FontSize instead of a floating-point instantiation here.
  */
 template<typename T>
     requires (::std::integral<T> || ::std::floating_point<T>)

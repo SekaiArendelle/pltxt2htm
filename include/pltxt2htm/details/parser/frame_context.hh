@@ -78,7 +78,7 @@ class ParserFrameContextWithHtmlSpanInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::container::U8String color;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size;
+    ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> font_size;
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> vertical_align;
 };
 
@@ -118,7 +118,7 @@ public:
 class ParserFrameContextWithUnitySizeTagInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
-    ::pltxt2htm::ValueWithUnit<double> value;
+    ::pltxt2htm::FontSize value;
 };
 
 /**

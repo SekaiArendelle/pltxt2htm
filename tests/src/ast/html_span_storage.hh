@@ -6,11 +6,12 @@
 #include <pltxt2htm/container/array.hh>
 
 TEST_SUITE("html_span_storage") {
-    using FontSize = ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>>;
+    using OptionalFontSize = ::pltxt2htm::container::Optional<::pltxt2htm::FontSize>;
     using VerticalAlign = ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue>;
 
     [[nodiscard]]
-    constexpr auto make_html_span(FontSize font_size, VerticalAlign vertical_align) noexcept -> ::pltxt2htm::HtmlSpan {
+    constexpr auto make_html_span(OptionalFontSize font_size, VerticalAlign vertical_align) noexcept
+        -> ::pltxt2htm::HtmlSpan {
         return ::pltxt2htm::HtmlSpan{::pltxt2htm::Ast{}, ::pltxt2htm::container::U8String{}, ::std::move(font_size),
                                      ::std::move(vertical_align)};
     }
@@ -26,12 +27,12 @@ TEST_SUITE("html_span_storage") {
 
     TEST_CASE("font sizes") {
         static constexpr auto font_sizes = ::pltxt2htm::container::Array{
-            ::pltxt2htm::ValueWithUnit<double>{12.5, ::pltxt2htm::Unit::px},
-            ::pltxt2htm::ValueWithUnit<double>{80.0, ::pltxt2htm::Unit::percent},
-            ::pltxt2htm::ValueWithUnit<double>{1.25, ::pltxt2htm::Unit::em},
+            ::pltxt2htm::FontSize{12.5, ::pltxt2htm::Unit::px},
+            ::pltxt2htm::FontSize{80.0, ::pltxt2htm::Unit::percent},
+            ::pltxt2htm::FontSize{1.25, ::pltxt2htm::Unit::em},
         };
         for (auto const font_size : font_sizes) {
-            auto const span = make_html_span(FontSize{font_size}, ::pltxt2htm::container::nullopt);
+            auto const span = make_html_span(OptionalFontSize{font_size}, ::pltxt2htm::container::nullopt);
             auto const stored_font_size = span.get_font_size();
             REQUIRE(stored_font_size.has_value());
             CHECK(stored_font_size.value() == font_size);
@@ -72,14 +73,14 @@ TEST_SUITE("html_span_storage") {
     }
 
     TEST_CASE("span equality") {
-        auto const font_size = FontSize{::pltxt2htm::ValueWithUnit<double>{12.5, ::pltxt2htm::Unit::px}};
+        auto const font_size = OptionalFontSize{::pltxt2htm::FontSize{12.5, ::pltxt2htm::Unit::px}};
         auto const vertical_align =
             VerticalAlign{::pltxt2htm::VerticalAlignValue{::pltxt2htm::VerticalAlignKeyword::super}};
         auto const same_left = make_html_span(font_size, vertical_align);
         auto const same_right = make_html_span(font_size, vertical_align);
         auto const no_font_size = make_html_span(::pltxt2htm::container::nullopt, vertical_align);
         auto const zero_font_size =
-            make_html_span(FontSize{::pltxt2htm::ValueWithUnit<double>{0.0, ::pltxt2htm::Unit::px}}, vertical_align);
+            make_html_span(OptionalFontSize{::pltxt2htm::FontSize{0.0, ::pltxt2htm::Unit::px}}, vertical_align);
         auto const different_keyword = make_html_span(
             font_size, VerticalAlign{::pltxt2htm::VerticalAlignValue{::pltxt2htm::VerticalAlignKeyword::sub}});
 
