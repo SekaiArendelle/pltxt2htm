@@ -18,6 +18,7 @@
 #include "url_node_decl.hh"
 #include "../font_size.hh"
 #include "../value_unit.hh"
+#include "../font_size.hh"
 #include "../vertical_align_value.hh"
 #include "../node_kind.hh"
 #include "../../details/push_macro.hh"
