@@ -52,12 +52,6 @@ namespace details {
  */
 inline constexpr ::std::size_t max_fixed_point_length{327};
 
-/// Number of 32-bit limbs needed for any integral double: 2^1024 > max double.
-inline constexpr ::std::size_t exact_integer_limb_count{32};
-
-/// Number of decimal digits of an integral double: 2^1024 has 309 digits.
-inline constexpr ::std::size_t max_exact_integer_digits{309};
-
 /**
  * @brief Write the decimal digits of an unsigned 64-bit value.
  * @param buffer Destination with room for 20 characters.
@@ -77,8 +71,8 @@ constexpr auto write_uint64_digits(::std::uint64_t value, char8_t* const buffer)
     return reversed_length;
 }
 
-/// Base-2^32 limbs, least significant first.
-using ExactIntegerLimbs = ::std::array<::std::uint32_t, exact_integer_limb_count>;
+/// Base-2^32 limbs, least significant first. 32 limbs cover any integral double.
+using ExactIntegerLimbs = ::std::array<::std::uint32_t, 32>;
 
 /**
  * @brief Divide the significant limbs by divisor in place and return the remainder.
@@ -105,7 +99,7 @@ constexpr auto divide_limbs(ExactIntegerLimbs& limbs, ::std::size_t& significant
 /**
  * @brief Write the exact decimal digits of a non-negative integral double.
  * @param value A finite, non-negative, integral binary64 value.
- * @param buffer Destination with room for `max_exact_integer_digits` characters.
+ * @param buffer Destination with room for at least 309 characters.
  * @return The number of characters written.
  * @details The exact expansion is the representation `std::to_chars` selects for
  *          `chars_format::fixed`, because it has the minimal length (the number
@@ -148,7 +142,7 @@ constexpr auto exact_integer_digits(double const value, char8_t* const buffer) n
     auto const limb_shift = shift / 32;
     auto const bit_shift = shift % 32;
     if (limb_shift != 0) {
-        for (::std::size_t i{exact_integer_limb_count}; i > limb_shift; --i) {
+        for (::std::size_t i{limbs.size()}; i > limb_shift; --i) {
             limbs[i - 1] = limbs[i - 1 - limb_shift];
         }
         for (::std::size_t i{}; i < limb_shift; ++i) {
@@ -156,7 +150,7 @@ constexpr auto exact_integer_digits(double const value, char8_t* const buffer) n
         }
     }
     if (bit_shift != 0) {
-        for (::std::size_t i{exact_integer_limb_count}; i != 0; --i) {
+        for (::std::size_t i{limbs.size()}; i != 0; --i) {
             auto const index = i - 1;
             ::std::uint32_t const carry = index == 0 ? 0 : limbs[index - 1] >> (32 - bit_shift);
             limbs[index] = (limbs[index] << bit_shift) | carry;
@@ -164,10 +158,11 @@ constexpr auto exact_integer_digits(double const value, char8_t* const buffer) n
     }
 
     // Peel off nine decimal digits per division, least significant chunk first.
-    char8_t digits[max_exact_integer_digits];
+    constexpr ::std::size_t max_digits{309};
+    char8_t digits[max_digits];
     char8_t* cursor = digits + sizeof(digits);
     constexpr ::std::uint32_t chunk_divisor{1'000'000'000};
-    ::std::size_t significant_limbs{exact_integer_limb_count};
+    ::std::size_t significant_limbs{limbs.size()};
     while (significant_limbs != 0 && limbs[significant_limbs - 1] == 0) {
         --significant_limbs;
     }
