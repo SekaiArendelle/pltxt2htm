@@ -8,6 +8,7 @@
 
 #include <pltxt2htm/format/floating.hh>
 #include <pltxt2htm/details/parser/decimal.hh>
+#include <pltxt2htm/details/utils.hh>
 
 #include "doctest_config.hh"
 #include "format/details/support.hh"
@@ -55,13 +56,23 @@ TEST_SUITE("format_floating") {
     }
 
     TEST_CASE("domain") {
-        CHECK_FALSE(::pltxt2htm::format::to_decimal_string(::pltxt2htm::details::max_font_size_value).has_value());
+        using ::pltxt2htm::format::details::can_format_fixed_point;
+        using ::pltxt2htm::format::details::max_fixed_point_value;
+        using ::pltxt2htm::format::details::min_fixed_point_value;
+
+        CHECK_FALSE(::pltxt2htm::format::to_decimal_string(max_fixed_point_value).has_value());
         CHECK_FALSE(::pltxt2htm::format::to_decimal_string(1e-19).has_value());
         CHECK_FALSE(::pltxt2htm::format::to_decimal_string(-1.0).has_value());
         CHECK_FALSE(::pltxt2htm::format::to_decimal_string(::std::numeric_limits<double>::quiet_NaN()).has_value());
         CHECK(::pltxt2htm::format::to_decimal_string(-0.0).value() == u8"0");
-        CHECK(::pltxt2htm::format::to_decimal_string(::pltxt2htm::details::min_font_size_value).value() ==
-              u8"0.000000000000000001");
+        CHECK(::pltxt2htm::format::to_decimal_string(min_fixed_point_value).value() == u8"0.000000000000000001");
+
+        CHECK(can_format_fixed_point(0.0));
+        CHECK(can_format_fixed_point(min_fixed_point_value));
+        CHECK_FALSE(can_format_fixed_point(1e-19));
+        CHECK_FALSE(can_format_fixed_point(max_fixed_point_value));
+        CHECK_FALSE(can_format_fixed_point(-1.0));
+        CHECK_FALSE(can_format_fixed_point(::std::numeric_limits<double>::quiet_NaN()));
     }
 
     TEST_CASE("round-trip-and-idempotence") {
@@ -83,11 +94,11 @@ TEST_SUITE("format_floating") {
         CHECK(::pltxt2htm::format::to_chars(exact, exact + 3, 12.5) == nullptr);
         CHECK(::pltxt2htm::format::to_chars(buffer, buffer + sizeof(buffer), 1e-19) == nullptr);
         CHECK(::pltxt2htm::format::to_chars(buffer, buffer + sizeof(buffer),
-                                            ::pltxt2htm::details::max_font_size_value) == nullptr);
+                                            ::pltxt2htm::format::details::max_fixed_point_value) == nullptr);
     }
 
     TEST_CASE("round-up") {
-        using ::pltxt2htm::format::double_to_uint64_ceil;
+        using ::pltxt2htm::details::double_to_uint64_ceil;
         using ::pltxt2htm::details::max_size_tag_value;
         using ::pltxt2htm::details::min_font_size_value;
 
@@ -105,17 +116,8 @@ TEST_SUITE("format_floating") {
         ::pltxt2htm::format::append_decimal(out, 12.5);
         ::pltxt2htm::format::append_decimal(out, 7);
         ::pltxt2htm::format::append_decimal(out, -3);
-        CHECK(out == u8"12.57-3");
-
-        ::pltxt2htm::container::U8String clamped{};
-        ::pltxt2htm::format::append_decimal(clamped, ::pltxt2htm::details::max_font_size_value * 2);
-        CHECK(clamped == u8"18446744073709549568");
-
-        ::pltxt2htm::container::U8String zeros{};
-        ::pltxt2htm::format::append_decimal(zeros, -1.0);
-        ::pltxt2htm::format::append_decimal(zeros, ::std::numeric_limits<double>::quiet_NaN());
-        ::pltxt2htm::format::append_decimal(zeros, 1e-19);
-        CHECK(zeros == u8"000");
+        ::pltxt2htm::format::append_decimal(out, 0.0);
+        CHECK(out == u8"12.57-30");
     }
 
     TEST_CASE("deterministic-sweep") {
@@ -134,8 +136,7 @@ TEST_SUITE("format_floating") {
             if (::std::isfinite(value) == false) {
                 continue;
             }
-            if (value < ::pltxt2htm::details::min_font_size_value ||
-                value >= ::pltxt2htm::details::max_font_size_value) {
+            if (::pltxt2htm::format::details::can_format_fixed_point(value) == false) {
                 continue;
             }
             ::pltxt2htm_test::format_floating_details::check_round_trip(value);

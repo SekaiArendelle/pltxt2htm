@@ -237,7 +237,7 @@ entry:
                     // Round ceil(unity_size / 2) up to preserve the historical integer mapping
                     // (e.g. size=11 -> 6px) while accepting fractional sizes such as 12.5 -> 7px.
                     ::pltxt2htm::format::append_decimal(
-                        result, ::pltxt2htm::format::double_to_uint64_ceil(unity_size.value / 2));
+                        result, ::pltxt2htm::details::double_to_uint64_ceil(unity_size.value / 2));
                     result.append(u8"px;\">");
                     break;
                 }

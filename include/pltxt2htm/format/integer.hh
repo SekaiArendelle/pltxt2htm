@@ -14,8 +14,8 @@
 #include <limits>
 #include <utility>
 
+#include "../container/array.hh"
 #include "../container/string.hh"
-#include "../details/literal_string.hh"
 
 namespace pltxt2htm::format {
 
@@ -25,8 +25,8 @@ namespace details {
  * @brief Generate the lookup table of two-digit decimal pairs ("00" through "99").
  */
 [[nodiscard]]
-consteval auto make_decimal_digit_pairs() noexcept -> ::pltxt2htm::details::U8LiteralString<200> {
-    auto pairs = ::pltxt2htm::details::U8LiteralString<200>{};
+consteval auto make_decimal_digit_pairs() noexcept -> ::pltxt2htm::container::Array<char8_t, 200> {
+    auto pairs = ::pltxt2htm::container::Array<char8_t, 200>{};
     for (::std::size_t i{}; i < 100; ++i) {
         pairs[i * 2] = static_cast<char8_t>(u8'0' + i / 10);
         pairs[i * 2 + 1] = static_cast<char8_t>(u8'0' + i % 10);

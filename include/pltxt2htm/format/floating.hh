@@ -2,13 +2,13 @@
  * @file floating.hh
  * @brief Fixed-point decimal formatting for non-negative floating-point values.
  * @details Emits the shortest fixed-point decimal that the library's parser reads back to the
- *          same double. No exponent notation is ever produced, because the values are emitted
- *          into CSS font-size declarations. The supported domain is defined in
- *          font_size_domain.hh; values outside it are rejected by the strict APIs.
+ *          same double. No exponent notation is ever produced. The supported domain is defined
+ *          by `min_fixed_point_value` and `max_fixed_point_value` below; values outside it are
+ *          rejected by the strict APIs.
  *
  *          Candidate digits are computed exactly with 192-bit integer arithmetic, so a
  *          long-mantissa value is never rounded through a double intermediate, and a candidate
- *          is only returned after the parser confirms it round-trips exactly.
+ *          is only returned after an exact rational-to-double comparison confirms it round-trips.
  */
 
 #pragma once
@@ -23,8 +23,7 @@
 #include "../container/optional.hh"
 #include "../container/string.hh"
 #include "../container/string_view.hh"
-#include "../details/font_size_domain.hh"
-#include "../details/parser/decimal.hh"
+#include "../numeric/decimal.hh"
 #include "../numeric/uint192.hh"
 #include "integer.hh"
 
@@ -32,12 +31,28 @@ namespace pltxt2htm::format {
 
 namespace details {
 
-/// Maximum number of characters a fixed-point font-size value can occupy.
+/// Maximum number of characters a fixed-point value can occupy.
 inline constexpr ::std::size_t max_fixed_point_length{48};
+
+/// Smallest positive value the fixed-point formatter emits.
+inline constexpr double min_fixed_point_value{1e-18};
+
+/// Exclusive upper bound of the fixed-point formatter's domain; values >= this are rejected.
+inline constexpr double max_fixed_point_value{18446744073709551616.0}; // 2^64
+
+/**
+ * @brief Whether value can be emitted as a fixed-point decimal.
+ * @details Zero is accepted as an inert value; any other value must lie in
+ *          [min_fixed_point_value, max_fixed_point_value).
+ */
+[[nodiscard]]
+constexpr auto can_format_fixed_point(double const value) noexcept -> bool {
+    return value == 0 || (value >= min_fixed_point_value && value < max_fixed_point_value);
+}
 
 /**
  * @brief Return 10^exponent as a double for the comparison loop below.
- * @details Only exponents in [-18, 20] occur for values inside the font-size domain.
+ * @details Only exponents in [-18, 20] occur for values inside the supported domain.
  */
 [[nodiscard]]
 constexpr auto pow10_as_double(int const exponent) noexcept -> double {
@@ -171,6 +186,25 @@ constexpr auto scaled_digits(double const value, int const decimal_shift) noexce
 }
 
 /**
+ * @brief Whether candidates digits * 10^(-decimal_shift) rounds back to value.
+ * @param digits The exactly rounded scaled digits.
+ * @param decimal_shift The shift that scaled value into digits.
+ * @param value The target double.
+ */
+[[nodiscard]]
+constexpr auto candidate_rounds_to(::std::uint64_t const digits, int const decimal_shift, double const value) noexcept
+    -> bool {
+    if (decimal_shift >= 0) {
+        return ::pltxt2htm::numeric::decimal_ratio_to_double(::pltxt2htm::numeric::UInt192{digits},
+                                                             static_cast<::std::size_t>(decimal_shift)) == value;
+    }
+    auto const scaled =
+        ::pltxt2htm::numeric::pow(::pltxt2htm::numeric::UInt192{10}, static_cast<::std::size_t>(-decimal_shift)) *
+        digits;
+    return ::pltxt2htm::numeric::decimal_ratio_to_double(scaled, 0) == value;
+}
+
+/**
  * @brief Render digits * 10^decimal_exponent in fixed-point notation.
  * @return The number of characters written to buffer.
  */
@@ -219,7 +253,7 @@ constexpr auto render_fixed_point(::std::uint64_t const digits, int const decima
 
 /**
  * @brief Render the shortest fixed-point representation that parses back to value.
- * @param value A value inside the font-size domain.
+ * @param value A value that `can_format_fixed_point` accepts.
  * @return The number of characters written to buffer.
  * @details Tries significant-digit counts from 1 to 17, using exactly rounded candidates. If no
  *          candidate round-trips (only possible for values outside the domain, which callers
@@ -248,20 +282,12 @@ constexpr auto format_fixed_point(double const value, char8_t* const buffer) noe
         if (digits == 0) {
             continue;
         }
-        auto const length = ::pltxt2htm::format::details::render_fixed_point(digits, -decimal_shift, buffer);
-        auto const parsed =
-            ::pltxt2htm::details::try_parse_double_decimal_value(::pltxt2htm::container::U8StringView{buffer, length});
-        if (parsed.has_value() && parsed.value().value == value) {
-            return length;
+        if (::pltxt2htm::format::details::candidate_rounds_to(digits, decimal_shift, value) == false) {
+            continue;
         }
+        return ::pltxt2htm::format::details::render_fixed_point(digits, -decimal_shift, buffer);
     }
     return ::pltxt2htm::format::details::render_fixed_point(static_cast<::std::uint64_t>(value), 0, buffer);
-}
-
-/// True when value can be parsed from and formatted into a font-size tag.
-[[nodiscard]]
-constexpr auto is_in_font_size_domain(double const value) noexcept -> bool {
-    return ::pltxt2htm::details::is_representable(value);
 }
 
 } // namespace details
@@ -272,12 +298,12 @@ constexpr auto is_in_font_size_domain(double const value) noexcept -> bool {
  * @param[in] last One past the last writable character; only used as a bound.
  * @param[in] value The value to write.
  * @return One past the last written character, or nullptr when the range is too small or the
- *         value is outside the font-size domain (mirroring `std::to_chars`'s
+ *         value is outside the formatter's domain (mirroring `std::to_chars`'s
  *         `errc::value_too_large` for the buffer case).
  */
 [[nodiscard]]
 constexpr auto to_chars(char8_t* const first, char8_t const* const last, double const value) noexcept -> char8_t* {
-    if (::pltxt2htm::format::details::is_in_font_size_domain(value) == false) {
+    if (::pltxt2htm::format::details::can_format_fixed_point(value) == false) {
         return nullptr;
     }
     char8_t buffer[::pltxt2htm::format::details::max_fixed_point_length];
@@ -293,12 +319,12 @@ constexpr auto to_chars(char8_t* const first, char8_t const* const last, double 
 
 /**
  * @brief Convert a value to a fixed-point decimal string.
- * @return The string, or nullopt when the value is outside the font-size domain.
+ * @return The string, or nullopt when the value is outside the formatter's domain.
  */
 [[nodiscard]]
 constexpr auto to_decimal_string(double const value) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> {
-    if (::pltxt2htm::format::details::is_in_font_size_domain(value) == false) {
+    if (::pltxt2htm::format::details::can_format_fixed_point(value) == false) {
         return ::pltxt2htm::container::nullopt;
     }
     char8_t buffer[::pltxt2htm::format::details::max_fixed_point_length];
@@ -308,35 +334,13 @@ constexpr auto to_decimal_string(double const value) noexcept
 
 /**
  * @brief Append the fixed-point decimal representation of a value to a string.
- * @details Out-of-domain values are clamped: non-positive values, NaN, and values below the
- *          domain minimum append "0", and values at or above 2^64 append the size-tag maximum.
- *          Call sites are expected to pass parser-produced values (or explicitly saturated
- *          values).
+ * @pre `can_format_fixed_point(value)` holds; call sites pass parser-produced values or values
+ *      explicitly kept inside the formatter's domain.
  */
-constexpr void append_decimal(::pltxt2htm::container::U8String& out, double value) noexcept {
-    if (value >= ::pltxt2htm::details::min_font_size_value) {
-        if (value >= ::pltxt2htm::details::max_font_size_value) {
-            value = ::pltxt2htm::details::max_size_tag_value;
-        }
-    }
-    else {
-        // Non-positive values, NaN, and values below the domain minimum all become an inert zero
-        // size; no parser-produced value reaches this branch.
-        value = 0;
-    }
+constexpr void append_decimal(::pltxt2htm::container::U8String& out, double const value) noexcept {
     char8_t buffer[::pltxt2htm::format::details::max_fixed_point_length];
     auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer);
     out.append(buffer, buffer + length);
-}
-
-/**
- * @brief Round a non-negative domain value up to the nearest integer.
- * @pre value is inside the font-size domain, so the conversion to `::std::uint64_t` is defined.
- */
-[[nodiscard]]
-constexpr auto double_to_uint64_ceil(double const value) noexcept -> ::std::uint64_t {
-    auto const truncated = static_cast<::std::uint64_t>(value);
-    return static_cast<double>(truncated) < value ? truncated + 1 : truncated;
 }
 
 } // namespace pltxt2htm::format

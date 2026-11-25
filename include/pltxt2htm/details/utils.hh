@@ -198,6 +198,16 @@ constexpr auto try_parse_ptrdiff_t_decimal_value(::pltxt2htm::container::U8Strin
     return TryParsePtrdiffTDecimalValueResult{.end = digit_pos, .value = value};
 }
 
+/**
+ * @brief Round a non-negative double up to the nearest integer.
+ * @pre value is in [0, 2^64), so the conversion to `::std::uint64_t` is defined.
+ */
+[[nodiscard]]
+constexpr auto double_to_uint64_ceil(double const value) noexcept -> ::std::uint64_t {
+    auto const truncated = static_cast<::std::uint64_t>(value);
+    return static_cast<double>(truncated) < value ? truncated + 1 : truncated;
+}
+
 } // namespace pltxt2htm::details
 
 #include "pop_macro.hh"
