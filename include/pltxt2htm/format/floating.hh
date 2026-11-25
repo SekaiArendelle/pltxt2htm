@@ -19,18 +19,18 @@
 #include <utility>
 #include <type_traits>
 
-#include "../../container/array.hh"
-#include "../../container/optional.hh"
-#include "../../container/string.hh"
-#include "../../container/string_view.hh"
-#include "../font_size_domain.hh"
-#include "../parser/decimal.hh"
-#include "../../numeric/uint192.hh"
+#include "../container/array.hh"
+#include "../container/optional.hh"
+#include "../container/string.hh"
+#include "../container/string_view.hh"
+#include "../details/font_size_domain.hh"
+#include "../details/parser/decimal.hh"
+#include "../numeric/uint192.hh"
 #include "integer.hh"
 
-namespace pltxt2htm::details {
+namespace pltxt2htm::format {
 
-namespace format_details {
+namespace details {
 
 /// Maximum number of characters a fixed-point font-size value can occupy.
 inline constexpr ::std::size_t max_fixed_point_length{48};
@@ -61,10 +61,10 @@ constexpr auto decimal_exponent_of(double const value) noexcept -> int {
     auto const binary_exponent = static_cast<int>((bits >> 52) & 0x7ff) - 1023;
     // 30103 / 100000 approximates log10(2); the loops below correct any off-by-one.
     auto exponent = static_cast<int>(static_cast<long long>(binary_exponent) * 30103 / 100000);
-    while (value < ::pltxt2htm::details::format_details::pow10_as_double(exponent)) {
+    while (value < ::pltxt2htm::format::details::pow10_as_double(exponent)) {
         --exponent;
     }
-    while (value >= ::pltxt2htm::details::format_details::pow10_as_double(exponent + 1)) {
+    while (value >= ::pltxt2htm::format::details::pow10_as_double(exponent + 1)) {
         ++exponent;
     }
     return exponent;
@@ -97,10 +97,10 @@ constexpr auto rounded_shift_right(::pltxt2htm::numeric::UInt192 const value, un
     if (count == 0) {
         return true;
     }
-    bool const round_bit = ::pltxt2htm::details::format_details::bit_at(value, count - 1);
+    bool const round_bit = ::pltxt2htm::format::details::bit_at(value, count - 1);
     bool sticky{};
     for (unsigned index{}; index + 1 < count; ++index) {
-        if (::pltxt2htm::details::format_details::bit_at(value, index)) {
+        if (::pltxt2htm::format::details::bit_at(value, index)) {
             sticky = true;
             break;
         }
@@ -139,7 +139,7 @@ constexpr auto scaled_digits(double const value, int const decimal_shift) noexce
             return static_cast<::std::uint64_t>(shifted);
         }
         ::std::uint64_t result{};
-        if (::pltxt2htm::details::format_details::rounded_shift_right(product, static_cast<unsigned>(-shift), result) ==
+        if (::pltxt2htm::format::details::rounded_shift_right(product, static_cast<unsigned>(-shift), result) ==
             false) {
             return 0;
         }
@@ -179,7 +179,7 @@ constexpr auto render_fixed_point(::std::uint64_t const digits, int const decima
                                   char8_t* const buffer) noexcept -> ::std::size_t {
     char8_t digit_buffer[24];
     char8_t const* const begin =
-        ::pltxt2htm::details::write_decimal_digits_backward(digits, digit_buffer + sizeof(digit_buffer));
+        ::pltxt2htm::format::write_decimal_digits_backward(digits, digit_buffer + sizeof(digit_buffer));
     auto const digit_count = static_cast<::std::size_t>(digit_buffer + sizeof(digit_buffer) - begin);
 
     ::std::size_t length{};
@@ -238,24 +238,24 @@ constexpr auto format_fixed_point(double const value, char8_t* const buffer) noe
     if (value >= 1.0) {
         auto const truncated = static_cast<::std::uint64_t>(value);
         if (static_cast<double>(truncated) == value) {
-            return ::pltxt2htm::details::format_details::render_fixed_point(truncated, 0, buffer);
+            return ::pltxt2htm::format::details::render_fixed_point(truncated, 0, buffer);
         }
     }
-    auto const exponent = ::pltxt2htm::details::format_details::decimal_exponent_of(value);
+    auto const exponent = ::pltxt2htm::format::details::decimal_exponent_of(value);
     for (unsigned significant_digits{1}; significant_digits <= 17; ++significant_digits) {
         auto const decimal_shift = static_cast<int>(significant_digits) - 1 - exponent;
-        auto const digits = ::pltxt2htm::details::format_details::scaled_digits(value, decimal_shift);
+        auto const digits = ::pltxt2htm::format::details::scaled_digits(value, decimal_shift);
         if (digits == 0) {
             continue;
         }
-        auto const length = ::pltxt2htm::details::format_details::render_fixed_point(digits, -decimal_shift, buffer);
+        auto const length = ::pltxt2htm::format::details::render_fixed_point(digits, -decimal_shift, buffer);
         auto const parsed =
             ::pltxt2htm::details::try_parse_double_decimal_value(::pltxt2htm::container::U8StringView{buffer, length});
         if (parsed.has_value() && parsed.value().value == value) {
             return length;
         }
     }
-    return ::pltxt2htm::details::format_details::render_fixed_point(static_cast<::std::uint64_t>(value), 0, buffer);
+    return ::pltxt2htm::format::details::render_fixed_point(static_cast<::std::uint64_t>(value), 0, buffer);
 }
 
 /// True when value can be parsed from and formatted into a font-size tag.
@@ -264,7 +264,7 @@ constexpr auto is_in_font_size_domain(double const value) noexcept -> bool {
     return ::pltxt2htm::details::is_representable(value);
 }
 
-} // namespace format_details
+} // namespace details
 
 /**
  * @brief Write the fixed-point decimal representation of a value into [first, last).
@@ -277,11 +277,11 @@ constexpr auto is_in_font_size_domain(double const value) noexcept -> bool {
  */
 [[nodiscard]]
 constexpr auto to_chars(char8_t* const first, char8_t const* const last, double const value) noexcept -> char8_t* {
-    if (::pltxt2htm::details::format_details::is_in_font_size_domain(value) == false) {
+    if (::pltxt2htm::format::details::is_in_font_size_domain(value) == false) {
         return nullptr;
     }
-    char8_t buffer[::pltxt2htm::details::format_details::max_fixed_point_length];
-    auto const length = ::pltxt2htm::details::format_details::format_fixed_point(value, buffer);
+    char8_t buffer[::pltxt2htm::format::details::max_fixed_point_length];
+    auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer);
     if (::std::cmp_less(last - first, length)) {
         return nullptr;
     }
@@ -298,11 +298,11 @@ constexpr auto to_chars(char8_t* const first, char8_t const* const last, double 
 [[nodiscard]]
 constexpr auto to_decimal_string(double const value) noexcept
     -> ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> {
-    if (::pltxt2htm::details::format_details::is_in_font_size_domain(value) == false) {
+    if (::pltxt2htm::format::details::is_in_font_size_domain(value) == false) {
         return ::pltxt2htm::container::nullopt;
     }
-    char8_t buffer[::pltxt2htm::details::format_details::max_fixed_point_length];
-    auto const length = ::pltxt2htm::details::format_details::format_fixed_point(value, buffer);
+    char8_t buffer[::pltxt2htm::format::details::max_fixed_point_length];
+    auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer);
     return ::pltxt2htm::container::U8String{buffer, buffer + length};
 }
 
@@ -324,8 +324,8 @@ constexpr void append_decimal(::pltxt2htm::container::U8String& out, double valu
         // size; no parser-produced value reaches this branch.
         value = 0;
     }
-    char8_t buffer[::pltxt2htm::details::format_details::max_fixed_point_length];
-    auto const length = ::pltxt2htm::details::format_details::format_fixed_point(value, buffer);
+    char8_t buffer[::pltxt2htm::format::details::max_fixed_point_length];
+    auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer);
     out.append(buffer, buffer + length);
 }
 
@@ -339,4 +339,4 @@ constexpr auto double_to_uint64_ceil(double const value) noexcept -> ::std::uint
     return static_cast<double>(truncated) < value ? truncated + 1 : truncated;
 }
 
-} // namespace pltxt2htm::details
+} // namespace pltxt2htm::format

@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <limits>
 
-#include <pltxt2htm/details/format/floating.hh>
+#include <pltxt2htm/format/floating.hh>
 #include <pltxt2htm/details/parser/decimal.hh>
 
 #include "doctest_config.hh"
@@ -22,14 +22,14 @@ namespace pltxt2htm_test::format_floating_details {
 
 /// Format, parse back, and format again: checks round-trip and idempotence in one place.
 inline void check_round_trip(double const value) {
-    auto const text = ::pltxt2htm::details::to_decimal_string(value);
+    auto const text = ::pltxt2htm::format::to_decimal_string(value);
     REQUIRE(text.has_value());
     auto const& fixed = text.value();
     auto const parsed = ::pltxt2htm_test::format_floating_details::parse(fixed);
     REQUIRE(parsed.has_value());
     CHECK(parsed.value().value == value);
 
-    auto const again = ::pltxt2htm::details::to_decimal_string(parsed.value().value);
+    auto const again = ::pltxt2htm::format::to_decimal_string(parsed.value().value);
     REQUIRE(again.has_value());
     CHECK(again.value() == fixed);
 }
@@ -38,29 +38,29 @@ inline void check_round_trip(double const value) {
 
 TEST_SUITE("format_floating") {
     TEST_CASE("fixed-point-values") {
-        CHECK(::pltxt2htm::details::to_decimal_string(0.0).value() == u8"0");
-        CHECK(::pltxt2htm::details::to_decimal_string(12.0).value() == u8"12");
-        CHECK(::pltxt2htm::details::to_decimal_string(12.5).value() == u8"12.5");
-        CHECK(::pltxt2htm::details::to_decimal_string(0.1).value() == u8"0.1");
-        CHECK(::pltxt2htm::details::to_decimal_string(1.0 / 3.0).value() == u8"0.3333333333333333");
-        CHECK(::pltxt2htm::details::to_decimal_string(1e-18).value() == u8"0.000000000000000001");
-        CHECK(::pltxt2htm::details::to_decimal_string(175.002439047).value() == u8"175.002439047");
-        CHECK(::pltxt2htm::details::to_decimal_string(214748364.75).value() == u8"214748364.75");
-        CHECK(::pltxt2htm::details::to_decimal_string(123456789.25).value() == u8"123456789.25");
-        CHECK(::pltxt2htm::details::to_decimal_string(0.000024198805311133413).value() == u8"0.000024198805311133413");
+        CHECK(::pltxt2htm::format::to_decimal_string(0.0).value() == u8"0");
+        CHECK(::pltxt2htm::format::to_decimal_string(12.0).value() == u8"12");
+        CHECK(::pltxt2htm::format::to_decimal_string(12.5).value() == u8"12.5");
+        CHECK(::pltxt2htm::format::to_decimal_string(0.1).value() == u8"0.1");
+        CHECK(::pltxt2htm::format::to_decimal_string(1.0 / 3.0).value() == u8"0.3333333333333333");
+        CHECK(::pltxt2htm::format::to_decimal_string(1e-18).value() == u8"0.000000000000000001");
+        CHECK(::pltxt2htm::format::to_decimal_string(175.002439047).value() == u8"175.002439047");
+        CHECK(::pltxt2htm::format::to_decimal_string(214748364.75).value() == u8"214748364.75");
+        CHECK(::pltxt2htm::format::to_decimal_string(123456789.25).value() == u8"123456789.25");
+        CHECK(::pltxt2htm::format::to_decimal_string(0.000024198805311133413).value() == u8"0.000024198805311133413");
         // Integral values keep their exact integer digits.
-        CHECK(::pltxt2htm::details::to_decimal_string(7173733806442602179.0).value() == u8"7173733806442602496");
-        CHECK(::pltxt2htm::details::to_decimal_string(9223372036854775808.0).value() == u8"9223372036854775808");
-        CHECK(::pltxt2htm::details::to_decimal_string(18446744073709549568.0).value() == u8"18446744073709549568");
+        CHECK(::pltxt2htm::format::to_decimal_string(7173733806442602179.0).value() == u8"7173733806442602496");
+        CHECK(::pltxt2htm::format::to_decimal_string(9223372036854775808.0).value() == u8"9223372036854775808");
+        CHECK(::pltxt2htm::format::to_decimal_string(18446744073709549568.0).value() == u8"18446744073709549568");
     }
 
     TEST_CASE("domain") {
-        CHECK_FALSE(::pltxt2htm::details::to_decimal_string(::pltxt2htm::details::max_font_size_value).has_value());
-        CHECK_FALSE(::pltxt2htm::details::to_decimal_string(1e-19).has_value());
-        CHECK_FALSE(::pltxt2htm::details::to_decimal_string(-1.0).has_value());
-        CHECK_FALSE(::pltxt2htm::details::to_decimal_string(::std::numeric_limits<double>::quiet_NaN()).has_value());
-        CHECK(::pltxt2htm::details::to_decimal_string(-0.0).value() == u8"0");
-        CHECK(::pltxt2htm::details::to_decimal_string(::pltxt2htm::details::min_font_size_value).value() ==
+        CHECK_FALSE(::pltxt2htm::format::to_decimal_string(::pltxt2htm::details::max_font_size_value).has_value());
+        CHECK_FALSE(::pltxt2htm::format::to_decimal_string(1e-19).has_value());
+        CHECK_FALSE(::pltxt2htm::format::to_decimal_string(-1.0).has_value());
+        CHECK_FALSE(::pltxt2htm::format::to_decimal_string(::std::numeric_limits<double>::quiet_NaN()).has_value());
+        CHECK(::pltxt2htm::format::to_decimal_string(-0.0).value() == u8"0");
+        CHECK(::pltxt2htm::format::to_decimal_string(::pltxt2htm::details::min_font_size_value).value() ==
               u8"0.000000000000000001");
     }
 
@@ -73,21 +73,21 @@ TEST_SUITE("format_floating") {
 
     TEST_CASE("to-chars") {
         char8_t buffer[8];
-        auto* end = ::pltxt2htm::details::to_chars(buffer, buffer + sizeof(buffer), 12.5);
+        auto* end = ::pltxt2htm::format::to_chars(buffer, buffer + sizeof(buffer), 12.5);
         REQUIRE(end != nullptr);
         CHECK(::pltxt2htm::container::U8StringView{buffer, static_cast<::std::size_t>(end - buffer)} ==
               ::pltxt2htm::container::U8StringView{u8"12.5"});
 
         char8_t exact[4];
-        CHECK(::pltxt2htm::details::to_chars(exact, exact + sizeof(exact), 12.5) == exact + sizeof(exact));
-        CHECK(::pltxt2htm::details::to_chars(exact, exact + 3, 12.5) == nullptr);
-        CHECK(::pltxt2htm::details::to_chars(buffer, buffer + sizeof(buffer), 1e-19) == nullptr);
-        CHECK(::pltxt2htm::details::to_chars(buffer, buffer + sizeof(buffer),
+        CHECK(::pltxt2htm::format::to_chars(exact, exact + sizeof(exact), 12.5) == exact + sizeof(exact));
+        CHECK(::pltxt2htm::format::to_chars(exact, exact + 3, 12.5) == nullptr);
+        CHECK(::pltxt2htm::format::to_chars(buffer, buffer + sizeof(buffer), 1e-19) == nullptr);
+        CHECK(::pltxt2htm::format::to_chars(buffer, buffer + sizeof(buffer),
                                              ::pltxt2htm::details::max_font_size_value) == nullptr);
     }
 
     TEST_CASE("round-up") {
-        using ::pltxt2htm::details::double_to_uint64_ceil;
+        using ::pltxt2htm::format::double_to_uint64_ceil;
         using ::pltxt2htm::details::max_size_tag_value;
         using ::pltxt2htm::details::min_font_size_value;
 
@@ -102,19 +102,19 @@ TEST_SUITE("format_floating") {
 
     TEST_CASE("append-decimal") {
         ::pltxt2htm::container::U8String out{};
-        ::pltxt2htm::details::append_decimal(out, 12.5);
-        ::pltxt2htm::details::append_decimal(out, 7);
-        ::pltxt2htm::details::append_decimal(out, -3);
+        ::pltxt2htm::format::append_decimal(out, 12.5);
+        ::pltxt2htm::format::append_decimal(out, 7);
+        ::pltxt2htm::format::append_decimal(out, -3);
         CHECK(out == u8"12.57-3");
 
         ::pltxt2htm::container::U8String clamped{};
-        ::pltxt2htm::details::append_decimal(clamped, ::pltxt2htm::details::max_font_size_value * 2);
+        ::pltxt2htm::format::append_decimal(clamped, ::pltxt2htm::details::max_font_size_value * 2);
         CHECK(clamped == u8"18446744073709549568");
 
         ::pltxt2htm::container::U8String zeros{};
-        ::pltxt2htm::details::append_decimal(zeros, -1.0);
-        ::pltxt2htm::details::append_decimal(zeros, ::std::numeric_limits<double>::quiet_NaN());
-        ::pltxt2htm::details::append_decimal(zeros, 1e-19);
+        ::pltxt2htm::format::append_decimal(zeros, -1.0);
+        ::pltxt2htm::format::append_decimal(zeros, ::std::numeric_limits<double>::quiet_NaN());
+        ::pltxt2htm::format::append_decimal(zeros, 1e-19);
         CHECK(zeros == u8"000");
     }
 

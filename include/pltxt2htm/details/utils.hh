@@ -18,8 +18,8 @@
 #include "contracts.hh"
 #include "literal_string.hh"
 #include "ascii.hh"
-#include "format/floating.hh"
-#include "format/integer.hh"
+#include "../format/floating.hh"
+#include "../format/integer.hh"
 #include "parser/decimal.hh"
 
 #include "push_macro.hh"
