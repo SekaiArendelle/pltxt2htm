@@ -261,8 +261,7 @@ constexpr auto format_fixed_point(double const value, char8_t* const buffer) noe
 /// True when value can be parsed from and formatted into a font-size tag.
 [[nodiscard]]
 constexpr auto is_in_font_size_domain(double const value) noexcept -> bool {
-    return value == 0 ||
-           (value >= ::pltxt2htm::details::min_font_size_value && value < ::pltxt2htm::details::max_font_size_value);
+    return ::pltxt2htm::details::is_representable(value);
 }
 
 } // namespace format_details

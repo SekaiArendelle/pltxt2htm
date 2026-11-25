@@ -12,6 +12,7 @@
 #include "../../container/optional.hh"
 #include "ast_decl.hh"
 #include "url_node_decl.hh"
+#include "../font_size.hh"
 #include "../value_unit.hh"
 #include "../node_kind.hh"
 #include "../../details/contracts.hh"
@@ -103,10 +104,10 @@ public:
  */
 class UnitySize {
     ::pltxt2htm::Ast subast;
-    ::pltxt2htm::ValueWithUnit<double> font_size;
+    ::pltxt2htm::FontSize font_size;
 
 public:
-    constexpr UnitySize(::pltxt2htm::Ast&& subast_, ::pltxt2htm::ValueWithUnit<double> font_size_) noexcept;
+    constexpr UnitySize(::pltxt2htm::Ast&& subast_, ::pltxt2htm::FontSize font_size_) noexcept;
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr UnitySize(::pltxt2htm::UnitySize const&) noexcept = delete;
 #else
@@ -141,7 +142,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_font_size(this UnitySize const& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
+    constexpr auto get_font_size(this UnitySize const& self) noexcept -> ::pltxt2htm::FontSize {
         return self.font_size;
     }
 };

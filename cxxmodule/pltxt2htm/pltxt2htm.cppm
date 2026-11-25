@@ -77,6 +77,7 @@ using ::pltxt2htm::TextAlign;
 // size tag / font-size unit
 using ::pltxt2htm::Unit;
 using ::pltxt2htm::ValueWithUnit;
+using ::pltxt2htm::FontSize;
 
 // vertical-align keywords and value
 using ::pltxt2htm::VerticalAlignKeyword;

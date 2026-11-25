@@ -18,6 +18,7 @@
 #include "html_table.hh"
 #include "../contracts.hh"
 #include "../../ast/ast.hh"
+#include "../../ast/font_size.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "../push_macro.hh"
@@ -78,7 +79,7 @@ class ParserFrameContextWithHtmlSpanInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
     ::pltxt2htm::container::U8String color;
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size;
+    ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> font_size;
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> vertical_align;
 };
 
@@ -118,7 +119,7 @@ public:
 class ParserFrameContextWithUnitySizeTagInfo {
 public:
     ::pltxt2htm::container::U8StringView pltext;
-    ::pltxt2htm::ValueWithUnit<double> value;
+    ::pltxt2htm::FontSize value;
 };
 
 /**

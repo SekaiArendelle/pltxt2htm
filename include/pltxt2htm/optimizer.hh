@@ -17,6 +17,7 @@
 #include "container/string_view.hh"
 #include "details/call_stack.hh"
 #include "ast/ast.hh"
+#include "ast/font_size.hh"
 #include "ast/value_unit.hh"
 #include "ast/vertical_align_value.hh"
 #include "details/contracts.hh"
@@ -45,7 +46,7 @@ public:
  */
 class OptimizerContextWithUnitySizeTagInfo {
 public:
-    ::pltxt2htm::ValueWithUnit<double> value; ///< Font size value+unit (e.g., {12, px} in size=12)
+    ::pltxt2htm::FontSize value; ///< Font size value+unit (e.g., {12, px} in size=12)
 };
 
 /**
@@ -62,7 +63,7 @@ public:
 class OptimizerContextWithHtmlSpanInfo {
 public:
     ::pltxt2htm::container::U8StringView color{};
-    ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size{::pltxt2htm::container::nullopt};
+    ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> font_size{::pltxt2htm::container::nullopt};
     ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> vertical_align{::pltxt2htm::container::nullopt};
 };
 
@@ -454,7 +455,7 @@ public:
     }
 
     [[nodiscard]]
-    constexpr auto get_unity_size_tag_value(this auto const& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
+    constexpr auto get_unity_size_tag_value(this auto const& self) noexcept -> ::pltxt2htm::FontSize {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::unity_size, u8"context kind mismatch");
         return context_data_ref.unity_size_tag.value;
@@ -477,7 +478,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_html_span_font_size(this auto const& self) noexcept
-        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> {
         auto&& context_data_ref = self.context_data;
         pltxt2htm_assert(context_data_ref.kind == ::pltxt2htm::NodeKind::html_span, u8"context kind mismatch");
         return context_data_ref.html_span_info.font_size;
@@ -682,7 +683,7 @@ entry:
                         auto const inner_va = active_subnode.get_vertical_align();
                         auto merged_color =
                             ::pltxt2htm::container::U8String{inner_color.is_empty() ? outer_color : inner_color};
-                        ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> merged_fs{
+                        ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> merged_fs{
                             ::pltxt2htm::container::nullopt};
                         if (inner_fs.has_value()) {
                             merged_fs = inner_fs.value();
@@ -709,7 +710,7 @@ entry:
                     if (subnode.get_node_kind() == ::pltxt2htm::NodeKind::unity_color) {
                         auto const outer_fs = active_node.get_font_size();
                         auto const outer_va = active_node.get_vertical_align();
-                        ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> merged_fs{
+                        ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> merged_fs{
                             ::pltxt2htm::container::nullopt};
                         if (outer_fs.has_value()) {
                             merged_fs = outer_fs.value();

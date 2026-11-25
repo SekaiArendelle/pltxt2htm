@@ -16,6 +16,7 @@
 #include "../plain_text.hh"
 #include "ast_decl.hh"
 #include "url_node_decl.hh"
+#include "../font_size.hh"
 #include "../value_unit.hh"
 #include "../vertical_align_value.hh"
 #include "../node_kind.hh"
@@ -645,7 +646,7 @@ class HtmlSpan {
      * @brief Compact storage for the optional span style attributes.
      * @details Semantically equivalent to the clearer but larger representation:
      * @code
-     * Optional<ValueWithUnit<double>> font_size;
+     * Optional<FontSize> font_size;
      * Optional<VerticalAlignValue> vertical_align;
      * @endcode
      * Flattening their state lets the tags share alignment padding and avoids enlarging every PlTxtNode.
@@ -735,7 +736,7 @@ class HtmlSpan {
         }
 
         constexpr StyleStorage(
-            ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> const& font_size,
+            ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> const& font_size,
             ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> const& vertical_align) noexcept {
             if (font_size.has_value()) {
                 auto const& value = font_size.value();
@@ -774,11 +775,11 @@ class HtmlSpan {
 
         [[nodiscard]]
         constexpr auto get_font_size(this StyleStorage const& self) noexcept
-            -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
+            -> ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> {
             if (self.has_font_size == false) {
                 return ::pltxt2htm::container::nullopt;
             }
-            return ::pltxt2htm::ValueWithUnit<double>{.value = self.font_size_value, .unit = self.font_size_unit};
+            return ::pltxt2htm::FontSize{.value = self.font_size_value, .unit = self.font_size_unit};
         }
 
         [[nodiscard]]
@@ -841,7 +842,7 @@ class HtmlSpan {
 
 public:
     constexpr HtmlSpan(::pltxt2htm::Ast&& subast_, ::pltxt2htm::container::U8String&& color_,
-                       ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> font_size_,
+                       ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> font_size_,
                        ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> vertical_align_) noexcept;
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr HtmlSpan(::pltxt2htm::HtmlSpan const&) noexcept = delete;
@@ -873,7 +874,7 @@ public:
 
     [[nodiscard]]
     constexpr auto get_font_size(this HtmlSpan const& self) noexcept
-        -> ::pltxt2htm::container::Optional<::pltxt2htm::ValueWithUnit<double>> {
+        -> ::pltxt2htm::container::Optional<::pltxt2htm::FontSize> {
         return self.style.get_font_size();
     }
 
