@@ -214,7 +214,6 @@ Follow the existing low-runtime, cross-platform style used in core headers:
   - A constant used by one function only is a function-local `constexpr` variable.
   - A constant that belongs to a class abstraction is a `static constexpr` member.
   - A namespace-scope `constexpr` object defined in these headers must be `inline constexpr`. Without `inline`, a non-template const-qualified namespace-scope object normally has internal linkage, so each including TU denotes a distinct object and a module interface cannot export that TU-local entity through `export using`.
-  - This rule covers definitions in these headers; it is not a universal requirement for constants private to one translation unit or declared in the purview of a module interface unit.
 - **Mark meaningful return values `[[nodiscard]]`:**
   - Add `[[nodiscard]]` when ignoring a return value would make the call useless or likely indicate a caller bug. This
     includes pure queries and accessors, comparisons, conversions, parsers, factories, and functions returning a
