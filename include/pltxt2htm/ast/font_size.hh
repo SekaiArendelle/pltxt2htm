@@ -4,7 +4,7 @@
  * @details Font sizes are the only non-integral values the AST carries, so they use this
  *          dedicated value type instead of the generic ::pltxt2htm::ValueWithUnit template,
  *          which stays in service for integer quantities. The type also surfaces the numeric
- *          domain the decimal parser and formatter agree on. The authoritative limits remain in
+ *          domain the decimal parser accepts. The authoritative limits remain in
  *          details/font_size_domain.hh; the static members here only forward them so callers do
  *          not need to reach into the details namespace.
  */
@@ -26,7 +26,7 @@ public:
     double value{}; ///< Numeric font-size value.
     ::pltxt2htm::Unit unit{::pltxt2htm::Unit::px}; ///< Unit of the value.
 
-    /// Smallest non-zero value the decimal parser and formatter accept.
+    /// Smallest non-zero value the decimal parser accepts.
     static constexpr double min_value{::pltxt2htm::details::min_font_size_value};
 
     /// Exclusive upper bound of the supported value range; values >= this are rejected.

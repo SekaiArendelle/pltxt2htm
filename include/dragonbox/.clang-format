@@ -1,0 +1,2 @@
+# Vendored third-party code: keep the upstream file verbatim.
+DisableFormat: true

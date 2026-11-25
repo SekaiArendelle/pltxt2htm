@@ -1,233 +1,251 @@
 /**
  * @file floating.hh
- * @brief Fixed-point decimal formatting for non-negative floating-point values.
- * @details Emits the shortest fixed-point decimal that the library's parser reads back to the
- *          same double. No exponent notation is ever produced. The supported domain is defined
- *          by `min_fixed_point_value` and `max_fixed_point_value` below; values outside it are
- *          rejected by the strict APIs.
+ * @brief Fixed-point decimal formatting for IEEE-754 binary64 values.
+ * @details Emits the shortest fixed-point decimal that round-trips back to the
+ *          same double, which is the same conversion `std::to_chars` performs
+ *          for `std::chars_format::fixed` on finite values: no exponent
+ *          notation, no locale, no allocation in the conversion itself. The
+ *          whole finite domain is supported, including subnormal and negative
+ *          values. Negative zero is written as "-0"; non-finite values are
+ *          written as "nan", "-nan", "inf" and "-inf" according to their sign
+ *          bit.
  *
- *          Candidate digits are computed exactly with 192-bit integer arithmetic, so a
- *          long-mantissa value is never rounded through a double intermediate, and a candidate
- *          is only returned after an exact rational-to-double comparison confirms it round-trips.
+ *          Integral values are emitted as their exact integer expansion, which
+ *          is the shortest fixed representation with distance zero (the same
+ *          choice std::to_chars makes); other values use the shortest decimal
+ *          digits that round-trip. Both cases are computed without runtime
+ *          allocation, and the conversion is constexpr-friendly.
+ *
+ *          The shortest digits come from the vendored Dragonbox implementation;
+ *          the exact integer expansion uses a small fixed-size base-2^32
+ *          accumulator defined in this header.
  */
 
 #pragma once
 
+#include <array>
 #include <bit>
 #include <cstddef>
 #include <cstdint>
 #include <utility>
-#include <type_traits>
 
-#include "../container/array.hh"
-#include "../container/optional.hh"
 #include "../container/string.hh"
-#include "../container/string_view.hh"
-#include "../numeric/decimal.hh"
-#include "../numeric/uint192.hh"
 #include "integer.hh"
+
+// Configure the vendored Dragonbox before its first inclusion. The vendored
+// header leaves the macro defined when the including file supplied it, so it is
+// undefined again below.
+#define JKJ_NAMESPACE pltxt2htm_dragonbox
+#include <dragonbox/dragonbox.h>
+#undef JKJ_NAMESPACE
 
 namespace pltxt2htm::format {
 
 namespace details {
 
-/// Maximum number of characters a fixed-point value can occupy.
-inline constexpr ::std::size_t max_fixed_point_length{48};
+/**
+ * @brief Maximum number of characters a finite double needs in fixed notation.
+ * @details The decimal exponent of a finite non-zero double is at least -324.
+ *          For a negative exponent the text is `0.` followed by `-exponent`
+ *          digits, so the worst case is 2 + 324 = 326 characters; a negative
+ *          sign adds one more, giving 327.
+ */
+inline constexpr ::std::size_t max_fixed_point_length{327};
 
-/// Smallest positive value the fixed-point formatter emits.
-inline constexpr double min_fixed_point_value{1e-18};
+/// Number of 32-bit limbs needed for any integral double: 2^1024 > max double.
+inline constexpr ::std::size_t exact_integer_limb_count{32};
 
-/// Exclusive upper bound of the fixed-point formatter's domain; values >= this are rejected.
-inline constexpr double max_fixed_point_value{18446744073709551616.0}; // 2^64
+/// Number of decimal digits of an integral double: 2^1024 has 309 digits.
+inline constexpr ::std::size_t max_exact_integer_digits{309};
 
 /**
- * @brief Whether value can be emitted as a fixed-point decimal.
- * @details Zero is accepted as an inert value; any other value must lie in
- *          [min_fixed_point_value, max_fixed_point_value).
+ * @brief Write the decimal digits of an unsigned 64-bit value.
+ * @param buffer Destination with room for 20 characters.
+ * @return The number of characters written.
  */
 [[nodiscard]]
-constexpr auto can_format_fixed_point(double const value) noexcept -> bool {
-    return value == 0 || (value >= min_fixed_point_value && value < max_fixed_point_value);
-}
-
-/**
- * @brief Return 10^exponent as a double for the comparison loop below.
- * @details Only exponents in [-18, 20] occur for values inside the supported domain.
- */
-[[nodiscard]]
-constexpr auto pow10_as_double(int const exponent) noexcept -> double {
-    /// 10^0 through 10^20 as doubles; 10^20 is the first inexact entry but only compares.
-    constexpr auto decimal_powers =
-        ::pltxt2htm::container::Array{1e0,  1e1,  1e2,  1e3,  1e4,  1e5,  1e6,  1e7,  1e8,  1e9, 1e10,
-                                      1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19, 1e20};
-    static_assert(::std::is_same_v<decltype(decimal_powers)::value_type, double>);
-    if (exponent >= 0) {
-        return decimal_powers[exponent];
+constexpr auto write_uint64_digits(::std::uint64_t value, char8_t* const buffer) noexcept -> ::std::size_t {
+    char8_t reversed[20];
+    ::std::size_t reversed_length{};
+    do {
+        reversed[reversed_length++] = static_cast<char8_t>(u8'0' + value % 10);
+        value /= 10;
+    } while (value != 0);
+    for (::std::size_t i{}; i < reversed_length; ++i) {
+        buffer[i] = reversed[reversed_length - 1 - i];
     }
-    return 1.0 / decimal_powers[-exponent];
+    return reversed_length;
+}
+
+/// Base-2^32 limbs, least significant first.
+using ExactIntegerLimbs = ::std::array<::std::uint32_t, exact_integer_limb_count>;
+
+/**
+ * @brief Divide the significant limbs by divisor in place and return the remainder.
+ * @param[in,out] limbs The accumulator; only [0, significant_limbs) is read.
+ * @param[in,out] significant_limbs Number of limbs above the most significant
+ *                zero limb; updated after the division.
+ * @param divisor The 32-bit divisor.
+ */
+[[nodiscard]]
+constexpr auto divide_limbs(ExactIntegerLimbs& limbs, ::std::size_t& significant_limbs,
+                            ::std::uint32_t const divisor) noexcept -> ::std::uint32_t {
+    ::std::uint64_t remainder{};
+    for (::std::size_t i{significant_limbs}; i != 0; --i) {
+        ::std::uint64_t const current = (remainder << 32) | limbs[i - 1];
+        limbs[i - 1] = static_cast<::std::uint32_t>(current / divisor);
+        remainder = current % divisor;
+    }
+    while (significant_limbs != 0 && limbs[significant_limbs - 1] == 0) {
+        --significant_limbs;
+    }
+    return static_cast<::std::uint32_t>(remainder);
 }
 
 /**
- * @brief Return floor(log10(value)) for a positive finite value in the domain.
+ * @brief Write the exact decimal digits of a non-negative integral double.
+ * @param value A finite, non-negative, integral binary64 value.
+ * @param buffer Destination with room for `max_exact_integer_digits` characters.
+ * @return The number of characters written.
+ * @details The exact expansion is the representation `std::to_chars` selects for
+ *          `chars_format::fixed`, because it has the minimal length (the number
+ *          of integer digits) and distance zero.
+ * @note The 1024-bit division loop is only reached for magnitudes at or above
+ *       2^64. It is slower than the table-driven std::to_chars path, but keeps
+ *       the exact digits without pulling in a big-integer dependency, and the
+ *       font-size use case never reaches it.
  */
 [[nodiscard]]
-constexpr auto decimal_exponent_of(double const value) noexcept -> int {
+constexpr auto exact_integer_digits(double const value, char8_t* const buffer) noexcept -> ::std::size_t {
     auto const bits = ::std::bit_cast<::std::uint64_t>(value);
-    auto const binary_exponent = static_cast<int>((bits >> 52) & 0x7ff) - 1023;
-    // 30103 / 100000 approximates log10(2); the loops below correct any off-by-one.
-    auto exponent = static_cast<int>(static_cast<long long>(binary_exponent) * 30103 / 100000);
-    while (value < ::pltxt2htm::format::details::pow10_as_double(exponent)) {
-        --exponent;
+    if (bits == 0) {
+        buffer[0] = u8'0';
+        return 1;
     }
-    while (value >= ::pltxt2htm::format::details::pow10_as_double(exponent + 1)) {
-        ++exponent;
+
+    auto const exponent_bits = static_cast<int>((bits >> 52) & 0x7ff);
+    auto const unbiased_exponent = exponent_bits - 1023;
+    auto const significand = (::std::uint64_t{1} << 52) | (bits & 0x000f'ffff'ffff'ffffull);
+
+    // Values below 2^52 need a right shift; the low bits are zero because the
+    // caller guarantees the value is integral.
+    if (unbiased_exponent < 52) {
+        return ::pltxt2htm::format::details::write_uint64_digits(
+            significand >> static_cast<unsigned>(52 - unbiased_exponent), buffer);
     }
-    return exponent;
+    // Values below 2^64 still fit a 64-bit integer.
+    if (unbiased_exponent <= 63) {
+        return ::pltxt2htm::format::details::write_uint64_digits(
+            significand << static_cast<unsigned>(unbiased_exponent - 52), buffer);
+    }
+
+    // Larger integral values need up to 1024 bits; accumulate in base 2^32.
+    ExactIntegerLimbs limbs{};
+    limbs[0] = static_cast<::std::uint32_t>(significand);
+    limbs[1] = static_cast<::std::uint32_t>(significand >> 32);
+
+    auto const shift = static_cast<unsigned>(unbiased_exponent - 52);
+    auto const limb_shift = shift / 32;
+    auto const bit_shift = shift % 32;
+    if (limb_shift != 0) {
+        for (::std::size_t i{exact_integer_limb_count}; i > limb_shift; --i) {
+            limbs[i - 1] = limbs[i - 1 - limb_shift];
+        }
+        for (::std::size_t i{}; i < limb_shift; ++i) {
+            limbs[i] = 0;
+        }
+    }
+    if (bit_shift != 0) {
+        for (::std::size_t i{exact_integer_limb_count}; i != 0; --i) {
+            auto const index = i - 1;
+            ::std::uint32_t const carry = index == 0 ? 0 : limbs[index - 1] >> (32 - bit_shift);
+            limbs[index] = (limbs[index] << bit_shift) | carry;
+        }
+    }
+
+    // Peel off nine decimal digits per division, least significant chunk first.
+    char8_t digits[max_exact_integer_digits];
+    char8_t* cursor = digits + sizeof(digits);
+    constexpr ::std::uint32_t chunk_divisor{1'000'000'000};
+    ::std::size_t significant_limbs{exact_integer_limb_count};
+    while (significant_limbs != 0 && limbs[significant_limbs - 1] == 0) {
+        --significant_limbs;
+    }
+    while (significant_limbs != 0) {
+        auto remainder = ::pltxt2htm::format::details::divide_limbs(limbs, significant_limbs, chunk_divisor);
+        if (significant_limbs == 0) {
+            // Most significant chunk: no leading zeros.
+            do {
+                *--cursor = static_cast<char8_t>(u8'0' + remainder % 10);
+                remainder /= 10;
+            } while (remainder != 0);
+        }
+        else {
+            for (unsigned i{}; i < 9; ++i) {
+                *--cursor = static_cast<char8_t>(u8'0' + remainder % 10);
+                remainder /= 10;
+            }
+        }
+    }
+
+    auto const length = static_cast<::std::size_t>(digits + sizeof(digits) - cursor);
+    for (::std::size_t i{}; i < length; ++i) {
+        buffer[i] = cursor[i];
+    }
+    return length;
 }
 
 /**
- * @brief Return the bit at index, or false when index is beyond 191.
+ * @brief Whether the magnitude in magnitude_bits has no fractional part.
+ * @param magnitude_bits The sign-cleared bit pattern of an IEEE-754 binary64
+ *        value.
  */
 [[nodiscard]]
-constexpr auto bit_at(::pltxt2htm::numeric::UInt192 const value, unsigned const index) noexcept -> bool {
-    return (static_cast<::std::uint64_t>(value >> index) & 1u) != 0;
-}
-
-/**
- * @brief Shift a 192-bit integer right, rounding the discarded bits to nearest with ties to even.
- * @param[out] result The rounded 64-bit result.
- * @return false when the truncated result does not fit 64 bits.
- */
-[[nodiscard]]
-constexpr auto rounded_shift_right(::pltxt2htm::numeric::UInt192 const value, unsigned const count,
-                                   ::std::uint64_t& result) noexcept -> bool {
-    if (value.bit_length() > count + 63) {
-        return false;
+constexpr auto is_integral_magnitude(::std::uint64_t const magnitude_bits) noexcept -> bool {
+    auto const exponent_bits = static_cast<int>((magnitude_bits >> 52) & 0x7ff);
+    if (exponent_bits == 0) {
+        return magnitude_bits == 0;
     }
-    auto const shifted = value >> count;
-    if (shifted.bit_length() > 64) {
-        return false;
-    }
-    result = static_cast<::std::uint64_t>(shifted);
-    if (count == 0) {
+    auto const unbiased_exponent = exponent_bits - 1023;
+    if (unbiased_exponent >= 52) {
+        // All binary64 values at or above 2^52 are integers.
         return true;
     }
-    bool const round_bit = ::pltxt2htm::format::details::bit_at(value, count - 1);
-    bool sticky{};
-    for (unsigned index{}; index + 1 < count; ++index) {
-        if (::pltxt2htm::format::details::bit_at(value, index)) {
-            sticky = true;
-            break;
-        }
+    if (unbiased_exponent < 0) {
+        return false;
     }
-    if (round_bit && (sticky || (result & 1) != 0)) {
-        if (result == ~::std::uint64_t{0}) {
-            return false;
-        }
-        ++result;
-    }
-    return true;
+    auto const fractional_mask = (::std::uint64_t{1} << (52 - unbiased_exponent)) - 1;
+    return (magnitude_bits & fractional_mask) == 0;
 }
 
 /**
- * @brief Compute round_half_even(value * 10^decimal_shift) exactly.
- * @param value A positive finite double in the domain.
- * @param decimal_shift The signed power of ten applied to value.
- * @return The rounded digits, or 0 when the result does not fit 64 bits.
+ * @brief Render significand * 10^exponent in fixed notation.
+ * @param significand A non-zero decimal significand without trailing zeros.
+ * @param exponent The decimal exponent of the significand.
+ * @param buffer Destination with room for at most `max_fixed_point_length` characters.
+ * @return The number of characters written.
  */
 [[nodiscard]]
-constexpr auto scaled_digits(double const value, int const decimal_shift) noexcept -> ::std::uint64_t {
-    auto const bits = ::std::bit_cast<::std::uint64_t>(value);
-    auto const binary_exponent = static_cast<int>((bits >> 52) & 0x7ff) - 1023 - 52;
-    auto const significand = (bits & ((::std::uint64_t{1} << 52) - 1)) | (::std::uint64_t{1} << 52);
-
-    if (decimal_shift >= 0) {
-        auto const product =
-            ::pltxt2htm::numeric::pow(::pltxt2htm::numeric::UInt192{5}, static_cast<::std::size_t>(decimal_shift)) *
-            significand;
-        auto const shift = binary_exponent + decimal_shift;
-        if (shift >= 0) {
-            auto const shifted = product << static_cast<unsigned>(shift);
-            if (shifted.bit_length() > 64) {
-                return 0;
-            }
-            return static_cast<::std::uint64_t>(shifted);
-        }
-        ::std::uint64_t result{};
-        if (::pltxt2htm::format::details::rounded_shift_right(product, static_cast<unsigned>(-shift), result) ==
-            false) {
-            return 0;
-        }
-        return result;
-    }
-
-    // value * 10^decimal_shift = significand * 2^(binary_exponent + decimal_shift) / 5^-decimal_shift.
-    auto const divisor_base =
-        ::pltxt2htm::numeric::pow(::pltxt2htm::numeric::UInt192{5}, static_cast<::std::size_t>(-decimal_shift));
-    ::pltxt2htm::numeric::UInt192 numerator{significand};
-    ::pltxt2htm::numeric::UInt192 divisor{};
-    if (binary_exponent + decimal_shift >= 0) {
-        numerator = numerator << static_cast<unsigned>(binary_exponent + decimal_shift);
-        divisor = divisor_base;
-    }
-    else {
-        divisor = divisor_base << static_cast<unsigned>(-(binary_exponent + decimal_shift));
-    }
-    auto const division = ::pltxt2htm::numeric::divide(numerator, divisor);
-    if (division.quotient.bit_length() > 64) {
-        return 0;
-    }
-    auto digits = static_cast<::std::uint64_t>(division.quotient);
-    auto const doubled_remainder = division.remainder << 1;
-    if (doubled_remainder > divisor || (doubled_remainder == divisor && (digits & 1) != 0)) {
-        ++digits;
-    }
-    return digits;
-}
-
-/**
- * @brief Whether candidates digits * 10^(-decimal_shift) rounds back to value.
- * @param digits The exactly rounded scaled digits.
- * @param decimal_shift The shift that scaled value into digits.
- * @param value The target double.
- */
-[[nodiscard]]
-constexpr auto candidate_rounds_to(::std::uint64_t const digits, int const decimal_shift, double const value) noexcept
-    -> bool {
-    if (decimal_shift >= 0) {
-        return ::pltxt2htm::numeric::decimal_ratio_to_double(::pltxt2htm::numeric::UInt192{digits},
-                                                             static_cast<::std::size_t>(decimal_shift)) == value;
-    }
-    auto const scaled =
-        ::pltxt2htm::numeric::pow(::pltxt2htm::numeric::UInt192{10}, static_cast<::std::size_t>(-decimal_shift)) *
-        digits;
-    return ::pltxt2htm::numeric::decimal_ratio_to_double(scaled, 0) == value;
-}
-
-/**
- * @brief Render digits * 10^decimal_exponent in fixed-point notation.
- * @return The number of characters written to buffer.
- */
-[[nodiscard]]
-constexpr auto render_fixed_point(::std::uint64_t const digits, int const decimal_exponent,
-                                  char8_t* const buffer) noexcept -> ::std::size_t {
-    char8_t digit_buffer[24];
+constexpr auto render_fixed_point(::std::uint64_t const significand, int const exponent, char8_t* const buffer) noexcept
+    -> ::std::size_t {
+    // A decimal significand has at most 17 digits, so 20 bytes are always enough.
+    char8_t digit_buffer[20];
     char8_t const* const begin =
-        ::pltxt2htm::format::write_decimal_digits_backward(digits, digit_buffer + sizeof(digit_buffer));
+        ::pltxt2htm::format::write_decimal_digits_backward(significand, digit_buffer + sizeof(digit_buffer));
     auto const digit_count = static_cast<::std::size_t>(digit_buffer + sizeof(digit_buffer) - begin);
 
     ::std::size_t length{};
-    if (decimal_exponent >= 0) {
+    if (exponent >= 0) {
         for (::std::size_t i{}; i < digit_count; ++i) {
             buffer[length++] = begin[i];
         }
-        for (int i{}; i < decimal_exponent; ++i) {
+        for (int i{}; i < exponent; ++i) {
             buffer[length++] = u8'0';
         }
         return length;
     }
 
-    auto const fractional_digits = static_cast<::std::size_t>(-decimal_exponent);
+    auto const fractional_digits = static_cast<::std::size_t>(-exponent);
     if (fractional_digits < digit_count) {
         auto const integer_digits = digit_count - fractional_digits;
         for (::std::size_t i{}; i < integer_digits; ++i) {
@@ -252,42 +270,64 @@ constexpr auto render_fixed_point(::std::uint64_t const digits, int const decima
 }
 
 /**
- * @brief Render the shortest fixed-point representation that parses back to value.
- * @param value A value that `can_format_fixed_point` accepts.
- * @return The number of characters written to buffer.
- * @details Tries significant-digit counts from 1 to 17, using exactly rounded candidates. If no
- *          candidate round-trips (only possible for values outside the domain, which callers
- *          exclude), it falls back to the truncated integer, which is a fixed point of the
- *          format/parse composition and therefore never drifts between passes.
+ * @brief Write the fixed-point representation of any double into buffer.
+ * @param buffer Destination with room for `max_fixed_point_length` characters.
+ * @return The number of characters written.
  */
 [[nodiscard]]
 constexpr auto format_fixed_point(double const value, char8_t* const buffer) noexcept -> ::std::size_t {
-    if (value == 0) {
-        buffer[0] = u8'0';
-        return 1;
-    }
-    // Integral values print their exact integer digits: the value itself is the canonical
-    // shortest representation, it always round-trips, and it avoids trailing-zero forms for
-    // large sizes.
-    if (value >= 1.0) {
-        auto const truncated = static_cast<::std::uint64_t>(value);
-        if (static_cast<double>(truncated) == value) {
-            return ::pltxt2htm::format::details::render_fixed_point(truncated, 0, buffer);
+    auto const bits = ::std::bit_cast<::std::uint64_t>(value);
+    bool const negative = (bits >> 63) != 0;
+    auto const magnitude_bits = bits & 0x7fff'ffff'ffff'ffffull;
+
+    ::std::size_t length{};
+    // A NaN has the all-ones exponent with a non-zero significand field.
+    if (magnitude_bits > 0x7ff0'0000'0000'0000ull) {
+        if (negative) {
+            buffer[length++] = u8'-';
         }
+        buffer[length++] = u8'n';
+        buffer[length++] = u8'a';
+        buffer[length++] = u8'n';
+        return length;
     }
-    auto const exponent = ::pltxt2htm::format::details::decimal_exponent_of(value);
-    for (unsigned significant_digits{1}; significant_digits <= 17; ++significant_digits) {
-        auto const decimal_shift = static_cast<int>(significant_digits) - 1 - exponent;
-        auto const digits = ::pltxt2htm::format::details::scaled_digits(value, decimal_shift);
-        if (digits == 0) {
-            continue;
+    if (magnitude_bits == 0x7ff0'0000'0000'0000ull) {
+        if (negative) {
+            buffer[length++] = u8'-';
         }
-        if (::pltxt2htm::format::details::candidate_rounds_to(digits, decimal_shift, value) == false) {
-            continue;
-        }
-        return ::pltxt2htm::format::details::render_fixed_point(digits, -decimal_shift, buffer);
+        buffer[length++] = u8'i';
+        buffer[length++] = u8'n';
+        buffer[length++] = u8'f';
+        return length;
     }
-    return ::pltxt2htm::format::details::render_fixed_point(static_cast<::std::uint64_t>(value), 0, buffer);
+
+    if (negative) {
+        buffer[length++] = u8'-';
+    }
+    if (magnitude_bits == 0) {
+        buffer[length++] = u8'0';
+        return length;
+    }
+
+    auto const magnitude = ::std::bit_cast<double>(magnitude_bits);
+    // For an integral value, the exact integer expansion is the shortest
+    // representation with the smallest distance from the value, which is what
+    // std::to_chars selects. Dragonbox's significand only has the shortest
+    // number of significant digits, and expanding it with zeros would pick a
+    // different (farther) value of the same length.
+    if (::pltxt2htm::format::details::is_integral_magnitude(magnitude_bits)) {
+        length += ::pltxt2htm::format::details::exact_integer_digits(magnitude, buffer + length);
+        return length;
+    }
+
+    // Dragonbox requires a finite non-zero input, which the branches above ensure.
+    // The compact cache is used deliberately: formatting is not a hot path here,
+    // and 584 bytes of static data beats 9904 bytes.
+    auto const decimal =
+        ::pltxt2htm_dragonbox::dragonbox::to_decimal(magnitude, ::pltxt2htm_dragonbox::dragonbox::policy::sign::ignore,
+                                                     ::pltxt2htm_dragonbox::dragonbox::policy::cache::compact);
+    length += ::pltxt2htm::format::details::render_fixed_point(decimal.significand, decimal.exponent, buffer + length);
+    return length;
 }
 
 } // namespace details
@@ -297,15 +337,13 @@ constexpr auto format_fixed_point(double const value, char8_t* const buffer) noe
  * @param[in] first First writable character.
  * @param[in] last One past the last writable character; only used as a bound.
  * @param[in] value The value to write.
- * @return One past the last written character, or nullptr when the range is too small or the
- *         value is outside the formatter's domain (mirroring `std::to_chars`'s
- *         `errc::value_too_large` for the buffer case).
+ * @return One past the last written character, or nullptr when the range is too
+ *         small.
+ * @details Finite values use the same shortest representation as
+ *          `std::to_chars(first, last, value, std::chars_format::fixed)`.
  */
 [[nodiscard]]
 constexpr auto to_chars(char8_t* const first, char8_t const* const last, double const value) noexcept -> char8_t* {
-    if (::pltxt2htm::format::details::can_format_fixed_point(value) == false) {
-        return nullptr;
-    }
     char8_t buffer[::pltxt2htm::format::details::max_fixed_point_length];
     auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer);
     if (::std::cmp_less(last - first, length)) {
@@ -318,15 +356,12 @@ constexpr auto to_chars(char8_t* const first, char8_t const* const last, double 
 }
 
 /**
- * @brief Convert a value to a fixed-point decimal string.
- * @return The string, or nullopt when the value is outside the formatter's domain.
+ * @brief Convert a value to its fixed-point decimal representation.
+ * @param[in] value The value to convert.
+ * @return The representation; never empty.
  */
 [[nodiscard]]
-constexpr auto to_decimal_string(double const value) noexcept
-    -> ::pltxt2htm::container::Optional<::pltxt2htm::container::U8String> {
-    if (::pltxt2htm::format::details::can_format_fixed_point(value) == false) {
-        return ::pltxt2htm::container::nullopt;
-    }
+constexpr auto to_decimal_string(double const value) noexcept -> ::pltxt2htm::container::U8String {
     char8_t buffer[::pltxt2htm::format::details::max_fixed_point_length];
     auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer);
     return ::pltxt2htm::container::U8String{buffer, buffer + length};
@@ -334,8 +369,8 @@ constexpr auto to_decimal_string(double const value) noexcept
 
 /**
  * @brief Append the fixed-point decimal representation of a value to a string.
- * @pre `can_format_fixed_point(value)` holds; call sites pass parser-produced values or values
- *      explicitly kept inside the formatter's domain.
+ * @param[in,out] out Destination string.
+ * @param[in] value The value to append; any double is accepted.
  */
 constexpr void append_decimal(::pltxt2htm::container::U8String& out, double const value) noexcept {
     char8_t buffer[::pltxt2htm::format::details::max_fixed_point_length];

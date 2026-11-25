@@ -14,6 +14,7 @@
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
 #include "html_escape.hh"
+#include "../../format/floating.hh"
 #include "../contracts.hh"
 #include "../utils.hh"
 #include "../push_macro.hh"
@@ -236,8 +237,10 @@ entry:
                 case ::pltxt2htm::Unit::px: {
                     // Round ceil(unity_size / 2) up to preserve the historical integer mapping
                     // (e.g. size=11 -> 6px) while accepting fractional sizes such as 12.5 -> 7px.
+                    auto const half_size = unity_size.value / 2;
+                    auto const truncated = static_cast<::std::uint64_t>(half_size);
                     ::pltxt2htm::format::append_decimal(
-                        result, ::pltxt2htm::details::double_to_uint64_ceil(unity_size.value / 2));
+                        result, static_cast<double>(truncated) < half_size ? truncated + 1 : truncated);
                     result.append(u8"px;\">");
                     break;
                 }
