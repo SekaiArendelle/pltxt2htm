@@ -195,6 +195,7 @@ using ::pltxt2htm::PlMacroAuthor;
 using ::pltxt2htm::PlMacroCoauthors;
 
 // unity_node
+using ::pltxt2htm::FontSize;
 using ::pltxt2htm::UnityColor;
 using ::pltxt2htm::UnitySize;
 using ::pltxt2htm::UnityVoffset;

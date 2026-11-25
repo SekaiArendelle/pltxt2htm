@@ -23,6 +23,24 @@ TEST_SUITE("html_span_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
+    TEST_CASE("plunity-font-size-px-saturates-at-font-size-max") {
+        // plunity <size> counts two scale units per CSS px, so doubling must stay within
+        // FontSize::max_value (1000000); larger px sizes saturate at the maximum.
+        auto plunity_richtext =
+            ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"font-size:500000px\">text</span>");
+        auto const& plunity_richtext_answer = u8"<size=1000000>text</size>";
+        CHECK(plunity_richtext == plunity_richtext_answer);
+
+        plunity_richtext =
+            ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"font-size:1000000px\">text</span>");
+        CHECK(plunity_richtext == plunity_richtext_answer);
+
+        // Above the domain maximum the whole tag stays literal text.
+        auto const html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:1000001px\">text</span>");
+        auto const& answer = u8"&lt;span&nbsp;style=&quot;font-size:1000001px&quot;&gt;text&lt;/span&gt;";
+        CHECK(html == answer);
+    }
+
     TEST_CASE("combined-color-font-size") {
         auto const& pltext = u8"<span style=\"color:blue;font-size:16px\">text</span>";
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);

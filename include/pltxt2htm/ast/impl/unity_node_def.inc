@@ -23,8 +23,7 @@ constexpr auto ::pltxt2htm::UnityLink::operator=(this UnityLink & self, ::pltxt2
 constexpr auto ::pltxt2htm::UnityLink::operator==(this UnityLink const&, ::pltxt2htm::UnityLink const&) noexcept
     -> bool = default;
 
-constexpr ::pltxt2htm::UnitySize::UnitySize(::pltxt2htm::Ast&& subast_,
-                                            ::pltxt2htm::ValueWithUnit<double> font_size_) noexcept
+constexpr ::pltxt2htm::UnitySize::UnitySize(::pltxt2htm::Ast&& subast_, ::pltxt2htm::FontSize font_size_) noexcept
     : subast(::std::move(subast_)),
       font_size(font_size_) {
 }

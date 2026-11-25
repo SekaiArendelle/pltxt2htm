@@ -692,7 +692,7 @@ entry:
                     if (auto opt_size_tag = ::pltxt2htm::details::try_parse_size_tag(pltext.subview(current_index + 2));
                         opt_size_tag.has_value()) {
                         auto const [tag_len, value] = opt_size_tag.value();
-                        if (value.value == 0) {
+                        if (value.get_value() == 0) {
                             result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                             ++current_index;
                             goto entry;

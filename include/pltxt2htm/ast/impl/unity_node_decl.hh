@@ -103,10 +103,10 @@ public:
  */
 class UnitySize {
     ::pltxt2htm::Ast subast;
-    ::pltxt2htm::ValueWithUnit<double> font_size;
+    ::pltxt2htm::FontSize font_size;
 
 public:
-    constexpr UnitySize(::pltxt2htm::Ast&& subast_, ::pltxt2htm::ValueWithUnit<double> font_size_) noexcept;
+    constexpr UnitySize(::pltxt2htm::Ast&& subast_, ::pltxt2htm::FontSize font_size_) noexcept;
 #if defined(PLTXT2HTM_INTERNAL_USE)
     constexpr UnitySize(::pltxt2htm::UnitySize const&) noexcept = delete;
 #else
@@ -132,16 +132,16 @@ public:
 
     [[nodiscard]]
     constexpr auto get_size(this auto const& self) noexcept -> double {
-        return self.font_size.value;
+        return self.font_size.get_value();
     }
 
     [[nodiscard]]
     constexpr auto get_unit(this auto const& self) noexcept -> ::pltxt2htm::Unit {
-        return self.font_size.unit;
+        return self.font_size.get_unit();
     }
 
     [[nodiscard]]
-    constexpr auto get_font_size(this UnitySize const& self) noexcept -> ::pltxt2htm::ValueWithUnit<double> {
+    constexpr auto get_font_size(this UnitySize const& self) noexcept -> ::pltxt2htm::FontSize {
         return self.font_size;
     }
 };

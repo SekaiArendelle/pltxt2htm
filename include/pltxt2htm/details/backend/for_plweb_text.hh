@@ -222,14 +222,14 @@ entry:
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_size));
                 result.append(u8"<span style=\"font-size:");
                 auto const& unity_size = active_node.get_font_size();
-                switch (unity_size.unit) /* -Werror=switch */ {
+                switch (unity_size.get_unit()) /* -Werror=switch */ {
                 case ::pltxt2htm::Unit::percent: {
-                    result.append(::pltxt2htm::details::double2str(unity_size.value));
+                    result.append(::pltxt2htm::details::double2str(unity_size.get_value()));
                     result.append(u8"%;\">");
                     break;
                 }
                 case ::pltxt2htm::Unit::em: {
-                    result.append(::pltxt2htm::details::double2str(unity_size.value));
+                    result.append(::pltxt2htm::details::double2str(unity_size.get_value()));
                     result.append(u8"em;\">");
                     break;
                 }
@@ -237,7 +237,7 @@ entry:
                     // Round ceil(unity_size / 2) up to preserve the historical integer mapping
                     // (e.g. size=11 -> 6px) while accepting fractional sizes such as 12.5 -> 7px.
                     result.append(::pltxt2htm::details::size_t2str(
-                        ::pltxt2htm::details::double_to_size_t_ceil(unity_size.value / 2)));
+                        ::pltxt2htm::details::double_to_size_t_ceil(unity_size.get_value() / 2)));
                     result.append(u8"px;\">");
                     break;
                 }
@@ -459,8 +459,8 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.value();
                     result.append(u8"font-size:");
-                    result.append(::pltxt2htm::details::double2str(font_size.value));
-                    switch (font_size.unit) /* -Werror=switch */ {
+                    result.append(::pltxt2htm::details::double2str(font_size.get_value()));
+                    switch (font_size.get_unit()) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
                         break;

@@ -41,21 +41,19 @@ TEST_SUITE("unity_size_tag") {
         CHECK(reparsed_html == html);
     }
 
-    TEST_CASE("roundtrip-large-integer") {
-        // Regression: fixedadv_roundtrip crash c76eb66f8fd9c1afe495147024d9e90236dbe678.
-        // The px mapping emits ceil(size / 2) as a decimal integer, and parsing that integer
-        // back used to round to a neighbouring double when the digit run was accumulated in a
-        // double, so the second pass emitted a different px value. The integer part is now
-        // accumulated exactly, so a value above 2^53 survives the round trip unchanged.
-        if constexpr (sizeof(::std::size_t) == 8) {
-            auto const& pltext = u8"<size=7173733806442602179>hello</size>";
-            auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
-            auto const& answer = u8"<span style=\"font-size:3586866903221301248px;\">hello</span>";
-            CHECK(html == answer);
-            auto reparsed_html =
-                ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{html.data(), html.size()});
-            CHECK(reparsed_html == html);
-        }
+    TEST_CASE("roundtrip-at-domain-max") {
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(u8"<size=1000000>hello</size>");
+        auto const& answer = u8"<span style=\"font-size:500000px;\">hello</span>";
+        CHECK(html == answer);
+        auto reparsed_html =
+            ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{html.data(), html.size()});
+        CHECK(reparsed_html == html);
+    }
+
+    TEST_CASE("above-domain-max-rejected") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=1000001>hello</size>");
+        auto const& answer = u8"&lt;size=1000001&gt;hello&lt;/size&gt;";
+        CHECK(html == answer);
     }
 
     TEST_CASE("size-eleven-becomes-6px") {

@@ -190,8 +190,8 @@ entry:
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_size));
                 result.append(u8"<size=");
                 auto const& unity_size = active_node.get_font_size();
-                result.append(::pltxt2htm::details::double2str(unity_size.value));
-                switch (unity_size.unit) /* -Werror=switch */ {
+                result.append(::pltxt2htm::details::double2str(unity_size.get_value()));
+                switch (unity_size.get_unit()) /* -Werror=switch */ {
                 case ::pltxt2htm::Unit::percent: {
                     result.push_back(u8'%');
                     break;
@@ -417,21 +417,29 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.value();
                     result.append(u8"<size=");
-                    switch (font_size.unit) /* -Werror=switch */ {
+                    switch (font_size.get_unit()) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
-                        result.append(::pltxt2htm::details::double2str(font_size.value));
+                        result.append(::pltxt2htm::details::double2str(font_size.get_value()));
                         result.push_back(u8'%');
                         break;
                     }
                     case ::pltxt2htm::Unit::em: {
-                        result.append(::pltxt2htm::details::double2str(font_size.value));
+                        result.append(::pltxt2htm::details::double2str(font_size.get_value()));
                         result.append(u8"em");
                         break;
                     }
                     case ::pltxt2htm::Unit::px: {
                         // plunity <size> counts two scale units per CSS px; match the /2 applied
                         // by the plunity->plweb mapping (e.g. 12.5px -> <size=25>, size=11 -> 6px).
-                        result.append(::pltxt2htm::details::double2str(font_size.value * 2));
+                        // Doubling must stay within FontSize::max_value, so sizes above half the
+                        // maximum saturate at the maximum.
+                        constexpr double max_font_size{::pltxt2htm::FontSize::max_value};
+                        if (font_size.get_value() > max_font_size / 2) {
+                            result.append(::pltxt2htm::details::double2str(max_font_size));
+                        }
+                        else {
+                            result.append(::pltxt2htm::details::double2str(font_size.get_value() * 2));
+                        }
                         break;
                     }
 #ifdef PLTXT2HTM_ENABLE_RUNTIME_EXHAUSTIVE_SWITCH_CHECK
