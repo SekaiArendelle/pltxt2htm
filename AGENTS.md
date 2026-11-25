@@ -209,7 +209,11 @@ Follow the existing low-runtime, cross-platform style used in core headers:
 - **Prefer compile-time evaluation and `constexpr` definitions:**
   - Mark function and method definitions `constexpr` whenever permitted; `main` is exempt.
   - Use `consteval` when compile-time evaluation is required, and keep parsers/helpers constexpr-friendly.
-  - Do not write `inline constexpr`; `constexpr` functions are already inline.
+  - Do not write `inline` on `constexpr` functions or `static constexpr` data members; they are implicitly inline. Namespace-scope `constexpr` variables are not implicitly inline.
+- **Scope constants as narrowly as possible:**
+  - A constant used by one function only is a function-local `constexpr` variable.
+  - A constant that belongs to a class abstraction is a `static constexpr` member.
+  - A namespace-scope `constexpr` object defined in these headers must be `inline constexpr`. Without `inline`, a non-template const-qualified namespace-scope object normally has internal linkage, so each including TU denotes a distinct object and a module interface cannot export that TU-local entity through `export using`.
 - **Mark meaningful return values `[[nodiscard]]`:**
   - Add `[[nodiscard]]` when ignoring a return value would make the call useless or likely indicate a caller bug. This
     includes pure queries and accessors, comparisons, conversions, parsers, factories, and functions returning a
