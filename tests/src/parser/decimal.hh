@@ -4,7 +4,6 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <cstring>
 #include <string>
 
 #include <pltxt2htm/ast/font_size.hh>
@@ -106,14 +105,17 @@ TEST_SUITE("parser_decimal") {
         CHECK(parsed.value().end == 1);
     }
 
-    TEST_CASE("domain") {
+    TEST_CASE("font-size-domain") {
         using ::pltxt2htm::FontSize;
         using ::pltxt2htm_test::parser_decimal_details::parse;
 
         auto parsed = parse("0.000000000000000001");
         REQUIRE(parsed.has_value());
-        CHECK(parsed.value().value == FontSize::min_value);
+        CHECK(FontSize::min_value == 0);
+        CHECK(parsed.value().value > FontSize::min_value);
 
+        // The parser's exact path still cannot represent smaller non-zero values even though the
+        // type's lower bound is zero.
         CHECK_FALSE(parse("0.0000000000000000001").has_value());
         CHECK_FALSE(parse("0.00000000000000000001").has_value());
 
@@ -121,60 +123,50 @@ TEST_SUITE("parser_decimal") {
         REQUIRE(parsed.has_value());
         CHECK(parsed.value().value == 0);
 
-        parsed = parse("18446744073709549568");
+        parsed = parse("1000000");
         REQUIRE(parsed.has_value());
-        CHECK(parsed.value().value == FontSize::max_size_tag_value);
+        CHECK(parsed.value().value == FontSize::max_value);
+        CHECK(FontSize::is_representable(FontSize::max_value));
 
-        CHECK_FALSE(parse("18446744073709551615").has_value());
-        CHECK_FALSE(parse("18446744073709551616").has_value());
-        CHECK_FALSE(parse("18446744073709551616.5").has_value());
-        CHECK_FALSE(parse("99999999999999999999999999").has_value());
-        // The fractional part is far below the double spacing here, so the value rounds down to
-        // the largest in-domain double instead of crossing the exclusive upper bound.
-        parsed = parse("18446744073709549568.1");
-        REQUIRE(parsed.has_value());
-        CHECK(parsed.value().value == FontSize::max_size_tag_value);
-        CHECK(FontSize::max_value > FontSize::max_size_tag_value);
+        CHECK_FALSE(parse("1000001").has_value());
+        CHECK_FALSE(parse("1000000.5").has_value());
+        CHECK_FALSE(parse("18446744073709549568").has_value());
     }
 
     TEST_CASE("exact-rounding") {
         using ::pltxt2htm_test::parser_decimal_details::oracle_value;
         using ::pltxt2htm_test::parser_decimal_details::parse;
 
-        for (char const* const text :
-             {"0.010924504404784173", "175.002439047", "6502438387485576253.18963", "0.0000000000000010855935740152218",
-              "0.00000000000011875472369152510", "10184670014847297.72941", "34612617606248738.81690909232107",
-              "214748364.75", "0.1", "0.33333333333333331483", "9223372036854775808", "18446744073709549568",
-              // Exact double midpoints with a 39-digit fraction: the nonzero tail must break the
-              // tie upward instead of rounding to even.
-              "9007199254740993.000000000000000000000000000000000000001",
-              "4611686018427388416.000000000000000000000000000000000000005",
-              "14044493974566121.0000000000000000000000000000000000000005",
-              // The same midpoint with an all-zero tail keeps ties-to-even.
-              "9007199254740993.000000000000000000000000000000000000000"}) {
+        for (char const* const text : {"0.010924504404784173", "175.002439047", "0.0000000000000010855935740152218",
+                                       "0.00000000000011875472369152510", "0.1", "0.33333333333333331483",
+                                       // A nonzero tail below the retained significand must still affect the rounding.
+                                       "999999.9999999999999999999999999999999999999995",
+                                       "123456.7890123456789012345678901234567890123456789"}) {
             auto const parsed = parse(text);
+            INFO("input: ", ::std::string{text});
             REQUIRE(parsed.has_value());
             CHECK(parsed.value().value == oracle_value(text));
         }
     }
 
     TEST_CASE("generated-differential") {
+        using ::pltxt2htm::FontSize;
         using ::pltxt2htm_test::parser_decimal_details::parse;
 
         ::std::uint64_t state{0x243f6a8885a308d3ull};
+        ::std::size_t checked{};
         for (::std::size_t i{}; i < 2000; ++i) {
             state = state * 6364136223846793005ull + 1442695040888963407ull;
-            ::std::uint64_t const integer_part = i % 4 == 0 ? state % 1000 : state % 18446744073709551615ull;
+            ::std::uint64_t const integer_part = state % 1000000;
             char integer_buffer[32];
             auto const integer_result =
                 ::std::to_chars(integer_buffer, integer_buffer + sizeof(integer_buffer), integer_part);
             ::std::string text{integer_buffer, integer_result.ptr};
             if (i % 5 != 0) {
                 text.push_back('.');
-                // Occasionally exceed the 38-digit exact scale so the dropped-tail sticky path
-                // is exercised as well.
-                auto const digits = i % 7 == 0 ? 39 + static_cast<::std::size_t>(state % 22)
-                                               : 1 + static_cast<::std::size_t>(state % 20);
+                // Long fractions exercise both the retained 19-digit significand and the
+                // dropped-tail sticky path.
+                auto const digits = 1 + static_cast<::std::size_t>(state % 40);
                 for (::std::size_t d{}; d < digits; ++d) {
                     text.push_back(static_cast<char>('0' + static_cast<int>((state >> (d + 1)) % 10)));
                 }
@@ -187,20 +179,22 @@ TEST_SUITE("parser_decimal") {
                 CHECK_FALSE(parsed.has_value());
                 continue;
             }
-            bool const in_domain =
-                oracle >= ::pltxt2htm::FontSize::min_value && oracle < ::pltxt2htm::FontSize::max_value;
+            bool const in_domain = oracle == 0 || (oracle >= FontSize::min_value && oracle <= FontSize::max_value);
             INFO("input: ", text.c_str());
             if (in_domain) {
                 REQUIRE(parsed.has_value());
                 CHECK(parsed.value().value == oracle);
+                ++checked;
             }
             else {
                 CHECK_FALSE(parsed.has_value());
             }
         }
+        CHECK(checked > 0);
     }
 
     TEST_CASE("seventeen-digit-recovery") {
+        using ::pltxt2htm::FontSize;
         using ::pltxt2htm_test::parser_decimal_details::expand_scientific;
         using ::pltxt2htm_test::parser_decimal_details::parse;
 
@@ -210,13 +204,9 @@ TEST_SUITE("parser_decimal") {
             state ^= state << 13;
             state ^= state >> 7;
             state ^= state << 17;
-            double value{};
-            ::std::memcpy(&value, &state, sizeof value);
-            if (::std::isfinite(value) == false) {
-                continue;
-            }
-            value = ::std::fabs(value);
-            if (value < ::pltxt2htm::FontSize::min_value || value >= ::pltxt2htm::FontSize::max_value) {
+            double const value =
+                ::std::ldexp(static_cast<double>(1 + state % 9000000ull), -static_cast<int>(state % 60));
+            if (value < FontSize::min_value || value > FontSize::max_value) {
                 continue;
             }
             char buffer[64];

@@ -192,8 +192,8 @@ entry:
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_size));
                 result.append(u8"<size=");
                 auto const& unity_size = active_node.get_font_size();
-                ::pltxt2htm::format::append_decimal(result, unity_size.value);
-                switch (unity_size.unit) /* -Werror=switch */ {
+                ::pltxt2htm::format::append_decimal(result, unity_size.get_value());
+                switch (unity_size.get_unit()) /* -Werror=switch */ {
                 case ::pltxt2htm::Unit::percent: {
                     result.push_back(u8'%');
                     break;
@@ -419,28 +419,28 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.value();
                     result.append(u8"<size=");
-                    switch (font_size.unit) /* -Werror=switch */ {
+                    switch (font_size.get_unit()) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
-                        ::pltxt2htm::format::append_decimal(result, font_size.value);
+                        ::pltxt2htm::format::append_decimal(result, font_size.get_value());
                         result.push_back(u8'%');
                         break;
                     }
                     case ::pltxt2htm::Unit::em: {
-                        ::pltxt2htm::format::append_decimal(result, font_size.value);
+                        ::pltxt2htm::format::append_decimal(result, font_size.get_value());
                         result.append(u8"em");
                         break;
                     }
                     case ::pltxt2htm::Unit::px: {
                         // plunity <size> counts two scale units per CSS px; match the /2 applied
                         // by the plunity->plweb mapping (e.g. 12.5px -> <size=25>, size=11 -> 6px).
-                        // The largest size-tag value is the largest double below 2^64, so a font
-                        // size whose doubled value would leave that range is clamped to it.
-                        constexpr double max_size_tag{::pltxt2htm::FontSize::max_size_tag_value};
-                        if (font_size.value > max_size_tag / 2) {
-                            ::pltxt2htm::format::append_decimal(result, max_size_tag);
+                        // Doubling must stay within FontSize::max_value, so sizes above half the
+                        // maximum saturate at the maximum.
+                        constexpr double max_font_size{::pltxt2htm::FontSize::max_value};
+                        if (font_size.get_value() > max_font_size / 2) {
+                            ::pltxt2htm::format::append_decimal(result, max_font_size);
                         }
                         else {
-                            ::pltxt2htm::format::append_decimal(result, font_size.value * 2);
+                            ::pltxt2htm::format::append_decimal(result, font_size.get_value() * 2);
                         }
                         break;
                     }

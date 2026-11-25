@@ -256,7 +256,7 @@ TEST_SUITE("format_floating") {
             else {
                 value = ::std::ldexp(static_cast<double>(1 + state % 9000000ull), -static_cast<int>(state % 24));
             }
-            if (value != 0 && (value < FontSize::min_value || value >= FontSize::max_value)) {
+            if (value > FontSize::max_value) {
                 continue;
             }
             auto const text = ::pltxt2htm::format::to_decimal_string(value);

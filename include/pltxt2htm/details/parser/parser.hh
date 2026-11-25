@@ -1100,7 +1100,7 @@ entry:
                     if (auto opt_size_tag = ::pltxt2htm::details::try_parse_size_tag(pltext.subview(current_index + 2));
                         opt_size_tag.has_value()) {
                         auto const [tag_len, value] = opt_size_tag.value();
-                        if (value.value == 0) {
+                        if (value.get_value() == 0) {
                             result.push_back(::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::LessThan>());
                             ++current_index;
                             goto entry;
@@ -1382,9 +1382,8 @@ entry:
                             opt_tag_len.has_value()) {
                             // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::PlExperiment staged_node(
-                                ::std::move(result),
-                                ::std::move(active_frame_data.id));
+                            ::pltxt2htm::PlExperiment staged_node(::std::move(result),
+                                                                  ::std::move(active_frame_data.id));
                             call_stack.discard_current_frame();
                             auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
@@ -1427,9 +1426,8 @@ entry:
                             opt_tag_len.has_value()) {
                             // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::PlDiscussion staged_node(
-                                ::std::move(result),
-                                ::std::move(active_frame_data.id));
+                            ::pltxt2htm::PlDiscussion staged_node(::std::move(result),
+                                                                  ::std::move(active_frame_data.id));
                             call_stack.discard_current_frame();
                             auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
@@ -1553,9 +1551,7 @@ entry:
                                 ::pltxt2htm::details::try_parse_bare_tag<u8"user">(pltext.subview(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::PlUser staged_node(
-                                ::std::move(result),
-                                ::std::move(active_frame_data.id));
+                            ::pltxt2htm::PlUser staged_node(::std::move(result), ::std::move(active_frame_data.id));
                             call_stack.discard_current_frame();
                             auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
@@ -2556,8 +2552,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h1: {
-                ::pltxt2htm::container::U8StringView const super_pltext{
-                    call_stack.current_frame().get_pltext()};
+                ::pltxt2htm::container::U8StringView const super_pltext{call_stack.current_frame().get_pltext()};
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH1>(::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break(
@@ -2566,8 +2561,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h2: {
-                ::pltxt2htm::container::U8StringView const super_pltext{
-                    call_stack.current_frame().get_pltext()};
+                ::pltxt2htm::container::U8StringView const super_pltext{call_stack.current_frame().get_pltext()};
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH2>(::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break(
@@ -2576,8 +2570,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h3: {
-                ::pltxt2htm::container::U8StringView const super_pltext{
-                    call_stack.current_frame().get_pltext()};
+                ::pltxt2htm::container::U8StringView const super_pltext{call_stack.current_frame().get_pltext()};
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH3>(::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break(
@@ -2586,8 +2579,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h4: {
-                ::pltxt2htm::container::U8StringView const super_pltext{
-                    call_stack.current_frame().get_pltext()};
+                ::pltxt2htm::container::U8StringView const super_pltext{call_stack.current_frame().get_pltext()};
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH4>(::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break(
@@ -2596,8 +2588,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h5: {
-                ::pltxt2htm::container::U8StringView const super_pltext{
-                    call_stack.current_frame().get_pltext()};
+                ::pltxt2htm::container::U8StringView const super_pltext{call_stack.current_frame().get_pltext()};
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH5>(::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break(
@@ -2606,8 +2597,7 @@ entry:
                 goto entry;
             }
             case ::pltxt2htm::NodeKind::md_atx_h6: {
-                ::pltxt2htm::container::U8StringView const super_pltext{
-                    call_stack.current_frame().get_pltext()};
+                ::pltxt2htm::container::U8StringView const super_pltext{call_stack.current_frame().get_pltext()};
                 parent_ast.push_back(
                     ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::MdAtxH6>(::std::move(subast)));
                 auto&& [advance_count, _] = ::pltxt2htm::details::find_next_block_after_line_break(

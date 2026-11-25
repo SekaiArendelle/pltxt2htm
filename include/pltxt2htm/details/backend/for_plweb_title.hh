@@ -135,8 +135,8 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.value();
                     result.append(u8"font-size:");
-                    ::pltxt2htm::format::append_decimal(result, font_size.value);
-                    switch (font_size.unit) /* -Werror=switch */ {
+                    ::pltxt2htm::format::append_decimal(result, font_size.get_value());
+                    switch (font_size.get_unit()) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
                         break;

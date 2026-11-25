@@ -740,8 +740,8 @@ class HtmlSpan {
             ::pltxt2htm::container::Optional<::pltxt2htm::VerticalAlignValue> const& vertical_align) noexcept {
             if (font_size.has_value()) {
                 auto const& value = font_size.value();
-                font_size_value = value.value;
-                font_size_unit = value.unit;
+                font_size_value = value.get_value();
+                font_size_unit = value.get_unit();
                 has_font_size = true;
             }
             if (vertical_align.has_value() == false) {
@@ -779,7 +779,7 @@ class HtmlSpan {
             if (self.has_font_size == false) {
                 return ::pltxt2htm::container::nullopt;
             }
-            return ::pltxt2htm::FontSize{.value = self.font_size_value, .unit = self.font_size_unit};
+            return ::pltxt2htm::FontSize{self.font_size_value, self.font_size_unit};
         }
 
         [[nodiscard]]

@@ -223,21 +223,21 @@ entry:
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_size));
                 result.append(u8"<span style=\"font-size:");
                 auto const& unity_size = active_node.get_font_size();
-                switch (unity_size.unit) /* -Werror=switch */ {
+                switch (unity_size.get_unit()) /* -Werror=switch */ {
                 case ::pltxt2htm::Unit::percent: {
-                    ::pltxt2htm::format::append_decimal(result, unity_size.value);
+                    ::pltxt2htm::format::append_decimal(result, unity_size.get_value());
                     result.append(u8"%;\">");
                     break;
                 }
                 case ::pltxt2htm::Unit::em: {
-                    ::pltxt2htm::format::append_decimal(result, unity_size.value);
+                    ::pltxt2htm::format::append_decimal(result, unity_size.get_value());
                     result.append(u8"em;\">");
                     break;
                 }
                 case ::pltxt2htm::Unit::px: {
                     // Round ceil(unity_size / 2) up to preserve the historical integer mapping
                     // (e.g. size=11 -> 6px) while accepting fractional sizes such as 12.5 -> 7px.
-                    auto const half_size = unity_size.value / 2;
+                    auto const half_size = unity_size.get_value() / 2;
                     auto const truncated = static_cast<::std::uint64_t>(half_size);
                     ::pltxt2htm::format::append_decimal(
                         result, static_cast<double>(truncated) < half_size ? truncated + 1 : truncated);
@@ -462,8 +462,8 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.value();
                     result.append(u8"font-size:");
-                    ::pltxt2htm::format::append_decimal(result, font_size.value);
-                    switch (font_size.unit) /* -Werror=switch */ {
+                    ::pltxt2htm::format::append_decimal(result, font_size.get_value());
+                    switch (font_size.get_unit()) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
                         break;

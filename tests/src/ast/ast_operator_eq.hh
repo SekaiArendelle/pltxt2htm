@@ -537,9 +537,9 @@ TEST_SUITE("ast_operator_eq") {
         ::pltxt2htm::Ast ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
-            ::std::move(ast_a), ::pltxt2htm::FontSize{.value = 14, .unit = ::pltxt2htm::Unit::px});
+            ::std::move(ast_a), ::pltxt2htm::FontSize{14, ::pltxt2htm::Unit::px});
         auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
-            ::std::move(ast_b), ::pltxt2htm::FontSize{.value = 14, .unit = ::pltxt2htm::Unit::px});
+            ::std::move(ast_b), ::pltxt2htm::FontSize{14, ::pltxt2htm::Unit::px});
         CHECK(a == b);
     }
 
@@ -548,9 +548,9 @@ TEST_SUITE("ast_operator_eq") {
         ::pltxt2htm::Ast ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
-            ::std::move(ast_a), ::pltxt2htm::FontSize{.value = 14, .unit = ::pltxt2htm::Unit::px});
+            ::std::move(ast_a), ::pltxt2htm::FontSize{14, ::pltxt2htm::Unit::px});
         auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
-            ::std::move(ast_b), ::pltxt2htm::FontSize{.value = 16, .unit = ::pltxt2htm::Unit::px});
+            ::std::move(ast_b), ::pltxt2htm::FontSize{16, ::pltxt2htm::Unit::px});
         CHECK_FALSE(a == b);
     }
 
@@ -559,9 +559,9 @@ TEST_SUITE("ast_operator_eq") {
         ::pltxt2htm::Ast ast_b{};
 
         auto const a = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
-            ::std::move(ast_a), ::pltxt2htm::FontSize{.value = 14, .unit = ::pltxt2htm::Unit::px});
+            ::std::move(ast_a), ::pltxt2htm::FontSize{14, ::pltxt2htm::Unit::px});
         auto const b = ::pltxt2htm::PlTxtNode::template emplace<::pltxt2htm::UnitySize>(
-            ::std::move(ast_b), ::pltxt2htm::FontSize{.value = 14, .unit = ::pltxt2htm::Unit::percent});
+            ::std::move(ast_b), ::pltxt2htm::FontSize{14, ::pltxt2htm::Unit::percent});
         CHECK_FALSE(a == b);
     }
 

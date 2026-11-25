@@ -1029,7 +1029,11 @@ constexpr auto try_parse_size_tag(::pltxt2htm::container::U8StringView pltext) n
         return ::pltxt2htm::container::nullopt;
     }
     auto const tag_len = value_end + opt_close.value();
-    return TryParseSizeTagResult{.tag_len = tag_len, .value = {.value = value.value, .unit = unit}};
+    auto opt_font_size = ::pltxt2htm::FontSize::try_make(value.value, unit);
+    if (opt_font_size.has_value() == false) {
+        return ::pltxt2htm::container::nullopt;
+    }
+    return TryParseSizeTagResult{.tag_len = tag_len, .value = opt_font_size.value()};
 }
 
 /**
@@ -1084,7 +1088,11 @@ constexpr auto try_parse_font_size_value(::pltxt2htm::container::U8StringView pl
         unit = ::pltxt2htm::Unit::em;
         pos += 2;
     }
-    return TryParseFontSizeValueResult{.end = pos, .value = {.value = decimal.value, .unit = unit}};
+    auto opt_font_size = ::pltxt2htm::FontSize::try_make(decimal.value, unit);
+    if (opt_font_size.has_value() == false) {
+        return ::pltxt2htm::container::nullopt;
+    }
+    return TryParseFontSizeValueResult{.end = pos, .value = opt_font_size.value()};
 }
 
 /**
