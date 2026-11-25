@@ -83,7 +83,7 @@ TEST_SUITE("format_floating") {
         CHECK(::pltxt2htm::format::to_chars(exact, exact + 3, 12.5) == nullptr);
         CHECK(::pltxt2htm::format::to_chars(buffer, buffer + sizeof(buffer), 1e-19) == nullptr);
         CHECK(::pltxt2htm::format::to_chars(buffer, buffer + sizeof(buffer),
-                                             ::pltxt2htm::details::max_font_size_value) == nullptr);
+                                            ::pltxt2htm::details::max_font_size_value) == nullptr);
     }
 
     TEST_CASE("round-up") {

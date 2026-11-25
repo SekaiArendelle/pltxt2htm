@@ -54,16 +54,13 @@ consteval auto test_write_decimal_digits_backward() noexcept -> bool {
     if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{99}, end), end, u8"99")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{100}, end), end,
-                        u8"100")) {
+    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{100}, end), end, u8"100")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{101}, end), end,
-                        u8"101")) {
+    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{101}, end), end, u8"101")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{999}, end), end,
-                        u8"999")) {
+    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{999}, end), end, u8"999")) {
         return false;
     }
     if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{1000}, end), end,
@@ -75,9 +72,9 @@ consteval auto test_write_decimal_digits_backward() noexcept -> bool {
         return false;
     }
     if constexpr (::std::numeric_limits<::std::uintmax_t>::digits10 == 19) {
-        if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(
-                                ::std::numeric_limits<::std::uintmax_t>::max(), end),
-                            end, u8"18446744073709551615")) {
+        if (!buffer_matches(
+                ::pltxt2htm::format::write_decimal_digits_backward(::std::numeric_limits<::std::uintmax_t>::max(), end),
+                end, u8"18446744073709551615")) {
             return false;
         }
     }
@@ -150,14 +147,14 @@ TEST_SUITE("format_integer") {
         CHECK(::pltxt2htm_test::format_integer_details::buffer_matches(buffer, end, u8"-42"));
 
         end = ::pltxt2htm::format::to_chars(buffer, buffer + sizeof(buffer),
-                                             ::std::numeric_limits<::std::int64_t>::min());
+                                            ::std::numeric_limits<::std::int64_t>::min());
         REQUIRE(end != nullptr);
         CHECK(::pltxt2htm::format::to_chars(buffer, buffer + sizeof(buffer),
-                                             ::std::numeric_limits<::std::int64_t>::min()) != nullptr);
+                                            ::std::numeric_limits<::std::int64_t>::min()) != nullptr);
 
         char8_t short_buffer[3];
         CHECK(::pltxt2htm::format::to_chars(short_buffer, short_buffer + sizeof(short_buffer),
-                                             ::std::uint64_t{12345}) == nullptr);
+                                            ::std::uint64_t{12345}) == nullptr);
         CHECK(::pltxt2htm::format::to_chars(short_buffer, short_buffer + sizeof(short_buffer), ::std::uint64_t{0}) !=
               nullptr);
     }
