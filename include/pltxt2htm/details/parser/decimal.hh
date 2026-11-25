@@ -13,8 +13,8 @@
 #include "../../container/array.hh"
 #include "../../container/optional.hh"
 #include "../../container/string_view.hh"
+#include "../../ast/font_size.hh"
 #include "../ascii.hh"
-#include "../font_size_domain.hh"
 #include "../../numeric/uint192.hh"
 #include "../push_macro.hh"
 
@@ -102,7 +102,7 @@ struct TryParseDoubleDecimalValueResult {
  *          are exact and the result is the correctly rounded value; longer significands are
  *          rounded once after the exact integer accumulation.
  *
- *          Values outside the font-size domain (see font_size_domain.hh) are rejected, and the
+ *          Values outside the font-size domain (see FontSize) are rejected, and the
  *          integer part must fit a `::std::uint64_t`.
  */
 [[nodiscard]]
@@ -242,8 +242,8 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
         }
     }
 
-    // Keep every accepted value inside the domain the formatter supports. Zero is allowed: a
-    // zero font size is meaningful as an inert span, and it round-trips exactly.
+    // Keep every accepted value inside the FontSize domain. Zero is allowed: a zero font size is
+    // meaningful as an inert span, and it round-trips exactly.
     if (value == 0) {
         // A non-zero digit that did not survive the union of the retained digits means the true
         // value is a tiny non-zero number below the domain, not zero.
@@ -251,10 +251,7 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
             return ::pltxt2htm::container::nullopt;
         }
     }
-    else if (value < ::pltxt2htm::details::min_font_size_value) {
-        return ::pltxt2htm::container::nullopt;
-    }
-    if (value >= ::pltxt2htm::details::max_font_size_value) {
+    if (::pltxt2htm::FontSize::is_representable(value) == false) {
         return ::pltxt2htm::container::nullopt;
     }
     return TryParseDoubleDecimalValueResult{.end = pos, .value = value};

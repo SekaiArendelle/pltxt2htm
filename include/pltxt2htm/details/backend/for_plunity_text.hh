@@ -13,6 +13,7 @@
 #include "../../container/string_view.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
+#include "../../ast/font_size.hh"
 #include "frame_context.hh"
 #include "html_escape.hh"
 #include "../../format/floating.hh"
@@ -434,7 +435,7 @@ entry:
                         // by the plunity->plweb mapping (e.g. 12.5px -> <size=25>, size=11 -> 6px).
                         // The largest size-tag value is the largest double below 2^64, so a font
                         // size whose doubled value would leave that range is clamped to it.
-                        constexpr double max_size_tag{::pltxt2htm::details::max_size_tag_value};
+                        constexpr double max_size_tag{::pltxt2htm::FontSize::max_size_tag_value};
                         if (font_size.value > max_size_tag / 2) {
                             ::pltxt2htm::format::append_decimal(result, max_size_tag);
                         }

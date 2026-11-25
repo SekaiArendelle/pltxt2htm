@@ -10,6 +10,7 @@
 #include <string>
 #include <string_view>
 
+#include <pltxt2htm/ast/font_size.hh>
 #include <pltxt2htm/details/parser/decimal.hh>
 #include <pltxt2htm/format/floating.hh>
 
@@ -241,8 +242,7 @@ TEST_SUITE("format_floating") {
     }
 
     TEST_CASE("parser-round-trip-in-font-size-domain") {
-        using ::pltxt2htm::details::max_font_size_value;
-        using ::pltxt2htm::details::min_font_size_value;
+        using ::pltxt2htm::FontSize;
 
         ::std::uint64_t state{0x243f6a8885a308d3ull};
         for (::std::size_t i{}; i < 2000; ++i) {
@@ -256,7 +256,7 @@ TEST_SUITE("format_floating") {
             else {
                 value = ::std::ldexp(static_cast<double>(1 + state % 9000000ull), -static_cast<int>(state % 24));
             }
-            if (value != 0 && (value < min_font_size_value || value >= max_font_size_value)) {
+            if (value != 0 && (value < FontSize::min_value || value >= FontSize::max_value)) {
                 continue;
             }
             auto const text = ::pltxt2htm::format::to_decimal_string(value);

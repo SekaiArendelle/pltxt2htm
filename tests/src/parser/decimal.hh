@@ -7,6 +7,7 @@
 #include <cstring>
 #include <string>
 
+#include <pltxt2htm/ast/font_size.hh>
 #include <pltxt2htm/details/parser/decimal.hh>
 
 #include "doctest_config.hh"
@@ -106,14 +107,12 @@ TEST_SUITE("parser_decimal") {
     }
 
     TEST_CASE("domain") {
-        using ::pltxt2htm::details::max_font_size_value;
-        using ::pltxt2htm::details::max_size_tag_value;
-        using ::pltxt2htm::details::min_font_size_value;
+        using ::pltxt2htm::FontSize;
         using ::pltxt2htm_test::parser_decimal_details::parse;
 
         auto parsed = parse("0.000000000000000001");
         REQUIRE(parsed.has_value());
-        CHECK(parsed.value().value == min_font_size_value);
+        CHECK(parsed.value().value == FontSize::min_value);
 
         CHECK_FALSE(parse("0.0000000000000000001").has_value());
         CHECK_FALSE(parse("0.00000000000000000001").has_value());
@@ -124,7 +123,7 @@ TEST_SUITE("parser_decimal") {
 
         parsed = parse("18446744073709549568");
         REQUIRE(parsed.has_value());
-        CHECK(parsed.value().value == max_size_tag_value);
+        CHECK(parsed.value().value == FontSize::max_size_tag_value);
 
         CHECK_FALSE(parse("18446744073709551615").has_value());
         CHECK_FALSE(parse("18446744073709551616").has_value());
@@ -134,8 +133,8 @@ TEST_SUITE("parser_decimal") {
         // the largest in-domain double instead of crossing the exclusive upper bound.
         parsed = parse("18446744073709549568.1");
         REQUIRE(parsed.has_value());
-        CHECK(parsed.value().value == max_size_tag_value);
-        CHECK(max_font_size_value > max_size_tag_value);
+        CHECK(parsed.value().value == FontSize::max_size_tag_value);
+        CHECK(FontSize::max_value > FontSize::max_size_tag_value);
     }
 
     TEST_CASE("exact-rounding") {
@@ -188,8 +187,8 @@ TEST_SUITE("parser_decimal") {
                 CHECK_FALSE(parsed.has_value());
                 continue;
             }
-            bool const in_domain = oracle >= ::pltxt2htm::details::min_font_size_value &&
-                                   oracle < ::pltxt2htm::details::max_font_size_value;
+            bool const in_domain =
+                oracle >= ::pltxt2htm::FontSize::min_value && oracle < ::pltxt2htm::FontSize::max_value;
             INFO("input: ", text.c_str());
             if (in_domain) {
                 REQUIRE(parsed.has_value());
@@ -217,8 +216,7 @@ TEST_SUITE("parser_decimal") {
                 continue;
             }
             value = ::std::fabs(value);
-            if (value < ::pltxt2htm::details::min_font_size_value ||
-                value >= ::pltxt2htm::details::max_font_size_value) {
+            if (value < ::pltxt2htm::FontSize::min_value || value >= ::pltxt2htm::FontSize::max_value) {
                 continue;
             }
             char buffer[64];
