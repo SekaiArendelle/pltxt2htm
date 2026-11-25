@@ -41,6 +41,20 @@ TEST_SUITE("html_span_tag") {
         CHECK(html == answer);
     }
 
+    TEST_CASE("plunity-font-size-px-below-saturation-threshold") {
+        auto const plunity_richtext =
+            ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"font-size:499999.5px\">text</span>");
+        auto const& answer = u8"<size=999999>text</size>";
+        CHECK(plunity_richtext == answer);
+    }
+
+    TEST_CASE("plunity-font-size-px-above-saturation-threshold") {
+        auto const plunity_richtext =
+            ::pltxt2htm_test::pltxt2plunity_introduction(u8"<span style=\"font-size:500000.5px\">text</span>");
+        auto const& answer = u8"<size=1000000>text</size>";
+        CHECK(plunity_richtext == answer);
+    }
+
     TEST_CASE("combined-color-font-size") {
         auto const& pltext = u8"<span style=\"color:blue;font-size:16px\">text</span>";
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(pltext);
