@@ -445,6 +445,76 @@ TEST_SUITE("html_span_tag") {
         CHECK(plunity_richtext == plunity_richtext_answer);
     }
 
+    TEST_CASE("decimal-rounding-exact-significand") {
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:0.010924504404784173px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:0.010924504404784173px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("decimal-rounding-long-fraction") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:175.002439047px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:175.002439047px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("decimal-rounding-small-fraction") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<span style=\"font-size:0.0000000000000010855935740152218px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:0.0000000000000010855935740152218px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("decimal-rounding-trailing-zero") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<span style=\"font-size:0.00000000000011875472369152510px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:0.0000000000001187547236915251px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("decimal-rounding-thirds") {
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:0.33333333333333331483px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:0.3333333333333333px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("decimal-rounding-sticky-tail-at-domain-maximum") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<span style=\"font-size:999999.9999999999999999999999999999999999999995px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:1000000px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("decimal-rounding-long-dropped-tail") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<span style=\"font-size:123456.7890123456789012345678901234567890123456789px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:123456.78901234567px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("smallest-positive-decimal-accepted") {
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:0.000000000000000001px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:0.000000000000000001px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("below-minimum-positive-decimal-rejected") {
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:0.0000000000000000001px\">text</span>");
+        auto const& answer = u8"&lt;span&nbsp;style=&quot;font-size:0.0000000000000000001px&quot;&gt;text&lt;/span&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("smaller-positive-decimal-rejected") {
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:0.00000000000000000001px\">text</span>");
+        auto const& answer =
+            u8"&lt;span&nbsp;style=&quot;font-size:0.00000000000000000001px&quot;&gt;text&lt;/span&gt;";
+        CHECK(html == answer);
+    }
+
     TEST_CASE("fractional-em-accepted") {
         // fractional font-size with em unit
         auto const& pltext = u8"<span style=\"font-size:1.5em\">text</span>";

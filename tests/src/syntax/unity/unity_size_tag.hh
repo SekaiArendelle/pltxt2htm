@@ -308,6 +308,36 @@ TEST_SUITE("unity_size_tag") {
         CHECK(html == answer);
     }
 
+    TEST_CASE("fractional-trailing-junk-rejected") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=12.5x>hello</size>");
+        auto const& answer = u8"&lt;size=12.5x&gt;hello&lt;/size&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("leading-plus-rejected") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=+5>hello</size>");
+        auto const& answer = u8"&lt;size=+5&gt;hello&lt;/size&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("negative-value-rejected") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=-5>hello</size>");
+        auto const& answer = u8"&lt;size=-5&gt;hello&lt;/size&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("exponent-notation-rejected") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=1e5>hello</size>");
+        auto const& answer = u8"&lt;size=1e5&gt;hello&lt;/size&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("fractional-domain-maximum-rejected-above-bound") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=1000000.5>hello</size>");
+        auto const& answer = u8"&lt;size=1000000.5&gt;hello&lt;/size&gt;";
+        CHECK(html == answer);
+    }
+
     TEST_CASE("plunity-fractional") {
         auto html = ::pltxt2htm_test::pltxt2plunity_introduction(u8"<size=12.5>text</size>");
         auto const& answer = u8"<size=12.5>text</size>";

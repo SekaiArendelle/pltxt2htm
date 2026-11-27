@@ -8,8 +8,6 @@
 #include <limits>
 #include <string>
 
-#include <pltxt2htm/ast/font_size.hh>
-#include <pltxt2htm/details/parser/decimal.hh>
 #include <pltxt2htm/format/floating.hh>
 
 #include "doctest_config.hh"
@@ -40,6 +38,20 @@ inline auto format_to_string(double const value) -> ::pltxt2htm::container::U8St
 inline void check_matches_std(double const value) {
     auto const text = format_to_string(value);
     CHECK(::pltxt2htm_test::format_details::to_std_string(text) == std_fixed(value));
+}
+
+inline void check_font_size_syntax_round_trip(::pltxt2htm::container::U8StringView const decimal,
+                                              ::pltxt2htm::container::U8StringView const expected_decimal) {
+    auto pltext = ::pltxt2htm::container::U8String{u8"<span style=\"font-size:"};
+    pltext.append(decimal);
+    pltext.append(u8"px\">text</span>");
+
+    auto html =
+        ::pltxt2htm_test::pltxt2fixedadv_htmld(::pltxt2htm::container::U8StringView{pltext.data(), pltext.size()});
+    auto expected = ::pltxt2htm::container::U8String{u8"<span style=\"font-size:"};
+    expected.append(expected_decimal);
+    expected.append(u8"px;\">text</span>");
+    CHECK(html == expected);
 }
 
 } // namespace pltxt2htm_test::format_floating_details
@@ -175,11 +187,12 @@ TEST_SUITE("format_floating") {
         }
     }
 
-    TEST_CASE("parser-round-trip-in-font-size-domain") {
-        using ::pltxt2htm::FontSize;
+    TEST_CASE("formatted-values-round-trip-through-font-size-syntax") {
+        using ::pltxt2htm_test::format_floating_details::check_font_size_syntax_round_trip;
         using ::pltxt2htm_test::format_floating_details::format_to_string;
 
         ::std::uint64_t state{0x243f6a8885a308d3ull};
+        ::std::size_t checked{};
         for (::std::size_t i{}; i < 2000; ++i) {
             state ^= state << 13;
             state ^= state >> 7;
@@ -189,17 +202,55 @@ TEST_SUITE("format_floating") {
                 value = static_cast<double>(state % 1000000000ull) / static_cast<double>(1 + state % 1000000ull);
             }
             else {
-                value = ::std::ldexp(static_cast<double>(1 + state % 9000000ull), -static_cast<int>(state % 24));
+                value = ::std::ldexp(static_cast<double>(1 + state % 9000000ull), -static_cast<int>(state % 60));
             }
-            if (value > FontSize::max_value) {
+            if (value == 0 || value > 1000000.0) {
                 continue;
             }
             auto const text = format_to_string(value);
-            auto const parsed = ::pltxt2htm::details::try_parse_double_decimal_value(
-                ::pltxt2htm::container::U8StringView{text.data(), text.size()});
-            REQUIRE(parsed.has_value());
-            CHECK(parsed.value().end == text.size());
-            CHECK(parsed.value().value == value);
+            ::pltxt2htm::container::U8StringView const view{text.data(), text.size()};
+            check_font_size_syntax_round_trip(view, view);
+            ++checked;
         }
+        CHECK(checked > 0);
+    }
+
+    TEST_CASE("generated-decimals-round-trip-through-font-size-syntax") {
+        using ::pltxt2htm_test::format_details::as_view;
+        using ::pltxt2htm_test::format_floating_details::check_font_size_syntax_round_trip;
+        using ::pltxt2htm_test::format_floating_details::std_fixed;
+
+        ::std::uint64_t state{0x243f6a8885a308d3ull};
+        ::std::size_t checked{};
+        for (::std::size_t i{}; i < 2000; ++i) {
+            state = state * 6364136223846793005ull + 1442695040888963407ull;
+            ::std::uint64_t const integer_part = state % 1000000;
+            char integer_buffer[32];
+            auto const integer_result =
+                ::std::to_chars(integer_buffer, integer_buffer + sizeof(integer_buffer), integer_part);
+            ::std::string text{integer_buffer, integer_result.ptr};
+            if (i % 5 != 0) {
+                text.push_back('.');
+                // Long fractions exercise both the retained significand and the discarded-tail rounding path.
+                auto const digits = 1 + static_cast<::std::size_t>(state % 40);
+                for (::std::size_t d{}; d < digits; ++d) {
+                    text.push_back(static_cast<char>('0' + static_cast<int>((state >> (d + 1)) % 10)));
+                }
+            }
+
+            double oracle{};
+            auto const oracle_result = ::std::from_chars(text.data(), text.data() + text.size(), oracle);
+            REQUIRE(oracle_result.ec == ::std::errc{});
+            REQUIRE(oracle_result.ptr == text.data() + text.size());
+            if (oracle == 0 || oracle < 0.000000000000000001 || oracle > 1000000.0) {
+                continue;
+            }
+
+            INFO("input: ", text.c_str());
+            auto const expected = std_fixed(oracle);
+            check_font_size_syntax_round_trip(as_view(text), as_view(expected));
+            ++checked;
+        }
+        CHECK(checked > 0);
     }
 }
