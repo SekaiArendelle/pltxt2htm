@@ -31,7 +31,8 @@ target_sources(check_public_symbols PRIVATE
 )
 
 if(WIN32 OR MINGW)
-    target_link_libraries(check_public_symbols PRIVATE ntdll)
+    # Panic diagnostics resolve symbols through DbgHelp and capture through ntdll.
+    target_link_libraries(check_public_symbols PRIVATE ntdll dbghelp)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

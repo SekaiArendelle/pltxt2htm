@@ -1,18 +1,13 @@
 /**
  * @file panic.hh
  * @brief Panic and error handling utilities for pltxt2htm
- * @details Provides panic functionality for assertion failures and critical errors
+ * @details Provides panic functionality for assertion failures and critical
+ *          errors. The stack trace section comes from the stacktrace subtree,
+ *          which prints nothing on platforms without a capture backend.
  */
 
 #pragma once
 
-// Currently, only STL supports <stacktrace>
-// libstdc++ do supports <stacktrace>, but it's experimental
-// libc++ does not supports <stacktrace> currently
-#if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_ENABLE_STACKTRACE)
-    #include <stacktrace>
-    #include <fast_io/fast_io.h>
-#endif
 #include <cstdio>
 #include "literal_string.hh"
 #include "trap.hh"
@@ -34,7 +29,28 @@ template<U8LiteralString expression, U8LiteralString file_name, unsigned line, u
 [[__gnu__::__cold__]]
 #endif
 [[noreturn]]
-inline void panic() noexcept {
+// panic is a template, so its specializations need no inline for the ODR; the
+// keyword is omitted because GCC rejects inline combined with noinline.
+#if __has_cpp_attribute(__gnu__::__noinline__)
+[[__gnu__::__noinline__]]
+#elif defined(_MSC_VER)
+__declspec(noinline)
+#endif
+void panic() noexcept;
+
+} // namespace pltxt2htm::details
+
+// The declaration above must precede these includes: the stacktrace definitions
+// pull the assert machinery, which reaches this header again.
+#include <cstdint>
+#include <fast_io/fast_io.h>
+#include "../stacktrace/stacktrace.hh"
+
+namespace pltxt2htm::details {
+
+template<U8LiteralString expression, U8LiteralString file_name, unsigned line, unsigned column, U8LiteralString msg>
+[[noreturn]]
+void panic() noexcept {
     constexpr auto to_be_printed = ::pltxt2htm::details::concat(
         U8LiteralString{u8"Program panicked because "}, expression,
         U8LiteralString{
@@ -49,39 +65,48 @@ inline void panic() noexcept {
         ::pltxt2htm::details::uint_to_literal_string<column>(),
         U8LiteralString{u8"\n"
                         "* with message: \""},
-        msg, U8LiteralString{u8"\"\n\0"});
+        msg, U8LiteralString{u8"\"\n"});
 
     ::std::fwrite(to_be_printed.cdata(), sizeof(typename decltype(to_be_printed)::value_type), to_be_printed.size(),
                   stderr);
-
-#if __cpp_lib_stacktrace >= 202011L && defined(PLTXT2HTM_ENABLE_STACKTRACE)
-    ::std::fputs("* stack trace:\n", stderr);
-    auto stacktrace = ::std::stacktrace::current();
-    auto const stacktrace_size = stacktrace.size();
-    for (::std::size_t i = 0; i < stacktrace_size; ++i) {
-        auto const& entry = stacktrace[i];
-
-        // Print frame number and function description
-        if (entry.description().size() > 0) {
-            ::fast_io::io::perr("[", i, "] ", ::fast_io::mnp::os_c_str(entry.description().c_str()));
-        }
-        else {
-            ::fast_io::io::perr("[", i, "] <unknown function>");
-        }
-
-        // Print source file and line if available
-        if (entry.source_file().size() > 0) {
-            ::fast_io::io::perr(" at ", ::fast_io::mnp::os_c_str(entry.source_file().c_str()));
-
-            if (entry.source_line() > 0) {
-                ::fast_io::io::perr(":", entry.source_line());
-            }
-        }
-
-        ::fast_io::io::perr("\n");
-    }
-#endif
     ::std::fflush(stderr);
+
+    // Hide current() and panic() itself so the first entry is normally the call
+    // site that reported the problem; a sibling call at that site would hide it.
+    auto const trace = ::pltxt2htm::stacktrace::Stacktrace::current(1);
+    if (trace.is_empty() == false) {
+        constexpr ::std::size_t max_panic_frames{128};
+        auto const printed = trace.size() < max_panic_frames ? trace.size() : max_panic_frames;
+        ::fast_io::io::perr("* stack trace:\n");
+        for (::std::size_t i = 0; i < printed; ++i) {
+            auto const frame = trace[i].resolved();
+            ::fast_io::io::perr("[", i, "] ");
+            if (frame.description.is_empty() == false) {
+                ::fast_io::io::perr(::fast_io::basic_io_scatter_t<char>{.base = frame.description.data(),
+                                                                        .len = frame.description.size()});
+            }
+            else {
+                ::fast_io::io::perr(::fast_io::mnp::hex0x(frame.address));
+            }
+            if (frame.displacement != 0) {
+                ::fast_io::io::perr(" + ", ::fast_io::mnp::hex0x(frame.displacement));
+            }
+            if (frame.source_file.is_empty() == false) {
+                ::fast_io::io::perr(" at ", ::fast_io::basic_io_scatter_t<char>{.base = frame.source_file.data(),
+                                                                                .len = frame.source_file.size()});
+                if (frame.source_line != 0) {
+                    ::fast_io::io::perr(":", frame.source_line);
+                }
+            }
+            if (frame.text_truncated) {
+                ::fast_io::io::perr(" <text truncated>");
+            }
+            ::fast_io::io::perr("\n");
+        }
+        if (trace.size() > printed) {
+            ::fast_io::io::perr("* stack trace truncated\n");
+        }
+    }
 
     ::pltxt2htm::details::trap();
 }
