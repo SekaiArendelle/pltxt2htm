@@ -4,19 +4,15 @@ Microbenchmark suite using [Google Benchmark](https://github.com/google/benchmar
 
 Google Benchmark is fetched and built automatically by CMake via `FetchContent` (v1.9.5 from GitHub).
 
-## Prerequisites
-
-- C++23 compiler (Clang/GCC/MSVC)
-- CMake >= 3.20
-- Ninja (recommended) or other build system
-- Git (for `FetchContent`)
-
 ## Build
 
+From the repository root:
+
 ```sh
-cmake -S benches -B benches/build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build benches/build
+pixi run -e clang build-benches
 ```
+
+The build and run tasks are defined in [`pixi.toml`](../pixi.toml). Benchmarks are built in Release mode under `benches/build-pixi-clang`.
 
 First build fetches and compiles Google Benchmark automatically. Subsequent builds reuse the cached source.
 
@@ -37,10 +33,12 @@ per benchmark invocation, before the measured loop.
 
 ## Run
 
+`run-bench` automatically configures and builds the benchmarks before running the selected executable.
+
 ```sh
-.\benches\build\bench_end2end.exe
-.\benches\build\bench_parse.exe --benchmark_format=csv
-.\benches\build\bench_parse.exe --benchmark_format=json --benchmark_out=results.json
+pixi run -e clang run-bench bench_end2end
+pixi run -e clang run-bench bench_parse "--benchmark_format=csv"
+pixi run -e clang run-bench bench_parse "--benchmark_format=json --benchmark_out=results.json"
 ```
 
 ## Options
@@ -61,7 +59,7 @@ See [Google Benchmark docs](https://github.com/google/benchmark/blob/main/docs/u
 
 ```powershell
 wpr -start CPU -filemode
-.\benches\build\bench_parse.exe
+pixi run -e clang run-bench bench_parse
 wpr -stop profile.etl
 ```
 

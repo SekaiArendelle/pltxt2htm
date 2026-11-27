@@ -55,6 +55,10 @@ CXXFLAGS = "$CXXFLAGS --gcc-toolchain=$CONDA_PREFIX"
 configure-examples = { cmd = "\"$PLTXT2HTM_CMAKE\" -S examples -B examples/build-pixi-clang -G Ninja -DCMAKE_MAKE_PROGRAM=\"$PLTXT2HTM_NINJA\" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=\"$PLTXT2HTM_CLANGXX\"", depends-on = ["prepare-tmp"] }
 build-examples = { cmd = "\"$PLTXT2HTM_CMAKE\" --build examples/build-pixi-clang", depends-on = ["configure-examples"] }
 run-example = { cmd = "examples/build-pixi-clang/{{ example }}", args = ["example"], depends-on = ["build-examples"] }
+# Google Benchmark v1.9.5 triggers new Clang 23 warnings; keep them non-fatal.
+configure-benches = { cmd = "\"$PLTXT2HTM_CMAKE\" -S benches -B benches/build-pixi-clang -G Ninja -DCMAKE_MAKE_PROGRAM=\"$PLTXT2HTM_NINJA\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=\"$PLTXT2HTM_CLANGXX\" -DBENCHMARK_ENABLE_WERROR=OFF", depends-on = ["prepare-tmp"] }
+build-benches = { cmd = "\"$PLTXT2HTM_CMAKE\" --build benches/build-pixi-clang", depends-on = ["configure-benches"] }
+run-bench = { cmd = "benches/build-pixi-clang/{{ target }} {{ benchmark_args }}", args = ["target", { arg = "benchmark_args", default = "" }], depends-on = ["build-benches"] }
 configure-cxxmodule-examples = { cmd = "\"$PLTXT2HTM_CMAKE\" -S cxxmodule/examples -B cxxmodule/examples/build-pixi-clang -G Ninja -DCMAKE_MAKE_PROGRAM=\"$PLTXT2HTM_NINJA\" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=\"$PLTXT2HTM_CLANGXX\"", depends-on = ["prepare-tmp"] }
 build-cxxmodule-examples = { cmd = "\"$PLTXT2HTM_CMAKE\" --build cxxmodule/examples/build-pixi-clang", depends-on = ["configure-cxxmodule-examples"] }
 run-cxxmodule-example = { cmd = "cxxmodule/examples/build-pixi-clang/example", depends-on = ["build-cxxmodule-examples"] }
