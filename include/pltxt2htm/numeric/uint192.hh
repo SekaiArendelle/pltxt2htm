@@ -31,17 +31,11 @@ namespace details {
 
 /**
  * @brief Targets the explicit UInt192 conversion accepts.
- * @details All standard unsigned integer types, plus the native 128-bit type when it is
- *          available. Some standard libraries do not classify the native 128-bit type as an
- *          integral type, so it is listed explicitly.
+ * @details Unsigned integer types (including the native 128-bit type when available), plus
+ *          UInt128 on every target.
  */
-#if defined(__SIZEOF_INT128__)
 template<typename T>
-concept unsigned_conversion_target = ::std::unsigned_integral<T> || ::std::same_as<T, UInt128>;
-#else
-template<typename T>
-concept unsigned_conversion_target = ::std::unsigned_integral<T>;
-#endif
+concept unsigned_conversion_target = unsigned_integer<T> || ::std::same_as<T, UInt128>;
 
 /**
  * @brief Integer operands the UInt192 arithmetic operators accept.
@@ -49,7 +43,7 @@ concept unsigned_conversion_target = ::std::unsigned_integral<T>;
  *          sign-extended to 192 bits, so arithmetic follows modulo 2^192.
  */
 template<typename T>
-concept integer_operand = ::std::integral<T> || ::std::same_as<T, UInt192> || ::std::same_as<T, UInt128>;
+concept integer_operand = integer<T> || ::std::same_as<T, UInt192> || ::std::same_as<T, UInt128>;
 
 } // namespace details
 
@@ -74,16 +68,16 @@ public:
 
     /// Constructs a value from an unsigned integer; the conversion is lossless and implicit.
     template<typename T>
-        requires (::std::unsigned_integral<T> || ::std::same_as<T, UInt128>)
     constexpr UInt192(T const value) noexcept
+        requires (details::unsigned_integer<T> || ::std::same_as<T, UInt128>)
         : low_limb{static_cast<::std::uint64_t>(value)} {
-        if constexpr (sizeof(T) == 16) {
+        if constexpr (::std::same_as<T, UInt128> || sizeof(T) == 16) {
             middle_limb = static_cast<::std::uint64_t>(value >> 64);
         }
     }
 
     /// Constructs a value from a signed integer, sign-extending it to 192 bits.
-    template<::std::signed_integral T>
+    template<details::signed_integer T>
     explicit constexpr UInt192(T const value) noexcept
         : low_limb{static_cast<::std::uint64_t>(value)} {
         if constexpr (sizeof(T) == 16) {
@@ -107,6 +101,9 @@ public:
     constexpr explicit operator T(this UInt192 const& self) noexcept {
         if constexpr (::std::same_as<T, bool>) {
             return self != UInt192{};
+        }
+        else if constexpr (::std::same_as<T, UInt128>) {
+            return (UInt128{self.middle_limb} << 64) + UInt128{self.low_limb};
         }
         else if constexpr (sizeof(T) <= 8) {
             return static_cast<T>(self.low_limb);
@@ -335,10 +332,10 @@ public:
         else if constexpr (::std::same_as<T, UInt128>) {
             return self.multiply_128(other);
         }
-        else if constexpr (::std::unsigned_integral<T> && sizeof(T) <= 8) {
+        else if constexpr (details::unsigned_integer<T> && sizeof(T) <= 8) {
             return self.multiply_64(static_cast<::std::uint64_t>(other));
         }
-        else if constexpr (::std::signed_integral<T> && sizeof(T) <= 8) {
+        else if constexpr (details::signed_integer<T> && sizeof(T) <= 8) {
             if (other < 0) {
                 return UInt192{} - self.multiply_64(0 - static_cast<::std::uint64_t>(other));
             }
