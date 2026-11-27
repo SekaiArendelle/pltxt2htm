@@ -31,17 +31,17 @@ using BasicInplaceString = ::pltxt2htm::container::InplaceVector<CharType, exten
 namespace details {
 
 template<typename T>
-inline constexpr bool is_basic_inplace_string_ = false;
+inline constexpr bool is_basic_inplace_string_impl = false;
 
 template<::pltxt2htm::details::is_char_type CharType, ::std::size_t extent>
     requires (extent != 0)
-inline constexpr bool is_basic_inplace_string_<::pltxt2htm::container::InplaceVector<CharType, extent>> = true;
+inline constexpr bool is_basic_inplace_string_impl<::pltxt2htm::container::InplaceVector<CharType, extent>> = true;
 
 } // namespace details
 
 // An alias has the same type identity as its character vector.
 template<typename T>
-concept is_basic_inplace_string = ::pltxt2htm::details::details::is_basic_inplace_string_<::std::remove_cvref_t<T>>;
+concept is_basic_inplace_string = ::pltxt2htm::details::details::is_basic_inplace_string_impl<::std::remove_cvref_t<T>>;
 
 template<::std::size_t extent>
 using InplaceString = BasicInplaceString<char, extent>;
