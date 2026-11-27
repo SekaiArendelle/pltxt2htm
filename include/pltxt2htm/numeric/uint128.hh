@@ -1,10 +1,10 @@
 /**
  * @file uint128.hh
  * @brief 128-bit unsigned integer used by the exact decimal helpers.
- * @details `UInt128` is the compiler's native 128-bit unsigned type when available; otherwise it
- *          is a portable two-limb class implementing only the operations the decimal code needs:
- *          construction from a 64-bit value, multiplication by an integer factor, logical right
- *          shift, and explicit conversion to an unsigned integer type.
+ * @details `UInt128` has the same class interface on every target. It uses the compiler's native
+ *          128-bit unsigned type internally when available and two 64-bit limbs otherwise.
+ *          It implements the integer construction, arithmetic, shifts, and explicit unsigned
+ *          conversions needed by the exact decimal code.
  */
 
 #pragma once
@@ -14,21 +14,42 @@
 
 namespace pltxt2htm::numeric {
 
+namespace details {
+
 #if defined(__SIZEOF_INT128__)
-/// The compiler's native 128-bit unsigned type, accepted without a pedantic warning.
-/// The alias is needed to keep the build warning-free: GCC warns on every bare
-/// `unsigned __int128` spelling under `-Wpedantic`, which the project builds with.
-/// A future standard `uint128_t` would replace only this line.
-__extension__ using UInt128 = unsigned __int128;
+// Name the compiler extensions once without pedantic warnings. Some standard libraries do not
+// classify these types as integral, so the operand concepts include them explicitly.
+__extension__ using NativeUInt128 = unsigned __int128;
+__extension__ using NativeInt128 = __int128;
+
+template<typename T>
+concept unsigned_integer = ::std::unsigned_integral<T> || ::std::same_as<T, NativeUInt128>;
+
+template<typename T>
+concept signed_integer = ::std::signed_integral<T> || ::std::same_as<T, NativeInt128>;
 #else
+template<typename T>
+concept unsigned_integer = ::std::unsigned_integral<T>;
+
+template<typename T>
+concept signed_integer = ::std::signed_integral<T>;
+#endif
+
+template<typename T>
+concept integer = unsigned_integer<T> || signed_integer<T>;
+
+} // namespace details
+
 /**
- * @brief Portable 128-bit unsigned integer with unsigned (modulo 2^128) arithmetic.
- * @details Used only when the compiler provides no native 128-bit unsigned type (for example
- *          MSVC and 32-bit targets). Supports what the decimal code needs: construction from a
- *          64-bit value, multiplication by an integer factor, logical right shift, and explicit
- *          conversion to an unsigned integer type (the low 64 bits for targets up to 64 bits).
+ * @brief A 128-bit unsigned integer with unsigned (modulo 2^128) arithmetic.
+ * @details Unsigned construction is implicit, signed construction is explicit and sign-extending,
+ *          and conversions to unsigned integers are explicit. Default construction produces zero;
+ *          shifts by 128 bits or more also produce zero, independently of the storage backend.
  */
 class UInt128 {
+#if defined(__SIZEOF_INT128__)
+    details::NativeUInt128 native_value{};
+#else
     ::std::uint64_t low_limb{};
     ::std::uint64_t high_limb{};
 
@@ -59,38 +80,49 @@ class UInt128 {
         auto const high = high_product + (middle >> 32) + (middle_carry << 32) + low_carry;
         return UInt128{low, high};
     }
+#endif
 
 public:
     constexpr UInt128() noexcept = default;
 
     /// Constructs a value from an unsigned integer; the conversion is lossless and implicit.
-    template<::std::unsigned_integral T>
-    constexpr UInt128(T const value) noexcept
-        : low_limb{static_cast<::std::uint64_t>(value)} {
+    template<details::unsigned_integer T>
+    constexpr UInt128(T const input) noexcept {
+#if defined(__SIZEOF_INT128__)
+        native_value = static_cast<details::NativeUInt128>(input);
+#else
+        low_limb = static_cast<::std::uint64_t>(input);
         if constexpr (sizeof(T) == 16) {
-            high_limb = static_cast<::std::uint64_t>(value >> 64);
+            high_limb = static_cast<::std::uint64_t>(input >> 64);
         }
+#endif
     }
 
     /// Constructs a value from a signed integer, sign-extending it to 128 bits.
-    template<::std::signed_integral T>
-    explicit constexpr UInt128(T const value) noexcept
-        : low_limb{static_cast<::std::uint64_t>(value)} {
+    template<details::signed_integer T>
+    explicit constexpr UInt128(T const input) noexcept {
+#if defined(__SIZEOF_INT128__)
+        native_value = static_cast<details::NativeUInt128>(input);
+#else
+        low_limb = static_cast<::std::uint64_t>(input);
         if constexpr (sizeof(T) == 16) {
-            high_limb = static_cast<::std::uint64_t>(value >> 64);
+            high_limb = static_cast<::std::uint64_t>(input >> 64);
         }
-        else if (value < 0) {
+        else if (input < 0) {
             high_limb = 0xFFFFFFFFFFFFFFFFull;
         }
+#endif
     }
 
-    /// Explicit conversion to an unsigned integer target of at most 64 bits.
+    /// Explicit conversion to an unsigned integer target.
     /// @details `bool` reports whether the value is non-zero; other targets keep the low bits and
-    /// truncate. A 16-byte target cannot occur: this class is only selected when no native 128-bit
-    /// type exists.
-    template<::std::unsigned_integral T>
+    /// truncate. Conversion to the native unsigned 128-bit type is lossless when it is available.
+    template<details::unsigned_integer T>
     [[nodiscard]]
     constexpr explicit operator T(this UInt128 const& self) noexcept {
+#if defined(__SIZEOF_INT128__)
+        return static_cast<T>(self.native_value);
+#else
         if constexpr (::std::same_as<T, bool>) {
             return self.low_limb != 0 || self.high_limb != 0;
         }
@@ -98,26 +130,36 @@ public:
             static_assert(sizeof(T) <= 8, "the portable UInt128 converts to at most 64 bits");
             return static_cast<T>(self.low_limb);
         }
+#endif
     }
 
     /// Adds two values modulo 2^128.
     [[nodiscard]]
     constexpr auto operator+(this UInt128 const& self, UInt128 const& other) noexcept -> UInt128 {
+#if defined(__SIZEOF_INT128__)
+        return UInt128{self.native_value + other.native_value};
+#else
         auto const low = self.low_limb + other.low_limb;
         ::std::uint64_t const carry = low < self.low_limb ? 1 : 0;
         auto const high = self.high_limb + other.high_limb + carry;
         return UInt128{low, high};
+#endif
     }
 
     /// Subtracts two values modulo 2^128.
     [[nodiscard]]
     constexpr auto operator-(this UInt128 const& self, UInt128 const& other) noexcept -> UInt128 {
+#if defined(__SIZEOF_INT128__)
+        return UInt128{self.native_value - other.native_value};
+#else
         auto const low = self.low_limb - other.low_limb;
         ::std::uint64_t const borrow = self.low_limb < other.low_limb ? 1 : 0;
         auto const high = self.high_limb - other.high_limb - borrow;
         return UInt128{low, high};
+#endif
     }
 
+#if !defined(__SIZEOF_INT128__)
 private:
     /// Multiplies by a 64-bit factor, keeping the low 128 bits.
     [[nodiscard]]
@@ -134,24 +176,28 @@ private:
         auto const high = low_product.high_limb + self.low_limb * other.high_limb + self.high_limb * other.low_limb;
         return UInt128{low_product.low_limb, high};
     }
+#endif
 
 public:
     /// Multiplies by an integer operand modulo 2^128, sign-extending signed operands.
     template<typename T>
     [[nodiscard]]
     constexpr auto operator*(this UInt128 const& self, T const& other) noexcept -> UInt128
-        requires (::std::integral<T> || ::std::same_as<T, UInt128>)
+        requires (details::integer<T> || ::std::same_as<T, UInt128>)
     {
+#if defined(__SIZEOF_INT128__)
+        return UInt128{self.native_value * UInt128{other}.native_value};
+#else
         if constexpr (::std::same_as<T, UInt128>) {
             if (other.high_limb == 0) {
                 return self.multiply_64(other.low_limb);
             }
             return self.multiply_128(other);
         }
-        else if constexpr (::std::unsigned_integral<T> && sizeof(T) <= 8) {
+        else if constexpr (details::unsigned_integer<T> && sizeof(T) <= 8) {
             return self.multiply_64(static_cast<::std::uint64_t>(other));
         }
-        else if constexpr (::std::signed_integral<T> && sizeof(T) <= 8) {
+        else if constexpr (details::signed_integer<T> && sizeof(T) <= 8) {
             if (other < 0) {
                 return UInt128{} - self.multiply_64(0 - static_cast<::std::uint64_t>(other));
             }
@@ -160,16 +206,16 @@ public:
         else {
             return self.multiply_128(UInt128{other});
         }
+#endif
     }
 
-    template<::std::integral T>
+    template<details::integer T>
     [[nodiscard]]
     friend constexpr auto operator*(T const& factor, UInt128 const& value) noexcept -> UInt128 {
         return value * factor;
     }
 
-    /// Shifts left, discarding the bits shifted out. `count` must be less than 128 to match the
-    /// native type; the portable implementation returns zero for larger counts.
+    /// Shifts left, discarding the bits shifted out. Counts of 128 or more produce zero.
     [[nodiscard]]
     constexpr auto operator<<(this UInt128 const& self, unsigned const count) noexcept -> UInt128 {
         if (count == 0) {
@@ -178,15 +224,17 @@ public:
         if (count >= 128) {
             return UInt128{};
         }
+#if defined(__SIZEOF_INT128__)
+        return UInt128{self.native_value << count};
+#else
         if (count < 64) {
             return UInt128{self.low_limb << count, (self.high_limb << count) | (self.low_limb >> (64 - count))};
         }
         return UInt128{0, self.low_limb << (count - 64)};
+#endif
     }
 
-    /// Logical right shift. `count` must be less than 128 to match the native type; the portable
-    /// implementation additionally returns zero for larger counts so it never has undefined
-    /// behavior.
+    /// Logical right shift. Counts of 128 or more produce zero.
     [[nodiscard]]
     constexpr auto operator>>(this UInt128 const& self, unsigned const count) noexcept -> UInt128 {
         if (count == 0) {
@@ -195,6 +243,9 @@ public:
         if (count >= 128) {
             return UInt128{};
         }
+#if defined(__SIZEOF_INT128__)
+        return UInt128{self.native_value >> count};
+#else
         auto const limb_shift = count / 64;
         auto const bit_shift = count % 64;
         if (limb_shift == 0) {
@@ -202,8 +253,8 @@ public:
                            self.high_limb >> bit_shift};
         }
         return UInt128{self.high_limb >> bit_shift, 0};
+#endif
     }
 };
-#endif
 
 } // namespace pltxt2htm::numeric
