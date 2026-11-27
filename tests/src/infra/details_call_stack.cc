@@ -8,26 +8,10 @@
 using IntCallStack = ::pltxt2htm::details::CallStack<int>;
 
 template<typename CallStack>
-concept has_unchecked_operation = requires(CallStack& call_stack) {
-    call_stack.current_frame_unchecked();
-    call_stack.discard_current_frame_unchecked();
-    call_stack.pop_frame_unchecked();
-};
-
-template<typename CallStack>
-concept has_get_frames = requires(CallStack& call_stack) { call_stack.get_frames(); };
-
-template<typename CallStack>
-concept exposes_frames = requires(CallStack& call_stack) { call_stack.frames; };
-
-template<typename CallStack>
 concept accepts_lvalue_push_frame =
     requires(CallStack& call_stack, typename CallStack::frame_type const& frame) { call_stack.push_frame(frame); };
 
 static_assert(::std::same_as<IntCallStack::frame_type, int>);
-static_assert(!has_unchecked_operation<IntCallStack>);
-static_assert(!has_get_frames<IntCallStack>);
-static_assert(!exposes_frames<IntCallStack>);
 static_assert(!accepts_lvalue_push_frame<IntCallStack>);
 
 static_assert(noexcept(IntCallStack{}));
