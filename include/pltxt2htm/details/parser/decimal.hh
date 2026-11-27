@@ -18,6 +18,11 @@
 #include "../../numeric/uint192.hh"
 #include "../push_macro.hh"
 
+#pragma push_macro("min")
+#pragma push_macro("max")
+#undef min
+#undef max
+
 namespace pltxt2htm::details {
 
 /**
@@ -258,5 +263,8 @@ constexpr auto try_parse_double_decimal_value(::pltxt2htm::container::U8StringVi
 }
 
 } // namespace pltxt2htm::details
+
+#pragma pop_macro("max")
+#pragma pop_macro("min")
 
 #include "../pop_macro.hh"
