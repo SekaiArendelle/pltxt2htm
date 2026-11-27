@@ -13,6 +13,7 @@
 #include <compare>
 #include <concepts>
 #include <cstddef>
+#include <cstdint>
 #include <initializer_list>
 #include <iterator>
 #include <limits>
@@ -91,7 +92,14 @@ using InplaceVectorStorage =
 
 template<::std::size_t extent>
 struct InplaceVectorSize {
-    ::std::size_t value{};
+    // The stored count must represent the full capacity, not just element indices.
+    using StoredSize = ::std::conditional_t<
+        extent <= ::std::numeric_limits<::std::uint8_t>::max(), ::std::uint8_t,
+        ::std::conditional_t<extent <= ::std::numeric_limits<::std::uint16_t>::max(), ::std::uint16_t,
+                             ::std::conditional_t<extent <= ::std::numeric_limits<::std::uint32_t>::max(),
+                                                  ::std::uint32_t, ::std::size_t>>>;
+
+    StoredSize value{};
 };
 
 template<>
@@ -147,7 +155,7 @@ private:
 
     constexpr void set_size(this InplaceVector& self, size_type new_size) noexcept {
         if constexpr (extent != 0) {
-            self.size_storage.value = new_size;
+            self.size_storage.value = static_cast<decltype(self.size_storage.value)>(new_size);
         }
     }
 

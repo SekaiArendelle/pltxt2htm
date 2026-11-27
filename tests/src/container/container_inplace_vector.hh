@@ -4,7 +4,9 @@
 #include <compare>
 #include <concepts>
 #include <cstddef>
+#include <cstdint>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <ranges>
 #include <type_traits>
@@ -115,6 +117,8 @@ static_assert(::std::is_copy_constructible_v<CopyOnlyInplaceValue>);
 static_assert(!::std::is_move_constructible_v<CopyOnlyInplaceValue>);
 
 static_assert(::std::same_as<IntInplaceVector::value_type, int>);
+static_assert(::std::same_as<IntInplaceVector::size_type, ::std::size_t>);
+static_assert(::std::same_as<decltype(::std::declval<IntInplaceVector const&>().size()), ::std::size_t>);
 static_assert(::std::same_as<IntInplaceVector::iterator, int*>);
 static_assert(::std::same_as<IntInplaceVector::const_iterator, int const*>);
 static_assert(::std::ranges::contiguous_range<IntInplaceVector>);
@@ -145,6 +149,9 @@ static_assert(::std::is_trivially_move_assignable_v<IntInplaceVector>);
 static_assert(::std::is_empty_v<ZeroInplaceVector>);
 static_assert(::std::is_trivially_default_constructible_v<ZeroInplaceVector>);
 static_assert(::std::is_trivially_copyable_v<ZeroInplaceVector>);
+static_assert(sizeof(::pltxt2htm::container::InplaceVector<char8_t, 4>) == 5);
+static_assert(sizeof(::pltxt2htm::container::InplaceVector<char8_t, 71>) == 72);
+static_assert(alignof(::pltxt2htm::container::InplaceVector<char8_t, 71>) == alignof(char8_t));
 static_assert(::std::is_trivially_copyable_v<TrivialWithoutDefaultConstructorInplace>);
 static_assert(
     ::std::default_initializable<::pltxt2htm::container::InplaceVector<TrivialWithoutDefaultConstructorInplace, 2>>);
@@ -192,6 +199,64 @@ static_assert(!noexcept(::std::declval<IntInplaceVector&>().insert_range(
     ::std::declval<IntInplaceVector::const_iterator>(), ::std::declval<ThrowingEndRange&>())));
 // A range with nothrow access keeps the wrappers noexcept.
 static_assert(noexcept(::std::declval<IntInplaceVector&>().append_range(::std::declval<::std::array<int, 2>&>())));
+
+template<typename Unsigned>
+[[nodiscard]]
+consteval auto inplace_vector_size_storage_boundary_works() noexcept -> bool {
+    constexpr auto count = static_cast<::std::size_t>(::std::numeric_limits<Unsigned>::max());
+    ::pltxt2htm::container::details::InplaceVectorSize<count> storage;
+    if (sizeof(storage) != sizeof(Unsigned)) {
+        return false;
+    }
+    storage.value = static_cast<decltype(storage.value)>(count);
+    if (storage.value != count) {
+        return false;
+    }
+    // Test the next storage width without allocating a potentially huge vector.
+    if constexpr (count < ::std::numeric_limits<::std::size_t>::max()) {
+        ::pltxt2htm::container::details::InplaceVectorSize<count + 1> next;
+        next.value = static_cast<decltype(next.value)>(count + 1);
+        if (next.value != count + 1) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static_assert(inplace_vector_size_storage_boundary_works<::std::uint8_t>());
+static_assert(inplace_vector_size_storage_boundary_works<::std::uint16_t>());
+static_assert(inplace_vector_size_storage_boundary_works<::std::uint32_t>());
+static_assert(inplace_vector_size_storage_boundary_works<::std::size_t>());
+
+template<::std::size_t extent>
+[[nodiscard]]
+constexpr auto inplace_vector_size_boundary_operations_work() noexcept -> bool {
+    ::pltxt2htm::container::InplaceVector<char8_t, extent> values;
+    for (::std::size_t index{}; index < extent; ++index) {
+        values.push_back(u8'a');
+    }
+    if (values.size() != extent || values.try_push_back(u8'b').has_value()) {
+        return false;
+    }
+    auto copied = values;
+    if (copied.size() != extent || copied.back() != u8'a') {
+        return false;
+    }
+    values.pop_back();
+    if (values.size() != extent - 1 || !values.try_push_back(u8'c').has_value() || values.size() != extent ||
+        values.back() != u8'c') {
+        return false;
+    }
+    values.assign(extent - 1, u8'd');
+    if (values.size() != extent - 1 || values.back() != u8'd') {
+        return false;
+    }
+    values.clear();
+    return values.is_empty() && values.try_push_back(u8'e').has_value() && values.size() == 1 && values.back() == u8'e';
+}
+
+static_assert(inplace_vector_size_boundary_operations_work<255>());
+static_assert(inplace_vector_size_boundary_operations_work<256>());
 
 consteval auto inplace_vector_constexpr_operations_work() -> bool {
     IntInplaceVector values;
@@ -410,6 +475,13 @@ struct CopyTrackedInplaceVectorValue {
 } // namespace pltxt2htm_test
 
 TEST_SUITE("container_inplace_vector") {
+    TEST_CASE("size-storage-boundaries") {
+        CHECK(inplace_vector_size_boundary_operations_work<255>());
+        CHECK(inplace_vector_size_boundary_operations_work<256>());
+        CHECK(inplace_vector_size_boundary_operations_work<65535>());
+        CHECK(inplace_vector_size_boundary_operations_work<65536>());
+    }
+
     TEST_CASE("tracked-lifetime") {
         using TrackedVector = ::pltxt2htm::container::InplaceVector<::pltxt2htm_test::TrackedInplaceVectorValue, 4>;
 
