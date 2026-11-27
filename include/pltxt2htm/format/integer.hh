@@ -88,9 +88,9 @@ template<::std::unsigned_integral T>
 constexpr auto to_decimal_string(T num) noexcept -> ::pltxt2htm::container::U8String {
     // digits10(T) + 1 characters cover every value, including the extra digit that digits10
     // does not account for.
-    char8_t buffer[::std::numeric_limits<T>::digits10 + 2];
-    char8_t const* const begin = details::write_decimal_digits_backward(num, buffer + sizeof(buffer));
-    return ::pltxt2htm::container::U8String{begin, buffer + sizeof(buffer)};
+    auto buffer = ::pltxt2htm::container::Array<char8_t, ::std::numeric_limits<T>::digits10 + 2>{};
+    char8_t const* const begin = details::write_decimal_digits_backward(num, buffer.data() + buffer.size());
+    return ::pltxt2htm::container::U8String{begin, buffer.data() + buffer.size()};
 }
 
 /**
@@ -112,13 +112,13 @@ constexpr auto to_decimal_string(T num) noexcept -> ::pltxt2htm::container::U8St
         magnitude = static_cast<unsigned_type>(0) - magnitude;
     }
 
-    char8_t buffer[::std::numeric_limits<unsigned_type>::digits10 + 3];
-    char8_t* begin = details::write_decimal_digits_backward(magnitude, buffer + sizeof(buffer));
+    auto buffer = ::pltxt2htm::container::Array<char8_t, ::std::numeric_limits<unsigned_type>::digits10 + 3>{};
+    char8_t* begin = details::write_decimal_digits_backward(magnitude, buffer.data() + buffer.size());
     if (negative) {
         --begin;
         *begin = u8'-';
     }
-    return ::pltxt2htm::container::U8String{begin, buffer + sizeof(buffer)};
+    return ::pltxt2htm::container::U8String{begin, buffer.data() + buffer.size()};
 }
 
 /**
@@ -131,9 +131,9 @@ constexpr auto to_decimal_string(T num) noexcept -> ::pltxt2htm::container::U8St
 template<::std::unsigned_integral T>
 [[nodiscard]]
 constexpr auto to_chars(char8_t* const first, char8_t const* const last, T value) noexcept -> char8_t* {
-    char8_t buffer[::std::numeric_limits<T>::digits10 + 2];
-    char8_t const* const begin = details::write_decimal_digits_backward(value, buffer + sizeof(buffer));
-    auto const size = static_cast<::std::size_t>(buffer + sizeof(buffer) - begin);
+    auto buffer = ::pltxt2htm::container::Array<char8_t, ::std::numeric_limits<T>::digits10 + 2>{};
+    char8_t const* const begin = details::write_decimal_digits_backward(value, buffer.data() + buffer.size());
+    auto const size = static_cast<::std::size_t>(buffer.data() + buffer.size() - begin);
     if (::std::cmp_less(last - first, size)) {
         return nullptr;
     }
@@ -161,13 +161,13 @@ constexpr auto to_chars(char8_t* const first, char8_t const* const last, T value
         magnitude = static_cast<unsigned_type>(0) - magnitude;
     }
 
-    char8_t buffer[::std::numeric_limits<unsigned_type>::digits10 + 3];
-    char8_t* begin = details::write_decimal_digits_backward(magnitude, buffer + sizeof(buffer));
+    auto buffer = ::pltxt2htm::container::Array<char8_t, ::std::numeric_limits<unsigned_type>::digits10 + 3>{};
+    char8_t* begin = details::write_decimal_digits_backward(magnitude, buffer.data() + buffer.size());
     if (negative) {
         --begin;
         *begin = u8'-';
     }
-    auto const size = static_cast<::std::size_t>(buffer + sizeof(buffer) - begin);
+    auto const size = static_cast<::std::size_t>(buffer.data() + buffer.size() - begin);
     if (::std::cmp_less(last - first, size)) {
         return nullptr;
     }
@@ -184,9 +184,9 @@ constexpr auto to_chars(char8_t* const first, char8_t const* const last, T value
  */
 template<::std::unsigned_integral T>
 constexpr void append_decimal(::pltxt2htm::container::U8String& out, T value) noexcept {
-    char8_t buffer[::std::numeric_limits<T>::digits10 + 2];
-    char8_t const* const begin = details::write_decimal_digits_backward(value, buffer + sizeof(buffer));
-    out.append(begin, buffer + sizeof(buffer));
+    auto buffer = ::pltxt2htm::container::Array<char8_t, ::std::numeric_limits<T>::digits10 + 2>{};
+    char8_t const* const begin = details::write_decimal_digits_backward(value, buffer.data() + buffer.size());
+    out.append(begin, buffer.data() + buffer.size());
 }
 
 /**
@@ -204,13 +204,13 @@ constexpr void append_decimal(::pltxt2htm::container::U8String& out, T value) no
         magnitude = static_cast<unsigned_type>(0) - magnitude;
     }
 
-    char8_t buffer[::std::numeric_limits<unsigned_type>::digits10 + 3];
-    char8_t* begin = details::write_decimal_digits_backward(magnitude, buffer + sizeof(buffer));
+    auto buffer = ::pltxt2htm::container::Array<char8_t, ::std::numeric_limits<unsigned_type>::digits10 + 3>{};
+    char8_t* begin = details::write_decimal_digits_backward(magnitude, buffer.data() + buffer.size());
     if (negative) {
         --begin;
         *begin = u8'-';
     }
-    out.append(begin, buffer + sizeof(buffer));
+    out.append(begin, buffer.data() + buffer.size());
 }
 
 } // namespace pltxt2htm::format

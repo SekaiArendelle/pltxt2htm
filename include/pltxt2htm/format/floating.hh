@@ -29,6 +29,7 @@
 #include <cstdint>
 #include <utility>
 
+#include "../container/array.hh"
 #include "../container/string.hh"
 #include "integer.hh"
 
@@ -59,14 +60,15 @@ inline constexpr ::std::size_t max_fixed_point_length{327};
  */
 [[nodiscard]]
 constexpr auto write_uint64_digits(::std::uint64_t value, char8_t* const buffer) noexcept -> ::std::size_t {
-    char8_t reversed[20];
+    auto reversed = ::pltxt2htm::container::Array<char8_t, 20>{};
+    auto* const reversed_data = reversed.data();
     ::std::size_t reversed_length{};
     do {
-        reversed[reversed_length++] = static_cast<char8_t>(u8'0' + value % 10);
+        reversed_data[reversed_length++] = static_cast<char8_t>(u8'0' + value % 10);
         value /= 10;
     } while (value != 0);
     for (::std::size_t i{}; i < reversed_length; ++i) {
-        buffer[i] = reversed[reversed_length - 1 - i];
+        buffer[i] = reversed_data[reversed_length - 1 - i];
     }
     return reversed_length;
 }
@@ -159,8 +161,8 @@ constexpr auto exact_integer_digits(double const value, char8_t* const buffer) n
 
     // Peel off nine decimal digits per division, least significant chunk first.
     constexpr ::std::size_t max_digits{309};
-    char8_t digits[max_digits];
-    char8_t* cursor = digits + sizeof(digits);
+    auto digits = ::pltxt2htm::container::Array<char8_t, max_digits>{};
+    char8_t* cursor = digits.data() + digits.size();
     constexpr ::std::uint32_t chunk_divisor{1'000'000'000};
     ::std::size_t significant_limbs{limbs.size()};
     while (significant_limbs != 0 && limbs[significant_limbs - 1] == 0) {
@@ -191,7 +193,7 @@ constexpr auto exact_integer_digits(double const value, char8_t* const buffer) n
         }
     }
 
-    auto const length = static_cast<::std::size_t>(digits + sizeof(digits) - cursor);
+    auto const length = static_cast<::std::size_t>(digits.data() + digits.size() - cursor);
     for (::std::size_t i{}; i < length; ++i) {
         buffer[i] = cursor[i];
     }
@@ -232,10 +234,10 @@ constexpr auto is_integral_magnitude(::std::uint64_t const magnitude_bits) noexc
 constexpr auto render_fixed_point(::std::uint64_t const significand, int const exponent, char8_t* const buffer) noexcept
     -> ::std::size_t {
     // A decimal significand has at most 17 digits, so 20 bytes are always enough.
-    char8_t digit_buffer[20];
+    auto digit_buffer = ::pltxt2htm::container::Array<char8_t, 20>{};
     char8_t const* const begin =
-        details::write_decimal_digits_backward(significand, digit_buffer + sizeof(digit_buffer));
-    auto const digit_count = static_cast<::std::size_t>(digit_buffer + sizeof(digit_buffer) - begin);
+        details::write_decimal_digits_backward(significand, digit_buffer.data() + digit_buffer.size());
+    auto const digit_count = static_cast<::std::size_t>(digit_buffer.data() + digit_buffer.size() - begin);
 
     ::std::size_t length{};
     if (exponent >= 0) {
@@ -347,13 +349,14 @@ constexpr auto format_fixed_point(double const value, char8_t* const buffer) noe
  */
 [[nodiscard]]
 constexpr auto to_chars(char8_t* const first, char8_t const* const last, double const value) noexcept -> char8_t* {
-    char8_t buffer[::pltxt2htm::format::details::max_fixed_point_length];
-    auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer);
+    auto buffer = ::pltxt2htm::container::Array<char8_t, ::pltxt2htm::format::details::max_fixed_point_length>{};
+    auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer.data());
     if (::std::cmp_less(last - first, length)) {
         return nullptr;
     }
+    char8_t const* const source = buffer.data();
     for (::std::size_t i{}; i < length; ++i) {
-        first[i] = buffer[i];
+        first[i] = source[i];
     }
     return first + length;
 }
@@ -365,9 +368,9 @@ constexpr auto to_chars(char8_t* const first, char8_t const* const last, double 
  */
 [[nodiscard]]
 constexpr auto to_decimal_string(double const value) noexcept -> ::pltxt2htm::container::U8String {
-    char8_t buffer[::pltxt2htm::format::details::max_fixed_point_length];
-    auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer);
-    return ::pltxt2htm::container::U8String{buffer, buffer + length};
+    auto buffer = ::pltxt2htm::container::Array<char8_t, ::pltxt2htm::format::details::max_fixed_point_length>{};
+    auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer.data());
+    return ::pltxt2htm::container::U8String{buffer.data(), buffer.data() + length};
 }
 
 /**
@@ -376,9 +379,9 @@ constexpr auto to_decimal_string(double const value) noexcept -> ::pltxt2htm::co
  * @param[in] value The value to append; any double is accepted.
  */
 constexpr void append_decimal(::pltxt2htm::container::U8String& out, double const value) noexcept {
-    char8_t buffer[::pltxt2htm::format::details::max_fixed_point_length];
-    auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer);
-    out.append(buffer, buffer + length);
+    auto buffer = ::pltxt2htm::container::Array<char8_t, ::pltxt2htm::format::details::max_fixed_point_length>{};
+    auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer.data());
+    out.append(buffer.data(), buffer.data() + length);
 }
 
 } // namespace pltxt2htm::format
