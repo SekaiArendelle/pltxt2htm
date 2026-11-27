@@ -3,6 +3,7 @@
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 
 #include <pltxt2htm/numeric/uint192.hh>
 
@@ -23,6 +24,17 @@ namespace numeric = ::pltxt2htm::numeric;
 
 [[nodiscard]] constexpr auto high64(numeric::UInt128 const value) -> ::std::uint64_t {
     return static_cast<::std::uint64_t>(value >> 64);
+}
+
+/// Checks both operand orders against independently specified result limbs.
+template<typename T>
+[[nodiscard]] constexpr auto product_128_matches(numeric::UInt128 const left, T const right, ::std::uint64_t const low,
+                                                 ::std::uint64_t const high) noexcept -> bool {
+    auto const forward = left * right;
+    auto const reverse = right * left;
+    static_assert(::std::same_as<decltype(forward), numeric::UInt128 const>);
+    static_assert(::std::same_as<decltype(reverse), numeric::UInt128 const>);
+    return low64(forward) == low && high64(forward) == high && low64(reverse) == low && high64(reverse) == high;
 }
 
 #if defined(__SIZEOF_INT128__)
@@ -66,6 +78,71 @@ TEST_SUITE("numeric_integers") {
         result = (::pltxt2htm::numeric::UInt128{0xFFFFFFFFFFFFFFFFull} * 0xFFFFFFFFFFFFFFFFull) * 2;
         CHECK(high64(result) == 0xFFFFFFFFFFFFFFFCull);
         CHECK(low64(result) == 2);
+    }
+
+    TEST_CASE("multiply-128-signed-operands") {
+        using ::pltxt2htm::numeric::UInt128;
+        using ::pltxt2htm_test::numeric_details::product_128_matches;
+
+        auto const high_bit = UInt128{1} << 64;
+        auto const all_ones = UInt128{0xFFFFFFFFFFFFFFFFull} + (UInt128{0xFFFFFFFFFFFFFFFFull} << 64);
+
+        CHECK(product_128_matches(UInt128{}, -1, 0, 0));
+        CHECK(product_128_matches(UInt128{1}, -1, 0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull));
+        CHECK(product_128_matches(UInt128{3}, -2, 0xFFFFFFFFFFFFFFFAull, 0xFFFFFFFFFFFFFFFFull));
+        CHECK(product_128_matches(high_bit, -1, 0, 0xFFFFFFFFFFFFFFFFull));
+        CHECK(product_128_matches(all_ones, -1, 1, 0));
+
+        CHECK(product_128_matches(UInt128{2}, (::std::numeric_limits<::std::int8_t>::min)(), 0xFFFFFFFFFFFFFF00ull,
+                                  0xFFFFFFFFFFFFFFFFull));
+        CHECK(product_128_matches(UInt128{2}, (::std::numeric_limits<::std::int16_t>::min)(), 0xFFFFFFFFFFFF0000ull,
+                                  0xFFFFFFFFFFFFFFFFull));
+        CHECK(product_128_matches(UInt128{2}, (::std::numeric_limits<::std::int32_t>::min)(), 0xFFFFFFFF00000000ull,
+                                  0xFFFFFFFFFFFFFFFFull));
+        CHECK(
+            product_128_matches(UInt128{2}, (::std::numeric_limits<::std::int64_t>::min)(), 0, 0xFFFFFFFFFFFFFFFFull));
+        CHECK(product_128_matches(high_bit, (::std::numeric_limits<::std::int64_t>::min)(), 0, 0x8000000000000000ull));
+        CHECK(product_128_matches(all_ones, (::std::numeric_limits<::std::int64_t>::min)(), 0x8000000000000000ull, 0));
+        CHECK(
+            product_128_matches(UInt128{2}, (::std::numeric_limits<::std::int64_t>::max)(), 0xFFFFFFFFFFFFFFFEull, 0));
+
+        CHECK(product_128_matches(high_bit, 0, 0, 0));
+        CHECK(product_128_matches(high_bit, 1, 0, 1));
+        CHECK(product_128_matches(high_bit, false, 0, 0));
+        CHECK(product_128_matches(high_bit, true, 0, 1));
+        CHECK(
+            product_128_matches(UInt128{2}, (::std::numeric_limits<::std::uint64_t>::max)(), 0xFFFFFFFFFFFFFFFEull, 1));
+    }
+
+    TEST_CASE("multiply-128-wide-operands") {
+        using ::pltxt2htm::numeric::UInt128;
+        using ::pltxt2htm_test::numeric_details::product_128_matches;
+
+        auto const high_bit = UInt128{1} << 64;
+        auto const both_limbs = high_bit + UInt128{1};
+        auto const low_ones = UInt128{0xFFFFFFFFFFFFFFFFull};
+        auto const all_ones = low_ones + (low_ones << 64);
+
+        CHECK(product_128_matches(both_limbs, UInt128{}, 0, 0));
+        CHECK(product_128_matches(both_limbs, UInt128{1}, 1, 1));
+        CHECK(product_128_matches(high_bit, high_bit, 0, 0));
+        CHECK(product_128_matches(both_limbs, both_limbs, 1, 2));
+        CHECK(product_128_matches(low_ones, low_ones, 1, 0xFFFFFFFFFFFFFFFEull));
+        CHECK(product_128_matches(all_ones, all_ones, 1, 0));
+        CHECK(product_128_matches(high_bit + low_ones, high_bit + low_ones, 1, 0xFFFFFFFFFFFFFFFCull));
+        CHECK(product_128_matches(all_ones, UInt128{2}, 0xFFFFFFFFFFFFFFFEull, 0xFFFFFFFFFFFFFFFFull));
+    }
+
+    TEST_CASE("multiply-128-constexpr") {
+        using ::pltxt2htm::numeric::UInt128;
+        using ::pltxt2htm_test::numeric_details::product_128_matches;
+
+        constexpr auto high_bit = UInt128{1} << 64;
+        static_assert(product_128_matches(UInt128{1}, -1, 0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull));
+        static_assert(
+            product_128_matches(UInt128{2}, (::std::numeric_limits<::std::int64_t>::min)(), 0, 0xFFFFFFFFFFFFFFFFull));
+        static_assert(product_128_matches(high_bit + UInt128{1}, high_bit + UInt128{1}, 1, 2));
+        static_assert(product_128_matches(high_bit, high_bit, 0, 0));
     }
 
     TEST_CASE("uint128-operations") {
