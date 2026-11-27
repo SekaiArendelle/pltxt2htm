@@ -234,7 +234,7 @@ constexpr auto render_fixed_point(::std::uint64_t const significand, int const e
     // A decimal significand has at most 17 digits, so 20 bytes are always enough.
     char8_t digit_buffer[20];
     char8_t const* const begin =
-        ::pltxt2htm::format::write_decimal_digits_backward(significand, digit_buffer + sizeof(digit_buffer));
+        details::write_decimal_digits_backward(significand, digit_buffer + sizeof(digit_buffer));
     auto const digit_count = static_cast<::std::size_t>(digit_buffer + sizeof(digit_buffer) - begin);
 
     ::std::size_t length{};

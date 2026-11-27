@@ -39,41 +39,41 @@ consteval auto test_write_decimal_digits_backward() noexcept -> bool {
     char8_t buffer[buffer_size]{};
     char8_t* const end = buffer + buffer_size;
 
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{0}, end), end, u8"0")) {
+    if (!buffer_matches(::pltxt2htm::format::details::write_decimal_digits_backward(::std::uintmax_t{0}, end), end, u8"0")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{7}, end), end, u8"7")) {
+    if (!buffer_matches(::pltxt2htm::format::details::write_decimal_digits_backward(::std::uintmax_t{7}, end), end, u8"7")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{10}, end), end, u8"10")) {
+    if (!buffer_matches(::pltxt2htm::format::details::write_decimal_digits_backward(::std::uintmax_t{10}, end), end, u8"10")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{42}, end), end, u8"42")) {
+    if (!buffer_matches(::pltxt2htm::format::details::write_decimal_digits_backward(::std::uintmax_t{42}, end), end, u8"42")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{99}, end), end, u8"99")) {
+    if (!buffer_matches(::pltxt2htm::format::details::write_decimal_digits_backward(::std::uintmax_t{99}, end), end, u8"99")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{100}, end), end, u8"100")) {
+    if (!buffer_matches(::pltxt2htm::format::details::write_decimal_digits_backward(::std::uintmax_t{100}, end), end, u8"100")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{101}, end), end, u8"101")) {
+    if (!buffer_matches(::pltxt2htm::format::details::write_decimal_digits_backward(::std::uintmax_t{101}, end), end, u8"101")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{999}, end), end, u8"999")) {
+    if (!buffer_matches(::pltxt2htm::format::details::write_decimal_digits_backward(::std::uintmax_t{999}, end), end, u8"999")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{1000}, end), end,
+    if (!buffer_matches(::pltxt2htm::format::details::write_decimal_digits_backward(::std::uintmax_t{1000}, end), end,
                         u8"1000")) {
         return false;
     }
-    if (!buffer_matches(::pltxt2htm::format::write_decimal_digits_backward(::std::uintmax_t{12345}, end), end,
+    if (!buffer_matches(::pltxt2htm::format::details::write_decimal_digits_backward(::std::uintmax_t{12345}, end), end,
                         u8"12345")) {
         return false;
     }
     if constexpr (::std::numeric_limits<::std::uintmax_t>::digits10 == 19) {
         if (!buffer_matches(
-                ::pltxt2htm::format::write_decimal_digits_backward(::std::numeric_limits<::std::uintmax_t>::max(), end),
+                ::pltxt2htm::format::details::write_decimal_digits_backward(::std::numeric_limits<::std::uintmax_t>::max(), end),
                 end, u8"18446744073709551615")) {
             return false;
         }

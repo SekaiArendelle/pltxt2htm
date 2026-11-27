@@ -34,8 +34,6 @@ consteval auto make_decimal_digit_pairs() noexcept -> ::pltxt2htm::container::Ar
     return pairs;
 }
 
-} // namespace details
-
 /**
  * @brief Write the decimal digits of an unsigned integer backward into a buffer.
  * @details Digits are emitted into [returned pointer, buffer_end) so callers need
@@ -50,7 +48,7 @@ consteval auto make_decimal_digit_pairs() noexcept -> ::pltxt2htm::container::Ar
 template<::std::unsigned_integral T>
 [[nodiscard]]
 constexpr auto write_decimal_digits_backward(T value, char8_t* const buffer_end) noexcept -> char8_t* {
-    constexpr auto decimal_digit_pairs = details::make_decimal_digit_pairs();
+    constexpr auto decimal_digit_pairs = ::pltxt2htm::format::details::make_decimal_digit_pairs();
 
     auto ptr = buffer_end;
     while (value >= 100) {
@@ -72,6 +70,8 @@ constexpr auto write_decimal_digits_backward(T value, char8_t* const buffer_end)
     return ptr;
 }
 
+} // namespace details
+
 /**
  * @brief Convert an unsigned integer to a UTF-8 decimal string.
  * @param[in] num The number to convert.
@@ -89,7 +89,7 @@ constexpr auto to_decimal_string(T num) noexcept -> ::pltxt2htm::container::U8St
     // digits10(T) + 1 characters cover every value, including the extra digit that digits10
     // does not account for.
     char8_t buffer[::std::numeric_limits<T>::digits10 + 2];
-    char8_t const* const begin = ::pltxt2htm::format::write_decimal_digits_backward(num, buffer + sizeof(buffer));
+    char8_t const* const begin = details::write_decimal_digits_backward(num, buffer + sizeof(buffer));
     return ::pltxt2htm::container::U8String{begin, buffer + sizeof(buffer)};
 }
 
@@ -113,7 +113,7 @@ constexpr auto to_decimal_string(T num) noexcept -> ::pltxt2htm::container::U8St
     }
 
     char8_t buffer[::std::numeric_limits<unsigned_type>::digits10 + 3];
-    char8_t* begin = ::pltxt2htm::format::write_decimal_digits_backward(magnitude, buffer + sizeof(buffer));
+    char8_t* begin = details::write_decimal_digits_backward(magnitude, buffer + sizeof(buffer));
     if (negative) {
         --begin;
         *begin = u8'-';
@@ -132,7 +132,7 @@ template<::std::unsigned_integral T>
 [[nodiscard]]
 constexpr auto to_chars(char8_t* const first, char8_t const* const last, T value) noexcept -> char8_t* {
     char8_t buffer[::std::numeric_limits<T>::digits10 + 2];
-    char8_t const* const begin = ::pltxt2htm::format::write_decimal_digits_backward(value, buffer + sizeof(buffer));
+    char8_t const* const begin = details::write_decimal_digits_backward(value, buffer + sizeof(buffer));
     auto const size = static_cast<::std::size_t>(buffer + sizeof(buffer) - begin);
     if (::std::cmp_less(last - first, size)) {
         return nullptr;
@@ -162,7 +162,7 @@ constexpr auto to_chars(char8_t* const first, char8_t const* const last, T value
     }
 
     char8_t buffer[::std::numeric_limits<unsigned_type>::digits10 + 3];
-    char8_t* begin = ::pltxt2htm::format::write_decimal_digits_backward(magnitude, buffer + sizeof(buffer));
+    char8_t* begin = details::write_decimal_digits_backward(magnitude, buffer + sizeof(buffer));
     if (negative) {
         --begin;
         *begin = u8'-';
@@ -185,7 +185,7 @@ constexpr auto to_chars(char8_t* const first, char8_t const* const last, T value
 template<::std::unsigned_integral T>
 constexpr void append_decimal(::pltxt2htm::container::U8String& out, T value) noexcept {
     char8_t buffer[::std::numeric_limits<T>::digits10 + 2];
-    char8_t const* const begin = ::pltxt2htm::format::write_decimal_digits_backward(value, buffer + sizeof(buffer));
+    char8_t const* const begin = details::write_decimal_digits_backward(value, buffer + sizeof(buffer));
     out.append(begin, buffer + sizeof(buffer));
 }
 
@@ -205,7 +205,7 @@ constexpr void append_decimal(::pltxt2htm::container::U8String& out, T value) no
     }
 
     char8_t buffer[::std::numeric_limits<unsigned_type>::digits10 + 3];
-    char8_t* begin = ::pltxt2htm::format::write_decimal_digits_backward(magnitude, buffer + sizeof(buffer));
+    char8_t* begin = details::write_decimal_digits_backward(magnitude, buffer + sizeof(buffer));
     if (negative) {
         --begin;
         *begin = u8'-';
