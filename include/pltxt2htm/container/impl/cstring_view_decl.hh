@@ -47,9 +47,9 @@ namespace details {
  *          span into a larger buffer, a view of a string literal, or any other
  *          contiguous range. The range constructor additionally requires an
  *          lvalue: binding a temporary would dangle the view. Ranges excluded
- *          structurally are the project literal/inplace strings (their storage
- *          is exactly N code units, so the one-past-the-end element cannot
- *          exist).
+ *          structurally are the project literal/inplace strings, including the
+ *          character vectors underlying the inplace aliases: they do not reserve
+ *          a live element for the terminator after size() code units.
  */
 template<typename RangeType, typename CharType>
 concept is_ntcts_range = ::std::ranges::contiguous_range<RangeType> && ::std::ranges::sized_range<RangeType> &&

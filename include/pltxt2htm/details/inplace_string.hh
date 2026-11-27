@@ -1,9 +1,9 @@
 /**
  * @file inplace_string.hh
- * @brief Fixed-capacity strings whose characters are stored inside the object.
+ * @brief Fixed-capacity character aliases for container::InplaceVector.
  */
 
 #pragma once
 
 #include "impl/inplace_string_decl.hh"
-#include "impl/inplace_string_def.inc"
+#include "../container/inplace_vector.hh"

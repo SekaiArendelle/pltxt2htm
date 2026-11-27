@@ -2,7 +2,9 @@
 
 #include "doctest_config.hh"
 
+#include <concepts>
 #include <cstddef>
+#include <iterator>
 #include <ranges>
 #include <type_traits>
 #include <pltxt2htm/ast/ast.hh>
@@ -14,11 +16,103 @@
 TEST_SUITE("text_storage") {
     using Text = ::pltxt2htm::Text;
 
+    struct CharacterConvertibleIterator {
+        using value_type = char8_t;
+        using difference_type = ::std::ptrdiff_t;
+
+        char8_t const* pointer{};
+
+        [[nodiscard]]
+        constexpr auto operator*() const noexcept -> char8_t {
+            return *this->pointer;
+        }
+
+        constexpr auto operator++() -> CharacterConvertibleIterator& {
+            ++this->pointer;
+            return *this;
+        }
+
+        constexpr void operator++(int) {
+            ++*this;
+        }
+
+        [[nodiscard]]
+        constexpr auto operator==(CharacterConvertibleIterator const&) const noexcept -> bool = default;
+
+        [[nodiscard]]
+        constexpr operator char8_t() const noexcept {
+            return u8'x';
+        }
+    };
+
+    static_assert(::std::input_iterator<CharacterConvertibleIterator>);
+    static_assert(::std::convertible_to<CharacterConvertibleIterator, char8_t>);
+    static_assert(!::std::is_nothrow_constructible_v<Text, CharacterConvertibleIterator, CharacterConvertibleIterator>);
+
     static_assert(sizeof(void*) != 8 || Text::capacity() == 71);
+    static_assert(sizeof(Text) == sizeof(::pltxt2htm::HtmlSpan));
     static_assert(sizeof(void*) != 8 || sizeof(::pltxt2htm::PlTxtNode) == 80);
+    static_assert(::std::is_trivially_copyable_v<Text>);
+    static_assert(!::std::is_assignable_v<Text, Text const&>);
+    static_assert(!::std::is_assignable_v<Text, Text&&>);
     static_assert(::std::is_nothrow_constructible_v<Text, char8_t const*, char8_t const*>);
     static_assert(
         noexcept(::std::declval<Text&>().append(::std::declval<char8_t const*>(), ::std::declval<char8_t const*>())));
+
+    [[nodiscard]]
+    constexpr auto text_special_members_preserve_contents() noexcept -> bool {
+        constexpr char8_t code_units[]{u8'a', u8'\0', u8'b'};
+        Text const source{code_units, code_units + 3};
+        auto copied = source;
+        if (copied != source) {
+            return false;
+        }
+        auto moved = ::std::move(copied);
+        if (moved != source) {
+            return false;
+        }
+        Text copy_assigned{u8'x'};
+        copy_assigned = source;
+        if (copy_assigned != source) {
+            return false;
+        }
+        Text move_assigned{u8'y'};
+        move_assigned = ::std::move(copy_assigned);
+        return move_assigned == source;
+    }
+
+    static_assert(text_special_members_preserve_contents());
+
+    [[nodiscard]]
+    constexpr auto text_range_uses_iterators() -> bool {
+        constexpr char8_t code_units[]{u8'a', u8'\0', u8'b'};
+        Text const text{CharacterConvertibleIterator{code_units}, CharacterConvertibleIterator{code_units + 3}};
+        return text.size() == 3 && text[0] == u8'a' && text[1] == u8'\0' && text[2] == u8'b';
+    }
+
+    static_assert(text_range_uses_iterators());
+
+    TEST_CASE("range construction does not convert iterators to characters") {
+        CHECK(text_range_uses_iterators());
+    }
+
+    TEST_CASE("copy and move preserve contents") {
+        CHECK(text_special_members_preserve_contents());
+    }
+
+    TEST_CASE("single character construction and full storage") {
+        Text text{u8'\0'};
+        REQUIRE(text.size() == 1);
+        CHECK(text[0] == u8'\0');
+        for (::std::size_t index{1}; index < Text::capacity(); ++index) {
+            REQUIRE(text.try_push_back(u8'a'));
+        }
+        REQUIRE(text.size() == Text::capacity());
+        CHECK_FALSE(text.try_push_back(u8'b'));
+        CHECK(text.size() == Text::capacity());
+        CHECK(text[0] == u8'\0');
+        CHECK(text[Text::capacity() - 1] == u8'a');
+    }
 
     TEST_CASE("text is split at capacity") {
         ::pltxt2htm::container::U8String input{};

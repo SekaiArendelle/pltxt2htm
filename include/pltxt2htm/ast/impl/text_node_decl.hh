@@ -36,16 +36,18 @@ public:
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>
     constexpr Text(InputIterator first,
-                   Sentinel last) noexcept(noexcept(Storage{::std::move(first), ::std::move(last)}))
+                   Sentinel last) noexcept(noexcept(Storage(::std::move(first), ::std::move(last))))
         requires (::std::same_as<::std::iter_value_t<InputIterator>, char8_t> &&
                   ::std::constructible_from<char8_t, ::std::iter_reference_t<InputIterator>>)
-        : storage{::std::move(first), ::std::move(last)} {
+        : storage(::std::move(first), ::std::move(last)) {
     }
 
     constexpr Text(Text const&) = default;
     constexpr Text(Text&&) noexcept = default;
-    constexpr auto operator=(this Text&, Text const&) -> Text& = default;
-    constexpr auto operator=(this Text&, Text&&) noexcept -> Text& = default;
+    // Use the same workaround as InplaceVector: clang's defaulted explicit-object
+    // assignment can omit the union payload when assigning this trivial wrapper.
+    constexpr Text& operator=(Text const&) & noexcept = default;
+    constexpr Text& operator=(Text&&) & noexcept = default;
     constexpr ~Text() noexcept = default;
 
     [[nodiscard]]
@@ -93,7 +95,7 @@ public:
 
     [[nodiscard]]
     constexpr auto try_push_back(this Text& self, char8_t character) noexcept -> bool {
-        return self.storage.try_push_back(character);
+        return self.storage.try_push_back(character).has_value();
     }
 
     template<::std::input_iterator InputIterator, ::std::sentinel_for<InputIterator> Sentinel>

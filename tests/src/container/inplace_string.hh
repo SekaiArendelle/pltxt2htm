@@ -43,11 +43,26 @@ concept can_form_basic_inplace_string =
 
 static_assert(can_form_basic_inplace_string<char>);
 static_assert(can_form_basic_inplace_string<wchar_t>);
+static_assert(can_form_basic_inplace_string<char8_t>);
 static_assert(can_form_basic_inplace_string<char16_t>);
 static_assert(can_form_basic_inplace_string<char32_t>);
 static_assert(!can_form_basic_inplace_string<bool>);
 static_assert(!can_form_basic_inplace_string<int>);
 static_assert(!can_form_basic_inplace_string<char8_t, 0>);
+
+static_assert(::std::same_as<::pltxt2htm::details::InplaceString<4>, ::pltxt2htm::container::InplaceVector<char, 4>>);
+static_assert(
+    ::std::same_as<::pltxt2htm::details::WInplaceString<4>, ::pltxt2htm::container::InplaceVector<wchar_t, 4>>);
+static_assert(::std::same_as<CheckedU8String4, ::pltxt2htm::container::InplaceVector<char8_t, 4>>);
+static_assert(
+    ::std::same_as<::pltxt2htm::details::U16InplaceString<4>, ::pltxt2htm::container::InplaceVector<char16_t, 4>>);
+static_assert(
+    ::std::same_as<::pltxt2htm::details::U32InplaceString<4>, ::pltxt2htm::container::InplaceVector<char32_t, 4>>);
+static_assert(::pltxt2htm::details::is_basic_inplace_string<CheckedU8String4>);
+static_assert(::pltxt2htm::details::is_basic_inplace_string<CheckedU8String4 const&>);
+static_assert(::pltxt2htm::details::is_basic_inplace_string<CheckedU8String4&&>);
+static_assert(!::pltxt2htm::details::is_basic_inplace_string<::pltxt2htm::container::InplaceVector<int, 4>>);
+static_assert(!::pltxt2htm::details::is_basic_inplace_string<::pltxt2htm::container::InplaceVector<char8_t, 0>>);
 
 static_assert(requires(CheckedU8String4& value, CheckedU8String4 const& const_value, ::std::size_t position) {
     value[position];
@@ -55,7 +70,7 @@ static_assert(requires(CheckedU8String4& value, CheckedU8String4 const& const_va
     const_value[position];
 });
 
-static_assert(!::std::is_trivially_copyable_v<CheckedU8String4>);
+static_assert(::std::is_trivially_copyable_v<CheckedU8String4>);
 static_assert(::std::is_nothrow_copy_constructible_v<CheckedU8String4>);
 static_assert(::std::is_nothrow_move_constructible_v<CheckedU8String4>);
 static_assert(::std::is_nothrow_copy_assignable_v<CheckedU8String4>);
@@ -63,7 +78,9 @@ static_assert(::std::is_nothrow_move_assignable_v<CheckedU8String4>);
 static_assert(::std::is_standard_layout_v<CheckedU8String4>);
 static_assert(::std::same_as<CheckedU8String4::value_type, char8_t>);
 static_assert(::std::same_as<CheckedU8String4::iterator, char8_t*>);
-static_assert(::std::same_as<decltype(::std::declval<CheckedU8String4&>().push_back(char8_t{})), void>);
+static_assert(::std::same_as<decltype(::std::declval<CheckedU8String4&>().push_back(char8_t{})), char8_t&>);
+static_assert(::std::same_as<decltype(::std::declval<CheckedU8String4&>().try_push_back(char8_t{})),
+                             ::pltxt2htm::container::Optional<char8_t&>>);
 static_assert(::std::input_iterator<PotentiallyThrowingIterator>);
 static_assert(::std::is_nothrow_constructible_v<CheckedU8String4, char8_t const*, char8_t const*>);
 static_assert(
@@ -79,25 +96,35 @@ static_assert(CheckedU8String4::max_size_bytes() == 4);
 
 TEST_SUITE("inplace_string") {
     consteval auto test_constexpr_inplace_string() -> bool {
+        CheckedU8String4 const single{u8'\0'};
+        if (single.size() != 1 || single[0] != u8'\0') {
+            return false;
+        }
+        CheckedU8String4 const counted(::std::size_t{2});
+        if (counted.size() != 2 || counted[0] != u8'\0' || counted[1] != u8'\0') {
+            return false;
+        }
+
         CheckedU8String4 const empty{};
-        if (!empty.empty() || empty.size() != 0 || empty.data() == nullptr || empty.begin() != empty.end()) {
+        if (!empty.is_empty() || empty.size() != 0 || empty.data() == nullptr || empty.begin() != empty.end()) {
             return false;
         }
 
         constexpr char8_t initial[]{u8'a', u8'\0', u8'b'};
         auto value = CheckedU8String4{initial, initial + 3};
-        if (value.empty() || value.size() != 3 || value.size_bytes() != 3 || value[0] != u8'a' || value[1] != u8'\0' ||
-            value.front() != u8'a' || value.back() != u8'b') {
+        if (value.is_empty() || value.size() != 3 || value.size_bytes() != 3 || value[0] != u8'a' ||
+            value[1] != u8'\0' || value.front() != u8'a' || value.back() != u8'b') {
             return false;
         }
 
         value[2] = u8'c';
-        if (!value.try_push_back(u8'd') || value.try_push_back(u8'e') || value.back() != u8'd') {
+        if (!value.try_push_back(u8'd').has_value() || value.try_push_back(u8'e').has_value() ||
+            value.back() != u8'd') {
             return false;
         }
 
         value.pop_back();
-        if (!value.try_push_back(u8'x') || value.size() != 4 || value[2] != u8'c' || value[3] != u8'x') {
+        if (!value.try_push_back(u8'x').has_value() || value.size() != 4 || value[2] != u8'c' || value[3] != u8'x') {
             return false;
         }
 
@@ -137,13 +164,13 @@ TEST_SUITE("inplace_string") {
             return false;
         }
 
-        copy.assign(copy.begin(), copy.end());
-        if (copy.size() != 3 || copy[0] != u8'a' || copy[1] != u8'\0' || copy[2] != u8'd') {
+        copy.assign(larger.begin(), larger.end());
+        if (copy.size() != 3 || copy[0] != u8'a' || copy[1] != u8'\0' || copy[2] != u8'b') {
             return false;
         }
 
-        copy.assign(copy.begin() + 1, copy.end());
-        return copy.size() == 2 && copy[0] == u8'\0' && copy[1] == u8'd';
+        copy.assign(larger.begin() + 1, larger.end());
+        return copy.size() == 2 && copy[0] == u8'\0' && copy[1] == u8'b';
     }
 
     static_assert(test_constexpr_inplace_string());

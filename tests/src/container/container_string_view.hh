@@ -36,6 +36,8 @@ static_assert(!::std::is_convertible_v<U8StringView, ::fast_io::u8string_view>);
 static_assert(::std::same_as<decltype(U8StringView::from_c_str(static_cast<char8_t const*>(nullptr))), U8StringView>);
 static_assert(!::std::is_constructible_v<U8StringView, ::pltxt2htm::container::U8String&&>);
 static_assert(!::std::is_convertible_v<::pltxt2htm::container::U8String&&, U8StringView>);
+static_assert(::std::is_convertible_v<U8InplaceString&, U8StringView>);
+static_assert(::std::is_convertible_v<U8InplaceString const&, U8StringView>);
 static_assert(!::std::is_constructible_v<U8StringView, U8InplaceString&&>);
 static_assert(!::std::is_constructible_v<U8StringView, U8InplaceString const&&>);
 static_assert(::fast_io::alias_printable<::pltxt2htm::container::StringView>);
@@ -159,6 +161,14 @@ TEST_SUITE("container_string_view") {
         auto const inplace_view = ::pltxt2htm::container::BasicStringView{inplace};
         static_assert(::std::same_as<::std::remove_cvref_t<decltype(inplace_view)>, U8StringView>);
         if (inplace_view.data() != inplace.data() || inplace_view != u8"inplace") {
+            return false;
+        }
+
+        auto const as_vector = ::pltxt2htm::container::InplaceVector<char16_t, 4>{u'a', u'\0', u'b'};
+        auto const vector_view = ::pltxt2htm::container::BasicStringView{as_vector};
+        static_assert(
+            ::std::same_as<::std::remove_cvref_t<decltype(vector_view)>, ::pltxt2htm::container::U16StringView>);
+        if (vector_view.data() != as_vector.data() || vector_view.size() != 3 || vector_view[1] != u'\0') {
             return false;
         }
 
