@@ -19,7 +19,7 @@
 
 #include "../../details/concepts.hh"
 #include "../../details/literal_string.hh"
-#include "../../details/impl/inplace_string_decl.hh"
+#include "../../details/inplace_string.hh"
 
 // windows.h defines min and max as function-like macros, which would expand
 // inside std::numeric_limits<...>::max(). Keep them undefined in this header.
