@@ -22,7 +22,7 @@
 
 #include "../../details/concepts.hh"
 #include "../../details/literal_string.hh"
-#include "../../details/impl/inplace_string_decl.hh"
+#include "../../details/inplace_string.hh"
 #include "string_view_decl.hh"
 #include "string_decl.hh"
 
