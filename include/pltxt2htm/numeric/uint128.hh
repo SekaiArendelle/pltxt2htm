@@ -149,20 +149,20 @@ public:
             return self.multiply_128(other);
         }
         else if constexpr (::std::unsigned_integral<T> && sizeof(T) <= 8) {
-            return self.multiply_64(static_cast< ::std::uint64_t>(other));
+            return self.multiply_64(static_cast<::std::uint64_t>(other));
         }
         else if constexpr (::std::signed_integral<T> && sizeof(T) <= 8) {
             if (other < 0) {
-                return UInt128{} - self.multiply_64(0 - static_cast< ::std::uint64_t>(other));
+                return UInt128{} - self.multiply_64(0 - static_cast<::std::uint64_t>(other));
             }
-            return self.multiply_64(static_cast< ::std::uint64_t>(other));
+            return self.multiply_64(static_cast<::std::uint64_t>(other));
         }
         else {
             return self.multiply_128(UInt128{other});
         }
     }
 
-    template< ::std::integral T>
+    template<::std::integral T>
     [[nodiscard]]
     friend constexpr auto operator*(T const& factor, UInt128 const& value) noexcept -> UInt128 {
         return value * factor;

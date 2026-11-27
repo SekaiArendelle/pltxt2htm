@@ -59,7 +59,7 @@ constexpr auto pltxt2fixedadv_html(::pltxt2htm::container::U8StringView pltext,
     if constexpr (optimize) {
         ::pltxt2htm::optimize_ast(ast);
     }
-    return ::pltxt2htm::details::plweb_text_backend< ::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
+    return ::pltxt2htm::details::plweb_text_backend<::pltxt2htm::details::PlWebTextBackendMode::fixedadv_html>(
         ast, host, project, visitor, author, coauthors);
 }
 
