@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include <array>
 #include <bit>
 #include <cstddef>
 #include <cstdint>
@@ -72,9 +71,6 @@ constexpr auto write_uint64_digits(::std::uint64_t value, char8_t* const buffer)
     return reversed_length;
 }
 
-/// Base-2^32 limbs, least significant first. 32 limbs cover any integral double.
-using ExactIntegerLimbs = ::std::array<::std::uint32_t, 32>;
-
 /**
  * @brief Divide the significant limbs by divisor in place and return the remainder.
  * @param[in,out] limbs The accumulator; only [0, significant_limbs) is read.
@@ -83,7 +79,7 @@ using ExactIntegerLimbs = ::std::array<::std::uint32_t, 32>;
  * @param divisor The 32-bit divisor.
  */
 [[nodiscard]]
-constexpr auto divide_limbs(ExactIntegerLimbs& limbs, ::std::size_t& significant_limbs,
+constexpr auto divide_limbs(::pltxt2htm::container::Array<::std::uint32_t, 32>& limbs, ::std::size_t& significant_limbs,
                             ::std::uint32_t const divisor) noexcept -> ::std::uint32_t {
     ::std::uint64_t remainder{};
     for (::std::size_t i{significant_limbs}; i != 0; --i) {
@@ -135,7 +131,8 @@ constexpr auto exact_integer_digits(double const value, char8_t* const buffer) n
     }
 
     // Larger integral values need up to 1024 bits; accumulate in base 2^32.
-    ExactIntegerLimbs limbs{};
+    // Base-2^32 limbs, least significant first. 32 limbs cover any integral double.
+    auto limbs = ::pltxt2htm::container::Array<::std::uint32_t, 32>{};
     limbs[0] = static_cast<::std::uint32_t>(significand);
     limbs[1] = static_cast<::std::uint32_t>(significand >> 32);
 
