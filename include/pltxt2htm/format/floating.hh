@@ -27,7 +27,6 @@
 #include <bit>
 #include <cstddef>
 #include <cstdint>
-#include <utility>
 
 #include "../container/array.hh"
 #include "../container/string.hh"
@@ -336,42 +335,6 @@ constexpr auto format_fixed_point(double const value, char8_t* const buffer) noe
 }
 
 } // namespace details
-
-/**
- * @brief Write the fixed-point decimal representation of a value into [first, last).
- * @param[in] first First writable character.
- * @param[in] last One past the last writable character; only used as a bound.
- * @param[in] value The value to write.
- * @return One past the last written character, or nullptr when the range is too
- *         small.
- * @details Finite values use the same shortest representation as
- *          `std::to_chars(first, last, value, std::chars_format::fixed)`.
- */
-[[nodiscard]]
-constexpr auto to_chars(char8_t* const first, char8_t const* const last, double const value) noexcept -> char8_t* {
-    auto buffer = ::pltxt2htm::container::Array<char8_t, ::pltxt2htm::format::details::max_fixed_point_length>{};
-    auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer.data());
-    if (::std::cmp_less(last - first, length)) {
-        return nullptr;
-    }
-    char8_t const* const source = buffer.data();
-    for (::std::size_t i{}; i < length; ++i) {
-        first[i] = source[i];
-    }
-    return first + length;
-}
-
-/**
- * @brief Convert a value to its fixed-point decimal representation.
- * @param[in] value The value to convert.
- * @return The representation; never empty.
- */
-[[nodiscard]]
-constexpr auto to_decimal_string(double const value) noexcept -> ::pltxt2htm::container::U8String {
-    auto buffer = ::pltxt2htm::container::Array<char8_t, ::pltxt2htm::format::details::max_fixed_point_length>{};
-    auto const length = ::pltxt2htm::format::details::format_fixed_point(value, buffer.data());
-    return ::pltxt2htm::container::U8String{buffer.data(), buffer.data() + length};
-}
 
 /**
  * @brief Append the fixed-point decimal representation of a value to a string.

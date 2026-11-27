@@ -12,7 +12,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
-#include <utility>
+#include <type_traits>
 
 #include "../container/array.hh"
 #include "../container/string.hh"
@@ -71,111 +71,6 @@ constexpr auto write_decimal_digits_backward(T value, char8_t* const buffer_end)
 }
 
 } // namespace details
-
-/**
- * @brief Convert an unsigned integer to a UTF-8 decimal string.
- * @param[in] num The number to convert.
- * @return A UTF-8 string representation of the number.
- * @note Digits are written backward into a fixed stack buffer and the result is constructed
- *       with the exact final size, so the conversion performs a single allocation with no
- *       reversal pass and no per-digit capacity checks.
- */
-template<::std::unsigned_integral T>
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto to_decimal_string(T num) noexcept -> ::pltxt2htm::container::U8String {
-    // digits10(T) + 1 characters cover every value, including the extra digit that digits10
-    // does not account for.
-    auto buffer = ::pltxt2htm::container::Array<char8_t, ::std::numeric_limits<T>::digits10 + 2>{};
-    char8_t const* const begin = details::write_decimal_digits_backward(num, buffer.data() + buffer.size());
-    return ::pltxt2htm::container::U8String{begin, buffer.data() + buffer.size()};
-}
-
-/**
- * @brief Convert a signed integer to a UTF-8 decimal string.
- * @details Handles negative values with a leading U+002D '-' sign written directly into the
- *          buffer, avoiding a post-hoc insert. Unsigned negation also covers the minimum value.
- */
-template<::std::signed_integral T>
-[[nodiscard]]
-#if __has_cpp_attribute(__gnu__::__pure__)
-[[__gnu__::__pure__]]
-#endif
-constexpr auto to_decimal_string(T num) noexcept -> ::pltxt2htm::container::U8String {
-    using unsigned_type = ::std::make_unsigned_t<T>;
-
-    auto magnitude = static_cast<unsigned_type>(num);
-    bool const negative = num < 0;
-    if (negative) {
-        magnitude = static_cast<unsigned_type>(0) - magnitude;
-    }
-
-    auto buffer = ::pltxt2htm::container::Array<char8_t, ::std::numeric_limits<unsigned_type>::digits10 + 3>{};
-    char8_t* begin = details::write_decimal_digits_backward(magnitude, buffer.data() + buffer.size());
-    if (negative) {
-        --begin;
-        *begin = u8'-';
-    }
-    return ::pltxt2htm::container::U8String{begin, buffer.data() + buffer.size()};
-}
-
-/**
- * @brief Write the decimal digits of an unsigned integer into [first, last).
- * @param[in] first First writable character.
- * @param[in] last One past the last writable character; only used as a bound.
- * @param[in] value The value to write.
- * @return One past the last written character, or nullptr when the range is too small.
- */
-template<::std::unsigned_integral T>
-[[nodiscard]]
-constexpr auto to_chars(char8_t* const first, char8_t const* const last, T value) noexcept -> char8_t* {
-    auto buffer = ::pltxt2htm::container::Array<char8_t, ::std::numeric_limits<T>::digits10 + 2>{};
-    char8_t const* const begin = details::write_decimal_digits_backward(value, buffer.data() + buffer.size());
-    auto const size = static_cast<::std::size_t>(buffer.data() + buffer.size() - begin);
-    if (::std::cmp_less(last - first, size)) {
-        return nullptr;
-    }
-    for (::std::size_t i{}; i < size; ++i) {
-        first[i] = begin[i];
-    }
-    return first + size;
-}
-
-/**
- * @brief Write the decimal digits of a signed integer into [first, last).
- * @param[in] first First writable character.
- * @param[in] last One past the last writable character; only used as a bound.
- * @param[in] value The value to write.
- * @return One past the last written character, or nullptr when the range is too small.
- */
-template<::std::signed_integral T>
-[[nodiscard]]
-constexpr auto to_chars(char8_t* const first, char8_t const* const last, T value) noexcept -> char8_t* {
-    using unsigned_type = ::std::make_unsigned_t<T>;
-
-    auto magnitude = static_cast<unsigned_type>(value);
-    bool const negative = value < 0;
-    if (negative) {
-        magnitude = static_cast<unsigned_type>(0) - magnitude;
-    }
-
-    auto buffer = ::pltxt2htm::container::Array<char8_t, ::std::numeric_limits<unsigned_type>::digits10 + 3>{};
-    char8_t* begin = details::write_decimal_digits_backward(magnitude, buffer.data() + buffer.size());
-    if (negative) {
-        --begin;
-        *begin = u8'-';
-    }
-    auto const size = static_cast<::std::size_t>(buffer.data() + buffer.size() - begin);
-    if (::std::cmp_less(last - first, size)) {
-        return nullptr;
-    }
-    for (::std::size_t i{}; i < size; ++i) {
-        first[i] = begin[i];
-    }
-    return first + size;
-}
 
 /**
  * @brief Append the decimal digits of an unsigned integer to a string.
