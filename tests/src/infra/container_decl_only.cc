@@ -1,4 +1,3 @@
-#include <pltxt2htm/details/inplace_string.hh>
 #include <pltxt2htm/container/impl/array_decl.hh>
 #include <pltxt2htm/container/impl/deque_decl.hh>
 #include <pltxt2htm/container/impl/inplace_vector_decl.hh>
