@@ -175,6 +175,7 @@ General:
 
 - Keep changes focused and minimal.
 - Follow existing style and structure in the touched module.
+- Prefer locality and coherent grouping: keep declarations, overloads, helpers, fixtures, and assertions that form one logical unit close together. Avoid splitting a unit into separated sections or interleaving unrelated groups. For example, place mixed-operand overloads beside the corresponding core operator, and keep each test fixture near the assertions that exercise it. Reorder only when dependencies or a clearer section structure justify it; do not apply this mechanically.
 - Preserve compatibility with current behavior unless the change intentionally updates behavior.
 - Add or update tests when behavior changes.
 
