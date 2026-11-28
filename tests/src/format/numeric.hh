@@ -25,6 +25,9 @@ concept multiply_expression_available = requires(L const& factor, R const& value
 
 } // namespace multiply_lookup
 
+template<typename T>
+concept bit_width_available = requires(T const value) { numeric::bit_width(value); };
+
 [[nodiscard]] constexpr auto make(::std::uint64_t const low, ::std::uint64_t const middle = 0,
                                   ::std::uint64_t const high = 0) -> numeric::UInt192 {
     return numeric::UInt192{low} | (numeric::UInt192{middle} << 64) | (numeric::UInt192{high} << 128);
@@ -339,17 +342,43 @@ TEST_SUITE("numeric_integers") {
         CHECK(bittest(wide, 191));
     }
 
-    TEST_CASE("bit-length") {
+    TEST_CASE("bit-width") {
+        using ::pltxt2htm::numeric::UInt128;
+        using ::pltxt2htm::numeric::UInt192;
+        using ::pltxt2htm::numeric::bit_width;
         using ::pltxt2htm_test::numeric_details::make;
 
-        CHECK(make(0).bit_length() == 0);
-        CHECK(make(1).bit_length() == 1);
-        CHECK(make(2).bit_length() == 2);
-        CHECK(make(0x8000000000000000ull).bit_length() == 64);
-        CHECK(make(0, 1).bit_length() == 65);
-        CHECK(make(0, 0x8000000000000000ull).bit_length() == 128);
-        CHECK(make(0, 0, 1).bit_length() == 129);
-        CHECK(make(0, 0, 0x8000000000000000ull).bit_length() == 192);
+        static_assert(bit_width(::std::uint64_t{0}) == 0);
+        static_assert(bit_width(::std::uint64_t{1}) == 1);
+        static_assert(bit_width(::std::uint64_t{0x8000000000000000ull}) == 64);
+        static_assert(bit_width(UInt128{}) == 0);
+        static_assert(bit_width(UInt128{1}) == 1);
+        static_assert(bit_width(UInt128{1} << 64) == 65);
+        static_assert(bit_width(UInt128{1} << 127) == 128);
+        static_assert(bit_width(make(0)) == 0);
+        static_assert(bit_width(make(1)) == 1);
+        static_assert(bit_width(make(2)) == 2);
+        static_assert(bit_width(make(0x8000000000000000ull)) == 64);
+        static_assert(bit_width(make(0, 1)) == 65);
+        static_assert(bit_width(make(0, 0x8000000000000000ull)) == 128);
+        static_assert(bit_width(make(0, 0, 1)) == 129);
+        static_assert(bit_width(make(0, 0, 0x8000000000000000ull)) == 192);
+        static_assert(::std::same_as<decltype(bit_width(UInt192{})), int>);
+        static_assert(noexcept(bit_width(UInt192{})));
+        static_assert(!::pltxt2htm_test::numeric_details::bit_width_available<bool>);
+        static_assert(!::pltxt2htm_test::numeric_details::bit_width_available<int>);
+        static_assert(!::pltxt2htm_test::numeric_details::bit_width_available<char>);
+        static_assert(!::pltxt2htm_test::numeric_details::bit_width_available<wchar_t>);
+        static_assert(!::pltxt2htm_test::numeric_details::bit_width_available<char8_t>);
+        static_assert(!::pltxt2htm_test::numeric_details::bit_width_available<char16_t>);
+        static_assert(!::pltxt2htm_test::numeric_details::bit_width_available<char32_t>);
+#if defined(__SIZEOF_INT128__)
+        static_assert(bit_width(::pltxt2htm_test::numeric_details::NativeUInt128{1} << 127) == 128);
+#endif
+
+        CHECK(bit_width(make(0)) == 0);
+        CHECK(bit_width(make(0, 1)) == 65);
+        CHECK(bit_width(make(0, 0, 0x8000000000000000ull)) == 192);
     }
 
     TEST_CASE("shifts") {

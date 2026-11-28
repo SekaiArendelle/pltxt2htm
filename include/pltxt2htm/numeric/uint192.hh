@@ -115,19 +115,19 @@ public:
         }
     }
 
-    /// Number of significant bits, or 0 for zero.
+private:
+    /// Returns the number of significant bits, or 0 for zero.
     [[nodiscard]]
-    constexpr auto bit_length(this UInt192 const& self) noexcept -> unsigned {
+    friend constexpr auto bit_width_impl(UInt192 const& self) noexcept -> int {
         if (self.high_limb != 0) {
-            return static_cast<unsigned>(128 + ::std::bit_width(self.high_limb));
+            return 128 + ::std::bit_width(self.high_limb);
         }
         if (self.middle_limb != 0) {
-            return static_cast<unsigned>(64 + ::std::bit_width(self.middle_limb));
+            return 64 + ::std::bit_width(self.middle_limb);
         }
-        return static_cast<unsigned>(::std::bit_width(self.low_limb));
+        return ::std::bit_width(self.low_limb);
     }
 
-private:
     /// Tests one bit directly in its 64-bit limb.
     [[nodiscard]]
     friend constexpr auto bittest_impl(UInt192 const& self, ::std::size_t const index) noexcept -> bool {
@@ -324,7 +324,7 @@ private:
     [[nodiscard]]
     static constexpr auto divide_impl(UInt192 const numerator, UInt192 const divisor, UInt192& remainder) noexcept
         -> UInt192 {
-        auto const bits = numerator.bit_length();
+        auto const bits = static_cast<unsigned>(bit_width_impl(numerator));
         auto quotient = UInt192{};
         remainder = UInt192{};
         auto const limbs = (bits + 63) / 64;
@@ -363,7 +363,7 @@ private:
         }
 
         auto remainder = self;
-        auto shift = self.bit_length() - divisor.bit_length();
+        auto shift = static_cast<unsigned>(bit_width_impl(self) - bit_width_impl(divisor));
         auto shifted_divisor = divisor << shift;
         while (true) {
             if (remainder >= shifted_divisor) {

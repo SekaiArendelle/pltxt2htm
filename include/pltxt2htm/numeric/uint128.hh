@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <bit>
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
@@ -137,6 +138,23 @@ public:
     }
 
 private:
+    /// Returns the number of significant bits, or 0 for zero.
+    [[nodiscard]]
+    friend constexpr auto bit_width_impl(UInt128 const& self) noexcept -> int {
+#if defined(__SIZEOF_INT128__)
+        auto const high = static_cast<::std::uint64_t>(self.native_value >> 64);
+        if (high != 0) {
+            return 64 + ::std::bit_width(high);
+        }
+        return ::std::bit_width(static_cast<::std::uint64_t>(self.native_value));
+#else
+        if (self.high_limb != 0) {
+            return 64 + ::std::bit_width(self.high_limb);
+        }
+        return ::std::bit_width(self.low_limb);
+#endif
+    }
+
     /// Tests one bit without materializing a shifted UInt128 value.
     [[nodiscard]]
     friend constexpr auto bittest_impl(UInt128 const& self, ::std::size_t const index) noexcept -> bool {
