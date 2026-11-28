@@ -1,10 +1,11 @@
 /**
  * @file bit.hh
- * @brief Tests a bit in a built-in or extended-width integer.
+ * @brief Bit operations for built-in and extended-width integers.
  */
 
 #pragma once
 
+#include <bit>
 #include <cstddef>
 #include <limits>
 #include <type_traits>
@@ -19,6 +20,7 @@ namespace details {
 // ADL customization point: UInt128 and UInt192 provide hidden-friend overloads.
 // Keep calls unqualified so ADL can find them; this deleted overload is the poison pill.
 void bittest_impl() = delete;
+void bit_width_impl() = delete;
 
 // Detection intentionally uses the same unqualified ADL call as the dispatcher below.
 template<typename T>
@@ -31,6 +33,19 @@ constexpr auto call_bittest_impl(T const& value, ::std::size_t const index) noex
 {
     // Keep this unqualified: it is the deliberate ADL hook for the hidden friends.
     return bittest_impl(value, index);
+}
+
+// Detection intentionally uses the same unqualified ADL call as the dispatcher below.
+template<typename T>
+concept has_bit_width_impl = requires(T const& value) { bit_width_impl(value); };
+
+template<typename T>
+[[nodiscard]]
+constexpr auto call_bit_width_impl(T const& value) noexcept -> int
+    requires has_bit_width_impl<T>
+{
+    // Keep this unqualified: it is the deliberate ADL hook for the hidden friends.
+    return bit_width_impl(value);
 }
 
 template<typename T>
@@ -62,6 +77,33 @@ inline constexpr ::std::size_t unsigned_bit_digits<NativeUInt128>{128};
 #endif
 
 } // namespace details
+
+/**
+ * @brief Returns the number of bits needed to represent the unsigned `value`.
+ * @details Returns 0 for zero, otherwise the position of the most significant set bit plus one.
+ *          Like `std::bit_width`, this accepts standard unsigned integer types other than `bool`;
+ *          UInt128, UInt192, and the native 128-bit unsigned integer are also supported.
+ */
+template<typename T>
+    requires (requires(T value) { ::std::bit_width(value); } || details::has_bit_width_impl<T>
+#if defined(__SIZEOF_INT128__)
+              || ::std::same_as<T, details::NativeUInt128>
+#endif
+              )
+[[nodiscard]]
+constexpr auto bit_width(T const value) noexcept -> int {
+    if constexpr (details::has_bit_width_impl<T>) {
+        return details::call_bit_width_impl(value);
+    }
+#if defined(__SIZEOF_INT128__)
+    else if constexpr (::std::same_as<T, details::NativeUInt128>) {
+        return details::call_bit_width_impl(UInt128{value});
+    }
+#endif
+    else {
+        return ::std::bit_width(value);
+    }
+}
 
 /**
  * @brief Returns whether the zero-based bit at `index` is set in `value`.

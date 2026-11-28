@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <bit>
 #include <concepts>
 #include <cstddef>
 #include <cstdint>
@@ -137,6 +138,34 @@ public:
     }
 
 private:
+    [[nodiscard]]
+    static constexpr auto bit_width_from_limbs(::std::uint64_t const low, ::std::uint64_t const high) noexcept -> int {
+        if (high != 0) {
+            return 64 + ::std::bit_width(high);
+        }
+        return ::std::bit_width(low);
+    }
+
+    /// Returns the number of significant bits, or 0 for zero.
+    [[nodiscard]]
+    friend constexpr auto bit_width_impl(UInt128 const& self) noexcept -> int {
+#if defined(__SIZEOF_INT128__)
+    #if defined(__has_builtin)
+        #if __has_builtin(__builtin_clzg)
+        return 128 - __builtin_clzg(self.native_value, 128);
+        #else
+        return UInt128::bit_width_from_limbs(static_cast<::std::uint64_t>(self.native_value),
+                                             static_cast<::std::uint64_t>(self.native_value >> 64));
+        #endif
+    #else
+        return UInt128::bit_width_from_limbs(static_cast<::std::uint64_t>(self.native_value),
+                                             static_cast<::std::uint64_t>(self.native_value >> 64));
+    #endif
+#else
+        return UInt128::bit_width_from_limbs(self.low_limb, self.high_limb);
+#endif
+    }
+
     /// Tests one bit without materializing a shifted UInt128 value.
     [[nodiscard]]
     friend constexpr auto bittest_impl(UInt128 const& self, ::std::size_t const index) noexcept -> bool {
