@@ -491,6 +491,7 @@ TEST_SUITE("numeric_integers") {
 
         CHECK((make(100) / make(7)) == make(14));
         CHECK((make(100) % make(7)) == make(2));
+        CHECK((make(7) % make(7)) == make(0));
         CHECK((make(7) / make(100)) == make(0));
         CHECK((make(7) % make(100)) == make(7));
 
@@ -498,6 +499,13 @@ TEST_SUITE("numeric_integers") {
         CHECK((make(100) % 7u) == make(2));
         CHECK((100u / make(7)) == make(14));
         CHECK((100u % make(7)) == make(2));
+        CHECK((make(17) % -5) == make(17));
+        CHECK((-5 % make(3)) == make(2));
+
+        auto const all_ones = make(0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull);
+        auto const power_of_two = make(0, 0, 0x1000000000000000ull);
+        CHECK((all_ones % power_of_two) == make(0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull, 0x0FFFFFFFFFFFFFFFull));
+        CHECK((all_ones % make(1)) == make(0));
 
         auto const numerator = make(0xFFFFFFFFFFFFFFFFull, 0x0123456789ABCDEFull, 0xFEDCBA9876543210ull);
         auto const divisor = make(0x9E3779B97F4A7C15ull);
@@ -550,6 +558,7 @@ TEST_SUITE("numeric_integers") {
         auto const three_limb_division = divide(all_ones, three_limb_divisor);
         CHECK(three_limb_division.quotient == make(2));
         CHECK(three_limb_division.remainder == make(1));
+        CHECK((all_ones % three_limb_divisor) == make(1));
 
         auto const above_2_pow_191_divisor = make(0x0000000000000001ull, 0, 0x8000000000000000ull);
         auto const above_2_pow_191_division = divide(all_ones, above_2_pow_191_divisor);
@@ -599,6 +608,10 @@ TEST_SUITE("numeric_integers") {
         static_assert(divide(make(0xFFFFFFFFFFFFFFFFull, 0x0123456789ABCDEFull, 0xFEDCBA9876543210ull),
                              make(0x9E3779B97F4A7C15ull))
                           .remainder == make(0x60A682697485B0DAull));
+        static_assert((make(0xFFFFFFFFFFFFFFFFull, 0x0123456789ABCDEFull, 0xFEDCBA9876543210ull) %
+                       make(0x9E3779B97F4A7C15ull)) == make(0x60A682697485B0DAull));
+        static_assert((make(0, 0, 0xFFFFFFFFFFFFFFFFull) % make(0, 0, 0x1000000000000000ull)) ==
+                      make(0, 0, 0x0FFFFFFFFFFFFFFFull));
         static_assert(decimal_ratio_to_double(make(9007199254740995ull), 0) == 9007199254740996.0);
     }
 }

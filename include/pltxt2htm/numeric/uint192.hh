@@ -26,6 +26,7 @@
 namespace pltxt2htm::numeric {
 
 class UInt192;
+struct DivisionResult;
 
 namespace details {
 
@@ -285,6 +286,63 @@ public:
                        self.high_limb & other.high_limb};
     }
 
+    friend constexpr auto divide(UInt192 const numerator, UInt192 const divisor) noexcept -> DivisionResult;
+    friend constexpr auto operator/(UInt192 const& left, UInt192 const& right) noexcept -> UInt192;
+
+    template<details::integer_operand T>
+        requires (!::std::same_as<T, UInt192>)
+    friend constexpr auto operator/(UInt192 const& left, T const& right) noexcept -> UInt192;
+
+    template<details::integer_operand T>
+        requires (!::std::same_as<T, UInt192>)
+    friend constexpr auto operator/(T const& left, UInt192 const& right) noexcept -> UInt192;
+
+    /// Unsigned remainder without computing the quotient.
+    /// @pre `divisor` is non-zero.
+    [[nodiscard]]
+    constexpr auto operator%(this UInt192 const& self, UInt192 const& divisor) noexcept -> UInt192 {
+        if (self < divisor) {
+            return self;
+        }
+
+        auto const divisor_minus_one = divisor - UInt192{1};
+        if ((divisor & divisor_minus_one) == UInt192{}) {
+            return self & divisor_minus_one;
+        }
+
+        auto remainder = self;
+        auto shift = self.bit_length() - divisor.bit_length();
+        auto shifted_divisor = divisor << shift;
+        for (;;) {
+            if (remainder >= shifted_divisor) {
+                remainder = remainder - shifted_divisor;
+            }
+            if (shift == 0) {
+                break;
+            }
+            shifted_divisor = shifted_divisor >> 1;
+            --shift;
+        }
+        return remainder;
+    }
+
+    /// Remainder with an integer operand converted to UInt192.
+    template<details::integer_operand T>
+    [[nodiscard]]
+    constexpr auto operator%(this UInt192 const& self, T const& divisor) noexcept -> UInt192
+        requires (!::std::same_as<T, UInt192>)
+    {
+        return self % UInt192{divisor};
+    }
+
+    template<details::integer_operand T>
+    [[nodiscard]]
+    friend constexpr auto operator%(T const& left, UInt192 const& right) noexcept -> UInt192
+        requires (!::std::same_as<T, UInt192>)
+    {
+        return UInt192{left} % right;
+    }
+
     /// Adds an integer operand, sign-extending it when signed.
     template<details::integer_operand T>
     [[nodiscard]]
@@ -462,6 +520,9 @@ struct DivisionResult {
 
 /**
  * @brief Divide a 192-bit integer by a non-zero 192-bit divisor.
+ * @details This is the general quotient-and-remainder facility for UInt192. The hidden-friend
+ *          declaration associates it with UInt192 for argument-dependent lookup, while this
+ *          namespace-scope definition also permits qualified calls such as `numeric::divide`.
  */
 [[nodiscard]]
 constexpr auto divide(UInt192 const numerator, UInt192 const divisor) noexcept -> DivisionResult {
@@ -494,43 +555,19 @@ constexpr auto operator/(UInt192 const& left, UInt192 const& right) noexcept -> 
     return divide(left, right).quotient;
 }
 
-/**
- * @brief Unsigned remainder of two 192-bit integers.
- * @pre `right` is non-zero.
- */
-[[nodiscard]]
-constexpr auto operator%(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
-    return divide(left, right).remainder;
-}
-
 /// Division with an integer operand converted to UInt192.
 template<details::integer_operand T>
     requires (!::std::same_as<T, UInt192>)
 [[nodiscard]]
 constexpr auto operator/(UInt192 const& left, T const& right) noexcept -> UInt192 {
-    return left / UInt192{right};
+    return divide(left, UInt192{right}).quotient;
 }
 
 template<details::integer_operand T>
     requires (!::std::same_as<T, UInt192>)
 [[nodiscard]]
 constexpr auto operator/(T const& left, UInt192 const& right) noexcept -> UInt192 {
-    return UInt192{left} / right;
-}
-
-/// Remainder with an integer operand converted to UInt192.
-template<details::integer_operand T>
-    requires (!::std::same_as<T, UInt192>)
-[[nodiscard]]
-constexpr auto operator%(UInt192 const& left, T const& right) noexcept -> UInt192 {
-    return left % UInt192{right};
-}
-
-template<details::integer_operand T>
-    requires (!::std::same_as<T, UInt192>)
-[[nodiscard]]
-constexpr auto operator%(T const& left, UInt192 const& right) noexcept -> UInt192 {
-    return UInt192{left} % right;
+    return divide(UInt192{left}, right).quotient;
 }
 
 /**
