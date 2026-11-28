@@ -304,6 +304,76 @@ private:
         return value * factor;
     }
 
+    /// Returns the quotient and stores the remainder for divide() and operator/.
+    [[nodiscard]]
+    static constexpr auto divide_impl(UInt192 const numerator, UInt192 const divisor, UInt192& remainder) noexcept
+        -> UInt192 {
+        auto const bits = numerator.bit_length();
+        auto quotient = UInt192{};
+        remainder = UInt192{};
+        auto const limbs = (bits + 63) / 64;
+        for (unsigned limb_offset{}; limb_offset < limbs; ++limb_offset) {
+            auto const limb_index = limbs - 1 - limb_offset;
+            auto const limb = static_cast<::std::uint64_t>(numerator >> (limb_index * 64));
+            auto const limb_bits = (limb_offset == 0) ? (bits - limb_index * 64) : 64;
+            for (unsigned bit = limb_bits; bit-- > 0;) {
+                bool const set = ((limb >> bit) & 1) != 0;
+                remainder = (remainder << 1) + UInt192{static_cast<::std::uint64_t>(set ? 1u : 0u)};
+                if (remainder >= divisor) {
+                    remainder = remainder - divisor;
+                    quotient = quotient + (UInt192{1} << (limb_index * 64 + bit));
+                }
+            }
+        }
+        return quotient;
+    }
+
+    /// Unsigned remainder without computing the quotient.
+    /// @pre the divisor is non-zero.
+    template<details::integer_operand L, details::integer_operand R>
+    [[nodiscard]]
+    friend constexpr auto operator%(L const& left, R const& right) noexcept -> UInt192
+        requires (::std::same_as<L, UInt192> || ::std::same_as<R, UInt192>)
+    {
+        auto const self = UInt192{left};
+        auto const divisor = UInt192{right};
+        if (self < divisor) {
+            return self;
+        }
+
+        auto const divisor_minus_one = divisor - UInt192{1};
+        if ((divisor & divisor_minus_one) == UInt192{}) {
+            return self & divisor_minus_one;
+        }
+
+        auto remainder = self;
+        auto shift = self.bit_length() - divisor.bit_length();
+        auto shifted_divisor = divisor << shift;
+        for (;;) {
+            if (remainder >= shifted_divisor) {
+                remainder = remainder - shifted_divisor;
+            }
+            if (shift == 0) {
+                break;
+            }
+            shifted_divisor = shifted_divisor >> 1;
+            --shift;
+        }
+        return remainder;
+    }
+
+    /// Unsigned division; the divisor is non-zero.
+    template<details::integer_operand L, details::integer_operand R>
+    [[nodiscard]]
+    friend constexpr auto operator/(L const& left, R const& right) noexcept -> UInt192
+        requires (::std::same_as<L, UInt192> || ::std::same_as<R, UInt192>)
+    {
+        auto remainder = UInt192{};
+        return UInt192::divide_impl(UInt192{left}, UInt192{right}, remainder);
+    }
+
+    friend constexpr auto divide(UInt192 const numerator, UInt192 const divisor) noexcept -> DivisionResult;
+
 public:
     /// Shifts left, discarding bits that leave the type.
     [[nodiscard]]
@@ -374,77 +444,6 @@ public:
         }
         return ::std::strong_ordering::equal;
     }
-
-private:
-    /// Returns the quotient and stores the remainder for divide() and operator/.
-    [[nodiscard]]
-    static constexpr auto divide_impl(UInt192 const numerator, UInt192 const divisor, UInt192& remainder) noexcept
-        -> UInt192 {
-        auto const bits = numerator.bit_length();
-        auto quotient = UInt192{};
-        remainder = UInt192{};
-        auto const limbs = (bits + 63) / 64;
-        for (unsigned limb_offset{}; limb_offset < limbs; ++limb_offset) {
-            auto const limb_index = limbs - 1 - limb_offset;
-            auto const limb = static_cast<::std::uint64_t>(numerator >> (limb_index * 64));
-            auto const limb_bits = (limb_offset == 0) ? (bits - limb_index * 64) : 64;
-            for (unsigned bit = limb_bits; bit-- > 0;) {
-                bool const set = ((limb >> bit) & 1) != 0;
-                remainder = (remainder << 1) + UInt192{static_cast<::std::uint64_t>(set ? 1u : 0u)};
-                if (remainder >= divisor) {
-                    remainder = remainder - divisor;
-                    quotient = quotient + (UInt192{1} << (limb_index * 64 + bit));
-                }
-            }
-        }
-        return quotient;
-    }
-
-    /// Unsigned remainder without computing the quotient.
-    /// @pre the divisor is non-zero.
-    template<details::integer_operand L, details::integer_operand R>
-    [[nodiscard]]
-    friend constexpr auto operator%(L const& left, R const& right) noexcept -> UInt192
-        requires (::std::same_as<L, UInt192> || ::std::same_as<R, UInt192>)
-    {
-        auto const self = UInt192{left};
-        auto const divisor = UInt192{right};
-        if (self < divisor) {
-            return self;
-        }
-
-        auto const divisor_minus_one = divisor - UInt192{1};
-        if ((divisor & divisor_minus_one) == UInt192{}) {
-            return self & divisor_minus_one;
-        }
-
-        auto remainder = self;
-        auto shift = self.bit_length() - divisor.bit_length();
-        auto shifted_divisor = divisor << shift;
-        for (;;) {
-            if (remainder >= shifted_divisor) {
-                remainder = remainder - shifted_divisor;
-            }
-            if (shift == 0) {
-                break;
-            }
-            shifted_divisor = shifted_divisor >> 1;
-            --shift;
-        }
-        return remainder;
-    }
-
-    /// Unsigned division; the divisor is non-zero.
-    template<details::integer_operand L, details::integer_operand R>
-    [[nodiscard]]
-    friend constexpr auto operator/(L const& left, R const& right) noexcept -> UInt192
-        requires (::std::same_as<L, UInt192> || ::std::same_as<R, UInt192>)
-    {
-        auto remainder = UInt192{};
-        return UInt192::divide_impl(UInt192{left}, UInt192{right}, remainder);
-    }
-
-    friend constexpr auto divide(UInt192 const numerator, UInt192 const divisor) noexcept -> DivisionResult;
 };
 
 namespace details {
