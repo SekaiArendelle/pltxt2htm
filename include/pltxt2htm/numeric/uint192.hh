@@ -21,7 +21,6 @@
 #include <cstdint>
 
 #include "uint128.hh"
-#include "../details/contracts.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::numeric {

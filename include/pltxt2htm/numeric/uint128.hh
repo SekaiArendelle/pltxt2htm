@@ -13,7 +13,6 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "../details/contracts.hh"
 #include "../details/push_macro.hh"
 
 namespace pltxt2htm::numeric {
