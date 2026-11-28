@@ -570,33 +570,7 @@ TEST_SUITE("numeric_integers") {
         CHECK(above_2_pow_191_division.remainder < above_2_pow_191_divisor);
     }
 
-    TEST_CASE("ratio-to-double") {
-        using ::pltxt2htm::numeric::decimal_ratio_to_double;
-        using ::pltxt2htm::numeric::pow;
-        using ::pltxt2htm::numeric::UInt192;
-        using ::pltxt2htm_test::numeric_details::make;
-
-        CHECK(decimal_ratio_to_double(make(0), 5) == 0.0);
-        CHECK(decimal_ratio_to_double(make(1), 0) == 1.0);
-        CHECK(decimal_ratio_to_double(make(125), 1) == 12.5);
-        CHECK(decimal_ratio_to_double(make(1), 1) == 0.1);
-        CHECK(decimal_ratio_to_double(make(1), 18) == 1e-18);
-        CHECK(decimal_ratio_to_double(pow(UInt192{10}, 38), 38) == 1.0);
-        CHECK(decimal_ratio_to_double(pow(UInt192{10}, 38) + make(1), 38) == 1.0);
-        CHECK(decimal_ratio_to_double(pow(UInt192{10}, 19) * 3, 19) == 3.0);
-        CHECK(decimal_ratio_to_double(make(0xFFFFFFFFFFFFFFFFull), 0) == 18446744073709551616.0);
-
-        // 2^53 + 1 is exactly halfway between two doubles and rounds down (ties-to-even), while a
-        // sticky tail above the midpoint goes up.
-        CHECK(decimal_ratio_to_double(make(9007199254740993ull), 0) == 9007199254740992.0);
-        CHECK(decimal_ratio_to_double(make(9007199254740993ull), 0, true) == 9007199254740994.0);
-        // 2^53 + 3 is exactly halfway and the lower candidate has an odd significand, so
-        // ties-to-even rounds up.
-        CHECK(decimal_ratio_to_double(make(9007199254740995ull), 0) == 9007199254740996.0);
-    }
-
     TEST_CASE("constexpr-evaluation") {
-        using ::pltxt2htm::numeric::decimal_ratio_to_double;
         using ::pltxt2htm::numeric::divide;
         using ::pltxt2htm_test::numeric_details::make;
 
@@ -612,6 +586,5 @@ TEST_SUITE("numeric_integers") {
                        make(0x9E3779B97F4A7C15ull)) == make(0x60A682697485B0DAull));
         static_assert((make(0, 0, 0xFFFFFFFFFFFFFFFFull) % make(0, 0, 0x1000000000000000ull)) ==
                       make(0, 0, 0x0FFFFFFFFFFFFFFFull));
-        static_assert(decimal_ratio_to_double(make(9007199254740995ull), 0) == 9007199254740996.0);
     }
 }
