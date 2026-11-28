@@ -25,6 +25,7 @@
 namespace pltxt2htm::numeric {
 
 class UInt192;
+struct DivisionResult;
 
 namespace details {
 
@@ -54,8 +55,8 @@ class UInt192 {
     ::std::uint64_t middle_limb{}; ///< Middle 64-bit limb.
     ::std::uint64_t high_limb{}; ///< Most significant 64-bit limb.
 
-    /// Constructs a value from little-endian limbs. Callers inside the class and its hidden
-    /// friends use this; external callers assemble multi-limb values with shifts and `operator|`.
+    /// Constructs a value from little-endian limbs. External callers assemble multi-limb values
+    /// with shifts and `operator|`.
     constexpr UInt192(::std::uint64_t const low, ::std::uint64_t const middle, ::std::uint64_t const high) noexcept
         : low_limb{low},
           middle_limb{middle},
@@ -125,33 +126,83 @@ public:
         return static_cast<unsigned>(::std::bit_width(self.low_limb));
     }
 
+private:
     /// Adds two values modulo 2^192.
     [[nodiscard]]
-    constexpr auto operator+(this UInt192 const& self, UInt192 const& right) noexcept -> UInt192 {
-        auto const low = self.low_limb + right.low_limb;
+    friend constexpr auto operator+(UInt192 const& self, UInt192 const& other) noexcept -> UInt192 {
+        auto const low = self.low_limb + other.low_limb;
         ::std::uint64_t const carry_low = low < self.low_limb ? 1 : 0;
-        auto const middle = self.middle_limb + right.middle_limb;
+        auto const middle = self.middle_limb + other.middle_limb;
         ::std::uint64_t const carry_middle = middle < self.middle_limb ? 1 : 0;
         auto const middle_adjusted = middle + carry_low;
         ::std::uint64_t const carry_adjusted = middle_adjusted < carry_low ? 1 : 0;
-        auto const high = self.high_limb + right.high_limb + carry_middle + carry_adjusted;
+        auto const high = self.high_limb + other.high_limb + carry_middle + carry_adjusted;
         return UInt192{low, middle_adjusted, high};
+    }
+
+    /// Adds an integer operand, sign-extending it when signed.
+    template<details::integer_operand L, details::integer_operand R>
+    [[nodiscard]]
+    friend constexpr auto operator+(L const& left, R const& right) noexcept -> UInt192
+        requires (::std::same_as<L, UInt192> || ::std::same_as<R, UInt192>)
+    {
+        return UInt192{left} + UInt192{right};
     }
 
     /// Subtracts two values modulo 2^192.
     [[nodiscard]]
-    constexpr auto operator-(this UInt192 const& self, UInt192 const& right) noexcept -> UInt192 {
-        auto const low = self.low_limb - right.low_limb;
-        ::std::uint64_t const borrow_low = self.low_limb < right.low_limb ? 1 : 0;
-        auto const middle = self.middle_limb - right.middle_limb;
-        ::std::uint64_t const borrow_middle = self.middle_limb < right.middle_limb ? 1 : 0;
+    friend constexpr auto operator-(UInt192 const& self, UInt192 const& other) noexcept -> UInt192 {
+        auto const low = self.low_limb - other.low_limb;
+        ::std::uint64_t const borrow_low = self.low_limb < other.low_limb ? 1 : 0;
+        auto const middle = self.middle_limb - other.middle_limb;
+        ::std::uint64_t const borrow_middle = self.middle_limb < other.middle_limb ? 1 : 0;
         auto const middle_adjusted = middle - borrow_low;
         ::std::uint64_t const borrow_adjusted = middle < borrow_low ? 1 : 0;
-        auto const high = self.high_limb - right.high_limb - borrow_middle - borrow_adjusted;
+        auto const high = self.high_limb - other.high_limb - borrow_middle - borrow_adjusted;
         return UInt192{low, middle_adjusted, high};
     }
 
-private:
+    /// Subtracts an integer operand, sign-extending it when signed.
+    template<details::integer_operand L, details::integer_operand R>
+    [[nodiscard]]
+    friend constexpr auto operator-(L const& left, R const& right) noexcept -> UInt192
+        requires (::std::same_as<L, UInt192> || ::std::same_as<R, UInt192>)
+    {
+        return UInt192{left} - UInt192{right};
+    }
+
+    /// Bitwise OR, used to assemble multi-limb values from shifted 64-bit parts.
+    [[nodiscard]]
+    friend constexpr auto operator|(UInt192 const& self, UInt192 const& other) noexcept -> UInt192 {
+        return UInt192{self.low_limb | other.low_limb, self.middle_limb | other.middle_limb,
+                       self.high_limb | other.high_limb};
+    }
+
+    /// Bitwise OR with an integer operand.
+    template<details::integer_operand L, details::integer_operand R>
+    [[nodiscard]]
+    friend constexpr auto operator|(L const& left, R const& right) noexcept -> UInt192
+        requires (::std::same_as<L, UInt192> || ::std::same_as<R, UInt192>)
+    {
+        return UInt192{left} | UInt192{right};
+    }
+
+    /// Bitwise AND.
+    [[nodiscard]]
+    friend constexpr auto operator&(UInt192 const& self, UInt192 const& other) noexcept -> UInt192 {
+        return UInt192{self.low_limb & other.low_limb, self.middle_limb & other.middle_limb,
+                       self.high_limb & other.high_limb};
+    }
+
+    /// Bitwise AND with an integer operand.
+    template<details::integer_operand L, details::integer_operand R>
+    [[nodiscard]]
+    friend constexpr auto operator&(L const& left, R const& right) noexcept -> UInt192
+        requires (::std::same_as<L, UInt192> || ::std::same_as<R, UInt192>)
+    {
+        return UInt192{left} & UInt192{right};
+    }
+
     /// Multiplies by a 64-bit factor, keeping the low 192 bits.
     [[nodiscard]]
     constexpr auto multiply_64(this UInt192 const& self, ::std::uint64_t const other) noexcept -> UInt192 {
@@ -218,6 +269,111 @@ private:
         return UInt192{low, middle, high};
     }
 
+    /// Multiplies by an integer operand, keeping the low 192 bits.
+    template<details::integer_operand T>
+    [[nodiscard]]
+    friend constexpr auto operator*(UInt192 const& self, T const& other) noexcept -> UInt192 {
+        if constexpr (::std::same_as<T, UInt192>) {
+            if (other.middle_limb == 0 && other.high_limb == 0) {
+                return self.multiply_64(other.low_limb);
+            }
+            return self.multiply_192(other);
+        }
+        else if constexpr (::std::same_as<T, UInt128>) {
+            return self.multiply_128(other);
+        }
+        else if constexpr (details::unsigned_integer<T> && sizeof(T) <= 8) {
+            return self.multiply_64(static_cast<::std::uint64_t>(other));
+        }
+        else if constexpr (details::signed_integer<T> && sizeof(T) <= 8) {
+            if (other < 0) {
+                return UInt192{} - self.multiply_64(0 - static_cast<::std::uint64_t>(other));
+            }
+            return self.multiply_64(static_cast<::std::uint64_t>(other));
+        }
+        else {
+            return self.multiply_192(UInt192{other});
+        }
+    }
+
+    template<details::integer_operand T, typename R>
+    [[nodiscard]]
+    friend constexpr auto operator*(T const& factor, R const& value) noexcept -> UInt192
+        requires (!::std::same_as<T, UInt192> && ::std::same_as<R, UInt192>)
+    {
+        return value * factor;
+    }
+
+    /// Returns the quotient and stores the remainder for divide() and operator/.
+    [[nodiscard]]
+    static constexpr auto divide_impl(UInt192 const numerator, UInt192 const divisor, UInt192& remainder) noexcept
+        -> UInt192 {
+        auto const bits = numerator.bit_length();
+        auto quotient = UInt192{};
+        remainder = UInt192{};
+        auto const limbs = (bits + 63) / 64;
+        for (unsigned limb_offset{}; limb_offset < limbs; ++limb_offset) {
+            auto const limb_index = limbs - 1 - limb_offset;
+            auto const limb = static_cast<::std::uint64_t>(numerator >> (limb_index * 64));
+            auto const limb_bits = (limb_offset == 0) ? (bits - limb_index * 64) : 64;
+            for (unsigned bit = limb_bits; bit-- > 0;) {
+                bool const set = ((limb >> bit) & 1) != 0;
+                remainder = (remainder << 1) + UInt192{static_cast<::std::uint64_t>(set ? 1u : 0u)};
+                if (remainder >= divisor) {
+                    remainder = remainder - divisor;
+                    quotient = quotient + (UInt192{1} << (limb_index * 64 + bit));
+                }
+            }
+        }
+        return quotient;
+    }
+
+    /// Unsigned remainder without computing the quotient.
+    /// @pre the divisor is non-zero.
+    template<details::integer_operand L, details::integer_operand R>
+    [[nodiscard]]
+    friend constexpr auto operator%(L const& left, R const& right) noexcept -> UInt192
+        requires (::std::same_as<L, UInt192> || ::std::same_as<R, UInt192>)
+    {
+        auto const self = UInt192{left};
+        auto const divisor = UInt192{right};
+        if (self < divisor) {
+            return self;
+        }
+
+        auto const divisor_minus_one = divisor - UInt192{1};
+        if ((divisor & divisor_minus_one) == UInt192{}) {
+            return self & divisor_minus_one;
+        }
+
+        auto remainder = self;
+        auto shift = self.bit_length() - divisor.bit_length();
+        auto shifted_divisor = divisor << shift;
+        while (true) {
+            if (remainder >= shifted_divisor) {
+                remainder = remainder - shifted_divisor;
+            }
+            if (shift == 0) {
+                break;
+            }
+            shifted_divisor = shifted_divisor >> 1;
+            --shift;
+        }
+        return remainder;
+    }
+
+    /// Unsigned division; the divisor is non-zero.
+    template<details::integer_operand L, details::integer_operand R>
+    [[nodiscard]]
+    friend constexpr auto operator/(L const& left, R const& right) noexcept -> UInt192
+        requires (::std::same_as<L, UInt192> || ::std::same_as<R, UInt192>)
+    {
+        auto remainder = UInt192{};
+        return UInt192::divide_impl(UInt192{left}, UInt192{right}, remainder);
+    }
+
+    friend constexpr auto divide(UInt192 const numerator, UInt192 const divisor) noexcept -> DivisionResult;
+
 public:
     /// Shifts left, discarding bits that leave the type.
     [[nodiscard]]
@@ -268,123 +424,6 @@ public:
             }
         }
         return UInt192{result[0], result[1], result[2]};
-    }
-
-    /// Bitwise OR, used to assemble multi-limb values from shifted 64-bit parts.
-    [[nodiscard]]
-    constexpr auto operator|(this UInt192 const& self, UInt192 const& other) noexcept -> UInt192 {
-        return UInt192{self.low_limb | other.low_limb, self.middle_limb | other.middle_limb,
-                       self.high_limb | other.high_limb};
-    }
-
-    /// Bitwise AND.
-    [[nodiscard]]
-    constexpr auto operator&(this UInt192 const& self, UInt192 const& other) noexcept -> UInt192 {
-        return UInt192{self.low_limb & other.low_limb, self.middle_limb & other.middle_limb,
-                       self.high_limb & other.high_limb};
-    }
-
-    /// Adds an integer operand, sign-extending it when signed.
-    template<details::integer_operand T>
-    [[nodiscard]]
-    constexpr auto operator+(this UInt192 const& self, T const& other) noexcept -> UInt192
-        requires (!::std::same_as<T, UInt192>)
-    {
-        return self + UInt192{other};
-    }
-
-    template<details::integer_operand T>
-    [[nodiscard]]
-    friend constexpr auto operator+(T const& left, UInt192 const& right) noexcept -> UInt192
-        requires (!::std::same_as<T, UInt192>)
-    {
-        return UInt192{left} + right;
-    }
-
-    /// Subtracts an integer operand, sign-extending it when signed.
-    template<details::integer_operand T>
-    [[nodiscard]]
-    constexpr auto operator-(this UInt192 const& self, T const& other) noexcept -> UInt192
-        requires (!::std::same_as<T, UInt192>)
-    {
-        return self - UInt192{other};
-    }
-
-    template<details::integer_operand T>
-    [[nodiscard]]
-    friend constexpr auto operator-(T const& left, UInt192 const& right) noexcept -> UInt192
-        requires (!::std::same_as<T, UInt192>)
-    {
-        return UInt192{left} - right;
-    }
-
-    /// Multiplies by an integer operand, keeping the low 192 bits.
-    template<details::integer_operand T>
-    [[nodiscard]]
-    constexpr auto operator*(this UInt192 const& self, T const& other) noexcept -> UInt192 {
-        if constexpr (::std::same_as<T, UInt192>) {
-            if (other.middle_limb == 0 && other.high_limb == 0) {
-                return self.multiply_64(other.low_limb);
-            }
-            return self.multiply_192(other);
-        }
-        else if constexpr (::std::same_as<T, UInt128>) {
-            return self.multiply_128(other);
-        }
-        else if constexpr (details::unsigned_integer<T> && sizeof(T) <= 8) {
-            return self.multiply_64(static_cast<::std::uint64_t>(other));
-        }
-        else if constexpr (details::signed_integer<T> && sizeof(T) <= 8) {
-            if (other < 0) {
-                return UInt192{} - self.multiply_64(0 - static_cast<::std::uint64_t>(other));
-            }
-            return self.multiply_64(static_cast<::std::uint64_t>(other));
-        }
-        else {
-            return self.multiply_192(UInt192{other});
-        }
-    }
-
-    template<details::integer_operand T>
-    [[nodiscard]]
-    friend constexpr auto operator*(T const& factor, UInt192 const& value) noexcept -> UInt192
-        requires (!::std::same_as<T, UInt192>)
-    {
-        return value * factor;
-    }
-
-    /// Bitwise OR with an integer operand.
-    template<details::integer_operand T>
-    [[nodiscard]]
-    constexpr auto operator|(this UInt192 const& self, T const& other) noexcept -> UInt192
-        requires (!::std::same_as<T, UInt192>)
-    {
-        return self | UInt192{other};
-    }
-
-    template<details::integer_operand T>
-    [[nodiscard]]
-    friend constexpr auto operator|(T const& left, UInt192 const& right) noexcept -> UInt192
-        requires (!::std::same_as<T, UInt192>)
-    {
-        return UInt192{left} | right;
-    }
-
-    /// Bitwise AND with an integer operand.
-    template<details::integer_operand T>
-    [[nodiscard]]
-    constexpr auto operator&(this UInt192 const& self, T const& other) noexcept -> UInt192
-        requires (!::std::same_as<T, UInt192>)
-    {
-        return self & UInt192{other};
-    }
-
-    template<details::integer_operand T>
-    [[nodiscard]]
-    friend constexpr auto operator&(T const& left, UInt192 const& right) noexcept -> UInt192
-        requires (!::std::same_as<T, UInt192>)
-    {
-        return UInt192{left} & right;
     }
 
     [[nodiscard]]
@@ -461,75 +500,14 @@ struct DivisionResult {
 
 /**
  * @brief Divide a 192-bit integer by a non-zero 192-bit divisor.
+ * @details This namespace-scope quotient-and-remainder facility is available through ordinary
+ *          lookup, argument-dependent lookup, and qualified calls such as `numeric::divide`.
  */
 [[nodiscard]]
 constexpr auto divide(UInt192 const numerator, UInt192 const divisor) noexcept -> DivisionResult {
-    auto const bits = numerator.bit_length();
-    UInt192 quotient{};
-    UInt192 remainder{};
-    auto const limbs = (bits + 63) / 64;
-    for (unsigned limb_offset{}; limb_offset < limbs; ++limb_offset) {
-        auto const limb_index = limbs - 1 - limb_offset;
-        auto const limb = static_cast<::std::uint64_t>(numerator >> (limb_index * 64));
-        auto const limb_bits = (limb_offset == 0) ? (bits - limb_index * 64) : 64;
-        for (unsigned bit = limb_bits; bit-- > 0;) {
-            bool const set = ((limb >> bit) & 1) != 0;
-            remainder = (remainder << 1) + UInt192{static_cast<::std::uint64_t>(set ? 1u : 0u)};
-            if (remainder >= divisor) {
-                remainder = remainder - divisor;
-                quotient = quotient + (UInt192{1} << (limb_index * 64 + bit));
-            }
-        }
-    }
+    auto remainder = UInt192{};
+    auto const quotient = UInt192::divide_impl(numerator, divisor, remainder);
     return DivisionResult{.quotient = quotient, .remainder = remainder};
-}
-
-/**
- * @brief Unsigned division of two 192-bit integers.
- * @pre `right` is non-zero.
- */
-[[nodiscard]]
-constexpr auto operator/(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
-    return divide(left, right).quotient;
-}
-
-/**
- * @brief Unsigned remainder of two 192-bit integers.
- * @pre `right` is non-zero.
- */
-[[nodiscard]]
-constexpr auto operator%(UInt192 const& left, UInt192 const& right) noexcept -> UInt192 {
-    return divide(left, right).remainder;
-}
-
-/// Division with an integer operand converted to UInt192.
-template<details::integer_operand T>
-    requires (!::std::same_as<T, UInt192>)
-[[nodiscard]]
-constexpr auto operator/(UInt192 const& left, T const& right) noexcept -> UInt192 {
-    return left / UInt192{right};
-}
-
-template<details::integer_operand T>
-    requires (!::std::same_as<T, UInt192>)
-[[nodiscard]]
-constexpr auto operator/(T const& left, UInt192 const& right) noexcept -> UInt192 {
-    return UInt192{left} / right;
-}
-
-/// Remainder with an integer operand converted to UInt192.
-template<details::integer_operand T>
-    requires (!::std::same_as<T, UInt192>)
-[[nodiscard]]
-constexpr auto operator%(UInt192 const& left, T const& right) noexcept -> UInt192 {
-    return left % UInt192{right};
-}
-
-template<details::integer_operand T>
-    requires (!::std::same_as<T, UInt192>)
-[[nodiscard]]
-constexpr auto operator%(T const& left, UInt192 const& right) noexcept -> UInt192 {
-    return UInt192{left} % right;
 }
 
 } // namespace pltxt2htm::numeric

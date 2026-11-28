@@ -14,6 +14,17 @@ namespace pltxt2htm_test::numeric_details {
 
 namespace numeric = ::pltxt2htm::numeric;
 
+namespace multiply_lookup {
+
+struct derived_uint128 : ::pltxt2htm::numeric::UInt128 {
+    using ::pltxt2htm::numeric::UInt128::UInt128;
+};
+
+template<typename L, typename R>
+concept multiply_expression_available = requires(L const& factor, R const& value) { factor * value; };
+
+} // namespace multiply_lookup
+
 [[nodiscard]] constexpr auto make(::std::uint64_t const low, ::std::uint64_t const middle = 0,
                                   ::std::uint64_t const high = 0) -> numeric::UInt192 {
     return numeric::UInt192{low} | (numeric::UInt192{middle} << 64) | (numeric::UInt192{high} << 128);
@@ -80,6 +91,10 @@ TEST_SUITE("numeric_integers") {
         static_assert(!::std::is_assignable_v<UInt128&, int>);
         static_assert(!::std::is_convertible_v<UInt128, ::std::uint64_t>);
         static_assert(!::std::is_convertible_v<UInt128, bool>);
+        static_assert(!::pltxt2htm_test::numeric_details::multiply_lookup::multiply_expression_available<
+                      unsigned, ::pltxt2htm_test::numeric_details::multiply_lookup::derived_uint128>);
+        static_assert(
+            ::pltxt2htm_test::numeric_details::multiply_lookup::multiply_expression_available<unsigned, UInt128>);
 
         constexpr UInt128 zero;
         static_assert(!static_cast<bool>(zero));
@@ -94,6 +109,13 @@ TEST_SUITE("numeric_integers") {
         CHECK(high64(direct) == 0);
         CHECK(low64(implicit) == 5);
         CHECK(high64(implicit) == 0);
+
+        auto const sum_with_integer = UInt128{1} + 2u;
+        auto const difference_with_integer = UInt128{3} - 2u;
+        static_assert(::std::same_as<decltype(sum_with_integer), UInt128 const>);
+        static_assert(::std::same_as<decltype(difference_with_integer), UInt128 const>);
+        CHECK(low64(sum_with_integer) == 3);
+        CHECK(low64(difference_with_integer) == 1);
 
         auto const wide = (UInt128{0x123456789ABCDEF0ull} << 64) + UInt128{0xFEDCBA9876543210ull};
         CHECK(static_cast<::std::uint32_t>(wide) == 0x76543210u);
@@ -491,6 +513,7 @@ TEST_SUITE("numeric_integers") {
 
         CHECK((make(100) / make(7)) == make(14));
         CHECK((make(100) % make(7)) == make(2));
+        CHECK((make(7) % make(7)) == make(0));
         CHECK((make(7) / make(100)) == make(0));
         CHECK((make(7) % make(100)) == make(7));
 
@@ -498,6 +521,13 @@ TEST_SUITE("numeric_integers") {
         CHECK((make(100) % 7u) == make(2));
         CHECK((100u / make(7)) == make(14));
         CHECK((100u % make(7)) == make(2));
+        CHECK((make(17) % -5) == make(17));
+        CHECK((-5 % make(3)) == make(2));
+
+        auto const all_ones = make(0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull);
+        auto const power_of_two = make(0, 0, 0x1000000000000000ull);
+        CHECK((all_ones % power_of_two) == make(0xFFFFFFFFFFFFFFFFull, 0xFFFFFFFFFFFFFFFFull, 0x0FFFFFFFFFFFFFFFull));
+        CHECK((all_ones % make(1)) == make(0));
 
         auto const numerator = make(0xFFFFFFFFFFFFFFFFull, 0x0123456789ABCDEFull, 0xFEDCBA9876543210ull);
         auto const divisor = make(0x9E3779B97F4A7C15ull);
@@ -550,6 +580,7 @@ TEST_SUITE("numeric_integers") {
         auto const three_limb_division = divide(all_ones, three_limb_divisor);
         CHECK(three_limb_division.quotient == make(2));
         CHECK(three_limb_division.remainder == make(1));
+        CHECK((all_ones % three_limb_divisor) == make(1));
 
         auto const above_2_pow_191_divisor = make(0x0000000000000001ull, 0, 0x8000000000000000ull);
         auto const above_2_pow_191_division = divide(all_ones, above_2_pow_191_divisor);
@@ -573,5 +604,9 @@ TEST_SUITE("numeric_integers") {
         static_assert(divide(make(0xFFFFFFFFFFFFFFFFull, 0x0123456789ABCDEFull, 0xFEDCBA9876543210ull),
                              make(0x9E3779B97F4A7C15ull))
                           .remainder == make(0x60A682697485B0DAull));
+        static_assert((make(0xFFFFFFFFFFFFFFFFull, 0x0123456789ABCDEFull, 0xFEDCBA9876543210ull) %
+                       make(0x9E3779B97F4A7C15ull)) == make(0x60A682697485B0DAull));
+        static_assert((make(0, 0, 0xFFFFFFFFFFFFFFFFull) % make(0, 0, 0x1000000000000000ull)) ==
+                      make(0, 0, 0x0FFFFFFFFFFFFFFFull));
     }
 }
