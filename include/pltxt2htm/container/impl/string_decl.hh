@@ -19,7 +19,6 @@
 
 #include <fast_io/fast_io_core.h>
 
-#include "../../details/contracts.hh"
 #include "../../details/concepts.hh"
 #include "../../details/literal_string.hh"
 #include "string_view_decl.hh"

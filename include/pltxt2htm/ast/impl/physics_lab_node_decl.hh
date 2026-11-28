@@ -15,7 +15,6 @@
 #include "ast_decl.hh"
 #include "url_node_decl.hh"
 #include "../node_kind.hh"
-#include "../../details/contracts.hh"
 
 namespace pltxt2htm {
 

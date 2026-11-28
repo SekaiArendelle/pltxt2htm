@@ -40,7 +40,6 @@
 
 #include "../../container/string_view.hh"
 #include "../../container/vector.hh"
-#include "../../details/contracts.hh"
 
 namespace pltxt2htm {
 

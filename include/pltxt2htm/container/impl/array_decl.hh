@@ -19,7 +19,6 @@
 #include <utility>
 
 #include "../../details/concepts.hh"
-#include "../../details/contracts.hh"
 
 // windows.h defines min and max as function-like macros, which would expand
 // inside std::numeric_limits<...>::max(). Keep them undefined in this header.
