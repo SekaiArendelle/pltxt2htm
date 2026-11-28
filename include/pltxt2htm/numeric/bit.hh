@@ -1,5 +1,5 @@
 /**
- * @file bittest.hh
+ * @file bit.hh
  * @brief Tests a bit in a built-in or extended-width integer.
  */
 

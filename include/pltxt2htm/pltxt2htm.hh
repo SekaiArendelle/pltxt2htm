@@ -25,7 +25,7 @@
 #include "container/vector.hh"
 #include "numeric/uint128.hh"
 #include "numeric/uint192.hh"
-#include "numeric/bittest.hh"
+#include "numeric/bit.hh"
 #include "parser.hh"
 #include "inline_parser.hh"
 #include "optimizer.hh"

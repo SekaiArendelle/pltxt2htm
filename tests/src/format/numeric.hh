@@ -6,7 +6,7 @@
 #include <limits>
 #include <type_traits>
 
-#include <pltxt2htm/numeric/bittest.hh>
+#include <pltxt2htm/numeric/bit.hh>
 
 #include "doctest_config.hh"
 
