@@ -206,6 +206,7 @@ Follow the existing low-runtime, cross-platform style used in core headers:
 - **Hoist loop-invariant expressions manually:**
   - Cache expressions that are unchanged for the full loop instead of relying on the compiler to move repeated work out of the loop.
   - Only hoist an expression when loop-body mutations and aliasing cannot change its result, and do not turn conditionally evaluated work into unconditional work.
+- **Prefer `while (true)` over `for (;;)` for intentional infinite loops.**
 - **Prefer compile-time evaluation and `constexpr` definitions:**
   - Mark function and method definitions `constexpr` whenever permitted; `main` is exempt.
   - Use `consteval` when compile-time evaluation is required, and keep parsers/helpers constexpr-friendly.
