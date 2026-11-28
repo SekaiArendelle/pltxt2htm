@@ -21,6 +21,7 @@
 #include <cstdint>
 
 #include "uint128.hh"
+#include "../details/push_macro.hh"
 
 namespace pltxt2htm::numeric {
 
@@ -127,6 +128,21 @@ public:
     }
 
 private:
+    /// Tests one bit directly in its 64-bit limb.
+    [[nodiscard]]
+    friend constexpr auto bittest_impl(UInt192 const& self, ::std::size_t const index) noexcept -> bool {
+        pltxt2htm_assert(index < 192, u8"bittest index is out of range");
+        auto const limb_index = index / 64;
+        auto const bit_index = static_cast<unsigned>(index % 64);
+        if (limb_index == 0) {
+            return ((self.low_limb >> bit_index) & ::std::uint64_t{1}) != 0;
+        }
+        if (limb_index == 1) {
+            return ((self.middle_limb >> bit_index) & ::std::uint64_t{1}) != 0;
+        }
+        return ((self.high_limb >> bit_index) & ::std::uint64_t{1}) != 0;
+    }
+
     /// Adds two values modulo 2^192.
     [[nodiscard]]
     friend constexpr auto operator+(UInt192 const& self, UInt192 const& other) noexcept -> UInt192 {
@@ -511,3 +527,5 @@ constexpr auto divide(UInt192 const numerator, UInt192 const divisor) noexcept -
 }
 
 } // namespace pltxt2htm::numeric
+
+#include "../details/pop_macro.hh"
