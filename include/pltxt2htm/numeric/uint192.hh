@@ -349,7 +349,7 @@ private:
         auto remainder = self;
         auto shift = self.bit_length() - divisor.bit_length();
         auto shifted_divisor = divisor << shift;
-        for (;;) {
+        while (true) {
             if (remainder >= shifted_divisor) {
                 remainder = remainder - shifted_divisor;
             }
