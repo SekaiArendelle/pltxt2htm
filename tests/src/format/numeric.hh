@@ -318,6 +318,7 @@ TEST_SUITE("numeric_integers") {
         static_assert(bittest(make(0, 0, 0x8000000000000000ull), 191));
         static_assert(!bittest(make(0, 0, 0x8000000000000000ull), 190));
         static_assert(noexcept(bittest(UInt192{}, 0)));
+        static_assert(bittest(static_cast<::std::int8_t>(-1), 7));
 #if defined(__SIZEOF_INT128__)
         static_assert(bittest(::pltxt2htm_test::numeric_details::NativeUInt128{1} << 127, 127));
         static_assert(bittest(::pltxt2htm_test::numeric_details::NativeInt128{-1}, 127));
