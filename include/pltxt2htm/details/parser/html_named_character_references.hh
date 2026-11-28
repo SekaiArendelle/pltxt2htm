@@ -14,7 +14,6 @@
 
 #include "../../container/array.hh"
 #include "../../container/string_view.hh"
-#include "../contracts.hh"
 
 namespace pltxt2htm::details {
 

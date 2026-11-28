@@ -12,7 +12,6 @@
 #include "container/string_view.hh"
 #include "container/optional.hh"
 #include "ast/node_kind.hh"
-#include "details/contracts.hh"
 #include "details/utils.hh"
 #include "details/parser/frame_context.hh"
 #include "details/parser/parser.hh"

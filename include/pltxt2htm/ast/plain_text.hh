@@ -9,7 +9,6 @@
 
 #include "../container/string.hh"
 #include "../container/string_view.hh"
-#include "../details/contracts.hh"
 #include "../details/utf8.hh"
 
 namespace pltxt2htm {
