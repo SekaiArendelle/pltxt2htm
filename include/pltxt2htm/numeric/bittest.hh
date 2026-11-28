@@ -16,8 +16,11 @@ namespace pltxt2htm::numeric {
 
 namespace details {
 
+// ADL customization point: UInt128 and UInt192 provide hidden-friend overloads.
+// Keep calls unqualified so ADL can find them; this deleted overload is the poison pill.
 void bittest_impl() = delete;
 
+// Detection intentionally uses the same unqualified ADL call as the dispatcher below.
 template<typename T>
 concept has_bittest_impl = requires(T const& value, ::std::size_t index) { bittest_impl(value, index); };
 
@@ -26,6 +29,7 @@ template<typename T>
 constexpr auto call_bittest_impl(T const& value, ::std::size_t const index) noexcept -> bool
     requires has_bittest_impl<T>
 {
+    // Keep this unqualified: it is the deliberate ADL hook for the hidden friends.
     return bittest_impl(value, index);
 }
 
