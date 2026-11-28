@@ -14,6 +14,17 @@ namespace pltxt2htm_test::numeric_details {
 
 namespace numeric = ::pltxt2htm::numeric;
 
+namespace multiply_lookup {
+
+struct derived_uint128 : ::pltxt2htm::numeric::UInt128 {
+    using ::pltxt2htm::numeric::UInt128::UInt128;
+};
+
+template<typename L, typename R>
+concept multiply_expression_available = requires(L const& factor, R const& value) { factor * value; };
+
+} // namespace multiply_lookup
+
 [[nodiscard]] constexpr auto make(::std::uint64_t const low, ::std::uint64_t const middle = 0,
                                   ::std::uint64_t const high = 0) -> numeric::UInt192 {
     return numeric::UInt192{low} | (numeric::UInt192{middle} << 64) | (numeric::UInt192{high} << 128);
@@ -80,6 +91,10 @@ TEST_SUITE("numeric_integers") {
         static_assert(!::std::is_assignable_v<UInt128&, int>);
         static_assert(!::std::is_convertible_v<UInt128, ::std::uint64_t>);
         static_assert(!::std::is_convertible_v<UInt128, bool>);
+        static_assert(!::pltxt2htm_test::numeric_details::multiply_lookup::multiply_expression_available<
+                      unsigned, ::pltxt2htm_test::numeric_details::multiply_lookup::derived_uint128>);
+        static_assert(
+            ::pltxt2htm_test::numeric_details::multiply_lookup::multiply_expression_available<unsigned, UInt128>);
 
         constexpr UInt128 zero;
         static_assert(!static_cast<bool>(zero));
@@ -94,6 +109,13 @@ TEST_SUITE("numeric_integers") {
         CHECK(high64(direct) == 0);
         CHECK(low64(implicit) == 5);
         CHECK(high64(implicit) == 0);
+
+        auto const sum_with_integer = UInt128{1} + 2u;
+        auto const difference_with_integer = UInt128{3} - 2u;
+        static_assert(::std::same_as<decltype(sum_with_integer), UInt128 const>);
+        static_assert(::std::same_as<decltype(difference_with_integer), UInt128 const>);
+        CHECK(low64(sum_with_integer) == 3);
+        CHECK(low64(difference_with_integer) == 1);
 
         auto const wide = (UInt128{0x123456789ABCDEF0ull} << 64) + UInt128{0xFEDCBA9876543210ull};
         CHECK(static_cast<::std::uint32_t>(wide) == 0x76543210u);

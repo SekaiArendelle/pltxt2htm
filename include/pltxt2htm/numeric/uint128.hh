@@ -133,9 +133,10 @@ public:
 #endif
     }
 
+private:
     /// Adds two values modulo 2^128.
     [[nodiscard]]
-    constexpr auto operator+(this UInt128 const& self, UInt128 const& other) noexcept -> UInt128 {
+    friend constexpr auto operator+(UInt128 const& self, UInt128 const& other) noexcept -> UInt128 {
 #if defined(__SIZEOF_INT128__)
         return UInt128{self.native_value + other.native_value};
 #else
@@ -148,7 +149,7 @@ public:
 
     /// Subtracts two values modulo 2^128.
     [[nodiscard]]
-    constexpr auto operator-(this UInt128 const& self, UInt128 const& other) noexcept -> UInt128 {
+    friend constexpr auto operator-(UInt128 const& self, UInt128 const& other) noexcept -> UInt128 {
 #if defined(__SIZEOF_INT128__)
         return UInt128{self.native_value - other.native_value};
 #else
@@ -160,7 +161,6 @@ public:
     }
 
 #if !defined(__SIZEOF_INT128__)
-private:
     /// Multiplies by a 64-bit factor, keeping the low 128 bits.
     [[nodiscard]]
     constexpr auto multiply_64(this UInt128 const& self, ::std::uint64_t const factor) noexcept -> UInt128 {
@@ -178,11 +178,10 @@ private:
     }
 #endif
 
-public:
     /// Multiplies by an integer operand modulo 2^128, sign-extending signed operands.
     template<typename T>
     [[nodiscard]]
-    constexpr auto operator*(this UInt128 const& self, T const& other) noexcept -> UInt128
+    friend constexpr auto operator*(UInt128 const& self, T const& other) noexcept -> UInt128
         requires (details::integer<T> || ::std::same_as<T, UInt128>)
     {
 #if defined(__SIZEOF_INT128__)
@@ -209,12 +208,15 @@ public:
 #endif
     }
 
-    template<details::integer T>
+    template<details::integer T, typename R>
     [[nodiscard]]
-    friend constexpr auto operator*(T const& factor, UInt128 const& value) noexcept -> UInt128 {
+    friend constexpr auto operator*(T const& factor, R const& value) noexcept -> UInt128
+        requires (::std::same_as<R, UInt128>)
+    {
         return value * factor;
     }
 
+public:
     /// Shifts left, discarding the bits shifted out. Counts of 128 or more produce zero.
     [[nodiscard]]
     constexpr auto operator<<(this UInt128 const& self, unsigned const count) noexcept -> UInt128 {
