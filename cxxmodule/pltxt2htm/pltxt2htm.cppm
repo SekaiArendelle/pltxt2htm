@@ -71,6 +71,7 @@ namespace numeric {
 
 using ::pltxt2htm::numeric::UInt128;
 using ::pltxt2htm::numeric::UInt192;
+using ::pltxt2htm::numeric::bittest;
 using ::pltxt2htm::numeric::DivisionResult;
 using ::pltxt2htm::numeric::divide;
 using ::pltxt2htm::numeric::pow;

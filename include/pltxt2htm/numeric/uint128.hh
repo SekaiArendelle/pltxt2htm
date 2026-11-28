@@ -10,7 +10,11 @@
 #pragma once
 
 #include <concepts>
+#include <cstddef>
 #include <cstdint>
+
+#include "../details/contracts.hh"
+#include "../details/push_macro.hh"
 
 namespace pltxt2htm::numeric {
 
@@ -134,6 +138,20 @@ public:
     }
 
 private:
+    /// Tests one bit without materializing a shifted UInt128 value.
+    [[nodiscard]]
+    friend constexpr auto bittest_impl(UInt128 const& self, ::std::size_t const index) noexcept -> bool {
+        pltxt2htm_assert(index < 128, u8"bittest index is out of range");
+#if defined(__SIZEOF_INT128__)
+        return ((self.native_value >> index) & details::NativeUInt128{1}) != 0;
+#else
+        if (index < 64) {
+            return ((self.low_limb >> index) & ::std::uint64_t{1}) != 0;
+        }
+        return ((self.high_limb >> (index - 64)) & ::std::uint64_t{1}) != 0;
+#endif
+    }
+
     /// Adds two values modulo 2^128.
     [[nodiscard]]
     friend constexpr auto operator+(UInt128 const& self, UInt128 const& other) noexcept -> UInt128 {
@@ -260,3 +278,5 @@ public:
 };
 
 } // namespace pltxt2htm::numeric
+
+#include "../details/pop_macro.hh"

@@ -6,7 +6,7 @@
 #include <limits>
 #include <type_traits>
 
-#include <pltxt2htm/numeric/uint192.hh>
+#include <pltxt2htm/numeric/bittest.hh>
 
 #include "doctest_config.hh"
 
@@ -301,6 +301,41 @@ TEST_SUITE("numeric_integers") {
         CHECK((value & make(0xFFFF0000FFFF0000ull, 0x00FF00FF00FF00FFull, 0xF0F0F0F0F0F0F0F0ull)) ==
               make(0x1111000033330000ull, 0x0055006600770088ull, 0x9090A0A0B0B0C0C0ull));
         CHECK((value & UInt192{}) == UInt192{});
+    }
+
+    TEST_CASE("bittest") {
+        using ::pltxt2htm::numeric::bittest;
+        using ::pltxt2htm::numeric::UInt128;
+        using ::pltxt2htm::numeric::UInt192;
+        using ::pltxt2htm_test::numeric_details::make;
+
+        static_assert(bittest(false, 0) == false);
+        static_assert(bittest(true, 0));
+        static_assert(bittest(static_cast<::std::int8_t>(-2), 1));
+        static_assert(!bittest(static_cast<::std::int8_t>(-2), 0));
+        static_assert(bittest(UInt128{1} << 127, 127));
+        static_assert(!bittest(UInt128{1} << 127, 126));
+        static_assert(bittest(make(0, 0, 0x8000000000000000ull), 191));
+        static_assert(!bittest(make(0, 0, 0x8000000000000000ull), 190));
+        static_assert(noexcept(bittest(UInt192{}, 0)));
+#if defined(__SIZEOF_INT128__)
+        static_assert(bittest(::pltxt2htm_test::numeric_details::NativeUInt128{1} << 127, 127));
+        static_assert(bittest(::pltxt2htm_test::numeric_details::NativeInt128{-1}, 127));
+#endif
+
+        CHECK(bittest(::std::uint64_t{1} << 63, 63));
+        CHECK_FALSE(bittest(::std::uint64_t{1} << 63, 62));
+        CHECK(bittest(UInt128{1} << 63, 63));
+        CHECK(bittest(UInt128{1} << 64, 64));
+        CHECK(bittest(UInt128{1} << 127, 127));
+
+        auto const wide = make(0x8000000000000001ull, 0x8000000000000001ull, 0x8000000000000001ull);
+        CHECK(bittest(wide, 0));
+        CHECK(bittest(wide, 63));
+        CHECK(bittest(wide, 64));
+        CHECK(bittest(wide, 127));
+        CHECK(bittest(wide, 128));
+        CHECK(bittest(wide, 191));
     }
 
     TEST_CASE("bit-length") {
