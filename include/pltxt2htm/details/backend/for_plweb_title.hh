@@ -12,6 +12,7 @@
 #include "../../container/string_view.hh"
 #include "frame_context.hh"
 #include "html_escape.hh"
+#include "../../format/floating.hh"
 #include "../utils.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "../contracts.hh"
@@ -134,7 +135,7 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.value();
                     result.append(u8"font-size:");
-                    result.append(::pltxt2htm::details::double2str(font_size.get_value()));
+                    ::pltxt2htm::format::append_decimal(result, font_size.get_value());
                     switch (font_size.get_unit()) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
@@ -165,7 +166,7 @@ entry:
                             ::pltxt2htm::details::vertical_align_keyword_string(vertical_align.get_keyword()));
                     }
                     else {
-                        result.append(::pltxt2htm::details::ptrdiff_t2str(vertical_align.get_length().value));
+                        ::pltxt2htm::format::append_decimal(result, vertical_align.get_length().value);
                         switch (vertical_align.get_length().unit) /* -Werror=switch */ {
                         case ::pltxt2htm::Unit::percent: {
                             result.push_back(u8'%');

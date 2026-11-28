@@ -17,6 +17,7 @@
 #include "container/string_view.hh"
 #include "details/call_stack.hh"
 #include "ast/ast.hh"
+#include "ast/font_size.hh"
 #include "ast/value_unit.hh"
 #include "ast/vertical_align_value.hh"
 #include "details/contracts.hh"

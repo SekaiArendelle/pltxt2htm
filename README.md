@@ -22,6 +22,13 @@ C++20 module example is in [cxxmodule/examples/example.cc](cxxmodule/examples/ex
 ## Documentation
 See [docsgen](./docsgen/README.md).
 
+## Third-party code
+
+`include/dragonbox/` vendors [Dragonbox](https://github.com/jk-jeon/dragonbox) (Apache-2.0 with
+LLVM exceptions or Boost-1.0) for shortest round-trip decimal digits; see
+[include/dragonbox/README.md](include/dragonbox/README.md) for the upstream revision and license
+files.
+
 ## Exported API
 All C++ APIs have been listed in [pltxt2htm.cppm](cxxmodule/pltxt2htm/pltxt2htm.cppm)
 

@@ -147,7 +147,8 @@ TEST_SUITE("html_span_tag") {
     }
 
     TEST_CASE("duplicate-font-size-rejected") {
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:20px;font-size:30px\">text</span>");
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:20px;font-size:30px\">text</span>");
         auto const& answer = u8"&lt;span&nbsp;style=&quot;font-size:20px;font-size:30px&quot;&gt;text&lt;/span&gt;";
         CHECK(html == answer);
     }
@@ -165,7 +166,8 @@ TEST_SUITE("html_span_tag") {
     }
 
     TEST_CASE("mixed-unit-duplicate-size") {
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:80%;font-size:30px\">text</span>");
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:80%;font-size:30px\">text</span>");
         auto const& answer = u8"&lt;span&nbsp;style=&quot;font-size:80%;font-size:30px&quot;&gt;text&lt;/span&gt;";
         CHECK(html == answer);
     }
@@ -184,8 +186,8 @@ TEST_SUITE("html_span_tag") {
     }
 
     TEST_CASE("same-color-siblings-merge") {
-        auto html =
-            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"color:red\">a<span style=\"color:red\">b</span>c</span>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<span style=\"color:red\">a<span style=\"color:red\">b</span>c</span>");
         auto const& answer = u8"<span style=\"color:red;\">abc</span>";
         CHECK(html == answer);
     }
@@ -198,8 +200,8 @@ TEST_SUITE("html_span_tag") {
     }
 
     TEST_CASE("nested-distinct-colors") {
-        auto html =
-            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"color:red\">a<span style=\"color:blue\">b</span></span>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<span style=\"color:red\">a<span style=\"color:blue\">b</span></span>");
         auto const& answer = u8"<span style=\"color:red;\">a<span style=\"color:blue;\">b</span></span>";
         CHECK(html == answer);
     }
@@ -217,7 +219,8 @@ TEST_SUITE("html_span_tag") {
     }
 
     TEST_CASE("outer-color-fully-overridden") {
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<color=green><span style=\"color:red\">text</span></color>");
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<color=green><span style=\"color:red\">text</span></color>");
         auto const& answer = u8"<span style=\"color:red;\">text</span>";
         CHECK(html == answer);
     }
@@ -253,7 +256,8 @@ TEST_SUITE("html_span_tag") {
     }
 
     TEST_CASE("inner-color-overrides-outer") {
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"color:red\"><color=blue>text</color></span>");
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"color:red\"><color=blue>text</color></span>");
         auto const& answer = u8"<span style=\"color:blue;\">text</span>";
         CHECK(html == answer);
     }
@@ -284,7 +288,8 @@ TEST_SUITE("html_span_tag") {
 
     TEST_CASE("unmatched-font-size-preserved") {
         // color=red wrapping font-size-only span with siblings: span preserved (no color to match)
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<color=red>a<span style=\"font-size:20px\">b</span>c</color>");
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<color=red>a<span style=\"font-size:20px\">b</span>c</color>");
         auto const& answer = u8"<span style=\"color:red;\">a<span style=\"font-size:20px;\">b</span>c</span>";
         CHECK(html == answer);
     }
@@ -324,8 +329,8 @@ TEST_SUITE("html_span_tag") {
 
     TEST_CASE("empty-nested-style-removed") {
         // empty same-color nested span: should remove both (nothing left)
-        auto html =
-            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"color:red\"><span style=\"color:red\"></span></span>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<span style=\"color:red\"><span style=\"color:red\"></span></span>");
         auto const& answer = u8"";
         CHECK(html == answer);
     }
@@ -354,7 +359,8 @@ TEST_SUITE("html_span_tag") {
 
     TEST_CASE("font-size-overflow") {
         // overflow font-size: span tag rejected, treated as literal text
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:99999999999999999999px\">text</span>");
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:99999999999999999999px\">text</span>");
         auto const& answer = u8"&lt;span&nbsp;style=&quot;font-size:99999999999999999999px&quot;&gt;text&lt;/span&gt;";
         CHECK(html == answer);
     }
@@ -422,7 +428,8 @@ TEST_SUITE("html_span_tag") {
 
     TEST_CASE("unrepresentable-size-literal") {
         // font-size that cannot be represented in double/std::size_t stays literal
-        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:18446744073709551614px\">text</span>");
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:18446744073709551614px\">text</span>");
         auto const& answer = u8"&lt;span&nbsp;style=&quot;font-size:18446744073709551614px&quot;&gt;text&lt;/span&gt;";
         CHECK(html == answer);
     }
@@ -436,6 +443,76 @@ TEST_SUITE("html_span_tag") {
         auto plunity_richtext = ::pltxt2htm_test::pltxt2plunity_introduction(pltext);
         auto const& plunity_richtext_answer = u8"<size=25>text</size>";
         CHECK(plunity_richtext == plunity_richtext_answer);
+    }
+
+    TEST_CASE("decimal-rounding-exact-significand") {
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:0.010924504404784173px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:0.010924504404784173px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("decimal-rounding-long-fraction") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:175.002439047px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:175.002439047px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("decimal-rounding-small-fraction") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<span style=\"font-size:0.0000000000000010855935740152218px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:0.0000000000000010855935740152218px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("decimal-rounding-trailing-zero") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<span style=\"font-size:0.00000000000011875472369152510px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:0.0000000000001187547236915251px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("decimal-rounding-thirds") {
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:0.33333333333333331483px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:0.3333333333333333px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("decimal-rounding-sticky-tail-at-domain-maximum") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<span style=\"font-size:999999.9999999999999999999999999999999999999995px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:1000000px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("decimal-rounding-long-dropped-tail") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<span style=\"font-size:123456.7890123456789012345678901234567890123456789px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:123456.78901234567px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("smallest-positive-decimal-accepted") {
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:0.000000000000000001px\">text</span>");
+        auto const& answer = u8"<span style=\"font-size:0.000000000000000001px;\">text</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("below-minimum-positive-decimal-rejected") {
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:0.0000000000000000001px\">text</span>");
+        auto const& answer = u8"&lt;span&nbsp;style=&quot;font-size:0.0000000000000000001px&quot;&gt;text&lt;/span&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("smaller-positive-decimal-rejected") {
+        auto html =
+            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"font-size:0.00000000000000000001px\">text</span>");
+        auto const& answer =
+            u8"&lt;span&nbsp;style=&quot;font-size:0.00000000000000000001px&quot;&gt;text&lt;/span&gt;";
+        CHECK(html == answer);
     }
 
     TEST_CASE("fractional-em-accepted") {
@@ -603,8 +680,8 @@ TEST_SUITE("html_span_tag") {
 
     TEST_CASE("duplicate-align-rejected") {
         // duplicate vertical-align rejected
-        auto html =
-            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<span style=\"vertical-align:super;vertical-align:sub\">text</span>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<span style=\"vertical-align:super;vertical-align:sub\">text</span>");
         auto const& answer =
             u8"&lt;span&nbsp;style=&quot;vertical-align:super;vertical-align:sub&quot;&gt;text&lt;/span&gt;";
         CHECK(html == answer);
@@ -653,8 +730,8 @@ TEST_SUITE("html_span_tag") {
 
     TEST_CASE("anchor-align-blocks-flatten") {
         // span with matching color AND vertical-align inside <a> should NOT flatten
-        auto html =
-            ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<a>a<span style=\"color:#0000AA;vertical-align:super\">b</span>c</a>");
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(
+            u8"<a>a<span style=\"color:#0000AA;vertical-align:super\">b</span>c</a>");
         auto const& answer =
             u8"<span style=\"color:#0000AA;\">a<span style=\"color:#0000AA;vertical-align:super;\">b</span>c</span>";
         CHECK(html == answer);

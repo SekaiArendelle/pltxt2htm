@@ -12,6 +12,7 @@
 #include "../../container/optional.hh"
 #include "ast_decl.hh"
 #include "url_node_decl.hh"
+#include "../font_size.hh"
 #include "../value_unit.hh"
 #include "../node_kind.hh"
 #include "../../details/contracts.hh"

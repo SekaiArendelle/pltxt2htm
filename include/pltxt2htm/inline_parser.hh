@@ -974,9 +974,8 @@ entry:
                             opt_tag_len.has_value()) {
                             // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::PlExperiment staged_node(
-                                ::std::move(result),
-                                ::std::move(active_frame_data.id));
+                            ::pltxt2htm::PlExperiment staged_node(::std::move(result),
+                                                                  ::std::move(active_frame_data.id));
                             call_stack.discard_current_frame();
                             auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
@@ -1019,9 +1018,8 @@ entry:
                             opt_tag_len.has_value()) {
                             // Whether or not extern_index is out of range, extern for loop will handle it correctly.
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::PlDiscussion staged_node(
-                                ::std::move(result),
-                                ::std::move(active_frame_data.id));
+                            ::pltxt2htm::PlDiscussion staged_node(::std::move(result),
+                                                                  ::std::move(active_frame_data.id));
                             call_stack.discard_current_frame();
                             auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(
@@ -1145,9 +1143,7 @@ entry:
                                 ::pltxt2htm::details::try_parse_bare_tag<u8"user">(pltext.subview(current_index + 2));
                             opt_tag_len.has_value()) {
                             ::std::size_t const staged_index{current_index};
-                            ::pltxt2htm::PlUser staged_node(
-                                ::std::move(result),
-                                ::std::move(active_frame_data.id));
+                            ::pltxt2htm::PlUser staged_node(::std::move(result), ::std::move(active_frame_data.id));
                             call_stack.discard_current_frame();
                             auto& parent_frame = call_stack.current_frame();
                             parent_frame.subast.push_back(

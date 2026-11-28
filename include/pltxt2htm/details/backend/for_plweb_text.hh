@@ -14,6 +14,7 @@
 #include "../../ast/vertical_align_value.hh"
 #include "frame_context.hh"
 #include "html_escape.hh"
+#include "../../format/floating.hh"
 #include "../contracts.hh"
 #include "../utils.hh"
 #include "../push_macro.hh"
@@ -224,20 +225,22 @@ entry:
                 auto const& unity_size = active_node.get_font_size();
                 switch (unity_size.get_unit()) /* -Werror=switch */ {
                 case ::pltxt2htm::Unit::percent: {
-                    result.append(::pltxt2htm::details::double2str(unity_size.get_value()));
+                    ::pltxt2htm::format::append_decimal(result, unity_size.get_value());
                     result.append(u8"%;\">");
                     break;
                 }
                 case ::pltxt2htm::Unit::em: {
-                    result.append(::pltxt2htm::details::double2str(unity_size.get_value()));
+                    ::pltxt2htm::format::append_decimal(result, unity_size.get_value());
                     result.append(u8"em;\">");
                     break;
                 }
                 case ::pltxt2htm::Unit::px: {
                     // Round ceil(unity_size / 2) up to preserve the historical integer mapping
                     // (e.g. size=11 -> 6px) while accepting fractional sizes such as 12.5 -> 7px.
-                    result.append(::pltxt2htm::details::size_t2str(
-                        ::pltxt2htm::details::double_to_size_t_ceil(unity_size.get_value() / 2)));
+                    auto const half_size = unity_size.get_value() / 2;
+                    auto const truncated = static_cast<::std::uint64_t>(half_size);
+                    ::pltxt2htm::format::append_decimal(
+                        result, static_cast<double>(truncated) < half_size ? truncated + 1 : truncated);
                     result.append(u8"px;\">");
                     break;
                 }
@@ -255,7 +258,7 @@ entry:
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_voffset));
                 auto const voffset = active_node.get_value();
                 result.append(u8"<span style=\"vertical-align:");
-                result.append(::pltxt2htm::details::ptrdiff_t2str(voffset.value));
+                ::pltxt2htm::format::append_decimal(result, voffset.value);
                 switch (voffset.unit) /* -Werror=switch */ {
                 case ::pltxt2htm::Unit::em: {
                     result.append(u8"em");
@@ -316,7 +319,7 @@ entry:
                 if (margin_left.has_value()) {
                     result.append(u8"margin-left:");
                     auto const& margin_value = margin_left.value();
-                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    ::pltxt2htm::format::append_decimal(result, margin_value.value);
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
@@ -342,7 +345,7 @@ entry:
                 if (margin_right.has_value()) {
                     result.append(u8"margin-right:");
                     auto const& margin_value = margin_right.value();
-                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    ::pltxt2htm::format::append_decimal(result, margin_value.value);
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
@@ -377,7 +380,7 @@ entry:
                 if (margin_left.has_value()) {
                     result.append(u8"margin-left:");
                     auto const& margin_value = margin_left.value();
-                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    ::pltxt2htm::format::append_decimal(result, margin_value.value);
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
@@ -403,7 +406,7 @@ entry:
                 if (margin_right.has_value()) {
                     result.append(u8"margin-right:");
                     auto const& margin_value = margin_right.value();
-                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    ::pltxt2htm::format::append_decimal(result, margin_value.value);
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
@@ -459,7 +462,7 @@ entry:
                 if (has_font_size) {
                     auto const& font_size = span_font_size.value();
                     result.append(u8"font-size:");
-                    result.append(::pltxt2htm::details::double2str(font_size.get_value()));
+                    ::pltxt2htm::format::append_decimal(result, font_size.get_value());
                     switch (font_size.get_unit()) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
@@ -490,7 +493,7 @@ entry:
                             ::pltxt2htm::details::vertical_align_keyword_string(vertical_align.get_keyword()));
                     }
                     else {
-                        result.append(::pltxt2htm::details::ptrdiff_t2str(vertical_align.get_length().value));
+                        ::pltxt2htm::format::append_decimal(result, vertical_align.get_length().value);
                         switch (vertical_align.get_length().unit) /* -Werror=switch */ {
                         case ::pltxt2htm::Unit::percent: {
                             result.push_back(u8'%');
@@ -800,7 +803,7 @@ entry:
                 result.append(u8"<ol");
                 if (list_ol.get_start() != 1) {
                     result.append(u8" start=\"");
-                    result.append(::pltxt2htm::details::size_t2str(list_ol.get_start()));
+                    ::pltxt2htm::format::append_decimal(result, list_ol.get_start());
                     result.push_back(u8'\"');
                 }
                 result.push_back(u8'>');

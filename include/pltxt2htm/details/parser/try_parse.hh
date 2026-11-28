@@ -15,6 +15,7 @@
 #include "../utils.hh"
 #include "../contracts.hh"
 #include "../../ast/ast.hh"
+#include "../../ast/font_size.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
 #include "text_parsing.hh"

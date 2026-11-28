@@ -56,6 +56,17 @@ TEST_SUITE("unity_size_tag") {
         CHECK(html == answer);
     }
 
+    TEST_CASE("roundtrip-long-fraction-stays-stable") {
+        // Regression: a formatter must only emit strings that the parser reads back to the same
+        // value. A long fraction such as this one used to be emitted from an unverified
+        // candidate, so the second pass produced a different decimal and the roundtrip drifted.
+        auto const& pltext = u8"<size=175.002439047em>hello</size>";
+        auto html = ::pltxt2htm_test::pltxt2roundtrip_htmld(pltext);
+        auto reparsed_html =
+            ::pltxt2htm_test::pltxt4htmlunittest(::pltxt2htm::container::U8StringView{html.data(), html.size()});
+        CHECK(reparsed_html == html);
+    }
+
     TEST_CASE("size-eleven-becomes-6px") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=11>hello</size>");
         auto const& answer = u8"<span style=\"font-size:6px;\">hello</span>";
@@ -294,6 +305,36 @@ TEST_SUITE("unity_size_tag") {
     TEST_CASE("fractional-multi-digit") {
         auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=12.25>hello</size>");
         auto const& answer = u8"<span style=\"font-size:7px;\">hello</span>";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("fractional-trailing-junk-rejected") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=12.5x>hello</size>");
+        auto const& answer = u8"&lt;size=12.5x&gt;hello&lt;/size&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("leading-plus-rejected") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=+5>hello</size>");
+        auto const& answer = u8"&lt;size=+5&gt;hello&lt;/size&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("negative-value-rejected") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=-5>hello</size>");
+        auto const& answer = u8"&lt;size=-5&gt;hello&lt;/size&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("exponent-notation-rejected") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=1e5>hello</size>");
+        auto const& answer = u8"&lt;size=1e5&gt;hello&lt;/size&gt;";
+        CHECK(html == answer);
+    }
+
+    TEST_CASE("fractional-domain-maximum-rejected-above-bound") {
+        auto html = ::pltxt2htm_test::pltxt2fixedadv_htmld(u8"<size=1000000.5>hello</size>");
+        auto const& answer = u8"&lt;size=1000000.5&gt;hello&lt;/size&gt;";
         CHECK(html == answer);
     }
 

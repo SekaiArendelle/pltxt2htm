@@ -13,8 +13,10 @@
 #include "../../container/string_view.hh"
 #include "../../ast/value_unit.hh"
 #include "../../ast/vertical_align_value.hh"
+#include "../../ast/font_size.hh"
 #include "frame_context.hh"
 #include "html_escape.hh"
+#include "../../format/floating.hh"
 #include "../utils.hh"
 #include "../contracts.hh"
 #include "../push_macro.hh"
@@ -190,7 +192,7 @@ entry:
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_size));
                 result.append(u8"<size=");
                 auto const& unity_size = active_node.get_font_size();
-                result.append(::pltxt2htm::details::double2str(unity_size.get_value()));
+                ::pltxt2htm::format::append_decimal(result, unity_size.get_value());
                 switch (unity_size.get_unit()) /* -Werror=switch */ {
                 case ::pltxt2htm::Unit::percent: {
                     result.push_back(u8'%');
@@ -218,7 +220,7 @@ entry:
                 call_stack.push_frame(BackendFrame(active_node.get_subast(), ::pltxt2htm::NodeKind::unity_voffset));
                 auto const voffset = active_node.get_value();
                 result.append(u8"<voffset=");
-                result.append(::pltxt2htm::details::ptrdiff_t2str(voffset.value));
+                ::pltxt2htm::format::append_decimal(result, voffset.value);
                 switch (voffset.unit) /* -Werror=switch */ {
                 case ::pltxt2htm::Unit::em: {
                     result.append(u8"em");
@@ -282,7 +284,7 @@ entry:
                 if (margin_left.has_value()) {
                     result.append(u8" left=");
                     auto const& margin_value = margin_left.value();
-                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    ::pltxt2htm::format::append_decimal(result, margin_value.value);
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
@@ -306,7 +308,7 @@ entry:
                 if (margin_right.has_value()) {
                     result.append(u8" right=");
                     auto const& margin_value = margin_right.value();
-                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    ::pltxt2htm::format::append_decimal(result, margin_value.value);
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
@@ -340,7 +342,7 @@ entry:
                 if (margin_left.has_value()) {
                     result.append(u8" left=");
                     auto const& margin_value = margin_left.value();
-                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    ::pltxt2htm::format::append_decimal(result, margin_value.value);
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
@@ -364,7 +366,7 @@ entry:
                 if (margin_right.has_value()) {
                     result.append(u8" right=");
                     auto const& margin_value = margin_right.value();
-                    result.append(::pltxt2htm::details::size_t2str(margin_value.value));
+                    ::pltxt2htm::format::append_decimal(result, margin_value.value);
                     switch (margin_value.unit) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
                         result.push_back(u8'%');
@@ -419,12 +421,12 @@ entry:
                     result.append(u8"<size=");
                     switch (font_size.get_unit()) /* -Werror=switch */ {
                     case ::pltxt2htm::Unit::percent: {
-                        result.append(::pltxt2htm::details::double2str(font_size.get_value()));
+                        ::pltxt2htm::format::append_decimal(result, font_size.get_value());
                         result.push_back(u8'%');
                         break;
                     }
                     case ::pltxt2htm::Unit::em: {
-                        result.append(::pltxt2htm::details::double2str(font_size.get_value()));
+                        ::pltxt2htm::format::append_decimal(result, font_size.get_value());
                         result.append(u8"em");
                         break;
                     }
@@ -435,10 +437,10 @@ entry:
                         // maximum saturate at the maximum.
                         constexpr double max_font_size{::pltxt2htm::FontSize::max_value};
                         if (font_size.get_value() > max_font_size / 2) {
-                            result.append(::pltxt2htm::details::double2str(max_font_size));
+                            ::pltxt2htm::format::append_decimal(result, max_font_size);
                         }
                         else {
-                            result.append(::pltxt2htm::details::double2str(font_size.get_value() * 2));
+                            ::pltxt2htm::format::append_decimal(result, font_size.get_value() * 2);
                         }
                         break;
                     }
@@ -453,7 +455,7 @@ entry:
                 }
                 if (has_vertical_align) {
                     result.append(u8"<voffset=");
-                    result.append(::pltxt2htm::details::ptrdiff_t2str(span_vertical_align.value().get_length().value));
+                    ::pltxt2htm::format::append_decimal(result, span_vertical_align.value().get_length().value);
                     result.push_back(u8'>');
                 }
                 goto entry;
@@ -787,7 +789,7 @@ entry:
                 }
                 if (list_tag_type == ::pltxt2htm::NodeKind::list_ol) {
                     ::std::size_t& ol_li_count = list_frame.as_ol_info().ol_li_count;
-                    result.append(::pltxt2htm::details::size_t2str(ol_li_count));
+                    ::pltxt2htm::format::append_decimal(result, ol_li_count);
                     result.append(u8". ");
                     ++ol_li_count;
                 }
@@ -821,7 +823,7 @@ entry:
                 }
                 if (list_tag_type == ::pltxt2htm::NodeKind::list_ol) {
                     ::std::size_t& ol_li_count = list_frame.as_ol_info().ol_li_count;
-                    result.append(::pltxt2htm::details::size_t2str(ol_li_count));
+                    ::pltxt2htm::format::append_decimal(result, ol_li_count);
                     result.append(u8". ");
                     ++ol_li_count;
                     if (active_node.is_checked()) {
