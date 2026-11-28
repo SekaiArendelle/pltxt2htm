@@ -9,7 +9,6 @@
 #include "../../ast/plain_text.hh"
 #include "../../container/string.hh"
 #include "../../container/string_view.hh"
-#include "../contracts.hh"
 
 namespace pltxt2htm::details {
 

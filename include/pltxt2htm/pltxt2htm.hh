@@ -26,7 +26,6 @@
 #include "numeric/uint128.hh"
 #include "numeric/uint192.hh"
 #include "numeric/bittest.hh"
-#include "details/contracts.hh"
 #include "parser.hh"
 #include "inline_parser.hh"
 #include "optimizer.hh"

@@ -42,8 +42,8 @@
  * macro: enforce (default or `0`) panics with diagnostics, quick_enforce
  * (`1`) traps without diagnostics, and ignore (`2`) replaces the assertion
  * with an optimizer assumption. Invalid macro values are rejected by the
- * `#error` in `contracts.hh`, which this header includes first, so the
- * dispatch below needs no fallback branch.
+ * `#error` below. `contracts.hh` also validates the value when defining
+ * `contract_mode` for code that uses it.
  *
  * @param condition The condition expression to evaluate
  * @param message A descriptive error message to display if the assertion fails
