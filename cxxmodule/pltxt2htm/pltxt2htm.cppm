@@ -50,18 +50,6 @@ using ::pltxt2htm::container::swap;
 
 } // namespace container
 
-namespace numeric {
-
-using ::pltxt2htm::numeric::UInt128;
-using ::pltxt2htm::numeric::UInt192;
-using ::pltxt2htm::numeric::DivisionResult;
-using ::pltxt2htm::numeric::pow;
-using ::pltxt2htm::numeric::divide;
-using ::pltxt2htm::numeric::operator/;
-using ::pltxt2htm::numeric::operator%;
-
-} // namespace numeric
-
 // exported functions
 using ::pltxt2htm::pltxt2common_html;
 using ::pltxt2htm::pltxt2fixedadv_html;
